@@ -16,517 +16,515 @@ extension EhSetting {
 extension EhSetting.BrowsingCountry {
     var id: Int { hashValue }
     var name: String {
-        getName()
+        switch self {
+        case .autoDetect: return L10n.Localizable.Enum.BrowsingCountry.Name.autoDetect
+        case .afghanistan: return L10n.Localizable.Enum.BrowsingCountry.Name.afghanistan
+        case .alandIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.alandIslands
+        case .albania: return L10n.Localizable.Enum.BrowsingCountry.Name.albania
+        case .algeria: return L10n.Localizable.Enum.BrowsingCountry.Name.algeria
+        case .americanSamoa: return L10n.Localizable.Enum.BrowsingCountry.Name.americanSamoa
+        case .andorra: return L10n.Localizable.Enum.BrowsingCountry.Name.andorra
+        case .angola: return L10n.Localizable.Enum.BrowsingCountry.Name.angola
+        case .anguilla: return L10n.Localizable.Enum.BrowsingCountry.Name.anguilla
+        case .antarctica: return L10n.Localizable.Enum.BrowsingCountry.Name.antarctica
+        case .antiguaAndBarbuda: return L10n.Localizable.Enum.BrowsingCountry.Name.antiguaAndBarbuda
+        case .argentina: return L10n.Localizable.Enum.BrowsingCountry.Name.argentina
+        case .armenia: return L10n.Localizable.Enum.BrowsingCountry.Name.armenia
+        case .aruba: return L10n.Localizable.Enum.BrowsingCountry.Name.aruba
+        case .asiaPacificRegion: return L10n.Localizable.Enum.BrowsingCountry.Name.asiaPacificRegion
+        case .australia: return L10n.Localizable.Enum.BrowsingCountry.Name.australia
+        case .austria: return L10n.Localizable.Enum.BrowsingCountry.Name.austria
+        case .azerbaijan: return L10n.Localizable.Enum.BrowsingCountry.Name.azerbaijan
+        case .bahamas: return L10n.Localizable.Enum.BrowsingCountry.Name.bahamas
+        case .bahrain: return L10n.Localizable.Enum.BrowsingCountry.Name.bahrain
+        case .bangladesh: return L10n.Localizable.Enum.BrowsingCountry.Name.bangladesh
+        case .barbados: return L10n.Localizable.Enum.BrowsingCountry.Name.barbados
+        case .belarus: return L10n.Localizable.Enum.BrowsingCountry.Name.belarus
+        case .belgium: return L10n.Localizable.Enum.BrowsingCountry.Name.belgium
+        case .belize: return L10n.Localizable.Enum.BrowsingCountry.Name.belize
+        case .benin: return L10n.Localizable.Enum.BrowsingCountry.Name.benin
+        case .bermuda: return L10n.Localizable.Enum.BrowsingCountry.Name.bermuda
+        case .bhutan: return L10n.Localizable.Enum.BrowsingCountry.Name.bhutan
+        case .bolivia: return L10n.Localizable.Enum.BrowsingCountry.Name.bolivia
+        case .bonaireSaintEustatiusAndSaba: return L10n.Localizable.Enum.BrowsingCountry.Name.bonaireSaintEustatiusAndSaba
+        case .bosniaAndHerzegovina: return L10n.Localizable.Enum.BrowsingCountry.Name.bosniaAndHerzegovina
+        case .botswana: return L10n.Localizable.Enum.BrowsingCountry.Name.botswana
+        case .bouvetIsland: return L10n.Localizable.Enum.BrowsingCountry.Name.bouvetIsland
+        case .brazil: return L10n.Localizable.Enum.BrowsingCountry.Name.brazil
+        case .britishIndianOceanTerritory: return L10n.Localizable.Enum.BrowsingCountry.Name.britishIndianOceanTerritory
+        case .bruneiDarussalam: return L10n.Localizable.Enum.BrowsingCountry.Name.bruneiDarussalam
+        case .bulgaria: return L10n.Localizable.Enum.BrowsingCountry.Name.bulgaria
+        case .burkinaFaso: return L10n.Localizable.Enum.BrowsingCountry.Name.burkinaFaso
+        case .burundi: return L10n.Localizable.Enum.BrowsingCountry.Name.burundi
+        case .cambodia: return L10n.Localizable.Enum.BrowsingCountry.Name.cambodia
+        case .cameroon: return L10n.Localizable.Enum.BrowsingCountry.Name.cameroon
+        case .canada: return L10n.Localizable.Enum.BrowsingCountry.Name.canada
+        case .capeVerde: return L10n.Localizable.Enum.BrowsingCountry.Name.capeVerde
+        case .caymanIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.caymanIslands
+        case .centralAfricanRepublic: return L10n.Localizable.Enum.BrowsingCountry.Name.centralAfricanRepublic
+        case .chad: return L10n.Localizable.Enum.BrowsingCountry.Name.chad
+        case .chile: return L10n.Localizable.Enum.BrowsingCountry.Name.chile
+        case .china: return L10n.Localizable.Enum.BrowsingCountry.Name.china
+        case .christmasIsland: return L10n.Localizable.Enum.BrowsingCountry.Name.christmasIsland
+        case .cocosIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.cocosIslands
+        case .colombia: return L10n.Localizable.Enum.BrowsingCountry.Name.colombia
+        case .comoros: return L10n.Localizable.Enum.BrowsingCountry.Name.comoros
+        case .congo: return L10n.Localizable.Enum.BrowsingCountry.Name.congo
+        case .theDemocraticRepublicOfTheCongo: return L10n.Localizable.Enum.BrowsingCountry.Name.theDemocraticRepublicOfTheCongo
+        case .cookIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.cookIslands
+        case .costaRica: return L10n.Localizable.Enum.BrowsingCountry.Name.costaRica
+        case .coteDIvoire: return L10n.Localizable.Enum.BrowsingCountry.Name.coteDIvoire
+        case .croatia: return L10n.Localizable.Enum.BrowsingCountry.Name.croatia
+        case .cuba: return L10n.Localizable.Enum.BrowsingCountry.Name.cuba
+        case .curacao: return L10n.Localizable.Enum.BrowsingCountry.Name.curacao
+        case .cyprus: return L10n.Localizable.Enum.BrowsingCountry.Name.cyprus
+        case .czechRepublic: return L10n.Localizable.Enum.BrowsingCountry.Name.czechRepublic
+        case .denmark: return L10n.Localizable.Enum.BrowsingCountry.Name.denmark
+        case .djibouti: return L10n.Localizable.Enum.BrowsingCountry.Name.djibouti
+        case .dominica: return L10n.Localizable.Enum.BrowsingCountry.Name.dominica
+        case .dominicanRepublic: return L10n.Localizable.Enum.BrowsingCountry.Name.dominicanRepublic
+        case .ecuador: return L10n.Localizable.Enum.BrowsingCountry.Name.ecuador
+        case .egypt: return L10n.Localizable.Enum.BrowsingCountry.Name.egypt
+        case .elSalvador: return L10n.Localizable.Enum.BrowsingCountry.Name.elSalvador
+        case .equatorialGuinea: return L10n.Localizable.Enum.BrowsingCountry.Name.equatorialGuinea
+        case .eritrea: return L10n.Localizable.Enum.BrowsingCountry.Name.eritrea
+        case .estonia: return L10n.Localizable.Enum.BrowsingCountry.Name.estonia
+        case .ethiopia: return L10n.Localizable.Enum.BrowsingCountry.Name.ethiopia
+        case .europe: return L10n.Localizable.Enum.BrowsingCountry.Name.europe
+        case .falklandIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.falklandIslands
+        case .faroeIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.faroeIslands
+        case .fiji: return L10n.Localizable.Enum.BrowsingCountry.Name.fiji
+        case .finland: return L10n.Localizable.Enum.BrowsingCountry.Name.finland
+        case .france: return L10n.Localizable.Enum.BrowsingCountry.Name.france
+        case .frenchGuiana: return L10n.Localizable.Enum.BrowsingCountry.Name.frenchGuiana
+        case .frenchPolynesia: return L10n.Localizable.Enum.BrowsingCountry.Name.frenchPolynesia
+        case .frenchSouthernTerritories: return L10n.Localizable.Enum.BrowsingCountry.Name.frenchSouthernTerritories
+        case .gabon: return L10n.Localizable.Enum.BrowsingCountry.Name.gabon
+        case .gambia: return L10n.Localizable.Enum.BrowsingCountry.Name.gambia
+        case .georgia: return L10n.Localizable.Enum.BrowsingCountry.Name.georgia
+        case .germany: return L10n.Localizable.Enum.BrowsingCountry.Name.germany
+        case .ghana: return L10n.Localizable.Enum.BrowsingCountry.Name.ghana
+        case .gibraltar: return L10n.Localizable.Enum.BrowsingCountry.Name.gibraltar
+        case .greece: return L10n.Localizable.Enum.BrowsingCountry.Name.greece
+        case .greenland: return L10n.Localizable.Enum.BrowsingCountry.Name.greenland
+        case .grenada: return L10n.Localizable.Enum.BrowsingCountry.Name.grenada
+        case .guadeloupe: return L10n.Localizable.Enum.BrowsingCountry.Name.guadeloupe
+        case .guam: return L10n.Localizable.Enum.BrowsingCountry.Name.guam
+        case .guatemala: return L10n.Localizable.Enum.BrowsingCountry.Name.guatemala
+        case .guernsey: return L10n.Localizable.Enum.BrowsingCountry.Name.guernsey
+        case .guinea: return L10n.Localizable.Enum.BrowsingCountry.Name.guinea
+        case .guineaBissau: return L10n.Localizable.Enum.BrowsingCountry.Name.guineaBissau
+        case .guyana: return L10n.Localizable.Enum.BrowsingCountry.Name.guyana
+        case .haiti: return L10n.Localizable.Enum.BrowsingCountry.Name.haiti
+        case .heardIslandAndMcDonaldIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.heardIslandAndMcDonaldIslands
+        case .vaticanCityState: return L10n.Localizable.Enum.BrowsingCountry.Name.vaticanCityState
+        case .honduras: return L10n.Localizable.Enum.BrowsingCountry.Name.honduras
+        case .hongKong: return L10n.Localizable.Enum.BrowsingCountry.Name.hongKong
+        case .hungary: return L10n.Localizable.Enum.BrowsingCountry.Name.hungary
+        case .iceland: return L10n.Localizable.Enum.BrowsingCountry.Name.iceland
+        case .india: return L10n.Localizable.Enum.BrowsingCountry.Name.india
+        case .indonesia: return L10n.Localizable.Enum.BrowsingCountry.Name.indonesia
+        case .iran: return L10n.Localizable.Enum.BrowsingCountry.Name.iran
+        case .iraq: return L10n.Localizable.Enum.BrowsingCountry.Name.iraq
+        case .ireland: return L10n.Localizable.Enum.BrowsingCountry.Name.ireland
+        case .isleOfMan: return L10n.Localizable.Enum.BrowsingCountry.Name.isleOfMan
+        case .israel: return L10n.Localizable.Enum.BrowsingCountry.Name.israel
+        case .italy: return L10n.Localizable.Enum.BrowsingCountry.Name.italy
+        case .jamaica: return L10n.Localizable.Enum.BrowsingCountry.Name.jamaica
+        case .japan: return L10n.Localizable.Enum.BrowsingCountry.Name.japan
+        case .jersey: return L10n.Localizable.Enum.BrowsingCountry.Name.jersey
+        case .jordan: return L10n.Localizable.Enum.BrowsingCountry.Name.jordan
+        case .kazakhstan: return L10n.Localizable.Enum.BrowsingCountry.Name.kazakhstan
+        case .kenya: return L10n.Localizable.Enum.BrowsingCountry.Name.kenya
+        case .kiribati: return L10n.Localizable.Enum.BrowsingCountry.Name.kiribati
+        case .kuwait: return L10n.Localizable.Enum.BrowsingCountry.Name.kuwait
+        case .kyrgyzstan: return L10n.Localizable.Enum.BrowsingCountry.Name.kyrgyzstan
+        case .laoPeoplesDemocraticRepublic: return L10n.Localizable.Enum.BrowsingCountry.Name.laoPeoplesDemocraticRepublic
+        case .latvia: return L10n.Localizable.Enum.BrowsingCountry.Name.latvia
+        case .lebanon: return L10n.Localizable.Enum.BrowsingCountry.Name.lebanon
+        case .lesotho: return L10n.Localizable.Enum.BrowsingCountry.Name.lesotho
+        case .liberia: return L10n.Localizable.Enum.BrowsingCountry.Name.liberia
+        case .libya: return L10n.Localizable.Enum.BrowsingCountry.Name.libya
+        case .liechtenstein: return L10n.Localizable.Enum.BrowsingCountry.Name.liechtenstein
+        case .lithuania: return L10n.Localizable.Enum.BrowsingCountry.Name.lithuania
+        case .luxembourg: return L10n.Localizable.Enum.BrowsingCountry.Name.luxembourg
+        case .macau: return L10n.Localizable.Enum.BrowsingCountry.Name.macau
+        case .macedonia: return L10n.Localizable.Enum.BrowsingCountry.Name.macedonia
+        case .madagascar: return L10n.Localizable.Enum.BrowsingCountry.Name.madagascar
+        case .malawi: return L10n.Localizable.Enum.BrowsingCountry.Name.malawi
+        case .malaysia: return L10n.Localizable.Enum.BrowsingCountry.Name.malaysia
+        case .maldives: return L10n.Localizable.Enum.BrowsingCountry.Name.maldives
+        case .mali: return L10n.Localizable.Enum.BrowsingCountry.Name.mali
+        case .malta: return L10n.Localizable.Enum.BrowsingCountry.Name.malta
+        case .marshallIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.marshallIslands
+        case .martinique: return L10n.Localizable.Enum.BrowsingCountry.Name.martinique
+        case .mauritania: return L10n.Localizable.Enum.BrowsingCountry.Name.mauritania
+        case .mauritius: return L10n.Localizable.Enum.BrowsingCountry.Name.mauritius
+        case .mayotte: return L10n.Localizable.Enum.BrowsingCountry.Name.mayotte
+        case .mexico: return L10n.Localizable.Enum.BrowsingCountry.Name.mexico
+        case .micronesia: return L10n.Localizable.Enum.BrowsingCountry.Name.micronesia
+        case .moldova: return L10n.Localizable.Enum.BrowsingCountry.Name.moldova
+        case .monaco: return L10n.Localizable.Enum.BrowsingCountry.Name.monaco
+        case .mongolia: return L10n.Localizable.Enum.BrowsingCountry.Name.mongolia
+        case .montenegro: return L10n.Localizable.Enum.BrowsingCountry.Name.montenegro
+        case .montserrat: return L10n.Localizable.Enum.BrowsingCountry.Name.montserrat
+        case .morocco: return L10n.Localizable.Enum.BrowsingCountry.Name.morocco
+        case .mozambique: return L10n.Localizable.Enum.BrowsingCountry.Name.mozambique
+        case .myanmar: return L10n.Localizable.Enum.BrowsingCountry.Name.myanmar
+        case .namibia: return L10n.Localizable.Enum.BrowsingCountry.Name.namibia
+        case .nauru: return L10n.Localizable.Enum.BrowsingCountry.Name.nauru
+        case .nepal: return L10n.Localizable.Enum.BrowsingCountry.Name.nepal
+        case .netherlands: return L10n.Localizable.Enum.BrowsingCountry.Name.netherlands
+        case .newCaledonia: return L10n.Localizable.Enum.BrowsingCountry.Name.newCaledonia
+        case .newZealand: return L10n.Localizable.Enum.BrowsingCountry.Name.newZealand
+        case .nicaragua: return L10n.Localizable.Enum.BrowsingCountry.Name.nicaragua
+        case .niger: return L10n.Localizable.Enum.BrowsingCountry.Name.niger
+        case .nigeria: return L10n.Localizable.Enum.BrowsingCountry.Name.nigeria
+        case .niue: return L10n.Localizable.Enum.BrowsingCountry.Name.niue
+        case .norfolkIsland: return L10n.Localizable.Enum.BrowsingCountry.Name.norfolkIsland
+        case .northKorea: return L10n.Localizable.Enum.BrowsingCountry.Name.northKorea
+        case .northernMarianaIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.northernMarianaIslands
+        case .norway: return L10n.Localizable.Enum.BrowsingCountry.Name.norway
+        case .oman: return L10n.Localizable.Enum.BrowsingCountry.Name.oman
+        case .pakistan: return L10n.Localizable.Enum.BrowsingCountry.Name.pakistan
+        case .palau: return L10n.Localizable.Enum.BrowsingCountry.Name.palau
+        case .palestinianTerritory: return L10n.Localizable.Enum.BrowsingCountry.Name.palestinianTerritory
+        case .panama: return L10n.Localizable.Enum.BrowsingCountry.Name.panama
+        case .papuaNewGuinea: return L10n.Localizable.Enum.BrowsingCountry.Name.papuaNewGuinea
+        case .paraguay: return L10n.Localizable.Enum.BrowsingCountry.Name.paraguay
+        case .peru: return L10n.Localizable.Enum.BrowsingCountry.Name.peru
+        case .philippines: return L10n.Localizable.Enum.BrowsingCountry.Name.philippines
+        case .pitcairnIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.pitcairnIslands
+        case .poland: return L10n.Localizable.Enum.BrowsingCountry.Name.poland
+        case .portugal: return L10n.Localizable.Enum.BrowsingCountry.Name.portugal
+        case .puertoRico: return L10n.Localizable.Enum.BrowsingCountry.Name.puertoRico
+        case .qatar: return L10n.Localizable.Enum.BrowsingCountry.Name.qatar
+        case .reunion: return L10n.Localizable.Enum.BrowsingCountry.Name.reunion
+        case .romania: return L10n.Localizable.Enum.BrowsingCountry.Name.romania
+        case .russianFederation: return L10n.Localizable.Enum.BrowsingCountry.Name.russianFederation
+        case .rwanda: return L10n.Localizable.Enum.BrowsingCountry.Name.rwanda
+        case .saintBarthelemy: return L10n.Localizable.Enum.BrowsingCountry.Name.saintBarthelemy
+        case .saintHelena: return L10n.Localizable.Enum.BrowsingCountry.Name.saintHelena
+        case .saintKittsAndNevis: return L10n.Localizable.Enum.BrowsingCountry.Name.saintKittsAndNevis
+        case .saintLucia: return L10n.Localizable.Enum.BrowsingCountry.Name.saintLucia
+        case .saintMartin: return L10n.Localizable.Enum.BrowsingCountry.Name.saintMartin
+        case .saintPierreAndMiquelon: return L10n.Localizable.Enum.BrowsingCountry.Name.saintPierreAndMiquelon
+        case .saintVincentAndTheGrenadines: return L10n.Localizable.Enum.BrowsingCountry.Name.saintVincentAndTheGrenadines
+        case .samoa: return L10n.Localizable.Enum.BrowsingCountry.Name.samoa
+        case .sanMarino: return L10n.Localizable.Enum.BrowsingCountry.Name.sanMarino
+        case .saoTomeAndPrincipe: return L10n.Localizable.Enum.BrowsingCountry.Name.saoTomeAndPrincipe
+        case .saudiArabia: return L10n.Localizable.Enum.BrowsingCountry.Name.saudiArabia
+        case .senegal: return L10n.Localizable.Enum.BrowsingCountry.Name.senegal
+        case .serbia: return L10n.Localizable.Enum.BrowsingCountry.Name.serbia
+        case .seychelles: return L10n.Localizable.Enum.BrowsingCountry.Name.seychelles
+        case .sierraLeone: return L10n.Localizable.Enum.BrowsingCountry.Name.sierraLeone
+        case .singapore: return L10n.Localizable.Enum.BrowsingCountry.Name.singapore
+        case .sintMaarten: return L10n.Localizable.Enum.BrowsingCountry.Name.sintMaarten
+        case .slovakia: return L10n.Localizable.Enum.BrowsingCountry.Name.slovakia
+        case .slovenia: return L10n.Localizable.Enum.BrowsingCountry.Name.slovenia
+        case .solomonIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.solomonIslands
+        case .somalia: return L10n.Localizable.Enum.BrowsingCountry.Name.somalia
+        case .southAfrica: return L10n.Localizable.Enum.BrowsingCountry.Name.southAfrica
+        case .southGeorgiaAndTheSouthSandwichIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.southGeorgiaAndTheSouthSandwichIslands
+        case .southKorea: return L10n.Localizable.Enum.BrowsingCountry.Name.southKorea
+        case .southSudan: return L10n.Localizable.Enum.BrowsingCountry.Name.southSudan
+        case .spain: return L10n.Localizable.Enum.BrowsingCountry.Name.spain
+        case .sriLanka: return L10n.Localizable.Enum.BrowsingCountry.Name.sriLanka
+        case .sudan: return L10n.Localizable.Enum.BrowsingCountry.Name.sudan
+        case .suriname: return L10n.Localizable.Enum.BrowsingCountry.Name.suriname
+        case .svalbardAndJanMayen: return L10n.Localizable.Enum.BrowsingCountry.Name.svalbardAndJanMayen
+        case .swaziland: return L10n.Localizable.Enum.BrowsingCountry.Name.swaziland
+        case .sweden: return L10n.Localizable.Enum.BrowsingCountry.Name.sweden
+        case .switzerland: return L10n.Localizable.Enum.BrowsingCountry.Name.switzerland
+        case .syrianArabRepublic: return L10n.Localizable.Enum.BrowsingCountry.Name.syrianArabRepublic
+        case .taiwan: return L10n.Localizable.Enum.BrowsingCountry.Name.taiwan
+        case .tajikistan: return L10n.Localizable.Enum.BrowsingCountry.Name.tajikistan
+        case .tanzania: return L10n.Localizable.Enum.BrowsingCountry.Name.tanzania
+        case .thailand: return L10n.Localizable.Enum.BrowsingCountry.Name.thailand
+        case .timorLeste: return L10n.Localizable.Enum.BrowsingCountry.Name.timorLeste
+        case .togo: return L10n.Localizable.Enum.BrowsingCountry.Name.togo
+        case .tokelau: return L10n.Localizable.Enum.BrowsingCountry.Name.tokelau
+        case .tonga: return L10n.Localizable.Enum.BrowsingCountry.Name.tonga
+        case .trinidadAndTobago: return L10n.Localizable.Enum.BrowsingCountry.Name.trinidadAndTobago
+        case .tunisia: return L10n.Localizable.Enum.BrowsingCountry.Name.tunisia
+        case .turkey: return L10n.Localizable.Enum.BrowsingCountry.Name.turkey
+        case .turkmenistan: return L10n.Localizable.Enum.BrowsingCountry.Name.turkmenistan
+        case .turksAndCaicosIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.turksAndCaicosIslands
+        case .tuvalu: return L10n.Localizable.Enum.BrowsingCountry.Name.tuvalu
+        case .uganda: return L10n.Localizable.Enum.BrowsingCountry.Name.uganda
+        case .ukraine: return L10n.Localizable.Enum.BrowsingCountry.Name.ukraine
+        case .unitedArabEmirates: return L10n.Localizable.Enum.BrowsingCountry.Name.unitedArabEmirates
+        case .unitedKingdom: return L10n.Localizable.Enum.BrowsingCountry.Name.unitedKingdom
+        case .unitedStates: return L10n.Localizable.Enum.BrowsingCountry.Name.unitedStates
+        case .unitedStatesMinorOutlyingIslands: return L10n.Localizable.Enum.BrowsingCountry.Name.unitedStatesMinorOutlyingIslands
+        case .uruguay: return L10n.Localizable.Enum.BrowsingCountry.Name.uruguay
+        case .uzbekistan: return L10n.Localizable.Enum.BrowsingCountry.Name.uzbekistan
+        case .vanuatu: return L10n.Localizable.Enum.BrowsingCountry.Name.vanuatu
+        case .venezuela: return L10n.Localizable.Enum.BrowsingCountry.Name.venezuela
+        case .vietnam: return L10n.Localizable.Enum.BrowsingCountry.Name.vietnam
+        case .virginIslandsBritish: return L10n.Localizable.Enum.BrowsingCountry.Name.virginIslandsBritish
+        case .virginIslandsUS: return L10n.Localizable.Enum.BrowsingCountry.Name.virginIslandsUS
+        case .wallisAndFutuna: return L10n.Localizable.Enum.BrowsingCountry.Name.wallisAndFutuna
+        case .westernSahara: return L10n.Localizable.Enum.BrowsingCountry.Name.westernSahara
+        case .yemen: return L10n.Localizable.Enum.BrowsingCountry.Name.yemen
+        case .zambia: return L10n.Localizable.Enum.BrowsingCountry.Name.zambia
+        case .zimbabwe: return L10n.Localizable.Enum.BrowsingCountry.Name.zimbabwe
+        }
     }
     var englishName: String {
-        getName(preferredLanguages: ["en"])
-    }
-    private func getName(preferredLanguages: [String]? = nil) -> String {
         switch self {
-        case .autoDetect:
-            return R.string.localizable.enumBrowsingCountryNameAutoDetect(preferredLanguages: preferredLanguages)
-        case .afghanistan:
-            return R.string.localizable.enumBrowsingCountryNameAfghanistan(preferredLanguages: preferredLanguages)
-        case .alandIslands:
-            return R.string.localizable.enumBrowsingCountryNameAlandIslands(preferredLanguages: preferredLanguages)
-        case .albania:
-            return R.string.localizable.enumBrowsingCountryNameAlbania(preferredLanguages: preferredLanguages)
-        case .algeria:
-            return R.string.localizable.enumBrowsingCountryNameAlgeria(preferredLanguages: preferredLanguages)
-        case .americanSamoa:
-            return R.string.localizable.enumBrowsingCountryNameAmericanSamoa(preferredLanguages: preferredLanguages)
-        case .andorra:
-            return R.string.localizable.enumBrowsingCountryNameAndorra(preferredLanguages: preferredLanguages)
-        case .angola:
-            return R.string.localizable.enumBrowsingCountryNameAngola(preferredLanguages: preferredLanguages)
-        case .anguilla:
-            return R.string.localizable.enumBrowsingCountryNameAnguilla(preferredLanguages: preferredLanguages)
-        case .antarctica:
-            return R.string.localizable.enumBrowsingCountryNameAntarctica(preferredLanguages: preferredLanguages)
-        case .antiguaAndBarbuda:
-            return R.string.localizable.enumBrowsingCountryNameAntiguaAndBarbuda(preferredLanguages: preferredLanguages)
-        case .argentina:
-            return R.string.localizable.enumBrowsingCountryNameArgentina(preferredLanguages: preferredLanguages)
-        case .armenia:
-            return R.string.localizable.enumBrowsingCountryNameArmenia(preferredLanguages: preferredLanguages)
-        case .aruba:
-            return R.string.localizable.enumBrowsingCountryNameAruba(preferredLanguages: preferredLanguages)
-        case .asiaPacificRegion:
-            return R.string.localizable.enumBrowsingCountryNameAsiaPacificRegion(preferredLanguages: preferredLanguages)
-        case .australia:
-            return R.string.localizable.enumBrowsingCountryNameAustralia(preferredLanguages: preferredLanguages)
-        case .austria:
-            return R.string.localizable.enumBrowsingCountryNameAustria(preferredLanguages: preferredLanguages)
-        case .azerbaijan:
-            return R.string.localizable.enumBrowsingCountryNameAzerbaijan(preferredLanguages: preferredLanguages)
-        case .bahamas:
-            return R.string.localizable.enumBrowsingCountryNameBahamas(preferredLanguages: preferredLanguages)
-        case .bahrain:
-            return R.string.localizable.enumBrowsingCountryNameBahrain(preferredLanguages: preferredLanguages)
-        case .bangladesh:
-            return R.string.localizable.enumBrowsingCountryNameBangladesh(preferredLanguages: preferredLanguages)
-        case .barbados:
-            return R.string.localizable.enumBrowsingCountryNameBarbados(preferredLanguages: preferredLanguages)
-        case .belarus:
-            return R.string.localizable.enumBrowsingCountryNameBelarus(preferredLanguages: preferredLanguages)
-        case .belgium:
-            return R.string.localizable.enumBrowsingCountryNameBelgium(preferredLanguages: preferredLanguages)
-        case .belize:
-            return R.string.localizable.enumBrowsingCountryNameBelize(preferredLanguages: preferredLanguages)
-        case .benin:
-            return R.string.localizable.enumBrowsingCountryNameBenin(preferredLanguages: preferredLanguages)
-        case .bermuda:
-            return R.string.localizable.enumBrowsingCountryNameBermuda(preferredLanguages: preferredLanguages)
-        case .bhutan:
-            return R.string.localizable.enumBrowsingCountryNameBhutan(preferredLanguages: preferredLanguages)
-        case .bolivia:
-            return R.string.localizable.enumBrowsingCountryNameBolivia(preferredLanguages: preferredLanguages)
-        case .bonaireSaintEustatiusAndSaba:
-            return R.string.localizable.enumBrowsingCountryNameBonaireSaintEustatiusAndSaba(preferredLanguages: preferredLanguages)
-        case .bosniaAndHerzegovina:
-            return R.string.localizable.enumBrowsingCountryNameBosniaAndHerzegovina(preferredLanguages: preferredLanguages)
-        case .botswana:
-            return R.string.localizable.enumBrowsingCountryNameBotswana(preferredLanguages: preferredLanguages)
-        case .bouvetIsland:
-            return R.string.localizable.enumBrowsingCountryNameBouvetIsland(preferredLanguages: preferredLanguages)
-        case .brazil:
-            return R.string.localizable.enumBrowsingCountryNameBrazil(preferredLanguages: preferredLanguages)
-        case .britishIndianOceanTerritory:
-            return R.string.localizable.enumBrowsingCountryNameBritishIndianOceanTerritory(preferredLanguages: preferredLanguages)
-        case .bruneiDarussalam:
-            return R.string.localizable.enumBrowsingCountryNameBruneiDarussalam(preferredLanguages: preferredLanguages)
-        case .bulgaria:
-            return R.string.localizable.enumBrowsingCountryNameBulgaria(preferredLanguages: preferredLanguages)
-        case .burkinaFaso:
-            return R.string.localizable.enumBrowsingCountryNameBurkinaFaso(preferredLanguages: preferredLanguages)
-        case .burundi:
-            return R.string.localizable.enumBrowsingCountryNameBurundi(preferredLanguages: preferredLanguages)
-        case .cambodia:
-            return R.string.localizable.enumBrowsingCountryNameCambodia(preferredLanguages: preferredLanguages)
-        case .cameroon:
-            return R.string.localizable.enumBrowsingCountryNameCameroon(preferredLanguages: preferredLanguages)
-        case .canada:
-            return R.string.localizable.enumBrowsingCountryNameCanada(preferredLanguages: preferredLanguages)
-        case .capeVerde:
-            return R.string.localizable.enumBrowsingCountryNameCapeVerde(preferredLanguages: preferredLanguages)
-        case .caymanIslands:
-            return R.string.localizable.enumBrowsingCountryNameCaymanIslands(preferredLanguages: preferredLanguages)
-        case .centralAfricanRepublic:
-            return R.string.localizable.enumBrowsingCountryNameCentralAfricanRepublic(preferredLanguages: preferredLanguages)
-        case .chad:
-            return R.string.localizable.enumBrowsingCountryNameChad(preferredLanguages: preferredLanguages)
-        case .chile:
-            return R.string.localizable.enumBrowsingCountryNameChile(preferredLanguages: preferredLanguages)
-        case .china:
-            return R.string.localizable.enumBrowsingCountryNameChina(preferredLanguages: preferredLanguages)
-        case .christmasIsland:
-            return R.string.localizable.enumBrowsingCountryNameChristmasIsland(preferredLanguages: preferredLanguages)
-        case .cocosIslands:
-            return R.string.localizable.enumBrowsingCountryNameCocosIslands(preferredLanguages: preferredLanguages)
-        case .colombia:
-            return R.string.localizable.enumBrowsingCountryNameColombia(preferredLanguages: preferredLanguages)
-        case .comoros:
-            return R.string.localizable.enumBrowsingCountryNameComoros(preferredLanguages: preferredLanguages)
-        case .congo:
-            return R.string.localizable.enumBrowsingCountryNameCongo(preferredLanguages: preferredLanguages)
-        case .theDemocraticRepublicOfTheCongo:
-            return R.string.localizable.enumBrowsingCountryNameTheDemocraticRepublicOfTheCongo(preferredLanguages: preferredLanguages)
-        case .cookIslands:
-            return R.string.localizable.enumBrowsingCountryNameCookIslands(preferredLanguages: preferredLanguages)
-        case .costaRica:
-            return R.string.localizable.enumBrowsingCountryNameCostaRica(preferredLanguages: preferredLanguages)
-        case .coteDIvoire:
-            return R.string.localizable.enumBrowsingCountryNameCoteDIvoire(preferredLanguages: preferredLanguages)
-        case .croatia:
-            return R.string.localizable.enumBrowsingCountryNameCroatia(preferredLanguages: preferredLanguages)
-        case .cuba:
-            return R.string.localizable.enumBrowsingCountryNameCuba(preferredLanguages: preferredLanguages)
-        case .curacao:
-            return R.string.localizable.enumBrowsingCountryNameCuracao(preferredLanguages: preferredLanguages)
-        case .cyprus:
-            return R.string.localizable.enumBrowsingCountryNameCyprus(preferredLanguages: preferredLanguages)
-        case .czechRepublic:
-            return R.string.localizable.enumBrowsingCountryNameCzechRepublic(preferredLanguages: preferredLanguages)
-        case .denmark:
-            return R.string.localizable.enumBrowsingCountryNameDenmark(preferredLanguages: preferredLanguages)
-        case .djibouti:
-            return R.string.localizable.enumBrowsingCountryNameDjibouti(preferredLanguages: preferredLanguages)
-        case .dominica:
-            return R.string.localizable.enumBrowsingCountryNameDominica(preferredLanguages: preferredLanguages)
-        case .dominicanRepublic:
-            return R.string.localizable.enumBrowsingCountryNameDominicanRepublic(preferredLanguages: preferredLanguages)
-        case .ecuador:
-            return R.string.localizable.enumBrowsingCountryNameEcuador(preferredLanguages: preferredLanguages)
-        case .egypt:
-            return R.string.localizable.enumBrowsingCountryNameEgypt(preferredLanguages: preferredLanguages)
-        case .elSalvador:
-            return R.string.localizable.enumBrowsingCountryNameElSalvador(preferredLanguages: preferredLanguages)
-        case .equatorialGuinea:
-            return R.string.localizable.enumBrowsingCountryNameEquatorialGuinea(preferredLanguages: preferredLanguages)
-        case .eritrea:
-            return R.string.localizable.enumBrowsingCountryNameEritrea(preferredLanguages: preferredLanguages)
-        case .estonia:
-            return R.string.localizable.enumBrowsingCountryNameEstonia(preferredLanguages: preferredLanguages)
-        case .ethiopia:
-            return R.string.localizable.enumBrowsingCountryNameEthiopia(preferredLanguages: preferredLanguages)
-        case .europe:
-            return R.string.localizable.enumBrowsingCountryNameEurope(preferredLanguages: preferredLanguages)
-        case .falklandIslands:
-            return R.string.localizable.enumBrowsingCountryNameFalklandIslands(preferredLanguages: preferredLanguages)
-        case .faroeIslands:
-            return R.string.localizable.enumBrowsingCountryNameFaroeIslands(preferredLanguages: preferredLanguages)
-        case .fiji:
-            return R.string.localizable.enumBrowsingCountryNameFiji(preferredLanguages: preferredLanguages)
-        case .finland:
-            return R.string.localizable.enumBrowsingCountryNameFinland(preferredLanguages: preferredLanguages)
-        case .france:
-            return R.string.localizable.enumBrowsingCountryNameFrance(preferredLanguages: preferredLanguages)
-        case .frenchGuiana:
-            return R.string.localizable.enumBrowsingCountryNameFrenchGuiana(preferredLanguages: preferredLanguages)
-        case .frenchPolynesia:
-            return R.string.localizable.enumBrowsingCountryNameFrenchPolynesia(preferredLanguages: preferredLanguages)
-        case .frenchSouthernTerritories:
-            return R.string.localizable.enumBrowsingCountryNameFrenchSouthernTerritories(preferredLanguages: preferredLanguages)
-        case .gabon:
-            return R.string.localizable.enumBrowsingCountryNameGabon(preferredLanguages: preferredLanguages)
-        case .gambia:
-            return R.string.localizable.enumBrowsingCountryNameGambia(preferredLanguages: preferredLanguages)
-        case .georgia:
-            return R.string.localizable.enumBrowsingCountryNameGeorgia(preferredLanguages: preferredLanguages)
-        case .germany:
-            return R.string.localizable.enumBrowsingCountryNameGermany(preferredLanguages: preferredLanguages)
-        case .ghana:
-            return R.string.localizable.enumBrowsingCountryNameGhana(preferredLanguages: preferredLanguages)
-        case .gibraltar:
-            return R.string.localizable.enumBrowsingCountryNameGibraltar(preferredLanguages: preferredLanguages)
-        case .greece:
-            return R.string.localizable.enumBrowsingCountryNameGreece(preferredLanguages: preferredLanguages)
-        case .greenland:
-            return R.string.localizable.enumBrowsingCountryNameGreenland(preferredLanguages: preferredLanguages)
-        case .grenada:
-            return R.string.localizable.enumBrowsingCountryNameGrenada(preferredLanguages: preferredLanguages)
-        case .guadeloupe:
-            return R.string.localizable.enumBrowsingCountryNameGuadeloupe(preferredLanguages: preferredLanguages)
-        case .guam:
-            return R.string.localizable.enumBrowsingCountryNameGuam(preferredLanguages: preferredLanguages)
-        case .guatemala:
-            return R.string.localizable.enumBrowsingCountryNameGuatemala(preferredLanguages: preferredLanguages)
-        case .guernsey:
-            return R.string.localizable.enumBrowsingCountryNameGuernsey(preferredLanguages: preferredLanguages)
-        case .guinea:
-            return R.string.localizable.enumBrowsingCountryNameGuinea(preferredLanguages: preferredLanguages)
-        case .guineaBissau:
-            return R.string.localizable.enumBrowsingCountryNameGuineaBissau(preferredLanguages: preferredLanguages)
-        case .guyana:
-            return R.string.localizable.enumBrowsingCountryNameGuyana(preferredLanguages: preferredLanguages)
-        case .haiti:
-            return R.string.localizable.enumBrowsingCountryNameHaiti(preferredLanguages: preferredLanguages)
-        case .heardIslandAndMcDonaldIslands:
-            return R.string.localizable.enumBrowsingCountryNameHeardIslandAndMcDonaldIslands(preferredLanguages: preferredLanguages)
-        case .vaticanCityState:
-            return R.string.localizable.enumBrowsingCountryNameVaticanCityState(preferredLanguages: preferredLanguages)
-        case .honduras:
-            return R.string.localizable.enumBrowsingCountryNameHonduras(preferredLanguages: preferredLanguages)
-        case .hongKong:
-            return R.string.localizable.enumBrowsingCountryNameHongKong(preferredLanguages: preferredLanguages)
-        case .hungary:
-            return R.string.localizable.enumBrowsingCountryNameHungary(preferredLanguages: preferredLanguages)
-        case .iceland:
-            return R.string.localizable.enumBrowsingCountryNameIceland(preferredLanguages: preferredLanguages)
-        case .india:
-            return R.string.localizable.enumBrowsingCountryNameIndia(preferredLanguages: preferredLanguages)
-        case .indonesia:
-            return R.string.localizable.enumBrowsingCountryNameIndonesia(preferredLanguages: preferredLanguages)
-        case .iran:
-            return R.string.localizable.enumBrowsingCountryNameIran(preferredLanguages: preferredLanguages)
-        case .iraq:
-            return R.string.localizable.enumBrowsingCountryNameIraq(preferredLanguages: preferredLanguages)
-        case .ireland:
-            return R.string.localizable.enumBrowsingCountryNameIreland(preferredLanguages: preferredLanguages)
-        case .isleOfMan:
-            return R.string.localizable.enumBrowsingCountryNameIsleOfMan(preferredLanguages: preferredLanguages)
-        case .israel:
-            return R.string.localizable.enumBrowsingCountryNameIsrael(preferredLanguages: preferredLanguages)
-        case .italy:
-            return R.string.localizable.enumBrowsingCountryNameItaly(preferredLanguages: preferredLanguages)
-        case .jamaica:
-            return R.string.localizable.enumBrowsingCountryNameJamaica(preferredLanguages: preferredLanguages)
-        case .japan:
-            return R.string.localizable.enumBrowsingCountryNameJapan(preferredLanguages: preferredLanguages)
-        case .jersey:
-            return R.string.localizable.enumBrowsingCountryNameJersey(preferredLanguages: preferredLanguages)
-        case .jordan:
-            return R.string.localizable.enumBrowsingCountryNameJordan(preferredLanguages: preferredLanguages)
-        case .kazakhstan:
-            return R.string.localizable.enumBrowsingCountryNameKazakhstan(preferredLanguages: preferredLanguages)
-        case .kenya:
-            return R.string.localizable.enumBrowsingCountryNameKenya(preferredLanguages: preferredLanguages)
-        case .kiribati:
-            return R.string.localizable.enumBrowsingCountryNameKiribati(preferredLanguages: preferredLanguages)
-        case .kuwait:
-            return R.string.localizable.enumBrowsingCountryNameKuwait(preferredLanguages: preferredLanguages)
-        case .kyrgyzstan:
-            return R.string.localizable.enumBrowsingCountryNameKyrgyzstan(preferredLanguages: preferredLanguages)
-        case .laoPeoplesDemocraticRepublic:
-            return R.string.localizable.enumBrowsingCountryNameLaoPeoplesDemocraticRepublic(preferredLanguages: preferredLanguages)
-        case .latvia:
-            return R.string.localizable.enumBrowsingCountryNameLatvia(preferredLanguages: preferredLanguages)
-        case .lebanon:
-            return R.string.localizable.enumBrowsingCountryNameLebanon(preferredLanguages: preferredLanguages)
-        case .lesotho:
-            return R.string.localizable.enumBrowsingCountryNameLesotho(preferredLanguages: preferredLanguages)
-        case .liberia:
-            return R.string.localizable.enumBrowsingCountryNameLiberia(preferredLanguages: preferredLanguages)
-        case .libya:
-            return R.string.localizable.enumBrowsingCountryNameLibya(preferredLanguages: preferredLanguages)
-        case .liechtenstein:
-            return R.string.localizable.enumBrowsingCountryNameLiechtenstein(preferredLanguages: preferredLanguages)
-        case .lithuania:
-            return R.string.localizable.enumBrowsingCountryNameLithuania(preferredLanguages: preferredLanguages)
-        case .luxembourg:
-            return R.string.localizable.enumBrowsingCountryNameLuxembourg(preferredLanguages: preferredLanguages)
-        case .macau:
-            return R.string.localizable.enumBrowsingCountryNameMacau(preferredLanguages: preferredLanguages)
-        case .macedonia:
-            return R.string.localizable.enumBrowsingCountryNameMacedonia(preferredLanguages: preferredLanguages)
-        case .madagascar:
-            return R.string.localizable.enumBrowsingCountryNameMadagascar(preferredLanguages: preferredLanguages)
-        case .malawi:
-            return R.string.localizable.enumBrowsingCountryNameMalawi(preferredLanguages: preferredLanguages)
-        case .malaysia:
-            return R.string.localizable.enumBrowsingCountryNameMalaysia(preferredLanguages: preferredLanguages)
-        case .maldives:
-            return R.string.localizable.enumBrowsingCountryNameMaldives(preferredLanguages: preferredLanguages)
-        case .mali:
-            return R.string.localizable.enumBrowsingCountryNameMali(preferredLanguages: preferredLanguages)
-        case .malta:
-            return R.string.localizable.enumBrowsingCountryNameMalta(preferredLanguages: preferredLanguages)
-        case .marshallIslands:
-            return R.string.localizable.enumBrowsingCountryNameMarshallIslands(preferredLanguages: preferredLanguages)
-        case .martinique:
-            return R.string.localizable.enumBrowsingCountryNameMartinique(preferredLanguages: preferredLanguages)
-        case .mauritania:
-            return R.string.localizable.enumBrowsingCountryNameMauritania(preferredLanguages: preferredLanguages)
-        case .mauritius:
-            return R.string.localizable.enumBrowsingCountryNameMauritius(preferredLanguages: preferredLanguages)
-        case .mayotte:
-            return R.string.localizable.enumBrowsingCountryNameMayotte(preferredLanguages: preferredLanguages)
-        case .mexico:
-            return R.string.localizable.enumBrowsingCountryNameMexico(preferredLanguages: preferredLanguages)
-        case .micronesia:
-            return R.string.localizable.enumBrowsingCountryNameMicronesia(preferredLanguages: preferredLanguages)
-        case .moldova:
-            return R.string.localizable.enumBrowsingCountryNameMoldova(preferredLanguages: preferredLanguages)
-        case .monaco:
-            return R.string.localizable.enumBrowsingCountryNameMonaco(preferredLanguages: preferredLanguages)
-        case .mongolia:
-            return R.string.localizable.enumBrowsingCountryNameMongolia(preferredLanguages: preferredLanguages)
-        case .montenegro:
-            return R.string.localizable.enumBrowsingCountryNameMontenegro(preferredLanguages: preferredLanguages)
-        case .montserrat:
-            return R.string.localizable.enumBrowsingCountryNameMontserrat(preferredLanguages: preferredLanguages)
-        case .morocco:
-            return R.string.localizable.enumBrowsingCountryNameMorocco(preferredLanguages: preferredLanguages)
-        case .mozambique:
-            return R.string.localizable.enumBrowsingCountryNameMozambique(preferredLanguages: preferredLanguages)
-        case .myanmar:
-            return R.string.localizable.enumBrowsingCountryNameMyanmar(preferredLanguages: preferredLanguages)
-        case .namibia:
-            return R.string.localizable.enumBrowsingCountryNameNamibia(preferredLanguages: preferredLanguages)
-        case .nauru:
-            return R.string.localizable.enumBrowsingCountryNameNauru(preferredLanguages: preferredLanguages)
-        case .nepal:
-            return R.string.localizable.enumBrowsingCountryNameNepal(preferredLanguages: preferredLanguages)
-        case .netherlands:
-            return R.string.localizable.enumBrowsingCountryNameNetherlands(preferredLanguages: preferredLanguages)
-        case .newCaledonia:
-            return R.string.localizable.enumBrowsingCountryNameNewCaledonia(preferredLanguages: preferredLanguages)
-        case .newZealand:
-            return R.string.localizable.enumBrowsingCountryNameNewZealand(preferredLanguages: preferredLanguages)
-        case .nicaragua:
-            return R.string.localizable.enumBrowsingCountryNameNicaragua(preferredLanguages: preferredLanguages)
-        case .niger:
-            return R.string.localizable.enumBrowsingCountryNameNiger(preferredLanguages: preferredLanguages)
-        case .nigeria:
-            return R.string.localizable.enumBrowsingCountryNameNigeria(preferredLanguages: preferredLanguages)
-        case .niue:
-            return R.string.localizable.enumBrowsingCountryNameNiue(preferredLanguages: preferredLanguages)
-        case .norfolkIsland:
-            return R.string.localizable.enumBrowsingCountryNameNorfolkIsland(preferredLanguages: preferredLanguages)
-        case .northKorea:
-            return R.string.localizable.enumBrowsingCountryNameNorthKorea(preferredLanguages: preferredLanguages)
-        case .northernMarianaIslands:
-            return R.string.localizable.enumBrowsingCountryNameNorthernMarianaIslands(preferredLanguages: preferredLanguages)
-        case .norway:
-            return R.string.localizable.enumBrowsingCountryNameNorway(preferredLanguages: preferredLanguages)
-        case .oman:
-            return R.string.localizable.enumBrowsingCountryNameOman(preferredLanguages: preferredLanguages)
-        case .pakistan:
-            return R.string.localizable.enumBrowsingCountryNamePakistan(preferredLanguages: preferredLanguages)
-        case .palau:
-            return R.string.localizable.enumBrowsingCountryNamePalau(preferredLanguages: preferredLanguages)
-        case .palestinianTerritory:
-            return R.string.localizable.enumBrowsingCountryNamePalestinianTerritory(preferredLanguages: preferredLanguages)
-        case .panama:
-            return R.string.localizable.enumBrowsingCountryNamePanama(preferredLanguages: preferredLanguages)
-        case .papuaNewGuinea:
-            return R.string.localizable.enumBrowsingCountryNamePapuaNewGuinea(preferredLanguages: preferredLanguages)
-        case .paraguay:
-            return R.string.localizable.enumBrowsingCountryNameParaguay(preferredLanguages: preferredLanguages)
-        case .peru:
-            return R.string.localizable.enumBrowsingCountryNamePeru(preferredLanguages: preferredLanguages)
-        case .philippines:
-            return R.string.localizable.enumBrowsingCountryNamePhilippines(preferredLanguages: preferredLanguages)
-        case .pitcairnIslands:
-            return R.string.localizable.enumBrowsingCountryNamePitcairnIslands(preferredLanguages: preferredLanguages)
-        case .poland:
-            return R.string.localizable.enumBrowsingCountryNamePoland(preferredLanguages: preferredLanguages)
-        case .portugal:
-            return R.string.localizable.enumBrowsingCountryNamePortugal(preferredLanguages: preferredLanguages)
-        case .puertoRico:
-            return R.string.localizable.enumBrowsingCountryNamePuertoRico(preferredLanguages: preferredLanguages)
-        case .qatar:
-            return R.string.localizable.enumBrowsingCountryNameQatar(preferredLanguages: preferredLanguages)
-        case .reunion:
-            return R.string.localizable.enumBrowsingCountryNameReunion(preferredLanguages: preferredLanguages)
-        case .romania:
-            return R.string.localizable.enumBrowsingCountryNameRomania(preferredLanguages: preferredLanguages)
-        case .russianFederation:
-            return R.string.localizable.enumBrowsingCountryNameRussianFederation(preferredLanguages: preferredLanguages)
-        case .rwanda:
-            return R.string.localizable.enumBrowsingCountryNameRwanda(preferredLanguages: preferredLanguages)
-        case .saintBarthelemy:
-            return R.string.localizable.enumBrowsingCountryNameSaintBarthelemy(preferredLanguages: preferredLanguages)
-        case .saintHelena:
-            return R.string.localizable.enumBrowsingCountryNameSaintHelena(preferredLanguages: preferredLanguages)
-        case .saintKittsAndNevis:
-            return R.string.localizable.enumBrowsingCountryNameSaintKittsAndNevis(preferredLanguages: preferredLanguages)
-        case .saintLucia:
-            return R.string.localizable.enumBrowsingCountryNameSaintLucia(preferredLanguages: preferredLanguages)
-        case .saintMartin:
-            return R.string.localizable.enumBrowsingCountryNameSaintMartin(preferredLanguages: preferredLanguages)
-        case .saintPierreAndMiquelon:
-            return R.string.localizable.enumBrowsingCountryNameSaintPierreAndMiquelon(preferredLanguages: preferredLanguages)
-        case .saintVincentAndTheGrenadines:
-            return R.string.localizable.enumBrowsingCountryNameSaintVincentAndTheGrenadines(preferredLanguages: preferredLanguages)
-        case .samoa:
-            return R.string.localizable.enumBrowsingCountryNameSamoa(preferredLanguages: preferredLanguages)
-        case .sanMarino:
-            return R.string.localizable.enumBrowsingCountryNameSanMarino(preferredLanguages: preferredLanguages)
-        case .saoTomeAndPrincipe:
-            return R.string.localizable.enumBrowsingCountryNameSaoTomeAndPrincipe(preferredLanguages: preferredLanguages)
-        case .saudiArabia:
-            return R.string.localizable.enumBrowsingCountryNameSaudiArabia(preferredLanguages: preferredLanguages)
-        case .senegal:
-            return R.string.localizable.enumBrowsingCountryNameSenegal(preferredLanguages: preferredLanguages)
-        case .serbia:
-            return R.string.localizable.enumBrowsingCountryNameSerbia(preferredLanguages: preferredLanguages)
-        case .seychelles:
-            return R.string.localizable.enumBrowsingCountryNameSeychelles(preferredLanguages: preferredLanguages)
-        case .sierraLeone:
-            return R.string.localizable.enumBrowsingCountryNameSierraLeone(preferredLanguages: preferredLanguages)
-        case .singapore:
-            return R.string.localizable.enumBrowsingCountryNameSingapore(preferredLanguages: preferredLanguages)
-        case .sintMaarten:
-            return R.string.localizable.enumBrowsingCountryNameSintMaarten(preferredLanguages: preferredLanguages)
-        case .slovakia:
-            return R.string.localizable.enumBrowsingCountryNameSlovakia(preferredLanguages: preferredLanguages)
-        case .slovenia:
-            return R.string.localizable.enumBrowsingCountryNameSlovenia(preferredLanguages: preferredLanguages)
-        case .solomonIslands:
-            return R.string.localizable.enumBrowsingCountryNameSolomonIslands(preferredLanguages: preferredLanguages)
-        case .somalia:
-            return R.string.localizable.enumBrowsingCountryNameSomalia(preferredLanguages: preferredLanguages)
-        case .southAfrica:
-            return R.string.localizable.enumBrowsingCountryNameSouthAfrica(preferredLanguages: preferredLanguages)
-        case .southGeorgiaAndTheSouthSandwichIslands:
-            return R.string.localizable.enumBrowsingCountryNameSouthGeorgiaAndTheSouthSandwichIslands(preferredLanguages: preferredLanguages)
-        case .southKorea:
-            return R.string.localizable.enumBrowsingCountryNameSouthKorea(preferredLanguages: preferredLanguages)
-        case .southSudan:
-            return R.string.localizable.enumBrowsingCountryNameSouthSudan(preferredLanguages: preferredLanguages)
-        case .spain:
-            return R.string.localizable.enumBrowsingCountryNameSpain(preferredLanguages: preferredLanguages)
-        case .sriLanka:
-            return R.string.localizable.enumBrowsingCountryNameSriLanka(preferredLanguages: preferredLanguages)
-        case .sudan:
-            return R.string.localizable.enumBrowsingCountryNameSudan(preferredLanguages: preferredLanguages)
-        case .suriname:
-            return R.string.localizable.enumBrowsingCountryNameSuriname(preferredLanguages: preferredLanguages)
-        case .svalbardAndJanMayen:
-            return R.string.localizable.enumBrowsingCountryNameSvalbardAndJanMayen(preferredLanguages: preferredLanguages)
-        case .swaziland:
-            return R.string.localizable.enumBrowsingCountryNameSwaziland(preferredLanguages: preferredLanguages)
-        case .sweden:
-            return R.string.localizable.enumBrowsingCountryNameSweden(preferredLanguages: preferredLanguages)
-        case .switzerland:
-            return R.string.localizable.enumBrowsingCountryNameSwitzerland(preferredLanguages: preferredLanguages)
-        case .syrianArabRepublic:
-            return R.string.localizable.enumBrowsingCountryNameSyrianArabRepublic(preferredLanguages: preferredLanguages)
-        case .taiwan:
-            return R.string.localizable.enumBrowsingCountryNameTaiwan(preferredLanguages: preferredLanguages)
-        case .tajikistan:
-            return R.string.localizable.enumBrowsingCountryNameTajikistan(preferredLanguages: preferredLanguages)
-        case .tanzania:
-            return R.string.localizable.enumBrowsingCountryNameTanzania(preferredLanguages: preferredLanguages)
-        case .thailand:
-            return R.string.localizable.enumBrowsingCountryNameThailand(preferredLanguages: preferredLanguages)
-        case .timorLeste:
-            return R.string.localizable.enumBrowsingCountryNameTimorLeste(preferredLanguages: preferredLanguages)
-        case .togo:
-            return R.string.localizable.enumBrowsingCountryNameTogo(preferredLanguages: preferredLanguages)
-        case .tokelau:
-            return R.string.localizable.enumBrowsingCountryNameTokelau(preferredLanguages: preferredLanguages)
-        case .tonga:
-            return R.string.localizable.enumBrowsingCountryNameTonga(preferredLanguages: preferredLanguages)
-        case .trinidadAndTobago:
-            return R.string.localizable.enumBrowsingCountryNameTrinidadAndTobago(preferredLanguages: preferredLanguages)
-        case .tunisia:
-            return R.string.localizable.enumBrowsingCountryNameTunisia(preferredLanguages: preferredLanguages)
-        case .turkey:
-            return R.string.localizable.enumBrowsingCountryNameTurkey(preferredLanguages: preferredLanguages)
-        case .turkmenistan:
-            return R.string.localizable.enumBrowsingCountryNameTurkmenistan(preferredLanguages: preferredLanguages)
-        case .turksAndCaicosIslands:
-            return R.string.localizable.enumBrowsingCountryNameTurksAndCaicosIslands(preferredLanguages: preferredLanguages)
-        case .tuvalu:
-            return R.string.localizable.enumBrowsingCountryNameTuvalu(preferredLanguages: preferredLanguages)
-        case .uganda:
-            return R.string.localizable.enumBrowsingCountryNameUganda(preferredLanguages: preferredLanguages)
-        case .ukraine:
-            return R.string.localizable.enumBrowsingCountryNameUkraine(preferredLanguages: preferredLanguages)
-        case .unitedArabEmirates:
-            return R.string.localizable.enumBrowsingCountryNameUnitedArabEmirates(preferredLanguages: preferredLanguages)
-        case .unitedKingdom:
-            return R.string.localizable.enumBrowsingCountryNameUnitedKingdom(preferredLanguages: preferredLanguages)
-        case .unitedStates:
-            return R.string.localizable.enumBrowsingCountryNameUnitedStates(preferredLanguages: preferredLanguages)
-        case .unitedStatesMinorOutlyingIslands:
-            return R.string.localizable.enumBrowsingCountryNameUnitedStatesMinorOutlyingIslands(preferredLanguages: preferredLanguages)
-        case .uruguay:
-            return R.string.localizable.enumBrowsingCountryNameUruguay(preferredLanguages: preferredLanguages)
-        case .uzbekistan:
-            return R.string.localizable.enumBrowsingCountryNameUzbekistan(preferredLanguages: preferredLanguages)
-        case .vanuatu:
-            return R.string.localizable.enumBrowsingCountryNameVanuatu(preferredLanguages: preferredLanguages)
-        case .venezuela:
-            return R.string.localizable.enumBrowsingCountryNameVenezuela(preferredLanguages: preferredLanguages)
-        case .vietnam:
-            return R.string.localizable.enumBrowsingCountryNameVietnam(preferredLanguages: preferredLanguages)
-        case .virginIslandsBritish:
-            return R.string.localizable.enumBrowsingCountryNameVirginIslandsBritish(preferredLanguages: preferredLanguages)
-        case .virginIslandsUS:
-            return R.string.localizable.enumBrowsingCountryNameVirginIslandsUS(preferredLanguages: preferredLanguages)
-        case .wallisAndFutuna:
-            return R.string.localizable.enumBrowsingCountryNameWallisAndFutuna(preferredLanguages: preferredLanguages)
-        case .westernSahara:
-            return R.string.localizable.enumBrowsingCountryNameWesternSahara(preferredLanguages: preferredLanguages)
-        case .yemen:
-            return R.string.localizable.enumBrowsingCountryNameYemen(preferredLanguages: preferredLanguages)
-        case .zambia:
-            return R.string.localizable.enumBrowsingCountryNameZambia(preferredLanguages: preferredLanguages)
-        case .zimbabwe:
-            return R.string.localizable.enumBrowsingCountryNameZimbabwe(preferredLanguages: preferredLanguages)
+        case .autoDetect: return "Auto-Detect"
+        case .afghanistan: return "Afghanistan"
+        case .alandIslands: return "Aland Islands"
+        case .albania: return "Albania"
+        case .algeria: return "Algeria"
+        case .americanSamoa: return "American Samoa"
+        case .andorra: return "Andorra"
+        case .angola: return "Angola"
+        case .anguilla: return "Anguilla"
+        case .antarctica: return "Antarctica"
+        case .antiguaAndBarbuda: return "Antigua and Barbuda"
+        case .argentina: return "Argentina"
+        case .armenia: return "Armenia"
+        case .aruba: return "Aruba"
+        case .asiaPacificRegion: return "Asia-Pacific Region"
+        case .australia: return "Australia"
+        case .austria: return "Austria"
+        case .azerbaijan: return "Azerbaijan"
+        case .bahamas: return "Bahamas"
+        case .bahrain: return "Bahrain"
+        case .bangladesh: return "Bangladesh"
+        case .barbados: return "Barbados"
+        case .belarus: return "Belarus"
+        case .belgium: return "Belgium"
+        case .belize: return "Belize"
+        case .benin: return "Benin"
+        case .bermuda: return "Bermuda"
+        case .bhutan: return "Bhutan"
+        case .bolivia: return "Bolivia"
+        case .bonaireSaintEustatiusAndSaba: return "Bonaire Saint Eustatius and Saba"
+        case .bosniaAndHerzegovina: return "Bosnia and Herzegovina"
+        case .botswana: return "Botswana"
+        case .bouvetIsland: return "Bouvet Island"
+        case .brazil: return "Brazil"
+        case .britishIndianOceanTerritory: return "British Indian Ocean Territory"
+        case .bruneiDarussalam: return "Brunei Darussalam"
+        case .bulgaria: return "Bulgaria"
+        case .burkinaFaso: return "Burkina Faso"
+        case .burundi: return "Burundi"
+        case .cambodia: return "Cambodia"
+        case .cameroon: return "Cameroon"
+        case .canada: return "Canada"
+        case .capeVerde: return "Cape Verde"
+        case .caymanIslands: return "Cayman Islands"
+        case .centralAfricanRepublic: return "Central African Republic"
+        case .chad: return "Chad"
+        case .chile: return "Chile"
+        case .china: return "China"
+        case .christmasIsland: return "Christmas Island"
+        case .cocosIslands: return "Cocos Islands"
+        case .colombia: return "Colombia"
+        case .comoros: return "Comoros"
+        case .congo: return "Congo"
+        case .theDemocraticRepublicOfTheCongo: return "The Democratic Republic of the Congo"
+        case .cookIslands: return "Cook Islands"
+        case .costaRica: return "Costa Rica"
+        case .coteDIvoire: return "Cote D'Ivoire"
+        case .croatia: return "Croatia"
+        case .cuba: return "Cuba"
+        case .curacao: return "Curacao"
+        case .cyprus: return "Cyprus"
+        case .czechRepublic: return "Czech Republic"
+        case .denmark: return "Denmark"
+        case .djibouti: return "Djibouti"
+        case .dominica: return "Dominica"
+        case .dominicanRepublic: return "Dominican Republic"
+        case .ecuador: return "Ecuador"
+        case .egypt: return "Egypt"
+        case .elSalvador: return "El Salvador"
+        case .equatorialGuinea: return "Equatorial Guinea"
+        case .eritrea: return "Eritrea"
+        case .estonia: return "Estonia"
+        case .ethiopia: return "Ethiopia"
+        case .europe: return "Europe"
+        case .falklandIslands: return "Falkland Islands"
+        case .faroeIslands: return "Faroe Islands"
+        case .fiji: return "Fiji"
+        case .finland: return "Finland"
+        case .france: return "France"
+        case .frenchGuiana: return "French Guiana"
+        case .frenchPolynesia: return "French Polynesia"
+        case .frenchSouthernTerritories: return "French Southern Territories"
+        case .gabon: return "Gabon"
+        case .gambia: return "Gambia"
+        case .georgia: return "Georgia"
+        case .germany: return "Germany"
+        case .ghana: return "Ghana"
+        case .gibraltar: return "Gibraltar"
+        case .greece: return "Greece"
+        case .greenland: return "Greenland"
+        case .grenada: return "Grenada"
+        case .guadeloupe: return "Guadeloupe"
+        case .guam: return "Guam"
+        case .guatemala: return "Guatemala"
+        case .guernsey: return "Guernsey"
+        case .guinea: return "Guinea"
+        case .guineaBissau: return "Guinea-Bissau"
+        case .guyana: return "Guyana"
+        case .haiti: return "Haiti"
+        case .heardIslandAndMcDonaldIslands: return "Heard Island and McDonald Islands"
+        case .vaticanCityState: return "Vatican City State"
+        case .honduras: return "Honduras"
+        case .hongKong: return "Hong Kong"
+        case .hungary: return "Hungary"
+        case .iceland: return "Iceland"
+        case .india: return "India"
+        case .indonesia: return "Indonesia"
+        case .iran: return "Iran"
+        case .iraq: return "Iraq"
+        case .ireland: return "Ireland"
+        case .isleOfMan: return "Isle of Man"
+        case .israel: return "Israel"
+        case .italy: return "Italy"
+        case .jamaica: return "Jamaica"
+        case .japan: return "Japan"
+        case .jersey: return "Jersey"
+        case .jordan: return "Jordan"
+        case .kazakhstan: return "Kazakhstan"
+        case .kenya: return "Kenya"
+        case .kiribati: return "Kiribati"
+        case .kuwait: return "Kuwait"
+        case .kyrgyzstan: return "Kyrgyzstan"
+        case .laoPeoplesDemocraticRepublic: return "Lao People's Democratic Republic"
+        case .latvia: return "Latvia"
+        case .lebanon: return "Lebanon"
+        case .lesotho: return "Lesotho"
+        case .liberia: return "Liberia"
+        case .libya: return "Libya"
+        case .liechtenstein: return "Liechtenstein"
+        case .lithuania: return "Lithuania"
+        case .luxembourg: return "Luxembourg"
+        case .macau: return "Macau"
+        case .macedonia: return "Macedonia"
+        case .madagascar: return "Madagascar"
+        case .malawi: return "Malawi"
+        case .malaysia: return "Malaysia"
+        case .maldives: return "Maldives"
+        case .mali: return "Mali"
+        case .malta: return "Malta"
+        case .marshallIslands: return "Marshall Islands"
+        case .martinique: return "Martinique"
+        case .mauritania: return "Mauritania"
+        case .mauritius: return "Mauritius"
+        case .mayotte: return "Mayotte"
+        case .mexico: return "Mexico"
+        case .micronesia: return "Micronesia"
+        case .moldova: return "Moldova"
+        case .monaco: return "Monaco"
+        case .mongolia: return "Mongolia"
+        case .montenegro: return "Montenegro"
+        case .montserrat: return "Montserrat"
+        case .morocco: return "Morocco"
+        case .mozambique: return "Mozambique"
+        case .myanmar: return "Myanmar"
+        case .namibia: return "Namibia"
+        case .nauru: return "Nauru"
+        case .nepal: return "Nepal"
+        case .netherlands: return "Netherlands"
+        case .newCaledonia: return "New Caledonia"
+        case .newZealand: return "New Zealand"
+        case .nicaragua: return "Nicaragua"
+        case .niger: return "Niger"
+        case .nigeria: return "Nigeria"
+        case .niue: return "Niue"
+        case .norfolkIsland: return "Norfolk Island"
+        case .northKorea: return "North Korea"
+        case .northernMarianaIslands: return "Northern Mariana Islands"
+        case .norway: return "Norway"
+        case .oman: return "Oman"
+        case .pakistan: return "Pakistan"
+        case .palau: return "Palau"
+        case .palestinianTerritory: return "Palestinian Territory"
+        case .panama: return "Panama"
+        case .papuaNewGuinea: return "Papua New Guinea"
+        case .paraguay: return "Paraguay"
+        case .peru: return "Peru"
+        case .philippines: return "Philippines"
+        case .pitcairnIslands: return "Pitcairn Islands"
+        case .poland: return "Poland"
+        case .portugal: return "Portugal"
+        case .puertoRico: return "Puerto Rico"
+        case .qatar: return "Qatar"
+        case .reunion: return "Reunion"
+        case .romania: return "Romania"
+        case .russianFederation: return "Russian Federation"
+        case .rwanda: return "Rwanda"
+        case .saintBarthelemy: return "Saint Barthelemy"
+        case .saintHelena: return "Saint Helena"
+        case .saintKittsAndNevis: return "Saint Kitts and Nevis"
+        case .saintLucia: return "Saint Lucia"
+        case .saintMartin: return "Saint Martin"
+        case .saintPierreAndMiquelon: return "Saint Pierre and Miquelon"
+        case .saintVincentAndTheGrenadines: return "Saint Vincent and the Grenadines"
+        case .samoa: return "Samoa"
+        case .sanMarino: return "San Marino"
+        case .saoTomeAndPrincipe: return "Sao Tome and Principe"
+        case .saudiArabia: return "Saudi Arabia"
+        case .senegal: return "Senegal"
+        case .serbia: return "Serbia"
+        case .seychelles: return "Seychelles"
+        case .sierraLeone: return "Sierra Leone"
+        case .singapore: return "Singapore"
+        case .sintMaarten: return "Sint Maarten"
+        case .slovakia: return "Slovakia"
+        case .slovenia: return "Slovenia"
+        case .solomonIslands: return "Solomon Islands"
+        case .somalia: return "Somalia"
+        case .southAfrica: return "South Africa"
+        case .southGeorgiaAndTheSouthSandwichIslands: return "South Georgia and the South Sandwich Islands"
+        case .southKorea: return "South Korea"
+        case .southSudan: return "South Sudan"
+        case .spain: return "Spain"
+        case .sriLanka: return "Sri Lanka"
+        case .sudan: return "Sudan"
+        case .suriname: return "Suriname"
+        case .svalbardAndJanMayen: return "Svalbard and Jan Mayen"
+        case .swaziland: return "Swaziland"
+        case .sweden: return "Sweden"
+        case .switzerland: return "Switzerland"
+        case .syrianArabRepublic: return "Syrian Arab Republic"
+        case .taiwan: return "Taiwan"
+        case .tajikistan: return "Tajikistan"
+        case .tanzania: return "Tanzania"
+        case .thailand: return "Thailand"
+        case .timorLeste: return "Timor-Leste"
+        case .togo: return "Togo"
+        case .tokelau: return "Tokelau"
+        case .tonga: return "Tonga"
+        case .trinidadAndTobago: return "Trinidad and Tobago"
+        case .tunisia: return "Tunisia"
+        case .turkey: return "Turkey"
+        case .turkmenistan: return "Turkmenistan"
+        case .turksAndCaicosIslands: return "Turks and Caicos Islands"
+        case .tuvalu: return "Tuvalu"
+        case .uganda: return "Uganda"
+        case .ukraine: return "Ukraine"
+        case .unitedArabEmirates: return "United Arab Emirates"
+        case .unitedKingdom: return "United Kingdom"
+        case .unitedStates: return "United States"
+        case .unitedStatesMinorOutlyingIslands: return "United States Minor Outlying Islands"
+        case .uruguay: return "Uruguay"
+        case .uzbekistan: return "Uzbekistan"
+        case .vanuatu: return "Vanuatu"
+        case .venezuela: return "Venezuela"
+        case .vietnam: return "Vietnam"
+        case .virginIslandsBritish: return "British Virgin Islands"
+        case .virginIslandsUS: return "U.S. Virgin Islands"
+        case .wallisAndFutuna: return "Wallis and Futuna"
+        case .westernSahara: return "Western Sahara"
+        case .yemen: return "Yemen"
+        case .zambia: return "Zambia"
+        case .zimbabwe: return "Zimbabwe"
         }
     }
 }

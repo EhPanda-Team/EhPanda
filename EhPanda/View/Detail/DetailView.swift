@@ -152,7 +152,7 @@ struct DetailView: View {
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.postComment) { _ in
             PostCommentView(
-                title: R.string.localizable.postCommentViewTitlePostComment(),
+                title: L10n.Localizable.PostCommentView.Title.postComment,
                 content: viewStore.binding(\.$commentContent),
                 isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
@@ -235,13 +235,13 @@ private extension DetailView {
                         viewStore.send(.setNavigation(.archives(galleryURL, archiveURL)))
                     }
                 } label: {
-                    Label(R.string.localizable.detailViewToolbarItemButtonArchives(), systemSymbol: .docZipper)
+                    Label(L10n.Localizable.DetailView.ToolbarItem.Button.archives, systemSymbol: .docZipper)
                 }
                 .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
                 Button {
                     viewStore.send(.setNavigation(.torrents))
                 } label: {
-                    let base = R.string.localizable.detailViewToolbarItemButtonTorrents()
+                    let base = L10n.Localizable.DetailView.ToolbarItem.Button.torrents
                     let torrentCount = viewStore.galleryDetail?.torrentCount ?? 0
                     let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
                     Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)
@@ -252,7 +252,7 @@ private extension DetailView {
                         viewStore.send(.setNavigation(.share(galleryURL)))
                     }
                 } label: {
-                    Label(R.string.localizable.detailViewToolbarItemButtonShare(), systemSymbol: .squareAndArrowUp)
+                    Label(L10n.Localizable.DetailView.ToolbarItem.Button.share, systemSymbol: .squareAndArrowUp)
                 }
             }
             .disabled(viewStore.galleryDetail == nil || viewStore.loadingState == .loading)
@@ -344,7 +344,7 @@ private struct HeaderSection: View {
                     .imageScale(.large).foregroundStyle(.tint)
                     .disabled(!CookiesUtil.didLogin)
                     Button(action: navigateReadingAction) {
-                        Text(R.string.localizable.detailViewButtonRead())
+                        Text(L10n.Localizable.DetailView.Button.read)
                             .bold().textCase(.uppercase).font(.headline)
                             .foregroundColor(.white).padding(.vertical, -2)
                             .padding(.horizontal, 2).lineLimit(1)
@@ -376,26 +376,26 @@ private struct DescriptionSection: View {
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitleFavorited(),
-            description: R.string.localizable.detailViewScrollSectionDescriptionFavorited(),
+            title: L10n.Localizable.DetailView.DescriptionSection.Title.favorited,
+            description: L10n.Localizable.DetailView.DescriptionSection.Description.favorited,
             value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitleLanguage(),
+            title: L10n.Localizable.DetailView.DescriptionSection.Title.language,
             description: galleryDetail.language.value,
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitleRatings("\(galleryDetail.ratingCount)"),
+            title: L10n.Localizable.DetailView.DescriptionSection.Title.ratings("\(galleryDetail.ratingCount)"),
             description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitlePageCount(),
-            description: R.string.localizable.detailViewScrollSectionDescriptionPageCount(),
+            title: L10n.Localizable.DetailView.DescriptionSection.Title.pageCount,
+            description: L10n.Localizable.DetailView.DescriptionSection.Description.pageCount,
             value: .init(galleryDetail.pageCount)
         ),
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitleFileSize(),
+            title: L10n.Localizable.DetailView.DescriptionSection.Title.fileSize,
             description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
         )
     ]}
@@ -513,14 +513,14 @@ private struct ActionSection: View {
                     Button(action: showUserRatingAction) {
                         Spacer()
                         Image(systemSymbol: .squareAndPencil)
-                        Text(R.string.localizable.detailViewActionSectionButtonGiveARating()).bold()
+                        Text(L10n.Localizable.DetailView.ActionSection.Button.giveARating).bold()
                         Spacer()
                     }
                     .disabled(!CookiesUtil.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
-                        Text(R.string.localizable.detailViewActionSectionButtonSimilarGallery()).bold()
+                        Text(L10n.Localizable.DetailView.ActionSection.Button.similarGallery).bold()
                         Spacer()
                     }
                 }
@@ -652,7 +652,7 @@ private extension TagsSection {
                                 ))
                             } label: {
                                 Image(systemSymbol: .docRichtext)
-                                Text(R.string.localizable.detailViewContextMenuButtonDetail())
+                                Text(L10n.Localizable.DetailView.ContextMenu.Button.detail)
                             }
                         }
                         if CookiesUtil.didLogin {
@@ -662,20 +662,20 @@ private extension TagsSection {
                                 } label: {
                                     Image(systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
                                         .symbolVariant(.fill)
-                                    Text(R.string.localizable.detailViewContextMenuButtonWithdrawVote())
+                                    Text(L10n.Localizable.DetailView.ContextMenu.Button.withdrawVote)
                                 }
                             } else {
                                 Button {
                                     voteTagAction(content.voteKeyword(tag: tag), 1)
                                 } label: {
                                     Image(systemSymbol: .handThumbsup)
-                                    Text(R.string.localizable.detailViewContextMenuButtonVoteUp())
+                                    Text(L10n.Localizable.DetailView.ContextMenu.Button.voteUp)
                                 }
                                 Button {
                                     voteTagAction(content.voteKeyword(tag: tag), -1)
                                 } label: {
                                     Image(systemSymbol: .handThumbsdown)
-                                    Text(R.string.localizable.detailViewContextMenuButtonVoteDown())
+                                    Text(L10n.Localizable.DetailView.ContextMenu.Button.voteDown)
                                 }
                             }
                         }
@@ -713,7 +713,7 @@ private struct PreviewsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.detailViewSectionTitlePreviews(),
+            title: L10n.Localizable.DetailView.Section.Title.previews,
             showAll: pageCount > 20, showAllAction: navigatePreviewsAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -761,7 +761,7 @@ private struct CommentsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.detailViewSectionTitleComments(),
+            title: L10n.Localizable.DetailView.Section.Title.comments,
             showAll: !comments.isEmpty, showAllAction: navigateCommentAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -835,7 +835,7 @@ private struct CommentButton: View {
             HStack {
                 Spacer()
                 Image(systemSymbol: .squareAndPencil)
-                Text(R.string.localizable.detailViewButtonPostComment()).bold()
+                Text(L10n.Localizable.DetailView.Button.postComment).bold()
                 Spacer()
             }
             .padding().background(backgroundColor).cornerRadius(15)

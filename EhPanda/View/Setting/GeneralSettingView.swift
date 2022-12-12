@@ -50,28 +50,28 @@ struct GeneralSettingView: View {
 
     private var language: String {
         Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
-        ?? R.string.localizable.generalSettingViewValueDefaultLanguageDescription()
+        ?? L10n.Localizable.GeneralSettingView.Value.defaultLanguageDescription
     }
 
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text(R.string.localizable.generalSettingViewTitleLanguage())
+                    Text(L10n.Localizable.GeneralSettingView.Title.language)
                     Spacer()
                     Button(language) {
                         viewStore.send(.navigateToSystemSetting)
                     }
                     .foregroundStyle(.tint)
                 }
-                Button(R.string.localizable.generalSettingViewButtonLogs()) {
+                Button(L10n.Localizable.GeneralSettingView.Button.logs) {
                     viewStore.send(.setNavigation(.logs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
-            Section(R.string.localizable.generalSettingViewSectionTitleTags()) {
+            Section(L10n.Localizable.GeneralSettingView.Section.Title.tags) {
                 HStack {
-                    Text(R.string.localizable.generalSettingViewTitleEnablesTagsExtension())
+                    Text(L10n.Localizable.GeneralSettingView.Title.enablesTagsExtension)
                     Spacer()
                     ZStack {
                         Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
@@ -84,16 +84,16 @@ struct GeneralSettingView: View {
                     Toggle("", isOn: $enablesTagsExtension).frame(width: 50)
                 }
                 if enablesTagsExtension && !tagTranslatorEmpty {
-                    Toggle(R.string.localizable.generalSettingViewTitleTranslatesTags(), isOn: $translatesTags)
+                    Toggle(L10n.Localizable.GeneralSettingView.Title.translatesTags, isOn: $translatesTags)
                     Toggle(
-                        R.string.localizable.generalSettingViewTitleShowsTagsSearchSuggestion(),
+                        L10n.Localizable.GeneralSettingView.Title.showsTagsSearchSuggestion,
                         isOn: $showsTagsSearchSuggestion
                     )
-                    Toggle(R.string.localizable.generalSettingViewTitleShowsImagesInTags(), isOn: $showsImagesInTags)
+                    Toggle(L10n.Localizable.GeneralSettingView.Title.showsImagesInTags, isOn: $showsImagesInTags)
                 }
                 FilePicker(
                     types: [.json], allowMultiple: false,
-                    title: R.string.localizable.generalSettingViewButtonImportCustomTranslations()
+                    title: L10n.Localizable.GeneralSettingView.Button.importCustomTranslations
                 ) { urls in
                     if let url = urls.first {
                         viewStore.send(.onTranslationsFilePicked(url))
@@ -101,15 +101,15 @@ struct GeneralSettingView: View {
                 }
                 if tagTranslatorHasCustomTranslations {
                     Button(
-                        R.string.localizable.generalSettingViewButtonRemoveCustomTranslations(),
+                        L10n.Localizable.GeneralSettingView.Button.removeCustomTranslations,
                         role: .destructive, action: { viewStore.send(.setNavigation(.removeCustomTranslations)) }
                     )
                     .confirmationDialog(
-                        message: R.string.localizable.confirmationDialogTitleRemoveCustomTranslations(),
+                        message: L10n.Localizable.ConfirmationDialog.Title.removeCustomTranslations,
                         unwrapping: viewStore.binding(\.$route),
                         case: /GeneralSettingState.Route.removeCustomTranslations
                     ) {
-                        Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
+                        Button(L10n.Localizable.ConfirmationDialog.Button.remove, role: .destructive) {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                 viewStore.send(.onRemoveCustomTranslations)
                             }
@@ -117,20 +117,20 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            Section(R.string.localizable.generalSettingViewSectionTitleNavigation()) {
+            Section(L10n.Localizable.GeneralSettingView.Section.Title.navigation) {
                 Toggle(
-                    R.string.localizable.generalSettingViewTitleRedirectsLinksToTheSelectedHost(),
+                    L10n.Localizable.GeneralSettingView.Title.redirectsLinksToTheSelectedHost,
                     isOn: $redirectsLinksToSelectedHost
                 )
                 Toggle(
-                    R.string.localizable.generalSettingViewTitleDetectsLinksFromClipboard(),
+                    L10n.Localizable.GeneralSettingView.Title.detectsLinksFromClipboard,
                     isOn: $detectsLinksFromClipboard
                 )
             }
-            Section(R.string.localizable.generalSettingViewSectionTitleSecurity()) {
+            Section(L10n.Localizable.GeneralSettingView.Section.Title.security) {
                 HStack {
                     Picker(
-                        R.string.localizable.generalSettingViewTitleAutoLock(),
+                        L10n.Localizable.GeneralSettingView.Title.autoLock,
                         selection: $autoLockPolicy
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
@@ -143,7 +143,7 @@ struct GeneralSettingView: View {
                     }
                 }
                 VStack(alignment: .leading) {
-                    Text(R.string.localizable.generalSettingViewTitleBackgroundBlurRadius())
+                    Text(L10n.Localizable.GeneralSettingView.Title.backgroundBlurRadius)
                     HStack {
                         Image(systemSymbol: .eye)
                         Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
@@ -151,23 +151,23 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            Section(R.string.localizable.generalSettingViewSectionTitleCaches()) {
+            Section(L10n.Localizable.GeneralSettingView.Section.Title.caches) {
                 Button {
                     viewStore.send(.setNavigation(.clearCache))
                 } label: {
                     HStack {
-                        Text(R.string.localizable.generalSettingViewButtonClearImageCaches())
+                        Text(L10n.Localizable.GeneralSettingView.Button.clearImageCaches)
                         Spacer()
                         Text(viewStore.diskImageCacheSize).foregroundStyle(.tint)
                     }
                     .foregroundColor(.primary)
                 }
                 .confirmationDialog(
-                    message: R.string.localizable.confirmationDialogTitleClear(),
+                    message: L10n.Localizable.ConfirmationDialog.Title.clear,
                     unwrapping: viewStore.binding(\.$route),
                     case: /GeneralSettingState.Route.clearCache
                 ) {
-                    Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                    Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
                         viewStore.send(.clearWebImageCache)
                     }
                 }
@@ -182,7 +182,7 @@ struct GeneralSettingView: View {
             viewStore.send(.calculateWebImageDiskCache)
         }
         .background(navigationLink)
-        .navigationTitle(R.string.localizable.generalSettingViewTitleGeneral())
+        .navigationTitle(L10n.Localizable.GeneralSettingView.Title.general)
     }
 
     private var navigationLink: some View {

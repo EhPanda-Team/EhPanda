@@ -64,7 +64,7 @@ let appLockReducer = Reducer<AppLockState, AppLockAction, AppLockEnvironment> { 
 
     case .authorize:
         return environment.authorizationClient
-            .localAuthroize(R.string.localizable.localAuthorizationReason())
+            .localAuthroize(L10n.Localizable.LocalAuthorization.reason)
             .map(AppLockAction.authorizeDone)
 
     case .authorizeDone(let isSucceeded):

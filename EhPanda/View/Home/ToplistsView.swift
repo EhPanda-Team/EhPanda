@@ -29,7 +29,7 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        [R.string.localizable.toplistsViewTitleToplists(), viewStore.type.value].joined(separator: " - ")
+        [L10n.Localizable.ToplistsView.Title.toplists, viewStore.type.value].joined(separator: " - ")
     }
 
     var body: some View {
@@ -67,7 +67,7 @@ struct ToplistsView: View {
             pageNumber: viewStore.pageNumber ?? .init(),
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {
@@ -126,13 +126,13 @@ extension ToplistsType {
     var value: String {
         switch self {
         case .yesterday:
-            return R.string.localizable.enumToplistsTypeValueYesterday()
+            return L10n.Localizable.Enum.ToplistsType.Value.yesterday
         case .pastMonth:
-            return R.string.localizable.enumToplistsTypeValuePastMonth()
+            return L10n.Localizable.Enum.ToplistsType.Value.pastMonth
         case .pastYear:
-            return R.string.localizable.enumToplistsTypeValuePastYear()
+            return L10n.Localizable.Enum.ToplistsType.Value.pastYear
         case .allTime:
-            return R.string.localizable.enumToplistsTypeValueAllTime()
+            return L10n.Localizable.Enum.ToplistsType.Value.allTime
         }
     }
     var categoryIndex: Int {

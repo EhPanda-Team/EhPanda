@@ -27,7 +27,7 @@ struct GalleryArchive: Codable, Equatable {
         var price: String {
             switch gpPrice {
             case "Free":
-                return R.string.localizable.structHathArchivePriceValueFree()
+                return L10n.Localizable.Struct.HathArchive.Price.free
             default:
                 return gpPrice
             }
@@ -52,7 +52,7 @@ extension ArchiveResolution {
         case .x780, .x980, .x1280, .x1600, .x2400:
             return rawValue
         case .original:
-            return R.string.localizable.structHathArchiveResolutionValueOriginal()
+            return L10n.Localizable.Enum.ArchiveResolution.Value.original
         }
     }
     var parameter: String {

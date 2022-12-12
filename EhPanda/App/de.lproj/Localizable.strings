@@ -7,29 +7,29 @@
 */
 
 // MARK: BanInterval
-"enum.ban.interval.description.and" = "and";
+"enum.ban_interval.description.and" = "and";
 
 // MARK: ToplistsType
-"enum.toplists.type.value.yesterday" = "Yesterday";
-"enum.toplists.type.value.pastMonth" = "Past month";
-"enum.toplists.type.value.pastYear" = "Past year";
-"enum.toplists.type.value.allTime" = "All time";
+"enum.toplists_type.value.yesterday" = "Yesterday";
+"enum.toplists_type.value.past_month" = "Past month";
+"enum.toplists_type.value.past_year" = "Past year";
+"enum.toplists_type.value.all_time" = "All time";
 
 // MARK: Response
-"hath.download.response.hathClientNotFound" = "Du benötigst einen deinem Konto zugehörigen H@H Client um diese Funktion nutzen zu können";
-"hath.download.response.hathClientNotOnline" = "Dein H@H Client scheint offline zu sein. Sieh nach, ob er läuft und probier's nochmal";
-"hath.download.response.invalidResolution" = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
+"website.response.hath_client_not_found" = "Du benötigst einen deinem Konto zugehörigen H@H Client um diese Funktion nutzen zu können";
+"website.response.hath_client_not_online" = "Dein H@H Client scheint offline zu sein. Sieh nach, ob er läuft und probier's nochmal";
+"website.response.invalid_resolution" = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
 
 // MARK: HUD
 "hud.title.error" = "Fehler";
 "hud.title.success" = "Erfolg";
 "hud.title.loading" = "Wird geladen...";
 "hud.title.communicating" = "Verbinde...";
-"hud.caption.copiedToClipboard" = "In Zwischenablage kopiert";
-"hud.caption.savedToPhotoLibrary" = "Saved to photo library";
+"hud.caption.copied_to_clipboard" = "In Zwischenablage kopiert";
+"hud.caption.saved_to_photo_library" = "Saved to photo library";
 
 // MARK: AutoLock
-"local.authorization.reason" = "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist.";
+"local_authorization.reason" = "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist.";
 
 // MARK: Common value
 "common.value.stars" = "%@ Sterne";
@@ -46,57 +46,57 @@
 "common.value.records" = "%@ Einträge";
 
 // MARK: TabItem
-"tab.item.title.home" = "Home";
-"tab.item.title.favorites" = "Favoriten";
-"tab.item.title.search" = "Suche";
-"tab.item.title.setting" = "Einstellungen";
+"tab_item.title.home" = "Home";
+"tab_item.title.favorites" = "Favoriten";
+"tab_item.title.search" = "Suche";
+"tab_item.title.setting" = "Einstellungen";
 
 // MARK: ToolbarItem
-"toolbar.item.button.filters" = "Filters";
-"toolbar.item.button.jumpPage" = "Jump page";
-"toolbar.item.button.quickSearch" = "Quick search";
+"toolbar_item.button.filters" = "Filters";
+"toolbar_item.button.jump_page" = "Jump page";
+"toolbar_item.button.quick_search" = "Quick search";
 
 // MARK: JumpPage
-"jump.page.view.title.jumpPage" = "Jump page";
-"jump.page.view.button.confirm" = "Confirm";
+"jump_page_view.title.jump_page" = "Jump page";
+"jump_page_view.button.confirm" = "Confirm";
 
 // MARK: AlertView
-"loading.view.title.loading" = "Wird geladen...";
-"loading.view.title.preparingDatabase" = "Preparing the database...";
-"not.login.view.title.needLogin" = "You need to login to access this feature.";
-"not.login.view.button.login" = "Login";
-"error.view.button.retry" = "Erneut versuchen";
-"error.view.button.dropDatabase" = "Drop the database";
-"error.view.title.tryLater" = "Please try again later.";
-"error.view.title.network" = "A network error occurred.";
-"error.view.title.parsing" = "A parsing error occurred.";
-"error.view.title.unknown" = "An unknown error occurred.";
-"error.view.title.notFound" = "There seems to be nothing here.";
-"error.view.title.databaseCorrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
-"error.view.title.ipBanned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
-"error.view.title.copyrightClaim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
-"error.view.title.galleryUnavailable" = "This gallery has been removed or is unavailable.";
+"loading_view.title.loading" = "Wird geladen...";
+"loading_view.title.preparing_database" = "Preparing the database...";
+"not_login_view.title.need_login" = "You need to login to access this feature.";
+"not_login_view.button.login" = "Login";
+"error_view.button.retry" = "Erneut versuchen";
+"error_view.button.drop_database" = "Drop the database";
+"error_view.title.try_later" = "Please try again later.";
+"error_view.title.network" = "A network error occurred.";
+"error_view.title.parsing" = "A parsing error occurred.";
+"error_view.title.unknown" = "An unknown error occurred.";
+"error_view.title.not_found" = "There seems to be nothing here.";
+"error_view.title.database_corrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
+"error_view.title.ip_banned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
+"error_view.title.copyright_claim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
+"error_view.title.gallery_unavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
-"confirmation.dialog.title.removeCustomTranslations" = "Are you sure to remove your custom translations?";
-"confirmation.dialog.title.logout" = "Bist du sicher das du dich ausloggen möchtest?";
-"confirmation.dialog.title.delete" = "Are you sure to delete this item?";
-"confirmation.dialog.title.clear" = "Bist du sicher das du das löschen möchtest?";
-"confirmation.dialog.title.reset" = "Bist du sicher?";
-"confirmation.dialog.button.dropDatabase" = "Drop the database";
-"confirmation.dialog.button.remove" = "Remove";
-"confirmation.dialog.button.logout" = "Ausloggen";
-"confirmation.dialog.button.delete" = "Delete";
-"confirmation.dialog.button.clear" = "Löschen";
-"confirmation.dialog.button.reset" = "Zurücksetzen";
+"confirmation_dialog.title.drop_database" = "You will lose all your data in this app.\nAre you sure to drop the database?";
+"confirmation_dialog.title.remove_custom_translations" = "Are you sure to remove your custom translations?";
+"confirmation_dialog.title.logout" = "Bist du sicher das du dich ausloggen möchtest?";
+"confirmation_dialog.title.delete" = "Are you sure to delete this item?";
+"confirmation_dialog.title.clear" = "Bist du sicher das du das löschen möchtest?";
+"confirmation_dialog.title.reset" = "Bist du sicher?";
+"confirmation_dialog.button.drop_database" = "Drop the database";
+"confirmation_dialog.button.remove" = "Remove";
+"confirmation_dialog.button.logout" = "Ausloggen";
+"confirmation_dialog.button.delete" = "Delete";
+"confirmation_dialog.button.clear" = "Löschen";
+"confirmation_dialog.button.reset" = "Zurücksetzen";
 
 // MARK: SubSection
-"sub.section.button.showAll" = "Alle anzeigen";
+"sub_section.button.show_all" = "Alle anzeigen";
 
 // MARK: NewDawnView
-"new.dawn.view.title.first" = "Es ist der Beginn eines neuen Tages!";
-"new.dawn.view.title.second" = "Als du auf deine bisherige Reise zurückblickst wirst du ein kleines bisschen weiser.";
+"new_dawn_view.title.first" = "Es ist der Beginn eines neuen Tages!";
+"new_dawn_view.title.second" = "Als du auf deine bisherige Reise zurückblickst wirst du ein kleines bisschen weiser.";
 // Greeting
 "struct.greeting.mark.start" = "Du erhälst ";
 "struct.greeting.mark.separator" = ", ";
@@ -104,475 +104,480 @@
 "struct.greeting.mark.end" = "!";
 
 // MARK: HomeView
-"home.view.title.home" = "Home";
-"home.view.section.title.frontpage" = "Frontpage";
-"home.view.section.title.toplists" = "Toplists";
-"home.view.section.title.other" = "Other";
+"home_view.title.home" = "Home";
+"home_view.section.title.frontpage" = "Frontpage";
+"home_view.section.title.toplists" = "Toplists";
+"home_view.section.title.other" = "Other";
 // HomeMiscGridType
-"home.misc.grid.type.title.popular" = "Beliebt";
-"home.misc.grid.type.title.watched" = "Meine Tags";
-"home.misc.grid.type.title.history" = "Verlauf";
+"enum.home_misc_grid_type.title.popular" = "Beliebt";
+"enum.home_misc_grid_type.title.watched" = "Meine Tags";
+"enum.home_misc_grid_type.title.history" = "Verlauf";
 
 // MARK: FrontpageView
-"frontpage.view.title.frontpage" = "Frontpage";
+"frontpage_view.title.frontpage" = "Frontpage";
 
 // MARK: ToplistsView
-"toplists.view.title.toplists" = "Toplists";
+"toplists_view.title.toplists" = "Toplists";
 
 // MARK: PopularView
-"popular.view.title.popular" = "Beliebt";
+"popular_view.title.popular" = "Beliebt";
 
 // MARK: WatchedView
-"watched.view.title.watched" = "Meine Tags";
+"watched_view.title.watched" = "Meine Tags";
 
 // MARK: HistoryView
-"history.view.title.history" = "Verlauf";
+"history_view.title.history" = "Verlauf";
 
 // MARK: FavoritesView
-"favorites.view.title.favorites" = "Favoriten";
+"favorites_view.title.favorites" = "Favoriten";
 // FavoriteCategory
-"favorite.category.default" = "Favoriten %@";
-"favorite.category.all" = "Alle";
+"struct.user.favorite_category.default" = "Favoriten %@";
+"struct.user.favorite_category.all" = "Alle";
 
 // MARK: SearchView
-"search.view.title.search" = "Suche";
-"search.view.section.title.recentlySearched" = "Recently searched";
-"search.view.section.title.recentlySeen" = "Recently seen";
-"search.view.section.title.quickSearch" = "Quick search";
+"search_view.title.search" = "Suche";
+"search_view.section.title.recently_searched" = "Recently searched";
+"search_view.section.title.recently_seen" = "Recently seen";
+"search_view.section.title.quick_search" = "Quick search";
 // Searchable prompt
 "searchable.prompt.filter" = "Filter";
 
 // MARK: QuickSearchView
-"quick.search.view.title.quickSearch" = "Quick search";
-"quick.search.view.title.editWord" = "Edit word";
-"quick.search.view.title.newWord" = "New word";
-"quick.search.view.title.content" = "Content";
-"quick.search.view.title.name" = "Name";
-"quick.search.view.placeholder.optional" = "Optional";
-"quick.search.view.toolbar.item.button.confirm" = "Confirm";
+"quick_search_view.title.quick_search" = "Quick search";
+"quick_search_view.title.edit_word" = "Edit word";
+"quick_search_view.title.new_word" = "New word";
+"quick_search_view.title.content" = "Content";
+"quick_search_view.title.name" = "Name";
+"quick_search_view.placeholder.optional" = "Optional";
+"quick_search_view.toolbar_item.button.confirm" = "Confirm";
 
 // MARK: SettingView
-"setting.view.title.setting" = "Einstellungen";
+"setting_view.title.setting" = "Einstellungen";
 // SettingStateRoute
-"enum.setting.state.route.value.account" = "Konto";
-"enum.setting.state.route.value.general" = "Allgemein";
-"enum.setting.state.route.value.appearance" = "Oberfläche";
-"enum.setting.state.route.value.reading" = "Am Lesen";
-"enum.setting.state.route.value.laboratory" = "Experimentelles";
-"enum.setting.state.route.value.ehPanda" = "Über EhPanda";
+"enum.setting_state_route.value.account" = "Konto";
+"enum.setting_state_route.value.general" = "Allgemein";
+"enum.setting_state_route.value.appearance" = "Oberfläche";
+"enum.setting_state_route.value.reading" = "Am Lesen";
+"enum.setting_state_route.value.laboratory" = "Experimentelles";
+"enum.setting_state_route.value.ehPanda" = "Über EhPanda";
 
 // MARK: AccountSettingView
-"account.setting.view.title.account" = "Konto";
-"account.setting.view.title.showsNewDawnGreeting" = "Neuer-Tag-Meldung anzeigen";
-"account.setting.view.button.login" = "Einloggen";
-"account.setting.view.button.logout" = "Ausloggen";
-"account.setting.view.button.accountConfiguration" = "Kontoeinstellungen";
-"account.setting.view.button.tagsManagement" = "Meine Tags bearbeiten";
-"account.setting.view.button.copyCookies" = "Cookies kopieren";
+"account_setting_view.title.account" = "Konto";
+"account_setting_view.title.shows_new_dawn_greeting" = "Neuer-Tag-Meldung anzeigen";
+"account_setting_view.button.login" = "Einloggen";
+"account_setting_view.button.logout" = "Ausloggen";
+"account_setting_view.button.account_configuration" = "Kontoeinstellungen";
+"account_setting_view.button.tags_management" = "Meine Tags bearbeiten";
+"account_setting_view.button.copy_cookies" = "Cookies kopieren";
 // CookieValue
-"struct.cookie.value.localized.string.expired" = "Abgelaufen";
-"struct.cookie.value.localized.string.mystery" = "Abgelehnt";
-"struct.cookie.value.localized.string.none" = "None";
+"struct.cookie_value.localized_string.expired" = "Abgelaufen";
+"struct.cookie_value.localized_string.mystery" = "Abgelehnt";
+"struct.cookie_value.localized_string.none" = "None";
 
 // MARK: LoginView
-"login.view.title.login" = "Einloggen";
-"login.view.title.username" = "Username";
-"login.view.title.password" = "Password";
+"login_view.title.login" = "Einloggen";
+"login_view.title.username" = "Username";
+"login_view.title.password" = "Password";
 
 // MARK: GeneralSettingView
-"general.setting.view.title.general" = "Allgemein";
-"general.setting.view.title.language" = "Sprache";
-"general.setting.view.title.autoLock" = "Auto-Lock";
-"general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
-"general.setting.view.title.translatesTags" = "Translates tags";
-"general.setting.view.title.showsTagsSearchSuggestion" = "Shows tags search suggestion";
-"general.setting.view.title.showsImagesInTags" = "Shows images in tags";
-"general.setting.view.title.redirectsLinksToTheSelectedHost" = "Links zum ausgewählten Host umleiten";
-"general.setting.view.title.detectsLinksFromClipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
-"general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
-"general.setting.view.button.logs" = "Logs";
-"general.setting.view.button.importCustomTranslations" = "Import custom translations";
-"general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
-"general.setting.view.button.clearImageCaches" = "Zwischengespeicherte Bilder (Cache) löschen";
-"general.setting.view.value.defaultLanguageDescription" = "N/A";
-"general.setting.view.section.title.tags" = "Tags";
-"general.setting.view.section.title.navigation" = "Navigation";
-"general.setting.view.section.title.security" = "Sicherheit";
-"general.setting.view.section.title.caches" = "Caches";
+"general_setting_view.title.general" = "Allgemein";
+"general_setting_view.title.language" = "Sprache";
+"general_setting_view.title.auto_lock" = "Auto-Lock";
+"general_setting_view.title.enables_tags_extension" = "Enables tags extension";
+"general_setting_view.title.translates_tags" = "Translates tags";
+"general_setting_view.title.shows_tags_search_suggestion" = "Shows tags search suggestion";
+"general_setting_view.title.shows_images_in_tags" = "Shows images in tags";
+"general_setting_view.title.redirects_links_to_the_selected_host" = "Links zum ausgewählten Host umleiten";
+"general_setting_view.title.detects_links_from_clipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
+"general_setting_view.title.background_blur_radius" = "Background blur radius";
+"general_setting_view.button.logs" = "Logs";
+"general_setting_view.button.import_custom_translations" = "Import custom translations";
+"general_setting_view.button.remove_custom_translations" = "Remove custom translations";
+"general_setting_view.button.clear_image_caches" = "Zwischengespeicherte Bilder (Cache) löschen";
+"general_setting_view.value.default_language_description" = "N/A";
+"general_setting_view.section.title.tags" = "Tags";
+"general_setting_view.section.title.navigation" = "Navigation";
+"general_setting_view.section.title.security" = "Sicherheit";
+"general_setting_view.section.title.caches" = "Caches";
 // AutoLockPolicy
-"enum.auto.lock.policy.value.never" = "Nie";
-"enum.auto.lock.policy.value.instantly" = "Sofort";
+"enum.auto_lock_policy.value.never" = "Nie";
+"enum.auto_lock_policy.value.instantly" = "Sofort";
 
 // MARK: LogsView
-"logs.view.title.logs" = "Logs";
-"logs.view.title.latest" = "Neueste";
+"logs_view.title.logs" = "Logs";
+"logs_view.title.latest" = "Neueste";
 
 // MARK: AppearanceSettingView
-"appearance.setting.view.title.appearance" = "Oberfläche";
-"appearance.setting.view.title.theme" = "Theme";
-"appearance.setting.view.title.tintColor" = "Farbe";
-"appearance.setting.view.title.displayMode" = "Display mode";
-"appearance.setting.view.title.showsTagsInList" = "Tags als Liste anzeigen";
-"appearance.setting.view.title.maximumNumberOfTags" = "Maximale Anzahl an Tags";
-"appearance.setting.view.title.displaysJapaneseTitle" = "Displays Japanese title";
-"appearance.setting.view.button.appIcon" = "App icon";
-"appearance.setting.view.menu.title.infite" = "Infite";
-"appearance.setting.view.section.title.list" = "List";
-"appearance.setting.view.section.title.gallery" = "Gallery";
-// PerferredColorScheme
-"enum.perferred.color.scheme.value.automatic" = "Automatisch";
-"enum.perferred.color.scheme.value.light" = "Hell";
-"enum.perferred.color.scheme.value.dark" = "Dunkel";
+"appearance_setting_view.title.appearance" = "Oberfläche";
+"appearance_setting_view.title.theme" = "Theme";
+"appearance_setting_view.title.tint_color" = "Farbe";
+"appearance_setting_view.title.display_mode" = "Display mode";
+"appearance_setting_view.title.shows_tags_in_list" = "Tags als Liste anzeigen";
+"appearance_setting_view.title.maximum_number_of_tags" = "Maximale Anzahl an Tags";
+"appearance_setting_view.title.displays_japanese_title" = "Displays Japanese title";
+"appearance_setting_view.button.app_icon" = "App icon";
+"appearance_setting_view.menu.title.infite" = "Infite";
+"appearance_setting_view.section.title.list" = "List";
+"appearance_setting_view.section.title.gallery" = "Gallery";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "Automatisch";
+"enum.preferred_color_scheme.value.light" = "Hell";
+"enum.preferred_color_scheme.value.dark" = "Dunkel";
 // AppIconType
-"enum.app.icon.type.value.default" = "Standard";
-"enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
-"enum.app.icon.type.value.developer" = "Developer";
-"enum.app.icon.type.value.standWithUkraine2022" = "Stand With Ukraine (2022)";
-"enum.app.icon.type.value.notMyPresident" = "NOT MY PRESIDENT";
+"enum.app_icon_type.value.default" = "Standard";
+"enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";
+"enum.app_icon_type.value.developer" = "Developer";
+"enum.app_icon_type.value.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
+"enum.app_icon_type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
-"enum.display.mode.value.detail" = "Detail";
-"enum.display.mode.value.thumbnail" = "Thumbnail";
+"enum.list_display_mode.value.detail" = "Detail";
+"enum.list_display_mode.value.thumbnail" = "Thumbnail";
 
 // MARK: AppIconView
-"app.icon.view.title.appIcon" = "App icon";
+"app_icon_view.title.app_icon" = "App icon";
 
-// MARK: ReadingSettingView
-"reading.setting.view.title.reading" = "Am Lesen";
-"reading.setting.view.title.direction" = "Direction";
-"reading.setting.view.title.preloadLimit" = "Preload limit";
-"reading.setting.view.title.enablesLandscape" = "Enables landscape";
-"reading.setting.view.title.separatorHeight" = "Höhe der Teilung";
-"reading.setting.view.title.maximumScaleFactor" = "Maximaler Skalierungsfaktor";
-"reading.setting.view.title.doubleTapScaleFactor" = "Doppel-Tap Skalierungsfaktor";
-"reading.setting.view.section.title.appearance" = "Oberfläche";
+// MARK: reading_settingView
+"reading_setting_view.title.reading" = "Am Lesen";
+"reading_setting_view.title.direction" = "Direction";
+"reading_setting_view.title.preload_limit" = "Preload limit";
+"reading_setting_view.title.enables_landscape" = "Enables landscape";
+"reading_setting_view.title.separator_height" = "Höhe der Teilung";
+"reading_setting_view.title.maximum_scale_factor" = "Maximaler Skalierungsfaktor";
+"reading_setting_view.title.double_tap_scale_factor" = "Doppel-Tap Skalierungsfaktor";
+"reading_setting_view.section.title.appearance" = "Oberfläche";
 // ReadingDirection
-"enum.reading.direction.value.vertical" = "Vertikal";
-"enum.reading.direction.value.rightToLeft" = "Von rechts nach links";
-"enum.reading.direction.value.leftToRight" = "Von links nach rechts";
+"enum.reading_direction.value.vertical" = "Vertikal";
+"enum.reading_direction.value.right_to_left" = "Von rechts nach links";
+"enum.reading_direction.value.left_to_right" = "Von links nach rechts";
 
 // MARK: LaboratorySettingView
-"laboratory.setting.view.title.laboratory" = "Experimentelles";
-"laboratory.setting.view.title.bypassesSNIFiltering" = "SNI Filter umgehen";
+"laboratory_setting_view.title.laboratory" = "Experimentelles";
+"laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI Filter umgehen";
 
 // MARK: EhPandaView
-"ehpanda.view.title.ehPanda" = "EhPanda";
-"ehpanda.view.button.website" = "Website";
-"ehpanda.view.button.altStoreSource" = "AltStore Quelle";
-"ehpanda.view.description.version" = "Version";
-"ehpanda.view.section.title.specialThanks" = "Special thanks";
-"ehpanda.view.section.title.codeLevelContributors" = "Code-level contributors";
-"ehpanda.view.section.title.translationContributors" = "Translation contributors";
-"ehpanda.view.section.title.acknowledgements" = "OK";
+"ehPanda_view.title.ehPanda" = "EhPanda";
+"ehPanda_view.button.website" = "Website";
+"ehPanda_view.button.altStore_source" = "AltStore Quelle";
+"ehPanda_view.title.version" = "Version";
+"ehPanda_view.section.title.special_thanks" = "Special thanks";
+"ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
+"ehPanda_view.section.title.translation_contributors" = "Translation contributors";
+"ehPanda_view.section.title.acknowledgements" = "OK";
 
 // MARK: DetailView
-"detail.view.button.read" = "Lesen";
-"detail.view.button.postComment" = "Kommentar abgeben";
-"detail.view.toolbar.item.button.archives" = "Archiv";
-"detail.view.toolbar.item.button.torrents" = "Torrents";
-"detail.view.toolbar.item.button.share" = "Teilen";
-"detail.view.context.menu.button.detail" = "Detail";
-"detail.view.context.menu.button.withdrawVote" = "Withdraw vote";
-"detail.view.context.menu.button.voteUp" = "Vote up";
-"detail.view.context.menu.button.voteDown" = "Vote down";
-"detail.view.scroll.section.title.favorited" = "Favorisiert";
-"detail.view.scroll.section.title.language" = "Sprache";
-"detail.view.scroll.section.title.ratings" = "%@ Bewertungen";
-"detail.view.scroll.section.title.pageCount" = "Seitenzahl";
-"detail.view.scroll.section.title.fileSize" = "Dateigröße";
-"detail.view.scroll.section.description.favorited" = "mal";
-"detail.view.scroll.section.description.pageCount" = "Seiten";
-"detail.view.action.section.button.giveARating" = "Bewertung abgeben";
-"detail.view.action.section.button.similarGallery" = "Ähnliche Galerien";
-"detail.view.section.title.previews" = "Vorschau";
-"detail.view.section.title.comments" = "Kommentar";
+"detail_view.button.read" = "Lesen";
+"detail_view.button.post_comment" = "Kommentar abgeben";
+"detail_view.toolbar_item.button.archives" = "Archiv";
+"detail_view.toolbar_item.button.torrents" = "Torrents";
+"detail_view.toolbar_item.button.share" = "Teilen";
+"detail_view.context_menu.button.detail" = "Detail";
+"detail_view.context_menu.button.withdraw_vote" = "Withdraw vote";
+"detail_view.context_menu.button.vote_up" = "Vote up";
+"detail_view.context_menu.button.vote_down" = "Vote down";
+"detail_view.description_section.title.favorited" = "Favorisiert";
+"detail_view.description_section.title.language" = "Sprache";
+"detail_view.description_section.title.ratings" = "%@ Bewertungen";
+"detail_view.description_section.title.page_count" = "Seitenzahl";
+"detail_view.description_section.title.file_size" = "Dateigröße";
+"detail_view.description_section.description.favorited" = "mal";
+"detail_view.description_section.description.page_count" = "Seiten";
+"detail_view.action_section.button.give_a_rating" = "Bewertung abgeben";
+"detail_view.action_section.button.similar_gallery" = "Ähnliche Galerien";
+"detail_view.section.title.previews" = "Vorschau";
+"detail_view.section.title.comments" = "Kommentar";
 
 // MARK: ArchivesView
-"archives.view.title.archives" = "Archiv";
-"archives.view.button.downloadToHathClient" = "Mit H@H Client herunterladen";
+"archives_view.title.archives" = "Archiv";
+"archives_view.button.download_to_hath_client" = "Mit H@H Client herunterladen";
 // HathArchive
-"struct.hath.archive.price.value.free" = "Frei";
-"struct.hath.archive.price.value.notAvailable" = "./.";
-"struct.hath.archive.resolution.value.original" = "Original";
+"struct.hath_archive.price.free" = "Frei";
+"struct.hath_archive.price.not_available" = "./.";
+// ArchiveResolution
+"enum.archive_resolution.value.original" = "Original";
 
 // MARK: TorrentsView
-"torrents.view.title.torrents" = "Torrents";
+"torrents_view.title.torrents" = "Torrents";
 
 // MARK: GalleryInfosView
-"gallery.infos.view.title.galleryInfos" = "Gallery infos";
-"gallery.infos.view.title.ID" = "ID";
-"gallery.infos.view.title.token" = "Token";
-"gallery.infos.view.title.title" = "Title";
-"gallery.infos.view.title.japaneseTitle" = "Japanese title";
-"gallery.infos.view.title.galleryURL" = "Gallery URL";
-"gallery.infos.view.title.coverURL" = "Cover URL";
-"gallery.infos.view.title.archiveURL" = "Archive URL";
-"gallery.infos.view.title.torrentURL" = "Torrent URL";
-"gallery.infos.view.title.parentURL" = "Parent URL";
-"gallery.infos.view.title.category" = "Category";
-"gallery.infos.view.title.uploader" = "Uploader";
-"gallery.infos.view.title.postedDate" = "Posted date";
-"gallery.infos.view.title.visibility" = "Visibility";
-"gallery.infos.view.title.language" = "Language";
-"gallery.infos.view.title.pageCount" = "Page count";
-"gallery.infos.view.title.fileSize" = "File size";
-"gallery.infos.view.title.favoritedTimes" = "Favorited times";
-"gallery.infos.view.title.favorited" = "Favorited";
-"gallery.infos.view.title.ratingCount" = "Rating count";
-"gallery.infos.view.title.averageRating" = "Average rating";
-"gallery.infos.view.title.myRating" = "My rating";
-"gallery.infos.view.title.torrentCount" = "Torrent count";
-"gallery.infos.view.value.none" = "None";
-"gallery.infos.view.value.yes" = "Yes";
-"gallery.infos.view.value.no" = "No";
+"gallery_infos_view.title.gallery_infos" = "Gallery infos";
+"gallery_infos_view.title.id" = "ID";
+"gallery_infos_view.title.token" = "Token";
+"gallery_infos_view.title.title" = "Title";
+"gallery_infos_view.title.japanese_title" = "Japanese title";
+"gallery_infos_view.title.gallery_URL" = "Gallery URL";
+"gallery_infos_view.title.cover_URL" = "Cover URL";
+"gallery_infos_view.title.archive_URL" = "Archive URL";
+"gallery_infos_view.title.torrent_URL" = "Torrent URL";
+"gallery_infos_view.title.parent_URL" = "Parent URL";
+"gallery_infos_view.title.category" = "Category";
+"gallery_infos_view.title.uploader" = "Uploader";
+"gallery_infos_view.title.posted_date" = "Posted date";
+"gallery_infos_view.title.visibility" = "Visibility";
+"gallery_infos_view.title.language" = "Language";
+"gallery_infos_view.title.page_count" = "Page count";
+"gallery_infos_view.title.file_size" = "File size";
+"gallery_infos_view.title.favorited_times" = "Favorited times";
+"gallery_infos_view.title.favorited" = "Favorited";
+"gallery_infos_view.title.rating_count" = "Rating count";
+"gallery_infos_view.title.average_rating" = "Average rating";
+"gallery_infos_view.title.my_rating" = "My rating";
+"gallery_infos_view.title.torrent_count" = "Torrent count";
+"gallery_infos_view.value.none" = "None";
+"gallery_infos_view.value.yes" = "Yes";
+"gallery_infos_view.value.no" = "No";
 // GalleryVisibility
-"gallery.visibility.value.yes" = "Yes";
-"gallery.visibility.value.no" = "No (%@)";
-"gallery.visibility.value.no.reason.expunged" = "Expunged";
+"enum.gallery_visibility.value.yes" = "Yes";
+"enum.gallery_visibility.value.no" = "No (%@)";
+"enum.gallery_visibility.value.no.reason.expunged" = "Expunged";
 
 // MARK: TagDetailView
-"tag.detail.view.section.title.images" = "Images";
-"tag.detail.view.section.title.links" = "Links";
+"tag_detail_view.section.title.images" = "Images";
+"tag_detail_view.section.title.links" = "Links";
 
 // MARK: CommentsView
-"comments.view.title.comments" = "Kommentar";
+"comments_view.title.comments" = "Kommentar";
 
 // MARK: PostCommentView
-"post.comment.view.title.postComment" = "Kommentar abgeben";
-"post.comment.view.title.editComment" = "Kommentar bearbeiten";
-"post.comment.view.button.cancel" = "Abbrechen";
-"post.comment.view.button.post" = "Senden";
+"post_comment_view.title.post_comment" = "Kommentar abgeben";
+"post_comment_view.title.edit_comment" = "Kommentar bearbeiten";
+"post_comment_view.button.cancel" = "Abbrechen";
+"post_comment_view.button.post" = "Senden";
 
 // MARK: PreviewsView
-"previews.view.title.previews" = "Vorschau";
+"previews_view.title.previews" = "Vorschau";
 
 // MARK: ReadingView
-"reading.view.context.menu.button.reload" = "Reload";
-"reading.view.context.menu.button.copy" = "Copy";
-"reading.view.context.menu.button.save" = "Save";
-"reading.view.context.menu.button.saveOriginal" = "Save original";
-"reading.view.context.menu.button.share" = "Teilen";
-"reading.view.toolbar.item.title.autoPlay" = "Auto-Play";
-"reading.view.toolbar.item.title.dualPageMode" = "Dual-Page mode";
-"reading.view.toolbar.item.title.exceptTheCover" = "Except the cover";
-"reading.view.toolbar.item.button.retryAllFailedImages" = "Retry failed images";
-"reading.view.toolbar.item.button.reloadAllImages" = "Reload all images";
-"reading.view.toolbar.item.button.readingSetting" = "Reading setting";
+"reading_view.context_menu.button.reload" = "Reload";
+"reading_view.context_menu.button.copy" = "Copy";
+"reading_view.context_menu.button.save" = "Save";
+"reading_view.context_menu.button.save_original" = "Save original";
+"reading_view.context_menu.button.share" = "Teilen";
+"reading_view.toolbar_item.title.auto_play" = "Auto-Play";
+"reading_view.toolbar_item.title.dual_page_mode" = "Dual-Page mode";
+"reading_view.toolbar_item.title.except_the_cover" = "Except the cover";
+"reading_view.toolbar_item.button.retry_all_failed_images" = "Retry failed images";
+"reading_view.toolbar_item.button.reload_all_images" = "Reload all images";
+"reading_view.toolbar_item.button.reading_setting" = "Reading setting";
 // AutoPlayPolicy
-"enum.auto.play.policy.value.off" = "Off";
+"enum.auto_play_policy.value.off" = "Off";
 
 // MARK: FiltersView
-"filters.view.title.filters" = "Filters";
-"filters.view.title.advancedSettings" = "Erweiterte Einstellungen";
-"filters.view.title.searchGalleryName" = "Galerienamen durchsuchen";
-"filters.view.title.searchGalleryTags" = "Galerietags durchsuchen";
-"filters.view.title.searchGalleryDescription" = "Galeriebeschreibung durchsuchen";
-"filters.view.title.searchTorrentFilenames" = "Torrents durchsuchen";
-"filters.view.title.onlyShowGalleriesWithTorrents" = "Nur Galerien mit Torrents zeigen";
-"filters.view.title.searchLowPowerTags" = "Low-Power Tags miteinbeziehen";
-"filters.view.title.searchDownvotedTags" = "Negativ bewertete Tags miteinbeziehen";
-"filters.view.title.showExpungedGalleries" = "Gelöschte Galerien zeigen";
-"filters.view.title.setMinimumRating" = "Minimaleste Bewertung festlegen";
-"filters.view.title.minimumRating" = "Minimale Bewertung";
-"filters.view.title.setPagesRange" = "Seitenzahl-Bereich festlegen";
-"filters.view.title.pagesRange" = "Seitenzahl-Bereich";
-"filters.view.title.disableLanguageFilter" = "Gefilterte Sprachen miteinbeziehen";
-"filters.view.title.disableUploaderFilter" = "Gefilterte Uploader miteinbeziehen";
-"filters.view.title.disableTagsFilter" = "Gefilterte Tags miteinbeziehen";
-"filters.view.button.resetFilters" = "Filter zurücksetzen";
-"filters.view.section.title.advanced" = "Erweitert";
-"filters.view.section.title.defaultFilter" = "Standardfilter";
+"filters_view.title.filters" = "Filters";
+"filters_view.title.advanced_settings" = "Erweiterte Einstellungen";
+"filters_view.title.search_gallery_name" = "Galerienamen durchsuchen";
+"filters_view.title.search_gallery_tags" = "Galerietags durchsuchen";
+"filters_view.title.search_gallery_description" = "Galeriebeschreibung durchsuchen";
+"filters_view.title.search_torrent_filenames" = "Torrents durchsuchen";
+"filters_view.title.only_show_galleries_with_torrents" = "Nur Galerien mit Torrents zeigen";
+"filters_view.title.search_low_power_tags" = "Low-Power Tags miteinbeziehen";
+"filters_view.title.search_downvoted_tags" = "Negativ bewertete Tags miteinbeziehen";
+"filters_view.title.search_expunged_galleries" = "Gelöschte Galerien zeigen";
+"filters_view.title.set_minimum_rating" = "Minimaleste Bewertung festlegen";
+"filters_view.title.minimum_rating" = "Minimale Bewertung";
+"filters_view.title.set_pages_range" = "Seitenzahl-Bereich festlegen";
+"filters_view.title.pages_range" = "Seitenzahl-Bereich";
+"filters_view.title.disable_language_filter" = "Gefilterte Sprachen miteinbeziehen";
+"filters_view.title.disable_uploader_filter" = "Gefilterte Uploader miteinbeziehen";
+"filters_view.title.disable_tags_filter" = "Gefilterte Tags miteinbeziehen";
+"filters_view.button.reset_filters" = "Filter zurücksetzen";
+"filters_view.section.title.advanced" = "Erweitert";
+"filters_view.section.title.default_filter" = "Standardfilter";
 // FilterRange
-"enum.filter.range.value.search" = "Suche";
-"enum.filter.range.value.global" = "Global";
-"enum.filter.range.value.watched" = "Meine Tags";
+"enum.filter_range.value.search" = "Suche";
+"enum.filter_range.value.global" = "Global";
+"enum.filter_range.value.watched" = "Meine Tags";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSettings" = "%@ settings";
-"eh.setting.view.section.title.profileSettings" = "Profile Settings";
-"eh.setting.view.title.selectedProfile" = "Selected profile";
-"eh.setting.view.button.setAsDefault" = "Set as default";
-"eh.setting.view.button.deleteProfile" = "Delete profile";
-"eh.setting.view.button.rename" = "Rename";
-"eh.setting.view.button.createNew" = "Create new";
-"eh.setting.view.toolbar.item.button.done" = "Done";
+"eh_setting_view.title.host_settings" = "%@ settings";
+"eh_setting_view.section.title.profile_settings" = "Profile Settings";
+"eh_setting_view.title.selected_profile" = "Selected profile";
+"eh_setting_view.button.set_as_default" = "Set as default";
+"eh_setting_view.button.delete_profile" = "Delete profile";
+"eh_setting_view.button.rename" = "Rename";
+"eh_setting_view.button.create_new" = "Create new";
+"eh_setting_view.toolbar_item.button.done" = "Done";
 
-"eh.setting.view.section.title.imageLoadSettings" = "Image Load Settings";
-"eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Load images through the Hath network";
-"eh.setting.view.title.browsingCountry" = "Browsing country";
-"eh.setting.view.description.browsingCountry" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
+"eh_setting_view.section.title.image_load_settings" = "Image Load Settings";
+"eh_setting_view.title.load_images_through_the_hath_network" = "Load images through the Hath network";
+"eh_setting_view.title.browsing_country" = "Browsing country";
+"eh_setting_view.description.browsing_country" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
 // EhSetting.LoadThroughHathSetting
-"enum.eh.setting.load.through.hath.setting.value.anyClient" = "Any client";
-"enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "Default port clients only";
-"enum.eh.setting.load.through.hath.setting.value.modernNo" = "No [Modern/HTTPS]";
-"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "No [Legacy/HTTP]";
-"enum.eh.setting.load.through.hath.setting.description.anyClient" = "Recommended.";
-"enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.";
-"enum.eh.setting.load.through.hath.setting.description.modernNo" = "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.";
-"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
+"enum.eh_setting.load_through_hath_setting.value.any_client" = "Any client";
+"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "Default port clients only";
+"enum.eh_setting.load_through_hath_setting.value.modern_no" = "No [Modern/HTTPS]";
+"enum.eh_setting.load_through_hath_setting.value.legacy_no" = "No [Legacy/HTTP]";
+"enum.eh_setting.load_through_hath_setting.description.any_client" = "Recommended.";
+"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.";
+"enum.eh_setting.load_through_hath_setting.description.modern_no" = "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.";
+"enum.eh_setting.load_through_hath_setting.description.legacy_no" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
 
-"eh.setting.view.section.title.imageSizeSettings" = "Image Size Settings";
-"eh.setting.view.title.imageResolution" = "Image resolution";
-"eh.setting.view.description.imageResolution" = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.";
-"eh.setting.view.title.imageSize" = "Image size";
-"eh.setting.view.description.imageSize" = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)";
-"eh.setting.view.title.horizontal" = "Horizontal";
-"eh.setting.view.title.vertical" = "Vertical";
+"eh_setting_view.section.title.image_size_settings" = "Image Size Settings";
+"eh_setting_view.title.image_resolution" = "Image resolution";
+"eh_setting_view.description.image_resolution" = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.";
+"eh_setting_view.title.image_size" = "Image size";
+"eh_setting_view.description.image_size" = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)";
+"eh_setting_view.title.horizontal" = "Horizontal";
+"eh_setting_view.title.vertical" = "Vertical";
 // EhSetting.ImageResolution
-"enum.eh.setting.image.resolution.value.auto" = "Auto";
+"enum.eh_setting.image_resolution.value.auto" = "Auto";
 
-"eh.setting.view.section.title.galleryNameDisplay" = "Gallery Name Display";
-"eh.setting.view.title.galleryName" = "Gallery name";
-"eh.setting.view.description.galleryName" = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?";
+"eh_setting_view.section.title.gallery_name_display" = "Gallery Name Display";
+"eh_setting_view.title.gallery_name" = "Gallery name";
+"eh_setting_view.description.gallery_name" = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?";
 // EhSetting.GalleryName
-"enum.eh.setting.gallery.name.value.default" = "Default Title";
-"enum.eh.setting.gallery.name.value.japanese" = "Japanese Title (if available)";
+"enum.eh_setting.gallery_name.value.default" = "Default Title";
+"enum.eh_setting.gallery_name.value.japanese" = "Japanese Title (if available)";
 
-"eh.setting.view.section.title.archiverSettings" = "Archiver Settings";
-"eh.setting.view.title.archiverBehavior" = "Archiver behavior";
-"eh.setting.view.description.archiverBehavior" = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.";
+"eh_setting_view.section.title.archiver_settings" = "Archiver Settings";
+"eh_setting_view.title.archiver_behavior" = "Archiver behavior";
+"eh_setting_view.description.archiver_behavior" = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.";
 // EhSetting.ArchiverBehavior
-"enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "Manual Select, Manual Start (Default)";
-"enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "Manual Select, Auto Start";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "Auto Select Original, Manual Start";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalAutoStart" = "Auto Select Original, Auto Start";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleManualStart" = "Auto Select Resample, Manual Start";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleAutoStart" = "Auto Select Resample, Auto Start";
+"enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "Manual Select, Manual Start (Default)";
+"enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "Manual Select, Auto Start";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_manual_start" = "Auto Select Original, Manual Start";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_auto_start" = "Auto Select Original, Auto Start";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_manual_start" = "Auto Select Resample, Manual Start";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_auto_start" = "Auto Select Resample, Auto Start";
 
-"eh.setting.view.section.title.frontPageSettings" = "Front Page Settings";
-"eh.setting.view.title.displayMode" = "Display mode";
-"eh.setting.view.description.displayMode" = "Which display mode would you like to use on the front and search pages?";
-"eh.setting.view.description.galleryCategory" = "What categories would you like to show by default on the front page and in searches?";
+"eh_setting_view.section.title.front_page_settings" = "Front Page Settings";
+"eh_setting_view.title.display_mode" = "Display mode";
+"eh_setting_view.description.display_mode" = "Which display mode would you like to use on the front and search pages?";
+"eh_setting_view.description.gallery_category" = "What categories would you like to show by default on the front page and in searches?";
 // EhSetting.DisplayMode
-"enum.eh.setting.display.mode.value.compact" = "Compact";
-"enum.eh.setting.display.mode.value.thumbnail" = "Thumbnail";
-"enum.eh.setting.display.mode.value.extended" = "Extended";
-"enum.eh.setting.display.mode.value.minimal" = "Minimal";
-"enum.eh.setting.display.mode.value.minimalPlus" = "Minimal+";
+"enum.eh_setting.display_mode.value.compact" = "Compact";
+"enum.eh_setting.display_mode.value.thumbnail" = "Thumbnail";
+"enum.eh_setting.display_mode.value.extended" = "Extended";
+"enum.eh_setting.display_mode.value.minimal" = "Minimal";
+"enum.eh_setting.display_mode.value.minimalPlus" = "Minimal+";
 
-"eh.setting.view.section.title.favorites" = "Favorites";
-"eh.setting.view.description.favoriteCategories" = "Here you can choose and rename your favorite categories.";
-"eh.setting.view.title.favoritesSortOrder" = "Favorites sort order";
-"eh.setting.view.description.favoritesSortOrder" = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.";
+"eh_setting_view.section.title.favorites" = "Favorites";
+"eh_setting_view.description.favorite_categories" = "Here you can choose and rename your favorite categories.";
+"eh_setting_view.title.favorites_sort_order" = "Favorites sort order";
+"eh_setting_view.description.favorites_sort_order" = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.";
 // EhSetting.FavoritesSortOrder
-"enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "By last gallery update time";
-"enum.eh.setting.favorites.sort.order.value.favoritedTime" = "By favorited time";
+"enum.eh_setting.favorites_sort_order.value.last_update_time" = "By last gallery update time";
+"enum.eh_setting.favorites_sort_order.value.favorited_time" = "By favorited time";
 
-"eh.setting.view.section.title.ratings" = "Ratings";
-"eh.setting.view.title.ratingsColor" = "Ratings color";
-"eh.setting.view.promt.ratingsColor" = "RRGGB";
-"eh.setting.view.description.ratingsColor" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
+"eh_setting_view.section.title.ratings" = "Ratings";
+"eh_setting_view.title.ratings_color" = "Ratings color";
+"eh_setting_view.promt.ratings_color" = "RRGGB";
+"eh_setting_view.description.ratings_color" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
 
-"eh.setting.view.section.title.tagsNamespaces" = "Tag Namespaces";
-"eh.setting.view.description.tagsNamespaces" = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces.";
+"eh_setting_view.section.title.tags_namespaces" = "Tag Namespaces";
+"eh_setting_view.description.tags_namespaces" = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces.";
 
-"eh.setting.view.section.title.tagFilteringThreshold" = "Tag Filtering Threshold";
-"eh.setting.view.title.tagFilteringThreshold" = "Tag Filtering Threshold";
-"eh.setting.view.description.tagFilteringThreshold" = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.";
+"eh_setting_view.section.title.tag_filtering_threshold" = "Tag Filtering Threshold";
+"eh_setting_view.title.tag_filtering_threshold" = "Tag Filtering Threshold";
+"eh_setting_view.description.tag_filtering_threshold" = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.";
 
-"eh.setting.view.section.title.tagWatchingThreshold" = "Tag Watching Threshold";
-"eh.setting.view.title.tagWatchingThreshold" = "Tag Watching Threshold";
-"eh.setting.view.description.tagWatchingThreshold" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
+"eh_setting_view.section.title.tag_watching_threshold" = "Tag Watching Threshold";
+"eh_setting_view.title.tag_watching_threshold" = "Tag Watching Threshold";
+"eh_setting_view.description.tag_watching_threshold" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
 
-"eh.setting.view.section.title.filteredRemovalCount" = "Show Filtered Removal Count";
-"eh.setting.view.description.filteredRemovalCount" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh.setting.view.title.showFilteredRemovalCount" = "Show filtered removal count";
+"eh_setting_view.section.title.filtered_removal_count" = "Show Filtered Removal Count";
+"eh_setting_view.description.filtered_removal_count" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
+"eh_setting_view.title.show_filtered_removal_count" = "Show filtered removal count";
 
-"eh.setting.view.section.title.excludedLanguages" = "Excluded Languages";
-"eh.setting.view.description.excludedLanguages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+"eh_setting_view.section.title.excluded_languages" = "Excluded Languages";
+"eh_setting_view.description.excluded_languages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
 // EhSetting.ExcludedLanguagesCategory
-"enum.eh.setting.excluded.languages.category.value.original" = "Original";
-"enum.eh.setting.excluded.languages.category.value.translated" = "Translated";
-"enum.eh.setting.excluded.languages.category.value.rewrite" = "Rewrite";
+"enum.eh_setting.excluded_languages_category.value.original" = "Original";
+"enum.eh_setting.excluded_languages_category.value.translated" = "Translated";
+"enum.eh_setting.excluded_languages_category.value.rewrite" = "Rewrite";
 
-"eh.setting.view.section.title.excludedUploaders" = "Excluded Uploaders";
-"eh.setting.view.description.excludedUploaders" = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.";
-"eh.setting.view.description.excludedUploadersCount" = "You are currently using **%@ / %@** exclusion slots.";
+"eh_setting_view.section.title.excluded_uploaders" = "Excluded Uploaders";
+"eh_setting_view.description.excluded_uploaders" = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.";
+"eh_setting_view.description.excluded_uploaders_count" = "You are currently using **%@ / %@** exclusion slots.";
 
-"eh.setting.view.section.title.searchResultCount" = "Search Result Count";
-"eh.setting.view.title.resultCount" = "Result count";
-"eh.setting.view.description.resultCount" = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)";
+"eh_setting_view.section.title.search_result_count" = "Search Result Count";
+"eh_setting_view.title.result_count" = "Result count";
+"eh_setting_view.description.result_count" = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)";
 
-"eh.setting.view.section.title.thumbnailSettings" = "Thumbnail Settings";
-"eh.setting.view.title.thumbnailLoadTiming" = "Thumbnail load timing";
-"eh.setting.view.description.thumbnailLoadTiming" = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?";
-"eh.setting.view.description.thumbnailConfiguration" = "You can set a default thumbnail configuration for all galleries you visit.";
-"eh.setting.view.title.thumbnailSize" = "Size";
-"eh.setting.view.title.thumbnailRowCount" = "Rows";
+"eh_setting_view.section.title.thumbnail_settings" = "Thumbnail Settings";
+"eh_setting_view.title.thumbnail_load_timing" = "Thumbnail load timing";
+"eh_setting_view.description.thumbnail_load_timing" = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?";
+"eh_setting_view.description.thumbnail_configuration" = "You can set a default thumbnail configuration for all galleries you visit.";
+"eh_setting_view.title.thumbnail_size" = "Size";
+"eh_setting_view.title.thumbnail_row_count" = "Rows";
 // EhSetting.ThumbnailLoadTiming
-"enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "On mouse-over";
-"enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "On page load";
-"enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "Pages load faster, but there may be a slight delay before a thumb appears.";
-"enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded.";
+"enum.eh_setting.thumbnail_load_timing.value.on_mouse_over" = "On mouse-over";
+"enum.eh_setting.thumbnail_load_timing.value.on_page_load" = "On page load";
+"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "Pages load faster, but there may be a slight delay before a thumb appears.";
+"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded.";
 // EhSetting.ThumbnailSize
-"enum.eh.setting.thumbnail.size.value.normal" = "Normal";
-"enum.eh.setting.thumbnail.size.value.large" = "Large";
+"enum.eh_setting.thumbnail_size.value.normal" = "Normal";
+"enum.eh_setting.thumbnail_size.value.large" = "Large";
 
-"eh.setting.view.section.title.thumbnailScaling" = "Thumbnail Scaling";
-"eh.setting.view.title.scaleFactor" = "Scale factor";
-"eh.setting.view.description.scaleFactor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%.";
+"eh_setting_view.section.title.thumbnail_scaling" = "Thumbnail Scaling";
+"eh_setting_view.title.scale_factor" = "Scale factor";
+"eh_setting_view.description.scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.";
 
-"eh.setting.view.section.title.viewportOverride" = "Viewport Override";
-"eh.setting.view.title.virtualWidth" = "Virtual width";
-"eh.setting.view.description.virtualWidth" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400.";
+"eh_setting_view.section.title.viewport_override" = "Viewport Override";
+"eh_setting_view.title.virtual_width" = "Virtual width";
+"eh_setting_view.description.virtual_width" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.";
 
-"eh.setting.view.section.title.galleryComments" = "Gallery Comments";
-"eh.setting.view.title.commentsSortOrder" = "Comments sort order";
-"eh.setting.view.title.commentsVotesShowTiming" = "Comment votes show timing";
+"eh_setting_view.section.title.gallery_comments" = "Gallery Comments";
+"eh_setting_view.title.comments_sort_order" = "Comments sort order";
+"eh_setting_view.title.comments_votes_show_timing" = "Comment votes show timing";
 // EhSetting.CommentsSortOrder
-"enum.eh.setting.comments.sort.order.value.oldest" = "Oldest comments first";
-"enum.eh.setting.comments.sort.order.value.recent" = "Recent comments first";
-"enum.eh.setting.comments.sort.order.value.highestScore" = "By highest score";
+"enum.eh_setting.comments_sort_order.value.oldest" = "Oldest comments first";
+"enum.eh_setting.comments_sort_order.value.recent" = "Recent comments first";
+"enum.eh_setting.comments_sort_order.value.highest_score" = "By highest score";
 // EhSetting.CommentVotesShowTiming
-"enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "On score hover or click";
-"enum.eh.setting.comments.votes.show.timing.value.always" = "Always";
+"enum.eh_setting.comments_votes_show_timing.value.on_hover_or_click" = "On score hover or click";
+"enum.eh_setting.comments_votes_show_timing.value.always" = "Always";
 
-"eh.setting.view.section.title.galleryTags" = "Gallery Tags";
-"eh.setting.view.title.tagsSortOrder" = "Tags sort order";
-// EhSetting.TagsSortOrder
-"enum.eh.setting.tags.sort.order.value.alphabetical" = "Alphabetical";
-"enum.eh.setting.tags.sort.order.value.tagPower" = "By tag power";
+"eh_setting_view.section.title.gallery_tags" = "Gallery Tags";
+"eh_setting_view.title.tags_sort_order" = "Tags sort order";
+// EhSetting.tags_sort_order
+"enum.eh_setting.tags_sort_order.value.alphabetical" = "Alphabetical";
+"enum.eh_setting.tags_sort_order.value.tag_power" = "By tag power";
 
-"eh.setting.view.section.title.galleryPageNumbering" = "Gallery Page Numbering";
-"eh.setting.view.title.showGalleryPageNumbers" = "Show gallery page numbers";
+"eh_setting_view.section.title.gallery_page_numbering" = "Gallery Page Numbering";
+"eh_setting_view.title.show_gallery_page_numbers" = "Show gallery page numbers";
 
-"eh.setting.view.section.title.originalImages" = "Original Images";
-"eh.setting.view.title.useOriginalImages" = "Use original images";
+"eh_setting_view.section.title.hath_local_network_host" = "Hath Local Network Host";
+"eh_setting_view.title.ip_address_port" = "IP address:Port";
+"eh_setting_view.description.ip_address_port" = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.";
 
-"eh.setting.view.section.title.multiPageViewer" = "Multi-Page Viewer";
-"eh.setting.view.title.useMultiPageViewer" = "Use Multi-Page Viewer";
-"eh.setting.view.title.displayStyle" = "Display style";
-"eh.setting.view.title.showThumbnailPane" = "Show thumbnail pane";
+"eh_setting_view.section.title.original_images" = "Original Images";
+"eh_setting_view.title.use_original_images" = "Use original images";
+
+"eh_setting_view.section.title.multi_page_viewer" = "Multi-Page Viewer";
+"eh_setting_view.title.use_multi_page_viewer" = "Use Multi-Page Viewer";
+"eh_setting_view.title.display_style" = "Display style";
+"eh_setting_view.title.show_thumbnail_pane" = "Show thumbnail pane";
 // EhSetting.MultiplePageViewerStyle
-"enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "Align left, scale if overwidth";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "Align center, scale if overwidth";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "Align center, always scale";
+"enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "Align left, scale if overwidth";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "Align center, scale if overwidth";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "Align center, always scale";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "Doujinshi";
 "enum.category.value.manga" = "Manga";
-"enum.category.value.artistCG" = "Artist CG";
-"enum.category.value.gameCG" = "Game CG";
+"enum.category.value.artist_CG" = "Artist CG";
+"enum.category.value.game_CG" = "Game CG";
 "enum.category.value.western" = "Western";
-"enum.category.value.nonH" = "Non-H";
-"enum.category.value.imageSet" = "Image Set";
+"enum.category.value.non_h" = "Non-H";
+"enum.category.value.image_set" = "Image Set";
 "enum.category.value.cosplay" = "Cosplay";
-"enum.category.value.asianPorn" = "Asian Porn";
+"enum.category.value.asian_porn" = "Asian Porn";
 "enum.category.value.misc" = "Misc";
 "enum.category.value.private" = "Private";
 
-// MARK: TagCategory
-"enum.tag.namespace.value.reclass" = "Reclass";
-"enum.tag.namespace.value.language" = "Sprache";
-"enum.tag.namespace.value.parody" = "Parodie";
-"enum.tag.namespace.value.character" = "Charakter";
-"enum.tag.namespace.value.group" = "Gruppe";
-"enum.tag.namespace.value.artist" = "Künstler";
-"enum.tag.namespace.value.male" = "Männlich";
-"enum.tag.namespace.value.female" = "Weiblich";
-"enum.tag.namespace.value.mixed" = "Mixed";
-"enum.tag.namespace.value.cosplayer" = "Cosplayer";
-"enum.tag.namespace.value.other" = "Other";
-"enum.tag.namespace.value.temp" = "Temp";
+// MARK: TagNamespace
+"enum.tag_namespace.value.reclass" = "Reclass";
+"enum.tag_namespace.value.language" = "Sprache";
+"enum.tag_namespace.value.parody" = "Parodie";
+"enum.tag_namespace.value.character" = "Charakter";
+"enum.tag_namespace.value.group" = "Gruppe";
+"enum.tag_namespace.value.artist" = "Künstler";
+"enum.tag_namespace.value.male" = "Männlich";
+"enum.tag_namespace.value.female" = "Weiblich";
+"enum.tag_namespace.value.mixed" = "Mixed";
+"enum.tag_namespace.value.cosplayer" = "Cosplayer";
+"enum.tag_namespace.value.other" = "Other";
+"enum.tag_namespace.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "./.";
@@ -643,255 +648,255 @@
 "enum.language.value.zulu" = "Zulu";
 
 // MARK: BrowsingCountry
-"enum.browsing.country.name.autoDetect" = "Auto-Detect";
-"enum.browsing.country.name.afghanistan" = "Afghanistan";
-"enum.browsing.country.name.alandIslands" = "Aland Islands";
-"enum.browsing.country.name.albania" = "Albania";
-"enum.browsing.country.name.algeria" = "Algeria";
-"enum.browsing.country.name.americanSamoa" = "American Samoa";
-"enum.browsing.country.name.andorra" = "Andorra";
-"enum.browsing.country.name.angola" = "Angola";
-"enum.browsing.country.name.anguilla" = "Anguilla";
-"enum.browsing.country.name.antarctica" = "Antarctica";
-"enum.browsing.country.name.antiguaAndBarbuda" = "Antigua and Barbuda";
-"enum.browsing.country.name.argentina" = "Argentina";
-"enum.browsing.country.name.armenia" = "Armenia";
-"enum.browsing.country.name.aruba" = "Aruba";
-"enum.browsing.country.name.asiaPacificRegion" = "Asia-Pacific Region";
-"enum.browsing.country.name.australia" = "Australia";
-"enum.browsing.country.name.austria" = "Austria";
-"enum.browsing.country.name.azerbaijan" = "Azerbaijan";
-"enum.browsing.country.name.bahamas" = "Bahamas";
-"enum.browsing.country.name.bahrain" = "Bahrain";
-"enum.browsing.country.name.bangladesh" = "Bangladesh";
-"enum.browsing.country.name.barbados" = "Barbados";
-"enum.browsing.country.name.belarus" = "Belarus";
-"enum.browsing.country.name.belgium" = "Belgium";
-"enum.browsing.country.name.belize" = "Belize";
-"enum.browsing.country.name.benin" = "Benin";
-"enum.browsing.country.name.bermuda" = "Bermuda";
-"enum.browsing.country.name.bhutan" = "Bhutan";
-"enum.browsing.country.name.bolivia" = "Bolivia";
-"enum.browsing.country.name.bonaireSaintEustatiusAndSaba" = "Bonaire Saint Eustatius and Saba";
-"enum.browsing.country.name.bosniaAndHerzegovina" = "Bosnia and Herzegovina";
-"enum.browsing.country.name.botswana" = "Botswana";
-"enum.browsing.country.name.bouvetIsland" = "Bouvet Island";
-"enum.browsing.country.name.brazil" = "Brazil";
-"enum.browsing.country.name.britishIndianOceanTerritory" = "British Indian Ocean Territory";
-"enum.browsing.country.name.bruneiDarussalam" = "Brunei Darussalam";
-"enum.browsing.country.name.bulgaria" = "Bulgaria";
-"enum.browsing.country.name.burkinaFaso" = "Burkina Faso";
-"enum.browsing.country.name.burundi" = "Burundi";
-"enum.browsing.country.name.cambodia" = "Cambodia";
-"enum.browsing.country.name.cameroon" = "Cameroon";
-"enum.browsing.country.name.canada" = "Canada";
-"enum.browsing.country.name.capeVerde" = "Cape Verde";
-"enum.browsing.country.name.caymanIslands" = "Cayman Islands";
-"enum.browsing.country.name.centralAfricanRepublic" = "Central African Republic";
-"enum.browsing.country.name.chad" = "Chad";
-"enum.browsing.country.name.chile" = "Chile";
-"enum.browsing.country.name.china" = "China";
-"enum.browsing.country.name.christmasIsland" = "Christmas Island";
-"enum.browsing.country.name.cocosIslands" = "Cocos Islands";
-"enum.browsing.country.name.colombia" = "Colombia";
-"enum.browsing.country.name.comoros" = "Comoros";
-"enum.browsing.country.name.congo" = "Congo";
-"enum.browsing.country.name.theDemocraticRepublicOfTheCongo" = "The Democratic Republic of the Congo";
-"enum.browsing.country.name.cookIslands" = "Cook Islands";
-"enum.browsing.country.name.costaRica" = "Costa Rica";
-"enum.browsing.country.name.coteDIvoire" = "Cote D'Ivoire";
-"enum.browsing.country.name.croatia" = "Croatia";
-"enum.browsing.country.name.cuba" = "Cuba";
-"enum.browsing.country.name.curacao" = "Curacao";
-"enum.browsing.country.name.cyprus" = "Cyprus";
-"enum.browsing.country.name.czechRepublic" = "Czech Republic";
-"enum.browsing.country.name.denmark" = "Denmark";
-"enum.browsing.country.name.djibouti" = "Djibouti";
-"enum.browsing.country.name.dominica" = "Dominica";
-"enum.browsing.country.name.dominicanRepublic" = "Dominican Republic";
-"enum.browsing.country.name.ecuador" = "Ecuador";
-"enum.browsing.country.name.egypt" = "Egypt";
-"enum.browsing.country.name.elSalvador" = "El Salvador";
-"enum.browsing.country.name.equatorialGuinea" = "Equatorial Guinea";
-"enum.browsing.country.name.eritrea" = "Eritrea";
-"enum.browsing.country.name.estonia" = "Estonia";
-"enum.browsing.country.name.ethiopia" = "Ethiopia";
-"enum.browsing.country.name.europe" = "Europe";
-"enum.browsing.country.name.falklandIslands" = "Falkland Islands";
-"enum.browsing.country.name.faroeIslands" = "Faroe Islands";
-"enum.browsing.country.name.fiji" = "Fiji";
-"enum.browsing.country.name.finland" = "Finland";
-"enum.browsing.country.name.france" = "France";
-"enum.browsing.country.name.frenchGuiana" = "French Guiana";
-"enum.browsing.country.name.frenchPolynesia" = "French Polynesia";
-"enum.browsing.country.name.frenchSouthernTerritories" = "French Southern Territories";
-"enum.browsing.country.name.gabon" = "Gabon";
-"enum.browsing.country.name.gambia" = "Gambia";
-"enum.browsing.country.name.georgia" = "Georgia";
-"enum.browsing.country.name.germany" = "Germany";
-"enum.browsing.country.name.ghana" = "Ghana";
-"enum.browsing.country.name.gibraltar" = "Gibraltar";
-"enum.browsing.country.name.greece" = "Greece";
-"enum.browsing.country.name.greenland" = "Greenland";
-"enum.browsing.country.name.grenada" = "Grenada";
-"enum.browsing.country.name.guadeloupe" = "Guadeloupe";
-"enum.browsing.country.name.guam" = "Guam";
-"enum.browsing.country.name.guatemala" = "Guatemala";
-"enum.browsing.country.name.guernsey" = "Guernsey";
-"enum.browsing.country.name.guinea" = "Guinea";
-"enum.browsing.country.name.guineaBissau" = "Guinea-Bissau";
-"enum.browsing.country.name.guyana" = "Guyana";
-"enum.browsing.country.name.haiti" = "Haiti";
-"enum.browsing.country.name.heardIslandAndMcDonaldIslands" = "Heard Island and McDonald Islands";
-"enum.browsing.country.name.vaticanCityState" = "Vatican City State";
-"enum.browsing.country.name.honduras" = "Honduras";
-"enum.browsing.country.name.hongKong" = "Hong Kong";
-"enum.browsing.country.name.hungary" = "Hungary";
-"enum.browsing.country.name.iceland" = "Iceland";
-"enum.browsing.country.name.india" = "India";
-"enum.browsing.country.name.indonesia" = "Indonesia";
-"enum.browsing.country.name.iran" = "Iran";
-"enum.browsing.country.name.iraq" = "Iraq";
-"enum.browsing.country.name.ireland" = "Ireland";
-"enum.browsing.country.name.isleOfMan" = "Isle of Man";
-"enum.browsing.country.name.israel" = "Israel";
-"enum.browsing.country.name.italy" = "Italy";
-"enum.browsing.country.name.jamaica" = "Jamaica";
-"enum.browsing.country.name.japan" = "Japan";
-"enum.browsing.country.name.jersey" = "Jersey";
-"enum.browsing.country.name.jordan" = "Jordan";
-"enum.browsing.country.name.kazakhstan" = "Kazakhstan";
-"enum.browsing.country.name.kenya" = "Kenya";
-"enum.browsing.country.name.kiribati" = "Kiribati";
-"enum.browsing.country.name.kuwait" = "Kuwait";
-"enum.browsing.country.name.kyrgyzstan" = "Kyrgyzstan";
-"enum.browsing.country.name.laoPeoplesDemocraticRepublic" = "Lao People's Democratic Republic";
-"enum.browsing.country.name.latvia" = "Latvia";
-"enum.browsing.country.name.lebanon" = "Lebanon";
-"enum.browsing.country.name.lesotho" = "Lesotho";
-"enum.browsing.country.name.liberia" = "Liberia";
-"enum.browsing.country.name.libya" = "Libya";
-"enum.browsing.country.name.liechtenstein" = "Liechtenstein";
-"enum.browsing.country.name.lithuania" = "Lithuania";
-"enum.browsing.country.name.luxembourg" = "Luxembourg";
-"enum.browsing.country.name.macau" = "Macau";
-"enum.browsing.country.name.macedonia" = "Macedonia";
-"enum.browsing.country.name.madagascar" = "Madagascar";
-"enum.browsing.country.name.malawi" = "Malawi";
-"enum.browsing.country.name.malaysia" = "Malaysia";
-"enum.browsing.country.name.maldives" = "Maldives";
-"enum.browsing.country.name.mali" = "Mali";
-"enum.browsing.country.name.malta" = "Malta";
-"enum.browsing.country.name.marshallIslands" = "Marshall Islands";
-"enum.browsing.country.name.martinique" = "Martinique";
-"enum.browsing.country.name.mauritania" = "Mauritania";
-"enum.browsing.country.name.mauritius" = "Mauritius";
-"enum.browsing.country.name.mayotte" = "Mayotte";
-"enum.browsing.country.name.mexico" = "Mexico";
-"enum.browsing.country.name.micronesia" = "Micronesia";
-"enum.browsing.country.name.moldova" = "Moldova";
-"enum.browsing.country.name.monaco" = "Monaco";
-"enum.browsing.country.name.mongolia" = "Mongolia";
-"enum.browsing.country.name.montenegro" = "Montenegro";
-"enum.browsing.country.name.montserrat" = "Montserrat";
-"enum.browsing.country.name.morocco" = "Morocco";
-"enum.browsing.country.name.mozambique" = "Mozambique";
-"enum.browsing.country.name.myanmar" = "Myanmar";
-"enum.browsing.country.name.namibia" = "Namibia";
-"enum.browsing.country.name.nauru" = "Nauru";
-"enum.browsing.country.name.nepal" = "Nepal";
-"enum.browsing.country.name.netherlands" = "Netherlands";
-"enum.browsing.country.name.newCaledonia" = "New Caledonia";
-"enum.browsing.country.name.newZealand" = "New Zealand";
-"enum.browsing.country.name.nicaragua" = "Nicaragua";
-"enum.browsing.country.name.niger" = "Niger";
-"enum.browsing.country.name.nigeria" = "Nigeria";
-"enum.browsing.country.name.niue" = "Niue";
-"enum.browsing.country.name.norfolkIsland" = "Norfolk Island";
-"enum.browsing.country.name.northKorea" = "North Korea";
-"enum.browsing.country.name.northernMarianaIslands" = "Northern Mariana Islands";
-"enum.browsing.country.name.norway" = "Norway";
-"enum.browsing.country.name.oman" = "Oman";
-"enum.browsing.country.name.pakistan" = "Pakistan";
-"enum.browsing.country.name.palau" = "Palau";
-"enum.browsing.country.name.palestinianTerritory" = "Palestinian Territory";
-"enum.browsing.country.name.panama" = "Panama";
-"enum.browsing.country.name.papuaNewGuinea" = "Papua New Guinea";
-"enum.browsing.country.name.paraguay" = "Paraguay";
-"enum.browsing.country.name.peru" = "Peru";
-"enum.browsing.country.name.philippines" = "Philippines";
-"enum.browsing.country.name.pitcairnIslands" = "Pitcairn Islands";
-"enum.browsing.country.name.poland" = "Poland";
-"enum.browsing.country.name.portugal" = "Portugal";
-"enum.browsing.country.name.puertoRico" = "Puerto Rico";
-"enum.browsing.country.name.qatar" = "Qatar";
-"enum.browsing.country.name.reunion" = "Reunion";
-"enum.browsing.country.name.romania" = "Romania";
-"enum.browsing.country.name.russianFederation" = "Russian Federation";
-"enum.browsing.country.name.rwanda" = "Rwanda";
-"enum.browsing.country.name.saintBarthelemy" = "Saint Barthelemy";
-"enum.browsing.country.name.saintHelena" = "Saint Helena";
-"enum.browsing.country.name.saintKittsAndNevis" = "Saint Kitts and Nevis";
-"enum.browsing.country.name.saintLucia" = "Saint Lucia";
-"enum.browsing.country.name.saintMartin" = "Saint Martin";
-"enum.browsing.country.name.saintPierreAndMiquelon" = "Saint Pierre and Miquelon";
-"enum.browsing.country.name.saintVincentAndTheGrenadines" = "Saint Vincent and the Grenadines";
-"enum.browsing.country.name.samoa" = "Samoa";
-"enum.browsing.country.name.sanMarino" = "San Marino";
-"enum.browsing.country.name.saoTomeAndPrincipe" = "Sao Tome and Principe";
-"enum.browsing.country.name.saudiArabia" = "Saudi Arabia";
-"enum.browsing.country.name.senegal" = "Senegal";
-"enum.browsing.country.name.serbia" = "Serbia";
-"enum.browsing.country.name.seychelles" = "Seychelles";
-"enum.browsing.country.name.sierraLeone" = "Sierra Leone";
-"enum.browsing.country.name.singapore" = "Singapore";
-"enum.browsing.country.name.sintMaarten" = "Sint Maarten";
-"enum.browsing.country.name.slovakia" = "Slovakia";
-"enum.browsing.country.name.slovenia" = "Slovenia";
-"enum.browsing.country.name.solomonIslands" = "Solomon Islands";
-"enum.browsing.country.name.somalia" = "Somalia";
-"enum.browsing.country.name.southAfrica" = "South Africa";
-"enum.browsing.country.name.southGeorgiaAndTheSouthSandwichIslands" = "South Georgia and the South Sandwich Islands";
-"enum.browsing.country.name.southKorea" = "South Korea";
-"enum.browsing.country.name.southSudan" = "South Sudan";
-"enum.browsing.country.name.spain" = "Spain";
-"enum.browsing.country.name.sriLanka" = "Sri Lanka";
-"enum.browsing.country.name.sudan" = "Sudan";
-"enum.browsing.country.name.suriname" = "Suriname";
-"enum.browsing.country.name.svalbardAndJanMayen" = "Svalbard and Jan Mayen";
-"enum.browsing.country.name.swaziland" = "Swaziland";
-"enum.browsing.country.name.sweden" = "Sweden";
-"enum.browsing.country.name.switzerland" = "Switzerland";
-"enum.browsing.country.name.syrianArabRepublic" = "Syrian Arab Republic";
-"enum.browsing.country.name.taiwan" = "Taiwan";
-"enum.browsing.country.name.tajikistan" = "Tajikistan";
-"enum.browsing.country.name.tanzania" = "Tanzania";
-"enum.browsing.country.name.thailand" = "Thailand";
-"enum.browsing.country.name.timorLeste" = "Timor-Leste";
-"enum.browsing.country.name.togo" = "Togo";
-"enum.browsing.country.name.tokelau" = "Tokelau";
-"enum.browsing.country.name.tonga" = "Tonga";
-"enum.browsing.country.name.trinidadAndTobago" = "Trinidad and Tobago";
-"enum.browsing.country.name.tunisia" = "Tunisia";
-"enum.browsing.country.name.turkey" = "Turkey";
-"enum.browsing.country.name.turkmenistan" = "Turkmenistan";
-"enum.browsing.country.name.turksAndCaicosIslands" = "Turks and Caicos Islands";
-"enum.browsing.country.name.tuvalu" = "Tuvalu";
-"enum.browsing.country.name.uganda" = "Uganda";
-"enum.browsing.country.name.ukraine" = "Ukraine";
-"enum.browsing.country.name.unitedArabEmirates" = "United Arab Emirates";
-"enum.browsing.country.name.unitedKingdom" = "United Kingdom";
-"enum.browsing.country.name.unitedStates" = "United States";
-"enum.browsing.country.name.unitedStatesMinorOutlyingIslands" = "United States Minor Outlying Islands";
-"enum.browsing.country.name.uruguay" = "Uruguay";
-"enum.browsing.country.name.uzbekistan" = "Uzbekistan";
-"enum.browsing.country.name.vanuatu" = "Vanuatu";
-"enum.browsing.country.name.venezuela" = "Venezuela";
-"enum.browsing.country.name.vietnam" = "Vietnam";
-"enum.browsing.country.name.virginIslandsBritish" = "British Virgin Islands";
-"enum.browsing.country.name.virginIslandsUS" = "U.S. Virgin Islands";
-"enum.browsing.country.name.wallisAndFutuna" = "Wallis and Futuna";
-"enum.browsing.country.name.westernSahara" = "Western Sahara";
-"enum.browsing.country.name.yemen" = "Yemen";
-"enum.browsing.country.name.zambia" = "Zambia";
-"enum.browsing.country.name.zimbabwe" = "Zimbabwe";
+"enum.browsing_country.name.auto_detect" = "Auto-Detect";
+"enum.browsing_country.name.afghanistan" = "Afghanistan";
+"enum.browsing_country.name.aland_islands" = "Aland Islands";
+"enum.browsing_country.name.albania" = "Albania";
+"enum.browsing_country.name.algeria" = "Algeria";
+"enum.browsing_country.name.american_samoa" = "American Samoa";
+"enum.browsing_country.name.andorra" = "Andorra";
+"enum.browsing_country.name.angola" = "Angola";
+"enum.browsing_country.name.anguilla" = "Anguilla";
+"enum.browsing_country.name.antarctica" = "Antarctica";
+"enum.browsing_country.name.antigua_and_barbuda" = "Antigua and Barbuda";
+"enum.browsing_country.name.argentina" = "Argentina";
+"enum.browsing_country.name.armenia" = "Armenia";
+"enum.browsing_country.name.aruba" = "Aruba";
+"enum.browsing_country.name.asia_pacific_region" = "Asia-Pacific Region";
+"enum.browsing_country.name.australia" = "Australia";
+"enum.browsing_country.name.austria" = "Austria";
+"enum.browsing_country.name.azerbaijan" = "Azerbaijan";
+"enum.browsing_country.name.bahamas" = "Bahamas";
+"enum.browsing_country.name.bahrain" = "Bahrain";
+"enum.browsing_country.name.bangladesh" = "Bangladesh";
+"enum.browsing_country.name.barbados" = "Barbados";
+"enum.browsing_country.name.belarus" = "Belarus";
+"enum.browsing_country.name.belgium" = "Belgium";
+"enum.browsing_country.name.belize" = "Belize";
+"enum.browsing_country.name.benin" = "Benin";
+"enum.browsing_country.name.bermuda" = "Bermuda";
+"enum.browsing_country.name.bhutan" = "Bhutan";
+"enum.browsing_country.name.bolivia" = "Bolivia";
+"enum.browsing_country.name.bonaire_saint_eustatius_and_saba" = "Bonaire Saint Eustatius and Saba";
+"enum.browsing_country.name.bosnia_and_herzegovina" = "Bosnia and Herzegovina";
+"enum.browsing_country.name.botswana" = "Botswana";
+"enum.browsing_country.name.bouvet_island" = "Bouvet Island";
+"enum.browsing_country.name.brazil" = "Brazil";
+"enum.browsing_country.name.british_indian_ocean_territory" = "British Indian Ocean Territory";
+"enum.browsing_country.name.brunei_darussalam" = "Brunei Darussalam";
+"enum.browsing_country.name.bulgaria" = "Bulgaria";
+"enum.browsing_country.name.burkina_faso" = "Burkina Faso";
+"enum.browsing_country.name.burundi" = "Burundi";
+"enum.browsing_country.name.cambodia" = "Cambodia";
+"enum.browsing_country.name.cameroon" = "Cameroon";
+"enum.browsing_country.name.canada" = "Canada";
+"enum.browsing_country.name.cape_verde" = "Cape Verde";
+"enum.browsing_country.name.cayman_islands" = "Cayman Islands";
+"enum.browsing_country.name.central_african_republic" = "Central African Republic";
+"enum.browsing_country.name.chad" = "Chad";
+"enum.browsing_country.name.chile" = "Chile";
+"enum.browsing_country.name.china" = "China";
+"enum.browsing_country.name.christmas_island" = "Christmas Island";
+"enum.browsing_country.name.cocos_islands" = "Cocos Islands";
+"enum.browsing_country.name.colombia" = "Colombia";
+"enum.browsing_country.name.comoros" = "Comoros";
+"enum.browsing_country.name.congo" = "Congo";
+"enum.browsing_country.name.the_democratic_republic_of_the_congo" = "The Democratic Republic of the Congo";
+"enum.browsing_country.name.cook_islands" = "Cook Islands";
+"enum.browsing_country.name.costa_rica" = "Costa Rica";
+"enum.browsing_country.name.cote_d_ivoire" = "Cote D'Ivoire";
+"enum.browsing_country.name.croatia" = "Croatia";
+"enum.browsing_country.name.cuba" = "Cuba";
+"enum.browsing_country.name.curacao" = "Curacao";
+"enum.browsing_country.name.cyprus" = "Cyprus";
+"enum.browsing_country.name.czech_republic" = "Czech Republic";
+"enum.browsing_country.name.denmark" = "Denmark";
+"enum.browsing_country.name.djibouti" = "Djibouti";
+"enum.browsing_country.name.dominica" = "Dominica";
+"enum.browsing_country.name.dominican_republic" = "Dominican Republic";
+"enum.browsing_country.name.ecuador" = "Ecuador";
+"enum.browsing_country.name.egypt" = "Egypt";
+"enum.browsing_country.name.el_salvador" = "El Salvador";
+"enum.browsing_country.name.equatorial_guinea" = "Equatorial Guinea";
+"enum.browsing_country.name.eritrea" = "Eritrea";
+"enum.browsing_country.name.estonia" = "Estonia";
+"enum.browsing_country.name.ethiopia" = "Ethiopia";
+"enum.browsing_country.name.europe" = "Europe";
+"enum.browsing_country.name.falkland_islands" = "Falkland Islands";
+"enum.browsing_country.name.faroe_islands" = "Faroe Islands";
+"enum.browsing_country.name.fiji" = "Fiji";
+"enum.browsing_country.name.finland" = "Finland";
+"enum.browsing_country.name.france" = "France";
+"enum.browsing_country.name.french_guiana" = "French Guiana";
+"enum.browsing_country.name.french_polynesia" = "French Polynesia";
+"enum.browsing_country.name.french_southern_territories" = "French Southern Territories";
+"enum.browsing_country.name.gabon" = "Gabon";
+"enum.browsing_country.name.gambia" = "Gambia";
+"enum.browsing_country.name.georgia" = "Georgia";
+"enum.browsing_country.name.germany" = "Germany";
+"enum.browsing_country.name.ghana" = "Ghana";
+"enum.browsing_country.name.gibraltar" = "Gibraltar";
+"enum.browsing_country.name.greece" = "Greece";
+"enum.browsing_country.name.greenland" = "Greenland";
+"enum.browsing_country.name.grenada" = "Grenada";
+"enum.browsing_country.name.guadeloupe" = "Guadeloupe";
+"enum.browsing_country.name.guam" = "Guam";
+"enum.browsing_country.name.guatemala" = "Guatemala";
+"enum.browsing_country.name.guernsey" = "Guernsey";
+"enum.browsing_country.name.guinea" = "Guinea";
+"enum.browsing_country.name.guinea_bissau" = "Guinea-Bissau";
+"enum.browsing_country.name.guyana" = "Guyana";
+"enum.browsing_country.name.haiti" = "Haiti";
+"enum.browsing_country.name.heard_island_and_mc_donald_islands" = "Heard Island and McDonald Islands";
+"enum.browsing_country.name.vatican_city_state" = "Vatican City State";
+"enum.browsing_country.name.honduras" = "Honduras";
+"enum.browsing_country.name.hong_kong" = "Hong Kong";
+"enum.browsing_country.name.hungary" = "Hungary";
+"enum.browsing_country.name.iceland" = "Iceland";
+"enum.browsing_country.name.india" = "India";
+"enum.browsing_country.name.indonesia" = "Indonesia";
+"enum.browsing_country.name.iran" = "Iran";
+"enum.browsing_country.name.iraq" = "Iraq";
+"enum.browsing_country.name.ireland" = "Ireland";
+"enum.browsing_country.name.isle_of_man" = "Isle of Man";
+"enum.browsing_country.name.israel" = "Israel";
+"enum.browsing_country.name.italy" = "Italy";
+"enum.browsing_country.name.jamaica" = "Jamaica";
+"enum.browsing_country.name.japan" = "Japan";
+"enum.browsing_country.name.jersey" = "Jersey";
+"enum.browsing_country.name.jordan" = "Jordan";
+"enum.browsing_country.name.kazakhstan" = "Kazakhstan";
+"enum.browsing_country.name.kenya" = "Kenya";
+"enum.browsing_country.name.kiribati" = "Kiribati";
+"enum.browsing_country.name.kuwait" = "Kuwait";
+"enum.browsing_country.name.kyrgyzstan" = "Kyrgyzstan";
+"enum.browsing_country.name.lao_peoples_democratic_republic" = "Lao People's Democratic Republic";
+"enum.browsing_country.name.latvia" = "Latvia";
+"enum.browsing_country.name.lebanon" = "Lebanon";
+"enum.browsing_country.name.lesotho" = "Lesotho";
+"enum.browsing_country.name.liberia" = "Liberia";
+"enum.browsing_country.name.libya" = "Libya";
+"enum.browsing_country.name.liechtenstein" = "Liechtenstein";
+"enum.browsing_country.name.lithuania" = "Lithuania";
+"enum.browsing_country.name.luxembourg" = "Luxembourg";
+"enum.browsing_country.name.macau" = "Macau";
+"enum.browsing_country.name.macedonia" = "Macedonia";
+"enum.browsing_country.name.madagascar" = "Madagascar";
+"enum.browsing_country.name.malawi" = "Malawi";
+"enum.browsing_country.name.malaysia" = "Malaysia";
+"enum.browsing_country.name.maldives" = "Maldives";
+"enum.browsing_country.name.mali" = "Mali";
+"enum.browsing_country.name.malta" = "Malta";
+"enum.browsing_country.name.marshall_islands" = "Marshall Islands";
+"enum.browsing_country.name.martinique" = "Martinique";
+"enum.browsing_country.name.mauritania" = "Mauritania";
+"enum.browsing_country.name.mauritius" = "Mauritius";
+"enum.browsing_country.name.mayotte" = "Mayotte";
+"enum.browsing_country.name.mexico" = "Mexico";
+"enum.browsing_country.name.micronesia" = "Micronesia";
+"enum.browsing_country.name.moldova" = "Moldova";
+"enum.browsing_country.name.monaco" = "Monaco";
+"enum.browsing_country.name.mongolia" = "Mongolia";
+"enum.browsing_country.name.montenegro" = "Montenegro";
+"enum.browsing_country.name.montserrat" = "Montserrat";
+"enum.browsing_country.name.morocco" = "Morocco";
+"enum.browsing_country.name.mozambique" = "Mozambique";
+"enum.browsing_country.name.myanmar" = "Myanmar";
+"enum.browsing_country.name.namibia" = "Namibia";
+"enum.browsing_country.name.nauru" = "Nauru";
+"enum.browsing_country.name.nepal" = "Nepal";
+"enum.browsing_country.name.netherlands" = "Netherlands";
+"enum.browsing_country.name.new_caledonia" = "New Caledonia";
+"enum.browsing_country.name.new_zealand" = "New Zealand";
+"enum.browsing_country.name.nicaragua" = "Nicaragua";
+"enum.browsing_country.name.niger" = "Niger";
+"enum.browsing_country.name.nigeria" = "Nigeria";
+"enum.browsing_country.name.niue" = "Niue";
+"enum.browsing_country.name.norfolk_island" = "Norfolk Island";
+"enum.browsing_country.name.north_korea" = "North Korea";
+"enum.browsing_country.name.northern_mariana_islands" = "Northern Mariana Islands";
+"enum.browsing_country.name.norway" = "Norway";
+"enum.browsing_country.name.oman" = "Oman";
+"enum.browsing_country.name.pakistan" = "Pakistan";
+"enum.browsing_country.name.palau" = "Palau";
+"enum.browsing_country.name.palestinian_territory" = "Palestinian Territory";
+"enum.browsing_country.name.panama" = "Panama";
+"enum.browsing_country.name.papua_new_guinea" = "Papua New Guinea";
+"enum.browsing_country.name.paraguay" = "Paraguay";
+"enum.browsing_country.name.peru" = "Peru";
+"enum.browsing_country.name.philippines" = "Philippines";
+"enum.browsing_country.name.pitcairn_islands" = "Pitcairn Islands";
+"enum.browsing_country.name.poland" = "Poland";
+"enum.browsing_country.name.portugal" = "Portugal";
+"enum.browsing_country.name.puerto_rico" = "Puerto Rico";
+"enum.browsing_country.name.qatar" = "Qatar";
+"enum.browsing_country.name.reunion" = "Reunion";
+"enum.browsing_country.name.romania" = "Romania";
+"enum.browsing_country.name.russian_federation" = "Russian Federation";
+"enum.browsing_country.name.rwanda" = "Rwanda";
+"enum.browsing_country.name.saint_barthelemy" = "Saint Barthelemy";
+"enum.browsing_country.name.saint_helena" = "Saint Helena";
+"enum.browsing_country.name.saint_kitts_and_nevis" = "Saint Kitts and Nevis";
+"enum.browsing_country.name.saint_lucia" = "Saint Lucia";
+"enum.browsing_country.name.saint_martin" = "Saint Martin";
+"enum.browsing_country.name.saint_pierre_and_miquelon" = "Saint Pierre and Miquelon";
+"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "Saint Vincent and the Grenadines";
+"enum.browsing_country.name.samoa" = "Samoa";
+"enum.browsing_country.name.san_marino" = "San Marino";
+"enum.browsing_country.name.sao_tome_and_principe" = "Sao Tome and Principe";
+"enum.browsing_country.name.saudi_arabia" = "Saudi Arabia";
+"enum.browsing_country.name.senegal" = "Senegal";
+"enum.browsing_country.name.serbia" = "Serbia";
+"enum.browsing_country.name.seychelles" = "Seychelles";
+"enum.browsing_country.name.sierra_leone" = "Sierra Leone";
+"enum.browsing_country.name.singapore" = "Singapore";
+"enum.browsing_country.name.sint_maarten" = "Sint Maarten";
+"enum.browsing_country.name.slovakia" = "Slovakia";
+"enum.browsing_country.name.slovenia" = "Slovenia";
+"enum.browsing_country.name.solomon_islands" = "Solomon Islands";
+"enum.browsing_country.name.somalia" = "Somalia";
+"enum.browsing_country.name.south_africa" = "South Africa";
+"enum.browsing_country.name.south_georgia_and_the_south_sandwich_islands" = "South Georgia and the South Sandwich Islands";
+"enum.browsing_country.name.south_korea" = "South Korea";
+"enum.browsing_country.name.south_sudan" = "South Sudan";
+"enum.browsing_country.name.spain" = "Spain";
+"enum.browsing_country.name.sri_lanka" = "Sri Lanka";
+"enum.browsing_country.name.sudan" = "Sudan";
+"enum.browsing_country.name.suriname" = "Suriname";
+"enum.browsing_country.name.svalbard_and_jan_mayen" = "Svalbard and Jan Mayen";
+"enum.browsing_country.name.swaziland" = "Swaziland";
+"enum.browsing_country.name.sweden" = "Sweden";
+"enum.browsing_country.name.switzerland" = "Switzerland";
+"enum.browsing_country.name.syrian_arab_republic" = "Syrian Arab Republic";
+"enum.browsing_country.name.taiwan" = "Taiwan";
+"enum.browsing_country.name.tajikistan" = "Tajikistan";
+"enum.browsing_country.name.tanzania" = "Tanzania";
+"enum.browsing_country.name.thailand" = "Thailand";
+"enum.browsing_country.name.timor_leste" = "Timor-Leste";
+"enum.browsing_country.name.togo" = "Togo";
+"enum.browsing_country.name.tokelau" = "Tokelau";
+"enum.browsing_country.name.tonga" = "Tonga";
+"enum.browsing_country.name.trinidad_and_tobago" = "Trinidad and Tobago";
+"enum.browsing_country.name.tunisia" = "Tunisia";
+"enum.browsing_country.name.turkey" = "Turkey";
+"enum.browsing_country.name.turkmenistan" = "Turkmenistan";
+"enum.browsing_country.name.turks_and_caicos_islands" = "Turks and Caicos Islands";
+"enum.browsing_country.name.tuvalu" = "Tuvalu";
+"enum.browsing_country.name.uganda" = "Uganda";
+"enum.browsing_country.name.ukraine" = "Ukraine";
+"enum.browsing_country.name.united_arab_emirates" = "United Arab Emirates";
+"enum.browsing_country.name.united_kingdom" = "United Kingdom";
+"enum.browsing_country.name.united_states" = "United States";
+"enum.browsing_country.name.united_states_minor_outlying_islands" = "United States Minor Outlying Islands";
+"enum.browsing_country.name.uruguay" = "Uruguay";
+"enum.browsing_country.name.uzbekistan" = "Uzbekistan";
+"enum.browsing_country.name.vanuatu" = "Vanuatu";
+"enum.browsing_country.name.venezuela" = "Venezuela";
+"enum.browsing_country.name.vietnam" = "Vietnam";
+"enum.browsing_country.name.virgin_islands_british" = "British Virgin Islands";
+"enum.browsing_country.name.virgin_islands_US" = "U.S. Virgin Islands";
+"enum.browsing_country.name.wallis_and_futuna" = "Wallis and Futuna";
+"enum.browsing_country.name.western_sahara" = "Western Sahara";
+"enum.browsing_country.name.yemen" = "Yemen";
+"enum.browsing_country.name.zambia" = "Zambia";
+"enum.browsing_country.name.zimbabwe" = "Zimbabwe";

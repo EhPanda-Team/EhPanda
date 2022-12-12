@@ -41,48 +41,27 @@ enum ListParserTestType: CaseIterable {
 extension ListParserTestType {
     var filename: HTMLFilename {
         switch self {
-        case .frontPageMinimalList:
-            return .frontPageMinimalList
-        case .frontPageMinimalPlusList:
-            return .frontPageMinimalPlusList
-        case .frontPageCompactList:
-            return .frontPageCompactList
-        case .frontPageExtendedList:
-            return .frontPageExtendedList
-        case .frontPageThumbnailList:
-            return .frontPageThumbnailList
-        case .watchedMinimalList:
-            return .watchedMinimalList
-        case .watchedMinimalPlusList:
-            return .watchedMinimalPlusList
-        case .watchedCompactList:
-            return .watchedCompactList
-        case .watchedExtendedList:
-            return .watchedExtendedList
-        case .watchedThumbnailList:
-            return .watchedThumbnailList
-        case .popularMinimalList:
-            return .popularMinimalList
-        case .popularMinimalPlusList:
-            return .popularMinimalPlusList
-        case .popularCompactList:
-            return .popularCompactList
-        case .popularExtendedList:
-            return .popularExtendedList
-        case .popularThumbnailList:
-            return .popularThumbnailList
-        case .favoritesMinimalList:
-            return .favoritesMinimalList
-        case .favoritesMinimalPlusList:
-            return .favoritesMinimalPlusList
-        case .favoritesCompactList:
-            return .favoritesCompactList
-        case .favoritesExtendedList:
-            return .favoritesExtendedList
-        case .favoritesThumbnailList:
-            return .favoritesThumbnailList
-        case .toplistsCompactList:
-            return .toplistsCompactList
+        case .frontPageMinimalList: return .frontPageMinimalList
+        case .frontPageMinimalPlusList: return .frontPageMinimalPlusList
+        case .frontPageCompactList: return .frontPageCompactList
+        case .frontPageExtendedList: return .frontPageExtendedList
+        case .frontPageThumbnailList: return .frontPageThumbnailList
+        case .watchedMinimalList: return .watchedMinimalList
+        case .watchedMinimalPlusList: return .watchedMinimalPlusList
+        case .watchedCompactList: return .watchedCompactList
+        case .watchedExtendedList: return .watchedExtendedList
+        case .watchedThumbnailList: return .watchedThumbnailList
+        case .popularMinimalList: return .popularMinimalList
+        case .popularMinimalPlusList: return .popularMinimalPlusList
+        case .popularCompactList: return .popularCompactList
+        case .popularExtendedList: return .popularExtendedList
+        case .popularThumbnailList: return .popularThumbnailList
+        case .favoritesMinimalList: return .favoritesMinimalList
+        case .favoritesMinimalPlusList: return .favoritesMinimalPlusList
+        case .favoritesCompactList: return .favoritesCompactList
+        case .favoritesExtendedList: return .favoritesExtendedList
+        case .favoritesThumbnailList: return .favoritesThumbnailList
+        case .toplistsCompactList: return .toplistsCompactList
         }
     }
     var assertCount: Int {

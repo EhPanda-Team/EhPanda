@@ -55,7 +55,7 @@ struct HistoryView: View {
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -65,7 +65,7 @@ struct HistoryView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.historyViewTitleHistory())
+        .navigationTitle(L10n.Localizable.HistoryView.Title.history)
     }
 
     @ViewBuilder private var navigationLink: some View {
@@ -88,11 +88,11 @@ struct HistoryView: View {
             }
             .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
             .confirmationDialog(
-                message: R.string.localizable.confirmationDialogTitleClear(),
+                message: L10n.Localizable.ConfirmationDialog.Title.clear,
                 unwrapping: viewStore.binding(\.$route),
                 case: /HistoryState.Route.clearHistory
             ) {
-                Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
                     viewStore.send(.clearHistoryGalleries)
                 }
             }

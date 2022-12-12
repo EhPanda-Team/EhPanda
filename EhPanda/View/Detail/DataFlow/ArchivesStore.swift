@@ -115,14 +115,14 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
         switch result {
         case .success(let response):
             switch response {
-            case R.string.constant.websiteResponseHathClientNotFound():
-                state.messageHUDConfig = .error(caption: R.string.localizable.hathDownloadResponseHathClientNotFound())
+            case L10n.Constant.Website.Response.hathClientNotFound:
+                state.messageHUDConfig = .error(caption: L10n.Localizable.Website.Response.hathClientNotFound)
                 isSuccess = false
-            case R.string.constant.websiteResponseHathClientNotOnline():
-                state.messageHUDConfig = .error(caption: R.string.localizable.hathDownloadResponseHathClientNotOnline())
+            case L10n.Constant.Website.Response.hathClientNotOnline:
+                state.messageHUDConfig = .error(caption: L10n.Localizable.Website.Response.hathClientNotOnline)
                 isSuccess = false
-            case R.string.constant.websiteResponseInvalidResolution():
-                state.messageHUDConfig = .error(caption: R.string.localizable.hathDownloadResponseInvalidResolution())
+            case L10n.Constant.Website.Response.invalidResolution:
+                state.messageHUDConfig = .error(caption: L10n.Localizable.Website.Response.invalidResolution)
                 isSuccess = false
             default:
                 state.messageHUDConfig = .success(caption: response)

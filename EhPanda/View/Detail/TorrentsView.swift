@@ -58,7 +58,7 @@ struct TorrentsView: View {
             .onAppear {
                 viewStore.send(.fetchGalleryTorrents(gid, token))
             }
-            .navigationTitle(R.string.localizable.torrentsViewTitleTorrents())
+            .navigationTitle(L10n.Localizable.TorrentsView.Title.torrents)
         }
     }
 }

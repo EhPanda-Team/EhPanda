@@ -147,25 +147,25 @@ extension EhSetting.LoadThroughHathSetting {
     var value: String {
         switch self {
         case .anyClient:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueAnyClient()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.anyClient
         case .defaultPortOnly:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueDefaultPortOnly()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.defaultPortOnly
         case .modernNo:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueModernNo()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.modernNo
         case .legacyNo:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueLegacyNo()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.legacyNo
         }
     }
     var description: String {
         switch self {
         case .anyClient:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionAnyClient()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.anyClient
         case .defaultPortOnly:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionDefaultPortOnly()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.defaultPortOnly
         case .modernNo:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionModernNo()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.modernNo
         case .legacyNo:
-            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionLegacyNo()
+            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.legacyNo
         }
     }
 }
@@ -190,7 +190,7 @@ extension EhSetting.ImageResolution {
     var value: String {
         switch self {
         case .auto:
-            return R.string.localizable.enumEhSettingImageResolutionValueAuto()
+            return L10n.Localizable.Enum.EhSetting.ImageResolution.Value.auto
         case .x780:
             return "780x"
         case .x980:
@@ -218,9 +218,9 @@ extension EhSetting.GalleryName {
     var value: String {
         switch self {
         case .default:
-            return R.string.localizable.enumEhSettingGalleryNameValueDefault()
+            return L10n.Localizable.Enum.EhSetting.GalleryName.Value.default
         case .japanese:
-            return R.string.localizable.enumEhSettingGalleryNameValueJapanese()
+            return L10n.Localizable.Enum.EhSetting.GalleryName.Value.japanese
         }
     }
 }
@@ -242,17 +242,17 @@ extension EhSetting.ArchiverBehavior {
     var value: String {
         switch self {
         case .manualSelectManualStart:
-            return R.string.localizable.enumEhSettingArchiverBehaviorValueManualSelectManualStart()
+            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.manualSelectManualStart
         case .manualSelectAutoStart:
-            return R.string.localizable.enumEhSettingArchiverBehaviorValueManualSelectAutoStart()
+            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.manualSelectAutoStart
         case .autoSelectOriginalManualStart:
-            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectOriginalManualStart()
+            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectOriginalManualStart
         case .autoSelectOriginalAutoStart:
-            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectOriginalAutoStart()
+            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectOriginalAutoStart
         case .autoSelectResampleManualStart:
-            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectResampleManualStart()
+            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectResampleManualStart
         case .autoSelectResampleAutoStart:
-            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectResampleAutoStart()
+            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectResampleAutoStart
         }
     }
 }
@@ -273,15 +273,15 @@ extension EhSetting.DisplayMode {
     var value: String {
         switch self {
         case .compact:
-            return R.string.localizable.enumEhSettingDisplayModeValueCompact()
+            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.compact
         case .thumbnail:
-            return R.string.localizable.enumEhSettingDisplayModeValueThumbnail()
+            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.thumbnail
         case .extended:
-            return R.string.localizable.enumEhSettingDisplayModeValueExtended()
+            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.extended
         case .minimal:
-            return R.string.localizable.enumEhSettingDisplayModeValueMinimal()
+            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.minimal
         case .minimalPlus:
-            return R.string.localizable.enumEhSettingDisplayModeValueMinimalPlus()
+            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.minimalPlus
         }
     }
 }
@@ -299,9 +299,9 @@ extension EhSetting.FavoritesSortOrder {
     var value: String {
         switch self {
         case .lastUpdateTime:
-            return R.string.localizable.enumEhSettingFavoritesSortOrderValueLastUpdateTime()
+            return L10n.Localizable.Enum.EhSetting.FavoritesSortOrder.Value.lastUpdateTime
         case .favoritedTime:
-            return R.string.localizable.enumEhSettingFavoritesSortOrderValueFavoritedTime()
+            return L10n.Localizable.Enum.EhSetting.FavoritesSortOrder.Value.favoritedTime
         }
     }
 }
@@ -320,11 +320,11 @@ extension EhSetting.ExcludedLanguagesCategory {
     var value: String {
         switch self {
         case .original:
-            return R.string.localizable.enumEhSettingExcludedLanguagesCategoryValueOriginal()
+            return L10n.Localizable.Enum.EhSetting.ExcludedLanguagesCategory.Value.original
         case .translated:
-            return R.string.localizable.enumEhSettingExcludedLanguagesCategoryValueTranslated()
+            return L10n.Localizable.Enum.EhSetting.ExcludedLanguagesCategory.Value.translated
         case .rewrite:
-            return R.string.localizable.enumEhSettingExcludedLanguagesCategoryValueRewrite()
+            return L10n.Localizable.Enum.EhSetting.ExcludedLanguagesCategory.Value.rewrite
         }
     }
 }
@@ -371,17 +371,17 @@ extension EhSetting.ThumbnailLoadTiming {
     var value: String {
         switch self {
         case .onMouseOver:
-            return R.string.localizable.enumEhSettingThumbnailLoadTimingValueOnMouseOver()
+            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Value.onMouseOver
         case .onPageLoad:
-            return R.string.localizable.enumEhSettingThumbnailLoadTimingValueOnPageLoad()
+            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Value.onPageLoad
         }
     }
     var description: String {
         switch self {
         case .onMouseOver:
-            return R.string.localizable.enumEhSettingThumbnailLoadTimingDescriptionOnMouseOver()
+            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Description.onMouseOver
         case .onPageLoad:
-            return R.string.localizable.enumEhSettingThumbnailLoadTimingDescriptionOnPageLoad()
+            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Description.onPageLoad
         }
     }
 }
@@ -402,9 +402,9 @@ extension EhSetting.ThumbnailSize {
     var value: String {
         switch self {
         case .normal:
-            return R.string.localizable.enumEhSettingThumbnailSizeValueNormal()
+            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.normal
         case .large:
-            return R.string.localizable.enumEhSettingThumbnailSizeValueLarge()
+            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.large
         }
     }
 }
@@ -452,11 +452,11 @@ extension EhSetting.CommentsSortOrder {
     var value: String {
         switch self {
         case .oldest:
-            return R.string.localizable.enumEhSettingCommentsSortOrderValueOldest()
+            return L10n.Localizable.Enum.EhSetting.CommentsSortOrder.Value.oldest
         case .recent:
-            return R.string.localizable.enumEhSettingCommentsSortOrderValueRecent()
+            return L10n.Localizable.Enum.EhSetting.CommentsSortOrder.Value.recent
         case .highestScore:
-            return R.string.localizable.enumEhSettingCommentsSortOrderValueHighestScore()
+            return L10n.Localizable.Enum.EhSetting.CommentsSortOrder.Value.highestScore
         }
     }
 }
@@ -474,9 +474,9 @@ extension EhSetting.CommentVotesShowTiming {
     var value: String {
         switch self {
         case .onHoverOrClick:
-            return R.string.localizable.enumEhSettingCommentsVotesShowTimingValueOnHoverOrClick()
+            return L10n.Localizable.Enum.EhSetting.CommentsVotesShowTiming.Value.onHoverOrClick
         case .always:
-            return R.string.localizable.enumEhSettingCommentsVotesShowTimingValueAlways()
+            return L10n.Localizable.Enum.EhSetting.CommentsVotesShowTiming.Value.always
         }
     }
 }
@@ -494,9 +494,9 @@ extension EhSetting.TagsSortOrder {
     var value: String {
         switch self {
         case .alphabetical:
-            return R.string.localizable.enumEhSettingTagsSortOrderValueAlphabetical()
+            return L10n.Localizable.Enum.EhSetting.TagsSortOrder.Value.alphabetical
         case .tagPower:
-            return R.string.localizable.enumEhSettingTagsSortOrderValueTagPower()
+            return L10n.Localizable.Enum.EhSetting.TagsSortOrder.Value.tagPower
         }
     }
 }
@@ -515,11 +515,11 @@ extension EhSetting.MultiplePageViewerStyle {
     var value: String {
         switch self {
         case .alignLeftScaleIfOverWidth:
-            return R.string.localizable.enumEhSettingMultiplePageViewerStyleValueAlignLeftScaleIfOverWidth()
+            return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignLeftScaleIfOverWidth
         case .alignCenterScaleIfOverWidth:
-            return R.string.localizable.enumEhSettingMultiplePageViewerStyleValueAlignCenterScaleIfOverWidth()
+            return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignCenterScaleIfOverWidth
         case .alignCenterAlwaysScale:
-            return R.string.localizable.enumEhSettingMultiplePageViewerStyleValueAlignCenterAlwaysScale()
+            return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignCenterAlwaysScale
         }
     }
 }

@@ -1,0 +1,98 @@
+/* 
+  Constant.strings
+  EhPanda
+
+  Created by 荒木辰造 on R 4/02/04.
+  
+*/
+
+// MARK: Website response
+"website.response.hath_client_not_found" = "You must have a H@H client assigned to your account to use this feature.";
+"website.response.hath_client_not_online" = "Your H@H client appears to be offline. Turn it on, then try again.";
+"website.response.invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
+"website.response.gallery_unavailable" = "This gallery has been removed or is unavailable.";
+
+// MARK: EhPanda
+"EhPanda.copyright" = "Copyright © 2022 EhPanda Team";
+
+// Contacts
+"EhPanda.contacts.link.website" = "https://ehpanda.app";
+"EhPanda.contacts.link.gitHub" = "https://github.com/EhPanda-Team/EhPanda";
+"EhPanda.contacts.link.discord" = "https://discord.gg/BSBE9FCBTq";
+"EhPanda.contacts.link.telegram" = "https://t.me/ehpanda";
+"EhPanda.contacts.link.altStore" = "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json";
+"EhPanda.contacts.text.gitHub" = "GitHub";
+"EhPanda.contacts.text.discord" = "Discord";
+"EhPanda.contacts.text.telegram" = "Telegram";
+
+// Special thanks
+"EhPanda.special_thanks.link.taylorlannister" = "https://github.com/taylorlannister";
+"EhPanda.special_thanks.link.luminescent_yq" = "";
+"EhPanda.special_thanks.link.caxerx" = "https://github.com/caxerx";
+"EhPanda.special_thanks.link.honjow" = "https://github.com/honjow";
+"EhPanda.special_thanks.text.taylorlannister" = "taylorlannister";
+"EhPanda.special_thanks.text.luminescent_yq" = "Luminescent_yq";
+"EhPanda.special_thanks.text.caxerx" = "caxerx";
+"EhPanda.special_thanks.text.honjow" = "honjow";
+
+// Code level contributors
+"EhPanda.code_level_contributors.link.tatsuz0u" = "https://github.com/tatsuz0u";
+"EhPanda.code_level_contributors.link.chihchy" = "https://github.com/chihchy";
+"EhPanda.code_level_contributors.link.xioxin" = "https://github.com/xioxin";
+"EhPanda.code_level_contributors.link.leng-yue" = "https://github.com/leng-yue";
+"EhPanda.code_level_contributors.link.ethanChinCN" = "https://github.com/EthanChinCN";
+"EhPanda.code_level_contributors.text.tatsuz0u" = "Tatsuzo Araki";
+"EhPanda.code_level_contributors.text.chihchy" = "Chihchy";
+"EhPanda.code_level_contributors.text.xioxin" = "xioxin";
+"EhPanda.code_level_contributors.text.leng-yue" = "LengYue";
+"EhPanda.code_level_contributors.text.ethanChinCN" = "Ethan Chin";
+
+// Translation contributors
+"EhPanda.translation_contributors.link.tatsuz0u" = "https://github.com/tatsuz0u";
+"EhPanda.translation_contributors.link.nebulosa-cat" = "https://github.com/Nebulosa-Cat";
+"EhPanda.translation_contributors.link.paulHaeussler" = "https://github.com/PaulHaeussler";
+"EhPanda.translation_contributors.link.caxerx" = "https://github.com/caxerx";
+"EhPanda.translation_contributors.link.nyaanim" = "https://github.com/nyaanim";
+"EhPanda.translation_contributors.text.tatsuz0u" = "Tatsuzo Araki";
+"EhPanda.translation_contributors.text.nebulosa-cat" = "雲豹 ΦωΦ";
+"EhPanda.translation_contributors.text.paulHaeussler" = "PaulHaeussler";
+"EhPanda.translation_contributors.text.caxerx" = "caxerx";
+"EhPanda.translation_contributors.text.nyaanim" = "nyaanim";
+
+// Acknowledgements links
+"EhPanda.acknowledgements.link.kanna" = "https://github.com/tid-kijyun/Kanna";
+"EhPanda.acknowledgements.link.swiftGen" = "https://github.com/SwiftGen/SwiftGen";
+"EhPanda.acknowledgements.link.alertKit" = "https://github.com/rebeloper/AlertKit";
+"EhPanda.acknowledgements.link.colorful" = "https://github.com/Co2333/Colorful";
+"EhPanda.acknowledgements.link.filePicker" = "https://github.com/markrenaud/FilePicker";
+"EhPanda.acknowledgements.link.kingfisher" = "https://github.com/onevcat/Kingfisher";
+"EhPanda.acknowledgements.link.swiftUIPager" = "https://github.com/fermoya/SwiftUIPager";
+"EhPanda.acknowledgements.link.swiftyBeaver" = "https://github.com/SwiftyBeaver/SwiftyBeaver";
+"EhPanda.acknowledgements.link.waterfallGrid" = "https://github.com/paololeonardi/WaterfallGrid";
+"EhPanda.acknowledgements.link.swiftyOpenCC" = "https://github.com/ddddxxx/SwiftyOpenCC";
+"EhPanda.acknowledgements.link.uiImageColors" = "https://github.com/jathu/UIImageColors";
+"EhPanda.acknowledgements.link.sfSafeSymbols" = "https://github.com/SFSafeSymbols/SFSafeSymbols";
+"EhPanda.acknowledgements.link.ttProgressHUD" = "https://github.com/honkmaster/TTProgressHUD";
+"EhPanda.acknowledgements.link.swiftUINavigation" = "https://github.com/pointfreeco/swiftui-navigation";
+"EhPanda.acknowledgements.link.swiftCommonMark" = "https://github.com/gonzalezreal/SwiftCommonMark";
+"EhPanda.acknowledgements.link.ehTagTranslationDatabase" = "https://github.com/EhTagTranslation/Database";
+"EhPanda.acknowledgements.link.tca" = "https://github.com/pointfreeco/swift-composable-architecture";
+
+// Acknowledgements texts
+"EhPanda.acknowledgements.text.kanna" = "Kanna";
+"EhPanda.acknowledgements.text.swiftGen" = "SwiftGen";
+"EhPanda.acknowledgements.text.alertKit" = "AlertKit";
+"EhPanda.acknowledgements.text.colorful" = "Colorful";
+"EhPanda.acknowledgements.text.filePicker" = "FilePicker";
+"EhPanda.acknowledgements.text.kingfisher" = "Kingfisher";
+"EhPanda.acknowledgements.text.swiftUIPager" = "SwiftUIPager";
+"EhPanda.acknowledgements.text.swiftyBeaver" = "SwiftyBeaver";
+"EhPanda.acknowledgements.text.waterfallGrid" = "WaterfallGrid";
+"EhPanda.acknowledgements.text.swiftyOpenCC" = "SwiftyOpenCC";
+"EhPanda.acknowledgements.text.uiImageColors" = "UIImageColors";
+"EhPanda.acknowledgements.text.sfSafeSymbols" = "SFSafeSymbols";
+"EhPanda.acknowledgements.text.ttProgressHUD" = "TTProgressHUD";
+"EhPanda.acknowledgements.text.swiftUINavigation" = "SwiftUI Navigation";
+"EhPanda.acknowledgements.text.swiftCommonMark" = "SwiftCommonMark";
+"EhPanda.acknowledgements.text.ehTagTranslationDatabase" = "EhTagTranslation/Database";
+"EhPanda.acknowledgements.text.tca" = "The Composable Architecture";

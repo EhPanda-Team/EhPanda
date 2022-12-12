@@ -1,9 +1,9 @@
-/* 
+/*
   Localizable.strings
   EhPanda
 
   Created by 荒木辰造 on R 2/12/25.
-  
+
 */
 
 // MARK: BanInterval
@@ -16,25 +16,25 @@
 "enum.toplists_type.value.all_time" = "All time";
 
 // MARK: Response
-"website.response.hath_client_not_found" = "You must have a H@H client assigned to your account to use this feature.";
-"website.response.hath_client_not_online" = "Your H@H client appears to be offline. Turn it on, then try again.";
-"website.response.invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
+"website.response.hath_client_not_found" = "你需要一個關聯到帳號的 H@H 客戶端才能使用這個功能";
+"website.response.hath_client_not_online" = "你的 H@H 客戶端為離線狀態，請啓動後再試";
+"website.response.invalid_resolution" = "該畫廊不能以選定的解析度下載";
 
 // MARK: HUD
-"hud.title.error" = "Error";
-"hud.title.success" = "Success";
-"hud.title.loading" = "Loading...";
-"hud.title.communicating" = "Communicating...";
-"hud.caption.copied_to_clipboard" = "Copied to clipboard";
+"hud.title.error" = "錯誤";
+"hud.title.success" = "成功";
+"hud.title.loading" = "載入中...";
+"hud.title.communicating" = "通訊中...";
+"hud.caption.copied_to_clipboard" = "已複製到剪貼簿";
 "hud.caption.saved_to_photo_library" = "Saved to photo library";
 
 // MARK: AutoLock
-"local_authorization.reason" = "The App has been locked due to the Auto-Lock expiration.";
+"local_authorization.reason" = "因超過自動鎖定期限，App 已被鎖定";
 
 // MARK: Common value
-"common.value.stars" = "%@ stars";
-"common.value.pages" = "%@ pages";
-"common.value.times" = "%@ times";
+"common.value.stars" = "%@ 星";
+"common.value.pages" = "%@ 頁";
+"common.value.times" = "%@ 次";
 "common.value.day" = "%@ day";
 "common.value.days" = "%@ days";
 "common.value.hour" = "%@ hour";
@@ -43,32 +43,32 @@
 "common.value.minutes" = "%@ minutes";
 "common.value.second" = "%@ second";
 "common.value.seconds" = "%@ seconds";
-"common.value.records" = "%@ records";
+"common.value.records" = "%@ 條記錄";
 
 // MARK: TabItem
-"tab_item.title.home" = "Home";
-"tab_item.title.favorites" = "Favorites";
-"tab_item.title.search" = "Search";
-"tab_item.title.setting" = "Setting";
+"tab_item.title.home" = "主頁";
+"tab_item.title.favorites" = "收藏";
+"tab_item.title.search" = "搜尋";
+"tab_item.title.setting" = "設定";
 
 // MARK: ToolbarItem
-"toolbar_item.button.filters" = "Filters";
+"toolbar_item.button.filters" = "篩選";
 "toolbar_item.button.jump_page" = "Jump page";
-"toolbar_item.button.quick_search" = "Quick search";
+"toolbar_item.button.quick_search" = "快速搜尋";
 
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "Jump page";
 "jump_page_view.button.confirm" = "Confirm";
 
 // MARK: AlertView
-"loading_view.title.loading" = "Loading...";
+"loading_view.title.loading" = "載入中...";
 "loading_view.title.preparing_database" = "Preparing the database...";
 "not_login_view.title.need_login" = "You need to login to access this feature.";
 "not_login_view.button.login" = "Login";
-"error_view.button.retry" = "Retry";
+"error_view.button.retry" = "重試";
 "error_view.button.drop_database" = "Drop the database";
-"error_view.title.try_later" = "Please try again later.";
-"error_view.title.network" = "A network error occurred.";
+"error_view.title.try_later" = "請稍後再試";
+"error_view.title.network" = "網絡發生故障";
 "error_view.title.parsing" = "A parsing error occurred.";
 "error_view.title.unknown" = "An unknown error occurred.";
 "error_view.title.not_found" = "There seems to be nothing here.";
@@ -80,38 +80,38 @@
 // MARK: ConfirmationDialog
 "confirmation_dialog.title.drop_database" = "You will lose all your data in this app.\nAre you sure to drop the database?";
 "confirmation_dialog.title.remove_custom_translations" = "Are you sure to remove your custom translations?";
-"confirmation_dialog.title.logout" = "Are you sure to logout?";
+"confirmation_dialog.title.logout" = "確定要登出嗎？";
 "confirmation_dialog.title.delete" = "Are you sure to delete this item?";
-"confirmation_dialog.title.clear" = "Are you sure to clear?";
-"confirmation_dialog.title.reset" = "Are you sure to reset?";
+"confirmation_dialog.title.clear" = "確定要清空嗎？";
+"confirmation_dialog.title.reset" = "確定要重置嗎？";
 "confirmation_dialog.button.drop_database" = "Drop the database";
 "confirmation_dialog.button.remove" = "Remove";
-"confirmation_dialog.button.logout" = "Logout";
+"confirmation_dialog.button.logout" = "登出";
 "confirmation_dialog.button.delete" = "Delete";
-"confirmation_dialog.button.clear" = "Clear";
-"confirmation_dialog.button.reset" = "Reset";
+"confirmation_dialog.button.clear" = "清空";
+"confirmation_dialog.button.reset" = "重置";
 
 // MARK: SubSection
-"sub_section.button.show_all" = "Show all";
+"sub_section.button.show_all" = "顯示全部";
 
 // MARK: NewDawnView
-"new_dawn_view.title.first" = "It is the dawn of a new day!";
-"new_dawn_view.title.second" = "Reflecting on your journey so far, you find that you are a little wiser.";
+"new_dawn_view.title.first" = "現在是嶄新的一天！";
+"new_dawn_view.title.second" = "回顧到目前為止的旅程，你發現自己睿智了一點。";
 // Greeting
-"struct.greeting.mark.start" = "You gain ";
-"struct.greeting.mark.separator" = ", ";
-"struct.greeting.mark.and" = " and ";
-"struct.greeting.mark.end" = "!";
+"struct.greeting.mark.start" = "你獲得了 ";
+"struct.greeting.mark.separator" = "、";
+"struct.greeting.mark.and" = " 和 ";
+"struct.greeting.mark.end" = "！";
 
 // MARK: HomeView
-"home_view.title.home" = "Home";
+"home_view.title.home" = "主頁";
 "home_view.section.title.frontpage" = "Frontpage";
 "home_view.section.title.toplists" = "Toplists";
-"home_view.section.title.other" = "Other";
+"home_view.section.title.other" = "其它";
 // HomeMiscGridType
-"enum.home_misc_grid_type.title.popular" = "Popular";
-"enum.home_misc_grid_type.title.watched" = "Watched";
-"enum.home_misc_grid_type.title.history" = "History";
+"enum.home_misc_grid_type.title.popular" = "熱門";
+"enum.home_misc_grid_type.title.watched" = "標籤";
+"enum.home_misc_grid_type.title.history" = "歷史";
 
 // MARK: FrontpageView
 "frontpage_view.title.frontpage" = "Frontpage";
@@ -120,183 +120,183 @@
 "toplists_view.title.toplists" = "Toplists";
 
 // MARK: PopularView
-"popular_view.title.popular" = "Popular";
+"popular_view.title.popular" = "熱門";
 
 // MARK: WatchedView
-"watched_view.title.watched" = "Watched";
+"watched_view.title.watched" = "標籤";
 
 // MARK: HistoryView
-"history_view.title.history" = "History";
+"history_view.title.history" = "歷史";
 
 // MARK: FavoritesView
-"favorites_view.title.favorites" = "Favorites";
+"favorites_view.title.favorites" = "收藏";
 // FavoriteCategory
-"struct.user.favorite_category.default" = "Favorites %@";
-"struct.user.favorite_category.all" = "All";
+"struct.user.favorite_category.default" = "收藏夾 %@";
+"struct.user.favorite_category.all" = "全部";
 
 // MARK: SearchView
-"search_view.title.search" = "Search";
+"search_view.title.search" = "搜尋";
 "search_view.section.title.recently_searched" = "Recently searched";
 "search_view.section.title.recently_seen" = "Recently seen";
-"search_view.section.title.quick_search" = "Quick search";
+"search_view.section.title.quick_search" = "快速搜尋";
 // Searchable prompt
-"searchable.prompt.filter" = "Filter";
+"searchable.prompt.filter" = "篩選";
 
 // MARK: QuickSearchView
-"quick_search_view.title.quick_search" = "Quick search";
+"quick_search_view.title.quick_search" = "快速搜尋";
 "quick_search_view.title.edit_word" = "Edit word";
 "quick_search_view.title.new_word" = "New word";
 "quick_search_view.title.content" = "Content";
-"quick_search_view.title.name" = "Name";
+"quick_search_view.title.name" = "名稱";
 "quick_search_view.placeholder.optional" = "Optional";
 "quick_search_view.toolbar_item.button.confirm" = "Confirm";
 
 // MARK: SettingView
-"setting_view.title.setting" = "Setting";
+"setting_view.title.setting" = "設定";
 // SettingStateRoute
-"enum.setting_state_route.value.account" = "Account";
-"enum.setting_state_route.value.general" = "General";
-"enum.setting_state_route.value.appearance" = "Appearance";
-"enum.setting_state_route.value.reading" = "Reading";
-"enum.setting_state_route.value.laboratory" = "Laboratory";
-"enum.setting_state_route.value.ehPanda" = "About EhPanda";
+"enum.setting_state_route.value.account" = "帳號";
+"enum.setting_state_route.value.general" = "一般";
+"enum.setting_state_route.value.appearance" = "外觀";
+"enum.setting_state_route.value.reading" = "閱讀";
+"enum.setting_state_route.value.laboratory" = "實驗室";
+"enum.setting_state_route.value.ehPanda" = "關於 EhPanda";
 
 // MARK: AccountSettingView
-"account_setting_view.title.account" = "Account";
-"account_setting_view.title.shows_new_dawn_greeting" = "Shows new dawn greeting";
-"account_setting_view.button.login" = "Login";
-"account_setting_view.button.logout" = "Logout";
-"account_setting_view.button.account_configuration" = "Account configuration";
-"account_setting_view.button.tags_management" = "Manage tags subscription";
-"account_setting_view.button.copy_cookies" = "Copy cookies";
+"account_setting_view.title.account" = "帳號";
+"account_setting_view.title.shows_new_dawn_greeting" = "顯示黎明問候";
+"account_setting_view.button.login" = "登入";
+"account_setting_view.button.logout" = "登出";
+"account_setting_view.button.account_configuration" = "帳號設定";
+"account_setting_view.button.tags_management" = "管理訂閱標籤";
+"account_setting_view.button.copy_cookies" = "複製 cookies";
 // CookieValue
-"struct.cookie_value.localized_string.expired" = "Expired";
-"struct.cookie_value.localized_string.mystery" = "Rejected";
-"struct.cookie_value.localized_string.none" = "None";
+"struct.cookie_value.localized_string.expired" = "已過期";
+"struct.cookie_value.localized_string.mystery" = "被拒絕";
+"struct.cookie_value.localized_string.none" = "無內容";
 
 // MARK: LoginView
-"login_view.title.login" = "Login";
+"login_view.title.login" = "登入";
 "login_view.title.username" = "Username";
 "login_view.title.password" = "Password";
 
 // MARK: GeneralSettingView
-"general_setting_view.title.general" = "General";
-"general_setting_view.title.language" = "Language";
-"general_setting_view.title.auto_lock" = "Auto-Lock";
+"general_setting_view.title.general" = "一般";
+"general_setting_view.title.language" = "語言";
+"general_setting_view.title.auto_lock" = "自動鎖定";
 "general_setting_view.title.enables_tags_extension" = "Enables tags extension";
-"general_setting_view.title.translates_tags" = "Translates tags";
+"general_setting_view.title.translates_tags" = "翻譯標籤";
 "general_setting_view.title.shows_tags_search_suggestion" = "Shows tags search suggestion";
 "general_setting_view.title.shows_images_in_tags" = "Shows images in tags";
-"general_setting_view.title.redirects_links_to_the_selected_host" = "Redirects links to the selected host";
-"general_setting_view.title.detects_links_from_clipboard" = "Detects links from the clipboard";
+"general_setting_view.title.redirects_links_to_the_selected_host" = "重定向連結到選定的站點";
+"general_setting_view.title.detects_links_from_clipboard" = "偵測剪貼簿中的連結";
 "general_setting_view.title.background_blur_radius" = "Background blur radius";
-"general_setting_view.button.logs" = "Logs";
+"general_setting_view.button.logs" = "日誌";
 "general_setting_view.button.import_custom_translations" = "Import custom translations";
 "general_setting_view.button.remove_custom_translations" = "Remove custom translations";
-"general_setting_view.button.clear_image_caches" = "Clear image caches";
+"general_setting_view.button.clear_image_caches" = "清空圖片快取";
 "general_setting_view.value.default_language_description" = "N/A";
 "general_setting_view.section.title.tags" = "Tags";
-"general_setting_view.section.title.navigation" = "Navigation";
-"general_setting_view.section.title.security" = "Security";
-"general_setting_view.section.title.caches" = "Caches";
+"general_setting_view.section.title.navigation" = "導航";
+"general_setting_view.section.title.security" = "安全";
+"general_setting_view.section.title.caches" = "快取";
 // AutoLockPolicy
-"enum.auto_lock_policy.value.never" = "Never";
-"enum.auto_lock_policy.value.instantly" = "Instantly";
+"enum.auto_lock_policy.value.never" = "不鎖定";
+"enum.auto_lock_policy.value.instantly" = "立即";
 
 // MARK: LogsView
-"logs_view.title.logs" = "Logs";
-"logs_view.title.latest" = "Latest";
+"logs_view.title.logs" = "日誌";
+"logs_view.title.latest" = "最新";
 
 // MARK: AppearanceSettingView
-"appearance_setting_view.title.appearance" = "Appearance";
-"appearance_setting_view.title.theme" = "Theme";
-"appearance_setting_view.title.tint_color" = "Tint color";
-"appearance_setting_view.title.display_mode" = "Display mode";
-"appearance_setting_view.title.shows_tags_in_list" = "Shows tags in list";
-"appearance_setting_view.title.maximum_number_of_tags" = "Maximum number of tags";
+"appearance_setting_view.title.appearance" = "外觀";
+"appearance_setting_view.title.theme" = "主題";
+"appearance_setting_view.title.tint_color" = "主題色";
+"appearance_setting_view.title.display_mode" = "顯示模式";
+"appearance_setting_view.title.shows_tags_in_list" = "在列表中顯示標籤";
+"appearance_setting_view.title.maximum_number_of_tags" = "標籤數量上限";
 "appearance_setting_view.title.displays_japanese_title" = "Displays Japanese title";
-"appearance_setting_view.button.app_icon" = "App icon";
-"appearance_setting_view.menu.title.infite" = "Infite";
-"appearance_setting_view.section.title.list" = "List";
+"appearance_setting_view.button.app_icon" = "應用圖標";
+"appearance_setting_view.menu.title.infite" = "無限";
+"appearance_setting_view.section.title.list" = "列表";
 "appearance_setting_view.section.title.gallery" = "Gallery";
 // PreferredColorScheme
-"enum.preferred_color_scheme.value.automatic" = "Automatic";
-"enum.preferred_color_scheme.value.light" = "Light";
-"enum.preferred_color_scheme.value.dark" = "Dark";
+"enum.preferred_color_scheme.value.automatic" = "自動";
+"enum.preferred_color_scheme.value.light" = "淺色";
+"enum.preferred_color_scheme.value.dark" = "深色";
 // AppIconType
-"enum.app_icon_type.value.default" = "Default";
+"enum.app_icon_type.value.default" = "預設";
 "enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";
 "enum.app_icon_type.value.developer" = "Developer";
 "enum.app_icon_type.value.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
 "enum.app_icon_type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
-"enum.list_display_mode.value.detail" = "Detail";
-"enum.list_display_mode.value.thumbnail" = "Thumbnail";
+"enum.list_display_mode.value.detail" = "詳情";
+"enum.list_display_mode.value.thumbnail" = "縮略圖";
 
 // MARK: AppIconView
-"app_icon_view.title.app_icon" = "App icon";
+"app_icon_view.title.app_icon" = "應用圖標";
 
 // MARK: reading_settingView
-"reading_setting_view.title.reading" = "Reading";
-"reading_setting_view.title.direction" = "Direction";
-"reading_setting_view.title.preload_limit" = "Preload limit";
+"reading_setting_view.title.reading" = "閱讀";
+"reading_setting_view.title.direction" = "方向";
+"reading_setting_view.title.preload_limit" = "預先載入數量上限";
 "reading_setting_view.title.enables_landscape" = "Enables landscape";
-"reading_setting_view.title.separator_height" = "Separator height";
-"reading_setting_view.title.maximum_scale_factor" = "Maximum scale factor";
-"reading_setting_view.title.double_tap_scale_factor" = "Double tap scale factor";
-"reading_setting_view.section.title.appearance" = "Appearance";
+"reading_setting_view.title.separator_height" = "分隔線高度";
+"reading_setting_view.title.maximum_scale_factor" = "縮放上限";
+"reading_setting_view.title.double_tap_scale_factor" = "雙擊縮放值";
+"reading_setting_view.section.title.appearance" = "外觀";
 // ReadingDirection
-"enum.reading_direction.value.vertical" = "Vertical";
-"enum.reading_direction.value.right_to_left" = "Right-to-left";
-"enum.reading_direction.value.left_to_right" = "Left-to-right";
+"enum.reading_direction.value.vertical" = "垂直";
+"enum.reading_direction.value.right_to_left" = "右至左";
+"enum.reading_direction.value.left_to_right" = "左至右";
 
 // MARK: LaboratorySettingView
-"laboratory_setting_view.title.laboratory" = "Laboratory";
-"laboratory_setting_view.title.bypasses_SNI_filtering" = "Bypasses SNI Filtering";
+"laboratory_setting_view.title.laboratory" = "實驗室";
+"laboratory_setting_view.title.bypasses_SNI_filtering" = "域前置繞過 SNI 阻斷";
 
 // MARK: EhPandaView
 "ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "Website";
-"ehPanda_view.button.altStore_source" = "AltStore source";
-"ehPanda_view.title.version" = "Version";
+"ehPanda_view.button.website" = "網站";
+"ehPanda_view.button.altStore_source" = "AltStore 源";
+"ehPanda_view.title.version" = "版本";
 "ehPanda_view.section.title.special_thanks" = "Special thanks";
 "ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
 "ehPanda_view.section.title.translation_contributors" = "Translation contributors";
-"ehPanda_view.section.title.acknowledgements" = "Acknowledgements";
+"ehPanda_view.section.title.acknowledgements" = "致謝";
 
 // MARK: DetailView
-"detail_view.button.read" = "Read";
-"detail_view.button.post_comment" = "Post comment";
-"detail_view.toolbar_item.button.archives" = "Archives";
-"detail_view.toolbar_item.button.torrents" = "Torrents";
-"detail_view.toolbar_item.button.share" = "Share";
+"detail_view.button.read" = "閱讀";
+"detail_view.button.post_comment" = "發表評論";
+"detail_view.toolbar_item.button.archives" = "封存";
+"detail_view.toolbar_item.button.torrents" = "種子";
+"detail_view.toolbar_item.button.share" = "分享";
 "detail_view.context_menu.button.detail" = "Detail";
 "detail_view.context_menu.button.withdraw_vote" = "Withdraw vote";
 "detail_view.context_menu.button.vote_up" = "Vote up";
 "detail_view.context_menu.button.vote_down" = "Vote down";
-"detail_view.description_section.title.favorited" = "Favorited";
-"detail_view.description_section.title.language" = "Language";
-"detail_view.description_section.title.ratings" = "%@ Ratings";
-"detail_view.description_section.title.page_count" = "Page Count";
-"detail_view.description_section.title.file_size" = "File Size";
-"detail_view.description_section.description.favorited" = "Times";
-"detail_view.description_section.description.page_count" = "Pages";
-"detail_view.action_section.button.give_a_rating" = "Give a Rating";
-"detail_view.action_section.button.similar_gallery" = "Similar Gallery";
-"detail_view.section.title.previews" = "Previews";
-"detail_view.section.title.comments" = "Comments";
+"detail_view.description_section.title.favorited" = "收藏";
+"detail_view.description_section.title.language" = "語言";
+"detail_view.description_section.title.ratings" = "%@ 個評分";
+"detail_view.description_section.title.page_count" = "頁數";
+"detail_view.description_section.title.file_size" = "文件大小";
+"detail_view.description_section.description.favorited" = "次";
+"detail_view.description_section.description.page_count" = "頁";
+"detail_view.action_section.button.give_a_rating" = "給予評分";
+"detail_view.action_section.button.similar_gallery" = "相似畫廊";
+"detail_view.section.title.previews" = "預覽";
+"detail_view.section.title.comments" = "評論";
 
 // MARK: ArchivesView
-"archives_view.title.archives" = "Archives";
-"archives_view.button.download_to_hath_client" = "Download To H@H Client";
+"archives_view.title.archives" = "封存";
+"archives_view.button.download_to_hath_client" = "下載到 H@H 客戶端";
 // HathArchive
-"struct.hath_archive.price.free" = "Free";
-"struct.hath_archive.price.not_available" = "N/A";
+"struct.hath_archive.price.free" = "免費";
+"struct.hath_archive.price.not_available" = "不適用";
 // ArchiveResolution
-"enum.archive_resolution.value.original" = "Original";
+"enum.archive_resolution.value.original" = "原始解析度";
 
 // MARK: TorrentsView
-"torrents_view.title.torrents" = "Torrents";
+"torrents_view.title.torrents" = "種子";
 
 // MARK: GalleryInfosView
 "gallery_infos_view.title.gallery_infos" = "Gallery infos";
@@ -335,16 +335,16 @@
 "tag_detail_view.section.title.links" = "Links";
 
 // MARK: CommentsView
-"comments_view.title.comments" = "Comments";
+"comments_view.title.comments" = "評論";
 
 // MARK: PostCommentView
-"post_comment_view.title.post_comment" = "Post comment";
-"post_comment_view.title.edit_comment" = "Edit comment";
-"post_comment_view.button.cancel" = "Cancel";
-"post_comment_view.button.post" = "Post";
+"post_comment_view.title.post_comment" = "發表評論";
+"post_comment_view.title.edit_comment" = "編輯評論";
+"post_comment_view.button.cancel" = "取消";
+"post_comment_view.button.post" = "發表";
 
 // MARK: PreviewsView
-"previews_view.title.previews" = "Previews";
+"previews_view.title.previews" = "預覽";
 
 // MARK: ReadingView
 "reading_view.context_menu.button.reload" = "Reload";
@@ -353,39 +353,39 @@
 "reading_view.context_menu.button.save_original" = "Save original";
 "reading_view.context_menu.button.share" = "Share";
 "reading_view.toolbar_item.title.auto_play" = "Auto-Play";
-"reading_view.toolbar_item.title.dual_page_mode" = "Dual-Page mode";
-"reading_view.toolbar_item.title.except_the_cover" = "Except the cover";
-"reading_view.toolbar_item.button.retry_all_failed_images" = "Retry all failed images";
+"reading_view.toolbar_item.title.dual_page_mode" = "雙頁模式";
+"reading_view.toolbar_item.title.except_the_cover" = "封面除外";
+"reading_view.toolbar_item.button.retry_all_failed_images" = "Retry failed images";
 "reading_view.toolbar_item.button.reload_all_images" = "Reload all images";
 "reading_view.toolbar_item.button.reading_setting" = "Reading setting";
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "Off";
 
 // MARK: FiltersView
-"filters_view.title.filters" = "Filters";
-"filters_view.title.advanced_settings" = "Advanced settings";
-"filters_view.title.search_gallery_name" = "Search gallery name";
-"filters_view.title.search_gallery_tags" = "Search gallery tags";
-"filters_view.title.search_gallery_description" = "Search gallery description";
-"filters_view.title.search_torrent_filenames" = "Search torrent filenames";
-"filters_view.title.only_show_galleries_with_torrents" = "Only show galleries with torrents";
-"filters_view.title.search_low_power_tags" = "Search Low-Power tags";
-"filters_view.title.search_downvoted_tags" = "Search downvoted tags";
-"filters_view.title.search_expunged_galleries" = "Search expunged galleries";
-"filters_view.title.set_minimum_rating" = "Set minimum rating";
-"filters_view.title.minimum_rating" = "Minimum rating";
-"filters_view.title.set_pages_range" = "Set pages range";
-"filters_view.title.pages_range" = "Pages range";
-"filters_view.title.disable_language_filter" = "Disable language filter";
-"filters_view.title.disable_uploader_filter" = "Disable uploader filter";
-"filters_view.title.disable_tags_filter" = "Disable tags filter";
-"filters_view.button.reset_filters" = "Reset filters";
-"filters_view.section.title.advanced" = "Advanced";
-"filters_view.section.title.default_filter" = "Default filter";
+"filters_view.title.filters" = "篩選";
+"filters_view.title.advanced_settings" = "進階選項";
+"filters_view.title.search_gallery_name" = "搜尋畫廊名稱";
+"filters_view.title.search_gallery_tags" = "搜尋畫廊標籤";
+"filters_view.title.search_gallery_description" = "搜尋畫廊描述";
+"filters_view.title.search_torrent_filenames" = "搜尋種子檔案名";
+"filters_view.title.only_show_galleries_with_torrents" = "只顯示有種子的畫廊";
+"filters_view.title.search_low_power_tags" = "搜尋低期望標籤";
+"filters_view.title.search_downvoted_tags" = "搜尋低評價標籤";
+"filters_view.title.search_expunged_galleries" = "顯示被刪除的畫廊";
+"filters_view.title.set_minimum_rating" = "設定評分下限";
+"filters_view.title.minimum_rating" = "評分下限";
+"filters_view.title.set_pages_range" = "設定頁數範圍";
+"filters_view.title.pages_range" = "頁數範圍";
+"filters_view.title.disable_language_filter" = "禁用語言篩選";
+"filters_view.title.disable_uploader_filter" = "禁用上傳者篩選";
+"filters_view.title.disable_tags_filter" = "禁用標籤篩選";
+"filters_view.button.reset_filters" = "重置所有選項";
+"filters_view.section.title.advanced" = "進階";
+"filters_view.section.title.default_filter" = "預設篩選";
 // FilterRange
-"enum.filter_range.value.search" = "Search";
-"enum.filter_range.value.global" = "Global";
-"enum.filter_range.value.watched" = "Watched";
+"enum.filter_range.value.search" = "搜尋";
+"enum.filter_range.value.global" = "全局";
+"enum.filter_range.value.watched" = "標籤";
 
 // MARK: EhSettingView
 "eh_setting_view.title.host_settings" = "%@ settings";
@@ -480,6 +480,10 @@
 
 "eh_setting_view.section.title.excluded_languages" = "Excluded Languages";
 "eh_setting_view.description.excluded_languages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+
+"eh.setting.view.section.title.excludedLanguages" = "Excluded Languages";
+"eh.setting.view.description.excludedLanguages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+>>>>>>> develop
 // EhSetting.ExcludedLanguagesCategory
 "enum.eh_setting.excluded_languages_category.value.original" = "Original";
 "enum.eh_setting.excluded_languages_category.value.translated" = "Translated";
@@ -553,99 +557,99 @@
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "Align center, always scale";
 
 // MARK: Category
-"enum.category.value.doujinshi" = "Doujinshi";
-"enum.category.value.manga" = "Manga";
-"enum.category.value.artist_CG" = "Artist CG";
-"enum.category.value.game_CG" = "Game CG";
-"enum.category.value.western" = "Western";
-"enum.category.value.non_h" = "Non-H";
-"enum.category.value.image_set" = "Image Set";
-"enum.category.value.cosplay" = "Cosplay";
-"enum.category.value.asian_porn" = "Asian Porn";
-"enum.category.value.misc" = "Misc";
+"enum.category.value.doujinshi" = "同人誌";
+"enum.category.value.manga" = "漫畫";
+"enum.category.value.artist_CG" = "插畫";
+"enum.category.value.game_CG" = "遊戲 CG";
+"enum.category.value.western" = "西方";
+"enum.category.value.non_h" = "健康";
+"enum.category.value.image_set" = "圖片集";
+"enum.category.value.cosplay" = "角色扮演";
+"enum.category.value.asian_porn" = "亞洲";
+"enum.category.value.misc" = "其它";
 "enum.category.value.private" = "Private";
 
 // MARK: TagNamespace
-"enum.tag_namespace.value.reclass" = "Reclass";
-"enum.tag_namespace.value.language" = "Language";
-"enum.tag_namespace.value.parody" = "Parody";
-"enum.tag_namespace.value.character" = "Character";
-"enum.tag_namespace.value.group" = "Group";
-"enum.tag_namespace.value.artist" = "Artist";
-"enum.tag_namespace.value.male" = "Male";
-"enum.tag_namespace.value.female" = "Female";
+"enum.tag_namespace.value.reclass" = "重新分類";
+"enum.tag_namespace.value.language" = "語言";
+"enum.tag_namespace.value.parody" = "原作";
+"enum.tag_namespace.value.character" = "角色";
+"enum.tag_namespace.value.group" = "團體";
+"enum.tag_namespace.value.artist" = "作者";
+"enum.tag_namespace.value.male" = "男性";
+"enum.tag_namespace.value.female" = "女性";
 "enum.tag_namespace.value.mixed" = "Mixed";
 "enum.tag_namespace.value.cosplayer" = "Cosplayer";
 "enum.tag_namespace.value.other" = "Other";
 "enum.tag_namespace.value.temp" = "Temp";
 
 // MARK: Language
-"enum.language.value.invalid" = "N/A";
-"enum.language.value.other" = "Other";
-"enum.language.value.afrikaans" = "Afrikaans";
-"enum.language.value.albanian" = "Albanian";
-"enum.language.value.arabic" = "Arabic";
-"enum.language.value.bengali" = "Bengali";
-"enum.language.value.bosnian" = "Bosnian";
-"enum.language.value.bulgarian" = "Bulgarian";
-"enum.language.value.burmese" = "Burmese";
-"enum.language.value.catalan" = "Catalan";
-"enum.language.value.cebuano" = "Cebuano";
-"enum.language.value.chinese" = "Chinese";
-"enum.language.value.croatian" = "Croatian";
-"enum.language.value.czech" = "Czech";
-"enum.language.value.danish" = "Danish";
-"enum.language.value.dutch" = "Dutch";
-"enum.language.value.english" = "English";
-"enum.language.value.esperanto" = "Esperanto";
-"enum.language.value.estonian" = "Estonian";
-"enum.language.value.finnish" = "Finnish";
-"enum.language.value.french" = "French";
-"enum.language.value.georgian" = "Georgian";
-"enum.language.value.german" = "German";
-"enum.language.value.greek" = "Greek";
-"enum.language.value.hebrew" = "Hebrew";
-"enum.language.value.hindi" = "Hindi";
-"enum.language.value.hmong" = "Hmong";
-"enum.language.value.hungarian" = "Hungarian";
-"enum.language.value.indonesian" = "Indonesian";
-"enum.language.value.italian" = "Italian";
-"enum.language.value.japanese" = "Japanese";
-"enum.language.value.kazakh" = "Kazakh";
-"enum.language.value.khmer" = "Khmer";
-"enum.language.value.korean" = "Korean";
-"enum.language.value.kurdish" = "Kurdish";
-"enum.language.value.lao" = "Lao";
-"enum.language.value.latin" = "Latin";
-"enum.language.value.mongolian" = "Mongolian";
-"enum.language.value.ndebele" = "Ndebele";
-"enum.language.value.nepali" = "Nepali";
-"enum.language.value.norwegian" = "Norwegian";
-"enum.language.value.oromo" = "Oromo";
-"enum.language.value.pashto" = "Pashto";
-"enum.language.value.persian" = "Persian";
-"enum.language.value.polish" = "Polish";
-"enum.language.value.portuguese" = "Portuguese";
-"enum.language.value.punjabi" = "Punjabi";
-"enum.language.value.romanian" = "Romanian";
-"enum.language.value.russian" = "Russian";
-"enum.language.value.sango" = "Sango";
-"enum.language.value.serbian" = "Serbian";
-"enum.language.value.shona" = "Shona";
-"enum.language.value.slovak" = "Slovak";
-"enum.language.value.slovenian" = "Slovenian";
-"enum.language.value.somali" = "Somali";
-"enum.language.value.spanish" = "Spanish";
-"enum.language.value.swahili" = "Swahili";
-"enum.language.value.swedish" = "Swedish";
-"enum.language.value.tagalog" = "Tagalog";
-"enum.language.value.thai" = "Thai";
-"enum.language.value.tigrinya" = "Tigrinya";
-"enum.language.value.turkish" = "Turkish";
-"enum.language.value.ukrainian" = "Ukrainian";
-"enum.language.value.urdu" = "Urdu";
-"enum.language.value.vietnamese" = "Vietnamese";
-"enum.language.value.zulu" = "Zulu";
+"enum.language.value.invalid" = "無效";
+"enum.language.value.other" = "其它";
+"enum.language.value.afrikaans" = "南非語";
+"enum.language.value.albanian" = "阿爾巴尼亞語";
+"enum.language.value.arabic" = "阿拉伯語";
+"enum.language.value.bengali" = "孟加拉語";
+"enum.language.value.bosnian" = "波士尼亞語";
+"enum.language.value.bulgarian" = "保加利亞語";
+"enum.language.value.burmese" = "緬甸語";
+"enum.language.value.catalan" = "加泰羅尼亞語";
+"enum.language.value.cebuano" = "宿霧語";
+"enum.language.value.chinese" = "漢語";
+"enum.language.value.croatian" = "克羅地亞語";
+"enum.language.value.czech" = "捷克語";
+"enum.language.value.danish" = "丹麥語";
+"enum.language.value.dutch" = "荷蘭語";
+"enum.language.value.english" = "英語";
+"enum.language.value.esperanto" = "國際語";
+"enum.language.value.estonian" = "愛沙尼亞語";
+"enum.language.value.finnish" = "芬蘭語";
+"enum.language.value.french" = "法語";
+"enum.language.value.georgian" = "格魯吉亞語";
+"enum.language.value.german" = "德語";
+"enum.language.value.greek" = "希臘語";
+"enum.language.value.hebrew" = "希伯來語";
+"enum.language.value.hindi" = "印地語";
+"enum.language.value.hmong" = "苗語";
+"enum.language.value.hungarian" = "匈牙利語";
+"enum.language.value.indonesian" = "印尼語";
+"enum.language.value.italian" = "意大利語";
+"enum.language.value.japanese" = "日語";
+"enum.language.value.kazakh" = "哈薩克語";
+"enum.language.value.khmer" = "高棉語";
+"enum.language.value.korean" = "韓語";
+"enum.language.value.kurdish" = "庫爾德語";
+"enum.language.value.lao" = "老撾語";
+"enum.language.value.latin" = "拉丁語";
+"enum.language.value.mongolian" = "蒙古語";
+"enum.language.value.ndebele" = "恩德貝萊語";
+"enum.language.value.nepali" = "尼泊爾語";
+"enum.language.value.norwegian" = "挪威語";
+"enum.language.value.oromo" = "奧羅莫語";
+"enum.language.value.pashto" = "普什圖語";
+"enum.language.value.persian" = "波斯語";
+"enum.language.value.polish" = "波蘭語";
+"enum.language.value.portuguese" = "葡萄牙語";
+"enum.language.value.punjabi" = "旁遮普語";
+"enum.language.value.romanian" = "羅馬尼亞語";
+"enum.language.value.russian" = "俄語";
+"enum.language.value.sango" = "桑戈語";
+"enum.language.value.serbian" = "塞爾維亞語";
+"enum.language.value.shona" = "紹納語";
+"enum.language.value.slovak" = "斯洛伐克語";
+"enum.language.value.slovenian" = "斯洛文尼亞語";
+"enum.language.value.somali" = "索馬里語";
+"enum.language.value.spanish" = "西班牙語";
+"enum.language.value.swahili" = "斯瓦希里語";
+"enum.language.value.swedish" = "瑞典語";
+"enum.language.value.tagalog" = "他加洛語";
+"enum.language.value.thai" = "泰語";
+"enum.language.value.tigrinya" = "提格利尼亞語";
+"enum.language.value.turkish" = "土耳其語";
+"enum.language.value.ukrainian" = "烏克蘭語";
+"enum.language.value.urdu" = "烏爾都語";
+"enum.language.value.vietnamese" = "越南語";
+"enum.language.value.zulu" = "祖魯語";
 
 // MARK: BrowsingCountry
 "enum.browsing_country.name.auto_detect" = "Auto-Detect";

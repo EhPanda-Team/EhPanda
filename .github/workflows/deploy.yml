@@ -6,21 +6,16 @@ on:
     types: [closed]
 env:
   DEVELOPER_DIR: /Applications/Xcode_14.1.app
-  APP_VERSION: '2.5.1'
+  APP_VERSION: '2.6.0'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
-  ASC_KEY_PATH: '/Users/runner/private_keys'
   FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
   FILTER_PATH: './actions-tool/ReleaseNotesFilter'
   THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
-  APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
-  APP_DIS_PROVISION_PATH: '/tmp/action-builds/app_dis.mobileprovision'
-  SHARE_EXTENSION_DEV_PROVISION_PATH: '/tmp/action-builds/share_extension_dev.mobileprovision'
-  SHARE_EXTENSION_DIS_PROVISION_PATH: '/tmp/action-builds/share_extension_dis.mobileprovision'
 
 jobs:
   Deploy:
@@ -34,7 +29,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Install dependencies
-        run: brew install rswift
+        run: brew install swiftgen
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
@@ -61,9 +56,9 @@ jobs:
         run: |
           swiftc -o $FILTER_PATH $FILTER_SWIFT_PATH
           sudo chmod 777 $FILTER_PATH
-          echo "::set-output name=size::$(stat -f%z $IPA_OUTPUT_PATH)"
-          echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
-          echo "::set-output name=notes::$($FILTER_PATH "${{ github.event.pull_request.body }}")"
+          echo "size=$(stat -f%z $IPA_OUTPUT_PATH)" >> $GITHUB_OUTPUT
+          echo "version_date=$(date -u +"%Y-%m-%dT%T")" >> $GITHUB_OUTPUT
+          echo "notes=$($FILTER_PATH "${{ github.event.pull_request.body }}" >> $GITHUB_OUTPUT
       - name: Validate data
         run: |
           [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1

@@ -52,7 +52,7 @@ struct LogsView: View {
         }
         .toolbar(content: toolbar)
         .background(navigationLink)
-        .navigationTitle(R.string.localizable.logsViewTitleLogs())
+        .navigationTitle(L10n.Localizable.LogsView.Title.logs)
     }
 
     private var navigationLink: some View {
@@ -94,7 +94,7 @@ private struct LogCell: View {
                 HStack(spacing: 2) {
                     Image(systemSymbol: .checkmarkCircle)
                         .foregroundColor(.green)
-                    Text(R.string.localizable.logsViewTitleLatest())
+                    Text(L10n.Localizable.LogsView.Title.latest)
                 }
                 .opacity(isLatest ? 0.6 : 0)
                 .font(.caption)
@@ -102,7 +102,7 @@ private struct LogCell: View {
             HStack {
                 Text(dateRangeString).bold()
                 Spacer()
-                Text(R.string.localizable.commonValueRecords("\(log.contents.count)"))
+                Text(L10n.Localizable.Common.Value.records("\(log.contents.count)"))
             }
             .foregroundColor(.secondary)
             .font(.caption2).lineLimit(1)

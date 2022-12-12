@@ -15,4 +15,3 @@ identifier_name:
 
 excluded:
  - EhPandaTests
- - EhPanda/App/R.generated.swift

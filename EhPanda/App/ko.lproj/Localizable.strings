@@ -7,29 +7,29 @@
 */
 
 // MARK: BanInterval
-"enum.ban.interval.description.and" = "and";
+"enum.ban_interval.description.and" = "and";
 
 // MARK: ToplistsType
-"enum.toplists.type.value.yesterday" = "어제";
-"enum.toplists.type.value.pastMonth" = "지난 달";
-"enum.toplists.type.value.pastYear" = "지난 해";
-"enum.toplists.type.value.allTime" = "전체";
+"enum.toplists_type.value.yesterday" = "어제";
+"enum.toplists_type.value.past_month" = "지난 달";
+"enum.toplists_type.value.past_year" = "지난 해";
+"enum.toplists_type.value.all_time" = "전체";
 
 // MARK: Response
-"hath.download.response.hathClientNotFound" = "H@H 클라이언트를 아이디에 연동시킨 후 사용해주세요.";
-"hath.download.response.hathClientNotOnline" = "H@H 클라이언트가 오프라인인 것 같네요. 클라이언트를 켜고 다시 시도해주세요.";
-"hath.download.response.invalidResolution" = "이 콘텐츠는 선택한　해상도로 다운로드할 수 없어요.";
+"website.response.hath_client_not_found" = "H@H 클라이언트를 아이디에 연동시킨 후 사용해주세요.";
+"website.response.hath_client_not_online" = "H@H 클라이언트가 오프라인인 것 같네요. 클라이언트를 켜고 다시 시도해주세요.";
+"website.response.invalid_resolution" = "이 콘텐츠는 선택한　해상도로 다운로드할 수 없어요.";
 
 // MARK: HUD
 "hud.title.error" = "실패";
 "hud.title.success" = "성공";
 "hud.title.loading" = "로딩 중...";
 "hud.title.communicating" = "접속 중...";
-"hud.caption.copiedToClipboard" = "클립보드에 복사되었어요";
-"hud.caption.savedToPhotoLibrary" = "이미지 저장";
+"hud.caption.copied_to_clipboard" = "클립보드에 복사되었어요";
+"hud.caption.saved_to_photo_library" = "이미지 저장";
 
 // MARK: AutoLock
-"local.authorization.reason" = "자동 잠금으로 앱이 잠겼어요.";
+"local_authorization.reason" = "자동 잠금으로 앱이 잠겼어요.";
 
 // MARK: Common value
 "common.value.stars" = "%@별";
@@ -46,57 +46,57 @@
 "common.value.records" = "%@ 기록수";
 
 // MARK: TabItem
-"tab.item.title.home" = "Home";
-"tab.item.title.favorites" = "즐겨찾기";
-"tab.item.title.search" = "검색";
-"tab.item.title.setting" = "설정";
+"tab_item.title.home" = "Home";
+"tab_item.title.favorites" = "즐겨찾기";
+"tab_item.title.search" = "검색";
+"tab_item.title.setting" = "설정";
 
 // MARK: ToolbarItem
-"toolbar.item.button.filters" = "필터";
-"toolbar.item.button.jumpPage" = "페이지 이동";
-"toolbar.item.button.quickSearch" = "빠른 검색";
+"toolbar_item.button.filters" = "필터";
+"toolbar_item.button.jump_page" = "페이지 이동";
+"toolbar_item.button.quick_search" = "빠른 검색";
 
 // MARK: JumpPage
-"jump.page.view.title.jumpPage" = "페이지 이동";
-"jump.page.view.button.confirm" = "확인";
+"jump_page_view.title.jump_page" = "페이지 이동";
+"jump_page_view.button.confirm" = "확인";
 
 // MARK: AlertView
-"loading.view.title.loading" = "로딩 중...";
-"loading.view.title.preparingDatabase" = "Preparing the database...";
-"not.login.view.title.needLogin" = "You need to login to access this feature.";
-"not.login.view.button.login" = "Login";
-"error.view.button.retry" = "재시도";
-"error.view.button.dropDatabase" = "Drop the database";
-"error.view.title.tryLater" = "잠시 후 다시 시도해 주세요.";
-"error.view.title.network" = "인터넷 접속 오류가 발생했어요.";
-"error.view.title.parsing" = "구분 분석 오류가 발생했어요.";
-"error.view.title.unknown" = "알 수 없는 오류가 발생했어요.";
-"error.view.title.notFound" = "여기가 아무도 없는 것 같습니다.";
-"error.view.title.databaseCorrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
-"error.view.title.ipBanned" = "자동화된 미러링/수집 소프트웨어를 사용 중임을 나타내는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 금지되었습니다. 금지효과는 %@ 에서 만료되었습니다.";
-"error.view.title.copyrightClaim" = "%@의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없어요.";
-"error.view.title.galleryUnavailable" = "이 갤러리는 제거되었거나 사용할 수 없어요.";
+"loading_view.title.loading" = "로딩 중...";
+"loading_view.title.preparing_database" = "Preparing the database...";
+"not_login_view.title.need_login" = "You need to login to access this feature.";
+"not_login_view.button.login" = "Login";
+"error_view.button.retry" = "재시도";
+"error_view.button.drop_database" = "Drop the database";
+"error_view.title.try_later" = "잠시 후 다시 시도해 주세요.";
+"error_view.title.network" = "인터넷 접속 오류가 발생했어요.";
+"error_view.title.parsing" = "구분 분석 오류가 발생했어요.";
+"error_view.title.unknown" = "알 수 없는 오류가 발생했어요.";
+"error_view.title.not_found" = "여기가 아무도 없는 것 같습니다.";
+"error_view.title.database_corrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
+"error_view.title.ip_banned" = "자동화된 미러링/수집 소프트웨어를 사용 중임을 나타내는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 금지되었습니다. 금지효과는 %@ 에서 만료되었습니다.";
+"error_view.title.copyright_claim" = "%@의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없어요.";
+"error_view.title.gallery_unavailable" = "이 갤러리는 제거되었거나 사용할 수 없어요.";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
-"confirmation.dialog.title.removeCustomTranslations" = "Are you sure to remove your custom translations?";
-"confirmation.dialog.title.logout" = "로그아웃 하시겠어요?";
-"confirmation.dialog.title.delete" = "Are you sure to delete this item?";
-"confirmation.dialog.title.clear" = "삭제하시겠어요?";
-"confirmation.dialog.title.reset" = "초기화하시겠어요?";
-"confirmation.dialog.button.dropDatabase" = "Drop the database";
-"confirmation.dialog.button.remove" = "Remove";
-"confirmation.dialog.button.logout" = "로그아웃";
-"confirmation.dialog.button.delete" = "삭제";
-"confirmation.dialog.button.clear" = "삭제";
-"confirmation.dialog.button.reset" = "초기화";
+"confirmation_dialog.title.drop_database" = "You will lose all your data in this app.\nAre you sure to drop the database?";
+"confirmation_dialog.title.remove_custom_translations" = "Are you sure to remove your custom translations?";
+"confirmation_dialog.title.logout" = "로그아웃 하시겠어요?";
+"confirmation_dialog.title.delete" = "Are you sure to delete this item?";
+"confirmation_dialog.title.clear" = "삭제하시겠어요?";
+"confirmation_dialog.title.reset" = "초기화하시겠어요?";
+"confirmation_dialog.button.drop_database" = "Drop the database";
+"confirmation_dialog.button.remove" = "Remove";
+"confirmation_dialog.button.logout" = "로그아웃";
+"confirmation_dialog.button.delete" = "삭제";
+"confirmation_dialog.button.clear" = "삭제";
+"confirmation_dialog.button.reset" = "초기화";
 
 // MARK: SubSection
-"sub.section.button.showAll" = "모두　보기";
+"sub_section.button.show_all" = "모두　보기";
 
 // MARK: NewDawnView
-"new.dawn.view.title.first" = "새로운 하루가 시작되었어요!";
-"new.dawn.view.title.second" = "지금까지의 여정을 돌이켜보면, 당신은 조금 더 현명해진 것 같죠?";
+"new_dawn_view.title.first" = "새로운 하루가 시작되었어요!";
+"new_dawn_view.title.second" = "지금까지의 여정을 돌이켜보면, 당신은 조금 더 현명해진 것 같죠?";
 // Greeting
 "struct.greeting.mark.start" = "";
 "struct.greeting.mark.separator" = ", ";
@@ -104,475 +104,480 @@
 "struct.greeting.mark.end" = "획득했어요!";
 
 // MARK: HomeView
-"home.view.title.home" = "홈";
-"home.view.section.title.frontpage" = "프론트 페이지";
-"home.view.section.title.toplists" = "상위 목록";
-"home.view.section.title.other" = "Other";
+"home_view.title.home" = "홈";
+"home_view.section.title.frontpage" = "프론트 페이지";
+"home_view.section.title.toplists" = "상위 목록";
+"home_view.section.title.other" = "Other";
 // HomeMiscGridType
-"home.misc.grid.type.title.popular" = "인기 작품";
-"home.misc.grid.type.title.watched" = "주시 태그";
-"home.misc.grid.type.title.history" = "읽은 목록";
+"enum.home_misc_grid_type.title.popular" = "인기 작품";
+"enum.home_misc_grid_type.title.watched" = "주시 태그";
+"enum.home_misc_grid_type.title.history" = "읽은 목록";
 
 // MARK: FrontpageView
-"frontpage.view.title.frontpage" = "프론트 페이지";
+"frontpage_view.title.frontpage" = "프론트 페이지";
 
 // MARK: ToplistsView
-"toplists.view.title.toplists" = "상위 목록";
+"toplists_view.title.toplists" = "상위 목록";
 
 // MARK: PopularView
-"popular.view.title.popular" = "인기 작품";
+"popular_view.title.popular" = "인기 작품";
 
 // MARK: WatchedView
-"watched.view.title.watched" = "주시 태그";
+"watched_view.title.watched" = "주시 태그";
 
 // MARK: HistoryView
-"history.view.title.history" = "읽은 목록";
+"history_view.title.history" = "읽은 목록";
 
 // MARK: FavoritesView
-"favorites.view.title.favorites" = "즐겨찾기";
+"favorites_view.title.favorites" = "즐겨찾기";
 // FavoriteCategory
-"favorite.category.default" = "즐겨찾기 %@";
-"favorite.category.all" = "모두";
+"struct.user.favorite_category.default" = "즐겨찾기 %@";
+"struct.user.favorite_category.all" = "모두";
 
 // MARK: SearchView
-"search.view.title.search" = "검색";
-"search.view.section.title.recentlySearched" = "Recently searched";
-"search.view.section.title.recentlySeen" = "Recently seen";
-"search.view.section.title.quickSearch" = "빠른 검색";
+"search_view.title.search" = "검색";
+"search_view.section.title.recently_searched" = "Recently searched";
+"search_view.section.title.recently_seen" = "Recently seen";
+"search_view.section.title.quick_search" = "빠른 검색";
 // Searchable prompt
 "searchable.prompt.filter" = "Filter";
 
 // MARK: QuickSearchView
-"quick.search.view.title.quickSearch" = "빠른 검색";
-"quick.search.view.title.editWord" = "Edit word";
-"quick.search.view.title.newWord" = "New word";
-"quick.search.view.title.content" = "Content";
-"quick.search.view.title.name" = "Name";
-"quick.search.view.placeholder.optional" = "Optional";
-"quick.search.view.toolbar.item.button.confirm" = "확인";
+"quick_search_view.title.quick_search" = "빠른 검색";
+"quick_search_view.title.edit_word" = "Edit word";
+"quick_search_view.title.new_word" = "New word";
+"quick_search_view.title.content" = "Content";
+"quick_search_view.title.name" = "Name";
+"quick_search_view.placeholder.optional" = "Optional";
+"quick_search_view.toolbar_item.button.confirm" = "확인";
 
 // MARK: SettingView
-"setting.view.title.setting" = "설정";
+"setting_view.title.setting" = "설정";
 // SettingStateRoute
-"enum.setting.state.route.value.account" = "계정";
-"enum.setting.state.route.value.general" = "일반";
-"enum.setting.state.route.value.appearance" = "외관";
-"enum.setting.state.route.value.reading" = "읽기";
-"enum.setting.state.route.value.laboratory" = "실험실";
-"enum.setting.state.route.value.ehPanda" = "EhPanda 정보";
+"enum.setting_state_route.value.account" = "계정";
+"enum.setting_state_route.value.general" = "일반";
+"enum.setting_state_route.value.appearance" = "외관";
+"enum.setting_state_route.value.reading" = "읽기";
+"enum.setting_state_route.value.laboratory" = "실험실";
+"enum.setting_state_route.value.ehPanda" = "EhPanda 정보";
 
 // MARK: AccountSettingView
-"account.setting.view.title.account" = "계정";
-"account.setting.view.title.showsNewDawnGreeting" = "새벽 인사 구독하기";
-"account.setting.view.button.login" = "로그인";
-"account.setting.view.button.logout" = "로그아웃";
-"account.setting.view.button.accountConfiguration" = "계정 설정";
-"account.setting.view.button.tagsManagement" = "태그 구독 관리";
-"account.setting.view.button.copyCookies" = "쿠키 복사하기";
+"account_setting_view.title.account" = "계정";
+"account_setting_view.title.shows_new_dawn_greeting" = "새벽 인사 구독하기";
+"account_setting_view.button.login" = "로그인";
+"account_setting_view.button.logout" = "로그아웃";
+"account_setting_view.button.account_configuration" = "계정 설정";
+"account_setting_view.button.tags_management" = "태그 구독 관리";
+"account_setting_view.button.copy_cookies" = "쿠키 복사하기";
 // CookieValue
-"struct.cookie.value.localized.string.expired" = "만료됨";
-"struct.cookie.value.localized.string.mystery" = "거절됨";
-"struct.cookie.value.localized.string.none" = "None";
+"struct.cookie_value.localized_string.expired" = "만료됨";
+"struct.cookie_value.localized_string.mystery" = "거절됨";
+"struct.cookie_value.localized_string.none" = "None";
 
 // MARK: LoginView
-"login.view.title.login" = "로그인";
-"login.view.title.username" = "이름";
-"login.view.title.password" = "비밀번호";
+"login_view.title.login" = "로그인";
+"login_view.title.username" = "이름";
+"login_view.title.password" = "비밀번호";
 
 // MARK: GeneralSettingView
-"general.setting.view.title.general" = "일반";
-"general.setting.view.title.language" = "언어";
-"general.setting.view.title.autoLock" = "앱 자동 잠금";
-"general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
-"general.setting.view.title.translatesTags" = "태그 번역하기";
-"general.setting.view.title.showsTagsSearchSuggestion" = "Shows tags search suggestion";
-"general.setting.view.title.showsImagesInTags" = "Shows images in tags";
-"general.setting.view.title.redirectsLinksToTheSelectedHost" = "선택한 서버로 이동하기";
-"general.setting.view.title.detectsLinksFromClipboard" = "클립보드의 링크 인식하기";
-"general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
-"general.setting.view.button.logs" = "로그";
-"general.setting.view.button.importCustomTranslations" = "Import custom translations";
-"general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
-"general.setting.view.button.clearImageCaches" = "이미지 캐시 지우기";
-"general.setting.view.value.defaultLanguageDescription" = "N/A";
-"general.setting.view.section.title.tags" = "Tags";
-"general.setting.view.section.title.navigation" = "내비게이션";
-"general.setting.view.section.title.security" = "개인 정보 보호";
-"general.setting.view.section.title.caches" = "캐시";
+"general_setting_view.title.general" = "일반";
+"general_setting_view.title.language" = "언어";
+"general_setting_view.title.auto_lock" = "앱 자동 잠금";
+"general_setting_view.title.enables_tags_extension" = "Enables tags extension";
+"general_setting_view.title.translates_tags" = "태그 번역하기";
+"general_setting_view.title.shows_tags_search_suggestion" = "Shows tags search suggestion";
+"general_setting_view.title.shows_images_in_tags" = "Shows images in tags";
+"general_setting_view.title.redirects_links_to_the_selected_host" = "선택한 서버로 이동하기";
+"general_setting_view.title.detects_links_from_clipboard" = "클립보드의 링크 인식하기";
+"general_setting_view.title.background_blur_radius" = "Background blur radius";
+"general_setting_view.button.logs" = "로그";
+"general_setting_view.button.import_custom_translations" = "Import custom translations";
+"general_setting_view.button.remove_custom_translations" = "Remove custom translations";
+"general_setting_view.button.clear_image_caches" = "이미지 캐시 지우기";
+"general_setting_view.value.default_language_description" = "N/A";
+"general_setting_view.section.title.tags" = "Tags";
+"general_setting_view.section.title.navigation" = "내비게이션";
+"general_setting_view.section.title.security" = "개인 정보 보호";
+"general_setting_view.section.title.caches" = "캐시";
 // AutoLockPolicy
-"enum.auto.lock.policy.value.never" = "안 함";
-"enum.auto.lock.policy.value.instantly" = "즉시";
+"enum.auto_lock_policy.value.never" = "안 함";
+"enum.auto_lock_policy.value.instantly" = "즉시";
 
 // MARK: LogsView
-"logs.view.title.logs" = "로그";
-"logs.view.title.latest" = "마지막";
+"logs_view.title.logs" = "로그";
+"logs_view.title.latest" = "마지막";
 
 // MARK: AppearanceSettingView
-"appearance.setting.view.title.appearance" = "외관";
-"appearance.setting.view.title.theme" = "테마";
-"appearance.setting.view.title.tintColor" = "액센트 색상";
-"appearance.setting.view.title.displayMode" = "표시방식";
-"appearance.setting.view.title.showsTagsInList" = "리스트에서 태그 보여주기";
-"appearance.setting.view.title.maximumNumberOfTags" = "태그 갯수";
-"appearance.setting.view.title.displaysJapaneseTitle" = "Displays Japanese title";
-"appearance.setting.view.button.appIcon" = "앱 아이콘";
-"appearance.setting.view.menu.title.infite" = "제한 없음";
-"appearance.setting.view.section.title.list" = "리스트";
-"appearance.setting.view.section.title.gallery" = "Gallery";
-// PerferredColorScheme
-"enum.perferred.color.scheme.value.automatic" = "자동";
-"enum.perferred.color.scheme.value.light" = "라이트";
-"enum.perferred.color.scheme.value.dark" = "다크";
+"appearance_setting_view.title.appearance" = "외관";
+"appearance_setting_view.title.theme" = "테마";
+"appearance_setting_view.title.tint_color" = "액센트 색상";
+"appearance_setting_view.title.display_mode" = "표시방식";
+"appearance_setting_view.title.shows_tags_in_list" = "리스트에서 태그 보여주기";
+"appearance_setting_view.title.maximum_number_of_tags" = "태그 갯수";
+"appearance_setting_view.title.displays_japanese_title" = "Displays Japanese title";
+"appearance_setting_view.button.app_icon" = "앱 아이콘";
+"appearance_setting_view.menu.title.infite" = "제한 없음";
+"appearance_setting_view.section.title.list" = "리스트";
+"appearance_setting_view.section.title.gallery" = "Gallery";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "자동";
+"enum.preferred_color_scheme.value.light" = "라이트";
+"enum.preferred_color_scheme.value.dark" = "다크";
 // AppIconType
-"enum.app.icon.type.value.default" = "기본";
-"enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
-"enum.app.icon.type.value.developer" = "Developer";
-"enum.app.icon.type.value.standWithUkraine2022" = "Stand With Ukraine (2022)";
-"enum.app.icon.type.value.notMyPresident" = "NOT MY PRESIDENT";
+"enum.app_icon_type.value.default" = "기본";
+"enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";
+"enum.app_icon_type.value.developer" = "Developer";
+"enum.app_icon_type.value.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
+"enum.app_icon_type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
-"enum.display.mode.value.detail" = "자세히";
-"enum.display.mode.value.thumbnail" = "썸네일";
+"enum.list_display_mode.value.detail" = "자세히";
+"enum.list_display_mode.value.thumbnail" = "썸네일";
 
 // MARK: AppIconView
-"app.icon.view.title.appIcon" = "앱 아이콘";
+"app_icon_view.title.app_icon" = "앱 아이콘";
 
-// MARK: ReadingSettingView
-"reading.setting.view.title.reading" = "읽기";
-"reading.setting.view.title.direction" = "방향";
-"reading.setting.view.title.preloadLimit" = "페이지 미리 로딩";
-"reading.setting.view.title.enablesLandscape" = "Enables landscape";
-"reading.setting.view.title.separatorHeight" = "페이지 간 여백 두께";
-"reading.setting.view.title.maximumScaleFactor" = "최대 확대 비율";
-"reading.setting.view.title.doubleTapScaleFactor" = "더블 탭 확대 비율";
-"reading.setting.view.section.title.appearance" = "외관";
+// MARK: reading_settingView
+"reading_setting_view.title.reading" = "읽기";
+"reading_setting_view.title.direction" = "방향";
+"reading_setting_view.title.preload_limit" = "페이지 미리 로딩";
+"reading_setting_view.title.enables_landscape" = "Enables landscape";
+"reading_setting_view.title.separator_height" = "페이지 간 여백 두께";
+"reading_setting_view.title.maximum_scale_factor" = "최대 확대 비율";
+"reading_setting_view.title.double_tap_scale_factor" = "더블 탭 확대 비율";
+"reading_setting_view.section.title.appearance" = "외관";
 // ReadingDirection
-"enum.reading.direction.value.vertical" = "위에서 아래로";
-"enum.reading.direction.value.rightToLeft" = "오른쪽에서 왼쪽으로";
-"enum.reading.direction.value.leftToRight" = "왼쪽에서 오른쪽으로";
+"enum.reading_direction.value.vertical" = "위에서 아래로";
+"enum.reading_direction.value.right_to_left" = "오른쪽에서 왼쪽으로";
+"enum.reading_direction.value.left_to_right" = "왼쪽에서 오른쪽으로";
 
 // MARK: LaboratorySettingView
-"laboratory.setting.view.title.laboratory" = "실험실";
-"laboratory.setting.view.title.bypassesSNIFiltering" = "SNI 차단 우회";
+"laboratory_setting_view.title.laboratory" = "실험실";
+"laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI 차단 우회";
 
 // MARK: EhPandaView
-"ehpanda.view.title.ehPanda" = "EhPanda";
-"ehpanda.view.button.website" = "웹사이트";
-"ehpanda.view.button.altStoreSource" = "AltStore 소스";
-"ehpanda.view.description.version" = "버전";
-"ehpanda.view.section.title.specialThanks" = "Special thanks";
-"ehpanda.view.section.title.codeLevelContributors" = "Code-level contributors";
-"ehpanda.view.section.title.translationContributors" = "Translation contributors";
-"ehpanda.view.section.title.acknowledgements" = "도움을 주신 분들";
+"ehPanda_view.title.ehPanda" = "EhPanda";
+"ehPanda_view.button.website" = "웹사이트";
+"ehPanda_view.button.altStore_source" = "AltStore 소스";
+"ehPanda_view.title.version" = "버전";
+"ehPanda_view.section.title.special_thanks" = "Special thanks";
+"ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
+"ehPanda_view.section.title.translation_contributors" = "Translation contributors";
+"ehPanda_view.section.title.acknowledgements" = "도움을 주신 분들";
 
 // MARK: DetailView
-"detail.view.button.read" = "읽기";
-"detail.view.button.postComment" = "평가 남기기";
-"detail.view.toolbar.item.button.archives" = "아카이브";
-"detail.view.toolbar.item.button.torrents" = "토렌트";
-"detail.view.toolbar.item.button.share" = "공유";
-"detail.view.context.menu.button.detail" = "Detail";
-"detail.view.context.menu.button.withdrawVote" = "Withdraw vote";
-"detail.view.context.menu.button.voteUp" = "Vote up";
-"detail.view.context.menu.button.voteDown" = "Vote down";
-"detail.view.scroll.section.title.favorited" = "즐겨찾기";
-"detail.view.scroll.section.title.language" = "언어";
-"detail.view.scroll.section.title.ratings" = "%@명의 별점";
-"detail.view.scroll.section.title.pageCount" = "페이지 수";
-"detail.view.scroll.section.title.fileSize" = "파일　크기";
-"detail.view.scroll.section.description.favorited" = "번";
-"detail.view.scroll.section.description.pageCount" = "페이지";
-"detail.view.action.section.button.giveARating" = "별점 주기";
-"detail.view.action.section.button.similarGallery" = "비슷한 작품";
-"detail.view.section.title.previews" = "미리보기";
-"detail.view.section.title.comments" = "댓글";
+"detail_view.button.read" = "읽기";
+"detail_view.button.post_comment" = "평가 남기기";
+"detail_view.toolbar_item.button.archives" = "아카이브";
+"detail_view.toolbar_item.button.torrents" = "토렌트";
+"detail_view.toolbar_item.button.share" = "공유";
+"detail_view.context_menu.button.detail" = "Detail";
+"detail_view.context_menu.button.withdraw_vote" = "Withdraw vote";
+"detail_view.context_menu.button.vote_up" = "Vote up";
+"detail_view.context_menu.button.vote_down" = "Vote down";
+"detail_view.description_section.title.favorited" = "즐겨찾기";
+"detail_view.description_section.title.language" = "언어";
+"detail_view.description_section.title.ratings" = "%@명의 별점";
+"detail_view.description_section.title.page_count" = "페이지 수";
+"detail_view.description_section.title.file_size" = "파일　크기";
+"detail_view.description_section.description.favorited" = "번";
+"detail_view.description_section.description.page_count" = "페이지";
+"detail_view.action_section.button.give_a_rating" = "별점 주기";
+"detail_view.action_section.button.similar_gallery" = "비슷한 작품";
+"detail_view.section.title.previews" = "미리보기";
+"detail_view.section.title.comments" = "댓글";
 
 // MARK: ArchivesView
-"archives.view.title.archives" = "아카이브";
-"archives.view.button.downloadToHathClient" = "H@H 클라이언트로 저장";
+"archives_view.title.archives" = "아카이브";
+"archives_view.button.download_to_hath_client" = "H@H 클라이언트로 저장";
 // HathArchive
-"struct.hath.archive.price.value.free" = "무료";
-"struct.hath.archive.price.value.notAvailable" = "무효";
-"struct.hath.archive.resolution.value.original" = "원본";
+"struct.hath_archive.price.free" = "무료";
+"struct.hath_archive.price.not_available" = "무효";
+// ArchiveResolution
+"enum.archive_resolution.value.original" = "원본";
 
 // MARK: TorrentsView
-"torrents.view.title.torrents" = "토렌트";
+"torrents_view.title.torrents" = "토렌트";
 
 // MARK: GalleryInfosView
-"gallery.infos.view.title.galleryInfos" = "갤러리 정보";
-"gallery.infos.view.title.ID" = "ID";
-"gallery.infos.view.title.token" = "Token";
-"gallery.infos.view.title.title" = "제목";
-"gallery.infos.view.title.japaneseTitle" = "일본어 제목";
-"gallery.infos.view.title.galleryURL" = "갤러리 주소";
-"gallery.infos.view.title.coverURL" = "표지 주소";
-"gallery.infos.view.title.archiveURL" = "아카이브 주소";
-"gallery.infos.view.title.torrentURL" = "토렌트 주소";
-"gallery.infos.view.title.parentURL" = "부모 갤러리 링크";
-"gallery.infos.view.title.category" = "장르";
-"gallery.infos.view.title.uploader" = "업로드";
-"gallery.infos.view.title.postedDate" = "업로드된 날짜";
-"gallery.infos.view.title.visibility" = "가시성";
-"gallery.infos.view.title.language" = "언어";
-"gallery.infos.view.title.pageCount" = "페이지 수";
-"gallery.infos.view.title.fileSize" = "파일 크기";
-"gallery.infos.view.title.favoritedTimes" = "즐겨찾기된 수";
-"gallery.infos.view.title.favorited" = "즐겨찾기에 저장 됨";
-"gallery.infos.view.title.ratingCount" = "별점 갯수";
-"gallery.infos.view.title.averageRating" = "평균 별점";
-"gallery.infos.view.title.myRating" = "My rating";
-"gallery.infos.view.title.torrentCount" = "토렌트 수";
-"gallery.infos.view.value.none" = "None";
-"gallery.infos.view.value.yes" = "네";
-"gallery.infos.view.value.no" = "아니요";
+"gallery_infos_view.title.gallery_infos" = "갤러리 정보";
+"gallery_infos_view.title.id" = "ID";
+"gallery_infos_view.title.token" = "Token";
+"gallery_infos_view.title.title" = "제목";
+"gallery_infos_view.title.japanese_title" = "일본어 제목";
+"gallery_infos_view.title.gallery_URL" = "갤러리 주소";
+"gallery_infos_view.title.cover_URL" = "표지 주소";
+"gallery_infos_view.title.archive_URL" = "아카이브 주소";
+"gallery_infos_view.title.torrent_URL" = "토렌트 주소";
+"gallery_infos_view.title.parent_URL" = "부모 갤러리 링크";
+"gallery_infos_view.title.category" = "장르";
+"gallery_infos_view.title.uploader" = "업로드";
+"gallery_infos_view.title.posted_date" = "업로드된 날짜";
+"gallery_infos_view.title.visibility" = "가시성";
+"gallery_infos_view.title.language" = "언어";
+"gallery_infos_view.title.page_count" = "페이지 수";
+"gallery_infos_view.title.file_size" = "파일 크기";
+"gallery_infos_view.title.favorited_times" = "즐겨찾기된 수";
+"gallery_infos_view.title.favorited" = "즐겨찾기에 저장 됨";
+"gallery_infos_view.title.rating_count" = "별점 갯수";
+"gallery_infos_view.title.average_rating" = "평균 별점";
+"gallery_infos_view.title.my_rating" = "My rating";
+"gallery_infos_view.title.torrent_count" = "토렌트 수";
+"gallery_infos_view.value.none" = "None";
+"gallery_infos_view.value.yes" = "네";
+"gallery_infos_view.value.no" = "아니요";
 // GalleryVisibility
-"gallery.visibility.value.yes" = "네";
-"gallery.visibility.value.no" = "아니요 (%@)";
-"gallery.visibility.value.no.reason.expunged" = "삭제됨";
+"enum.gallery_visibility.value.yes" = "네";
+"enum.gallery_visibility.value.no" = "아니요 (%@)";
+"enum.gallery_visibility.value.no.reason.expunged" = "삭제됨";
 
 // MARK: TagDetailView
-"tag.detail.view.section.title.images" = "Images";
-"tag.detail.view.section.title.links" = "Links";
+"tag_detail_view.section.title.images" = "Images";
+"tag_detail_view.section.title.links" = "Links";
 
 // MARK: CommentsView
-"comments.view.title.comments" = "댓글";
+"comments_view.title.comments" = "댓글";
 
 // MARK: PostCommentView
-"post.comment.view.title.postComment" = "평가 남기기";
-"post.comment.view.title.editComment" = "평가 수정";
-"post.comment.view.button.cancel" = "취소";
-"post.comment.view.button.post" = "등록";
+"post_comment_view.title.post_comment" = "평가 남기기";
+"post_comment_view.title.edit_comment" = "평가 수정";
+"post_comment_view.button.cancel" = "취소";
+"post_comment_view.button.post" = "등록";
 
 // MARK: PreviewsView
-"previews.view.title.previews" = "미리보기";
+"previews_view.title.previews" = "미리보기";
 
 // MARK: ReadingView
-"reading.view.context.menu.button.reload" = "재시도";
-"reading.view.context.menu.button.copy" = "복사";
-"reading.view.context.menu.button.save" = "저장";
-"reading.view.context.menu.button.saveOriginal" = "Save original";
-"reading.view.context.menu.button.share" = "공유";
-"reading.view.toolbar.item.title.autoPlay" = "자동 재생";
-"reading.view.toolbar.item.title.dualPageMode" = "두 장을 한 화면으로 보기";
-"reading.view.toolbar.item.title.exceptTheCover" = "표지 제외하기";
-"reading.view.toolbar.item.button.retryAllFailedImages" = "Retry failed images";
-"reading.view.toolbar.item.button.reloadAllImages" = "Reload all images";
-"reading.view.toolbar.item.button.readingSetting" = "Reading setting";
+"reading_view.context_menu.button.reload" = "재시도";
+"reading_view.context_menu.button.copy" = "복사";
+"reading_view.context_menu.button.save" = "저장";
+"reading_view.context_menu.button.save_original" = "Save original";
+"reading_view.context_menu.button.share" = "공유";
+"reading_view.toolbar_item.title.auto_play" = "자동 재생";
+"reading_view.toolbar_item.title.dual_page_mode" = "두 장을 한 화면으로 보기";
+"reading_view.toolbar_item.title.except_the_cover" = "표지 제외하기";
+"reading_view.toolbar_item.button.retry_all_failed_images" = "Retry failed images";
+"reading_view.toolbar_item.button.reload_all_images" = "Reload all images";
+"reading_view.toolbar_item.button.reading_setting" = "Reading setting";
 // AutoPlayPolicy
-"enum.auto.play.policy.value.off" = "Off";
+"enum.auto_play_policy.value.off" = "Off";
 
 // MARK: FiltersView
-"filters.view.title.filters" = "필터";
-"filters.view.title.advancedSettings" = "고급 설정";
-"filters.view.title.searchGalleryName" = "갤러리 이름을 찾아보기";
-"filters.view.title.searchGalleryTags" = "갤러리 태그를 찾아보기";
-"filters.view.title.searchGalleryDescription" = "갤러리 설명을 찾아보기";
-"filters.view.title.searchTorrentFilenames" = "토렌트 파일 이름을 찾아보기";
-"filters.view.title.onlyShowGalleriesWithTorrents" = "토렌트 있는 갤러리만 보이기";
-"filters.view.title.searchLowPowerTags" = "인기가 없는 태그를 찾아보기";
-"filters.view.title.searchDownvotedTags" = "낮은 평가의 태그를 찾아보기";
-"filters.view.title.showExpungedGalleries" = "삭제된 갤러리를 보여주기";
-"filters.view.title.setMinimumRating" = "최소 별점 설정하기";
-"filters.view.title.minimumRating" = "최소 별점";
-"filters.view.title.setPagesRange" = "페이지 범위 설정";
-"filters.view.title.pagesRange" = "페이지 범위";
-"filters.view.title.disableLanguageFilter" = "언어 필터 끄기";
-"filters.view.title.disableUploaderFilter" = "업로더 필터 끄기";
-"filters.view.title.disableTagsFilter" = "태그 필터 끄기";
-"filters.view.button.resetFilters" = "모든 필터 초기화";
-"filters.view.section.title.advanced" = "고급";
-"filters.view.section.title.defaultFilter" = "기본 옵션";
+"filters_view.title.filters" = "필터";
+"filters_view.title.advanced_settings" = "고급 설정";
+"filters_view.title.search_gallery_name" = "갤러리 이름을 찾아보기";
+"filters_view.title.search_gallery_tags" = "갤러리 태그를 찾아보기";
+"filters_view.title.search_gallery_description" = "갤러리 설명을 찾아보기";
+"filters_view.title.search_torrent_filenames" = "토렌트 파일 이름을 찾아보기";
+"filters_view.title.only_show_galleries_with_torrents" = "토렌트 있는 갤러리만 보이기";
+"filters_view.title.search_low_power_tags" = "인기가 없는 태그를 찾아보기";
+"filters_view.title.search_downvoted_tags" = "낮은 평가의 태그를 찾아보기";
+"filters_view.title.search_expunged_galleries" = "삭제된 갤러리를 보여주기";
+"filters_view.title.set_minimum_rating" = "최소 별점 설정하기";
+"filters_view.title.minimum_rating" = "최소 별점";
+"filters_view.title.set_pages_range" = "페이지 범위 설정";
+"filters_view.title.pages_range" = "페이지 범위";
+"filters_view.title.disable_language_filter" = "언어 필터 끄기";
+"filters_view.title.disable_uploader_filter" = "업로더 필터 끄기";
+"filters_view.title.disable_tags_filter" = "태그 필터 끄기";
+"filters_view.button.reset_filters" = "모든 필터 초기화";
+"filters_view.section.title.advanced" = "고급";
+"filters_view.section.title.default_filter" = "기본 옵션";
 // FilterRange
-"enum.filter.range.value.search" = "검색";
-"enum.filter.range.value.global" = "전체";
-"enum.filter.range.value.watched" = "주시 태그";
+"enum.filter_range.value.search" = "검색";
+"enum.filter_range.value.global" = "전체";
+"enum.filter_range.value.watched" = "주시 태그";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSettings" = "%@ 설정";
-"eh.setting.view.section.title.profileSettings" = "프로필 설정";
-"eh.setting.view.title.selectedProfile" = "선택한 프로필";
-"eh.setting.view.button.setAsDefault" = "기본으로 설정";
-"eh.setting.view.button.deleteProfile" = "프로필 삭제";
-"eh.setting.view.button.rename" = "이름 변경";
-"eh.setting.view.button.createNew" = "추가";
-"eh.setting.view.toolbar.item.button.done" = "Done";
+"eh_setting_view.title.host_settings" = "%@ 설정";
+"eh_setting_view.section.title.profile_settings" = "프로필 설정";
+"eh_setting_view.title.selected_profile" = "선택한 프로필";
+"eh_setting_view.button.set_as_default" = "기본으로 설정";
+"eh_setting_view.button.delete_profile" = "프로필 삭제";
+"eh_setting_view.button.rename" = "이름 변경";
+"eh_setting_view.button.create_new" = "추가";
+"eh_setting_view.toolbar_item.button.done" = "Done";
 
-"eh.setting.view.section.title.imageLoadSettings" = "이미지 로드 설정";
-"eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Hath 네트워크를 통하여 이미지 로드";
-"eh.setting.view.title.browsingCountry" = "브라우징하는 나라";
-"eh.setting.view.description.browsingCountry" = "**%@**에서 사이트를 탐색하거나 이 나라에서 VPN이나 프록시를 사용하려고 하는 것 같네요. 이런 경우엔 사이트에서 이 지역의 H@H 클라이언트의 이미지를 로드하려고 시도할 거에요. 만약에 이 나라가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 다른 나라를 선택할 수 있어요.";
+"eh_setting_view.section.title.image_load_settings" = "이미지 로드 설정";
+"eh_setting_view.title.load_images_through_the_hath_network" = "Hath 네트워크를 통하여 이미지 로드";
+"eh_setting_view.title.browsing_country" = "브라우징하는 나라";
+"eh_setting_view.description.browsing_country" = "**%@**에서 사이트를 탐색하거나 이 나라에서 VPN이나 프록시를 사용하려고 하는 것 같네요. 이런 경우엔 사이트에서 이 지역의 H@H 클라이언트의 이미지를 로드하려고 시도할 거에요. 만약에 이 나라가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 다른 나라를 선택할 수 있어요.";
 // EhSetting.LoadThroughHathSetting
-"enum.eh.setting.load.through.hath.setting.value.anyClient" = "어떤 클라이언트에서든";
-"enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "기본 포트 클라이언트만";
-"enum.eh.setting.load.through.hath.setting.value.modernNo" = "아닙니다 [Modern/HTTPS]";
-"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "아닙니다 [Legacy/HTTP]";
-"enum.eh.setting.load.through.hath.setting.description.anyClient" = "추천.";
-"enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "더 느려질 수 있어요. 나가는 비표준 포트를 차단하는 방화벽/프록시가 있는 경우 사용하세요.";
-"enum.eh.setting.load.through.hath.setting.description.modernNo" = "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.";
-"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
+"enum.eh_setting.load_through_hath_setting.value.any_client" = "어떤 클라이언트에서든";
+"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "기본 포트 클라이언트만";
+"enum.eh_setting.load_through_hath_setting.value.modern_no" = "아닙니다 [Modern/HTTPS]";
+"enum.eh_setting.load_through_hath_setting.value.legacy_no" = "아닙니다 [Legacy/HTTP]";
+"enum.eh_setting.load_through_hath_setting.description.any_client" = "추천.";
+"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "더 느려질 수 있어요. 나가는 비표준 포트를 차단하는 방화벽/프록시가 있는 경우 사용하세요.";
+"enum.eh_setting.load_through_hath_setting.description.modern_no" = "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.";
+"enum.eh_setting.load_through_hath_setting.description.legacy_no" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
 
-"eh.setting.view.section.title.imageSizeSettings" = "이미지 사이즈 설정";
-"eh.setting.view.title.imageResolution" = "이미지 해상도";
-"eh.setting.view.description.imageResolution" = "일반적으로 이미지는 온라인 뷰어를 위해 1280 픽셀의 수평 해상도로 작아져요. 아래의 압축된 해상도 중 하나를 선택할 수 있어요. 서버 과부하를 막기 위해, 1280 이상의 해상도는 도네이션을 한 사람, hath perk를 가진 사람, 그리고 UID가 300만 이하인 사람들로 일시적으로 제한되어요.";
-"eh.setting.view.title.imageSize" = "이미지 사이즈";
-"eh.setting.view.description.imageSize" = "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = no limit)";
-"eh.setting.view.title.horizontal" = "가로";
-"eh.setting.view.title.vertical" = "세로";
+"eh_setting_view.section.title.image_size_settings" = "이미지 사이즈 설정";
+"eh_setting_view.title.image_resolution" = "이미지 해상도";
+"eh_setting_view.description.image_resolution" = "일반적으로 이미지는 온라인 뷰어를 위해 1280 픽셀의 수평 해상도로 작아져요. 아래의 압축된 해상도 중 하나를 선택할 수 있어요. 서버 과부하를 막기 위해, 1280 이상의 해상도는 도네이션을 한 사람, hath perk를 가진 사람, 그리고 UID가 300만 이하인 사람들로 일시적으로 제한되어요.";
+"eh_setting_view.title.image_size" = "이미지 사이즈";
+"eh_setting_view.description.image_size" = "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = no limit)";
+"eh_setting_view.title.horizontal" = "가로";
+"eh_setting_view.title.vertical" = "세로";
 // EhSetting.ImageResolution
-"enum.eh.setting.image.resolution.value.auto" = "자동";
+"enum.eh_setting.image_resolution.value.auto" = "자동";
 
-"eh.setting.view.section.title.galleryNameDisplay" = "갤러리 이름 보이기";
-"eh.setting.view.title.galleryName" = "갤러리 이름";
-"eh.setting.view.description.galleryName" = "영어 제목과 일본어 제목 중 기본값으로 보일 언어를 선택해주세요.";
+"eh_setting_view.section.title.gallery_name_display" = "갤러리 이름 보이기";
+"eh_setting_view.title.gallery_name" = "갤러리 이름";
+"eh_setting_view.description.gallery_name" = "영어 제목과 일본어 제목 중 기본값으로 보일 언어를 선택해주세요.";
 // EhSetting.GalleryName
-"enum.eh.setting.gallery.name.value.default" = "영어 제목";
-"enum.eh.setting.gallery.name.value.japanese" = "일본어 제목(가능하면)";
+"enum.eh_setting.gallery_name.value.default" = "영어 제목";
+"enum.eh_setting.gallery_name.value.japanese" = "일본어 제목(가능하면)";
 
-"eh.setting.view.section.title.archiverSettings" = "아카이버";
-"eh.setting.view.title.archiverBehavior" = "아카이버 동작 방법 설정";
-"eh.setting.view.description.archiverBehavior" = "아카이버의 기본 동작은 원본 또는 저화질 갤러리 저장에 대한 비용과 선택을 확인한 다음 다른 곳에서 클릭하거나 복사할 수 있는 링크를 표시하는 것입니다. 여기서 이 동작을 변경할 수 있습니다.";
+"eh_setting_view.section.title.archiver_settings" = "아카이버";
+"eh_setting_view.title.archiver_behavior" = "아카이버 동작 방법 설정";
+"eh_setting_view.description.archiver_behavior" = "아카이버의 기본 동작은 원본 또는 저화질 갤러리 저장에 대한 비용과 선택을 확인한 다음 다른 곳에서 클릭하거나 복사할 수 있는 링크를 표시하는 것입니다. 여기서 이 동작을 변경할 수 있습니다.";
 // EhSetting.ArchiverBehavior
-"enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "수동 선택, 수동 시작 (기본)";
-"enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "수동 선택, 자동 시작";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "자동으로 원본을 선택, 수동 시작";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalAutoStart" = "자동으로 원본을 선택, 자동 시작";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleManualStart" = "자동으로 저화질을 선택, 수동 시작";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleAutoStart" = "자동으로 저화질을 선택, 자동 시작";
+"enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "수동 선택, 수동 시작 (기본)";
+"enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "수동 선택, 자동 시작";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_manual_start" = "자동으로 원본을 선택, 수동 시작";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_auto_start" = "자동으로 원본을 선택, 자동 시작";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_manual_start" = "자동으로 저화질을 선택, 수동 시작";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_auto_start" = "자동으로 저화질을 선택, 자동 시작";
 
-"eh.setting.view.section.title.frontPageSettings" = "프론트 페이지 설정";
-"eh.setting.view.title.displayMode" = "표시방식";
-"eh.setting.view.description.displayMode" = "프론트와 검색 페이지에서 사용할 디스플레이 모드를 선택하세요.";
-"eh.setting.view.description.galleryCategory" = "프론트와 검색 페이지에서 어떤 카테고리가 보여지도록 할까요?";
+"eh_setting_view.section.title.front_page_settings" = "프론트 페이지 설정";
+"eh_setting_view.title.display_mode" = "표시방식";
+"eh_setting_view.description.display_mode" = "프론트와 검색 페이지에서 사용할 디스플레이 모드를 선택하세요.";
+"eh_setting_view.description.gallery_category" = "프론트와 검색 페이지에서 어떤 카테고리가 보여지도록 할까요?";
 // EhSetting.DisplayMode
-"enum.eh.setting.display.mode.value.compact" = "Compact";
-"enum.eh.setting.display.mode.value.thumbnail" = "Thumbnail";
-"enum.eh.setting.display.mode.value.extended" = "Extended";
-"enum.eh.setting.display.mode.value.minimal" = "Minimal";
-"enum.eh.setting.display.mode.value.minimalPlus" = "Minimal+";
+"enum.eh_setting.display_mode.value.compact" = "Compact";
+"enum.eh_setting.display_mode.value.thumbnail" = "Thumbnail";
+"enum.eh_setting.display_mode.value.extended" = "Extended";
+"enum.eh_setting.display_mode.value.minimal" = "Minimal";
+"enum.eh_setting.display_mode.value.minimalPlus" = "Minimal+";
 
-"eh.setting.view.section.title.favorites" = "즐겨찾기";
-"eh.setting.view.description.favoriteCategories" = "여기서 좋아하는 장르들을 선택하고 이름을 바꿀 수 있어요.";
-"eh.setting.view.title.favoritesSortOrder" = "관심 순서를 배열";
-"eh.setting.view.description.favoritesSortOrder" = "당신의 관심 페이지의 기본 정렬 방식을 선택할 수 있어요. 2016년 3월 개정 전에 추가된 즐겨찾기는 타임스탬프가 저장되지 않아 이 설정에 관계없이 갤러리가 게시된 시간으로 정렬되어요.";
+"eh_setting_view.section.title.favorites" = "즐겨찾기";
+"eh_setting_view.description.favorite_categories" = "여기서 좋아하는 장르들을 선택하고 이름을 바꿀 수 있어요.";
+"eh_setting_view.title.favorites_sort_order" = "관심 순서를 배열";
+"eh_setting_view.description.favorites_sort_order" = "당신의 관심 페이지의 기본 정렬 방식을 선택할 수 있어요. 2016년 3월 개정 전에 추가된 즐겨찾기는 타임스탬프가 저장되지 않아 이 설정에 관계없이 갤러리가 게시된 시간으로 정렬되어요.";
 // EhSetting.FavoritesSortOrder
-"enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "마지막 업데이트 시간으로";
-"enum.eh.setting.favorites.sort.order.value.favoritedTime" = "별점 시간으로";
+"enum.eh_setting.favorites_sort_order.value.last_update_time" = "마지막 업데이트 시간으로";
+"enum.eh_setting.favorites_sort_order.value.favorited_time" = "별점 시간으로";
 
-"eh.setting.view.section.title.ratings" = "별점";
-"eh.setting.view.title.ratingsColor" = "별점 색깔";
-"eh.setting.view.promt.ratingsColor" = "RRGGB";
-"eh.setting.view.description.ratingsColor" = "기본적으로 등급을 매긴 갤러리는 별 2개 이하의 등급에 대해 빨간색, 2.5~4개의 등급에 대해 녹색, 4.5~5개의 등급에 대해 파란색 별로 표시되어요. 아래에 원하는 색상 조합을 입력하여 사용자 정의할 수 있어요. 각 문자는 별 하나를 표현해요. 기본 RRGGB는 첫 번째와 두 번째 별의 경우 R(ed), 세 번째와 네 번째 별의 경우 G(reen), 다섯 번째 별의 경우 B(lue)를 의미해요. 일반 별에 (Y)ellow를 사용할 수도 있어요. 모든 5글자의 R/G/B/Y 콤보가 작동해요.";
+"eh_setting_view.section.title.ratings" = "별점";
+"eh_setting_view.title.ratings_color" = "별점 색깔";
+"eh_setting_view.promt.ratings_color" = "RRGGB";
+"eh_setting_view.description.ratings_color" = "기본적으로 등급을 매긴 갤러리는 별 2개 이하의 등급에 대해 빨간색, 2.5~4개의 등급에 대해 녹색, 4.5~5개의 등급에 대해 파란색 별로 표시되어요. 아래에 원하는 색상 조합을 입력하여 사용자 정의할 수 있어요. 각 문자는 별 하나를 표현해요. 기본 RRGGB는 첫 번째와 두 번째 별의 경우 R(ed), 세 번째와 네 번째 별의 경우 G(reen), 다섯 번째 별의 경우 B(lue)를 의미해요. 일반 별에 (Y)ellow를 사용할 수도 있어요. 모든 5글자의 R/G/B/Y 콤보가 작동해요.";
 
-"eh.setting.view.section.title.tagsNamespaces" = "태그 네임스페이스";
-"eh.setting.view.description.tagsNamespaces" = "기본 태그 검색에서 특정 네임스페이스를 제외하려면 아래 네임스페이스들을 확인해주세요. 이렇게 해도 이러한 네임스페이스에 태그가 있는 갤러리가 나타나지 않고 태그를 검색할 때 해당 네임스페이스가 표시되지 않도록 할 수 있어요.";
+"eh_setting_view.section.title.tags_namespaces" = "태그 네임스페이스";
+"eh_setting_view.description.tags_namespaces" = "기본 태그 검색에서 특정 네임스페이스를 제외하려면 아래 네임스페이스들을 확인해주세요. 이렇게 해도 이러한 네임스페이스에 태그가 있는 갤러리가 나타나지 않고 태그를 검색할 때 해당 네임스페이스가 표시되지 않도록 할 수 있어요.";
 
-"eh.setting.view.section.title.tagFilteringThreshold" = "태그 필터링 임계값";
-"eh.setting.view.title.tagFilteringThreshold" = "태그 필터링 임계값";
-"eh.setting.view.description.tagFilteringThreshold" = "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리에 이 값 이하의 가중치를 추가하는 태그가 있으면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요.";
+"eh_setting_view.section.title.tag_filtering_threshold" = "태그 필터링 임계값";
+"eh_setting_view.title.tag_filtering_threshold" = "태그 필터링 임계값";
+"eh_setting_view.description.tag_filtering_threshold" = "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리에 이 값 이하의 가중치를 추가하는 태그가 있으면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요.";
 
-"eh.setting.view.section.title.tagWatchingThreshold" = "태그 보여주기 임계값";
-"eh.setting.view.title.tagWatchingThreshold" = "태그 보여주기 임계값";
-"eh.setting.view.description.tagWatchingThreshold" = "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요.";
+"eh_setting_view.section.title.tag_watching_threshold" = "태그 보여주기 임계값";
+"eh_setting_view.title.tag_watching_threshold" = "태그 보여주기 임계값";
+"eh_setting_view.description.tag_watching_threshold" = "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요.";
 
-"eh.setting.view.section.title.filteredRemovalCount" = "Show Filtered Removal Count";
-"eh.setting.view.description.filteredRemovalCount" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh.setting.view.title.showFilteredRemovalCount" = "Show filtered removal count";
+"eh_setting_view.section.title.filtered_removal_count" = "Show Filtered Removal Count";
+"eh_setting_view.description.filtered_removal_count" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
+"eh_setting_view.title.show_filtered_removal_count" = "Show filtered removal count";
 
-"eh.setting.view.section.title.excludedLanguages" = "제외된 언어";
-"eh.setting.view.description.excludedLanguages" = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요.";
+"eh_setting_view.section.title.excluded_languages" = "제외된 언어";
+"eh_setting_view.description.excluded_languages" = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요.";
 // EhSetting.ExcludedLanguagesCategory
-"enum.eh.setting.excluded.languages.category.value.original" = "원본";
-"enum.eh.setting.excluded.languages.category.value.translated" = "번역됨";
-"enum.eh.setting.excluded.languages.category.value.rewrite" = "다시 쓰기";
+"enum.eh_setting.excluded_languages_category.value.original" = "원본";
+"enum.eh_setting.excluded_languages_category.value.translated" = "번역됨";
+"enum.eh_setting.excluded_languages_category.value.rewrite" = "다시 쓰기";
 
-"eh.setting.view.section.title.excludedUploaders" = "제외된 업로드";
-"eh.setting.view.description.excludedUploaders" = "갤러리 목록 및 검색에서 특정 업로더의 갤러리를 숨기려면 아래에 해당 갤러리를 추가해주세요. 한 줄에 하나의 사용자 이름을 입력해주세요. 이러한 업로더의 갤러리는 검색 쿼리에 관계없이 나타나지 않아요.";
-"eh.setting.view.description.excludedUploadersCount" = "**%@ / %@** 개의 슬롯을 사용하고 있어요.";
+"eh_setting_view.section.title.excluded_uploaders" = "제외된 업로드";
+"eh_setting_view.description.excluded_uploaders" = "갤러리 목록 및 검색에서 특정 업로더의 갤러리를 숨기려면 아래에 해당 갤러리를 추가해주세요. 한 줄에 하나의 사용자 이름을 입력해주세요. 이러한 업로더의 갤러리는 검색 쿼리에 관계없이 나타나지 않아요.";
+"eh_setting_view.description.excluded_uploaders_count" = "**%@ / %@** 개의 슬롯을 사용하고 있어요.";
 
-"eh.setting.view.section.title.searchResultCount" = "검색 결과 수";
-"eh.setting.view.title.resultCount" = "결과 수";
-"eh.setting.view.description.resultCount" = "인덱스 / 검색 / 토렌트 검색 페이지에 대해 페이지당 몇 개의 결과를 원하시나요?\n(Hath Perk: 페이징 확장 필요)";
+"eh_setting_view.section.title.search_result_count" = "검색 결과 수";
+"eh_setting_view.title.result_count" = "결과 수";
+"eh_setting_view.description.result_count" = "인덱스 / 검색 / 토렌트 검색 페이지에 대해 페이지당 몇 개의 결과를 원하시나요?\n(Hath Perk: 페이징 확장 필요)";
 
-"eh.setting.view.section.title.thumbnailSettings" = "썸네일 설정";
-"eh.setting.view.title.thumbnailLoadTiming" = "썸네일 로드 시간";
-"eh.setting.view.description.thumbnailLoadTiming" = "목록 모드를 사용할 때 앞 페이지의 마우스 오버 미리 보기를 어떻게 로드할까요?";
-"eh.setting.view.description.thumbnailConfiguration" = "모든 방문한 갤러리에 대하여 기본 썸네일을 설정할 수 있어요.";
-"eh.setting.view.title.thumbnailSize" = "사이즈";
-"eh.setting.view.title.thumbnailRowCount" = "줄";
+"eh_setting_view.section.title.thumbnail_settings" = "썸네일 설정";
+"eh_setting_view.title.thumbnail_load_timing" = "썸네일 로드 시간";
+"eh_setting_view.description.thumbnail_load_timing" = "목록 모드를 사용할 때 앞 페이지의 마우스 오버 미리 보기를 어떻게 로드할까요?";
+"eh_setting_view.description.thumbnail_configuration" = "모든 방문한 갤러리에 대하여 기본 썸네일을 설정할 수 있어요.";
+"eh_setting_view.title.thumbnail_size" = "사이즈";
+"eh_setting_view.title.thumbnail_row_count" = "줄";
 // EhSetting.ThumbnailLoadTiming
-"enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "마우스를 올릴 때";
-"enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "페이지 로드될 때";
-"enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "페이지가 더 빨리 로드되지만 엄지손가락이 나타나기 전까지 약간의 지연이 있을 수 있어요.";
-"enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "페이지 로드에 시간이 더 오래 걸리지만, 페이지가 로드된 후 썸네일을 로드하는데 지연이 없어요.";
+"enum.eh_setting.thumbnail_load_timing.value.on_mouse_over" = "마우스를 올릴 때";
+"enum.eh_setting.thumbnail_load_timing.value.on_page_load" = "페이지 로드될 때";
+"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "페이지가 더 빨리 로드되지만 엄지손가락이 나타나기 전까지 약간의 지연이 있을 수 있어요.";
+"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "페이지 로드에 시간이 더 오래 걸리지만, 페이지가 로드된 후 썸네일을 로드하는데 지연이 없어요.";
 // EhSetting.ThumbnailSize
-"enum.eh.setting.thumbnail.size.value.normal" = "보통";
-"enum.eh.setting.thumbnail.size.value.large" = "크게";
+"enum.eh_setting.thumbnail_size.value.normal" = "보통";
+"enum.eh_setting.thumbnail_size.value.large" = "크게";
 
-"eh.setting.view.section.title.thumbnailScaling" = "썸네일 크기";
-"eh.setting.view.title.scaleFactor" = "크기 비율";
-"eh.setting.view.description.scaleFactor" = "썸네일 그림 및 확장된 갤러리 목록 보기의 미리 보기는 75%에서 150% 사이의 사용자 지정 값으로 조정할 수 있어요.";
+"eh_setting_view.section.title.thumbnail_scaling" = "썸네일 크기";
+"eh_setting_view.title.scale_factor" = "크기 비율";
+"eh_setting_view.description.scale_factor" = "썸네일 그림 및 확장된 갤러리 목록 보기의 미리 보기는 75%에서 150%% 사이의 사용자 지정 값으로 조정할 수 있어요.";
 
-"eh.setting.view.section.title.viewportOverride" = "뷰포트 조정";
-"eh.setting.view.title.virtualWidth" = "가상 너비";
-"eh.setting.view.description.virtualWidth" = "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100% 썸네일 스케일의 추천 값은 640에서 1400 사이에요.";
+"eh_setting_view.section.title.viewport_override" = "뷰포트 조정";
+"eh_setting_view.title.virtual_width" = "가상 너비";
+"eh_setting_view.description.virtual_width" = "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100%% 썸네일 스케일의 추천 값은 640에서 1400 사이에요.";
 
-"eh.setting.view.section.title.galleryComments" = "갤러리 댓글";
-"eh.setting.view.title.commentsSortOrder" = "댓글 순서";
-"eh.setting.view.title.commentsVotesShowTiming" = "평가의 시간을 보이기";
+"eh_setting_view.section.title.gallery_comments" = "갤러리 댓글";
+"eh_setting_view.title.comments_sort_order" = "댓글 순서";
+"eh_setting_view.title.comments_votes_show_timing" = "평가의 시간을 보이기";
 // EhSetting.CommentsSortOrder
-"enum.eh.setting.comments.sort.order.value.oldest" = "가장 이른 순서";
-"enum.eh.setting.comments.sort.order.value.recent" = "최신순";
-"enum.eh.setting.comments.sort.order.value.highestScore" = "평가가 가장 높은 순서";
+"enum.eh_setting.comments_sort_order.value.oldest" = "가장 이른 순서";
+"enum.eh_setting.comments_sort_order.value.recent" = "최신순";
+"enum.eh_setting.comments_sort_order.value.highest_score" = "평가가 가장 높은 순서";
 // EhSetting.CommentVotesShowTiming
-"enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "점수를 가리키커나 클리하기";
-"enum.eh.setting.comments.votes.show.timing.value.always" = "항상";
+"enum.eh_setting.comments_votes_show_timing.value.on_hover_or_click" = "점수를 가리키커나 클리하기";
+"enum.eh_setting.comments_votes_show_timing.value.always" = "항상";
 
-"eh.setting.view.section.title.galleryTags" = "갤러리 태그";
-"eh.setting.view.title.tagsSortOrder" = "태그 순서를 배열";
-// EhSetting.TagsSortOrder
-"enum.eh.setting.tags.sort.order.value.alphabetical" = "알파벳순으로";
-"enum.eh.setting.tags.sort.order.value.tagPower" = "태크 가중치로";
+"eh_setting_view.section.title.gallery_tags" = "갤러리 태그";
+"eh_setting_view.title.tags_sort_order" = "태그 순서를 배열";
+// EhSetting.tags_sort_order
+"enum.eh_setting.tags_sort_order.value.alphabetical" = "알파벳순으로";
+"enum.eh_setting.tags_sort_order.value.tag_power" = "태크 가중치로";
 
-"eh.setting.view.section.title.galleryPageNumbering" = "갤러리 페이지 번호 매기기";
-"eh.setting.view.title.showGalleryPageNumbers" = "갤러리 페이지 번호 보이기";
+"eh_setting_view.section.title.gallery_page_numbering" = "갤러리 페이지 번호 매기기";
+"eh_setting_view.title.show_gallery_page_numbers" = "갤러리 페이지 번호 보이기";
 
-"eh.setting.view.section.title.originalImages" = "원본 이미지";
-"eh.setting.view.title.useOriginalImages" = "원본 뷰어 적용";
+"eh_setting_view.section.title.hath_local_network_host" = "Hath 로컬 네트워크 호스트";
+"eh_setting_view.title.ip_address_port" = "IP주소:포트";
+"eh_setting_view.description.ip_address_port" = "이 설정은 사이트를 검색하는 것과 동일한 공용 IP로 로컬 네트워크에서 H@H 클라이언트를 실행하는 경우 사용할 수 있습니다. 일부 라우터는 버그가 있어 요청을 자신의 IP로 다시 라우팅할 수 없기에, 아래를 따라서 이 문제를 해결할 수 있습니다.\n찾아보는 동일한 장치에서 클라이언트를 실행하는 경우 루프백 주소(127.0.0.1:port)를 사용할 수 있습니다. 클라이언트가 네트워크의 다른 장치에서 실행 중인 경우 로컬 네트워크 IP를 사용할 수 있습니다. 일부 브라우저 구성에서는 외부 웹 사이트가 로컬 네트워크 IP가 있는 URL에 액세스할 수 없도록 합니다. 그런 다음 사이트가 작동하려면 사이트를 화이트리스트에 추가해야 합니다.";
 
-"eh.setting.view.section.title.multiPageViewer" = "멀티 페이지 뷰어";
-"eh.setting.view.title.useMultiPageViewer" = "다중 페이지 뷰어 적용";
-"eh.setting.view.title.displayStyle" = "보여주기 스타일";
-"eh.setting.view.title.showThumbnailPane" = "썸네일 창 표시";
+"eh_setting_view.section.title.original_images" = "원본 이미지";
+"eh_setting_view.title.use_original_images" = "원본 뷰어 적용";
+
+"eh_setting_view.section.title.multi_page_viewer" = "멀티 페이지 뷰어";
+"eh_setting_view.title.use_multi_page_viewer" = "다중 페이지 뷰어 적용";
+"eh_setting_view.title.display_style" = "보여주기 스타일";
+"eh_setting_view.title.show_thumbnail_pane" = "썸네일 창 표시";
 // EhSetting.MultiplePageViewerStyle
-"enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "왼쪽 정렬, 너비 초과할 때 크기 맞추기";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "가운데 정렬, 너비 초과할 때 크기 맞추기";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "가운데 정렬, 항상 크기 맞추기";
+"enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "왼쪽 정렬, 너비 초과할 때 크기 맞추기";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "가운데 정렬, 너비 초과할 때 크기 맞추기";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "가운데 정렬, 항상 크기 맞추기";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "동인지";
 "enum.category.value.manga" = "만화";
-"enum.category.value.artistCG" = "일러스트";
-"enum.category.value.gameCG" = "게임 CG";
+"enum.category.value.artist_CG" = "일러스트";
+"enum.category.value.game_CG" = "게임 CG";
 "enum.category.value.western" = "서양";
-"enum.category.value.nonH" = "Non-H";
-"enum.category.value.imageSet" = "포토북";
+"enum.category.value.non_h" = "Non-H";
+"enum.category.value.image_set" = "포토북";
 "enum.category.value.cosplay" = "코스프레";
-"enum.category.value.asianPorn" = "Asian Porn";
+"enum.category.value.asian_porn" = "Asian Porn";
 "enum.category.value.misc" = "기타";
 "enum.category.value.private" = "Private";
 
-// MARK: TagCategory
-"enum.tag.namespace.value.reclass" = "재분류";
-"enum.tag.namespace.value.language" = "언어";
-"enum.tag.namespace.value.parody" = "원작";
-"enum.tag.namespace.value.character" = "캐릭터";
-"enum.tag.namespace.value.group" = "그룹";
-"enum.tag.namespace.value.artist" = "작가";
-"enum.tag.namespace.value.male" = "남성";
-"enum.tag.namespace.value.female" = "여성";
-"enum.tag.namespace.value.mixed" = "Mixed";
-"enum.tag.namespace.value.cosplayer" = "Cosplayer";
-"enum.tag.namespace.value.other" = "Other";
-"enum.tag.namespace.value.temp" = "Temp";
+// MARK: TagNamespace
+"enum.tag_namespace.value.reclass" = "재분류";
+"enum.tag_namespace.value.language" = "언어";
+"enum.tag_namespace.value.parody" = "원작";
+"enum.tag_namespace.value.character" = "캐릭터";
+"enum.tag_namespace.value.group" = "그룹";
+"enum.tag_namespace.value.artist" = "작가";
+"enum.tag_namespace.value.male" = "남성";
+"enum.tag_namespace.value.female" = "여성";
+"enum.tag_namespace.value.mixed" = "Mixed";
+"enum.tag_namespace.value.cosplayer" = "Cosplayer";
+"enum.tag_namespace.value.other" = "Other";
+"enum.tag_namespace.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "무효";
@@ -643,255 +648,255 @@
 "enum.language.value.zulu" = "줄루어";
 
 // MARK: BrowsingCountry
-"enum.browsing.country.name.autoDetect" = "자동으로 설정";
-"enum.browsing.country.name.afghanistan" = "아프가니스탄";
-"enum.browsing.country.name.alandIslands" = "알란드 제도";
-"enum.browsing.country.name.albania" = "알바니아";
-"enum.browsing.country.name.algeria" = "알제리아";
-"enum.browsing.country.name.americanSamoa" = "아메리칸 사모아";
-"enum.browsing.country.name.andorra" = "안도라";
-"enum.browsing.country.name.angola" = "앙골라";
-"enum.browsing.country.name.anguilla" = "안젤라";
-"enum.browsing.country.name.antarctica" = "남극";
-"enum.browsing.country.name.antiguaAndBarbuda" = "앤티가 바부다";
-"enum.browsing.country.name.argentina" = "아르헨티나";
-"enum.browsing.country.name.armenia" = "아르메니아";
-"enum.browsing.country.name.aruba" = "아루바 섬";
-"enum.browsing.country.name.asiaPacificRegion" = "아시아 태평양 영역";
-"enum.browsing.country.name.australia" = "호주";
-"enum.browsing.country.name.austria" = "오스트리아";
-"enum.browsing.country.name.azerbaijan" = "아제르바이잔";
-"enum.browsing.country.name.bahamas" = "바하마스";
-"enum.browsing.country.name.bahrain" = "바레인";
-"enum.browsing.country.name.bangladesh" = "방글라데시";
-"enum.browsing.country.name.barbados" = "바베이도스";
-"enum.browsing.country.name.belarus" = "벨라루스";
-"enum.browsing.country.name.belgium" = "벨기에";
-"enum.browsing.country.name.belize" = "벨리즈";
-"enum.browsing.country.name.benin" = "베냉";
-"enum.browsing.country.name.bermuda" = "버뮤다";
-"enum.browsing.country.name.bhutan" = "부탄";
-"enum.browsing.country.name.bolivia" = "볼리비아";
-"enum.browsing.country.name.bonaireSaintEustatiusAndSaba" = "보네르 성 유스타티우스와 사바";
-"enum.browsing.country.name.bosniaAndHerzegovina" = "보스니아 헤르체코비나 ";
-"enum.browsing.country.name.botswana" = "보츠와나";
-"enum.browsing.country.name.bouvetIsland" = "부베섬";
-"enum.browsing.country.name.brazil" = "브라질";
-"enum.browsing.country.name.britishIndianOceanTerritory" = "영국령 인도양 식민지";
-"enum.browsing.country.name.bruneiDarussalam" = "브루나이 다루살람";
-"enum.browsing.country.name.bulgaria" = "불가리아";
-"enum.browsing.country.name.burkinaFaso" = "부르키나 파소";
-"enum.browsing.country.name.burundi" = "부룬디";
-"enum.browsing.country.name.cambodia" = "캄보디아";
-"enum.browsing.country.name.cameroon" = "카메룬";
-"enum.browsing.country.name.canada" = "캐나다";
-"enum.browsing.country.name.capeVerde" = "포르투갈어";
-"enum.browsing.country.name.caymanIslands" = "케이맨 제도";
-"enum.browsing.country.name.centralAfricanRepublic" = "중앙아프리카 공화국";
-"enum.browsing.country.name.chad" = "차드";
-"enum.browsing.country.name.chile" = "칠레";
-"enum.browsing.country.name.china" = "중국";
-"enum.browsing.country.name.christmasIsland" = "크리스마스 섬";
-"enum.browsing.country.name.cocosIslands" = "코코스 제도";
-"enum.browsing.country.name.colombia" = "콜롬비아";
-"enum.browsing.country.name.comoros" = "코모로";
-"enum.browsing.country.name.congo" = "콩고";
-"enum.browsing.country.name.theDemocraticRepublicOfTheCongo" = "콩고민주공화국";
-"enum.browsing.country.name.cookIslands" = "쿡제도";
-"enum.browsing.country.name.costaRica" = "코스타리카";
-"enum.browsing.country.name.coteDIvoire" = "코트디부아르";
-"enum.browsing.country.name.croatia" = "크로아티아";
-"enum.browsing.country.name.cuba" = "쿠바";
-"enum.browsing.country.name.curacao" = "큐라소";
-"enum.browsing.country.name.cyprus" = "키프로스";
-"enum.browsing.country.name.czechRepublic" = "체코 공화국";
-"enum.browsing.country.name.denmark" = "덴마크";
-"enum.browsing.country.name.djibouti" = "지부티";
-"enum.browsing.country.name.dominica" = "도미니카";
-"enum.browsing.country.name.dominicanRepublic" = "도미니카 공화국";
-"enum.browsing.country.name.ecuador" = "에콰도르";
-"enum.browsing.country.name.egypt" = "이집트";
-"enum.browsing.country.name.elSalvador" = "엘살바도르";
-"enum.browsing.country.name.equatorialGuinea" = "적도 기니";
-"enum.browsing.country.name.eritrea" = "에리트레아";
-"enum.browsing.country.name.estonia" = "에스토니아";
-"enum.browsing.country.name.ethiopia" = "에티오피아";
-"enum.browsing.country.name.europe" = "유럽";
-"enum.browsing.country.name.falklandIslands" = "포클랜드 제도";
-"enum.browsing.country.name.faroeIslands" = "페로스 제도";
-"enum.browsing.country.name.fiji" = "피지";
-"enum.browsing.country.name.finland" = "핀란드";
-"enum.browsing.country.name.france" = "프랑스";
-"enum.browsing.country.name.frenchGuiana" = "프랑스령 기아나";
-"enum.browsing.country.name.frenchPolynesia" = "프랑스령 폴리네시아";
-"enum.browsing.country.name.frenchSouthernTerritories" = "프랑스령 남부와 남극지역";
-"enum.browsing.country.name.gabon" = "가봉";
-"enum.browsing.country.name.gambia" = "감비아";
-"enum.browsing.country.name.georgia" = "그루지야";
-"enum.browsing.country.name.germany" = "독일";
-"enum.browsing.country.name.ghana" = "가나";
-"enum.browsing.country.name.gibraltar" = "지브롤터";
-"enum.browsing.country.name.greece" = "희랍";
-"enum.browsing.country.name.greenland" = "그린란드";
-"enum.browsing.country.name.grenada" = "그레나다";
-"enum.browsing.country.name.guadeloupe" = "과들루프 섬";
-"enum.browsing.country.name.guam" = "괌";
-"enum.browsing.country.name.guatemala" = "과테말라";
-"enum.browsing.country.name.guernsey" = "건지종 젖소";
-"enum.browsing.country.name.guinea" = "기니";
-"enum.browsing.country.name.guineaBissau" = "기니비사우";
-"enum.browsing.country.name.guyana" = "가이아나";
-"enum.browsing.country.name.haiti" = "아이티";
-"enum.browsing.country.name.heardIslandAndMcDonaldIslands" = "허드 맥도널드 제도";
-"enum.browsing.country.name.vaticanCityState" = "바티칸 시국";
-"enum.browsing.country.name.honduras" = "온두라스";
-"enum.browsing.country.name.hongKong" = "홍콩";
-"enum.browsing.country.name.hungary" = "헝가리";
-"enum.browsing.country.name.iceland" = "Iceland";
-"enum.browsing.country.name.india" = "인도";
-"enum.browsing.country.name.indonesia" = "인도네시아";
-"enum.browsing.country.name.iran" = "이란";
-"enum.browsing.country.name.iraq" = "이라크";
-"enum.browsing.country.name.ireland" = "아일랜드";
-"enum.browsing.country.name.isleOfMan" = "맨 섬";
-"enum.browsing.country.name.israel" = "이스라엘";
-"enum.browsing.country.name.italy" = "이탈리아";
-"enum.browsing.country.name.jamaica" = "자마이카";
-"enum.browsing.country.name.japan" = "일본";
-"enum.browsing.country.name.jersey" = "저시";
-"enum.browsing.country.name.jordan" = "요단";
-"enum.browsing.country.name.kazakhstan" = "카자흐스탄";
-"enum.browsing.country.name.kenya" = "케냐";
-"enum.browsing.country.name.kiribati" = "키리바시";
-"enum.browsing.country.name.kuwait" = "쿠웨이트";
-"enum.browsing.country.name.kyrgyzstan" = "키르기스스탄";
-"enum.browsing.country.name.laoPeoplesDemocraticRepublic" = "라오 인민민주공화국";
-"enum.browsing.country.name.latvia" = "라트비아";
-"enum.browsing.country.name.lebanon" = "레바논";
-"enum.browsing.country.name.lesotho" = "레소토";
-"enum.browsing.country.name.liberia" = "리베리아";
-"enum.browsing.country.name.libya" = "리비아";
-"enum.browsing.country.name.liechtenstein" = "리히텐슈타인";
-"enum.browsing.country.name.lithuania" = "리투아니아";
-"enum.browsing.country.name.luxembourg" = "룩셈부르크";
-"enum.browsing.country.name.macau" = "마카오";
-"enum.browsing.country.name.macedonia" = "마케도니아";
-"enum.browsing.country.name.madagascar" = "마다스카르";
-"enum.browsing.country.name.malawi" = "말라위";
-"enum.browsing.country.name.malaysia" = "말레이시아";
-"enum.browsing.country.name.maldives" = "말디브";
-"enum.browsing.country.name.mali" = "말리";
-"enum.browsing.country.name.malta" = "말타";
-"enum.browsing.country.name.marshallIslands" = "마샬군도";
-"enum.browsing.country.name.martinique" = "마르티니크";
-"enum.browsing.country.name.mauritania" = "모리타니아";
-"enum.browsing.country.name.mauritius" = "모리셔스";
-"enum.browsing.country.name.mayotte" = "마요트 섬";
-"enum.browsing.country.name.mexico" = "맥시코";
-"enum.browsing.country.name.micronesia" = "마크로네시아";
-"enum.browsing.country.name.moldova" = "몰도바";
-"enum.browsing.country.name.monaco" = "모나코";
-"enum.browsing.country.name.mongolia" = "몽콜";
-"enum.browsing.country.name.montenegro" = "몬테네그로";
-"enum.browsing.country.name.montserrat" = "몬트세라트섬";
-"enum.browsing.country.name.morocco" = "모로코가족";
-"enum.browsing.country.name.mozambique" = "모잠비크";
-"enum.browsing.country.name.myanmar" = "미얀마";
-"enum.browsing.country.name.namibia" = "나미비아";
-"enum.browsing.country.name.nauru" = "나우루";
-"enum.browsing.country.name.nepal" = "네팔";
-"enum.browsing.country.name.netherlands" = "네덜란드";
-"enum.browsing.country.name.newCaledonia" = "뉴칼레도니아";
-"enum.browsing.country.name.newZealand" = "뉴질랜드";
-"enum.browsing.country.name.nicaragua" = "나카라과";
-"enum.browsing.country.name.niger" = "니제르";
-"enum.browsing.country.name.nigeria" = "나이지리아";
-"enum.browsing.country.name.niue" = "니우에 섬";
-"enum.browsing.country.name.norfolkIsland" = "노퍽섬";
-"enum.browsing.country.name.northKorea" = "북한";
-"enum.browsing.country.name.northernMarianaIslands" = "북마리아나제도";
-"enum.browsing.country.name.norway" = "노르웨이";
-"enum.browsing.country.name.oman" = "오만";
-"enum.browsing.country.name.pakistan" = "파키스탄";
-"enum.browsing.country.name.palau" = "팔라우";
-"enum.browsing.country.name.palestinianTerritory" = "팔레스타인의 지역";
-"enum.browsing.country.name.panama" = "파나마모자";
-"enum.browsing.country.name.papuaNewGuinea" = "파푸아뉴기니";
-"enum.browsing.country.name.paraguay" = "파라과이";
-"enum.browsing.country.name.peru" = "페루";
-"enum.browsing.country.name.philippines" = "필리핀";
-"enum.browsing.country.name.pitcairnIslands" = "핏케언 제도";
-"enum.browsing.country.name.poland" = "폴란드";
-"enum.browsing.country.name.portugal" = "포르투갈";
-"enum.browsing.country.name.puertoRico" = "푸에르토리코";
-"enum.browsing.country.name.qatar" = "카타로";
-"enum.browsing.country.name.reunion" = "레워니옹";
-"enum.browsing.country.name.romania" = "루마니아";
-"enum.browsing.country.name.russianFederation" = "러시아 연방";
-"enum.browsing.country.name.rwanda" = "르완다";
-"enum.browsing.country.name.saintBarthelemy" = "생바르텔레미";
-"enum.browsing.country.name.saintHelena" = "세인츠헬레나 섬";
-"enum.browsing.country.name.saintKittsAndNevis" = "세인트키츠네비스";
-"enum.browsing.country.name.saintLucia" = "세인트루시아";
-"enum.browsing.country.name.saintMartin" = "세인트 마틴";
-"enum.browsing.country.name.saintPierreAndMiquelon" = "생피에르 미글롱";
-"enum.browsing.country.name.saintVincentAndTheGrenadines" = "세인트빈센트 그레나딘";
-"enum.browsing.country.name.samoa" = "사모아";
-"enum.browsing.country.name.sanMarino" = "산마리노";
-"enum.browsing.country.name.saoTomeAndPrincipe" = "상투메 프린시페 도브라";
-"enum.browsing.country.name.saudiArabia" = "사우디 아라비아";
-"enum.browsing.country.name.senegal" = "세네갈";
-"enum.browsing.country.name.serbia" = "세르비아";
-"enum.browsing.country.name.seychelles" = "세이셸";
-"enum.browsing.country.name.sierraLeone" = "시에라리온";
-"enum.browsing.country.name.singapore" = "싱가포르";
-"enum.browsing.country.name.sintMaarten" = "신트마르턴";
-"enum.browsing.country.name.slovakia" = "슬로바키아";
-"enum.browsing.country.name.slovenia" = "슬로베니아";
-"enum.browsing.country.name.solomonIslands" = "솔로몬 제도";
-"enum.browsing.country.name.somalia" = "소말리아";
-"enum.browsing.country.name.southAfrica" = "남아프리카";
-"enum.browsing.country.name.southGeorgiaAndTheSouthSandwichIslands" = "사우스조지아 사우스샌드위치 제도";
-"enum.browsing.country.name.southKorea" = "한국";
-"enum.browsing.country.name.southSudan" = "남수단";
-"enum.browsing.country.name.spain" = "스페인";
-"enum.browsing.country.name.sriLanka" = "스리랑카";
-"enum.browsing.country.name.sudan" = "수단";
-"enum.browsing.country.name.suriname" = "수리남";
-"enum.browsing.country.name.svalbardAndJanMayen" = "스발바르 얀마옌 제도";
-"enum.browsing.country.name.swaziland" = "스와질란드";
-"enum.browsing.country.name.sweden" = "스웨덴";
-"enum.browsing.country.name.switzerland" = "스위스";
-"enum.browsing.country.name.syrianArabRepublic" = "시리아";
-"enum.browsing.country.name.taiwan" = "대만";
-"enum.browsing.country.name.tajikistan" = "타지키스탄";
-"enum.browsing.country.name.tanzania" = "탄지니아";
-"enum.browsing.country.name.thailand" = "태국";
-"enum.browsing.country.name.timorLeste" = "동티모르";
-"enum.browsing.country.name.togo" = "토고";
-"enum.browsing.country.name.tokelau" = "토켈라우";
-"enum.browsing.country.name.tonga" = "통가";
-"enum.browsing.country.name.trinidadAndTobago" = "트리니다드토바고";
-"enum.browsing.country.name.tunisia" = "튀니지";
-"enum.browsing.country.name.turkey" = "터키";
-"enum.browsing.country.name.turkmenistan" = "투르크메니스탄";
-"enum.browsing.country.name.turksAndCaicosIslands" = "터크스카이코스 제도";
-"enum.browsing.country.name.tuvalu" = "투발루";
-"enum.browsing.country.name.uganda" = "우간다";
-"enum.browsing.country.name.ukraine" = "우크라이나";
-"enum.browsing.country.name.unitedArabEmirates" = "아랍 에미리트 연합국";
-"enum.browsing.country.name.unitedKingdom" = "영국";
-"enum.browsing.country.name.unitedStates" = "미국";
-"enum.browsing.country.name.unitedStatesMinorOutlyingIslands" = "미국령 군소 제도";
-"enum.browsing.country.name.uruguay" = "우루과이";
-"enum.browsing.country.name.uzbekistan" = "우즈베키스탄";
-"enum.browsing.country.name.vanuatu" = "바누어투";
-"enum.browsing.country.name.venezuela" = "베네수엘라";
-"enum.browsing.country.name.vietnam" = "베트남";
-"enum.browsing.country.name.virginIslandsBritish" = "영국령 버진 제도";
-"enum.browsing.country.name.virginIslandsUS" = "세인트존 섬";
-"enum.browsing.country.name.wallisAndFutuna" = "월리스 푸투나제도";
-"enum.browsing.country.name.westernSahara" = "서사하라";
-"enum.browsing.country.name.yemen" = "예멘";
-"enum.browsing.country.name.zambia" = "잠비아";
-"enum.browsing.country.name.zimbabwe" = "짐바브웨";
+"enum.browsing_country.name.auto_detect" = "자동으로 설정";
+"enum.browsing_country.name.afghanistan" = "아프가니스탄";
+"enum.browsing_country.name.aland_islands" = "알란드 제도";
+"enum.browsing_country.name.albania" = "알바니아";
+"enum.browsing_country.name.algeria" = "알제리아";
+"enum.browsing_country.name.american_samoa" = "아메리칸 사모아";
+"enum.browsing_country.name.andorra" = "안도라";
+"enum.browsing_country.name.angola" = "앙골라";
+"enum.browsing_country.name.anguilla" = "안젤라";
+"enum.browsing_country.name.antarctica" = "남극";
+"enum.browsing_country.name.antigua_and_barbuda" = "앤티가 바부다";
+"enum.browsing_country.name.argentina" = "아르헨티나";
+"enum.browsing_country.name.armenia" = "아르메니아";
+"enum.browsing_country.name.aruba" = "아루바 섬";
+"enum.browsing_country.name.asia_pacific_region" = "아시아 태평양 영역";
+"enum.browsing_country.name.australia" = "호주";
+"enum.browsing_country.name.austria" = "오스트리아";
+"enum.browsing_country.name.azerbaijan" = "아제르바이잔";
+"enum.browsing_country.name.bahamas" = "바하마스";
+"enum.browsing_country.name.bahrain" = "바레인";
+"enum.browsing_country.name.bangladesh" = "방글라데시";
+"enum.browsing_country.name.barbados" = "바베이도스";
+"enum.browsing_country.name.belarus" = "벨라루스";
+"enum.browsing_country.name.belgium" = "벨기에";
+"enum.browsing_country.name.belize" = "벨리즈";
+"enum.browsing_country.name.benin" = "베냉";
+"enum.browsing_country.name.bermuda" = "버뮤다";
+"enum.browsing_country.name.bhutan" = "부탄";
+"enum.browsing_country.name.bolivia" = "볼리비아";
+"enum.browsing_country.name.bonaire_saint_eustatius_and_saba" = "보네르 성 유스타티우스와 사바";
+"enum.browsing_country.name.bosnia_and_herzegovina" = "보스니아 헤르체코비나 ";
+"enum.browsing_country.name.botswana" = "보츠와나";
+"enum.browsing_country.name.bouvet_island" = "부베섬";
+"enum.browsing_country.name.brazil" = "브라질";
+"enum.browsing_country.name.british_indian_ocean_territory" = "영국령 인도양 식민지";
+"enum.browsing_country.name.brunei_darussalam" = "브루나이 다루살람";
+"enum.browsing_country.name.bulgaria" = "불가리아";
+"enum.browsing_country.name.burkina_faso" = "부르키나 파소";
+"enum.browsing_country.name.burundi" = "부룬디";
+"enum.browsing_country.name.cambodia" = "캄보디아";
+"enum.browsing_country.name.cameroon" = "카메룬";
+"enum.browsing_country.name.canada" = "캐나다";
+"enum.browsing_country.name.cape_verde" = "포르투갈어";
+"enum.browsing_country.name.cayman_islands" = "케이맨 제도";
+"enum.browsing_country.name.central_african_republic" = "중앙아프리카 공화국";
+"enum.browsing_country.name.chad" = "차드";
+"enum.browsing_country.name.chile" = "칠레";
+"enum.browsing_country.name.china" = "중국";
+"enum.browsing_country.name.christmas_island" = "크리스마스 섬";
+"enum.browsing_country.name.cocos_islands" = "코코스 제도";
+"enum.browsing_country.name.colombia" = "콜롬비아";
+"enum.browsing_country.name.comoros" = "코모로";
+"enum.browsing_country.name.congo" = "콩고";
+"enum.browsing_country.name.the_democratic_republic_of_the_congo" = "콩고민주공화국";
+"enum.browsing_country.name.cook_islands" = "쿡제도";
+"enum.browsing_country.name.costa_rica" = "코스타리카";
+"enum.browsing_country.name.cote_d_ivoire" = "코트디부아르";
+"enum.browsing_country.name.croatia" = "크로아티아";
+"enum.browsing_country.name.cuba" = "쿠바";
+"enum.browsing_country.name.curacao" = "큐라소";
+"enum.browsing_country.name.cyprus" = "키프로스";
+"enum.browsing_country.name.czech_republic" = "체코 공화국";
+"enum.browsing_country.name.denmark" = "덴마크";
+"enum.browsing_country.name.djibouti" = "지부티";
+"enum.browsing_country.name.dominica" = "도미니카";
+"enum.browsing_country.name.dominican_republic" = "도미니카 공화국";
+"enum.browsing_country.name.ecuador" = "에콰도르";
+"enum.browsing_country.name.egypt" = "이집트";
+"enum.browsing_country.name.el_salvador" = "엘살바도르";
+"enum.browsing_country.name.equatorial_guinea" = "적도 기니";
+"enum.browsing_country.name.eritrea" = "에리트레아";
+"enum.browsing_country.name.estonia" = "에스토니아";
+"enum.browsing_country.name.ethiopia" = "에티오피아";
+"enum.browsing_country.name.europe" = "유럽";
+"enum.browsing_country.name.falkland_islands" = "포클랜드 제도";
+"enum.browsing_country.name.faroe_islands" = "페로스 제도";
+"enum.browsing_country.name.fiji" = "피지";
+"enum.browsing_country.name.finland" = "핀란드";
+"enum.browsing_country.name.france" = "프랑스";
+"enum.browsing_country.name.french_guiana" = "프랑스령 기아나";
+"enum.browsing_country.name.french_polynesia" = "프랑스령 폴리네시아";
+"enum.browsing_country.name.french_southern_territories" = "프랑스령 남부와 남극지역";
+"enum.browsing_country.name.gabon" = "가봉";
+"enum.browsing_country.name.gambia" = "감비아";
+"enum.browsing_country.name.georgia" = "그루지야";
+"enum.browsing_country.name.germany" = "독일";
+"enum.browsing_country.name.ghana" = "가나";
+"enum.browsing_country.name.gibraltar" = "지브롤터";
+"enum.browsing_country.name.greece" = "희랍";
+"enum.browsing_country.name.greenland" = "그린란드";
+"enum.browsing_country.name.grenada" = "그레나다";
+"enum.browsing_country.name.guadeloupe" = "과들루프 섬";
+"enum.browsing_country.name.guam" = "괌";
+"enum.browsing_country.name.guatemala" = "과테말라";
+"enum.browsing_country.name.guernsey" = "건지종 젖소";
+"enum.browsing_country.name.guinea" = "기니";
+"enum.browsing_country.name.guinea_bissau" = "기니비사우";
+"enum.browsing_country.name.guyana" = "가이아나";
+"enum.browsing_country.name.haiti" = "아이티";
+"enum.browsing_country.name.heard_island_and_mc_donald_islands" = "허드 맥도널드 제도";
+"enum.browsing_country.name.vatican_city_state" = "바티칸 시국";
+"enum.browsing_country.name.honduras" = "온두라스";
+"enum.browsing_country.name.hong_kong" = "홍콩";
+"enum.browsing_country.name.hungary" = "헝가리";
+"enum.browsing_country.name.iceland" = "Iceland";
+"enum.browsing_country.name.india" = "인도";
+"enum.browsing_country.name.indonesia" = "인도네시아";
+"enum.browsing_country.name.iran" = "이란";
+"enum.browsing_country.name.iraq" = "이라크";
+"enum.browsing_country.name.ireland" = "아일랜드";
+"enum.browsing_country.name.isle_of_man" = "맨 섬";
+"enum.browsing_country.name.israel" = "이스라엘";
+"enum.browsing_country.name.italy" = "이탈리아";
+"enum.browsing_country.name.jamaica" = "자마이카";
+"enum.browsing_country.name.japan" = "일본";
+"enum.browsing_country.name.jersey" = "저시";
+"enum.browsing_country.name.jordan" = "요단";
+"enum.browsing_country.name.kazakhstan" = "카자흐스탄";
+"enum.browsing_country.name.kenya" = "케냐";
+"enum.browsing_country.name.kiribati" = "키리바시";
+"enum.browsing_country.name.kuwait" = "쿠웨이트";
+"enum.browsing_country.name.kyrgyzstan" = "키르기스스탄";
+"enum.browsing_country.name.lao_peoples_democratic_republic" = "라오 인민민주공화국";
+"enum.browsing_country.name.latvia" = "라트비아";
+"enum.browsing_country.name.lebanon" = "레바논";
+"enum.browsing_country.name.lesotho" = "레소토";
+"enum.browsing_country.name.liberia" = "리베리아";
+"enum.browsing_country.name.libya" = "리비아";
+"enum.browsing_country.name.liechtenstein" = "리히텐슈타인";
+"enum.browsing_country.name.lithuania" = "리투아니아";
+"enum.browsing_country.name.luxembourg" = "룩셈부르크";
+"enum.browsing_country.name.macau" = "마카오";
+"enum.browsing_country.name.macedonia" = "마케도니아";
+"enum.browsing_country.name.madagascar" = "마다스카르";
+"enum.browsing_country.name.malawi" = "말라위";
+"enum.browsing_country.name.malaysia" = "말레이시아";
+"enum.browsing_country.name.maldives" = "말디브";
+"enum.browsing_country.name.mali" = "말리";
+"enum.browsing_country.name.malta" = "말타";
+"enum.browsing_country.name.marshall_islands" = "마샬군도";
+"enum.browsing_country.name.martinique" = "마르티니크";
+"enum.browsing_country.name.mauritania" = "모리타니아";
+"enum.browsing_country.name.mauritius" = "모리셔스";
+"enum.browsing_country.name.mayotte" = "마요트 섬";
+"enum.browsing_country.name.mexico" = "맥시코";
+"enum.browsing_country.name.micronesia" = "마크로네시아";
+"enum.browsing_country.name.moldova" = "몰도바";
+"enum.browsing_country.name.monaco" = "모나코";
+"enum.browsing_country.name.mongolia" = "몽콜";
+"enum.browsing_country.name.montenegro" = "몬테네그로";
+"enum.browsing_country.name.montserrat" = "몬트세라트섬";
+"enum.browsing_country.name.morocco" = "모로코가족";
+"enum.browsing_country.name.mozambique" = "모잠비크";
+"enum.browsing_country.name.myanmar" = "미얀마";
+"enum.browsing_country.name.namibia" = "나미비아";
+"enum.browsing_country.name.nauru" = "나우루";
+"enum.browsing_country.name.nepal" = "네팔";
+"enum.browsing_country.name.netherlands" = "네덜란드";
+"enum.browsing_country.name.new_caledonia" = "뉴칼레도니아";
+"enum.browsing_country.name.new_zealand" = "뉴질랜드";
+"enum.browsing_country.name.nicaragua" = "나카라과";
+"enum.browsing_country.name.niger" = "니제르";
+"enum.browsing_country.name.nigeria" = "나이지리아";
+"enum.browsing_country.name.niue" = "니우에 섬";
+"enum.browsing_country.name.norfolk_island" = "노퍽섬";
+"enum.browsing_country.name.north_korea" = "북한";
+"enum.browsing_country.name.northern_mariana_islands" = "북마리아나제도";
+"enum.browsing_country.name.norway" = "노르웨이";
+"enum.browsing_country.name.oman" = "오만";
+"enum.browsing_country.name.pakistan" = "파키스탄";
+"enum.browsing_country.name.palau" = "팔라우";
+"enum.browsing_country.name.palestinian_territory" = "팔레스타인의 지역";
+"enum.browsing_country.name.panama" = "파나마모자";
+"enum.browsing_country.name.papua_new_guinea" = "파푸아뉴기니";
+"enum.browsing_country.name.paraguay" = "파라과이";
+"enum.browsing_country.name.peru" = "페루";
+"enum.browsing_country.name.philippines" = "필리핀";
+"enum.browsing_country.name.pitcairn_islands" = "핏케언 제도";
+"enum.browsing_country.name.poland" = "폴란드";
+"enum.browsing_country.name.portugal" = "포르투갈";
+"enum.browsing_country.name.puerto_rico" = "푸에르토리코";
+"enum.browsing_country.name.qatar" = "카타로";
+"enum.browsing_country.name.reunion" = "레워니옹";
+"enum.browsing_country.name.romania" = "루마니아";
+"enum.browsing_country.name.russian_federation" = "러시아 연방";
+"enum.browsing_country.name.rwanda" = "르완다";
+"enum.browsing_country.name.saint_barthelemy" = "생바르텔레미";
+"enum.browsing_country.name.saint_helena" = "세인츠헬레나 섬";
+"enum.browsing_country.name.saint_kitts_and_nevis" = "세인트키츠네비스";
+"enum.browsing_country.name.saint_lucia" = "세인트루시아";
+"enum.browsing_country.name.saint_martin" = "세인트 마틴";
+"enum.browsing_country.name.saint_pierre_and_miquelon" = "생피에르 미글롱";
+"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "세인트빈센트 그레나딘";
+"enum.browsing_country.name.samoa" = "사모아";
+"enum.browsing_country.name.san_marino" = "산마리노";
+"enum.browsing_country.name.sao_tome_and_principe" = "상투메 프린시페 도브라";
+"enum.browsing_country.name.saudi_arabia" = "사우디 아라비아";
+"enum.browsing_country.name.senegal" = "세네갈";
+"enum.browsing_country.name.serbia" = "세르비아";
+"enum.browsing_country.name.seychelles" = "세이셸";
+"enum.browsing_country.name.sierra_leone" = "시에라리온";
+"enum.browsing_country.name.singapore" = "싱가포르";
+"enum.browsing_country.name.sint_maarten" = "신트마르턴";
+"enum.browsing_country.name.slovakia" = "슬로바키아";
+"enum.browsing_country.name.slovenia" = "슬로베니아";
+"enum.browsing_country.name.solomon_islands" = "솔로몬 제도";
+"enum.browsing_country.name.somalia" = "소말리아";
+"enum.browsing_country.name.south_africa" = "남아프리카";
+"enum.browsing_country.name.south_georgia_and_the_south_sandwich_islands" = "사우스조지아 사우스샌드위치 제도";
+"enum.browsing_country.name.south_korea" = "한국";
+"enum.browsing_country.name.south_sudan" = "남수단";
+"enum.browsing_country.name.spain" = "스페인";
+"enum.browsing_country.name.sri_lanka" = "스리랑카";
+"enum.browsing_country.name.sudan" = "수단";
+"enum.browsing_country.name.suriname" = "수리남";
+"enum.browsing_country.name.svalbard_and_jan_mayen" = "스발바르 얀마옌 제도";
+"enum.browsing_country.name.swaziland" = "스와질란드";
+"enum.browsing_country.name.sweden" = "스웨덴";
+"enum.browsing_country.name.switzerland" = "스위스";
+"enum.browsing_country.name.syrian_arab_republic" = "시리아";
+"enum.browsing_country.name.taiwan" = "대만";
+"enum.browsing_country.name.tajikistan" = "타지키스탄";
+"enum.browsing_country.name.tanzania" = "탄지니아";
+"enum.browsing_country.name.thailand" = "태국";
+"enum.browsing_country.name.timor_leste" = "동티모르";
+"enum.browsing_country.name.togo" = "토고";
+"enum.browsing_country.name.tokelau" = "토켈라우";
+"enum.browsing_country.name.tonga" = "통가";
+"enum.browsing_country.name.trinidad_and_tobago" = "트리니다드토바고";
+"enum.browsing_country.name.tunisia" = "튀니지";
+"enum.browsing_country.name.turkey" = "터키";
+"enum.browsing_country.name.turkmenistan" = "투르크메니스탄";
+"enum.browsing_country.name.turks_and_caicos_islands" = "터크스카이코스 제도";
+"enum.browsing_country.name.tuvalu" = "투발루";
+"enum.browsing_country.name.uganda" = "우간다";
+"enum.browsing_country.name.ukraine" = "우크라이나";
+"enum.browsing_country.name.united_arab_emirates" = "아랍 에미리트 연합국";
+"enum.browsing_country.name.united_kingdom" = "영국";
+"enum.browsing_country.name.united_states" = "미국";
+"enum.browsing_country.name.united_states_minor_outlying_islands" = "미국령 군소 제도";
+"enum.browsing_country.name.uruguay" = "우루과이";
+"enum.browsing_country.name.uzbekistan" = "우즈베키스탄";
+"enum.browsing_country.name.vanuatu" = "바누어투";
+"enum.browsing_country.name.venezuela" = "베네수엘라";
+"enum.browsing_country.name.vietnam" = "베트남";
+"enum.browsing_country.name.virgin_islands_british" = "영국령 버진 제도";
+"enum.browsing_country.name.virgin_islands_US" = "세인트존 섬";
+"enum.browsing_country.name.wallis_and_futuna" = "월리스 푸투나제도";
+"enum.browsing_country.name.western_sahara" = "서사하라";
+"enum.browsing_country.name.yemen" = "예멘";
+"enum.browsing_country.name.zambia" = "잠비아";
+"enum.browsing_country.name.zimbabwe" = "짐바브웨";

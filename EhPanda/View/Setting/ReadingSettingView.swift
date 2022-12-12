@@ -32,25 +32,25 @@ struct ReadingSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker(R.string.localizable.readingSettingViewTitleDirection(), selection: $readingDirection) {
+                Picker(L10n.Localizable.ReadingSettingView.Title.direction, selection: $readingDirection) {
                     ForEach(ReadingDirection.allCases) {
                         Text($0.value).tag($0)
                     }
                 }
                 .pickerStyle(.menu)
-                Picker(R.string.localizable.readingSettingViewTitlePreloadLimit(), selection: $prefetchLimit) {
+                Picker(L10n.Localizable.ReadingSettingView.Title.preloadLimit, selection: $prefetchLimit) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
-                        Text(R.string.localizable.commonValuePages("\(value)")).tag(value)
+                        Text(L10n.Localizable.Common.Value.pages("\(value)")).tag(value)
                     }
                 }
                 .pickerStyle(.menu)
                 if !DeviceUtil.isPad {
-                    Toggle(R.string.localizable.readingSettingViewTitleEnablesLandscape(), isOn: $enablesLandscape)
+                    Toggle(L10n.Localizable.ReadingSettingView.Title.enablesLandscape, isOn: $enablesLandscape)
                 }
             }
-            Section(R.string.localizable.readingSettingViewSectionTitleAppearance()) {
+            Section(L10n.Localizable.ReadingSettingView.Section.Title.appearance) {
                 Picker(
-                    R.string.localizable.readingSettingViewTitleSeparatorHeight(),
+                    L10n.Localizable.ReadingSettingView.Title.separatorHeight,
                     selection: $contentDividerHeight
                 ) {
                     ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
@@ -61,17 +61,17 @@ struct ReadingSettingView: View {
                 .disabled(readingDirection != .vertical)
                 ScaleFactorRow(
                     scaleFactor: $maximumScaleFactor,
-                    labelContent: R.string.localizable.readingSettingViewTitleMaximumScaleFactor(),
+                    labelContent: L10n.Localizable.ReadingSettingView.Title.maximumScaleFactor,
                     minFactor: 1.5, maxFactor: 10
                 )
                 ScaleFactorRow(
                     scaleFactor: $doubleTapScaleFactor,
-                    labelContent: R.string.localizable.readingSettingViewTitleDoubleTapScaleFactor(),
+                    labelContent: L10n.Localizable.ReadingSettingView.Title.doubleTapScaleFactor,
                     minFactor: 1.5, maxFactor: 5
                 )
             }
         }
-        .navigationTitle(R.string.localizable.readingSettingViewTitleReading())
+        .navigationTitle(L10n.Localizable.ReadingSettingView.Title.reading)
     }
 }
 

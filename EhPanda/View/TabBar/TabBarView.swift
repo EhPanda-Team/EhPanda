@@ -124,13 +124,13 @@ extension TabBarItemType {
     var title: String {
         switch self {
         case .home:
-            return R.string.localizable.tabItemTitleHome()
+            return L10n.Localizable.TabItem.Title.home
         case .favorites:
-            return R.string.localizable.tabItemTitleFavorites()
+            return L10n.Localizable.TabItem.Title.favorites
         case .search:
-            return R.string.localizable.tabItemTitleSearch()
+            return L10n.Localizable.TabItem.Title.search
         case .setting:
-            return R.string.localizable.tabItemTitleSetting()
+            return L10n.Localizable.TabItem.Title.setting
         }
     }
     var symbol: SFSymbol {

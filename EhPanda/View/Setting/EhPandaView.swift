@@ -10,7 +10,7 @@ import SwiftUI
 struct EhPandaView: View {
     private var version: String {
         [
-            R.string.localizable.ehpandaViewDescriptionVersion(),
+            L10n.Localizable.EhPandaView.Title.version,
             AppUtil.version, "(\(AppUtil.build))"
         ]
         .joined(separator: " ")
@@ -19,7 +19,7 @@ struct EhPandaView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(R.string.constant.ehpandaCopyright())
+                Text(L10n.Constant.EhPanda.copyright)
                 Text(version)
             }
             .foregroundStyle(.gray).font(.caption2.bold())
@@ -32,187 +32,191 @@ struct EhPandaView: View {
                     LinkRow(urlString: contact.urlString, text: contact.text)
                 }
             }
-            Section(R.string.localizable.ehpandaViewSectionTitleSpecialThanks()) {
+            Section(L10n.Localizable.EhPandaView.Section.Title.specialThanks) {
                 ForEach(specialThanks) { specialThank in
                     LinkRow(urlString: specialThank.urlString, text: specialThank.text)
                 }
             }
-            Section(R.string.localizable.ehpandaViewSectionTitleCodeLevelContributors()) {
+            Section(L10n.Localizable.EhPandaView.Section.Title.codeLevelContributors) {
                 ForEach(codeLevelContributors) { codeLevelContributor in
                     LinkRow(urlString: codeLevelContributor.urlString, text: codeLevelContributor.text)
                 }
             }
-            Section(R.string.localizable.ehpandaViewSectionTitleTranslationContributors()) {
+            Section(L10n.Localizable.EhPandaView.Section.Title.translationContributors) {
                 ForEach(translationContributors) { translationContributor in
                     LinkRow(urlString: translationContributor.urlString, text: translationContributor.text)
                 }
             }
-            Section(R.string.localizable.ehpandaViewSectionTitleAcknowledgements()) {
+            Section(L10n.Localizable.EhPandaView.Section.Title.acknowledgements) {
                 ForEach(acknowledgements) { acknowledgement in
                     LinkRow(urlString: acknowledgement.urlString, text: acknowledgement.text)
                 }
             }
         }
-        .navigationTitle(R.string.localizable.ehpandaViewTitleEhPanda())
+        .navigationTitle(L10n.Localizable.EhPandaView.Title.ehPanda)
     }
 
     // MARK: Contacts
     private let contacts: [Info] = {[
         .init(
-            urlString: R.string.constant.ehpandaContactsLinkWebsite(),
-            text: R.string.localizable.ehpandaViewButtonWebsite()
+            urlString: L10n.Constant.EhPanda.Contacts.Link.website,
+            text: L10n.Localizable.EhPandaView.Button.website
         ),
         .init(
-            urlString: R.string.constant.ehpandaContactsLinkGitHub(),
-            text: R.string.constant.ehpandaContactsTextGitHub()
+            urlString: L10n.Constant.EhPanda.Contacts.Link.gitHub,
+            text: L10n.Constant.EhPanda.Contacts.Text.gitHub
         ),
         .init(
-            urlString: R.string.constant.ehpandaContactsLinkDiscord(),
-            text: R.string.constant.ehpandaContactsTextDiscord()
+            urlString: L10n.Constant.EhPanda.Contacts.Link.discord,
+            text: L10n.Constant.EhPanda.Contacts.Text.discord
         ),
         .init(
-            urlString: R.string.constant.ehpandaContactsLinkTelegram(),
-            text: R.string.constant.ehpandaContactsTextTelegram()
+            urlString: L10n.Constant.EhPanda.Contacts.Link.telegram,
+            text: L10n.Constant.EhPanda.Contacts.Text.telegram
         ),
         .init(
-            urlString: R.string.constant.ehpandaContactsLinkAltStore(),
-            text: R.string.localizable.ehpandaViewButtonAltStoreSource()
+            urlString: L10n.Constant.EhPanda.Contacts.Link.altStore,
+            text: L10n.Localizable.EhPandaView.Button.altStoreSource
         )
     ]}()
 
     // MARK: Special thanks
     private let specialThanks: [Info] = {[
         .init(
-            urlString: R.string.constant.ehpandaSpecialThanksLinkTaylorlannister(),
-            text: R.string.constant.ehpandaSpecialThanksTextTaylorlannister()
+            urlString: L10n.Constant.EhPanda.SpecialThanks.Link.taylorlannister,
+            text: L10n.Constant.EhPanda.SpecialThanks.Text.taylorlannister
         ),
         .init(
-            urlString: R.string.constant.ehpandaSpecialThanksLinkLuminescent_yq(),
-            text: R.string.constant.ehpandaSpecialThanksTextLuminescent_yq()
+            urlString: L10n.Constant.EhPanda.SpecialThanks.Link.luminescentYq,
+            text: L10n.Constant.EhPanda.SpecialThanks.Text.luminescentYq
         ),
         .init(
-            urlString: R.string.constant.ehpandaSpecialThanksLinkCaxerx(),
-            text: R.string.constant.ehpandaSpecialThanksTextCaxerx()
+            urlString: L10n.Constant.EhPanda.SpecialThanks.Link.caxerx,
+            text: L10n.Constant.EhPanda.SpecialThanks.Text.caxerx
         ),
         .init(
-            urlString: R.string.constant.ehpandaSpecialThanksLinkHonjow(),
-            text: R.string.constant.ehpandaSpecialThanksTextHonjow()
+            urlString: L10n.Constant.EhPanda.SpecialThanks.Link.honjow,
+            text: L10n.Constant.EhPanda.SpecialThanks.Text.honjow
         )
     ]}()
 
     // MARK: Code level contributors
     private let codeLevelContributors: [Info] = {[
         .init(
-            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkTatsuz0u(),
-            text: R.string.constant.ehpandaCodeLevelContributorsTextTatsuz0u()
+            urlString: L10n.Constant.EhPanda.CodeLevelContributors.Link.tatsuz0u,
+            text: L10n.Constant.EhPanda.CodeLevelContributors.Text.tatsuz0u
         ),
         .init(
-            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkChihchy(),
-            text: R.string.constant.ehpandaCodeLevelContributorsTextChihchy()
+            urlString: L10n.Constant.EhPanda.CodeLevelContributors.Link.chihchy,
+            text: L10n.Constant.EhPanda.CodeLevelContributors.Text.chihchy
         ),
         .init(
-            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkXioxin(),
-            text: R.string.constant.ehpandaCodeLevelContributorsTextXioxin()
+            urlString: L10n.Constant.EhPanda.CodeLevelContributors.Link.xioxin,
+            text: L10n.Constant.EhPanda.CodeLevelContributors.Text.xioxin
         ),
         .init(
-            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkEthanChinCN(),
-            text: R.string.constant.ehpandaCodeLevelContributorsTextEthanChinCN()
+            urlString: L10n.Constant.EhPanda.CodeLevelContributors.Link.ethanChinCN,
+            text: L10n.Constant.EhPanda.CodeLevelContributors.Text.ethanChinCN
         ),
         .init(
-            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkLengYue(),
-            text: R.string.constant.ehpandaCodeLevelContributorsTextLengYue()
+            urlString: L10n.Constant.EhPanda.CodeLevelContributors.Link.lengYue,
+            text: L10n.Constant.EhPanda.CodeLevelContributors.Text.lengYue
         )
     ]}()
 
     // MARK: Translation contributors
     private let translationContributors: [Info] = {[
         .init(
-            urlString: R.string.constant.ehpandaTranslationContributorsLinkTatsuz0u(),
-            text: R.string.constant.ehpandaTranslationContributorsTextTatsuz0u()
+            urlString: L10n.Constant.EhPanda.TranslationContributors.Link.tatsuz0u,
+            text: L10n.Constant.EhPanda.TranslationContributors.Text.tatsuz0u
         ),
         .init(
-            urlString: R.string.constant.ehpandaTranslationContributorsLinkPaulHaeussler(),
-            text: R.string.constant.ehpandaTranslationContributorsTextPaulHaeussler()
+            urlString: L10n.Constant.EhPanda.TranslationContributors.Link.nebulosaCat,
+            text: L10n.Constant.EhPanda.TranslationContributors.Text.nebulosaCat
         ),
         .init(
-            urlString: R.string.constant.ehpandaTranslationContributorsLinkCaxerx(),
-            text: R.string.constant.ehpandaTranslationContributorsTextCaxerx()
+            urlString: L10n.Constant.EhPanda.TranslationContributors.Link.paulHaeussler,
+            text: L10n.Constant.EhPanda.TranslationContributors.Text.paulHaeussler
         ),
         .init(
-            urlString: R.string.constant.ehpandaTranslationContributorsLinkNyaanim(),
-            text: R.string.constant.ehpandaTranslationContributorsTextNyaanim()
+            urlString: L10n.Constant.EhPanda.TranslationContributors.Link.caxerx,
+            text: L10n.Constant.EhPanda.TranslationContributors.Text.caxerx
+        ),
+        .init(
+            urlString: L10n.Constant.EhPanda.TranslationContributors.Link.nyaanim,
+            text: L10n.Constant.EhPanda.TranslationContributors.Text.nyaanim
         )
     ]}()
 
     // MARK: Acknowledgements
     private let acknowledgements: [Info] = {[
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkKanna(),
-            text: R.string.constant.ehpandaAcknowledgementsTextKanna()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.kanna,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.kanna
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkRswift(),
-            text: R.string.constant.ehpandaAcknowledgementsTextRswift()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.swiftGen,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.swiftGen
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkAlertKit(),
-            text: R.string.constant.ehpandaAcknowledgementsTextAlertKit()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.alertKit,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.alertKit
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkColorful(),
-            text: R.string.constant.ehpandaAcknowledgementsTextColorful()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.colorful,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.colorful
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkFilePicker(),
-            text: R.string.constant.ehpandaAcknowledgementsTextFilePicker()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.filePicker,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.filePicker
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkKingfisher(),
-            text: R.string.constant.ehpandaAcknowledgementsTextKingfisher()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.kingfisher,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.kingfisher
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftUIPager(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSwiftUIPager()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.swiftUIPager,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.swiftUIPager
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftyBeaver(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSwiftyBeaver()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.swiftyBeaver,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.swiftyBeaver
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkWaterfallGrid(),
-            text: R.string.constant.ehpandaAcknowledgementsTextWaterfallGrid()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.waterfallGrid,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.waterfallGrid
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftyOpenCC(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSwiftyOpenCC()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.swiftyOpenCC,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.swiftyOpenCC
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkUIImageColors(),
-            text: R.string.constant.ehpandaAcknowledgementsTextUIImageColors()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.uiImageColors,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.uiImageColors
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSFSafeSymbols(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSFSafeSymbols()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.sfSafeSymbols,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.sfSafeSymbols
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkTTProgressHUD(),
-            text: R.string.constant.ehpandaAcknowledgementsTextTTProgressHUD()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.ttProgressHUD,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.ttProgressHUD
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftUINavigation(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSwiftUINavigation()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.swiftUINavigation,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.swiftUINavigation
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftCommonMark(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSwiftCommonMark()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.swiftCommonMark,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.swiftCommonMark
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkEhTagTranslationDatabase(),
-            text: R.string.constant.ehpandaAcknowledgementsTextEhTagTranslationDatabase()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.ehTagTranslationDatabase,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.ehTagTranslationDatabase
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkTCA(),
-            text: R.string.constant.ehpandaAcknowledgementsTextTCA()
+            urlString: L10n.Constant.EhPanda.Acknowledgements.Link.tca,
+            text: L10n.Constant.EhPanda.Acknowledgements.Text.tca
         )
     ]}()
 }

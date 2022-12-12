@@ -96,8 +96,8 @@ struct CommentsView: View {
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
-                ? R.string.localizable.postCommentViewTitleEditComment()
-                : R.string.localizable.postCommentViewTitlePostComment(),
+                ? L10n.Localizable.PostCommentView.Title.editComment
+                : L10n.Localizable.PostCommentView.Title.postComment,
                 content: viewStore.binding(\.$commentContent),
                 isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
@@ -125,7 +125,7 @@ struct CommentsView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.commentsViewTitleComments())
+        .navigationTitle(L10n.Localizable.CommentsView.Title.comments)
     }
 
     private func toolbar() -> some ToolbarContent {

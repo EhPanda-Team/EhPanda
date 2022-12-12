@@ -69,7 +69,7 @@ struct ArchivesView: View {
             .onAppear {
                 viewStore.send(.fetchArchive(gid, galleryURL, archiveURL))
             }
-            .navigationTitle(R.string.localizable.archivesViewTitleArchives())
+            .navigationTitle(L10n.Localizable.ArchivesView.Title.archives)
         }
     }
 }
@@ -204,7 +204,7 @@ private struct DownloadButton: View {
     var body: some View {
         HStack {
             Spacer()
-            Text(R.string.localizable.archivesViewButtonDownloadToHathClient())
+            Text(L10n.Localizable.ArchivesView.Button.downloadToHathClient)
                 .font(.headline).foregroundColor(textColor)
             Spacer()
         }

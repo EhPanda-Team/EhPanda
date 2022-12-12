@@ -94,15 +94,15 @@ extension AutoLockPolicy {
     var value: String {
         switch self {
         case .never:
-            return R.string.localizable.enumAutoLockPolicyValueNever()
+            return L10n.Localizable.Enum.AutoLockPolicy.Value.never
         case .instantly:
-            return R.string.localizable.enumAutoLockPolicyValueInstantly()
+            return L10n.Localizable.Enum.AutoLockPolicy.Value.instantly
         case .sec15:
-            return R.string.localizable.commonValueSeconds("\(rawValue)")
+            return L10n.Localizable.Common.Value.seconds("\(rawValue)")
         case .min1:
-            return R.string.localizable.commonValueMinute("\(rawValue / 60)")
+            return L10n.Localizable.Common.Value.minute("\(rawValue / 60)")
         case .min5, .min10, .min30:
-            return R.string.localizable.commonValueMinutes("\(rawValue / 60)")
+            return L10n.Localizable.Common.Value.minutes("\(rawValue / 60)")
         }
     }
 }
@@ -118,11 +118,11 @@ extension PreferredColorScheme {
     var value: String {
         switch self {
         case .automatic:
-            return R.string.localizable.enumPerferredColorSchemeValueAutomatic()
+            return L10n.Localizable.Enum.PreferredColorScheme.Value.automatic
         case .light:
-            return R.string.localizable.enumPerferredColorSchemeValueLight()
+            return L10n.Localizable.Enum.PreferredColorScheme.Value.light
         case .dark:
-            return R.string.localizable.enumPerferredColorSchemeValueDark()
+            return L10n.Localizable.Enum.PreferredColorScheme.Value.dark
         }
     }
     var userInterfaceStyle: UIUserInterfaceStyle {
@@ -148,11 +148,11 @@ extension ReadingDirection {
     var value: String {
         switch self {
         case .vertical:
-            return R.string.localizable.enumReadingDirectionValueVertical()
+            return L10n.Localizable.Enum.ReadingDirection.Value.vertical
         case .rightToLeft:
-            return R.string.localizable.enumReadingDirectionValueRightToLeft()
+            return L10n.Localizable.Enum.ReadingDirection.Value.rightToLeft
         case .leftToRight:
-            return R.string.localizable.enumReadingDirectionValueLeftToRight()
+            return L10n.Localizable.Enum.ReadingDirection.Value.leftToRight
         }
     }
 }
@@ -167,9 +167,9 @@ extension ListDisplayMode {
     var value: String {
         switch self {
         case .detail:
-            return R.string.localizable.enumDisplayModeValueDetail()
+            return L10n.Localizable.Enum.ListDisplayMode.Value.detail
         case .thumbnail:
-            return R.string.localizable.enumDisplayModeValueThumbnail()
+            return L10n.Localizable.Enum.ListDisplayMode.Value.thumbnail
         }
     }
 }

@@ -36,11 +36,11 @@ struct LoginView: View {
                     Group {
                         LoginTextField(
                             focusedField: $focusedField, text: viewStore.binding(\.$username),
-                            description: R.string.localizable.loginViewTitleUsername(), isPassword: false
+                            description: L10n.Localizable.LoginView.Title.username, isPassword: false
                         )
                         LoginTextField(
                             focusedField: $focusedField, text: viewStore.binding(\.$password),
-                            description: R.string.localizable.loginViewTitlePassword(), isPassword: true
+                            description: L10n.Localizable.LoginView.Title.password, isPassword: true
                         )
                     }
                     .padding(.horizontal, proxy.size.width * 0.2)
@@ -73,7 +73,7 @@ struct LoginView: View {
         }
         .animation(.default, value: viewStore.loginState)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.loginViewTitleLogin())
+        .navigationTitle(L10n.Localizable.LoginView.Title.login)
         .ignoresSafeArea()
     }
     // MARK: Toolbar

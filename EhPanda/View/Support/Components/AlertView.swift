@@ -11,7 +11,7 @@ import SFSafeSymbols
 struct LoadingView: View {
     private let title: String
 
-    init(title: String = R.string.localizable.loadingViewTitleLoading()) {
+    init(title: String = L10n.Localizable.LoadingView.Title.loading) {
         self.title = title
     }
 
@@ -58,9 +58,9 @@ struct NotLoginView: View {
     var body: some View {
         AlertView(
             symbol: .personCropCircleBadgeQuestionmarkFill,
-            message: R.string.localizable.notLoginViewTitleNeedLogin()
+            message: L10n.Localizable.NotLoginView.Title.needLogin
         ) {
-            AlertViewButton(title: R.string.localizable.notLoginViewButtonLogin(), action: action)
+            AlertViewButton(title: L10n.Localizable.NotLoginView.Button.login, action: action)
         }
     }
 }
@@ -71,8 +71,8 @@ struct ErrorView: View {
     private let action: (() -> Void)?
 
     init(
-        error: AppError, buttonTitle: String =
-        R.string.localizable.errorViewButtonRetry(),
+        error: AppError,
+        buttonTitle: String = L10n.Localizable.ErrorView.Button.retry,
         action: (() -> Void)? = nil
     ) {
         self.error = error
@@ -143,7 +143,7 @@ struct PageJumpView: View {
 
     var body: some View {
         VStack {
-            Text(R.string.localizable.jumpPageViewTitleJumpPage()).bold()
+            Text(L10n.Localizable.JumpPageView.Title.jumpPage).bold()
             HStack {
                 let opacity = colorScheme == .light ? 0.15 : 0.1
                 TextField(inputText, text: $inputText).multilineTextAlignment(.center).keyboardType(.numberPad)
