@@ -1,9 +1,9 @@
-/* 
+/*
   Localizable.strings
   EhPanda
 
   Created by 荒木辰造 on R 2/12/25.
-  
+
 */
 
 // MARK: BanInterval
@@ -16,15 +16,15 @@
 "enum.toplists_type.value.all_time" = "所有時間";
 
 // MARK: Response
-"website.response.hath_client_not_found" = "你需要一個關聯到帳號的 H@H 客戶端才能使用這個功能";
-"website.response.hath_client_not_online" = "你的 H@H 客戶端為離線狀態，請啓動後再試";
-"website.response.invalid_resolution" = "該畫廊不能以目前選定的解析度下載";
+"website.response.hath_client_not_found" = "你需要一個連結到帳號的 H@H 用戶端才能使用這個功能";
+"website.response.hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啓動後再試";
+"website.response.invalid_resolution" = "該畫廊不能以目前選擇的解析度下載";
 
 // MARK: HUD
 "hud.title.error" = "錯誤";
 "hud.title.success" = "成功";
 "hud.title.loading" = "載入中...";
-"hud.title.communicating" = "連接中...";
+"hud.title.communicating" = "連線中...";
 "hud.caption.copied_to_clipboard" = "已複製到剪貼簿";
 "hud.caption.saved_to_photo_library" = "已保存到照片";
 
@@ -46,7 +46,7 @@
 "common.value.records" = "%@ 筆紀錄";
 
 // MARK: TabItem
-"tab_item.title.home" = "首頁";
+"tab_item.title.home" = "總覽";
 "tab_item.title.favorites" = "收藏";
 "tab_item.title.search" = "搜尋";
 "tab_item.title.setting" = "設定";
@@ -73,9 +73,9 @@
 "error_view.title.unknown" = "發生不明錯誤";
 "error_view.title.not_found" = "這邊看起來空空如也";
 "error_view.title.database_corrupted" = "數據庫已經損壞\n請提交 issue 至 GitHub.";
-"error_view.title.ip_banned" = "你的 IP 因為頁面加載次數過於頻繁而被暫時禁止訪問，這可能是因為你正在使用爬蟲/鏡像軟體，禁止訪問將在 %@ 後解除";
-"error_view.title.copyright_claim" = "非常抱歉，這個畫廊已因為 %@ 提出的版權聲索而不再提供訪問";
-"error_view.title.gallery_unavailable" = "此畫廊已被刪除或你沒有權限訪問";
+"error_view.title.ip_banned" = "你的 IP 因為頁面載入次數過於頻繁而被暫時禁止存取，這可能是因為你正在使用爬蟲/鏡像軟體，禁止存取將在 %@ 後解除";
+"error_view.title.copyright_claim" = "非常抱歉，這個畫廊已因為 %@ 提出的版權聲索而不再提供存取";
+"error_view.title.gallery_unavailable" = "此畫廊已被刪除或你沒有權限存取";
 
 // MARK: ConfirmationDialog
 "confirmation_dialog.title.drop_database" = "繼續此操作將會清除 APP 中的所有資料\n確定要刪除資料庫?";
@@ -104,7 +104,7 @@
 "struct.greeting.mark.end" = "！";
 
 // MARK: HomeView
-"home_view.title.home" = "首頁";
+"home_view.title.home" = "總覽";
 "home_view.section.title.frontpage" = "首頁";
 "home_view.section.title.toplists" = "排行";
 "home_view.section.title.other" = "其他";
@@ -144,7 +144,7 @@
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "快速搜尋";
-"quick_search_view.title.edit_word" = "Edit word";
+"quick_search_view.title.edit_word" = "編輯關鍵字";
 "quick_search_view.title.new_word" = "新關鍵字";
 "quick_search_view.title.content" = "搜尋內容";
 "quick_search_view.title.name" = "名稱";
@@ -183,11 +183,11 @@
 "general_setting_view.title.general" = "一般設定";
 "general_setting_view.title.language" = "語言";
 "general_setting_view.title.auto_lock" = "自動鎖定";
-"general_setting_view.title.enables_tags_extension" = "啟用自定義標籤模組";
+"general_setting_view.title.enables_tags_extension" = "啟用自定義標籤擴充功能";
 "general_setting_view.title.translates_tags" = "標籤翻譯";
 "general_setting_view.title.shows_tags_search_suggestion" = "搜尋時顯示標籤建議";
 "general_setting_view.title.shows_images_in_tags" = "在標籤顯示圖片";
-"general_setting_view.title.redirects_links_to_the_selected_host" = "將連結重新導向至選定的網站";
+"general_setting_view.title.redirects_links_to_the_selected_host" = "將連結重新導向至選擇的網站";
 "general_setting_view.title.detects_links_from_clipboard" = "偵測剪貼簿中的連結";
 "general_setting_view.title.background_blur_radius" = "後台背景模糊";
 "general_setting_view.button.logs" = "日誌";
@@ -231,7 +231,7 @@
 "enum.app_icon_type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
 "enum.list_display_mode.value.detail" = "詳細";
-"enum.list_display_mode.value.thumbnail" = "縮略圖";
+"enum.list_display_mode.value.thumbnail" = "縮圖";
 
 // MARK: AppIconView
 "app_icon_view.title.app_icon" = "App 圖案";
@@ -266,12 +266,12 @@
 
 // MARK: DetailView
 "detail_view.button.read" = "閱讀";
-"detail_view.button.post_comment" = "發表評論";
-"detail_view.toolbar_item.button.archives" = "存檔至 H@H 客戶端";
+"detail_view.button.post_comment" = "發表留言";
+"detail_view.toolbar_item.button.archives" = "存檔至 H@H 用戶端";
 "detail_view.toolbar_item.button.torrents" = "種子";
 "detail_view.toolbar_item.button.share" = "分享";
 "detail_view.context_menu.button.detail" = "Detail";
-"detail_view.context_menu.button.withdraw_vote" = "撤回評分";
+"detail_view.context_menu.button.withdraw_vote" = "收回評分";
 "detail_view.context_menu.button.vote_up" = "Vote up";
 "detail_view.context_menu.button.vote_down" = "Vote down";
 "detail_view.description_section.title.favorited" = "收藏";
@@ -282,13 +282,13 @@
 "detail_view.description_section.description.favorited" = "次";
 "detail_view.description_section.description.page_count" = "頁";
 "detail_view.action_section.button.give_a_rating" = "給予評分";
-"detail_view.action_section.button.similar_gallery" = "相似畫廊";
+"detail_view.action_section.button.similar_gallery" = "類似畫廊";
 "detail_view.section.title.previews" = "預覽";
-"detail_view.section.title.comments" = "評論";
+"detail_view.section.title.comments" = "留言";
 
 // MARK: ArchivesView
 "archives_view.title.archives" = "存檔";
-"archives_view.button.download_to_hath_client" = "下載至 H@H 客戶端";
+"archives_view.button.download_to_hath_client" = "下載至 H@H 用戶端";
 // HathArchive
 "struct.hath_archive.price.free" = "免費";
 "struct.hath_archive.price.not_available" = "N/A";
@@ -320,7 +320,7 @@
 "gallery_infos_view.title.favorited" = "已收藏";
 "gallery_infos_view.title.rating_count" = "被評分次數";
 "gallery_infos_view.title.average_rating" = "平均評分";
-"gallery_infos_view.title.my_rating" = "我的給分";
+"gallery_infos_view.title.my_rating" = "我的評分";
 "gallery_infos_view.title.torrent_count" = "種子數量";
 "gallery_infos_view.value.none" = "None";
 "gallery_infos_view.value.yes" = "Yes";
@@ -335,11 +335,11 @@
 "tag_detail_view.section.title.links" = "連結";
 
 // MARK: CommentsView
-"comments_view.title.comments" = "評論";
+"comments_view.title.comments" = "留言";
 
 // MARK: PostCommentView
-"post_comment_view.title.post_comment" = "發表評論";
-"post_comment_view.title.edit_comment" = "編輯評論";
+"post_comment_view.title.post_comment" = "發表留言";
+"post_comment_view.title.edit_comment" = "編輯留言";
 "post_comment_view.button.cancel" = "取消";
 "post_comment_view.button.post" = "發表";
 
@@ -394,28 +394,28 @@
 "eh_setting_view.button.set_as_default" = "設為預設";
 "eh_setting_view.button.delete_profile" = "刪除設定檔";
 "eh_setting_view.button.rename" = "重新命名";
-"eh_setting_view.button.create_new" = "創建新設定檔";
+"eh_setting_view.button.create_new" = "新增設定檔";
 "eh_setting_view.toolbar_item.button.done" = "完成";
 
 "eh_setting_view.section.title.image_load_settings" = "圖片來源設定";
 "eh_setting_view.title.load_images_through_the_hath_network" = "透過 Hath Network 載入圖片";
 "eh_setting_view.title.browsing_country" = "所在國家";
-"eh_setting_view.description.browsing_country" = "你似乎是從 **%@** 瀏覽該站點或在該國家/地區使用 VPN 或代理，這意味著該站點將嘗試從該一般地理區域的 H@H 客戶端加載圖片。如果這不正確或你出於任何原因想要使用不同的區域（例如你正在透過 VPN 連接），您可以在下面選擇不同的國家/地區。";
+"eh_setting_view.description.browsing_country" = "你似乎是從 **%@** 瀏覽這個網站或在使用當地的 VPN，這意味著網站將嘗試從這個地理區域的 H@H 用戶端載入圖片。如果這不正確或你出於任何原因想要使用不同的區域（例如你正在透過 VPN 連線），您可以在下面選擇不同的國家/地區。";
 // EhSetting.LoadThroughHathSetting
-"enum.eh_setting.load_through_hath_setting.value.any_client" = "任何客戶端";
-"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "只使用預設端口的客戶端";
+"enum.eh_setting.load_through_hath_setting.value.any_client" = "任何用戶端";
+"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "只使用預設連接埠的用戶端";
 "enum.eh_setting.load_through_hath_setting.value.modern_no" = "No [現代/Modern/HTTPS]";
 "enum.eh_setting.load_through_hath_setting.value.legacy_no" = "No [傳統/Legacy/HTTP]";
 "enum.eh_setting.load_through_hath_setting.description.any_client" = "建議選項(預設)";
-"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "如果網路防火牆會阻擋任何非預設傳出端口則使用這個選項(可能較慢)";
+"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "如果網路防火牆會阻擋任何非預設傳出連接埠則使用這個選項(可能較慢)";
 "enum.eh_setting.load_through_hath_setting.description.modern_no" = "E-Hentai 贊助者功能: 你將無法同時瀏覽多個頁面，僅在出現重大錯誤時才啟用這個選項";
 "enum.eh_setting.load_through_hath_setting.description.legacy_no" = "E-Hentai 贊助者功能: 在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器";
 
 "eh_setting_view.section.title.image_size_settings" = "圖片尺寸設定";
 "eh_setting_view.title.image_resolution" = "圖片解析度";
-"eh_setting_view.description.image_resolution" = "通常情況下圖片會被縮放成 1280 px 水平解析度以供線上瀏覽，你也可以選擇下列解析度之一。為了避免破壞伺服器正常運作，高於 1280x 的解析度暫時僅提供下列使用者使用: 贊助者、具有特殊權限的使用者以及 UID 低於 3,000,000 的使用者";
+"eh_setting_view.description.image_resolution" = "一般情況下圖片會被縮放成 1280 px 水平解析度以供線上瀏覽，你也可以選擇下列解析度之一。為了避免破壞伺服器正常運作，高於 1280x 的解析度暫時僅提供下列使用者使用: 贊助者、具有任何 Hath Perk 的使用者以及 UID 低於 3,000,000 的使用者";
 "eh_setting_view.title.image_size" = "圖片尺寸";
-"eh_setting_view.description.image_size" = "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限製圖片的最大顯示尺寸。 像自動縮放一樣，這不會重新採樣圖像，因為調整大小是在瀏覽器端完成的 (0 = 沒有限制)";
+"eh_setting_view.description.image_size" = "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限製圖片的最大顯示尺寸。 像自動縮放一樣，這不會重新採樣圖像，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)";
 "eh_setting_view.title.horizontal" = "水平尺寸(寬)";
 "eh_setting_view.title.vertical" = "垂直尺寸(長)";
 // EhSetting.ImageResolution
@@ -423,14 +423,14 @@
 
 "eh_setting_view.section.title.gallery_name_display" = "畫廊顯示名稱";
 "eh_setting_view.title.gallery_name" = "畫廊名稱";
-"eh_setting_view.description.gallery_name" = "許多畫廊同持提供了英文/預設標題與日文標題，哪一個畫廊名稱你想顯示為預設?";
+"eh_setting_view.description.gallery_name" = "許多畫廊同時提供了英文/預設標題與日文標題，你想優先顯示哪種畫廊名稱?";
 // EhSetting.GalleryName
 "enum.eh_setting.gallery_name.value.default" = "預設標題";
-"enum.eh_setting.gallery_name.value.japanese" = "日文標題(If available)";
+"enum.eh_setting.gallery_name.value.japanese" = "日文標題(若該畫廊支援)";
 
 "eh_setting_view.section.title.archiver_settings" = "存檔設定";
-"eh_setting_view.title.archiver_behavior" = "存檔行為設定";
-"eh_setting_view.description.archiver_behavior" = "存檔器的預設行為是確認原始圖片或重新採樣後進行存檔的成本差異與選擇，然後顯示一個可以在其他地方點擊、複制的連結，你可以在此處更改他的運作方式。";
+"eh_setting_view.title.archiver_behavior" = "存檔邏輯設定";
+"eh_setting_view.description.archiver_behavior" = "存檔的預設邏輯是確認原始圖片或重新採樣後進行存檔的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改他的運作方式。";
 // EhSetting.ArchiverBehavior
 "enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "手動選擇，手動開始下載(預設)";
 "enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "手動選擇，自動開始下載";
@@ -441,11 +441,11 @@
 
 "eh_setting_view.section.title.front_page_settings" = "首頁設定";
 "eh_setting_view.title.display_mode" = "顯示模式";
-"eh_setting_view.description.display_mode" = "你想在首頁或搜尋結果中使用哪一種顯示方式?";
+"eh_setting_view.description.display_mode" = "你想在首頁和搜尋結果中使用哪一種顯示方式?";
 "eh_setting_view.description.gallery_category" = "預設情況下你希望在首頁和搜尋結果中顯示哪些類別的結果?";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "緊湊(Compact)";
-"enum.eh_setting.display_mode.value.thumbnail" = "縮略圖(Thumbnail)";
+"enum.eh_setting.display_mode.value.thumbnail" = "縮圖(Thumbnail)";
 "enum.eh_setting.display_mode.value.extended" = "放大(Extended)";
 "enum.eh_setting.display_mode.value.minimal" = "最小(Minimal)";
 "enum.eh_setting.display_mode.value.minimalPlus" = "Minimal+";
@@ -453,7 +453,7 @@
 "eh_setting_view.section.title.favorites" = "收藏匣";
 "eh_setting_view.description.favorite_categories" = "在這裡你可以選擇並重新命名收藏匣";
 "eh_setting_view.title.favorites_sort_order" = "收藏匣排序";
-"eh_setting_view.description.favorites_sort_order" = "你還可以在收藏匣頁面上為畫廊選擇預設排列順序。 請注意，在 2016 年 3 月網站改版之前添加的收藏匣並不儲存時間印記，並且無論使用何種設定，都將使用畫廊發佈時間作為排序參考。";
+"eh_setting_view.description.favorites_sort_order" = "你還可以在收藏匣頁面上為畫廊選擇預設排列順序。 請注意，在 2016 年 3 月網站改版之前新增的畫廊並不儲存時間印記，並且無論使用何種設定，都將使用畫廊發佈時間作為排序參考。";
 // EhSetting.FavoritesSortOrder
 "enum.eh_setting.favorites_sort_order.value.last_update_time" = "透過最後更新時間排序";
 "enum.eh_setting.favorites_sort_order.value.favorited_time" = "透過收藏順序排序";
@@ -461,18 +461,18 @@
 "eh_setting_view.section.title.ratings" = "評分";
 "eh_setting_view.title.ratings_color" = "評分顏色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
-"eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 到 4 顆星的評分為綠色，4.5 或 5 顆星的評分為藍色。 你可以通過在下面輸入所需的顏色組合來自定義它。 每個字母代表一顆，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
+"eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 通過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
 
 "eh_setting_view.section.title.tags_namespaces" = "標籤類型";
-"eh_setting_view.description.tags_namespaces" = "如果你想從標籤搜尋時排除從下列某些類型標籤搜尋，你可以從下面更改設定。 注意!!這不會使搜尋結果中不出現那些畫廊，僅是限定搜尋標籤所在的類型範圍!";
+"eh_setting_view.description.tags_namespaces" = "如果你想從標籤搜尋時排除從下列某些類型標籤出現在搜尋結果中，可以從下面更改設定。 注意!!這不會使搜尋結果中不出現那些畫廊，僅是限定搜尋標籤所在的類型範圍!";
 
-"eh_setting_view.section.title.tag_filtering_threshold" = "過濾標籤閥值";
-"eh_setting_view.title.tag_filtering_threshold" = "閥值";
-"eh_setting_view.description.tag_filtering_threshold" = "你可以通過將標籤添加到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會從列表中過濾掉，此閾值可以設定在 0 到 -9999 之間";
+"eh_setting_view.section.title.tag_filtering_threshold" = "過濾標籤閾值";
+"eh_setting_view.title.tag_filtering_threshold" = "閾值";
+"eh_setting_view.description.tag_filtering_threshold" = "你可以通過將標籤新增到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間";
 
-"eh_setting_view.section.title.tag_watching_threshold" = "關注標籤閥值";
-"eh_setting_view.title.tag_watching_threshold" = "關注標籤生效的閥值";
-"eh_setting_view.description.tag_watching_threshold" = "如果最近上傳的畫廊中至少有一個具有正權重你正在關注/追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在 \"追蹤標籤\" 頁面中，此閾值可以設定在 0 到 -9999 之間";
+"eh_setting_view.section.title.tag_watching_threshold" = "關注標籤閾值";
+"eh_setting_view.title.tag_watching_threshold" = "關注標籤生效的閾值";
+"eh_setting_view.description.tag_watching_threshold" = "如果最近上傳的畫廊中至少有一個具有正權重的你正在關注/追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在「追蹤標籤」頁面中，此閾值可以設定在 0 ~ -9999 之間";
 
 "eh_setting_view.section.title.filtered_removal_count" = "顯示過濾結果計數器";
 "eh_setting_view.description.filtered_removal_count" = "顯示 \"Your default filters removed XX galleries from this page\" ?";
@@ -486,43 +486,43 @@
 "enum.eh_setting.excluded_languages_category.value.rewrite" = "覆寫";
 
 "eh_setting_view.section.title.excluded_uploaders" = "排除的上傳者";
-"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜尋中隱藏某些上傳者的畫廊，請將它們添加到下方，每行輸入一個用戶名。請注意，無論你的搜尋查詢如何，這些上傳者的畫廊都不會出現。";
+"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜尋結果中隱藏某些上傳者的畫廊，請將它們新增到下方，每行輸入一個用戶名。請注意，無論你的搜尋結果如何，這些上傳者的畫廊都不會出現。";
 "eh_setting_view.description.excluded_uploaders_count" = "你正在使用 **%@ / %@** 排除欄位";
 
 "eh_setting_view.section.title.search_result_count" = "搜尋結果數量上限";
 "eh_setting_view.title.result_count" = "數量上限";
-"eh_setting_view.description.result_count" = "你希望每頁顯示幾個搜尋結果?\n(Hath Perk: Paging Enlargement Required)";
+"eh_setting_view.description.result_count" = "你希望每頁顯示幾個搜尋結果?\n(該功能需要有 Hath Perk: Paging Enlargement)";
 
-"eh_setting_view.section.title.thumbnail_settings" = "縮略圖設定";
-"eh_setting_view.title.thumbnail_load_timing" = "縮略圖載入時機設定";
-"eh_setting_view.description.thumbnail_load_timing" = "使用列表模式時，你希望如何載入以滑鼠位置顯示的縮略圖?";
-"eh_setting_view.description.thumbnail_configuration" = "你可以為訪問的所有畫廊設定預設的縮略圖配置。";
+"eh_setting_view.section.title.thumbnail_settings" = "縮圖設定";
+"eh_setting_view.title.thumbnail_load_timing" = "縮圖載入時機設定";
+"eh_setting_view.description.thumbnail_load_timing" = "使用列表模式時，你希望如何載入以滑鼠位置顯示的縮圖?";
+"eh_setting_view.description.thumbnail_configuration" = "你可以為存取的所有畫廊設定預設的縮圖配置。";
 "eh_setting_view.title.thumbnail_size" = "尺寸";
 "eh_setting_view.title.thumbnail_row_count" = "行數";
 // EhSetting.ThumbnailLoadTiming
 "enum.eh_setting.thumbnail_load_timing.value.on_mouse_over" = "滑鼠位置";
 "enum.eh_setting.thumbnail_load_timing.value.on_page_load" = "網頁載入位置";
-"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "網頁的載入速度更快，但縮略圖出現的時間可能稍有延遲";
-"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "網頁需要更多的載入時間，但是在網頁完全載入後縮略圖顯示不會有任何延遲";
+"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "網頁的載入速度更快，但縮圖出現的時間可能稍有延遲";
+"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "網頁需要更多的載入時間，但是在網頁完全載入後縮圖顯示不會有任何延遲";
 // EhSetting.ThumbnailSize
 "enum.eh_setting.thumbnail_size.value.normal" = "正常";
 "enum.eh_setting.thumbnail_size.value.large" = "大型";
 
-"eh_setting_view.section.title.thumbnail_scaling" = "縮略圖縮放";
+"eh_setting_view.section.title.thumbnail_scaling" = "縮圖縮放";
 "eh_setting_view.title.scale_factor" = "縮放比例";
-"eh_setting_view.description.scale_factor" = "在縮略圖與放大檢視這兩種檢視模式下，縮略圖的重新採樣比率介於 75%% 至 150%%.";
+"eh_setting_view.description.scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，縮圖的重新採樣比率介於 75%% 至 150%%.";
 
-"eh_setting_view.section.title.viewport_override" = "窗口覆蓋";
+"eh_setting_view.section.title.viewport_override" = "視窗覆蓋";
 "eh_setting_view.title.virtual_width" = "虛擬寬度";
-"eh_setting_view.description.virtual_width" = "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的設備根據其 DPI 自動確定。 100%% 縮略圖比例的合理值介於 640 和 1400 之間。";
+"eh_setting_view.description.virtual_width" = "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的裝置根據其 DPI 自動確定。 100%% 縮圖比例的合理值介於 640 和 1400 之間。";
 
-"eh_setting_view.section.title.gallery_comments" = "畫廊評論";
-"eh_setting_view.title.comments_sort_order" = "評論排序方式";
-"eh_setting_view.title.comments_votes_show_timing" = "評論投票數顯示時機";
+"eh_setting_view.section.title.gallery_comments" = "畫廊留言";
+"eh_setting_view.title.comments_sort_order" = "留言排序方式";
+"eh_setting_view.title.comments_votes_show_timing" = "留言投票數顯示時機";
 // EhSetting.CommentsSortOrder
-"enum.eh_setting.comments_sort_order.value.oldest" = "最舊評論優先";
-"enum.eh_setting.comments_sort_order.value.recent" = "最新評論優先";
-"enum.eh_setting.comments_sort_order.value.highest_score" = "最相關評論優先";
+"enum.eh_setting.comments_sort_order.value.oldest" = "最舊留言優先";
+"enum.eh_setting.comments_sort_order.value.recent" = "最新留言優先";
+"enum.eh_setting.comments_sort_order.value.highest_score" = "最相關留言優先";
 // EhSetting.CommentVotesShowTiming
 "enum.eh_setting.comments_votes_show_timing.value.on_hover_or_click" = "滑鼠在分數上停留或點擊時";
 "enum.eh_setting.comments_votes_show_timing.value.always" = "總是顯示";
@@ -537,8 +537,8 @@
 "eh_setting_view.title.show_gallery_page_numbers" = "顯示該畫廊的頁數";
 
 "eh_setting_view.section.title.hath_local_network_host" = "內網 H@H 服務 (Hath Local Network Host)";
-"eh_setting_view.title.ip_address_port" = "IP 位址:端口號";
-"eh_setting_view.description.ip_address_port" = "如果您在內網上使用與瀏覽站點相同的公共 IP 運行 H@H 客戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一設備上運行客戶端，請使用回環地址 (127.0.0.1:port)。 如果客戶端在您網路上的另一台設備上運行，請使用其本地網路 IP。 某些瀏覽器配置會阻止外部網站訪問具有本地網路 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
+"eh_setting_view.title.ip_address_port" = "IP 位址:連接埠號";
+"eh_setting_view.description.ip_address_port" = "如果你在內網上使用與瀏覽站點相同的公共 IP 架設 H@H 用戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一裝置上運行用戶端，請使用回環地址 (127.0.0.1:port)。 如果用戶端在您網路上的另一台裝置上運行，請使用其本地網路 IP。 某些瀏覽器配置會阻止外部網站存取具有本地網路 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
 
 "eh_setting_view.section.title.original_images" = "原始圖片";
 "eh_setting_view.title.use_original_images" = "使用原始圖片(原解析度)";
@@ -546,7 +546,7 @@
 "eh_setting_view.section.title.multi_page_viewer" = "多頁瀏覽";
 "eh_setting_view.title.use_multi_page_viewer" = "使用多頁瀏覽";
 "eh_setting_view.title.display_style" = "顯示方式";
-"eh_setting_view.title.show_thumbnail_pane" = "顯示縮略圖窗格";
+"eh_setting_view.title.show_thumbnail_pane" = "顯示縮圖窗格";
 // EhSetting.MultiplePageViewerStyle
 "enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "向左對齊，若寬度超出頁面則進行縮放";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "置中對齊，若寬度超出頁面則進行縮放";
@@ -589,10 +589,10 @@
 "enum.language.value.bosnian" = "波士尼亞語";
 "enum.language.value.bulgarian" = "保加利亞語";
 "enum.language.value.burmese" = "緬甸語";
-"enum.language.value.catalan" = "加泰羅尼亞語";
+"enum.language.value.catalan" = "加泰隆尼亞語";
 "enum.language.value.cebuano" = "宿霧語";
 "enum.language.value.chinese" = "漢語";
-"enum.language.value.croatian" = "克羅地亞語";
+"enum.language.value.croatian" = "克羅埃西亞語";
 "enum.language.value.czech" = "捷克語";
 "enum.language.value.danish" = "丹麥語";
 "enum.language.value.dutch" = "荷蘭語";
@@ -601,21 +601,21 @@
 "enum.language.value.estonian" = "愛沙尼亞語";
 "enum.language.value.finnish" = "芬蘭語";
 "enum.language.value.french" = "法語";
-"enum.language.value.georgian" = "格魯吉亞語";
+"enum.language.value.georgian" = "喬治亞語";
 "enum.language.value.german" = "德語";
 "enum.language.value.greek" = "希臘語";
 "enum.language.value.hebrew" = "希伯來語";
-"enum.language.value.hindi" = "印地語";
+"enum.language.value.hindi" = "印度語";
 "enum.language.value.hmong" = "苗語";
 "enum.language.value.hungarian" = "匈牙利語";
 "enum.language.value.indonesian" = "印尼語";
-"enum.language.value.italian" = "意大利語";
+"enum.language.value.italian" = "義大利語";
 "enum.language.value.japanese" = "日語";
 "enum.language.value.kazakh" = "哈薩克語";
 "enum.language.value.khmer" = "高棉語";
 "enum.language.value.korean" = "韓語";
-"enum.language.value.kurdish" = "庫爾德語";
-"enum.language.value.lao" = "老撾語";
+"enum.language.value.kurdish" = "庫德語";
+"enum.language.value.lao" = "寮語";
 "enum.language.value.latin" = "拉丁語";
 "enum.language.value.mongolian" = "蒙古語";
 "enum.language.value.ndebele" = "恩德貝萊語";
@@ -633,12 +633,12 @@
 "enum.language.value.serbian" = "塞爾維亞語";
 "enum.language.value.shona" = "紹納語";
 "enum.language.value.slovak" = "斯洛伐克語";
-"enum.language.value.slovenian" = "斯洛文尼亞語";
-"enum.language.value.somali" = "索馬里語";
+"enum.language.value.slovenian" = "斯洛維尼亞語";
+"enum.language.value.somali" = "索馬利語";
 "enum.language.value.spanish" = "西班牙語";
 "enum.language.value.swahili" = "斯瓦希里語";
 "enum.language.value.swedish" = "瑞典語";
-"enum.language.value.tagalog" = "他加洛語";
+"enum.language.value.tagalog" = "他加祿語";
 "enum.language.value.thai" = "泰語";
 "enum.language.value.tigrinya" = "提格利尼亞語";
 "enum.language.value.turkish" = "土耳其語";
@@ -760,7 +760,7 @@
 "enum.browsing_country.name.ireland" = "愛爾蘭";
 "enum.browsing_country.name.isle_of_man" = "曼島";
 "enum.browsing_country.name.israel" = "以色列";
-"enum.browsing_country.name.italy" = "意大利";
+"enum.browsing_country.name.italy" = "義大利";
 "enum.browsing_country.name.jamaica" = "牙買加";
 "enum.browsing_country.name.japan" = "日本";
 "enum.browsing_country.name.jersey" = "澤西島";

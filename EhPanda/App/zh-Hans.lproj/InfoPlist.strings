@@ -6,5 +6,5 @@
   
 */
 
-"NSFaceIDUsageDescription" = "需要此权限以在解锁App时提供Face ID选项";
+"NSFaceIDUsageDescription" = "需要此权限以在解锁 App 时提供 Face ID 选项";
 "NSPhotoLibraryAddUsageDescription" = "需要此权限以保存图像到相册";
