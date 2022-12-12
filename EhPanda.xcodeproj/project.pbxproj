@@ -1625,6 +1625,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				$SRCROOT/EhPanda/App/Generated/Strings.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
