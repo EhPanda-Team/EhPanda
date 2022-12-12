@@ -6,5 +6,5 @@
   
 */
 
-"NSFaceIDUsageDescription" = "アプリアンロック認証時にFace IDオプションを提供するにはこの権限が必要です";
+"NSFaceIDUsageDescription" = "アプリアンロック認証時に Face ID オプションを提供するにはこの権限が必要です";
 "NSPhotoLibraryAddUsageDescription" = "画像をライブラリに保存するにはこの権限が必要です";
