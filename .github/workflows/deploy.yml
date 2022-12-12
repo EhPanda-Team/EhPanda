@@ -58,7 +58,7 @@ jobs:
           sudo chmod 777 $FILTER_PATH
           echo "size=$(stat -f%z $IPA_OUTPUT_PATH)" >> $GITHUB_OUTPUT
           echo "version_date=$(date -u +"%Y-%m-%dT%T")" >> $GITHUB_OUTPUT
-          echo "notes=$($FILTER_PATH "${{ github.event.pull_request.body }}" >> $GITHUB_OUTPUT
+          echo "notes=$($FILTER_PATH "${{ github.event.pull_request.body }}")" >> $GITHUB_OUTPUT
       - name: Validate data
         run: |
           [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1
