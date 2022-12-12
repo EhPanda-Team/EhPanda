@@ -10,7 +10,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: brew install rswift
+        run: brew install swiftgen
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
