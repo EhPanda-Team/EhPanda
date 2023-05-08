@@ -20,8 +20,8 @@ struct FrontpageState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
 
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }
@@ -138,7 +138,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
                 state.pageNumber = pageNumber
                 state.insertGalleries(galleries)
 
-                var effects: [Effect<FrontpageAction, Never>] = [
+                var effects: [EffectTask<FrontpageAction>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.hasNextPage() {

@@ -16,7 +16,7 @@ struct PreviewsState: Equatable {
         let id = String(describing: PreviewsState.self)
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
 
     var gallery: Gallery = .empty
     var loadingState: LoadingState = .idle

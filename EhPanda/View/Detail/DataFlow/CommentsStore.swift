@@ -23,9 +23,9 @@ struct CommentsState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var commentContent = ""
-    @BindableState var postCommentFocused = false
+    @BindingState var route: Route?
+    @BindingState var commentContent = ""
+    @BindingState var postCommentFocused = false
 
     var hudConfig: TTProgressHUDConfig = .loading
     var scrollCommentID: String?
@@ -137,7 +137,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
     case .handleGalleryLink(let url):
         let (_, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
         let gid = environment.urlClient.parseGalleryID(url)
-        var effects = [Effect<CommentsAction, Never>]()
+        var effects = [EffectTask<CommentsAction>]()
         if let pageIndex = pageIndex {
             effects.append(.init(value: .updateReadingProgress(gid, pageIndex)))
             effects.append(

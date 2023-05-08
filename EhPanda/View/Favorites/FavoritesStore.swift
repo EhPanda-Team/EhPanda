@@ -20,8 +20,8 @@ struct FavoritesState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
 
     var index = -1
     var sortOrder: FavoritesSortOrder?
@@ -172,7 +172,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 state.insertGalleries(index: targetFavIndex, galleries: galleries)
                 state.sortOrder = sortOrder
 
-                var effects: [Effect<FavoritesAction, Never>] = [
+                var effects: [EffectTask<FavoritesAction>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.hasNextPage() {

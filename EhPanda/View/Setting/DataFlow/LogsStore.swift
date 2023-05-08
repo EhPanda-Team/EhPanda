@@ -15,7 +15,7 @@ struct LogsState: Equatable {
         let id = String(describing: LogsState.self)
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var loadingState: LoadingState = .idle
     var logs = [Log]()
 }

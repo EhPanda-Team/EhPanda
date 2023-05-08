@@ -13,7 +13,7 @@ struct MigrationState: Equatable {
         case dropDialog
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var databaseState: LoadingState = .loading
 }
 

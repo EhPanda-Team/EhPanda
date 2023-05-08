@@ -21,9 +21,9 @@ struct HomeState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var cardPageIndex = 1
-    @BindableState var currentCardID = ""
+    @BindingState var route: Route?
+    @BindingState var cardPageIndex = 1
+    @BindingState var currentCardID = ""
     var allowsCardHitTesting = true
     var rawCardColors = [String: [Color]]()
     var cardColors: [Color] {
@@ -152,7 +152,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         case .fetchAllToplistsGalleries:
             return .merge(
                 ToplistsType.allCases.map({ HomeAction.fetchToplistsGalleries($0.categoryIndex) })
-                    .map(Effect<HomeAction, Never>.init)
+                    .map(EffectTask<HomeAction>.init)
             )
 
         case .fetchPopularGalleries:

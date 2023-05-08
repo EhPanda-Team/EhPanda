@@ -16,7 +16,7 @@ struct GeneralSettingState: Equatable {
         case removeCustomTranslations
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
 
     var loadingState: LoadingState = .idle
     var diskImageCacheSize = "0 KB"

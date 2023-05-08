@@ -36,7 +36,7 @@ struct ReadingState: Equatable {
         let id = String(describing: ReadingState.CancelID.self)
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var gallery: Gallery = .empty
     var galleryDetail: GalleryDetail?
 
@@ -60,8 +60,8 @@ struct ReadingState: Equatable {
     var mpvImageKeys = [Int: String]()
     var mpvSkipServerIdentifiers = [Int: String]()
 
-    @BindableState var showsPanel = false
-    @BindableState var showsSliderPreview = false
+    @BindingState var showsPanel = false
+    @BindingState var showsSliderPreview = false
 
     // Update
     func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
@@ -192,7 +192,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .setOrientationPortrait(let isPortrait):
-        var effects = [Effect<ReadingAction, Never>]()
+        var effects = [EffectTask<ReadingAction>]()
         if isPortrait {
             effects.append(environment.appDelegateClient.setPortraitOrientationMask().fireAndForget())
             effects.append(environment.appDelegateClient.setPortraitOrientation().fireAndForget())
@@ -205,7 +205,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
     case .onAppear(let gid, let enablesLandscape):
-        var effects: [Effect<ReadingAction, Never>] = [
+        var effects: [EffectTask<ReadingAction>] = [
             .init(value: .fetchDatabaseInfos(gid))
         ]
         if enablesLandscape {
@@ -310,7 +310,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             .fireAndForget()
 
     case .teardown:
-        var effects: [Effect<ReadingAction, Never>] = [
+        var effects: [EffectTask<ReadingAction>] = [
             .cancel(id: ReadingState.CancelID())
         ]
         if !environment.deviceClient.isPad() {
@@ -394,7 +394,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         }
         var prefetchImageURLs = [URL]()
         var fetchImageURLIndices = [Int]()
-        var effects = [Effect<ReadingAction, Never>]()
+        var effects = [EffectTask<ReadingAction>]()
         let previousUpperBound = max(index - 2, 1)
         let previousLowerBound = max(previousUpperBound - prefetchLimit / 2, 1)
         if previousUpperBound - previousLowerBound > 0 {
@@ -494,7 +494,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .refetchNormalImageURLsDone(let index, let result):
         switch result {
         case .success(let (imageURLs, response)):
-            var effects = [Effect<ReadingAction, Never>]()
+            var effects = [EffectTask<ReadingAction>]()
             if let response = response {
                 effects.append(environment.cookiesClient.setSkipServer(response: response).fireAndForget())
             }

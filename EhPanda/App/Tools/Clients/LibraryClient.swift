@@ -14,11 +14,11 @@ import UIImageColors
 import ComposableArchitecture
 
 struct LibraryClient {
-    let initializeLogger: () -> Effect<Never, Never>
-    let initializeWebImage: () -> Effect<Never, Never>
-    let clearWebImageDiskCache: () -> Effect<Never, Never>
-    let analyzeImageColors: (UIImage) -> Effect<UIImageColors?, Never>
-    let calculateWebImageDiskCacheSize: () -> Effect<UInt?, Never>
+    let initializeLogger: () -> EffectTask<Never>
+    let initializeWebImage: () -> EffectTask<Never>
+    let clearWebImageDiskCache: () -> EffectTask<Never>
+    let analyzeImageColors: (UIImage) -> EffectTask<UIImageColors?>
+    let calculateWebImageDiskCacheSize: () -> EffectTask<UInt?>
 }
 
 extension LibraryClient {

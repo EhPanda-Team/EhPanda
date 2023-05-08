@@ -16,13 +16,13 @@ struct FiltersState: Equatable {
         case upper
     }
 
-    @BindableState var route: Route?
-    @BindableState var filterRange: FilterRange = .search
-    @BindableState var focusedBound: FocusedBound?
+    @BindingState var route: Route?
+    @BindingState var filterRange: FilterRange = .search
+    @BindingState var focusedBound: FocusedBound?
 
-    @BindableState var searchFilter = Filter()
-    @BindableState var globalFilter = Filter()
-    @BindableState var watchedFilter = Filter()
+    @BindingState var searchFilter = Filter()
+    @BindingState var globalFilter = Filter()
+    @BindingState var watchedFilter = Filter()
 }
 
 enum FiltersAction: BindableAction {

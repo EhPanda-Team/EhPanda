@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct AuthorizationClient {
     let passcodeNotSet: () -> Bool
-    let localAuthroize: (String) -> Effect<Bool, Never>
+    let localAuthroize: (String) -> EffectTask<Bool>
 }
 
 extension AuthorizationClient {

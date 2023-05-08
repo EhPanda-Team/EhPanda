@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppLockState: Equatable {
-    @BindableState var blurRadius: Double = 0
+    @BindingState var blurRadius: Double = 0
     var becameInactiveDate: Date?
     var isAppLocked = false
 

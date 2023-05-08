@@ -21,11 +21,11 @@ struct SettingState: Equatable {
     }
 
     // AppEnvStorage
-    @BindableState var setting = Setting()
+    @BindingState var setting = Setting()
     var tagTranslator = TagTranslator()
     var user = User()
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var tagTranslatorLoadingState: LoadingState = .idle
 
     var accountSettingState = AccountSettingState()
@@ -120,7 +120,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             )
 
         case .binding(\.$setting.enablesTagsExtension):
-            var effects: [Effect<SettingAction, Never>] = [
+            var effects: [EffectTask<SettingAction>] = [
                 .init(value: .syncSetting)
             ]
             if state.setting.enablesTagsExtension {
@@ -158,7 +158,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return .init(value: .syncSetting)
 
         case .binding(\.$setting.enablesLandscape):
-            var effects: [Effect<SettingAction, Never>] = [
+            var effects: [EffectTask<SettingAction>] = [
                 .init(value: .syncSetting)
             ]
             if !state.setting.enablesLandscape && !environment.deviceClient.isPad() {
@@ -235,7 +235,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.setting = appEnv.setting
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
-            var effects: [Effect<SettingAction, Never>] = [
+            var effects: [EffectTask<SettingAction>] = [
                 .init(value: .syncAppIconType),
                 .init(value: .loadUserSettingsDone),
                 .init(value: .syncUserInterfaceStyle),
@@ -273,7 +273,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return IgneousRequest().effect.map(SettingAction.fetchIgneousDone)
 
         case .fetchIgneousDone(let result):
-            var effects = [Effect<SettingAction, Never>]()
+            var effects = [EffectTask<SettingAction>]()
             if case .success(let response) = result {
                 effects.append(environment.cookiesClient.setCredentials(response: response).fireAndForget())
             }
@@ -350,7 +350,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             else { return .none }
             state.tagTranslatorLoadingState = .loading
 
-            var databaseEffect: Effect<SettingAction, Never>?
+            var databaseEffect: EffectTask<SettingAction>?
             if state.tagTranslator.language != language {
                 state.tagTranslator = TagTranslator(language: language)
                 databaseEffect = .init(value: .syncTagTranslator)
@@ -380,7 +380,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return VerifyEhProfileRequest().effect.map(SettingAction.fetchEhProfileIndexDone)
 
         case .fetchEhProfileIndexDone(let result):
-            var effects = [Effect<SettingAction, Never>]()
+            var effects = [EffectTask<SettingAction>]()
 
             if case .success(let (profileValue, profileNotFound)) = result {
                 if let profileValue = profileValue {

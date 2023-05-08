@@ -21,8 +21,8 @@ struct WatchedState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
 
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
@@ -147,7 +147,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 state.pageNumber = pageNumber
                 state.insertGalleries(galleries)
 
-                var effects: [Effect<WatchedAction, Never>] = [
+                var effects: [EffectTask<WatchedAction>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.hasNextPage() {

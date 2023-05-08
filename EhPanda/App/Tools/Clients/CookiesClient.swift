@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 struct CookiesClient {
-    let clearAll: () -> Effect<Never, Never>
+    let clearAll: () -> EffectTask<Never>
     let getCookie: (URL, String) -> CookieValue
     private let removeCookie: (URL, String) -> Void
     private let checkExistence: (URL, String) -> Bool
@@ -108,7 +108,7 @@ extension CookiesClient {
         guard let cookie = newCookie else { return }
         HTTPCookieStorage.shared.setCookie(cookie)
     }
-    func setOrEditCookie(for url: URL, key: String, value: String) -> Effect<Never, Never> {
+    func setOrEditCookie(for url: URL, key: String, value: String) -> EffectTask<Never> {
         .fireAndForget {
             if checkExistence(url, key) {
                 editCookie(for: url, key: key, value: value)
@@ -138,18 +138,18 @@ extension CookiesClient {
         && !getCookie(url, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
         && getCookie(url, Defaults.Cookie.igneous).rawValue.isEmpty
     }
-    func removeYay() -> Effect<Never, Never> {
+    func removeYay() -> EffectTask<Never> {
         .fireAndForget {
             removeCookie(Defaults.URL.exhentai, Defaults.Cookie.yay)
         }
     }
-    func ignoreOffensive() -> Effect<Never, Never> {
+    func ignoreOffensive() -> EffectTask<Never> {
         .merge(
             setOrEditCookie(for: Defaults.URL.ehentai, key: Defaults.Cookie.ignoreOffensive, value: "1"),
             setOrEditCookie(for: Defaults.URL.exhentai, key: Defaults.Cookie.ignoreOffensive, value: "1")
         )
     }
-    func fulfillAnotherHostField() -> Effect<Never, Never> {
+    func fulfillAnotherHostField() -> EffectTask<Never> {
         let ehURL = Defaults.URL.ehentai
         let exURL = Defaults.URL.exhentai
         let memberIdKey = Defaults.Cookie.ipbMemberId
@@ -201,13 +201,13 @@ extension CookiesClient {
 
 // MARK: SetCookies
 extension CookiesClient {
-    func setCookies(state: CookiesState) -> Effect<Never, Never> {
-        let effects: [Effect<Never, Never>] = state.allCases.map { subState in
+    func setCookies(state: CookiesState) -> EffectTask<Never> {
+        let effects: [EffectTask<Never>] = state.allCases.map { subState in
             setOrEditCookie(for: state.host.url, key: subState.key, value: subState.editingText)
         }
         return effects.isEmpty ? .none : .merge(effects)
     }
-    func setCredentials(response: HTTPURLResponse) -> Effect<Never, Never> {
+    func setCredentials(response: HTTPURLResponse) -> EffectTask<Never> {
         .fireAndForget {
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")
@@ -226,7 +226,7 @@ extension CookiesClient {
                 }
         }
     }
-    func setSkipServer(response: HTTPURLResponse) -> Effect<Never, Never> {
+    func setSkipServer(response: HTTPURLResponse) -> EffectTask<Never> {
         .fireAndForget {
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")

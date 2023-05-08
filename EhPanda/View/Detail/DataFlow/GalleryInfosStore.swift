@@ -13,7 +13,7 @@ struct GalleryInfosState: Equatable {
         case hud
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
 }
 

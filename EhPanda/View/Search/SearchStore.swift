@@ -21,8 +21,8 @@ struct SearchState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
     var lastKeyword = ""
 
     var galleries = [Gallery]()
@@ -152,7 +152,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
                 state.pageNumber = pageNumber
                 state.insertGalleries(galleries)
 
-                var effects: [Effect<SearchAction, Never>] = [
+                var effects: [EffectTask<SearchAction>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.hasNextPage() {

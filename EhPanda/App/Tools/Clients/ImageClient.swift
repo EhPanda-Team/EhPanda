@@ -12,10 +12,10 @@ import Kingfisher
 import ComposableArchitecture
 
 struct ImageClient {
-    let prefetchImages: ([URL]) -> Effect<Never, Never>
-    let saveImageToPhotoLibrary: (UIImage, Bool) -> Effect<Bool, Never>
-    let downloadImage: (URL) -> Effect<Result<UIImage, Error>, Never>
-    let retrieveImage: (String) -> Effect<Result<UIImage, Error>, Never>
+    let prefetchImages: ([URL]) -> EffectTask<Never>
+    let saveImageToPhotoLibrary: (UIImage, Bool) -> EffectTask<Bool>
+    let downloadImage: (URL) -> EffectTask<Result<UIImage, Error>>
+    let retrieveImage: (String) -> EffectTask<Result<UIImage, Error>>
 }
 
 extension ImageClient {
@@ -78,7 +78,7 @@ extension ImageClient {
         }
     )
 
-    func fetchImage(url: URL) -> Effect<Result<UIImage, Error>, Never> {
+    func fetchImage(url: URL) -> EffectTask<Result<UIImage, Error>> {
         if KingfisherManager.shared.cache.isCached(forKey: url.absoluteString) {
             return retrieveImage(url.absoluteString)
         } else {

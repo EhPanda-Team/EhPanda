@@ -19,8 +19,8 @@ struct SearchRootState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
     var historyGalleries = [Gallery]()
 
     var historyKeywords = [String]()

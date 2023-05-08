@@ -10,11 +10,11 @@ import Combine
 import ComposableArchitecture
 
 struct UIApplicationClient {
-    let openURL: (URL) -> Effect<Never, Never>
-    let hideKeyboard: () -> Effect<Never, Never>
+    let openURL: (URL) -> EffectTask<Never>
+    let hideKeyboard: () -> EffectTask<Never>
     let alternateIconName: () -> String?
-    let setAlternateIconName: (String?) -> Effect<Result<Bool, Never>, Never>
-    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> Effect<Never, Never>
+    let setAlternateIconName: (String?) -> EffectTask<Result<Bool, Never>>
+    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> EffectTask<Never>
 }
 
 extension UIApplicationClient {
@@ -51,13 +51,13 @@ extension UIApplicationClient {
             }
         }
     )
-    func openSettings() -> Effect<Never, Never> {
+    func openSettings() -> EffectTask<Never> {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             return openURL(url)
         }
         return .none
     }
-    func openFileApp() -> Effect<Never, Never> {
+    func openFileApp() -> EffectTask<Never> {
         if let dirPath = FileUtil.logsDirectoryURL?.path,
            let dirURL = URL(string: "shareddocuments://" + dirPath)
         {

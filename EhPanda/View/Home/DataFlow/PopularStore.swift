@@ -20,8 +20,8 @@ struct PopularState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
 
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }

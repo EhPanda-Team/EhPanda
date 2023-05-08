@@ -24,7 +24,7 @@ extension Reducer {
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,
         perform additionalEffects: @escaping (inout State, Action, Environment)
-        -> Effect<Action, Never>
+        -> EffectTask<Action>
     ) -> Self {
         .init { state, action, environment in
             let previousCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue

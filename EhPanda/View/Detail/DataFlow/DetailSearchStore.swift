@@ -21,8 +21,8 @@ struct DetailSearchState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
     var lastKeyword = ""
 
     var galleries = [Gallery]()
@@ -151,7 +151,7 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
                 state.pageNumber = pageNumber
                 state.insertGalleries(galleries)
 
-                var effects: [Effect<DetailSearchAction, Never>] = [
+                var effects: [EffectTask<DetailSearchAction>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.hasNextPage() {

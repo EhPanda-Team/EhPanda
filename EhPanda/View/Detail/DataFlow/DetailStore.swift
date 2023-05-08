@@ -32,9 +32,9 @@ struct DetailState: Equatable {
         _detailSearchState = .init(nil)
     }
 
-    @BindableState var route: Route?
-    @BindableState var commentContent = ""
-    @BindableState var postCommentFocused = false
+    @BindingState var route: Route?
+    @BindingState var commentContent = ""
+    @BindingState var postCommentFocused = false
 
     var showsNewDawnGreeting = false
     var showsUserRating = false
@@ -279,7 +279,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 state.loadingState = .idle
                 switch result {
                 case .success(let (galleryDetail, galleryState, apiKey, greeting)):
-                    var effects: [Effect<DetailAction, Never>] = [
+                    var effects: [EffectTask<DetailAction>] = [
                         .init(value: .syncGalleryTags),
                         .init(value: .syncGalleryDetail),
                         .init(value: .syncGalleryPreviewURLs),

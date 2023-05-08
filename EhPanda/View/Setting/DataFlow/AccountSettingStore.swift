@@ -65,9 +65,9 @@ struct AccountSettingState: Equatable {
         case webView(URL)
     }
 
-    @BindableState var route: Route?
-    @BindableState var ehCookiesState: CookiesState = .empty(.ehentai)
-    @BindableState var exCookiesState: CookiesState = .empty(.exhentai)
+    @BindingState var route: Route?
+    @BindingState var ehCookiesState: CookiesState = .empty(.ehentai)
+    @BindingState var exCookiesState: CookiesState = .empty(.exhentai)
     var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
 
     var loginState = LoginState()

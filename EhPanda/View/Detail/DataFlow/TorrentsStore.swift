@@ -18,7 +18,7 @@ struct TorrentsState: Equatable {
         let id = String(describing: TorrentsState.self)
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var torrents = [GalleryTorrent]()
     var loadingState: LoadingState = .idle
     var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded

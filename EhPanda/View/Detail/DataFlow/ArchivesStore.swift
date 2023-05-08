@@ -18,8 +18,8 @@ struct ArchivesState: Equatable {
         let id = String(describing: ArchivesState.self)
     }
 
-    @BindableState var route: Route?
-    @BindableState var selectedArchive: GalleryArchive.HathArchive?
+    @BindingState var route: Route?
+    @BindingState var selectedArchive: GalleryArchive.HathArchive?
 
     var loadingState: LoadingState = .idle
     var hathArchives = [GalleryArchive.HathArchive]()

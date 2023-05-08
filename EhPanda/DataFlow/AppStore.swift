@@ -89,7 +89,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .appRoute(.clearSubStates):
-        var effects = [Effect<AppAction, Never>]()
+        var effects = [EffectTask<AppAction>]()
         if environment.deviceClient.isPad() {
             state.settingState.route = nil
             effects.append(.init(value: .setting(.clearSubStates)))
@@ -100,7 +100,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .appLock(.unlockApp):
-        var effects: [Effect<AppAction, Never>] = [
+        var effects: [EffectTask<AppAction>] = [
             .init(value: .setting(.fetchGreeting))
         ]
         if state.settingState.setting.detectsLinksFromClipboard {
@@ -112,8 +112,8 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .tabBar(.setTabBarItemType(let type)):
-        var effects = [Effect<AppAction, Never>]()
-        let hapticEffect: Effect<AppAction, Never> = environment.hapticClient
+        var effects = [EffectTask<AppAction>]()
+        let hapticEffect: EffectTask<AppAction> = environment.hapticClient
             .generateFeedback(.soft).fireAndForget()
         if type == state.tabBarState.tabBarItemType {
             switch type {
@@ -156,7 +156,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
-        var effects: [Effect<AppAction, Never>] = [
+        var effects: [EffectTask<AppAction>] = [
             environment.hapticClient.generateFeedback(.soft).fireAndForget(),
             .init(value: .tabBar(.setTabBarItemType(.setting)))
         ]
@@ -183,7 +183,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .setting(.loadUserSettingsDone):
-        var effects = [Effect<AppAction, Never>]()
+        var effects = [EffectTask<AppAction>]()
         let threshold = state.settingState.setting.autoLockPolicy.rawValue
         let blurRadius = state.settingState.setting.backgroundBlurRadius
         if threshold >= 0 {

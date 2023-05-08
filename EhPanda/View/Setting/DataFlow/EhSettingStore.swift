@@ -17,10 +17,10 @@ struct EhSettingState: Equatable {
         let id = String(describing: EhSettingState.self)
     }
 
-    @BindableState var route: Route?
-    @BindableState var editingProfileName = ""
-    @BindableState var ehSetting: EhSetting?
-    @BindableState var ehProfile: EhProfile?
+    @BindingState var route: Route?
+    @BindingState var editingProfileName = ""
+    @BindingState var ehSetting: EhSetting?
+    @BindingState var ehProfile: EhProfile?
     var loadingState: LoadingState = .idle
     var submittingState: LoadingState = .idle
 

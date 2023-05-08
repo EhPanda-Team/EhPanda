@@ -11,9 +11,9 @@ import ComposableArchitecture
 
 struct FileClient {
     let createFile: (String, Data?) -> Bool
-    let fetchLogs: () -> Effect<Result<[Log], AppError>, Never>
-    let deleteLog: (String) -> Effect<Result<String, AppError>, Never>
-    let importTagTranslator: (URL) -> Effect<Result<TagTranslator, AppError>, Never>
+    let fetchLogs: () -> EffectTask<Result<[Log], AppError>>
+    let deleteLog: (String) -> EffectTask<Result<String, AppError>>
+    let importTagTranslator: (URL) -> EffectTask<Result<TagTranslator, AppError>>
 }
 
 extension FileClient {

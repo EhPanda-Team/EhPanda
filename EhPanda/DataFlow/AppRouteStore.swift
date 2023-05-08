@@ -21,7 +21,7 @@ struct AppRouteState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
     var hudConfig: TTProgressHUDConfig = .loading
 
     @Heap var detailState: DetailState!
@@ -89,7 +89,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             let currentChangeCount = environment.clipboardClient.changeCount()
             guard currentChangeCount != environment.userDefaultsClient
                     .getValue(.clipboardChangeCount) else { return .none }
-            var effects: [Effect<AppRouteAction, Never>] = [
+            var effects: [EffectTask<AppRouteAction>] = [
                 environment.userDefaultsClient
                     .setValue(currentChangeCount, .clipboardChangeCount).fireAndForget()
             ]
@@ -119,7 +119,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case .handleGalleryLink(let url):
             let (_, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
             let gid = environment.urlClient.parseGalleryID(url)
-            var effects = [Effect<AppRouteAction, Never>]()
+            var effects = [EffectTask<AppRouteAction>]()
             state.detailState = .init()
             effects.append(.init(value: .detail(.fetchDatabaseInfos(gid))))
             if let pageIndex = pageIndex {

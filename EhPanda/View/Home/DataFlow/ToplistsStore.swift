@@ -19,11 +19,11 @@ struct ToplistsState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
-    @BindableState var jumpPageIndex = ""
-    @BindableState var jumpPageAlertFocused = false
-    @BindableState var jumpPageAlertPresented = false
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
+    @BindingState var jumpPageIndex = ""
+    @BindingState var jumpPageAlertFocused = false
+    @BindingState var jumpPageAlertPresented = false
 
     var type: ToplistsType = .yesterday
 
@@ -188,7 +188,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
                 state.rawPageNumber[type] = pageNumber
                 state.insertGalleries(type: type, galleries: galleries)
 
-                var effects: [Effect<ToplistsAction, Never>] = [
+                var effects: [EffectTask<ToplistsAction>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.hasNextPage() {

@@ -18,9 +18,9 @@ struct HistoryState: Equatable {
         _detailState = .init(.init())
     }
 
-    @BindableState var route: Route?
-    @BindableState var keyword = ""
-    @BindableState var clearDialogPresented = false
+    @BindingState var route: Route?
+    @BindingState var keyword = ""
+    @BindingState var clearDialogPresented = false
 
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }

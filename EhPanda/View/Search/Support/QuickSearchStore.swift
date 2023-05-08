@@ -22,10 +22,10 @@ struct QuickSearchState: Equatable {
         let id = String(describing: QuickSearchState.self)
     }
 
-    @BindableState var route: Route?
-    @BindableState var focusedField: FocusField?
-    @BindableState var editingWord: QuickSearchWord = .empty
-    @BindableState var listEditMode: EditMode = .inactive
+    @BindingState var route: Route?
+    @BindingState var focusedField: FocusField?
+    @BindingState var editingWord: QuickSearchWord = .empty
+    @BindingState var listEditMode: EditMode = .inactive
     var isListEditing: Bool {
         get { listEditMode == .active }
         set { listEditMode = newValue ? .active : .inactive }

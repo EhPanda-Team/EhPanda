@@ -20,10 +20,10 @@ struct LoginState: Equatable {
         let id = String(describing: LoginState.self)
     }
 
-    @BindableState var route: Route?
-    @BindableState var focusedField: FocusedField?
-    @BindableState var username = ""
-    @BindableState var password = ""
+    @BindingState var route: Route?
+    @BindingState var focusedField: FocusedField?
+    @BindingState var username = ""
+    @BindingState var password = ""
     var loginState: LoadingState = .idle
 
     var loginButtonDisabled: Bool {
@@ -73,7 +73,7 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
 
     case .loginDone(let result):
         state.route = nil
-        var effects = [Effect<LoginAction, Never>]()
+        var effects = [EffectTask<LoginAction>]()
         if environment.cookiesClient.didLogin {
             state.loginState = .idle
             effects.append(environment.hapticClient.generateNotificationFeedback(.success).fireAndForget())

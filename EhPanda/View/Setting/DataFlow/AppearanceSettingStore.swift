@@ -12,7 +12,7 @@ struct AppearanceSettingState: Equatable {
         case appIcon
     }
 
-    @BindableState var route: Route?
+    @BindingState var route: Route?
 }
 
 enum AppearanceSettingAction: BindableAction {
