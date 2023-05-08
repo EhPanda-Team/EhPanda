@@ -105,6 +105,20 @@ extension FileClient {
     }
 }
 
+// MARK: API
+enum FileClientKey: DependencyKey {
+    static let liveValue = FileClient.live
+    static let testValue = FileClient.noop
+    static let previewValue = FileClient.noop
+}
+
+extension DependencyValues {
+    var fileClient: FileClient {
+        get { self[FileClientKey.self] }
+        set { self[FileClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

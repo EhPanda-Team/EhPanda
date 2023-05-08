@@ -88,6 +88,20 @@ extension LibraryClient {
     )
 }
 
+// MARK: API
+enum LibraryClientKey: DependencyKey {
+    static let liveValue = LibraryClient.live
+    static let testValue = LibraryClient.noop
+    static let previewValue = LibraryClient.noop
+}
+
+extension DependencyValues {
+    var libraryClient: LibraryClient {
+        get { self[LibraryClientKey.self] }
+        set { self[LibraryClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

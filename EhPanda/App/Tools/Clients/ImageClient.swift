@@ -103,3 +103,27 @@ private final class ImageSaver: NSObject {
         completion(error == nil)
     }
 }
+
+// MARK: API
+enum ImageClientKey: DependencyKey {
+    static let liveValue = ImageClient.live
+    static let testValue = ImageClient.noop
+    static let previewValue = ImageClient.noop
+}
+
+extension DependencyValues {
+    var imageClient: ImageClient {
+        get { self[ImageClientKey.self] }
+        set { self[ImageClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension ImageClient {
+    static let noop: Self = .init(
+        prefetchImages: { _ in .none },
+        saveImageToPhotoLibrary: { _, _ in .none },
+        downloadImage: { _ in .none },
+        retrieveImage: { _ in .none }
+    )
+}

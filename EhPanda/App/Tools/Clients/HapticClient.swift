@@ -27,6 +27,21 @@ extension HapticClient {
         }
     )
 }
+
+// MARK: API
+enum HapticClientKey: DependencyKey {
+    static let liveValue = HapticClient.live
+    static let testValue = HapticClient.noop
+    static let previewValue = HapticClient.noop
+}
+
+extension DependencyValues {
+    var hapticClient: HapticClient {
+        get { self[HapticClientKey.self] }
+        set { self[HapticClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 extension HapticClient {

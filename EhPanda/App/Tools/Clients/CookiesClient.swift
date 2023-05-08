@@ -244,6 +244,20 @@ extension CookiesClient {
     }
 }
 
+// MARK: API
+enum CookiesClientKey: DependencyKey {
+    static let liveValue = CookiesClient.live
+    static let testValue = CookiesClient.noop
+    static let previewValue = CookiesClient.noop
+}
+
+extension DependencyValues {
+    var cookiesClient: CookiesClient {
+        get { self[CookiesClientKey.self] }
+        set { self[CookiesClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

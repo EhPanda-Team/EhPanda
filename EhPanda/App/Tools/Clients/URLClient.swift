@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import Dependencies
 
 struct URLClient {
     let checkIfHandleable: (URL) -> Bool
@@ -66,4 +66,27 @@ extension URLClient {
 
         return (isGalleryImageURL, pageIndex, commentID)
     }
+}
+
+// MARK: API
+enum URLClientKey: DependencyKey {
+    static let liveValue = URLClient.live
+    static let testValue = URLClient.noop
+    static let previewValue = URLClient.noop
+}
+
+extension DependencyValues {
+    var urlClient: URLClient {
+        get { self[URLClientKey.self] }
+        set { self[URLClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension URLClient {
+    static let noop: Self = .init(
+        checkIfHandleable: { _ in false },
+        checkIfMPVURL: { _ in false },
+        parseGalleryID: { _ in .init() }
+    )
 }

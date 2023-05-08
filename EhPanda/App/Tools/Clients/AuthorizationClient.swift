@@ -40,6 +40,20 @@ extension AuthorizationClient {
     )
 }
 
+// MARK: API
+enum AuthorizationClientKey: DependencyKey {
+    static let liveValue = AuthorizationClient.live
+    static let testValue = AuthorizationClient.noop
+    static let previewValue = AuthorizationClient.noop
+}
+
+extension DependencyValues {
+    var authorizationClient: AuthorizationClient {
+        get { self[AuthorizationClientKey.self] }
+        set { self[AuthorizationClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

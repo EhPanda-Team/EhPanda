@@ -27,6 +27,20 @@ extension LoggerClient {
     )
 }
 
+// MARK: API
+enum LoggerClientKey: DependencyKey {
+    static let liveValue = LoggerClient.live
+    static let testValue = LoggerClient.noop
+    static let previewValue = LoggerClient.noop
+}
+
+extension DependencyValues {
+    var loggerClient: LoggerClient {
+        get { self[LoggerClientKey.self] }
+        set { self[LoggerClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

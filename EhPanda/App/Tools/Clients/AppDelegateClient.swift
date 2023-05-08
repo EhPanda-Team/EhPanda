@@ -37,3 +37,25 @@ extension AppDelegateClient {
         setOrientationMask([.portrait, .portraitUpsideDown])
     }
 }
+
+// MARK: API
+enum AppDelegateClientKey: DependencyKey {
+    static let liveValue = AppDelegateClient.live
+    static let testValue = AppDelegateClient.noop
+    static let previewValue = AppDelegateClient.noop
+}
+
+extension DependencyValues {
+    var appDelegateClient: AppDelegateClient {
+        get { self[AppDelegateClientKey.self] }
+        set { self[AppDelegateClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension AppDelegateClient {
+    static let noop: Self = .init(
+        setOrientation: { _ in .none },
+        setOrientationMask: { _ in .none }
+    )
+}

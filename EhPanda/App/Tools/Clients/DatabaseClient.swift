@@ -535,6 +535,20 @@ extension DatabaseClient {
     }
 }
 
+// MARK: API
+enum DatabaseClientKey: DependencyKey {
+    static let liveValue = DatabaseClient.live
+    static let testValue = DatabaseClient.noop
+    static let previewValue = DatabaseClient.noop
+}
+
+extension DependencyValues {
+    var databaseClient: DatabaseClient {
+        get { self[DatabaseClientKey.self] }
+        set { self[DatabaseClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

@@ -30,3 +30,24 @@ extension DFClient {
         }
     )
 }
+
+// MARK: API
+enum DFClientKey: DependencyKey {
+    static let liveValue = DFClient.live
+    static let testValue = DFClient.noop
+    static let previewValue = DFClient.noop
+}
+
+extension DependencyValues {
+    var dfClient: DFClient {
+        get { self[DFClientKey.self] }
+        set { self[DFClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension DFClient {
+    static let noop: Self = .init(
+        setActive: { _ in .none }
+    )
+}

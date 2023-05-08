@@ -67,6 +67,20 @@ extension UIApplicationClient {
     }
 }
 
+// MARK: API
+enum UIApplicationClientKey: DependencyKey {
+    static let liveValue = UIApplicationClient.live
+    static let testValue = UIApplicationClient.noop
+    static let previewValue = UIApplicationClient.noop
+}
+
+extension DependencyValues {
+    var uiApplicationClient: UIApplicationClient {
+        get { self[UIApplicationClientKey.self] }
+        set { self[UIApplicationClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 // swiftlint:disable line_length
 #if DEBUG

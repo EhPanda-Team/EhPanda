@@ -49,6 +49,20 @@ extension ClipboardClient {
     )
 }
 
+// MARK: API
+enum ClipboardClientKey: DependencyKey {
+    static let liveValue = ClipboardClient.live
+    static let testValue = ClipboardClient.noop
+    static let previewValue = ClipboardClient.noop
+}
+
+extension DependencyValues {
+    var clipboardClient: ClipboardClient {
+        get { self[ClipboardClientKey.self] }
+        set { self[ClipboardClientKey.self] = newValue }
+    }
+}
+
 // MARK: Test
 #if DEBUG
 import XCTestDynamicOverlay

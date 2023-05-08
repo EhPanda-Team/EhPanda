@@ -25,3 +25,24 @@ extension UserDefaultsClient {
         UserDefaultsUtil.value(forKey: key)
     }
 }
+
+// MARK: API
+enum UserDefaultsClientKey: DependencyKey {
+    static let liveValue = UserDefaultsClient.live
+    static let testValue = UserDefaultsClient.noop
+    static let previewValue = UserDefaultsClient.noop
+}
+
+extension DependencyValues {
+    var userDefaultsClient: UserDefaultsClient {
+        get { self[UserDefaultsClientKey.self] }
+        set { self[UserDefaultsClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension UserDefaultsClient {
+    static let noop: Self = .init(
+        setValue: { _, _ in .none }
+    )
+}
