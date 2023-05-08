@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 3/12/31.
 //
 
+import Foundation
 import ComposableArchitecture
 
 struct SettingState: Equatable {

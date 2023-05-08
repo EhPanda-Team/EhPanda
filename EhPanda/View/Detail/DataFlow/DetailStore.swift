@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 import ComposableArchitecture
 
 struct DetailState: Equatable {
@@ -119,6 +120,21 @@ struct DetailEnvironment {
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
     let uiApplicationClient: UIApplicationClient
+}
+
+extension Reducer {
+    static func recurse(
+        _ reducer: @escaping
+        (Reducer<DetailState, DetailAction, DetailEnvironment>)
+        -> Reducer<DetailState, DetailAction, DetailEnvironment>
+    )
+    -> Reducer<DetailState, DetailAction, DetailEnvironment> {
+        var `self`: Reducer<DetailState, DetailAction, DetailEnvironment>!
+        self = Reducer { state, action, environment in
+            reducer(self).run(&state, action, environment)
+        }
+        return self
+    }
 }
 
 let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurse { (self) in

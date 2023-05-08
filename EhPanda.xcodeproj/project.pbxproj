@@ -63,7 +63,6 @@
 		AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB99E280251D600011A8A /* TTProgressHUD */; };
 		AB2EB9A2280251F600011A8A /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9A1280251F600011A8A /* AlertKit */; };
 		AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9A42802521700011A8A /* DeprecatedAPI */; };
-		AB2EB9AB2802525700011A8A /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9AA2802525700011A8A /* SwiftyBeaver */; };
 		AB3072D2276D734800EFF242 /* SubSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D1276D734800EFF242 /* SubSection.swift */; };
 		AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D3276E19AA00EFF242 /* FrontpageView.swift */; };
 		AB31CD3027B666E200F40E0A /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD2F27B666E200F40E0A /* TestError.swift */; };
@@ -242,7 +241,6 @@
 		ABD49D6A277EEF73003D1A07 /* SettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D69277EEF73003D1A07 /* SettingStore.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
-		ABD970B727A2A6BD001693B0 /* Rswift in Frameworks */ = {isa = PBXBuildFile; productRef = ABD970B627A2A6BD001693B0 /* Rswift */; };
 		ABD9770E27B65A7300983DE7 /* ListParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD9770D27B65A7300983DE7 /* ListParserTests.swift */; };
 		ABD9771027B65E3400983DE7 /* GalleryDetailParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD9770F27B65E3400983DE7 /* GalleryDetailParserTests.swift */; };
 		ABD9771327B6612400983DE7 /* GreetingParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD9771227B6612400983DE7 /* GreetingParserTests.swift */; };
@@ -276,6 +274,7 @@
 		ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ADD25F3313D00ECB568 /* SettingView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
 		ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */ = {isa = PBXBuildFile; fileRef = ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */; };
+		EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = EAE63E2029E2A6330048C601 /* SwiftyBeaver */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -603,17 +602,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */,
-				ABD970B727A2A6BD001693B0 /* Rswift in Frameworks */,
 				AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */,
 				AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */,
 				AB2EB9A2280251F600011A8A /* AlertKit in Frameworks */,
 				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
 				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
 				ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */,
+				EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */,
 				AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
-				AB2EB9AB2802525700011A8A /* SwiftyBeaver in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
 				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
@@ -1432,13 +1430,12 @@
 				ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */,
 				AB86AC0F27831AD100E61E6A /* ComposableArchitecture */,
 				ABBB2635278FB888007B6149 /* SwiftUINavigation */,
-				ABD970B627A2A6BD001693B0 /* Rswift */,
 				AB26F59827ACDB4200AB3468 /* FilePicker */,
 				AB1FA94827C62BC80063EF55 /* CommonMark */,
 				AB2EB99E280251D600011A8A /* TTProgressHUD */,
 				AB2EB9A1280251F600011A8A /* AlertKit */,
 				AB2EB9A42802521700011A8A /* DeprecatedAPI */,
-				AB2EB9AA2802525700011A8A /* SwiftyBeaver */,
+				EAE63E2029E2A6330048C601 /* SwiftyBeaver */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1468,8 +1465,9 @@
 		ABC3C74C2593696C00E0C11B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1300;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					AB5BE67526B95FDD007D4A55 = {
 						CreatedOnToolsVersion = 13.0;
@@ -1510,13 +1508,12 @@
 				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */,
-				ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */,
 				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
 				AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */,
 				AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 				AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */,
 				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
-				AB2EB9A92802525700011A8A /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -2307,20 +2304,12 @@
 				kind = branch;
 			};
 		};
-		AB2EB9A92802525700011A8A /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/SwiftyBeaver.git";
-			requirement = {
-				branch = custom;
-				kind = branch;
-			};
-		};
 		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.1;
+				minimumVersion = 1.0.0;
 			};
 		};
 		AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
@@ -2336,7 +2325,7 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.32.0;
+				minimumVersion = 0.0.0;
 			};
 		};
 		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
@@ -2352,7 +2341,7 @@
 			repositoryURL = "https://github.com/pointfreeco/swiftui-navigation.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.0;
+				minimumVersion = 0.0.0;
 			};
 		};
 		ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -2360,15 +2349,15 @@
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 7.1.2;
+				minimumVersion = 7.0.0;
 			};
 		};
 		ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols.git";
 			requirement = {
-				branch = stable;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
 			};
 		};
 		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
@@ -2379,12 +2368,12 @@
 				minimumVersion = 5.0.0;
 			};
 		};
-		ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */ = {
+		EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mac-cain13/R.swift.Library.git";
+			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.4.0;
+				minimumVersion = 2.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -2424,11 +2413,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
 			productName = DeprecatedAPI;
-		};
-		AB2EB9AA2802525700011A8A /* SwiftyBeaver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB2EB9A92802525700011A8A /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
-			productName = SwiftyBeaver;
 		};
 		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2470,10 +2454,10 @@
 			package = ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
 		};
-		ABD970B627A2A6BD001693B0 /* Rswift */ = {
+		EAE63E2029E2A6330048C601 /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */;
-			productName = Rswift;
+			package = EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
 		};
 /* End XCSwiftPackageProductDependency section */
 

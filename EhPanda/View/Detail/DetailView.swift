@@ -117,7 +117,7 @@ struct DetailView: View {
                     && viewStore.loadingState == .loading ? 1 : 0
                 )
             let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
-            let retryAction = { viewStore.send(.fetchGalleryDetail) }
+            let retryAction: () -> Void = { viewStore.send(.fetchGalleryDetail) }
             ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
                 .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }

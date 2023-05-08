@@ -37,7 +37,7 @@ struct HomeView: View {
             ZStack {
                 ScrollView(showsIndicators: false) {
                     VStack {
-                        if viewStore.popularLoadingState == .loading || !viewStore.popularGalleries.isEmpty {
+                        if !viewStore.popularGalleries.isEmpty {
                             CardSlideSection(
                                 galleries: viewStore.popularGalleries,
                                 pageIndex: viewStore.binding(\.$cardPageIndex),
@@ -51,7 +51,7 @@ struct HomeView: View {
                             .equatable().allowsHitTesting(viewStore.allowsCardHitTesting)
                         }
                         Group {
-                            if viewStore.frontpageLoadingState == .loading || viewStore.frontpageGalleries.count > 1 {
+                            if viewStore.frontpageGalleries.count > 1 {
                                 CoverWallSection(
                                     galleries: viewStore.frontpageGalleries,
                                     isLoading: viewStore.frontpageLoadingState == .loading,

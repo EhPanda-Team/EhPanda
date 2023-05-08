@@ -20,13 +20,6 @@ extension Reducer {
 
 // MARK: Haptic
 extension Reducer {
-    static func recurse(_ reducer: @escaping (Reducer) -> Reducer) -> Reducer {
-        var `self`: Reducer!
-        self = Reducer { state, action, environment in
-            reducer(self).run(&state, action, environment)
-        }
-        return self
-    }
     func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,

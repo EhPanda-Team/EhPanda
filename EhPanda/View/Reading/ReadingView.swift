@@ -57,7 +57,7 @@ struct ReadingView: View {
                         page: page, data: viewStore.state.containerDataSource(setting: setting),
                         id: \.self, content: imageStack
                     )
-                    .horizontal(setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight)
+                    .horizontal(setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
                     .swipeInteractionArea(.allAvailable).allowsDragging(gestureHandler.scale == 1)
                 }
             }

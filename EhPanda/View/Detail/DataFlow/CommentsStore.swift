@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 4/01/16.
 //
 
+import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
