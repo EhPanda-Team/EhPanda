@@ -24,17 +24,20 @@ struct GalleryState: Codable {
 }
 extension GalleryState: CustomStringConvertible {
     var description: String {
-        let params = String(describing: [
-            "gid": gid,
-            "tagsCount": tags.count,
-            "readingProgress": readingProgress,
-            "previewURLsCount": previewURLs.count,
-            "previewConfig": String(describing: previewConfig),
-            "commentsCount": comments.count,
-            "imageURLsCount": imageURLs.count,
-            "originalImageURLsCount": originalImageURLs.count,
-            "thumbnailURLsCount": thumbnailURLs.count
-        ])
+        let params = String(
+            describing: [
+                "gid": gid,
+                "tagsCount": tags.count,
+                "readingProgress": readingProgress,
+                "previewURLsCount": previewURLs.count,
+                "previewConfig": String(describing: previewConfig),
+                "commentsCount": comments.count,
+                "imageURLsCount": imageURLs.count,
+                "originalImageURLsCount": originalImageURLs.count,
+                "thumbnailURLsCount": thumbnailURLs.count
+            ]
+            as [String: Any]
+        )
         return "GalleryState(\(params))"
     }
 }

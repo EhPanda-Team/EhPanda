@@ -18,13 +18,16 @@ struct AppEnv: Codable {
 
 extension AppEnv: CustomStringConvertible {
     var description: String {
-        let params = String(describing: [
-            "user": user,
-            "setting": setting,
-            "tagTranslator": tagTranslator,
-            "historyKeywordsCount": historyKeywords.count,
-            "quickSearchWordsCount": quickSearchWords.count
-        ])
+        let params = String(
+            describing: [
+                "user": user,
+                "setting": setting,
+                "tagTranslator": tagTranslator,
+                "historyKeywordsCount": historyKeywords.count,
+                "quickSearchWordsCount": quickSearchWords.count
+            ]
+            as [String: Any]
+        )
         return "AppEnv(\(params))"
     }
 }

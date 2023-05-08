@@ -246,7 +246,14 @@ extension ReadingView {
                     Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
                 }
             case .failure(let error):
-                Logger.info("analyzeImageForLiveText failed", context: ["index": index, "error": error])
+                Logger.info(
+                    "analyzeImageForLiveText failed",
+                    context: [
+                        "index": index,
+                        "error": error
+                    ]
+                    as [String: Any]
+                )
             }
         }
     }

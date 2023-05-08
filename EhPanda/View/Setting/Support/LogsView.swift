@@ -160,10 +160,13 @@ struct Log: Identifiable, Comparable {
 }
 extension Log: CustomStringConvertible {
     var description: String {
-        let params = String(describing: [
-            "fileName": fileName,
-            "contentsCount": contents.count
-        ])
+        let params = String(
+            describing: [
+                "fileName": fileName,
+                "contentsCount": contents.count
+            ]
+            as [String: Any]
+        )
         return "Log(\(params))"
     }
 }
