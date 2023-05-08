@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingStore.swift */; };
+		AB0929B6277F043D00F107CA /* AccountSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingStore.swift */; };
 		AB0929C027805A8200F107CA /* LoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginStore.swift */; };
 		AB0929C6278160AE00F107CA /* LibraryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C5278160AE00F107CA /* LibraryClient.swift */; };
@@ -309,7 +309,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		AB0929B5277F043D00F107CA /* AccountSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingStore.swift; sourceTree = "<group>"; };
+		AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingReducer.swift; sourceTree = "<group>"; };
 		AB0929BD2780032400F107CA /* EhSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingStore.swift; sourceTree = "<group>"; };
 		AB0929BF27805A8200F107CA /* LoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginStore.swift; sourceTree = "<group>"; };
 		AB0929C5278160AE00F107CA /* LibraryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryClient.swift; sourceTree = "<group>"; };
@@ -634,7 +634,6 @@
 			isa = PBXGroup;
 			children = (
 				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
-				AB0929B5277F043D00F107CA /* AccountSettingStore.swift */,
 				AB0929D52782A65F00F107CA /* GeneralSettingStore.swift */,
 				AB86AC092782FAFA00E61E6A /* AppearanceSettingStore.swift */,
 				AB0929BD2780032400F107CA /* EhSettingStore.swift */,
@@ -1369,8 +1368,8 @@
 		ABF45AD725F3313D00ECB568 /* Setting */ = {
 			isa = PBXGroup;
 			children = (
+				EA2B9B042A0A89C900E7BA07 /* AccountSetting */,
 				ABF45ADD25F3313D00ECB568 /* SettingView.swift */,
-				ABF45AD925F3313D00ECB568 /* AccountSettingView.swift */,
 				ABF45AD825F3313D00ECB568 /* GeneralSettingView.swift */,
 				ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */,
 				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
@@ -1380,6 +1379,15 @@
 				AB24C560276757940085C33A /* Support */,
 			);
 			path = Setting;
+			sourceTree = "<group>";
+		};
+		EA2B9B042A0A89C900E7BA07 /* AccountSetting */ = {
+			isa = PBXGroup;
+			children = (
+				ABF45AD925F3313D00ECB568 /* AccountSettingView.swift */,
+				AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */,
+			);
+			path = AccountSetting;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1830,7 +1838,7 @@
 				ABC732C527B9024500D47DA9 /* LiveText.swift in Sources */,
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
 				ABC732C727B90F0900D47DA9 /* LiveTextView.swift in Sources */,
-				AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */,
+				AB0929B6277F043D00F107CA /* AccountSettingReducer.swift in Sources */,
 				ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */,
 				ABBB2638278FBD2F007B6149 /* SwiftUINavigation_Extension.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */,

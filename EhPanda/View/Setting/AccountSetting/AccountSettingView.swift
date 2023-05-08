@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AccountSettingView: View {
-    private let store: Store<AccountSettingState, AccountSettingAction>
-    @ObservedObject private var viewStore: ViewStore<AccountSettingState, AccountSettingAction>
+    private let store: StoreOf<AccountSettingReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<AccountSettingReducer>
     @Binding private var galleryHost: GalleryHost
     @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
     init(
-        store: Store<AccountSettingState, AccountSettingAction>,
+        store: StoreOf<AccountSettingReducer>,
         galleryHost: Binding<GalleryHost>, showsNewDawnGreeting: Binding<Bool>,
         bypassesSNIFiltering: Bool, blurRadius: Double
     ) {
@@ -63,9 +63,9 @@ struct AccountSettingView: View {
         .progressHUD(
             config: viewStore.hudConfig,
             unwrapping: viewStore.binding(\.$route),
-            case: /AccountSettingState.Route.hud
+            case: /AccountSettingReducer.Route.hud
         )
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.webView) { route in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /AccountSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
@@ -78,15 +78,15 @@ struct AccountSettingView: View {
 // MARK: NavigationLinks
 private extension AccountSettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.login) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingReducer.Route.login) { _ in
             LoginView(
-                store: store.scope(state: \.loginState, action: AccountSettingAction.login),
+                store: store.scope(state: \.loginState, action: AccountSettingReducer.Action.login),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.ehSetting) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingReducer.Route.ehSetting) { _ in
             EhSettingView(
-                store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
+                store: store.scope(state: \.ehSettingState, action: AccountSettingReducer.Action.ehSetting),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }
@@ -95,7 +95,7 @@ private extension AccountSettingView {
 
 // MARK: AccountSection
 private struct AccountSection: View {
-    @Binding private var route: AccountSettingState.Route?
+    @Binding private var route: AccountSettingReducer.Route?
     @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
     private let loginAction: () -> Void
@@ -105,7 +105,7 @@ private struct AccountSection: View {
     private let manageTagsAction: () -> Void
 
     init(
-        route: Binding<AccountSettingState.Route?>,
+        route: Binding<AccountSettingReducer.Route?>,
         showsNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
         loginAction: @escaping () -> Void, logoutAction: @escaping () -> Void,
         logoutDialogAction: @escaping () -> Void,
@@ -132,7 +132,7 @@ private struct AccountSection: View {
             )
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.logout,
-                unwrapping: $route, case: /AccountSettingState.Route.logout
+                unwrapping: $route, case: /AccountSettingReducer.Route.logout
             ) {
                 Button(
                     L10n.Localizable.ConfirmationDialog.Button.logout,
@@ -224,13 +224,7 @@ struct AccountSettingView_Previews: PreviewProvider {
             AccountSettingView(
                 store: .init(
                     initialState: .init(),
-                    reducer: accountSettingReducer,
-                    environment: AccountSettingEnvironment(
-                        hapticClient: .live,
-                        cookiesClient: .live,
-                        clipboardClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: AccountSettingReducer()
                 ),
                 galleryHost: .constant(.ehentai),
                 showsNewDawnGreeting: .constant(false),

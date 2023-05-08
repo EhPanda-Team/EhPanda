@@ -47,3 +47,32 @@ extension Reducer {
         }
     }
 }
+
+extension ReducerProtocol {
+    func haptics<Enum, Case>(
+        unwrapping enum: @escaping (State) -> Enum?,
+        case casePath: CasePath<Enum, Case>,
+        hapticsClient: HapticClient,
+        style: UIImpactFeedbackGenerator.FeedbackStyle = .light
+    ) -> some ReducerProtocol<State, Action> {
+        onBecomeNonNil(unwrapping: `enum`, case: casePath) { _, _ in
+            .fireAndForget({ hapticsClient.generateFeedback(style) })
+        }
+    }
+
+    func onBecomeNonNil<Enum, Case>(
+        unwrapping enum: @escaping (State) -> Enum?,
+        case casePath: CasePath<Enum, Case>,
+        perform additionalEffects: @escaping (inout State, Action) -> EffectTask<Action>
+    ) -> some ReducerProtocol<State, Action> {
+        Reduce { state, action in
+            let previousCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
+            let effects = reduce(into: &state, action: action)
+            let currentCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
+
+            return previousCase == nil && currentCase != nil
+            ? .merge(effects, additionalEffects(&state, action))
+            : effects
+        }
+    }
+}

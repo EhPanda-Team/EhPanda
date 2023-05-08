@@ -28,7 +28,7 @@ struct SettingState: Equatable {
     @BindingState var route: Route?
     var tagTranslatorLoadingState: LoadingState = .idle
 
-    var accountSettingState = AccountSettingState()
+    var accountSettingState = AccountSettingReducer.State()
     var generalSettingState = GeneralSettingState()
     var appearanceSettingState = AppearanceSettingState()
 
@@ -88,7 +88,7 @@ enum SettingAction: BindableAction {
     case fetchFavoriteCategories
     case fetchFavoriteCategoriesDone(Result<[Int: String], AppError>)
 
-    case account(AccountSettingAction)
+    case account(AccountSettingReducer.Action)
     case general(GeneralSettingAction)
     case appearance(AppearanceSettingAction)
 }
@@ -454,18 +454,19 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         }
     }
     .binding(),
-    accountSettingReducer.pullback(
-        state: \.accountSettingState,
-        action: /SettingAction.account,
-        environment: {
-            .init(
-                hapticClient: $0.hapticClient,
-                cookiesClient: $0.cookiesClient,
-                clipboardClient: $0.clipboardClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    ),
+//    // TODO: Parent reducer
+//    accountSettingReducer.pullback(
+//        state: \.accountSettingState,
+//        action: /SettingAction.account,
+//        environment: {
+//            .init(
+//                hapticClient: $0.hapticClient,
+//                cookiesClient: $0.cookiesClient,
+//                clipboardClient: $0.clipboardClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    ),
     generalSettingReducer.pullback(
         state: \.generalSettingState,
         action: /SettingAction.general,
