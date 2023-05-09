@@ -41,8 +41,8 @@ extension AppDelegateClient {
 // MARK: API
 enum AppDelegateClientKey: DependencyKey {
     static let liveValue = AppDelegateClient.live
-    static let testValue = AppDelegateClient.noop
     static let previewValue = AppDelegateClient.noop
+    static let testValue = AppDelegateClient.unimplemented
 }
 
 extension DependencyValues {
@@ -57,5 +57,10 @@ extension AppDelegateClient {
     static let noop: Self = .init(
         setOrientation: { _ in .none },
         setOrientationMask: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        setOrientation: XCTestDynamicOverlay.unimplemented("\(Self.self).setOrientation"),
+        setOrientationMask: XCTestDynamicOverlay.unimplemented("\(Self.self).setOrientationMask")
     )
 }

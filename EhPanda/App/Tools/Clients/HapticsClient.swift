@@ -31,8 +31,8 @@ extension HapticsClient {
 // MARK: API
 enum HapticsClientKey: DependencyKey {
     static let liveValue = HapticsClient.live
-    static let testValue = HapticsClient.noop
     static let previewValue = HapticsClient.noop
+    static let testValue = HapticsClient.unimplemented
 }
 
 extension DependencyValues {
@@ -47,5 +47,10 @@ extension HapticsClient {
     static let noop: Self = .init(
         generateFeedback: { _ in .none },
         generateNotificationFeedback: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        generateFeedback: XCTestDynamicOverlay.unimplemented("\(Self.self).generateFeedback"),
+        generateNotificationFeedback: XCTestDynamicOverlay.unimplemented("\(Self.self).generateNotificationFeedback")
     )
 }

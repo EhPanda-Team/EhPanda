@@ -71,8 +71,8 @@ extension URLClient {
 // MARK: API
 enum URLClientKey: DependencyKey {
     static let liveValue = URLClient.live
-    static let testValue = URLClient.noop
     static let previewValue = URLClient.noop
+    static let testValue = URLClient.unimplemented
 }
 
 extension DependencyValues {
@@ -88,5 +88,11 @@ extension URLClient {
         checkIfHandleable: { _ in false },
         checkIfMPVURL: { _ in false },
         parseGalleryID: { _ in .init() }
+    )
+
+    static let unimplemented: Self = .init(
+        checkIfHandleable: XCTestDynamicOverlay.unimplemented("\(Self.self).checkIfHandleable"),
+        checkIfMPVURL: XCTestDynamicOverlay.unimplemented("\(Self.self).checkIfMPVURL"),
+        parseGalleryID: XCTestDynamicOverlay.unimplemented("\(Self.self).parseGalleryID")
     )
 }

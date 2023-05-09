@@ -247,8 +247,8 @@ extension CookieClient {
 // MARK: API
 enum CookieClientKey: DependencyKey {
     static let liveValue = CookieClient.live
-    static let testValue = CookieClient.noop
     static let previewValue = CookieClient.noop
+    static let testValue = CookieClient.unimplemented
 }
 
 extension DependencyValues {
@@ -259,30 +259,6 @@ extension DependencyValues {
 }
 
 // MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension CookieClient {
-    static let failing: Self = .init(
-        clearAll: { .failing("\(Self.self).clearAll is unimplemented") },
-        getCookie: {
-            XCTFail("\(Self.self).getCookie(\($0), \($1)) is unimplemented")
-            return .empty
-        },
-        removeCookie: {
-            XCTFail("\(Self.self).removeCookie(\($0), \($1)) is unimplemented")
-        },
-        checkExistence: {
-            XCTFail("\(Self.self).checkExistence(\($0), \($1)) is unimplemented")
-            return false
-        },
-        initializeCookie: {
-            XCTFail("\(Self.self).initializeCookie(\($0), \($1)) is unimplemented")
-            return .init()
-        }
-    )
-}
-#endif
 extension CookieClient {
     static let noop: Self = .init(
         clearAll: { .none },
@@ -290,5 +266,13 @@ extension CookieClient {
         removeCookie: { _, _ in },
         checkExistence: { _, _ in false },
         initializeCookie: { _, _ in .init() }
+    )
+
+    static let unimplemented: Self = .init(
+        clearAll: XCTestDynamicOverlay.unimplemented("\(Self.self).clearAll"),
+        getCookie: XCTestDynamicOverlay.unimplemented("\(Self.self).getCookie"),
+        removeCookie: XCTestDynamicOverlay.unimplemented("\(Self.self).removeCookie"),
+        checkExistence: XCTestDynamicOverlay.unimplemented("\(Self.self).checkExistence"),
+        initializeCookie: XCTestDynamicOverlay.unimplemented("\(Self.self).initializeCookie")
     )
 }

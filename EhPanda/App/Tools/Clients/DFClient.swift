@@ -34,8 +34,8 @@ extension DFClient {
 // MARK: API
 enum DFClientKey: DependencyKey {
     static let liveValue = DFClient.live
-    static let testValue = DFClient.noop
     static let previewValue = DFClient.noop
+    static let testValue = DFClient.unimplemented
 }
 
 extension DependencyValues {
@@ -49,5 +49,9 @@ extension DependencyValues {
 extension DFClient {
     static let noop: Self = .init(
         setActive: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        setActive: XCTestDynamicOverlay.unimplemented("\(Self.self).setActive")
     )
 }

@@ -30,8 +30,8 @@ extension LoggerClient {
 // MARK: API
 enum LoggerClientKey: DependencyKey {
     static let liveValue = LoggerClient.live
-    static let testValue = LoggerClient.noop
     static let previewValue = LoggerClient.noop
+    static let testValue = LoggerClient.unimplemented
 }
 
 extension DependencyValues {
@@ -42,19 +42,14 @@ extension DependencyValues {
 }
 
 // MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension LoggerClient {
-    static let failing: Self = .init(
-        info: { .failing("\(Self.self).info(\($0), \(String(describing: $1))) is unimplemented") },
-        error: { .failing("\(Self.self).error(\($0), \(String(describing: $1))) is unimplemented") }
-    )
-}
-#endif
 extension LoggerClient {
     static let noop: Self = .init(
         info: { _, _ in .none },
         error: { _, _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        info: XCTestDynamicOverlay.unimplemented("\(Self.self).info"),
+        error: XCTestDynamicOverlay.unimplemented("\(Self.self).error")
     )
 }

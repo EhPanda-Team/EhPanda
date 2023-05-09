@@ -107,8 +107,8 @@ private final class ImageSaver: NSObject {
 // MARK: API
 enum ImageClientKey: DependencyKey {
     static let liveValue = ImageClient.live
-    static let testValue = ImageClient.noop
     static let previewValue = ImageClient.noop
+    static let testValue = ImageClient.unimplemented
 }
 
 extension DependencyValues {
@@ -125,5 +125,12 @@ extension ImageClient {
         saveImageToPhotoLibrary: { _, _ in .none },
         downloadImage: { _ in .none },
         retrieveImage: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        prefetchImages: XCTestDynamicOverlay.unimplemented("\(Self.self).prefetchImages"),
+        saveImageToPhotoLibrary: XCTestDynamicOverlay.unimplemented("\(Self.self).saveImageToPhotoLibrary"),
+        downloadImage: XCTestDynamicOverlay.unimplemented("\(Self.self).downloadImage"),
+        retrieveImage: XCTestDynamicOverlay.unimplemented("\(Self.self).retrieveImage")
     )
 }

@@ -35,8 +35,8 @@ extension DeviceClient {
 // MARK: API
 enum DeviceClientKey: DependencyKey {
     static let liveValue = DeviceClient.live
-    static let testValue = DeviceClient.noop
     static let previewValue = DeviceClient.noop
+    static let testValue = DeviceClient.unimplemented
 }
 
 extension DependencyValues {
@@ -53,5 +53,12 @@ extension DeviceClient {
         absWindowW: { .zero },
         absWindowH: { .zero },
         touchPoint: { .zero }
+    )
+
+    static let unimplemented: Self = .init(
+        isPad: XCTestDynamicOverlay.unimplemented("\(Self.self).isPad"),
+        absWindowW: XCTestDynamicOverlay.unimplemented("\(Self.self).absWindowW"),
+        absWindowH: XCTestDynamicOverlay.unimplemented("\(Self.self).absWindowH"),
+        touchPoint: XCTestDynamicOverlay.unimplemented("\(Self.self).touchPoint")
     )
 }

@@ -29,8 +29,8 @@ extension UserDefaultsClient {
 // MARK: API
 enum UserDefaultsClientKey: DependencyKey {
     static let liveValue = UserDefaultsClient.live
-    static let testValue = UserDefaultsClient.noop
     static let previewValue = UserDefaultsClient.noop
+    static let testValue = UserDefaultsClient.unimplemented
 }
 
 extension DependencyValues {
@@ -44,5 +44,9 @@ extension DependencyValues {
 extension UserDefaultsClient {
     static let noop: Self = .init(
         setValue: { _, _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        setValue: XCTestDynamicOverlay.unimplemented("\(Self.self).setValue")
     )
 }

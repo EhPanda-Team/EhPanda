@@ -538,8 +538,8 @@ extension DatabaseClient {
 // MARK: API
 enum DatabaseClientKey: DependencyKey {
     static let liveValue = DatabaseClient.live
-    static let testValue = DatabaseClient.noop
     static let previewValue = DatabaseClient.noop
+    static let testValue = DatabaseClient.unimplemented
 }
 
 extension DependencyValues {
@@ -550,26 +550,18 @@ extension DependencyValues {
 }
 
 // MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension DatabaseClient {
-    static let failing: Self = .init(
-        prepareDatabase: { .failing("\(Self.self).prepareDatabase is unimplemented") },
-        dropDatabase: { .failing("\(Self.self).dropDatabase is unimplemented") },
-        saveContext: { XCTFail("\(Self.self).saveContext is unimplemented") },
-        materializedObjects: {
-            XCTFail("\(Self.self).materializedObjects(\($0), \($1)) is unimplemented")
-            return .init()
-        }
-    )
-}
-#endif
 extension DatabaseClient {
     static let noop: Self = .init(
         prepareDatabase: { .none },
         dropDatabase: { .none },
         saveContext: {},
         materializedObjects: { _, _ in .init() }
+    )
+
+    static let unimplemented: Self = .init(
+        prepareDatabase: XCTestDynamicOverlay.unimplemented("\(Self.self).prepareDatabase"),
+        dropDatabase: XCTestDynamicOverlay.unimplemented("\(Self.self).dropDatabase"),
+        saveContext: XCTestDynamicOverlay.unimplemented("\(Self.self).saveContext"),
+        materializedObjects: XCTestDynamicOverlay.unimplemented("\(Self.self).materializedObjects")
     )
 }

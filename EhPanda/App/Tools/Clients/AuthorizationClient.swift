@@ -43,8 +43,8 @@ extension AuthorizationClient {
 // MARK: API
 enum AuthorizationClientKey: DependencyKey {
     static let liveValue = AuthorizationClient.live
-    static let testValue = AuthorizationClient.noop
     static let previewValue = AuthorizationClient.noop
+    static let testValue = AuthorizationClient.unimplemented
 }
 
 extension DependencyValues {
@@ -55,22 +55,14 @@ extension DependencyValues {
 }
 
 // MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension AuthorizationClient {
-    static let failing: Self = .init(
-        passcodeNotSet: {
-            XCTFail("\(Self.self).passcodeNotSet is unimplemented")
-            return false
-        },
-        localAuthroize: { .failing("\(Self.self).localAuthroize(\($0)) is unimplemented")}
-    )
-}
-#endif
 extension AuthorizationClient {
     static let noop: Self = .init(
         passcodeNotSet: { false },
         localAuthroize: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        passcodeNotSet: XCTestDynamicOverlay.unimplemented("\(Self.self).passcodeNotSet"),
+        localAuthroize: XCTestDynamicOverlay.unimplemented("\(Self.self).localAuthroize")
     )
 }
