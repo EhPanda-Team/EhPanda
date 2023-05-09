@@ -64,7 +64,7 @@ struct FrontpageEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -163,7 +163,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
     .haptics(
         unwrapping: \.route,
         case: /FrontpageState.Route.filters,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     filtersReducer.pullback(
@@ -184,7 +184,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

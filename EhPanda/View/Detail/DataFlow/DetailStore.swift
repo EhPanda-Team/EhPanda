@@ -114,7 +114,7 @@ struct DetailEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -186,11 +186,11 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
 
             case .toggleShowFullTitle:
                 state.showsFullTitle.toggle()
-                return environment.hapticClient.generateFeedback(.soft).fireAndForget()
+                return environment.hapticsClient.generateFeedback(.soft).fireAndForget()
 
             case .toggleShowUserRating:
                 state.showsUserRating.toggle()
-                return environment.hapticClient.generateFeedback(.soft).fireAndForget()
+                return environment.hapticsClient.generateFeedback(.soft).fireAndForget()
 
             case .setCommentContent(let content):
                 state.commentContent = content
@@ -208,7 +208,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 state.updateRating(value: value)
                 return .merge(
                     .init(value: .rateGallery),
-                    environment.hapticClient.generateFeedback(.soft).fireAndForget(),
+                    environment.hapticsClient.generateFeedback(.soft).fireAndForget(),
                     .init(value: .confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
                 )
 
@@ -340,10 +340,10 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 if case .success = result {
                     return .merge(
                         .init(value: .fetchGalleryDetail),
-                        environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
+                        environment.hapticsClient.generateNotificationFeedback(.success).fireAndForget()
                     )
                 }
-                return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
+                return environment.hapticsClient.generateNotificationFeedback(.error).fireAndForget()
 
             case .reading(.onPerformDismiss):
                 return .init(value: .setNavigation(nil))
@@ -386,38 +386,38 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.detailSearch,
-            hapticClient: \.hapticClient,
+            hapticsClient: \.hapticsClient,
             style: .soft
         )
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.postComment,
-            hapticClient: \.hapticClient
+            hapticsClient: \.hapticsClient
         )
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.tagDetail,
-            hapticClient: \.hapticClient
+            hapticsClient: \.hapticsClient
         )
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.torrents,
-            hapticClient: \.hapticClient
+            hapticsClient: \.hapticsClient
         )
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.archives,
-            hapticClient: \.hapticClient
+            hapticsClient: \.hapticsClient
         )
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.reading,
-            hapticClient: \.hapticClient
+            hapticsClient: \.hapticsClient
         )
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.share,
-            hapticClient: \.hapticClient
+            hapticsClient: \.hapticsClient
         )
         .binding(),
         readingReducer.pullback(
@@ -428,7 +428,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     urlClient: $0.urlClient,
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     cookiesClient: $0.cookiesClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
@@ -441,7 +441,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
             action: /DetailAction.archives,
             environment: {
                 .init(
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     cookiesClient: $0.cookiesClient,
                     databaseClient: $0.databaseClient
                 )
@@ -453,7 +453,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
             environment: {
                 .init(
                     fileClient: $0.fileClient,
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     clipboardClient: $0.clipboardClient
                 )
             }
@@ -466,7 +466,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     urlClient: $0.urlClient,
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     cookiesClient: $0.cookiesClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
@@ -483,7 +483,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     fileClient: $0.fileClient,
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     cookiesClient: $0.cookiesClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
@@ -501,7 +501,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     fileClient: $0.fileClient,
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     cookiesClient: $0.cookiesClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
@@ -515,7 +515,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
             action: /DetailAction.galleryInfos,
             environment: {
                 .init(
-                    hapticClient: $0.hapticClient,
+                    hapticsClient: $0.hapticsClient,
                     clipboardClient: $0.clipboardClient
                 )
             }

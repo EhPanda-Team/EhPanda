@@ -23,7 +23,7 @@ enum GalleryInfosAction: BindableAction {
 }
 
 struct GalleryInfosEnvironment {
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let clipboardClient: ClipboardClient
 }
 
@@ -37,7 +37,7 @@ let galleryInfosReducer = Reducer<GalleryInfosState, GalleryInfosAction, Gallery
         state.route = .hud
         return .merge(
             environment.clipboardClient.saveText(text).fireAndForget(),
-            environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
+            environment.hapticsClient.generateNotificationFeedback(.success).fireAndForget()
         )
     }
 }

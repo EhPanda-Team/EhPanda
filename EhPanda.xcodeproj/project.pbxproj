@@ -13,7 +13,7 @@
 		AB0929C6278160AE00F107CA /* LibraryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C5278160AE00F107CA /* LibraryClient.swift */; };
 		AB0929C82781938A00F107CA /* DFClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C72781938A00F107CA /* DFClient.swift */; };
 		AB0929CA278196ED00F107CA /* CookiesClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C9278196ED00F107CA /* CookiesClient.swift */; };
-		AB0929CC2781A0B000F107CA /* HapticClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CB2781A0B000F107CA /* HapticClient.swift */; };
+		AB0929CC2781A0B000F107CA /* HapticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CB2781A0B000F107CA /* HapticsClient.swift */; };
 		AB0929CE2781AADA00F107CA /* DatabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CD2781AADA00F107CA /* DatabaseClient.swift */; };
 		AB0929D02781E1CC00F107CA /* UIApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */; };
 		AB0929D22781E7D500F107CA /* LoggerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929D12781E7D500F107CA /* LoggerClient.swift */; };
@@ -152,7 +152,7 @@
 		AB7BF2CC27A96A3C001865A3 /* GalleryTorrent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2CB27A96A3C001865A3 /* GalleryTorrent.swift */; };
 		AB7BF2CE27AA3E58001865A3 /* AppUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2CD27AA3E58001865A3 /* AppUtil.swift */; };
 		AB7BF2D027AA3E75001865A3 /* DeviceUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */; };
-		AB7BF2D227AA3EDC001865A3 /* HapticUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D127AA3EDC001865A3 /* HapticUtil.swift */; };
+		AB7BF2D227AA3EDC001865A3 /* HapticsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */; };
 		AB7BF2D427AA3F12001865A3 /* CookiesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */; };
 		AB7BF2D627AA3F4C001865A3 /* FileUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */; };
 		AB7BF2D827AA3F61001865A3 /* UserDefaultsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */; };
@@ -315,7 +315,7 @@
 		AB0929C5278160AE00F107CA /* LibraryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryClient.swift; sourceTree = "<group>"; };
 		AB0929C72781938A00F107CA /* DFClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFClient.swift; sourceTree = "<group>"; };
 		AB0929C9278196ED00F107CA /* CookiesClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesClient.swift; sourceTree = "<group>"; };
-		AB0929CB2781A0B000F107CA /* HapticClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticClient.swift; sourceTree = "<group>"; };
+		AB0929CB2781A0B000F107CA /* HapticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsClient.swift; sourceTree = "<group>"; };
 		AB0929CD2781AADA00F107CA /* DatabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseClient.swift; sourceTree = "<group>"; };
 		AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplicationClient.swift; sourceTree = "<group>"; };
 		AB0929D12781E7D500F107CA /* LoggerClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerClient.swift; sourceTree = "<group>"; };
@@ -452,7 +452,7 @@
 		AB7BF2CB27A96A3C001865A3 /* GalleryTorrent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryTorrent.swift; sourceTree = "<group>"; };
 		AB7BF2CD27AA3E58001865A3 /* AppUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUtil.swift; sourceTree = "<group>"; };
 		AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceUtil.swift; sourceTree = "<group>"; };
-		AB7BF2D127AA3EDC001865A3 /* HapticUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticUtil.swift; sourceTree = "<group>"; };
+		AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsUtil.swift; sourceTree = "<group>"; };
@@ -652,7 +652,7 @@
 				ABBB2676279CDBB0007B6149 /* ImageClient.swift */,
 				AB706F8D278A5DCF0025A48A /* DeviceClient.swift */,
 				AB0929D12781E7D500F107CA /* LoggerClient.swift */,
-				AB0929CB2781A0B000F107CA /* HapticClient.swift */,
+				AB0929CB2781A0B000F107CA /* HapticsClient.swift */,
 				AB0929C5278160AE00F107CA /* LibraryClient.swift */,
 				AB0929C9278196ED00F107CA /* CookiesClient.swift */,
 				AB0929CD2781AADA00F107CA /* DatabaseClient.swift */,
@@ -1250,7 +1250,7 @@
 				AB7BF2CD27AA3E58001865A3 /* AppUtil.swift */,
 				AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */,
 				AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */,
-				AB7BF2D127AA3EDC001865A3 /* HapticUtil.swift */,
+				AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */,
 				AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */,
 				AB0CFBD427C24B3B004BD372 /* MarkdownUtil.swift */,
 				AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */,
@@ -1688,7 +1688,7 @@
 				ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */,
 				AB7BF2C827A968F7001865A3 /* GalleryComment.swift in Sources */,
 				AB706F97278A77E20025A48A /* HistoryStore.swift in Sources */,
-				AB0929CC2781A0B000F107CA /* HapticClient.swift in Sources */,
+				AB0929CC2781A0B000F107CA /* HapticsClient.swift in Sources */,
 				ABD4032626B78E5A00001B8C /* GalleryThumbnailCell.swift in Sources */,
 				AB0CFBCD27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift in Sources */,
 				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
@@ -1716,7 +1716,7 @@
 				AB7BF2D427AA3F12001865A3 /* CookiesUtil.swift in Sources */,
 				AB7BF30A27ABDFF1001865A3 /* CoreDataMigrationStep.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
-				AB7BF2D227AA3EDC001865A3 /* HapticUtil.swift in Sources */,
+				AB7BF2D227AA3EDC001865A3 /* HapticsUtil.swift in Sources */,
 				ABD49D5A277C5356003D1A07 /* FavoritesStore.swift in Sources */,
 				AB1EF25427AFA19200F507D6 /* Heap.swift in Sources */,
 				AB7BF2C227A96760001865A3 /* GalleryDetail.swift in Sources */,

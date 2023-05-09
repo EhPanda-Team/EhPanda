@@ -139,7 +139,7 @@ struct GalleryInfosView_Previews: PreviewProvider {
                     initialState: .init(),
                     reducer: galleryInfosReducer,
                     environment: GalleryInfosEnvironment(
-                        hapticClient: .live,
+                        hapticsClient: .live,
                         clipboardClient: .live
                     )
                 ),

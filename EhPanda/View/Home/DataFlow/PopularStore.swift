@@ -52,7 +52,7 @@ struct PopularEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -113,7 +113,7 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
     .haptics(
         unwrapping: \.route,
         case: /PopularState.Route.filters,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     filtersReducer.pullback(
@@ -134,7 +134,7 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

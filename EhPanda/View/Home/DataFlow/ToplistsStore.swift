@@ -85,7 +85,7 @@ struct ToplistsEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -125,13 +125,13 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             guard let index = Int(state.jumpPageIndex),
                   let pageNumber = state.pageNumber,
                   index > 0, index <= pageNumber.maximum + 1 else {
-                return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
+                return environment.hapticsClient.generateNotificationFeedback(.error).fireAndForget()
             }
             return .init(value: .fetchGalleries(index - 1))
 
         case .presentJumpPageAlert:
             state.jumpPageAlertPresented = true
-            return environment.hapticClient.generateFeedback(.light).fireAndForget()
+            return environment.hapticsClient.generateFeedback(.light).fireAndForget()
 
         case .setJumpPageAlertFocused(let isFocused):
             state.jumpPageAlertFocused = isFocused
@@ -217,7 +217,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

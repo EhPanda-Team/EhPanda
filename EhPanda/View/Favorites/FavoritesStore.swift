@@ -79,7 +79,7 @@ struct FavoritesEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -197,7 +197,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
     .haptics(
         unwrapping: \.route,
         case: /FavoritesState.Route.quickSearch,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     detailReducer.pullback(
@@ -209,7 +209,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

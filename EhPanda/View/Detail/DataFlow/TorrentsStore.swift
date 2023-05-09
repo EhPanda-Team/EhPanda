@@ -40,7 +40,7 @@ enum TorrentsAction: BindableAction {
 
 struct TorrentsEnvironment {
     let fileClient: FileClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let clipboardClient: ClipboardClient
 }
 
@@ -57,7 +57,7 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
         state.route = .hud
         return .merge(
             environment.clipboardClient.saveText(magnetURL).fireAndForget(),
-            environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
+            environment.hapticsClient.generateNotificationFeedback(.success).fireAndForget()
         )
 
     case .presentTorrentActivity(let hash, let data):
@@ -103,6 +103,6 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
 .haptics(
     unwrapping: \.route,
     case: /TorrentsState.Route.share,
-    hapticClient: \.hapticClient
+    hapticsClient: \.hapticsClient
 )
 .binding()

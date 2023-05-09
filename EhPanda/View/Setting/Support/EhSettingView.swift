@@ -536,7 +536,7 @@ private struct ExcludeView: View {
                     .opacity(isExcluded.wrappedValue ? 1 : 0)
                 }
                 .onTapGesture {
-                    HapticUtil.generateFeedback(style: .soft)
+                    HapticsUtil.generateFeedback(style: .soft)
                     withAnimation { isExcluded.wrappedValue.toggle() }
                 }
             }
@@ -714,7 +714,7 @@ private struct ExcludeToggle: View {
             }
         .onTapGesture {
             withAnimation { isOn.toggle() }
-            HapticUtil.generateFeedback(style: .soft)
+            HapticsUtil.generateFeedback(style: .soft)
         }
     }
 }
@@ -1089,7 +1089,7 @@ struct EhSettingView_Previews: PreviewProvider {
                     initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
                     reducer: ehSettingReducer,
                     environment: EhSettingEnvironment(
-                        hapticClient: .live,
+                        hapticsClient: .live,
                         cookiesClient: .live,
                         uiApplicationClient: .live
                     )

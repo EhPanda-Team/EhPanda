@@ -64,7 +64,7 @@ struct DetailSearchEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -179,12 +179,12 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
     .haptics(
         unwrapping: \.route,
         case: /DetailSearchState.Route.quickSearch,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .haptics(
         unwrapping: \.route,
         case: /DetailSearchState.Route.filters,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     filtersReducer.pullback(

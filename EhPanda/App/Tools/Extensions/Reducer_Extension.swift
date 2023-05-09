@@ -39,11 +39,11 @@ extension Reducer {
     func haptics<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,
-        hapticClient: @escaping (Environment) -> HapticClient,
+        hapticsClient: @escaping (Environment) -> HapticsClient,
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
     ) -> Self {
         onBecomeNonNil(unwrapping: `enum`, case: casePath) {
-            hapticClient($2).generateFeedback(style).fireAndForget()
+            hapticsClient($2).generateFeedback(style).fireAndForget()
         }
     }
 }
@@ -52,7 +52,7 @@ extension ReducerProtocol {
     func haptics<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,
-        hapticsClient: HapticClient,
+        hapticsClient: HapticsClient,
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
     ) -> some ReducerProtocol<State, Action> {
         onBecomeNonNil(unwrapping: `enum`, case: casePath) { _, _ in

@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             imageClient: .live,
             deviceClient: .live,
             loggerClient: .live,
-            hapticClient: .live,
+            hapticsClient: .live,
             libraryClient: .live,
             cookiesClient: .live,
             databaseClient: .live,

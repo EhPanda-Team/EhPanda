@@ -44,7 +44,7 @@ enum ArchivesAction: BindableAction {
 }
 
 struct ArchivesEnvironment {
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
 }
@@ -133,7 +133,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
             state.messageHUDConfig = .error
             isSuccess = false
         }
-        return environment.hapticClient.generateNotificationFeedback(isSuccess ? .success : .error).fireAndForget()
+        return environment.hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error).fireAndForget()
     }
 }
 .binding()

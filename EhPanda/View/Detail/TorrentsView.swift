@@ -123,7 +123,7 @@ struct TorrentsView_Previews: PreviewProvider {
                 reducer: torrentsReducer,
                 environment: TorrentsEnvironment(
                     fileClient: .live,
-                    hapticClient: .live,
+                    hapticsClient: .live,
                     clipboardClient: .live
                 )
             ),

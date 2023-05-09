@@ -55,7 +55,7 @@ struct PreviewsEnvironment {
     let urlClient: URLClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -139,7 +139,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
     .haptics(
         unwrapping: \.route,
         case: /PreviewsState.Route.reading,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     readingReducer.pullback(
@@ -150,7 +150,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
                 urlClient: $0.urlClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

@@ -53,7 +53,7 @@ struct AppRouteEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let loggerClient: LoggerClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
@@ -174,12 +174,12 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
     .haptics(
         unwrapping: \.route,
         case: /AppRouteState.Route.newDawn,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .haptics(
         unwrapping: \.route,
         case: /AppRouteState.Route.detail,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     detailReducer.pullback(
@@ -191,7 +191,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

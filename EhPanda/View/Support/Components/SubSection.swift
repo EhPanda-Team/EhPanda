@@ -37,7 +37,7 @@ struct SubSection<Content: View>: View {
             HStack {
                 Button {
                     reloadAction?()
-                    HapticUtil.generateFeedback(style: .soft)
+                    HapticsUtil.generateFeedback(style: .soft)
                 } label: {
                     HStack(spacing: 10) {
                         Text(title).font(.title3.bold())

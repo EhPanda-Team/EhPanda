@@ -1,5 +1,5 @@
 //
-//  HapticUtil.swift
+//  HapticsUtil.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/02/02.
@@ -8,7 +8,7 @@
 import SwiftUI
 import AudioToolbox
 
-struct HapticUtil {
+struct HapticsUtil {
     static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         guard !isLegacyTapticEngine else {
             generateLegacyFeedback()

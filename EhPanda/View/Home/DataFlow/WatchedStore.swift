@@ -64,7 +64,7 @@ struct WatchedEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -175,12 +175,12 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
     .haptics(
         unwrapping: \.route,
         case: /WatchedState.Route.quickSearch,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .haptics(
         unwrapping: \.route,
         case: /WatchedState.Route.filters,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     filtersReducer.pullback(
@@ -210,7 +210,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

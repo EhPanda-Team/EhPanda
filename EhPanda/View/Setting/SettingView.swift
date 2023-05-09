@@ -191,7 +191,7 @@ struct SettingView_Previews: PreviewProvider {
                     fileClient: .live,
                     deviceClient: .live,
                     loggerClient: .live,
-                    hapticClient: .live,
+                    hapticsClient: .live,
                     libraryClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,

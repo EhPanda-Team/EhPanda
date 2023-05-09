@@ -168,7 +168,7 @@ struct ReadingEnvironment {
     let urlClient: URLClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -178,7 +178,7 @@ struct ReadingEnvironment {
 let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { state, action, environment in
     switch action {
     case .binding(\.$showsSliderPreview):
-        return environment.hapticClient.generateFeedback(.soft).fireAndForget()
+        return environment.hapticsClient.generateFeedback(.soft).fireAndForget()
 
     case .binding:
         return .none
@@ -202,7 +202,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .merge(effects)
 
     case .onPerformDismiss:
-        return environment.hapticClient.generateFeedback(.light).fireAndForget()
+        return environment.hapticsClient.generateFeedback(.light).fireAndForget()
 
     case .onAppear(let gid, let enablesLandscape):
         var effects: [EffectTask<ReadingAction>] = [
@@ -577,11 +577,11 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 .haptics(
     unwrapping: \.route,
     case: /ReadingState.Route.readingSetting,
-    hapticClient: \.hapticClient
+    hapticsClient: \.hapticsClient
 )
 .haptics(
     unwrapping: \.route,
     case: /ReadingState.Route.share,
-    hapticClient: \.hapticClient
+    hapticsClient: \.hapticsClient
 )
 .binding()

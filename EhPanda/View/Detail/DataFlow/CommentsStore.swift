@@ -67,7 +67,7 @@ struct CommentsEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -222,6 +222,6 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
 .haptics(
     unwrapping: \.route,
     case: /CommentsState.Route.postComment,
-    hapticClient: \.hapticClient
+    hapticsClient: \.hapticsClient
 )
 .binding()

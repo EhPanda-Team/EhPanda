@@ -86,7 +86,7 @@ struct SearchRootEnvironment {
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
@@ -183,12 +183,12 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
     .haptics(
         unwrapping: \.route,
         case: /SearchRootState.Route.quickSearch,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .haptics(
         unwrapping: \.route,
         case: /SearchRootState.Route.filters,
-        hapticClient: \.hapticClient
+        hapticsClient: \.hapticsClient
     )
     .binding(),
     searchReducer.pullback(
@@ -200,7 +200,7 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
@@ -236,7 +236,7 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,

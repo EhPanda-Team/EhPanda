@@ -12,7 +12,7 @@ import ComposableArchitecture
 class AccountSettingStoreTests: XCTestCase {
     private var noopEnvironment: AccountSettingEnvironment {
         .init(
-            hapticClient: .noop,
+            hapticsClient: .noop,
             cookiesClient: .noop,
             clipboardClient: .noop,
             uiApplicationClient: .noop
@@ -68,7 +68,7 @@ class AccountSettingStoreTests: XCTestCase {
             ),
             reducer: accountSettingReducer,
             environment: AccountSettingEnvironment(
-                hapticClient: .noop,
+                hapticsClient: .noop,
                 cookiesClient: .live,
                 clipboardClient: .noop,
                 uiApplicationClient: .noop
@@ -134,7 +134,7 @@ class AccountSettingStoreTests: XCTestCase {
             ),
             reducer: accountSettingReducer,
             environment: AccountSettingEnvironment(
-                hapticClient: .noop,
+                hapticsClient: .noop,
                 cookiesClient: .live,
                 clipboardClient: .noop,
                 uiApplicationClient: .noop

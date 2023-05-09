@@ -49,7 +49,7 @@ enum EhSettingAction: BindableAction, Equatable {
 }
 
 struct EhSettingEnvironment {
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let cookiesClient: CookiesClient
     let uiApplicationClient: UIApplicationClient
 }
@@ -133,6 +133,6 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
 .haptics(
     unwrapping: \.route,
     case: /EhSettingState.Route.webView,
-    hapticClient: \.hapticClient
+    hapticsClient: \.hapticsClient
 )
 .binding()

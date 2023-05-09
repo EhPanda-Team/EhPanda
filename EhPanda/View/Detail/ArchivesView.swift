@@ -98,7 +98,7 @@ private struct HathArchivesView: View {
                     Button {
                         if archive.isValid {
                             selection = archive
-                            HapticUtil.generateFeedback(style: .soft)
+                            HapticsUtil.generateFeedback(style: .soft)
                         }
                     } label: {
                         HathArchiveGrid(isSelected: selection == archive, archive: archive)
@@ -225,7 +225,7 @@ struct ArchivesView_Previews: PreviewProvider {
                 initialState: .init(),
                 reducer: archivesReducer,
                 environment: ArchivesEnvironment(
-                    hapticClient: .live,
+                    hapticsClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live
                 )

@@ -605,7 +605,7 @@ struct ReadingView_Previews: PreviewProvider {
                                 urlClient: .live,
                                 imageClient: .live,
                                 deviceClient: .live,
-                                hapticClient: .live,
+                                hapticsClient: .live,
                                 cookiesClient: .live,
                                 databaseClient: .live,
                                 clipboardClient: .live,

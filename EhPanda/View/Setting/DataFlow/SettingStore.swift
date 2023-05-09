@@ -98,7 +98,7 @@ struct SettingEnvironment {
     let fileClient: FileClient
     let deviceClient: DeviceClient
     let loggerClient: LoggerClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
@@ -181,7 +181,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.$setting.bypassesSNIFiltering):
             return .merge(
                 .init(value: .syncSetting),
-                environment.hapticClient.generateFeedback(.soft).fireAndForget(),
+                environment.hapticsClient.generateFeedback(.soft).fireAndForget(),
                 environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
             )
 
@@ -460,7 +460,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 //        action: /SettingAction.account,
 //        environment: {
 //            .init(
-//                hapticClient: $0.hapticClient,
+//                hapticsClient: $0.hapticsClient,
 //                cookiesClient: $0.cookiesClient,
 //                clipboardClient: $0.clipboardClient,
 //                uiApplicationClient: $0.uiApplicationClient

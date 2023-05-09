@@ -24,7 +24,7 @@ struct AccountSettingReducer: ReducerProtocol {
         @BindingState var exCookiesState: CookiesState = .empty(.exhentai)
         var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
 
-        var loginState = LoginState()
+        var loginState = LoginReducer.State()
         var ehSettingState = EhSettingState()
     }
 
@@ -37,13 +37,13 @@ struct AccountSettingReducer: ReducerProtocol {
         case loadCookies
         case copyCookies(GalleryHost)
 
-        case login(LoginAction)
+        case login(LoginReducer.Action)
         case ehSetting(EhSettingAction)
     }
 
     @Dependency(\.clipboardClient) private var clipboardClient
     @Dependency(\.cookiesClient) private var cookiesClient
-    @Dependency(\.hapticClient) private var hapticClient
+    @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -85,7 +85,7 @@ struct AccountSettingReducer: ReducerProtocol {
                 return .merge(
                     .init(value: .setNavigation(.hud)),
                     clipboardClient.saveText(cookiesDescription).fireAndForget(),
-                    hapticClient.generateNotificationFeedback(.success).fireAndForget()
+                    hapticsClient.generateNotificationFeedback(.success).fireAndForget()
                 )
 
             case .login(.loginDone):
@@ -101,7 +101,7 @@ struct AccountSettingReducer: ReducerProtocol {
         .haptics(
             unwrapping: \.route,
             case: /Route.webView,
-            hapticsClient: hapticClient
+            hapticsClient: hapticsClient
         )
 
 //        // TODO: Child reducers

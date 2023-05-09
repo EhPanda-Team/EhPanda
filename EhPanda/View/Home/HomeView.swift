@@ -527,7 +527,7 @@ struct HomeView_Previews: PreviewProvider {
                     fileClient: .live,
                     imageClient: .live,
                     deviceClient: .live,
-                    hapticClient: .live,
+                    hapticsClient: .live,
                     libraryClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,

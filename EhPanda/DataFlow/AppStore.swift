@@ -43,7 +43,7 @@ struct AppEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let loggerClient: LoggerClient
-    let hapticClient: HapticClient
+    let hapticsClient: HapticsClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
@@ -113,7 +113,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .tabBar(.setTabBarItemType(let type)):
         var effects = [EffectTask<AppAction>]()
-        let hapticEffect: EffectTask<AppAction> = environment.hapticClient
+        let hapticEffect: EffectTask<AppAction> = environment.hapticsClient
             .generateFeedback(.soft).fireAndForget()
         if type == state.tabBarState.tabBarItemType {
             switch type {
@@ -157,7 +157,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
         var effects: [EffectTask<AppAction>] = [
-            environment.hapticClient.generateFeedback(.soft).fireAndForget(),
+            environment.hapticsClient.generateFeedback(.soft).fireAndForget(),
             .init(value: .tabBar(.setTabBarItemType(.setting)))
         ]
         effects.append(.init(value: .setting(.setNavigation(.account))))
@@ -217,7 +217,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 loggerClient: $0.loggerClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
@@ -268,7 +268,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
@@ -287,7 +287,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
@@ -306,7 +306,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
@@ -324,7 +324,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 fileClient: $0.fileClient,
                 deviceClient: $0.deviceClient,
                 loggerClient: $0.loggerClient,
-                hapticClient: $0.hapticClient,
+                hapticsClient: $0.hapticsClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
