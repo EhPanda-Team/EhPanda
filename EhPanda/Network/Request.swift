@@ -704,8 +704,12 @@ struct IgneousRequest: Request {
     }
 }
 
+struct VerifyEhProfileResponse: Equatable {
+    let profileValue: Int?
+    let isProfileNotFound: Bool
+}
 struct VerifyEhProfileRequest: Request {
-    var publisher: AnyPublisher<(Int?, Bool), AppError> {
+    var publisher: AnyPublisher<VerifyEhProfileResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }

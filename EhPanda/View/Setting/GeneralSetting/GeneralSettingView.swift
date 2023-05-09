@@ -10,8 +10,8 @@ import FilePicker
 import ComposableArchitecture
 
 struct GeneralSettingView: View {
-    private let store: Store<GeneralSettingState, GeneralSettingAction>
-    @ObservedObject private var viewStore: ViewStore<GeneralSettingState, GeneralSettingAction>
+    private let store: StoreOf<GeneralSettingReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<GeneralSettingReducer>
     private let tagTranslatorLoadingState: LoadingState
     private let tagTranslatorEmpty: Bool
     private let tagTranslatorHasCustomTranslations: Bool
@@ -25,7 +25,7 @@ struct GeneralSettingView: View {
     @Binding private var autoLockPolicy: AutoLockPolicy
 
     init(
-        store: Store<GeneralSettingState, GeneralSettingAction>,
+        store: StoreOf<GeneralSettingReducer>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
         tagTranslatorHasCustomTranslations: Bool, enablesTagsExtension: Binding<Bool>,
         translatesTags: Binding<Bool>, showsTagsSearchSuggestion: Binding<Bool>,
@@ -107,7 +107,7 @@ struct GeneralSettingView: View {
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.removeCustomTranslations,
                         unwrapping: viewStore.binding(\.$route),
-                        case: /GeneralSettingState.Route.removeCustomTranslations
+                        case: /GeneralSettingReducer.Route.removeCustomTranslations
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.remove, role: .destructive) {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -165,7 +165,7 @@ struct GeneralSettingView: View {
                 .confirmationDialog(
                     message: L10n.Localizable.ConfirmationDialog.Title.clear,
                     unwrapping: viewStore.binding(\.$route),
-                    case: /GeneralSettingState.Route.clearCache
+                    case: /GeneralSettingReducer.Route.clearCache
                 ) {
                     Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
                         viewStore.send(.clearWebImageCache)
@@ -186,8 +186,8 @@ struct GeneralSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /GeneralSettingState.Route.logs) { _ in
-            LogsView(store: store.scope(state: \.logsState, action: GeneralSettingAction.logs))
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /GeneralSettingReducer.Route.logs) { _ in
+            LogsView(store: store.scope(state: \.logsState, action: GeneralSettingReducer.Action.logs))
         }
     }
 }
@@ -198,15 +198,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
             GeneralSettingView(
                 store: .init(
                     initialState: .init(),
-                    reducer: generalSettingReducer,
-                    environment: GeneralSettingEnvironment(
-                        fileClient: .live,
-                        loggerClient: .live,
-                        libraryClient: .live,
-                        databaseClient: .live,
-                        uiApplicationClient: .live,
-                        authorizationClient: .live
-                    )
+                    reducer: GeneralSettingReducer()
                 ),
                 tagTranslatorLoadingState: .idle,
                 tagTranslatorEmpty: false,

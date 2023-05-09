@@ -9,12 +9,12 @@ import SwiftUI
 import ComposableArchitecture
 
 struct EhSettingView: View {
-    private let store: Store<EhSettingState, EhSettingAction>
-    @ObservedObject private var viewStore: ViewStore<EhSettingState, EhSettingAction>
+    private let store: StoreOf<EhSettingReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<EhSettingReducer>
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
-    init(store: Store<EhSettingState, EhSettingAction>, bypassesSNIFiltering: Bool, blurRadius: Double) {
+    init(store: StoreOf<EhSettingReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.bypassesSNIFiltering = bypassesSNIFiltering
@@ -50,7 +50,7 @@ struct EhSettingView: View {
                 viewStore.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingState.Route.webView) { route in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
@@ -139,7 +139,7 @@ struct EhSettingView: View {
 
 // MARK: EhProfileSection
 private struct EhProfileSection: View {
-    @Binding private var route: EhSettingState.Route?
+    @Binding private var route: EhSettingReducer.Route?
     @Binding private var ehSetting: EhSetting
     @Binding private var ehProfile: EhProfile
     @Binding private var editingProfileName: String
@@ -150,7 +150,7 @@ private struct EhProfileSection: View {
     @FocusState private var isFocused
 
     init(
-        route: Binding<EhSettingState.Route?>, ehSetting: Binding<EhSetting>,
+        route: Binding<EhSettingReducer.Route?>, ehSetting: Binding<EhSetting>,
         ehProfile: Binding<EhProfile>, editingProfileName: Binding<String>,
         deleteAction: @escaping () -> Void, deleteDialogAction: @escaping () -> Void,
         performEhProfileAction: @escaping (EhProfileAction?, String?, Int) -> Void
@@ -187,7 +187,7 @@ private struct EhProfileSection: View {
                 .confirmationDialog(
                     message: L10n.Localizable.ConfirmationDialog.Title.delete,
                     unwrapping: $route,
-                    case: /EhSettingState.Route.deleteProfile
+                    case: /EhSettingReducer.Route.deleteProfile
                 ) {
                     Button(
                         L10n.Localizable.ConfirmationDialog.Button.delete,
@@ -1087,12 +1087,7 @@ struct EhSettingView_Previews: PreviewProvider {
             EhSettingView(
                 store: .init(
                     initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
-                    reducer: ehSettingReducer,
-                    environment: EhSettingEnvironment(
-                        hapticsClient: .live,
-                        cookieClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: EhSettingReducer()
                 ),
                 bypassesSNIFiltering: false,
                 blurRadius: 0

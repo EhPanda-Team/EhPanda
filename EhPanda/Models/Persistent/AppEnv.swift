@@ -5,7 +5,7 @@
 //  Created by 荒木辰造 on R 4/02/04.
 //
 
-struct AppEnv: Codable {
+struct AppEnv: Codable, Equatable {
     let user: User
     let setting: Setting
     let searchFilter: Filter

@@ -159,7 +159,7 @@
 "enum.setting_state_route.value.appearance" = "Appearance";
 "enum.setting_state_route.value.reading" = "Reading";
 "enum.setting_state_route.value.laboratory" = "Laboratory";
-"enum.setting_state_route.value.ehPanda" = "About EhPanda";
+"enum.setting_state_route.value.about" = "About EhPanda";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "Account";
@@ -254,15 +254,15 @@
 "laboratory_setting_view.title.laboratory" = "Laboratory";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "Bypasses SNI Filtering";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "Website";
-"ehPanda_view.button.altStore_source" = "AltStore source";
-"ehPanda_view.title.version" = "Version";
-"ehPanda_view.section.title.special_thanks" = "Special thanks";
-"ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
-"ehPanda_view.section.title.translation_contributors" = "Translation contributors";
-"ehPanda_view.section.title.acknowledgements" = "Acknowledgements";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "Website";
+"about_view.button.altStore_source" = "AltStore source";
+"about_view.title.version" = "Version";
+"about_view.section.title.special_thanks" = "Special thanks";
+"about_view.section.title.code_level_contributors" = "Code-level contributors";
+"about_view.section.title.translation_contributors" = "Translation contributors";
+"about_view.section.title.acknowledgements" = "Acknowledgements";
 
 // MARK: DetailView
 "detail_view.button.read" = "Read";

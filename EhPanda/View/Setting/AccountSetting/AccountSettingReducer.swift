@@ -25,7 +25,7 @@ struct AccountSettingReducer: ReducerProtocol {
         var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
 
         var loginState = LoginReducer.State()
-        var ehSettingState = EhSettingState()
+        var ehSettingState = EhSettingReducer.State()
     }
 
     enum Action: BindableAction, Equatable {
@@ -38,7 +38,7 @@ struct AccountSettingReducer: ReducerProtocol {
         case copyCookies(GalleryHost)
 
         case login(LoginReducer.Action)
-        case ehSetting(EhSettingAction)
+        case ehSetting(EhSettingReducer.Action)
     }
 
     @Dependency(\.clipboardClient) private var clipboardClient
@@ -104,9 +104,8 @@ struct AccountSettingReducer: ReducerProtocol {
             hapticsClient: hapticsClient
         )
 
-//        // TODO: Child reducers
-//        Scope(state: \.loginState, action: /Action.login, child: { loginReducer })
-//        Scope(state: \.ehSettingState, action: /Action.ehSetting, child: { ehSettingReducer })
+        Scope(state: \.loginState, action: /Action.login, child: LoginReducer.init)
+        Scope(state: \.ehSettingState, action: /Action.ehSetting, child: EhSettingReducer.init)
 
         BindingReducer()
     }

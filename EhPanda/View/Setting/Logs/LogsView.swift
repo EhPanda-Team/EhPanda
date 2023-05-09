@@ -9,10 +9,10 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LogsView: View {
-    private let store: Store<LogsState, LogsAction>
-    @ObservedObject private var viewStore: ViewStore<LogsState, LogsAction>
+    private let store: StoreOf<LogsReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<LogsReducer>
 
-    init(store: Store<LogsState, LogsAction>) {
+    init(store: StoreOf<LogsReducer>) {
         self.store = store
         viewStore = ViewStore(store)
     }
@@ -56,7 +56,7 @@ struct LogsView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /LogsState.Route.log) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /LogsReducer.Route.log) { route in
             LogView(log: route.wrappedValue)
         }
     }
@@ -177,11 +177,7 @@ struct LogsView_Previews: PreviewProvider {
             LogsView(
                 store: .init(
                     initialState: .init(),
-                    reducer: logsReducer,
-                    environment: .init(
-                        fileClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: LogsReducer()
                 )
             )
         }

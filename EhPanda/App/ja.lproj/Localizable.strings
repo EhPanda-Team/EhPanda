@@ -159,7 +159,7 @@
 "enum.setting_state_route.value.appearance" = "外観";
 "enum.setting_state_route.value.reading" = "閲覧";
 "enum.setting_state_route.value.laboratory" = "ラボ";
-"enum.setting_state_route.value.ehPanda" = "EhPanda について";
+"enum.setting_state_route.value.about" = "EhPanda について";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "アカウント";
@@ -254,15 +254,15 @@
 "laboratory_setting_view.title.laboratory" = "ラボ";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI フィルタリング回避";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "ウェブサイト";
-"ehPanda_view.button.altStore_source" = "AltStore ソース";
-"ehPanda_view.title.version" = "バージョン";
-"ehPanda_view.section.title.special_thanks" = "特別な感謝";
-"ehPanda_view.section.title.code_level_contributors" = "コードレベル貢献者";
-"ehPanda_view.section.title.translation_contributors" = "翻訳貢献者";
-"ehPanda_view.section.title.acknowledgements" = "謝辞";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "ウェブサイト";
+"about_view.button.altStore_source" = "AltStore ソース";
+"about_view.title.version" = "バージョン";
+"about_view.section.title.special_thanks" = "特別な感謝";
+"about_view.section.title.code_level_contributors" = "コードレベル貢献者";
+"about_view.section.title.translation_contributors" = "翻訳貢献者";
+"about_view.section.title.acknowledgements" = "謝辞";
 
 // MARK: DetailView
 "detail_view.button.read" = "閲覧";

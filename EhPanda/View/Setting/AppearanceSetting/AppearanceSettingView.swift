@@ -9,8 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppearanceSettingView: View {
-    private let store: Store<AppearanceSettingState, AppearanceSettingAction>
-    @ObservedObject private var viewStore: ViewStore<AppearanceSettingState, AppearanceSettingAction>
+    private let store: StoreOf<AppearanceSettingReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<AppearanceSettingReducer>
 
     @Binding private var preferredColorScheme: PreferredColorScheme
     @Binding private var accentColor: Color
@@ -21,7 +21,7 @@ struct AppearanceSettingView: View {
     @Binding private var displaysJapaneseTitle: Bool
 
     init(
-        store: Store<AppearanceSettingState, AppearanceSettingAction>,
+        store: StoreOf<AppearanceSettingReducer>,
         preferredColorScheme: Binding<PreferredColorScheme>,
         accentColor: Binding<Color>,
         appIconType: Binding<AppIconType>,
@@ -107,7 +107,7 @@ struct AppearanceSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingState.Route.appIcon) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingReducer.Route.appIcon) { _ in
             AppIconView(appIconType: $appIconType)
         }
     }
@@ -230,8 +230,7 @@ struct AppearanceSettingView_Previews: PreviewProvider {
             AppearanceSettingView(
                 store: .init(
                     initialState: .init(),
-                    reducer: appearanceSettingReducer,
-                    environment: AppearanceSettingEnvironment()
+                    reducer: AppearanceSettingReducer()
                 ),
                 preferredColorScheme: .constant(.automatic),
                 accentColor: .constant(.blue),

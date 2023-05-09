@@ -9,14 +9,14 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginView: View {
-    private let store: Store<LoginState, LoginAction>
-    @ObservedObject private var viewStore: ViewStore<LoginState, LoginAction>
+    private let store: StoreOf<LoginReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<LoginReducer>
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
-    @FocusState private var focusedField: LoginState.FocusedField?
+    @FocusState private var focusedField: LoginReducer.FocusedField?
 
-    init(store: Store<LoginState, LoginAction>, bypassesSNIFiltering: Bool, blurRadius: Double) {
+    init(store: StoreOf<LoginReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.bypassesSNIFiltering = bypassesSNIFiltering
@@ -56,7 +56,7 @@ struct LoginView: View {
             }
         }
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /LoginState.Route.webView) { route in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /LoginReducer.Route.webView) { route in
             WebView(url: route.wrappedValue) {
                 viewStore.send(.loginDone(.success(nil)))
             }
@@ -92,7 +92,7 @@ struct LoginView: View {
 // MARK: LoginTextField
 private struct LoginTextField: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let focusedField: FocusState<LoginState.FocusedField?>.Binding
+    private let focusedField: FocusState<LoginReducer.FocusedField?>.Binding
     @Binding private var text: String
     private let description: String
     private let isPassword: Bool
@@ -102,7 +102,7 @@ private struct LoginTextField: View {
     }
 
     init(
-        focusedField: FocusState<LoginState.FocusedField?>.Binding,
+        focusedField: FocusState<LoginReducer.FocusedField?>.Binding,
         text: Binding<String>, description: String, isPassword: Bool
     ) {
         self.focusedField = focusedField
@@ -136,11 +136,7 @@ struct LoginView_Previews: PreviewProvider {
             LoginView(
                 store: .init(
                     initialState: .init(),
-                    reducer: loginReducer,
-                    environment: LoginEnvironment(
-                        hapticClient: .live,
-                        cookiesClient: .live
-                    )
+                    reducer: LoginReducer()
                 ),
                 bypassesSNIFiltering: false,
                 blurRadius: 0

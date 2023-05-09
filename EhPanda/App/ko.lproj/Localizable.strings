@@ -159,7 +159,7 @@
 "enum.setting_state_route.value.appearance" = "외관";
 "enum.setting_state_route.value.reading" = "읽기";
 "enum.setting_state_route.value.laboratory" = "실험실";
-"enum.setting_state_route.value.ehPanda" = "EhPanda 정보";
+"enum.setting_state_route.value.about" = "EhPanda 정보";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "계정";
@@ -254,15 +254,15 @@
 "laboratory_setting_view.title.laboratory" = "실험실";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI 차단 우회";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "웹사이트";
-"ehPanda_view.button.altStore_source" = "AltStore 소스";
-"ehPanda_view.title.version" = "버전";
-"ehPanda_view.section.title.special_thanks" = "Special thanks";
-"ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
-"ehPanda_view.section.title.translation_contributors" = "Translation contributors";
-"ehPanda_view.section.title.acknowledgements" = "도움을 주신 분들";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "웹사이트";
+"about_view.button.altStore_source" = "AltStore 소스";
+"about_view.title.version" = "버전";
+"about_view.section.title.special_thanks" = "Special thanks";
+"about_view.section.title.code_level_contributors" = "Code-level contributors";
+"about_view.section.title.translation_contributors" = "Translation contributors";
+"about_view.section.title.acknowledgements" = "도움을 주신 분들";
 
 // MARK: DetailView
 "detail_view.button.read" = "읽기";

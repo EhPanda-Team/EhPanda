@@ -1500,7 +1500,7 @@ extension Parser {
     }
 
     // MARK: Profile
-    static func parseProfileIndex(doc: HTMLDocument) throws -> (Int?, Bool) {
+    static func parseProfileIndex(doc: HTMLDocument) throws -> VerifyEhProfileResponse {
         var profileNotFound = true
         var profileValue: Int?
 
@@ -1515,7 +1515,7 @@ extension Parser {
             profileValue = Int(link["value"] ?? "")
         }
 
-        return (profileValue, profileNotFound)
+        return .init(profileValue: profileValue, isProfileNotFound: profileNotFound)
     }
 
     // MARK: CommentContent

@@ -16,7 +16,7 @@ struct AppState: Equatable {
     var homeState = HomeState()
     var favoritesState = FavoritesState()
     var searchRootState = SearchRootState()
-    var settingState = SettingState()
+    var settingState = SettingReducer.State()
 }
 
 enum AppAction: BindableAction {
@@ -32,7 +32,7 @@ enum AppAction: BindableAction {
     case home(HomeAction)
     case favorites(FavoritesAction)
     case searchRoot(SearchRootAction)
-    case setting(SettingAction)
+    case setting(SettingReducer.Action)
 }
 
 struct AnyEnvironment {}
@@ -314,27 +314,28 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
-    ),
-    settingReducer.pullback(
-        state: \.settingState,
-        action: /AppAction.setting,
-        environment: {
-            .init(
-                dfClient: $0.dfClient,
-                fileClient: $0.fileClient,
-                deviceClient: $0.deviceClient,
-                loggerClient: $0.loggerClient,
-                hapticsClient: $0.hapticsClient,
-                libraryClient: $0.libraryClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                userDefaultsClient: $0.userDefaultsClient,
-                uiApplicationClient: $0.uiApplicationClient,
-                authorizationClient: $0.authorizationClient
-            )
-        }
     )
+//    ,
+//    settingReducer.pullback(
+//        state: \.settingState,
+//        action: /AppAction.setting,
+//        environment: {
+//            .init(
+//                dfClient: $0.dfClient,
+//                fileClient: $0.fileClient,
+//                deviceClient: $0.deviceClient,
+//                loggerClient: $0.loggerClient,
+//                hapticsClient: $0.hapticsClient,
+//                libraryClient: $0.libraryClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                userDefaultsClient: $0.userDefaultsClient,
+//                uiApplicationClient: $0.uiApplicationClient,
+//                authorizationClient: $0.authorizationClient
+//            )
+//        }
+//    )
 )
 .logging()

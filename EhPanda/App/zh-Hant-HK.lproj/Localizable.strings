@@ -159,7 +159,7 @@
 "enum.setting_state_route.value.appearance" = "外觀";
 "enum.setting_state_route.value.reading" = "閱讀";
 "enum.setting_state_route.value.laboratory" = "實驗室";
-"enum.setting_state_route.value.ehPanda" = "關於 EhPanda";
+"enum.setting_state_route.value.about" = "關於 EhPanda";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "帳號";
@@ -254,15 +254,15 @@
 "laboratory_setting_view.title.laboratory" = "實驗室";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "域前置繞過 SNI 阻斷";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "網站";
-"ehPanda_view.button.altStore_source" = "AltStore 源";
-"ehPanda_view.title.version" = "版本";
-"ehPanda_view.section.title.special_thanks" = "Special thanks";
-"ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
-"ehPanda_view.section.title.translation_contributors" = "Translation contributors";
-"ehPanda_view.section.title.acknowledgements" = "致謝";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "網站";
+"about_view.button.altStore_source" = "AltStore 源";
+"about_view.title.version" = "版本";
+"about_view.section.title.special_thanks" = "Special thanks";
+"about_view.section.title.code_level_contributors" = "Code-level contributors";
+"about_view.section.title.translation_contributors" = "Translation contributors";
+"about_view.section.title.acknowledgements" = "致謝";
 
 // MARK: DetailView
 "detail_view.button.read" = "閱讀";
