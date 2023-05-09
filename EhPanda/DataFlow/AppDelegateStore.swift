@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             loggerClient: .live,
             hapticsClient: .live,
             libraryClient: .live,
-            cookiesClient: .live,
+            cookieClient: .live,
             databaseClient: .live,
             clipboardClient: .live,
             appDelegateClient: .live,
@@ -64,7 +64,7 @@ enum AppDelegateAction {
 struct AppDelegateEnvironment {
     let dfClient: DFClient
     let libraryClient: LibraryClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
 }
 
@@ -75,9 +75,9 @@ let appDelegateReducer = Reducer<AppDelegateState, AppDelegateAction, AppDelegat
             return .merge(
                 environment.libraryClient.initializeLogger().fireAndForget(),
                 environment.libraryClient.initializeWebImage().fireAndForget(),
-                environment.cookiesClient.removeYay().fireAndForget(),
-                environment.cookiesClient.ignoreOffensive().fireAndForget(),
-                environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
+                environment.cookieClient.removeYay().fireAndForget(),
+                environment.cookieClient.ignoreOffensive().fireAndForget(),
+                environment.cookieClient.fulfillAnotherHostField().fireAndForget(),
                 .init(value: .migration(.prepareDatabase))
             )
 

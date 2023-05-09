@@ -45,7 +45,7 @@ struct AppEnvironment {
     let loggerClient: LoggerClient
     let hapticsClient: HapticsClient
     let libraryClient: LibraryClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -127,7 +127,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
                 if state.favoritesState.route != nil {
                     effects.append(.init(value: .favorites(.setNavigation(nil))))
                     effects.append(hapticEffect)
-                } else if environment.cookiesClient.didLogin {
+                } else if environment.cookieClient.didLogin {
                     effects.append(.init(value: .favorites(.fetchGalleries())))
                     effects.append(hapticEffect)
                 }
@@ -161,7 +161,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             .init(value: .tabBar(.setTabBarItemType(.setting)))
         ]
         effects.append(.init(value: .setting(.setNavigation(.account))))
-        if !environment.cookiesClient.didLogin {
+        if !environment.cookieClient.didLogin {
             effects.append(
                 .init(value: .setting(.account(.setNavigation(.login))))
                     .delay(
@@ -219,7 +219,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 loggerClient: $0.loggerClient,
                 hapticsClient: $0.hapticsClient,
                 libraryClient: $0.libraryClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -245,7 +245,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 dfClient: $0.dfClient,
                 libraryClient: $0.libraryClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient
             )
         }
@@ -270,7 +270,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
                 libraryClient: $0.libraryClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -288,7 +288,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -307,7 +307,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -326,7 +326,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 loggerClient: $0.loggerClient,
                 hapticsClient: $0.hapticsClient,
                 libraryClient: $0.libraryClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,

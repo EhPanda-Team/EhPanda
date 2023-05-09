@@ -68,7 +68,7 @@ struct CommentsEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticsClient: HapticsClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -186,7 +186,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
 
     case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
         guard let gid = Int(gid), let commentID = Int(commentID),
-              let apiuid = Int(environment.cookiesClient.apiuid)
+              let apiuid = Int(environment.cookieClient.apiuid)
         else { return .none }
         return VoteGalleryCommentRequest(
             apiuid: apiuid, apikey: apiKey, gid: gid, token: token,

@@ -130,7 +130,7 @@ struct SearchView_Previews: PreviewProvider {
                     imageClient: .live,
                     deviceClient: .live,
                     hapticsClient: .live,
-                    cookiesClient: .live,
+                    cookieClient: .live,
                     databaseClient: .live,
                     clipboardClient: .live,
                     appDelegateClient: .live,

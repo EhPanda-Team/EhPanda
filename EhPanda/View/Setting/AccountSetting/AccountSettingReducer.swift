@@ -42,7 +42,7 @@ struct AccountSettingReducer: ReducerProtocol {
     }
 
     @Dependency(\.clipboardClient) private var clipboardClient
-    @Dependency(\.cookiesClient) private var cookiesClient
+    @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
@@ -52,10 +52,10 @@ struct AccountSettingReducer: ReducerProtocol {
                 return state.route == nil ? .init(value: .clearSubStates) : .none
 
             case .binding(\.$ehCookiesState):
-                return cookiesClient.setCookies(state: state.ehCookiesState).fireAndForget()
+                return cookieClient.setCookies(state: state.ehCookiesState).fireAndForget()
 
             case .binding(\.$exCookiesState):
-                return cookiesClient.setCookies(state: state.exCookiesState).fireAndForget()
+                return cookieClient.setCookies(state: state.exCookiesState).fireAndForget()
 
             case .binding:
                 return .none
@@ -76,12 +76,12 @@ struct AccountSettingReducer: ReducerProtocol {
                 )
 
             case .loadCookies:
-                state.ehCookiesState = cookiesClient.loadCookiesState(host: .ehentai)
-                state.exCookiesState = cookiesClient.loadCookiesState(host: .exhentai)
+                state.ehCookiesState = cookieClient.loadCookiesState(host: .ehentai)
+                state.exCookiesState = cookieClient.loadCookiesState(host: .exhentai)
                 return .none
 
             case .copyCookies(let host):
-                let cookiesDescription = cookiesClient.getCookiesDescription(host: host)
+                let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
                     .init(value: .setNavigation(.hud)),
                     clipboardClient.saveText(cookiesDescription).fireAndForget(),
@@ -89,7 +89,7 @@ struct AccountSettingReducer: ReducerProtocol {
                 )
 
             case .login(.loginDone):
-                return cookiesClient.didLogin ? .init(value: .setNavigation(nil)) : .none
+                return cookieClient.didLogin ? .init(value: .setNavigation(nil)) : .none
 
             case .login:
                 return .none

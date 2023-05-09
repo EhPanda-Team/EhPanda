@@ -123,7 +123,7 @@ private struct AccountSection: View {
     }
 
     var body: some View {
-        if !CookiesUtil.didLogin {
+        if !CookieUtil.didLogin {
             Button(L10n.Localizable.AccountSettingView.Button.login, action: loginAction)
         } else {
             Button(

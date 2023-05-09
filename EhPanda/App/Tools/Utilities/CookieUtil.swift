@@ -1,5 +1,5 @@
 //
-//  CookiesUtil.swift
+//  CookieUtil.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/02/02.
@@ -7,11 +7,11 @@
 
 import Foundation
 
-// MARK: Cookies
-struct CookiesUtil {
+// MARK: Cookie
+struct CookieUtil {
     static var didLogin: Bool {
-        CookiesUtil.verify(for: Defaults.URL.ehentai, isEx: false)
-        || CookiesUtil.verify(for: Defaults.URL.exhentai, isEx: true)
+        CookieUtil.verify(for: Defaults.URL.ehentai, isEx: false)
+        || CookieUtil.verify(for: Defaults.URL.exhentai, isEx: true)
     }
 
     static func verify(for url: URL, isEx: Bool) -> Bool {

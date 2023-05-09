@@ -95,7 +95,7 @@ struct HomeEnvironment {
     let deviceClient: DeviceClient
     let hapticsClient: HapticsClient
     let libraryClient: LibraryClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -266,7 +266,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -284,7 +284,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -302,7 +302,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -320,7 +320,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -338,7 +338,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
@@ -356,7 +356,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticsClient: $0.hapticsClient,
-                cookiesClient: $0.cookiesClient,
+                cookieClient: $0.cookieClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,

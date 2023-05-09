@@ -115,7 +115,7 @@ struct DetailEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticsClient: HapticsClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -307,7 +307,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 return .none
 
             case .rateGallery:
-                guard let apiuid = Int(environment.cookiesClient.apiuid), let gid = Int(state.gallery.id)
+                guard let apiuid = Int(environment.cookieClient.apiuid), let gid = Int(state.gallery.id)
                 else { return .none }
                 return RateGalleryRequest(
                     apiuid: apiuid, apikey: state.apiKey, gid: gid,
@@ -329,7 +329,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
             case .voteTag(let tag, let vote):
-                guard let apiuid = Int(environment.cookiesClient.apiuid), let gid = Int(state.gallery.id)
+                guard let apiuid = Int(environment.cookieClient.apiuid), let gid = Int(state.gallery.id)
                 else { return .none }
                 return VoteGalleryTagRequest(
                     apiuid: apiuid, apikey: state.apiKey, gid: gid, token: state.gallery.token, tag: tag, vote: vote
@@ -429,7 +429,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
                     hapticsClient: $0.hapticsClient,
-                    cookiesClient: $0.cookiesClient,
+                    cookieClient: $0.cookieClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
                     appDelegateClient: $0.appDelegateClient
@@ -442,7 +442,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
             environment: {
                 .init(
                     hapticsClient: $0.hapticsClient,
-                    cookiesClient: $0.cookiesClient,
+                    cookieClient: $0.cookieClient,
                     databaseClient: $0.databaseClient
                 )
             }
@@ -467,7 +467,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
                     hapticsClient: $0.hapticsClient,
-                    cookiesClient: $0.cookiesClient,
+                    cookieClient: $0.cookieClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
                     appDelegateClient: $0.appDelegateClient
@@ -484,7 +484,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
                     hapticsClient: $0.hapticsClient,
-                    cookiesClient: $0.cookiesClient,
+                    cookieClient: $0.cookieClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
                     appDelegateClient: $0.appDelegateClient,
@@ -502,7 +502,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     imageClient: $0.imageClient,
                     deviceClient: $0.deviceClient,
                     hapticsClient: $0.hapticsClient,
-                    cookiesClient: $0.cookiesClient,
+                    cookieClient: $0.cookieClient,
                     databaseClient: $0.databaseClient,
                     clipboardClient: $0.clipboardClient,
                     appDelegateClient: $0.appDelegateClient,

@@ -100,7 +100,7 @@ struct SettingEnvironment {
     let loggerClient: LoggerClient
     let hapticsClient: HapticsClient
     let libraryClient: LibraryClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -246,10 +246,10 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             {
                 state.setting.galleryHost = galleryHost
             }
-            if environment.cookiesClient.shouldFetchIgneous {
+            if environment.cookieClient.shouldFetchIgneous {
                 effects.append(.init(value: .fetchIgneous))
             }
-            if environment.cookiesClient.didLogin {
+            if environment.cookieClient.didLogin {
                 effects.append(contentsOf: [
                     .init(value: .fetchUserInfo),
                     .init(value: .fetchGreeting),
@@ -269,20 +269,20 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
 
         case .fetchIgneous:
-            guard environment.cookiesClient.didLogin else { return .none }
+            guard environment.cookieClient.didLogin else { return .none }
             return IgneousRequest().effect.map(SettingAction.fetchIgneousDone)
 
         case .fetchIgneousDone(let result):
             var effects = [EffectTask<SettingAction>]()
             if case .success(let response) = result {
-                effects.append(environment.cookiesClient.setCredentials(response: response).fireAndForget())
+                effects.append(environment.cookieClient.setCredentials(response: response).fireAndForget())
             }
             effects.append(.init(value: .account(.loadCookies)))
             return .merge(effects)
 
         case .fetchUserInfo:
-            guard environment.cookiesClient.didLogin else { return .none }
-            let uid = environment.cookiesClient
+            guard environment.cookieClient.didLogin else { return .none }
+            let uid = environment.cookieClient
                 .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
             if !uid.isEmpty {
                 return UserInfoRequest(uid: uid).effect.map(SettingAction.fetchUserInfoDone)
@@ -314,7 +314,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 return false
             }
 
-            guard environment.cookiesClient.didLogin,
+            guard environment.cookieClient.didLogin,
                   state.setting.showsNewDawnGreeting
             else { return .none }
             let requestEffect = GreetingRequest().effect
@@ -376,7 +376,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return .none
 
         case .fetchEhProfileIndex:
-            guard environment.cookiesClient.didLogin else { return .none }
+            guard environment.cookieClient.didLogin else { return .none }
             return VerifyEhProfileRequest().effect.map(SettingAction.fetchEhProfileIndexDone)
 
         case .fetchEhProfileIndexDone(let result):
@@ -388,10 +388,10 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     let profileValueString = String(profileValue)
                     let selectedProfileKey = Defaults.Cookie.selectedProfile
 
-                    let cookieValue =  environment.cookiesClient.getCookie(hostURL, selectedProfileKey)
+                    let cookieValue =  environment.cookieClient.getCookie(hostURL, selectedProfileKey)
                     if cookieValue.rawValue != profileValueString {
                         effects.append(
-                            environment.cookiesClient.setOrEditCookie(
+                            environment.cookieClient.setOrEditCookie(
                                 for: hostURL, key: selectedProfileKey, value: profileValueString
                             )
                             .fireAndForget()
@@ -407,7 +407,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return effects.isEmpty ? .none : .merge(effects)
 
         case .fetchFavoriteCategories:
-            guard environment.cookiesClient.didLogin else { return .none }
+            guard environment.cookieClient.didLogin else { return .none }
             return FavoriteCategoriesRequest().effect.map(SettingAction.fetchFavoriteCategoriesDone)
 
         case .fetchFavoriteCategoriesDone(let result):
@@ -418,8 +418,8 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .account(.login(.loginDone)):
             return .merge(
-                environment.cookiesClient.removeYay().fireAndForget(),
-                environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
+                environment.cookieClient.removeYay().fireAndForget(),
+                environment.cookieClient.fulfillAnotherHostField().fireAndForget(),
                 .init(value: .fetchIgneous),
                 .init(value: .fetchUserInfo),
                 .init(value: .fetchFavoriteCategories),
@@ -430,7 +430,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.user = User()
             return .merge(
                 .init(value: .syncUser),
-                environment.cookiesClient.clearAll().fireAndForget(),
+                environment.cookieClient.clearAll().fireAndForget(),
                 environment.databaseClient.removeImageURLs().fireAndForget(),
                 environment.libraryClient.clearWebImageDiskCache().fireAndForget()
             )
@@ -461,7 +461,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 //        environment: {
 //            .init(
 //                hapticsClient: $0.hapticsClient,
-//                cookiesClient: $0.cookiesClient,
+//                cookieClient: $0.cookieClient,
 //                clipboardClient: $0.clipboardClient,
 //                uiApplicationClient: $0.uiApplicationClient
 //            )

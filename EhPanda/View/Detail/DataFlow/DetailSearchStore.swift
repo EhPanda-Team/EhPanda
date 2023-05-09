@@ -65,7 +65,7 @@ struct DetailSearchEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticsClient: HapticsClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient

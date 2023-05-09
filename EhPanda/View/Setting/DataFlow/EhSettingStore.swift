@@ -50,7 +50,7 @@ enum EhSettingAction: BindableAction, Equatable {
 
 struct EhSettingEnvironment {
     let hapticsClient: HapticsClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -67,7 +67,7 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
         return environment.uiApplicationClient.hideKeyboard().fireAndForget()
 
     case .setDefaultProfile(let profileSet):
-        return environment.cookiesClient.setOrEditCookie(
+        return environment.cookieClient.setOrEditCookie(
             for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
         )
         .fireAndForget()

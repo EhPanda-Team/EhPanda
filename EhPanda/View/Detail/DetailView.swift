@@ -237,7 +237,7 @@ private extension DetailView {
                 } label: {
                     Label(L10n.Localizable.DetailView.ToolbarItem.Button.archives, systemSymbol: .docZipper)
                 }
-                .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
+                .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
                 Button {
                     viewStore.send(.setNavigation(.torrents))
                 } label: {
@@ -342,7 +342,7 @@ private struct HeaderSection: View {
                         .opacity(galleryDetail.isFavorited ? 0 : 1)
                     }
                     .imageScale(.large).foregroundStyle(.tint)
-                    .disabled(!CookiesUtil.didLogin)
+                    .disabled(!CookieUtil.didLogin)
                     Button(action: navigateReadingAction) {
                         Text(L10n.Localizable.DetailView.Button.read)
                             .bold().textCase(.uppercase).font(.headline)
@@ -516,7 +516,7 @@ private struct ActionSection: View {
                         Text(L10n.Localizable.DetailView.ActionSection.Button.giveARating).bold()
                         Spacer()
                     }
-                    .disabled(!CookiesUtil.didLogin)
+                    .disabled(!CookieUtil.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
@@ -655,7 +655,7 @@ private extension TagsSection {
                                 Text(L10n.Localizable.DetailView.ContextMenu.Button.detail)
                             }
                         }
-                        if CookiesUtil.didLogin {
+                        if CookieUtil.didLogin {
                             if content.isVotedUp || content.isVotedDown {
                                 Button {
                                     voteTagAction(content.voteKeyword(tag: tag), content.isVotedUp ? -1 : 1)
@@ -774,7 +774,7 @@ private struct CommentsSection: View {
                 .drawingGroup()
             }
             CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
-                .padding(.horizontal).disabled(!CookiesUtil.didLogin)
+                .padding(.horizontal).disabled(!CookieUtil.didLogin)
         }
     }
 }
@@ -856,7 +856,7 @@ struct DetailView_Previews: PreviewProvider {
                         imageClient: .live,
                         deviceClient: .live,
                         hapticsClient: .live,
-                        cookiesClient: .live,
+                        cookieClient: .live,
                         databaseClient: .live,
                         clipboardClient: .live,
                         appDelegateClient: .live,

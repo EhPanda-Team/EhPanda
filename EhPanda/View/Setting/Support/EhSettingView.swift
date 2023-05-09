@@ -1090,7 +1090,7 @@ struct EhSettingView_Previews: PreviewProvider {
                     reducer: ehSettingReducer,
                     environment: EhSettingEnvironment(
                         hapticsClient: .live,
-                        cookiesClient: .live,
+                        cookieClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

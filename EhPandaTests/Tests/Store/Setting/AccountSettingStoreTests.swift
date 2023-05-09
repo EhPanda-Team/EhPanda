@@ -13,7 +13,7 @@ class AccountSettingStoreTests: XCTestCase {
     private var noopEnvironment: AccountSettingEnvironment {
         .init(
             hapticsClient: .noop,
-            cookiesClient: .noop,
+            cookieClient: .noop,
             clipboardClient: .noop,
             uiApplicationClient: .noop
         )
@@ -34,7 +34,7 @@ class AccountSettingStoreTests: XCTestCase {
         return (ehCookiesState, exCookiesState)
     }
     private static func setCookies(with state: CookiesState) {
-        _ = CookiesClient.live.setCookies(state: state).sink(receiveValue: { _ in })
+        _ = CookieClient.live.setCookies(state: state).sink(receiveValue: { _ in })
     }
     @discardableResult private static func teardownCookies(value: String? = nil) -> String {
         let initialValue = UUID().uuidString
@@ -53,7 +53,7 @@ class AccountSettingStoreTests: XCTestCase {
     func testCookies(with value: String) throws {
         [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
             .flatMap({ key in [Defaults.URL.ehentai, Defaults.URL.exhentai].map({ ($0, key) }) })
-            .map(CookiesClient.live.getCookie)
+            .map(CookieClient.live.getCookie)
             .forEach({ XCTAssertEqual($0, .init(rawValue: value, localizedString: .init())) })
     }
 
@@ -69,7 +69,7 @@ class AccountSettingStoreTests: XCTestCase {
             reducer: accountSettingReducer,
             environment: AccountSettingEnvironment(
                 hapticsClient: .noop,
-                cookiesClient: .live,
+                cookieClient: .live,
                 clipboardClient: .noop,
                 uiApplicationClient: .noop
             )
@@ -135,7 +135,7 @@ class AccountSettingStoreTests: XCTestCase {
             reducer: accountSettingReducer,
             environment: AccountSettingEnvironment(
                 hapticsClient: .noop,
-                cookiesClient: .live,
+                cookieClient: .live,
                 clipboardClient: .noop,
                 uiApplicationClient: .noop
             )
@@ -224,7 +224,7 @@ class AccountSettingStoreTests: XCTestCase {
         store.send(.login(.loginDone(.success(nil)))) {
             $0.loginState = .init(route: nil, loginState: .idle)
         }
-        if noopEnvironment.cookiesClient.didLogin {
+        if noopEnvironment.cookieClient.didLogin {
             store.receive(.setNavigation(nil)) {
                 $0.route = nil
             }

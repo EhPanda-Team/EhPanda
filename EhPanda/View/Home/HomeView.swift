@@ -529,7 +529,7 @@ struct HomeView_Previews: PreviewProvider {
                     deviceClient: .live,
                     hapticsClient: .live,
                     libraryClient: .live,
-                    cookiesClient: .live,
+                    cookieClient: .live,
                     databaseClient: .live,
                     clipboardClient: .live,
                     appDelegateClient: .live,

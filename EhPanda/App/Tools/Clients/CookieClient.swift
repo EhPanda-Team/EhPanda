@@ -1,5 +1,5 @@
 //
-//  CookiesClient.swift
+//  CookieClient.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/02.
@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct CookiesClient {
+struct CookieClient {
     let clearAll: () -> EffectTask<Never>
     let getCookie: (URL, String) -> CookieValue
     private let removeCookie: (URL, String) -> Void
@@ -16,7 +16,7 @@ struct CookiesClient {
     private let initializeCookie: (HTTPCookie, String) -> HTTPCookie
 }
 
-extension CookiesClient {
+extension CookieClient {
     static let live: Self = .init(
         clearAll: {
             .fireAndForget {
@@ -82,7 +82,7 @@ extension CookiesClient {
 }
 
 // MARK: Foundation
-extension CookiesClient {
+extension CookieClient {
     private func setCookie(
         for url: URL, key: String, value: String, path: String = "/",
         expiresTime: TimeInterval = .oneYear
@@ -120,9 +120,9 @@ extension CookiesClient {
 }
 
 // MARK: Accessor
-extension CookiesClient {
+extension CookieClient {
     var didLogin: Bool {
-        CookiesUtil.didLogin
+        CookieUtil.didLogin
     }
     var apiuid: String {
         getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
@@ -200,7 +200,7 @@ extension CookiesClient {
 }
 
 // MARK: SetCookies
-extension CookiesClient {
+extension CookieClient {
     func setCookies(state: CookiesState) -> EffectTask<Never> {
         let effects: [EffectTask<Never>] = state.allCases.map { subState in
             setOrEditCookie(for: state.host.url, key: subState.key, value: subState.editingText)
@@ -245,16 +245,16 @@ extension CookiesClient {
 }
 
 // MARK: API
-enum CookiesClientKey: DependencyKey {
-    static let liveValue = CookiesClient.live
-    static let testValue = CookiesClient.noop
-    static let previewValue = CookiesClient.noop
+enum CookieClientKey: DependencyKey {
+    static let liveValue = CookieClient.live
+    static let testValue = CookieClient.noop
+    static let previewValue = CookieClient.noop
 }
 
 extension DependencyValues {
-    var cookiesClient: CookiesClient {
-        get { self[CookiesClientKey.self] }
-        set { self[CookiesClientKey.self] = newValue }
+    var cookieClient: CookieClient {
+        get { self[CookieClientKey.self] }
+        set { self[CookieClientKey.self] = newValue }
     }
 }
 
@@ -262,7 +262,7 @@ extension DependencyValues {
 #if DEBUG
 import XCTestDynamicOverlay
 
-extension CookiesClient {
+extension CookieClient {
     static let failing: Self = .init(
         clearAll: { .failing("\(Self.self).clearAll is unimplemented") },
         getCookie: {
@@ -283,7 +283,7 @@ extension CookiesClient {
     )
 }
 #endif
-extension CookiesClient {
+extension CookieClient {
     static let noop: Self = .init(
         clearAll: { .none },
         getCookie: { _, _ in .empty },

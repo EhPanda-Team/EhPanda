@@ -37,7 +37,7 @@ struct FavoritesView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                if CookiesUtil.didLogin {
+                if CookieUtil.didLogin {
                     GenericList(
                         galleries: viewStore.galleries ?? [],
                         setting: setting,
@@ -89,7 +89,7 @@ struct FavoritesView: View {
                 viewStore.send(.fetchGalleries())
             }
             .onAppear {
-                if viewStore.galleries?.isEmpty != false && CookiesUtil.didLogin {
+                if viewStore.galleries?.isEmpty != false && CookieUtil.didLogin {
                     DispatchQueue.main.async {
                         viewStore.send(.fetchGalleries())
                     }
@@ -143,7 +143,7 @@ struct FavoritesView_Previews: PreviewProvider {
                     imageClient: .live,
                     deviceClient: .live,
                     hapticsClient: .live,
-                    cookiesClient: .live,
+                    cookieClient: .live,
                     databaseClient: .live,
                     clipboardClient: .live,
                     appDelegateClient: .live,

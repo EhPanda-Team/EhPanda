@@ -12,7 +12,7 @@
 		AB0929C027805A8200F107CA /* LoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginStore.swift */; };
 		AB0929C6278160AE00F107CA /* LibraryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C5278160AE00F107CA /* LibraryClient.swift */; };
 		AB0929C82781938A00F107CA /* DFClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C72781938A00F107CA /* DFClient.swift */; };
-		AB0929CA278196ED00F107CA /* CookiesClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C9278196ED00F107CA /* CookiesClient.swift */; };
+		AB0929CA278196ED00F107CA /* CookieClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C9278196ED00F107CA /* CookieClient.swift */; };
 		AB0929CC2781A0B000F107CA /* HapticsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CB2781A0B000F107CA /* HapticsClient.swift */; };
 		AB0929CE2781AADA00F107CA /* DatabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CD2781AADA00F107CA /* DatabaseClient.swift */; };
 		AB0929D02781E1CC00F107CA /* UIApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */; };
@@ -153,7 +153,7 @@
 		AB7BF2CE27AA3E58001865A3 /* AppUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2CD27AA3E58001865A3 /* AppUtil.swift */; };
 		AB7BF2D027AA3E75001865A3 /* DeviceUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */; };
 		AB7BF2D227AA3EDC001865A3 /* HapticsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */; };
-		AB7BF2D427AA3F12001865A3 /* CookiesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */; };
+		AB7BF2D427AA3F12001865A3 /* CookieUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D327AA3F12001865A3 /* CookieUtil.swift */; };
 		AB7BF2D627AA3F4C001865A3 /* FileUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */; };
 		AB7BF2D827AA3F61001865A3 /* UserDefaultsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */; };
 		AB7BF2DA27AA78CF001865A3 /* Reducer_Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7BF2D927AA78CF001865A3 /* Reducer_Extension.swift */; };
@@ -314,7 +314,7 @@
 		AB0929BF27805A8200F107CA /* LoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginStore.swift; sourceTree = "<group>"; };
 		AB0929C5278160AE00F107CA /* LibraryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryClient.swift; sourceTree = "<group>"; };
 		AB0929C72781938A00F107CA /* DFClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFClient.swift; sourceTree = "<group>"; };
-		AB0929C9278196ED00F107CA /* CookiesClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesClient.swift; sourceTree = "<group>"; };
+		AB0929C9278196ED00F107CA /* CookieClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieClient.swift; sourceTree = "<group>"; };
 		AB0929CB2781A0B000F107CA /* HapticsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsClient.swift; sourceTree = "<group>"; };
 		AB0929CD2781AADA00F107CA /* DatabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseClient.swift; sourceTree = "<group>"; };
 		AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplicationClient.swift; sourceTree = "<group>"; };
@@ -453,7 +453,7 @@
 		AB7BF2CD27AA3E58001865A3 /* AppUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUtil.swift; sourceTree = "<group>"; };
 		AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsUtil.swift; sourceTree = "<group>"; };
-		AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesUtil.swift; sourceTree = "<group>"; };
+		AB7BF2D327AA3F12001865A3 /* CookieUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookieUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D927AA78CF001865A3 /* Reducer_Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reducer_Extension.swift; sourceTree = "<group>"; };
@@ -654,7 +654,7 @@
 				AB0929D12781E7D500F107CA /* LoggerClient.swift */,
 				AB0929CB2781A0B000F107CA /* HapticsClient.swift */,
 				AB0929C5278160AE00F107CA /* LibraryClient.swift */,
-				AB0929C9278196ED00F107CA /* CookiesClient.swift */,
+				AB0929C9278196ED00F107CA /* CookieClient.swift */,
 				AB0929CD2781AADA00F107CA /* DatabaseClient.swift */,
 				ABBB266B2797E882007B6149 /* ClipboardClient.swift */,
 				AB706F8F278A5F680025A48A /* AppDelegateClient.swift */,
@@ -1251,7 +1251,7 @@
 				AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */,
 				AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */,
 				AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */,
-				AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */,
+				AB7BF2D327AA3F12001865A3 /* CookieUtil.swift */,
 				AB0CFBD427C24B3B004BD372 /* MarkdownUtil.swift */,
 				AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */,
 			);
@@ -1681,7 +1681,7 @@
 				AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */,
 				AB7BF2FD27ABCAD4001865A3 /* MigrationStore.swift in Sources */,
 				AB7BF2D827AA3F61001865A3 /* UserDefaultsUtil.swift in Sources */,
-				AB0929CA278196ED00F107CA /* CookiesClient.swift in Sources */,
+				AB0929CA278196ED00F107CA /* CookieClient.swift in Sources */,
 				AB7BF2FB27ABCA3A001865A3 /* MigrationView.swift in Sources */,
 				AB7BF31C27ABE028001865A3 /* NSManagedObjectModel+Compatible.swift in Sources */,
 				AB7BF31B27ABE028001865A3 /* NSManagedObjectModel+Resource.swift in Sources */,
@@ -1713,7 +1713,7 @@
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB7BF2CE27AA3E58001865A3 /* AppUtil.swift in Sources */,
 				AB86AC1A2785C2B300E61E6A /* HomeStore.swift in Sources */,
-				AB7BF2D427AA3F12001865A3 /* CookiesUtil.swift in Sources */,
+				AB7BF2D427AA3F12001865A3 /* CookieUtil.swift in Sources */,
 				AB7BF30A27ABDFF1001865A3 /* CoreDataMigrationStep.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
 				AB7BF2D227AA3EDC001865A3 /* HapticsUtil.swift in Sources */,

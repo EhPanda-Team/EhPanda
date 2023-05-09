@@ -45,7 +45,7 @@ enum ArchivesAction: BindableAction {
 
 struct ArchivesEnvironment {
     let hapticsClient: HapticsClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
 }
 
@@ -83,7 +83,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
             state.hathArchives = archive.hathArchives
             if let galleryPoints = galleryPoints, let credits = credits {
                 return .init(value: .syncGalleryFunds(galleryPoints, credits))
-            } else if environment.cookiesClient.isSameAccount {
+            } else if environment.cookieClient.isSameAccount {
                 return .init(value: .fetchArchiveFunds(gid, galleryURL))
             } else {
                 return .none

@@ -169,7 +169,7 @@ struct ReadingEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticsClient: HapticsClient
-    let cookiesClient: CookiesClient
+    let cookieClient: CookieClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -496,7 +496,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         case .success(let (imageURLs, response)):
             var effects = [EffectTask<ReadingAction>]()
             if let response = response {
-                effects.append(environment.cookiesClient.setSkipServer(response: response).fireAndForget())
+                effects.append(environment.cookieClient.setSkipServer(response: response).fireAndForget())
             }
             guard !imageURLs.isEmpty else {
                 state.imageURLLoadingStates[index] = .failed(.notFound)

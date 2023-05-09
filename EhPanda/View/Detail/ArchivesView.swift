@@ -226,7 +226,7 @@ struct ArchivesView_Previews: PreviewProvider {
                 reducer: archivesReducer,
                 environment: ArchivesEnvironment(
                     hapticsClient: .live,
-                    cookiesClient: .live,
+                    cookieClient: .live,
                     databaseClient: .live
                 )
             ),
