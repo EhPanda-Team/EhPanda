@@ -15,7 +15,7 @@ struct AppState: Equatable {
     var tabBarState = TabBarState()
     var homeState = HomeState()
     var favoritesState = FavoritesState()
-    var searchRootState = SearchRootState()
+    var searchRootState = SearchRootReducer.State()
     var settingState = SettingReducer.State()
 }
 
@@ -31,7 +31,7 @@ enum AppAction: BindableAction {
 
     case home(HomeAction)
     case favorites(FavoritesAction)
-    case searchRoot(SearchRootAction)
+    case searchRoot(SearchRootReducer.Action)
     case setting(SettingReducer.Action)
 }
 
@@ -296,25 +296,26 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
-    ),
-    searchRootReducer.pullback(
-        state: \.searchRootState,
-        action: /AppAction.searchRoot,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
     )
+//    ,
+//    searchRootReducer.pullback(
+//        state: \.searchRootState,
+//        action: /AppAction.searchRoot,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 //    ,
 //    settingReducer.pullback(
 //        state: \.settingState,

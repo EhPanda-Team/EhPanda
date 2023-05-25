@@ -30,7 +30,7 @@ struct PopularState: Equatable {
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
 
-    var filtersState = FiltersState()
+    var filtersState = FiltersReducer.State()
     @Heap var detailState: DetailState!
 }
 
@@ -43,7 +43,7 @@ enum PopularAction: BindableAction {
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 
-    case filters(FiltersAction)
+    case filters(FiltersReducer.Action)
     case detail(DetailAction)
 }
 
@@ -116,15 +116,15 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
         hapticsClient: \.hapticsClient
     )
     .binding(),
-    filtersReducer.pullback(
-        state: \.filtersState,
-        action: /PopularAction.filters,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
-    ),
+//    filtersReducer.pullback(
+//        state: \.filtersState,
+//        action: /PopularAction.filters,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /PopularAction.detail,

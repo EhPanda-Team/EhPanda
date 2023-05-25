@@ -45,7 +45,7 @@ struct FavoritesState: Equatable {
     }
 
     @Heap var detailState: DetailState!
-    var quickSearchState = QuickSearchState()
+    var quickSearchState = QuickSearchReducer.State()
 
     mutating func insertGalleries(index: Int, galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -70,7 +70,7 @@ enum FavoritesAction: BindableAction {
     case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
 
     case detail(DetailAction)
-    case quickSearch(QuickSearchAction)
+    case quickSearch(QuickSearchReducer.Action)
 }
 
 // MARK: Environment
@@ -217,14 +217,15 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
-    ),
-    quickSearchReducer.pullback(
-        state: \.quickSearchState,
-        action: /FavoritesAction.quickSearch,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
     )
+//    ,
+//    quickSearchReducer.pullback(
+//        state: \.quickSearchState,
+//        action: /FavoritesAction.quickSearch,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    )
 )

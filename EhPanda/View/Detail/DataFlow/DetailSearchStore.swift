@@ -31,8 +31,8 @@ struct DetailSearchState: Equatable {
     var footerLoadingState: LoadingState = .idle
 
     @Heap var detailState: DetailState!
-    var filtersState = FiltersState()
-    var quickDetailSearchState = QuickSearchState()
+    var filtersState = FiltersReducer.State()
+    var quickDetailSearchState = QuickSearchReducer.State()
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -55,8 +55,8 @@ enum DetailSearchAction: BindableAction {
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
     case detail(DetailAction)
-    case filters(FiltersAction)
-    case quickSearch(QuickSearchAction)
+    case filters(FiltersReducer.Action)
+    case quickSearch(QuickSearchReducer.Action)
 }
 
 struct DetailSearchEnvironment {
@@ -186,23 +186,24 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
         case: /DetailSearchState.Route.filters,
         hapticsClient: \.hapticsClient
     )
-    .binding(),
-    filtersReducer.pullback(
-        state: \.filtersState,
-        action: /DetailSearchAction.filters,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
-    ),
-    quickSearchReducer.pullback(
-        state: \.quickDetailSearchState,
-        action: /DetailSearchAction.quickSearch,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
-    )
+    .binding()
+//    ,
+//    filtersReducer.pullback(
+//        state: \.filtersState,
+//        action: /DetailSearchAction.filters,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    ),
+//    quickSearchReducer.pullback(
+//        state: \.quickDetailSearchState,
+//        action: /DetailSearchAction.quickSearch,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    )
 )

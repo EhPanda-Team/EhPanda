@@ -29,8 +29,8 @@ struct WatchedState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
-    var filtersState = FiltersState()
-    var quickSearchState = QuickSearchState()
+    var filtersState = FiltersReducer.State()
+    var quickSearchState = QuickSearchReducer.State()
     @Heap var detailState: DetailState!
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
@@ -54,9 +54,9 @@ enum WatchedAction: BindableAction {
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
-    case filters(FiltersAction)
+    case filters(FiltersReducer.Action)
     case detail(DetailAction)
-    case quickSearch(QuickSearchAction)
+    case quickSearch(QuickSearchReducer.Action)
 }
 
 struct WatchedEnvironment {
@@ -183,24 +183,24 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         hapticsClient: \.hapticsClient
     )
     .binding(),
-    filtersReducer.pullback(
-        state: \.filtersState,
-        action: /WatchedAction.filters,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
-    ),
-    quickSearchReducer.pullback(
-        state: \.quickSearchState,
-        action: /WatchedAction.quickSearch,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
-    ),
+//    filtersReducer.pullback(
+//        state: \.filtersState,
+//        action: /WatchedAction.filters,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    ),
+//    quickSearchReducer.pullback(
+//        state: \.quickSearchState,
+//        action: /WatchedAction.quickSearch,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /WatchedAction.detail,

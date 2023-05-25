@@ -32,7 +32,7 @@ struct FrontpageState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
-    var filtersState = FiltersState()
+    var filtersState = FiltersReducer.State()
     @Heap var detailState: DetailState!
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
@@ -55,7 +55,7 @@ enum FrontpageAction: BindableAction {
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
-    case filters(FiltersAction)
+    case filters(FiltersReducer.Action)
     case detail(DetailAction)
 }
 
@@ -166,15 +166,15 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         hapticsClient: \.hapticsClient
     )
     .binding(),
-    filtersReducer.pullback(
-        state: \.filtersState,
-        action: /FrontpageAction.filters,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
-            )
-        }
-    ),
+//    filtersReducer.pullback(
+//        state: \.filtersState,
+//        action: /FrontpageAction.filters,
+//        environment: {
+//            .init(
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /FrontpageAction.detail,
