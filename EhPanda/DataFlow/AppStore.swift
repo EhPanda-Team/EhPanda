@@ -12,7 +12,7 @@ struct AppState: Equatable {
     var appDelegateState = AppDelegateState()
     var appRouteState = AppRouteState()
     var appLockState = AppLockState()
-    var tabBarState = TabBarState()
+    var tabBarState = TabBarReducer.State()
     var homeState = HomeReducer.State()
     var favoritesState = FavoritesReducer.State()
     var searchRootState = SearchRootReducer.State()
@@ -27,7 +27,7 @@ enum AppAction: BindableAction {
     case appRoute(AppRouteAction)
     case appLock(AppLockAction)
 
-    case tabBar(TabBarAction)
+    case tabBar(TabBarReducer.Action)
 
     case home(HomeReducer.Action)
     case favorites(FavoritesReducer.Action)
@@ -249,17 +249,17 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 databaseClient: $0.databaseClient
             )
         }
-    ),
-    tabBarReducer.pullback(
-        state: \.tabBarState,
-        action: /AppAction.tabBar,
-        environment: {
-            .init(
-                deviceClient: $0.deviceClient
-            )
-        }
     )
 //    ,
+//    tabBarReducer.pullback(
+//        state: \.tabBarState,
+//        action: /AppAction.tabBar,
+//        environment: {
+//            .init(
+//                deviceClient: $0.deviceClient
+//            )
+//        }
+//    ),
 //    homeReducer.pullback(
 //        state: \.homeState,
 //        action: /AppAction.home,
