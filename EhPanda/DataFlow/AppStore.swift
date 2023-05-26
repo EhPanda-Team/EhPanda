@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct AppState: Equatable {
     var appDelegateState = AppDelegateReducer.State()
-    var appRouteState = AppRouteState()
+    var appRouteState = AppRouteReducer.State()
     var appLockState = AppLockReducer.State()
     var tabBarState = TabBarReducer.State()
     var homeState = HomeReducer.State()
@@ -24,7 +24,7 @@ enum AppAction: BindableAction {
     case onScenePhaseChange(ScenePhase)
 
     case appDelegate(AppDelegateReducer.Action)
-    case appRoute(AppRouteAction)
+    case appRoute(AppRouteReducer.Action)
     case appLock(AppLockReducer.Action)
 
     case tabBar(TabBarReducer.Action)
@@ -205,31 +205,31 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 .binding()
 
 let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
-    appReducerCore,
-    appRouteReducer.pullback(
-        state: \.appRouteState,
-        action: /AppAction.appRoute,
-        environment: {
-            .init(
-                dfClient: $0.dfClient,
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                loggerClient: $0.loggerClient,
-                hapticsClient: $0.hapticsClient,
-                libraryClient: $0.libraryClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                userDefaultsClient: $0.userDefaultsClient,
-                uiApplicationClient: $0.uiApplicationClient,
-                authorizationClient: $0.authorizationClient
-            )
-        }
-    )
+    appReducerCore
 //    ,
+//    appRouteReducer.pullback(
+//        state: \.appRouteState,
+//        action: /AppAction.appRoute,
+//        environment: {
+//            .init(
+//                dfClient: $0.dfClient,
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                loggerClient: $0.loggerClient,
+//                hapticsClient: $0.hapticsClient,
+//                libraryClient: $0.libraryClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                userDefaultsClient: $0.userDefaultsClient,
+//                uiApplicationClient: $0.uiApplicationClient,
+//                authorizationClient: $0.authorizationClient
+//            )
+//        }
+//    ),
 //    appLockReducer.pullback(
 //        state: \.appLockState,
 //        action: /AppAction.appLock,

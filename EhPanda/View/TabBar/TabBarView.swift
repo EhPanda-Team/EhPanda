@@ -73,11 +73,11 @@ struct TabBarView: View {
             }
             .font(.system(size: 80)).opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.newDawn) { route in
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue)
                 .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.setting) { _ in
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.setting) { _ in
             SettingView(
                 store: store.scope(state: \.settingState, action: AppAction.setting),
                 blurRadius: viewStore.appLockState.blurRadius
@@ -85,7 +85,7 @@ struct TabBarView: View {
             .accentColor(viewStore.settingState.setting.accentColor)
             .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.detail) { route in
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.detail) { route in
             NavigationView {
                 DetailView(
                     store: store.scope(state: \.appRouteState.detailState, action: { AppAction.appRoute(.detail($0)) }),
@@ -103,7 +103,7 @@ struct TabBarView: View {
         .progressHUD(
             config: viewStore.appRouteState.hudConfig,
             unwrapping: viewStore.binding(\.appRouteState.$route),
-            case: /AppRouteState.Route.hud
+            case: /AppRouteReducer.Route.hud
         )
         .onChange(of: scenePhase) { viewStore.send(.onScenePhaseChange($0)) }
         .onOpenURL { viewStore.send(.appRoute(.handleDeepLink($0))) }
