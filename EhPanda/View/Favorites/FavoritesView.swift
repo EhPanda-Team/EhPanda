@@ -10,15 +10,15 @@ import AlertKit
 import ComposableArchitecture
 
 struct FavoritesView: View {
-    private let store: Store<FavoritesState, FavoritesAction>
-    @ObservedObject private var viewStore: ViewStore<FavoritesState, FavoritesAction>
+    private let store: StoreOf<FavoritesReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<FavoritesReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<FavoritesState, FavoritesAction>,
+        store: StoreOf<FavoritesReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -57,21 +57,21 @@ struct FavoritesView: View {
             }
             .sheet(
                 unwrapping: viewStore.binding(\.$route),
-                case: /FavoritesState.Route.detail,
+                case: /FavoritesReducer.Route.detail,
                 isEnabled: DeviceUtil.isPad
             ) { route in
                 NavigationView {
                     DetailView(
-                        store: store.scope(state: \.detailState, action: FavoritesAction.detail),
+                        store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
                         gid: route.wrappedValue, user: user, setting: $setting,
                         blurRadius: blurRadius, tagTranslator: tagTranslator
                     )
                 }
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.quickSearch) { _ in
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /FavoritesReducer.Route.quickSearch) { _ in
                 QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: FavoritesAction.quickSearch)
+                    store: store.scope(state: \.quickSearchState, action: FavoritesReducer.Action.quickSearch)
                 ) { keyword in
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.fetchGalleries(keyword))
@@ -103,9 +103,9 @@ struct FavoritesView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FavoritesReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: FavoritesAction.detail),
+                    store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -136,20 +136,7 @@ struct FavoritesView_Previews: PreviewProvider {
         FavoritesView(
             store: .init(
                 initialState: .init(),
-                reducer: favoritesReducer,
-                environment: FavoritesEnvironment(
-                    urlClient: .live,
-                    fileClient: .live,
-                    imageClient: .live,
-                    deviceClient: .live,
-                    hapticsClient: .live,
-                    cookieClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    userDefaultsClient: .live,
-                    uiApplicationClient: .live
-                )
+                reducer: FavoritesReducer()
             ),
             user: .init(),
             setting: .constant(.init()),

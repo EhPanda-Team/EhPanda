@@ -14,7 +14,7 @@ struct AppState: Equatable {
     var appLockState = AppLockState()
     var tabBarState = TabBarState()
     var homeState = HomeState()
-    var favoritesState = FavoritesState()
+    var favoritesState = FavoritesReducer.State()
     var searchRootState = SearchRootReducer.State()
     var settingState = SettingReducer.State()
 }
@@ -30,7 +30,7 @@ enum AppAction: BindableAction {
     case tabBar(TabBarAction)
 
     case home(HomeAction)
-    case favorites(FavoritesAction)
+    case favorites(FavoritesReducer.Action)
     case searchRoot(SearchRootReducer.Action)
     case setting(SettingReducer.Action)
 }
@@ -277,27 +277,27 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
-    ),
-    favoritesReducer.pullback(
-        state: \.favoritesState,
-        action: /AppAction.favorites,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                userDefaultsClient: $0.userDefaultsClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
     )
 //    ,
+//    favoritesReducer.pullback(
+//        state: \.favoritesState,
+//        action: /AppAction.favorites,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                userDefaultsClient: $0.userDefaultsClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    ),
 //    searchRootReducer.pullback(
 //        state: \.searchRootState,
 //        action: /AppAction.searchRoot,
