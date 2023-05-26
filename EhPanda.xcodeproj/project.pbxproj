@@ -104,7 +104,7 @@
 		AB41DB5127B760D700DD3604 /* PopularMinimalList.html in Resources */ = {isa = PBXBuildFile; fileRef = AB41DB3C27B760D700DD3604 /* PopularMinimalList.html */; };
 		AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */; };
 		AB58A5AC2776B2BC00C0D285 /* AppDelegateReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AB2776B2BC00C0D285 /* AppDelegateReducer.swift */; };
-		AB58A5B22776B99000C0D285 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B12776B99000C0D285 /* AppStore.swift */; };
+		AB58A5B22776B99000C0D285 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B12776B99000C0D285 /* AppReducer.swift */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
@@ -404,7 +404,7 @@
 		AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryDetailMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB543FF126DB7FD9009344C0 /* Model 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 3.xcdatamodel"; sourceTree = "<group>"; };
 		AB58A5AB2776B2BC00C0D285 /* AppDelegateReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateReducer.swift; sourceTree = "<group>"; };
-		AB58A5B12776B99000C0D285 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		AB58A5B12776B99000C0D285 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		AB5BE67D26B95FDD007D4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1231,7 +1231,7 @@
 			isa = PBXGroup;
 			children = (
 				AB1EF25327AFA19200F507D6 /* Heap.swift */,
-				AB58A5B12776B99000C0D285 /* AppStore.swift */,
+				AB58A5B12776B99000C0D285 /* AppReducer.swift */,
 				AB86AC1227856F2700E61E6A /* AppLockReducer.swift */,
 				AB706F7827890A6C0025A48A /* AppRouteReducer.swift */,
 				AB58A5AB2776B2BC00C0D285 /* AppDelegateReducer.swift */,
@@ -1867,7 +1867,7 @@
 				AB706F92278A6E8C0025A48A /* WatchedReducer.swift in Sources */,
 				AB706F80278981370025A48A /* AlertKit_Extension.swift in Sources */,
 				ABA9A6C228EC7BD000EE28DE /* Strings.swift in Sources */,
-				AB58A5B22776B99000C0D285 /* AppStore.swift in Sources */,
+				AB58A5B22776B99000C0D285 /* AppReducer.swift in Sources */,
 				AB24C566276758E30085C33A /* GalleryCardCell.swift in Sources */,
 				ABBB2679279D454C007B6149 /* GalleryInfosReducer.swift in Sources */,
 				AB7BF2B727A9652F001865A3 /* Greeting.swift in Sources */,

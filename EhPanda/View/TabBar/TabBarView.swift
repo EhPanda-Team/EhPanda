@@ -11,10 +11,10 @@ import ComposableArchitecture
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase
-    private let store: Store<AppState, AppAction>
-    @ObservedObject private var viewStore: ViewStore<AppState, AppAction>
+    private let store: StoreOf<AppReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<AppReducer>
 
-    init(store: Store<AppState, AppAction>) {
+    init(store: StoreOf<AppReducer>) {
         self.store = store
         viewStore = ViewStore(store)
     }
@@ -32,7 +32,7 @@ struct TabBarView: View {
                         switch type {
                         case .home:
                             HomeView(
-                                store: store.scope(state: \.homeState, action: AppAction.home),
+                                store: store.scope(state: \.homeState, action: AppReducer.Action.home),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
@@ -40,7 +40,7 @@ struct TabBarView: View {
                             )
                         case .favorites:
                             FavoritesView(
-                                store: store.scope(state: \.favoritesState, action: AppAction.favorites),
+                                store: store.scope(state: \.favoritesState, action: AppReducer.Action.favorites),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
@@ -48,7 +48,7 @@ struct TabBarView: View {
                             )
                         case .search:
                             SearchRootView(
-                                store: store.scope(state: \.searchRootState, action: AppAction.searchRoot),
+                                store: store.scope(state: \.searchRootState, action: AppReducer.Action.searchRoot),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
@@ -56,7 +56,7 @@ struct TabBarView: View {
                             )
                         case .setting:
                             SettingView(
-                                store: store.scope(state: \.settingState, action: AppAction.setting),
+                                store: store.scope(state: \.settingState, action: AppReducer.Action.setting),
                                 blurRadius: viewStore.appLockState.blurRadius
                             )
                         }
@@ -79,7 +79,7 @@ struct TabBarView: View {
         }
         .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.setting) { _ in
             SettingView(
-                store: store.scope(state: \.settingState, action: AppAction.setting),
+                store: store.scope(state: \.settingState, action: AppReducer.Action.setting),
                 blurRadius: viewStore.appLockState.blurRadius
             )
             .accentColor(viewStore.settingState.setting.accentColor)
@@ -88,7 +88,10 @@ struct TabBarView: View {
         .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.detail) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.appRouteState.detailState, action: { AppAction.appRoute(.detail($0)) }),
+                    store: store.scope(
+                        state: \.appRouteState.detailState,
+                        action: { AppReducer.Action.appRoute(.detail($0)) }
+                    ),
                     gid: route.wrappedValue, user: viewStore.settingState.user,
                     setting: viewStore.binding(\.settingState.$setting),
                     blurRadius: viewStore.appLockState.blurRadius,
@@ -155,24 +158,7 @@ struct TabBarView_Previews: PreviewProvider {
         TabBarView(
             store: .init(
                 initialState: .init(),
-                reducer: appReducer,
-                environment: AppEnvironment(
-                    dfClient: .live,
-                    urlClient: .live,
-                    fileClient: .live,
-                    imageClient: .live,
-                    deviceClient: .live,
-                    loggerClient: .live,
-                    hapticsClient: .live,
-                    libraryClient: .live,
-                    cookieClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    userDefaultsClient: .live,
-                    uiApplicationClient: .live,
-                    authorizationClient: .live
-                )
+                reducer: AppReducer()
             )
         )
     }

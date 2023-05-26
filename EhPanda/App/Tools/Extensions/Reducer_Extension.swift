@@ -94,3 +94,21 @@ where State == Base.State, Action == Base.Action {
         return self
     }
 }
+
+// MARK: Logging
+struct LoggingReducer<State, Action, Base: ReducerProtocol>: ReducerProtocol
+where State == Base.State, Action == Base.Action {
+    let base: Base
+
+    init(@ReducerBuilder<State, Action> base: () -> Base) {
+        self.base = base()
+    }
+
+    @ReducerBuilder<State, Action>
+    var body: some ReducerProtocol<State, Action> {
+        Reduce { state, action in
+            Logger.info(action)
+            return base.reduce(into: &state, action: action)
+        }
+    }
+}

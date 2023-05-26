@@ -53,25 +53,8 @@ struct AppDelegateReducer: ReducerProtocol {
 // MARK: AppDelegate
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let store = Store(
-        initialState: AppState(),
-        reducer: appReducer,
-        environment: AppEnvironment(
-            dfClient: .live,
-            urlClient: .live,
-            fileClient: .live,
-            imageClient: .live,
-            deviceClient: .live,
-            loggerClient: .live,
-            hapticsClient: .live,
-            libraryClient: .live,
-            cookieClient: .live,
-            databaseClient: .live,
-            clipboardClient: .live,
-            appDelegateClient: .live,
-            userDefaultsClient: .live,
-            uiApplicationClient: .live,
-            authorizationClient: .live
-        )
+        initialState: .init(),
+        reducer: AppReducer()
     )
     lazy var viewStore = ViewStore(store)
 
