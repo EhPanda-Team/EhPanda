@@ -35,8 +35,15 @@ struct ReadingReducer: ReducerProtocol {
         case share(Bool)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: ReadingReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchImage
+        case fetchDatabaseInfos
+        case fetchPreviewURLs
+        case fetchThumbnailURLs
+        case fetchNormalImageURLs
+        case refetchNormalImageURLs
+        case fetchMPVKeys
+        case fetchMPVImageURL
     }
 
     struct State: Equatable {
@@ -181,7 +188,7 @@ struct ReadingReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$showsSliderPreview):
-                return hapticsClient.generateFeedback(.soft).fireAndForget()
+                return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
 
             case .binding:
                 return .none
@@ -205,7 +212,7 @@ struct ReadingReducer: ReducerProtocol {
                 return .merge(effects)
 
             case .onPerformDismiss:
-                return hapticsClient.generateFeedback(.light).fireAndForget()
+                return .fireAndForget({ hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
                 var effects: [EffectTask<Action>] = [
@@ -269,7 +276,7 @@ struct ReadingReducer: ReducerProtocol {
             case .fetchImage(let action, let imageURL):
                 return imageClient.fetchImage(url: imageURL)
                     .map({ Action.fetchImageDone(action, $0) })
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchImage)
 
             case .fetchImageDone(let action, let result):
                 if case .success(let image) = result {
@@ -314,7 +321,7 @@ struct ReadingReducer: ReducerProtocol {
 
             case .teardown:
                 var effects: [EffectTask<Action>] = [
-                    .cancel(id: CancelID())
+                    .cancel(ids: CancelID.allCases)
                 ]
                 if !deviceClient.isPad() {
                     effects.append(.init(value: .setOrientationPortrait(true)))
@@ -326,7 +333,7 @@ struct ReadingReducer: ReducerProtocol {
                 state.gallery = gallery
                 state.galleryDetail = databaseClient.fetchGalleryDetail(gid: state.gallery.id)
                 return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID())
+                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -347,7 +354,7 @@ struct ReadingReducer: ReducerProtocol {
                 state.previewLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map({ Action.fetchPreviewURLsDone(index, $0) }).cancellable(id: CancelID())
+                    .effect.map({ Action.fetchPreviewURLsDone(index, $0) }).cancellable(id: CancelID.fetchPreviewURLs)
 
             case .fetchPreviewURLsDone(let index, let result):
                 switch result {
@@ -425,7 +432,8 @@ struct ReadingReducer: ReducerProtocol {
                 }
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map({ Action.fetchThumbnailURLsDone(index, $0) }).cancellable(id: CancelID())
+                    .effect.map({ Action.fetchThumbnailURLsDone(index, $0) })
+                    .cancellable(id: CancelID.fetchThumbnailURLs)
 
             case .fetchThumbnailURLsDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -455,7 +463,8 @@ struct ReadingReducer: ReducerProtocol {
 
             case .fetchNormalImageURLs(let index, let thumbnailURLs):
                 return GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs)
-                    .effect.map({ Action.fetchNormalImageURLsDone(index, $0) }).cancellable(id: CancelID())
+                    .effect.map({ Action.fetchNormalImageURLsDone(index, $0) })
+                    .cancellable(id: CancelID.fetchNormalImageURLs)
 
             case .fetchNormalImageURLsDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -492,7 +501,8 @@ struct ReadingReducer: ReducerProtocol {
                     thumbnailURL: state.thumbnailURLs[index],
                     storedImageURL: imageURL
                 )
-                .effect.map({ Action.refetchNormalImageURLsDone(index, $0) }).cancellable(id: CancelID())
+                .effect.map({ Action.refetchNormalImageURLsDone(index, $0) })
+                .cancellable(id: CancelID.refetchNormalImageURLs)
 
             case .refetchNormalImageURLsDone(let index, let result):
                 switch result {
@@ -516,7 +526,7 @@ struct ReadingReducer: ReducerProtocol {
 
             case .fetchMPVKeys(let index, let mpvURL):
                 return MPVKeysRequest(mpvURL: mpvURL)
-                    .effect.map({ Action.fetchMPVKeysDone(index, $0) }).cancellable(id: CancelID())
+                    .effect.map({ Action.fetchMPVKeysDone(index, $0) }).cancellable(id: CancelID.fetchMPVKeys)
 
             case .fetchMPVKeysDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -557,7 +567,7 @@ struct ReadingReducer: ReducerProtocol {
                     gid: gidInteger, index: index, mpvKey: mpvKey,
                     mpvImageKey: mpvImageKey, skipServerIdentifier: skipServerIdentifier
                 )
-                .effect.map({ Action.fetchMPVImageURLDone(index, $0) }).cancellable(id: CancelID())
+                .effect.map({ Action.fetchMPVImageURLDone(index, $0) }).cancellable(id: CancelID.fetchMPVImageURL)
 
             case .fetchMPVImageURLDone(let index, let result):
                 switch result {

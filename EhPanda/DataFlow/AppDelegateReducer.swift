@@ -58,8 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
     lazy var viewStore = ViewStore(store)
 
-    static var orientationMask: UIInterfaceOrientationMask =
-        DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
+    static var orientationMask: UIInterfaceOrientationMask = DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 
     func application(
         _ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?

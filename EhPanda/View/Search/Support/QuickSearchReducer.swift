@@ -20,8 +20,8 @@ struct QuickSearchReducer: ReducerProtocol {
         case content
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: QuickSearchReducer.self)
+    private enum CancelID {
+        case fetchQuickSearchWords
     }
 
     struct State: Equatable {
@@ -114,13 +114,13 @@ struct QuickSearchReducer: ReducerProtocol {
                 return .init(value: .syncQuickSearchWords)
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(id: CancelID.fetchQuickSearchWords)
 
             case .fetchQuickSearchWords:
                 state.loadingState = .loading
                 return databaseClient.fetchQuickSearchWords()
                     .map(Action.fetchQuickSearchWordsDone)
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchQuickSearchWords)
 
             case .fetchQuickSearchWordsDone(let words):
                 state.loadingState = .idle

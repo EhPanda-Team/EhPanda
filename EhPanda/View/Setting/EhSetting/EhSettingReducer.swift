@@ -14,8 +14,8 @@ struct EhSettingReducer: ReducerProtocol {
         case deleteProfile
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: EhSettingReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchEhSetting, submitChanges, performAction
     }
 
     struct State: Equatable {
@@ -74,13 +74,13 @@ struct EhSettingReducer: ReducerProtocol {
                 .fireAndForget()
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return EhSettingRequest().effect.map(Action.fetchEhSettingDone)
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchEhSetting)
 
             case .fetchEhSettingDone(let result):
                 state.loadingState = .idle
@@ -100,7 +100,7 @@ struct EhSettingReducer: ReducerProtocol {
 
                 state.submittingState = .loading
                 return SubmitEhSettingChangesRequest(ehSetting: ehSetting)
-                    .effect.map(Action.submitChangesDone).cancellable(id: CancelID())
+                    .effect.map(Action.submitChangesDone).cancellable(id: CancelID.submitChanges)
 
             case .submitChangesDone(let result):
                 state.submittingState = .idle
@@ -117,7 +117,7 @@ struct EhSettingReducer: ReducerProtocol {
                 guard state.submittingState != .loading else { return .none }
                 state.submittingState = .loading
                 return EhProfileRequest(action: action, name: name, set: set)
-                    .effect.map(Action.performActionDone).cancellable(id: CancelID())
+                    .effect.map(Action.performActionDone).cancellable(id: CancelID.performAction)
 
             case .performActionDone(let result):
                 state.submittingState = .idle

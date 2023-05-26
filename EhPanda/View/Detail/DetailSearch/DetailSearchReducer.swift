@@ -14,8 +14,8 @@ struct DetailSearchReducer: ReducerProtocol {
         case detail(String)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: DetailSearchReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchGalleries, fetchMoreGalleries
     }
 
     struct State: Equatable {
@@ -93,7 +93,7 @@ struct DetailSearchReducer: ReducerProtocol {
                 )
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchGalleries(let keyword):
                 guard state.loadingState != .loading else { return .none }
@@ -105,7 +105,7 @@ struct DetailSearchReducer: ReducerProtocol {
                 state.pageNumber.resetPages()
                 let filter = databaseClient.fetchFilterSynchronously(range: .search)
                 return SearchGalleriesRequest(keyword: state.lastKeyword, filter: filter).effect
-                    .map(Action.fetchGalleriesDone).cancellable(id: CancelID())
+                    .map(Action.fetchGalleriesDone).cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -134,7 +134,7 @@ struct DetailSearchReducer: ReducerProtocol {
                 let filter = databaseClient.fetchFilterSynchronously(range: .search)
                 return MoreSearchGalleriesRequest(keyword: state.lastKeyword, filter: filter, lastID: lastID).effect
                     .map(Action.fetchMoreGalleriesDone)
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle

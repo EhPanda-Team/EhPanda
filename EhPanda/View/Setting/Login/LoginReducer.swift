@@ -9,7 +9,9 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginReducer: ReducerProtocol {
-    private enum CancelID: Hashable {}
+    private enum CancelID: Hashable {
+        case login
+    }
 
     enum Route: Equatable {
         case webView(URL)
@@ -66,9 +68,9 @@ struct LoginReducer: ReducerProtocol {
                 state.focusedField = nil
                 state.loginState = .loading
                 return .merge(
-                    hapticsClient.generateFeedback(.soft).fireAndForget(),
+                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
                     LoginRequest(username: state.username, password: state.password)
-                        .effect.map(Action.loginDone).cancellable(id: CancelID.self)
+                        .effect.map(Action.loginDone).cancellable(id: CancelID.login)
                 )
 
             case .loginDone(let result):
@@ -76,10 +78,10 @@ struct LoginReducer: ReducerProtocol {
                 var effects = [EffectTask<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(hapticsClient.generateNotificationFeedback(.success).fireAndForget())
+                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.success) }))
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(hapticsClient.generateNotificationFeedback(.error).fireAndForget())
+                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.error) }))
                 }
                 if case .success(let response) = result, let response = response {
                     effects.append(cookieClient.setCredentials(response: response).fireAndForget())

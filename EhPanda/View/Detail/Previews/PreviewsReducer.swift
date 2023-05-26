@@ -13,8 +13,8 @@ struct PreviewsReducer: ReducerProtocol {
         case reading
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: PreviewsReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchDatabaseInfos, fetchPreviewURLs
     }
 
     struct State: Equatable {
@@ -82,13 +82,13 @@ struct PreviewsReducer: ReducerProtocol {
                     .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
                 state.gallery = gallery
                 return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                        .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID())
+                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -105,7 +105,7 @@ struct PreviewsReducer: ReducerProtocol {
                 state.loadingState = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map(Action.fetchPreviewURLsDone).cancellable(id: CancelID())
+                    .effect.map(Action.fetchPreviewURLsDone).cancellable(id: CancelID.fetchPreviewURLs)
 
             case .fetchPreviewURLsDone(let result):
                 state.loadingState = .idle

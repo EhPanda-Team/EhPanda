@@ -179,7 +179,7 @@ struct SettingReducer: ReducerProtocol {
             case .binding(\.$setting.bypassesSNIFiltering):
                 return .merge(
                     .init(value: .syncSetting),
-                    hapticsClient.generateFeedback(.soft).fireAndForget(),
+                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
                     dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
                 )
 

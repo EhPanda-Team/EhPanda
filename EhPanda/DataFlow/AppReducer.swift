@@ -101,8 +101,7 @@ struct AppReducer: ReducerProtocol {
 
                 case .tabBar(.setTabBarItemType(let type)):
                     var effects = [EffectTask<Action>]()
-                    let hapticEffect: EffectTask<Action> = hapticsClient
-                        .generateFeedback(.soft).fireAndForget()
+                    let hapticEffect: EffectTask<Action> = .fireAndForget({ hapticsClient.generateFeedback(.soft) })
                     if type == state.tabBarState.tabBarItemType {
                         switch type {
                         case .home:
@@ -145,7 +144,7 @@ struct AppReducer: ReducerProtocol {
 
                 case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
                     var effects: [EffectTask<Action>] = [
-                        hapticsClient.generateFeedback(.soft).fireAndForget(),
+                        .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
                         .init(value: .tabBar(.setTabBarItemType(.setting)))
                     ]
                     effects.append(.init(value: .setting(.setNavigation(.account))))

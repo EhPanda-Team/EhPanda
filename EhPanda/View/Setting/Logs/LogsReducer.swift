@@ -12,8 +12,8 @@ struct LogsReducer: ReducerProtocol {
         case log(Log)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: LogsReducer.self)
+    private enum CancelID {
+        case fetchLogs
     }
 
     struct State: Equatable {
@@ -51,12 +51,12 @@ struct LogsReducer: ReducerProtocol {
                 return uiApplicationClient.openFileApp().fireAndForget()
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(id: CancelID.fetchLogs)
 
             case .fetchLogs:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return fileClient.fetchLogs().map(Action.fetchLogsDone).cancellable(id: CancelID())
+                return fileClient.fetchLogs().map(Action.fetchLogsDone).cancellable(id: CancelID.fetchLogs)
 
             case .fetchLogsDone(let result):
                 switch result {

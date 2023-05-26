@@ -14,8 +14,8 @@ struct WatchedReducer: ReducerProtocol {
         case detail(String)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: WatchedReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchGalleries, fetchMoreGalleries
     }
 
     struct State: Equatable {
@@ -90,7 +90,7 @@ struct WatchedReducer: ReducerProtocol {
                 return .none
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchGalleries(let keyword):
                 guard state.loadingState != .loading else { return .none }
@@ -101,7 +101,7 @@ struct WatchedReducer: ReducerProtocol {
                 state.pageNumber.resetPages()
                 let filter = databaseClient.fetchFilterSynchronously(range: .watched)
                 return WatchedGalleriesRequest(filter: filter, keyword: state.keyword)
-                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID())
+                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -130,7 +130,7 @@ struct WatchedReducer: ReducerProtocol {
                 let filter = databaseClient.fetchFilterSynchronously(range: .watched)
                 return MoreWatchedGalleriesRequest(filter: filter, lastID: lastID, keyword: state.keyword).effect
                     .map(Action.fetchMoreGalleriesDone)
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle

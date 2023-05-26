@@ -85,7 +85,7 @@ struct AccountSettingReducer: ReducerProtocol {
                 return .merge(
                     .init(value: .setNavigation(.hud)),
                     clipboardClient.saveText(cookiesDescription).fireAndForget(),
-                    hapticsClient.generateNotificationFeedback(.success).fireAndForget()
+                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .login(.loginDone):

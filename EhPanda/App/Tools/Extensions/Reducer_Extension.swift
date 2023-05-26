@@ -8,46 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: Logging
-extension Reducer {
-    func logging() -> Self {
-        .init { state, action, environment in
-            Logger.info(action)
-            return run(&state, action, environment)
-        }
-    }
-}
-
-// MARK: Haptic
-extension Reducer {
-    func onBecomeNonNil<Enum, Case>(
-        unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: CasePath<Enum, Case>,
-        perform additionalEffects: @escaping (inout State, Action, Environment)
-        -> EffectTask<Action>
-    ) -> Self {
-        .init { state, action, environment in
-            let previousCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
-            let effects = run(&state, action, environment)
-            let currentCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
-
-            return previousCase == nil && currentCase != nil
-            ? .merge(effects, additionalEffects(&state, action, environment))
-            : effects
-        }
-    }
-    func haptics<Enum, Case>(
-        unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: CasePath<Enum, Case>,
-        hapticsClient: @escaping (Environment) -> HapticsClient,
-        style: UIImpactFeedbackGenerator.FeedbackStyle = .light
-    ) -> Self {
-        onBecomeNonNil(unwrapping: `enum`, case: casePath) {
-            hapticsClient($2).generateFeedback(style).fireAndForget()
-        }
-    }
-}
-
 extension ReducerProtocol {
     func haptics<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
@@ -60,7 +20,7 @@ extension ReducerProtocol {
         }
     }
 
-    func onBecomeNonNil<Enum, Case>(
+    private func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,
         perform additionalEffects: @escaping (inout State, Action) -> EffectTask<Action>
@@ -107,7 +67,11 @@ where State == Base.State, Action == Base.Action {
     @ReducerBuilder<State, Action>
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
-            Logger.info(action)
+            if case .setting(.binding(let bindingAction)) = action as? AppReducer.Action {
+                Logger.info("setting(EhPanda.SettingReducer.Action.\(bindingAction.customDumpMirror.subjectType)")
+            } else {
+                Logger.info(action)
+            }
             return base.reduce(into: &state, action: action)
         }
     }

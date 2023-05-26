@@ -15,8 +15,8 @@ struct TorrentsReducer: ReducerProtocol {
         case share(URL)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: TorrentsReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchTorrent, fetchGalleryTorrents
     }
 
     struct State: Equatable {
@@ -58,7 +58,7 @@ struct TorrentsReducer: ReducerProtocol {
                 state.route = .hud
                 return .merge(
                     clipboardClient.saveText(magnetURL).fireAndForget(),
-                    hapticsClient.generateNotificationFeedback(.success).fireAndForget()
+                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .presentTorrentActivity(let hash, let data):
@@ -69,10 +69,10 @@ struct TorrentsReducer: ReducerProtocol {
 
             case .fetchTorrent(let hash, let torrentURL):
                 return DataRequest(url: torrentURL).effect.map({ Action.fetchTorrentDone(hash, $0) })
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchTorrent)
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {
@@ -84,7 +84,7 @@ struct TorrentsReducer: ReducerProtocol {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return GalleryTorrentsRequest(gid: gid, token: token)
-                    .effect.map(Action.fetchGalleryTorrentsDone).cancellable(id: CancelID())
+                    .effect.map(Action.fetchGalleryTorrentsDone).cancellable(id: CancelID.fetchGalleryTorrents)
 
             case .fetchGalleryTorrentsDone(let result):
                 state.loadingState = .idle

@@ -12,8 +12,8 @@ struct ToplistsReducer: ReducerProtocol {
         case detail(String)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: ToplistsReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchGalleries, fetchMoreGalleries
     }
 
     struct State: Equatable {
@@ -117,20 +117,20 @@ struct ToplistsReducer: ReducerProtocol {
                 guard let index = Int(state.jumpPageIndex),
                       let pageNumber = state.pageNumber,
                       index > 0, index <= pageNumber.maximum + 1 else {
-                    return hapticsClient.generateNotificationFeedback(.error).fireAndForget()
+                    return .fireAndForget({ hapticsClient.generateNotificationFeedback(.error) })
                 }
                 return .init(value: .fetchGalleries(index - 1))
 
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
-                return hapticsClient.generateFeedback(.light).fireAndForget()
+                return .fireAndForget({ hapticsClient.generateFeedback(.light) })
 
             case .setJumpPageAlertFocused(let isFocused):
                 state.jumpPageAlertFocused = isFocused
                 return .none
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchGalleries(let pageNum):
                 guard state.loadingState != .loading else { return .none }
@@ -142,7 +142,7 @@ struct ToplistsReducer: ReducerProtocol {
                 }
                 return ToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
                     .effect.map({ [type = state.type] in Action.fetchGalleriesDone(type, $0) })
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let type, let result):
                 state.rawLoadingState[type] = .idle
@@ -170,7 +170,7 @@ struct ToplistsReducer: ReducerProtocol {
                 let pageNum = pageNumber.current + 1
                 return MoreToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
                     .effect.map({ [type = state.type] in Action.fetchMoreGalleriesDone(type, $0) })
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let type, let result):
                 state.rawFooterLoadingState[type] = .idle

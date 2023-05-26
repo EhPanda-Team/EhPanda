@@ -13,8 +13,8 @@ struct FrontpageReducer: ReducerProtocol {
         case detail(String)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: FrontpageReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchGalleries, fetchMoreGalleries
     }
 
     struct State: Equatable {
@@ -83,7 +83,7 @@ struct FrontpageReducer: ReducerProtocol {
                 return .init(value: .detail(.teardown))
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
@@ -92,7 +92,7 @@ struct FrontpageReducer: ReducerProtocol {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return FrontpageGalleriesRequest(filter: filter).effect
                     .map(Action.fetchGalleriesDone)
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -121,7 +121,7 @@ struct FrontpageReducer: ReducerProtocol {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).effect
                     .map(Action.fetchMoreGalleriesDone)
-                    .cancellable(id: CancelID())
+                    .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle

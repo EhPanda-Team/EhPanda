@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppDelegateClient {
-    let setOrientation: (UIInterfaceOrientation) -> EffectTask<Never>
+    let setOrientation: (UIInterfaceOrientationMask) -> EffectTask<Never>
     let setOrientationMask: (UIInterfaceOrientationMask) -> EffectTask<Never>
 }
 
 extension AppDelegateClient {
     static let live: Self = .init(
-        setOrientation: { orientation in
+        setOrientation: { mask in
             .fireAndForget {
-                UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
+                DeviceUtil.keyWindow?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
             }
         },
         setOrientationMask: { mask in

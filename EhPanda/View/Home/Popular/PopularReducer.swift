@@ -13,8 +13,8 @@ struct PopularReducer: ReducerProtocol {
         case detail(String)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: PopularReducer.self)
+    private enum CancelID {
+        case fetchGalleries
     }
 
     struct State: Equatable {
@@ -71,14 +71,14 @@ struct PopularReducer: ReducerProtocol {
                 return .init(value: .detail(.teardown))
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(id: CancelID.fetchGalleries)
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return PopularGalleriesRequest(filter: filter)
-                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID())
+                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle

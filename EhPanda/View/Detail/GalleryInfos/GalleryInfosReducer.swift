@@ -36,7 +36,7 @@ struct GalleryInfosReducer: ReducerProtocol {
                 state.route = .hud
                 return .merge(
                     clipboardClient.saveText(text).fireAndForget(),
-                    hapticsClient.generateNotificationFeedback(.success).fireAndForget()
+                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
                 )
             }
         }

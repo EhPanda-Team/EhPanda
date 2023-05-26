@@ -24,8 +24,8 @@ struct DetailReducer: ReducerProtocol {
         case galleryInfos(Gallery, GalleryDetail)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: DetailReducer.self)
+    private enum CancelID: CaseIterable {
+        case fetchDatabaseInfos, fetchGalleryDetail, rateGallery, favorGallery, unfavorGallery, postComment, voteTag
     }
 
     struct State: Equatable {
@@ -164,11 +164,11 @@ struct DetailReducer: ReducerProtocol {
 
                 case .toggleShowFullTitle:
                     state.showsFullTitle.toggle()
-                    return hapticsClient.generateFeedback(.soft).fireAndForget()
+                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
 
                 case .toggleShowUserRating:
                     state.showsUserRating.toggle()
-                    return hapticsClient.generateFeedback(.soft).fireAndForget()
+                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
 
                 case .setCommentContent(let content):
                     state.commentContent = content
@@ -186,7 +186,7 @@ struct DetailReducer: ReducerProtocol {
                     state.updateRating(value: value)
                     return .merge(
                         .init(value: .rateGallery),
-                        hapticsClient.generateFeedback(.soft).fireAndForget(),
+                        .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
                         .init(value: .confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
                     )
 
@@ -225,7 +225,7 @@ struct DetailReducer: ReducerProtocol {
                         .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
                 case .teardown:
-                    return .cancel(id: CancelID())
+                    return .cancel(ids: CancelID.allCases)
 
                 case .fetchDatabaseInfos(let gid):
                     guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
@@ -236,7 +236,7 @@ struct DetailReducer: ReducerProtocol {
                     return .merge(
                         .init(value: .saveGalleryHistory),
                         databaseClient.fetchGalleryState(gid: state.gallery.id)
-                            .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID())
+                            .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
                     )
 
                 case .fetchDatabaseInfosDone(let galleryState):
@@ -251,7 +251,7 @@ struct DetailReducer: ReducerProtocol {
                     else { return .none }
                     state.loadingState = .loading
                     return GalleryDetailRequest(gid: state.gallery.id, galleryURL: galleryURL)
-                        .effect.map(Action.fetchGalleryDetailDone).cancellable(id: CancelID())
+                        .effect.map(Action.fetchGalleryDetailDone).cancellable(id: CancelID.fetchGalleryDetail)
 
                 case .fetchGalleryDetailDone(let result):
                     state.loadingState = .idle
@@ -291,20 +291,20 @@ struct DetailReducer: ReducerProtocol {
                         apiuid: apiuid, apikey: state.apiKey, gid: gid,
                         token: state.gallery.token, rating: state.userRating
                     )
-                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID())
+                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.rateGallery)
 
                 case .favorGallery(let favIndex):
                     return FavorGalleryRequest(gid: state.gallery.id, token: state.gallery.token, favIndex: favIndex)
-                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID())
+                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.favorGallery)
 
                 case .unfavorGallery:
                     return UnfavorGalleryRequest(gid: state.gallery.id).effect.map(Action.anyGalleryOpsDone)
-                        .cancellable(id: CancelID())
+                        .cancellable(id: CancelID.unfavorGallery)
 
                 case .postComment(let galleryURL):
                     guard !state.commentContent.isEmpty else { return .none }
                     return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID())
+                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.postComment)
 
                 case .voteTag(let tag, let vote):
                     guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
@@ -312,16 +312,16 @@ struct DetailReducer: ReducerProtocol {
                     return VoteGalleryTagRequest(
                         apiuid: apiuid, apikey: state.apiKey, gid: gid, token: state.gallery.token, tag: tag, vote: vote
                     )
-                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID())
+                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.voteTag)
 
                 case .anyGalleryOpsDone(let result):
                     if case .success = result {
                         return .merge(
                             .init(value: .fetchGalleryDetail),
-                            hapticsClient.generateNotificationFeedback(.success).fireAndForget()
+                            .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
                         )
                     }
-                    return hapticsClient.generateNotificationFeedback(.error).fireAndForget()
+                    return .fireAndForget({ hapticsClient.generateNotificationFeedback(.error) })
 
                 case .reading(.onPerformDismiss):
                     return .init(value: .setNavigation(nil))

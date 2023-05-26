@@ -16,8 +16,8 @@ struct CommentsReducer: ReducerProtocol {
         case postComment(String)
     }
 
-    struct CancelID: Hashable {
-        let id = String(describing: CommentsReducer.self)
+    private enum CancelID: CaseIterable {
+        case postComment, voteComment, fetchGallery
     }
 
     struct State: Equatable {
@@ -166,7 +166,7 @@ struct CommentsReducer: ReducerProtocol {
                     .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
 
             case .teardown:
-                return .cancel(id: CancelID())
+                return .cancel(ids: CancelID.allCases)
 
             case .postComment(let galleryURL, let commentID):
                 guard !state.commentContent.isEmpty else { return .none }
@@ -174,10 +174,10 @@ struct CommentsReducer: ReducerProtocol {
                     return EditGalleryCommentRequest(
                         commentID: commentID, content: state.commentContent, galleryURL: galleryURL
                     )
-                    .effect.map(Action.performCommentActionDone).cancellable(id: CancelID())
+                    .effect.map(Action.performCommentActionDone).cancellable(id: CancelID.postComment)
                 } else {
                     return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                        .effect.map(Action.performCommentActionDone).cancellable(id: CancelID())
+                        .effect.map(Action.performCommentActionDone).cancellable(id: CancelID.postComment)
                 }
 
             case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
@@ -188,7 +188,7 @@ struct CommentsReducer: ReducerProtocol {
                     apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
                     commentID: commentID, commentVote: vote
                 )
-                .effect.map(Action.performCommentActionDone).cancellable(id: CancelID())
+                .effect.map(Action.performCommentActionDone).cancellable(id: CancelID.voteComment)
 
             case .performCommentActionDone:
                 return .none
@@ -196,7 +196,7 @@ struct CommentsReducer: ReducerProtocol {
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
                 return GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL)
-                    .effect.map({ Action.fetchGalleryDone(url, $0) }).cancellable(id: CancelID())
+                    .effect.map({ Action.fetchGalleryDone(url, $0) }).cancellable(id: CancelID.fetchGallery)
 
             case .fetchGalleryDone(let url, let result):
                 state.route = nil

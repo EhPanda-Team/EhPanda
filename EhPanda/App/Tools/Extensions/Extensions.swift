@@ -67,6 +67,7 @@ extension URL {
     }
 
     func appending(queryItems: [URLQueryItem]) -> URL {
+        guard !queryItems.isEmpty else { return self }
         var components: URLComponents = .init(
             url: self, resolvingAgainstBaseURL: false
         )
