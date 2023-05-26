@@ -29,7 +29,7 @@ struct HistoryState: Equatable {
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
 
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
 }
 
 enum HistoryAction: BindableAction {
@@ -41,7 +41,7 @@ enum HistoryAction: BindableAction {
     case fetchGalleries
     case fetchGalleriesDone([Gallery])
 
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
 }
 
 struct HistoryEnvironment {
@@ -99,23 +99,24 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.co
             return .none
         }
     }
-    .binding(),
-    detailReducer.pullback(
-        state: \.detailState,
-        action: /HistoryAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    )
+    .binding()
+//    ,
+//    detailReducer.pullback(
+//        state: \.detailState,
+//        action: /HistoryAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 )

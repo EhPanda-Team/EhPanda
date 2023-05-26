@@ -44,7 +44,7 @@ struct FavoritesState: Equatable {
         rawFooterLoadingState[index]
     }
 
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
     var quickSearchState = QuickSearchReducer.State()
 
     mutating func insertGalleries(index: Int, galleries: [Gallery]) {
@@ -69,7 +69,7 @@ enum FavoritesAction: BindableAction {
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
 
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
     case quickSearch(QuickSearchReducer.Action)
 }
 
@@ -199,25 +199,26 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         case: /FavoritesState.Route.quickSearch,
         hapticsClient: \.hapticsClient
     )
-    .binding(),
-    detailReducer.pullback(
-        state: \FavoritesState.detailState,
-        action: /FavoritesAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    )
+    .binding()
+//    ,
+//    detailReducer.pullback(
+//        state: \FavoritesState.detailState,
+//        action: /FavoritesAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 //    ,
 //    quickSearchReducer.pullback(
 //        state: \.quickSearchState,

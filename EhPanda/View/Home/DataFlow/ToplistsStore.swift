@@ -50,7 +50,7 @@ struct ToplistsState: Equatable {
         rawFooterLoadingState[type]
     }
 
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
 
     mutating func insertGalleries(type: ToplistsType, galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -77,7 +77,7 @@ enum ToplistsAction: BindableAction {
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
 
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
 }
 
 struct ToplistsEnvironment {
@@ -207,23 +207,24 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             return .none
         }
     }
-    .binding(),
-    detailReducer.pullback(
-        state: \.detailState,
-        action: /ToplistsAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    )
+    .binding()
+//    ,
+//    detailReducer.pullback(
+//        state: \.detailState,
+//        action: /ToplistsAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 )

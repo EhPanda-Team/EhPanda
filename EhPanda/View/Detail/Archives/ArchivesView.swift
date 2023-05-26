@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ArchivesView: View {
-    private let store: Store<ArchivesState, ArchivesAction>
-    @ObservedObject private var viewStore: ViewStore<ArchivesState, ArchivesAction>
+    private let store: StoreOf<ArchivesReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<ArchivesReducer>
     private let gid: String
     private let user: User
     private let galleryURL: URL
     private let archiveURL: URL
 
     init(
-        store: Store<ArchivesState, ArchivesAction>,
+        store: StoreOf<ArchivesReducer>,
         gid: String, user: User, galleryURL: URL, archiveURL: URL
     ) {
         self.store = store
@@ -56,12 +56,12 @@ struct ArchivesView: View {
             .progressHUD(
                 config: viewStore.communicatingHUDConfig,
                 unwrapping: viewStore.binding(\.$route),
-                case: /ArchivesState.Route.communicatingHUD
+                case: /ArchivesReducer.Route.communicatingHUD
             )
             .progressHUD(
                 config: viewStore.messageHUDConfig,
                 unwrapping: viewStore.binding(\.$route),
-                case: /ArchivesState.Route.messageHUD
+                case: /ArchivesReducer.Route.messageHUD
             )
             .animation(.default, value: viewStore.hathArchives)
             .animation(.default, value: user.galleryPoints)
@@ -223,12 +223,7 @@ struct ArchivesView_Previews: PreviewProvider {
         ArchivesView(
             store: .init(
                 initialState: .init(),
-                reducer: archivesReducer,
-                environment: ArchivesEnvironment(
-                    hapticsClient: .live,
-                    cookieClient: .live,
-                    databaseClient: .live
-                )
+                reducer: ArchivesReducer()
             ),
             gid: .init(),
             user: .init(),

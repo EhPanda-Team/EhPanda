@@ -33,7 +33,7 @@ struct FrontpageState: Equatable {
     var footerLoadingState: LoadingState = .idle
 
     var filtersState = FiltersReducer.State()
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -56,7 +56,7 @@ enum FrontpageAction: BindableAction {
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
     case filters(FiltersReducer.Action)
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
 }
 
 struct FrontpageEnvironment {
@@ -165,7 +165,8 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         case: /FrontpageState.Route.filters,
         hapticsClient: \.hapticsClient
     )
-    .binding(),
+    .binding()
+//    ,
 //    filtersReducer.pullback(
 //        state: \.filtersState,
 //        action: /FrontpageAction.filters,
@@ -175,22 +176,22 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
 //            )
 //        }
 //    ),
-    detailReducer.pullback(
-        state: \.detailState,
-        action: /FrontpageAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    )
+//    detailReducer.pullback(
+//        state: \.detailState,
+//        action: /FrontpageAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 )

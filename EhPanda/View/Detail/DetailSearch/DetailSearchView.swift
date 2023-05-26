@@ -9,8 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct DetailSearchView: View {
-    private let store: Store<DetailSearchState, DetailSearchAction>
-    @ObservedObject private var viewStore: ViewStore<DetailSearchState, DetailSearchAction>
+    private let store: StoreOf<DetailSearchReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<DetailSearchReducer>
     private let keyword: String
     private let user: User
     @Binding private var setting: Setting
@@ -18,7 +18,7 @@ struct DetailSearchView: View {
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<DetailSearchState, DetailSearchAction>,
+        store: StoreOf<DetailSearchReducer>,
         keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -46,21 +46,21 @@ struct DetailSearchView: View {
         )
         .sheet(
             unwrapping: viewStore.binding(\.$route),
-            case: /DetailSearchState.Route.detail,
+            case: /DetailSearchReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.detailState, action: DetailSearchAction.detail),
+                    store: store.scope(state: \.detailState, action: DetailSearchReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchState.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchReducer.Route.quickSearch) { _ in
             QuickSearchView(
-                store: store.scope(state: \.quickDetailSearchState, action: DetailSearchAction.quickSearch)
+                store: store.scope(state: \.quickDetailSearchState, action: DetailSearchReducer.Action.quickSearch)
             ) { keyword in
                 viewStore.send(.setNavigation(nil))
                 viewStore.send(.fetchGalleries(keyword))
@@ -68,8 +68,8 @@ struct DetailSearchView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchState.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: DetailSearchAction.filters))
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchReducer.Route.filters) { _ in
+            FiltersView(store: store.scope(state: \.filtersState, action: DetailSearchReducer.Action.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .searchable(text: viewStore.binding(\.$keyword)) {
@@ -95,9 +95,9 @@ struct DetailSearchView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailSearchState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailSearchReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: DetailSearchAction.detail),
+                    store: store.scope(state: \.detailState, action: DetailSearchReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -123,19 +123,7 @@ struct DetailSearchView_Previews: PreviewProvider {
         DetailSearchView(
             store: .init(
                 initialState: .init(),
-                reducer: detailSearchReducer,
-                environment: DetailSearchEnvironment(
-                    urlClient: .live,
-                    fileClient: .live,
-                    imageClient: .live,
-                    deviceClient: .live,
-                    hapticsClient: .live,
-                    cookieClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    uiApplicationClient: .live
-                )
+                reducer: DetailSearchReducer()
             ),
             keyword: .init(),
             user: .init(),

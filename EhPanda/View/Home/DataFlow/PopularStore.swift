@@ -31,7 +31,7 @@ struct PopularState: Equatable {
     var loadingState: LoadingState = .idle
 
     var filtersState = FiltersReducer.State()
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
 }
 
 enum PopularAction: BindableAction {
@@ -44,7 +44,7 @@ enum PopularAction: BindableAction {
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 
     case filters(FiltersReducer.Action)
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
 }
 
 struct PopularEnvironment {
@@ -115,7 +115,8 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
         case: /PopularState.Route.filters,
         hapticsClient: \.hapticsClient
     )
-    .binding(),
+    .binding()
+//    ,
 //    filtersReducer.pullback(
 //        state: \.filtersState,
 //        action: /PopularAction.filters,
@@ -125,22 +126,22 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
 //            )
 //        }
 //    ),
-    detailReducer.pullback(
-        state: \.detailState,
-        action: /PopularAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    )
+//    detailReducer.pullback(
+//        state: \.detailState,
+//        action: /PopularAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 )

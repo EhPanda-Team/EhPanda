@@ -9,13 +9,13 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TorrentsView: View {
-    private let store: Store<TorrentsState, TorrentsAction>
-    @ObservedObject private var viewStore: ViewStore<TorrentsState, TorrentsAction>
+    private let store: StoreOf<TorrentsReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<TorrentsReducer>
     private let gid: String
     private let token: String
     private let blurRadius: Double
 
-    init(store: Store<TorrentsState, TorrentsAction>, gid: String, token: String, blurRadius: Double) {
+    init(store: StoreOf<TorrentsReducer>, gid: String, token: String, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.gid = gid
@@ -45,14 +45,14 @@ struct TorrentsView: View {
                 }
                 .opacity(error != nil && viewStore.torrents.isEmpty ? 1 : 0)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsState.Route.share) { route in
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsReducer.Route.share) { route in
                 ActivityView(activityItems: [route.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
             .progressHUD(
                 config: viewStore.hudConfig,
                 unwrapping: viewStore.binding(\.$route),
-                case: /TorrentsState.Route.hud
+                case: /TorrentsReducer.Route.hud
             )
             .animation(.default, value: viewStore.torrents)
             .onAppear {
@@ -120,12 +120,7 @@ struct TorrentsView_Previews: PreviewProvider {
         TorrentsView(
             store: .init(
                 initialState: .init(),
-                reducer: torrentsReducer,
-                environment: TorrentsEnvironment(
-                    fileClient: .live,
-                    hapticsClient: .live,
-                    clipboardClient: .live
-                )
+                reducer: TorrentsReducer()
             ),
             gid: .init(),
             token: .init(),

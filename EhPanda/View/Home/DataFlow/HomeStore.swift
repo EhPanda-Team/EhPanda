@@ -42,7 +42,7 @@ struct HomeState: Equatable {
     var popularState = PopularState()
     var watchedState = WatchedState()
     var historyState = HistoryState()
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
         let sortedGalleries = galleries.sorted { lhs, rhs in
@@ -85,7 +85,7 @@ enum HomeAction: BindableAction {
     case popular(PopularAction)
     case watched(WatchedAction)
     case history(HistoryAction)
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
 }
 
 struct HomeEnvironment {
@@ -345,23 +345,24 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
-    ),
-    detailReducer.pullback(
-        state: \.detailState,
-        action: /HomeAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
     )
+//    ,
+//    detailReducer.pullback(
+//        state: \.detailState,
+//        action: /HomeAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 )

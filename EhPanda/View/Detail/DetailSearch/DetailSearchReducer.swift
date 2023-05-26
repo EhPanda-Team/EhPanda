@@ -1,5 +1,5 @@
 //
-//  SearchReducer.swift
+//  DetailSearchReducer.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/12.
@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct SearchReducer: ReducerProtocol {
+struct DetailSearchReducer: ReducerProtocol {
     enum Route: Equatable {
         case filters
         case quickSearch
@@ -15,7 +15,7 @@ struct SearchReducer: ReducerProtocol {
     }
 
     struct CancelID: Hashable {
-        let id = String(describing: SearchReducer.self)
+        let id = String(describing: DetailSearchReducer.self)
     }
 
     struct State: Equatable {
@@ -28,9 +28,9 @@ struct SearchReducer: ReducerProtocol {
         var loadingState: LoadingState = .idle
         var footerLoadingState: LoadingState = .idle
 
-        var filtersState = FiltersReducer.State()
         @Heap var detailState: DetailReducer.State!
-        var quickSearchState = QuickSearchReducer.State()
+        var filtersState = FiltersReducer.State()
+        var quickDetailSearchState = QuickSearchReducer.State()
 
         init() {
             _detailState = .init(.init())
@@ -86,7 +86,7 @@ struct SearchReducer: ReducerProtocol {
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
-                state.quickSearchState = .init()
+                state.quickDetailSearchState = .init()
                 return .merge(
                     .init(value: .detail(.teardown)),
                     .init(value: .quickSearch(.teardown))
@@ -105,8 +105,7 @@ struct SearchReducer: ReducerProtocol {
                 state.pageNumber.resetPages()
                 let filter = databaseClient.fetchFilterSynchronously(range: .search)
                 return SearchGalleriesRequest(keyword: state.lastKeyword, filter: filter).effect
-                    .map(Action.fetchGalleriesDone)
-                    .cancellable(id: CancelID())
+                    .map(Action.fetchGalleriesDone).cancellable(id: CancelID())
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -181,8 +180,7 @@ struct SearchReducer: ReducerProtocol {
         )
 
         Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
-        Scope(state: \.quickSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.quickDetailSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
 
         BindingReducer()
     }

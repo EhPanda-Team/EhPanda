@@ -9,12 +9,12 @@ import SwiftUI
 import ComposableArchitecture
 
 struct GalleryInfosView: View {
-    private let store: Store<GalleryInfosState, GalleryInfosAction>
-    @ObservedObject private var viewStore: ViewStore<GalleryInfosState, GalleryInfosAction>
+    private let store: StoreOf<GalleryInfosReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<GalleryInfosReducer>
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail
 
-    init(store: Store<GalleryInfosState, GalleryInfosAction>, gallery: Gallery, galleryDetail: GalleryDetail) {
+    init(store: StoreOf<GalleryInfosReducer>, gallery: Gallery, galleryDetail: GalleryDetail) {
         self.store = store
         viewStore = ViewStore(store)
         self.gallery = gallery
@@ -119,7 +119,7 @@ struct GalleryInfosView: View {
         .progressHUD(
             config: viewStore.hudConfig,
             unwrapping: viewStore.binding(\.$route),
-            case: /GalleryInfosState.Route.hud
+            case: /GalleryInfosReducer.Route.hud
         )
         .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)
     }
@@ -137,11 +137,7 @@ struct GalleryInfosView_Previews: PreviewProvider {
             GalleryInfosView(
                 store: .init(
                     initialState: .init(),
-                    reducer: galleryInfosReducer,
-                    environment: GalleryInfosEnvironment(
-                        hapticsClient: .live,
-                        clipboardClient: .live
-                    )
+                    reducer: GalleryInfosReducer()
                 ),
                 gallery: .preview,
                 galleryDetail: .preview

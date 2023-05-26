@@ -10,8 +10,8 @@ import Kingfisher
 import ComposableArchitecture
 
 struct CommentsView: View {
-    private let store: Store<CommentsState, CommentsAction>
-    @ObservedObject private var viewStore: ViewStore<CommentsState, CommentsAction>
+    private let store: StoreOf<CommentsReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<CommentsReducer>
     private let gid: String
     private let token: String
     private let apiKey: String
@@ -23,7 +23,7 @@ struct CommentsView: View {
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<CommentsState, CommentsAction>,
+        store: StoreOf<CommentsReducer>,
         gid: String, token: String, apiKey: String, galleryURL: URL,
         comments: [GalleryComment], user: User, setting: Binding<Setting>,
         blurRadius: Double, tagTranslator: TagTranslator
@@ -92,7 +92,7 @@ struct CommentsView: View {
                 }
             }
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.postComment) { route in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsReducer.Route.postComment) { route in
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
@@ -117,7 +117,7 @@ struct CommentsView: View {
         .progressHUD(
             config: viewStore.hudConfig,
             unwrapping: viewStore.binding(\.$route),
-            case: /CommentsState.Route.hud
+            case: /CommentsReducer.Route.hud
         )
         .animation(.default, value: viewStore.scrollRowOpacity)
         .onAppear {
@@ -143,9 +143,9 @@ struct CommentsView: View {
 // MARK: NavigationLinks
 private extension CommentsView {
     @ViewBuilder var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.detail) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /CommentsReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: CommentsAction.detail),
+                store: store.scope(state: \.detailState, action: CommentsReducer.Action.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
@@ -274,19 +274,7 @@ struct CommentsView_Previews: PreviewProvider {
             CommentsView(
                 store: .init(
                     initialState: .init(),
-                    reducer: commentsReducer,
-                    environment: CommentsEnvironment(
-                        urlClient: .live,
-                        fileClient: .live,
-                        imageClient: .live,
-                        deviceClient: .live,
-                        hapticsClient: .live,
-                        cookieClient: .live,
-                        databaseClient: .live,
-                        clipboardClient: .live,
-                        appDelegateClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: CommentsReducer()
                 ),
                 gid: .init(),
                 token: .init(),

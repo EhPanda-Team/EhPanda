@@ -10,14 +10,14 @@ import Kingfisher
 import ComposableArchitecture
 
 struct PreviewsView: View {
-    private let store: Store<PreviewsState, PreviewsAction>
-    @ObservedObject private var viewStore: ViewStore<PreviewsState, PreviewsAction>
+    private let store: StoreOf<PreviewsReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<PreviewsReducer>
     private let gid: String
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
-        store: Store<PreviewsState, PreviewsAction>,
+        store: StoreOf<PreviewsReducer>,
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
@@ -68,9 +68,9 @@ struct PreviewsView: View {
             .padding(.bottom)
             .id(viewStore.databaseLoadingState)
         }
-        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsState.Route.reading) { _ in
+        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsReducer.Route.reading) { _ in
             ReadingView(
-                store: store.scope(state: \.readingState, action: PreviewsAction.reading),
+                store: store.scope(state: \.readingState, action: PreviewsReducer.Action.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
@@ -89,17 +89,7 @@ struct PreviewsView_Previews: PreviewProvider {
             PreviewsView(
                 store: .init(
                     initialState: .init(gallery: .preview),
-                    reducer: previewsReducer,
-                    environment: PreviewsEnvironment(
-                        urlClient: .live,
-                        imageClient: .live,
-                        deviceClient: .live,
-                        hapticsClient: .live,
-                        cookieClient: .live,
-                        databaseClient: .live,
-                        clipboardClient: .live,
-                        appDelegateClient: .live
-                    )
+                    reducer: PreviewsReducer()
                 ),
                 gid: .init(),
                 setting: .constant(.init()),

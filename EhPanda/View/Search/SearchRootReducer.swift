@@ -26,7 +26,7 @@ struct SearchRootReducer: ReducerProtocol {
         var searchState = SearchReducer.State()
         var filtersState = FiltersReducer.State()
         var quickSearchState = QuickSearchReducer.State()
-        @Heap var detailState: DetailState!
+        @Heap var detailState: DetailReducer.State!
 
         init() {
             _detailState = .init(.init())
@@ -80,7 +80,7 @@ struct SearchRootReducer: ReducerProtocol {
         case search(SearchReducer.Action)
         case filters(FiltersReducer.Action)
         case quickSearch(QuickSearchReducer.Action)
-        case detail(DetailAction)
+        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -185,25 +185,7 @@ struct SearchRootReducer: ReducerProtocol {
         Scope(state: \.searchState, action: /Action.search, child: SearchReducer.init)
         Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
         Scope(state: \.quickSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
-
-//        detailReducer.pullback(
-//            state: \.detailState,
-//            action: /SearchRootAction.detail,
-//            environment: {
-//                .init(
-//                    urlClient: $0.urlClient,
-//                    fileClient: $0.fileClient,
-//                    imageClient: $0.imageClient,
-//                    deviceClient: $0.deviceClient,
-//                    hapticsClient: $0.hapticsClient,
-//                    cookieClient: $0.cookieClient,
-//                    databaseClient: $0.databaseClient,
-//                    clipboardClient: $0.clipboardClient,
-//                    appDelegateClient: $0.appDelegateClient,
-//                    uiApplicationClient: $0.uiApplicationClient
-//                )
-//            }
-//        )
+        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
 
         BindingReducer()
     }

@@ -24,7 +24,7 @@ struct AppRouteState: Equatable {
     @BindingState var route: Route?
     var hudConfig: TTProgressHUDConfig = .loading
 
-    @Heap var detailState: DetailState!
+    @Heap var detailState: DetailReducer.State!
 }
 
 enum AppRouteAction: BindableAction {
@@ -43,7 +43,7 @@ enum AppRouteAction: BindableAction {
     case fetchGalleryDone(URL, Result<Gallery, AppError>)
     case fetchGreetingDone(Result<Greeting, AppError>)
 
-    case detail(DetailAction)
+    case detail(DetailReducer.Action)
 }
 
 struct AppRouteEnvironment {
@@ -181,23 +181,24 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case: /AppRouteState.Route.detail,
         hapticsClient: \.hapticsClient
     )
-    .binding(),
-    detailReducer.pullback(
-        state: \.detailState,
-        action: /AppRouteAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    )
+    .binding()
+//    ,
+//    detailReducer.pullback(
+//        state: \.detailState,
+//        action: /AppRouteAction.detail,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    )
 )

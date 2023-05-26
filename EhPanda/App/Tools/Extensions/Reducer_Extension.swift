@@ -76,3 +76,21 @@ extension ReducerProtocol {
         }
     }
 }
+
+// MARK: Recurse
+struct RecurseReducer<State, Action, Base: ReducerProtocol>: ReducerProtocol
+where State == Base.State, Action == Base.Action {
+    let base: (Reduce<State, Action>) -> Base
+
+    public init(@ReducerBuilder<State, Action> base: @escaping (Reduce<State, Action>) -> Base) {
+        self.base = base
+    }
+
+    public var body: some ReducerProtocol<State, Action> {
+        var `self`: Reduce<State, Action>!
+        self = Reduce { state, action in
+            base(self).reduce(into: &state, action: action)
+        }
+        return self
+    }
+}
