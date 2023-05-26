@@ -11,7 +11,7 @@ import ComposableArchitecture
 struct AppState: Equatable {
     var appDelegateState = AppDelegateReducer.State()
     var appRouteState = AppRouteState()
-    var appLockState = AppLockState()
+    var appLockState = AppLockReducer.State()
     var tabBarState = TabBarReducer.State()
     var homeState = HomeReducer.State()
     var favoritesState = FavoritesReducer.State()
@@ -25,7 +25,7 @@ enum AppAction: BindableAction {
 
     case appDelegate(AppDelegateReducer.Action)
     case appRoute(AppRouteAction)
-    case appLock(AppLockAction)
+    case appLock(AppLockReducer.Action)
 
     case tabBar(TabBarReducer.Action)
 
@@ -228,17 +228,17 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 authorizationClient: $0.authorizationClient
             )
         }
-    ),
-    appLockReducer.pullback(
-        state: \.appLockState,
-        action: /AppAction.appLock,
-        environment: {
-            .init(
-                authorizationClient: $0.authorizationClient
-            )
-        }
     )
 //    ,
+//    appLockReducer.pullback(
+//        state: \.appLockState,
+//        action: /AppAction.appLock,
+//        environment: {
+//            .init(
+//                authorizationClient: $0.authorizationClient
+//            )
+//        }
+//    ),
 //    appDelegateReducer.pullback(
 //        state: \.appDelegateState,
 //        action: /AppAction.appDelegate,
