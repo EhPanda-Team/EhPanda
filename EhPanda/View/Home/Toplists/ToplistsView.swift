@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ToplistsView: View {
-    private let store: Store<ToplistsState, ToplistsAction>
-    @ObservedObject private var viewStore: ViewStore<ToplistsState, ToplistsAction>
+    private let store: StoreOf<ToplistsReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<ToplistsReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<ToplistsState, ToplistsAction>,
+        store: StoreOf<ToplistsReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -48,12 +48,12 @@ struct ToplistsView: View {
         )
         .sheet(
             unwrapping: viewStore.binding(\.$route),
-            case: /ToplistsState.Route.detail,
+            case: /ToplistsReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.detailState, action: ToplistsAction.detail),
+                    store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -84,9 +84,9 @@ struct ToplistsView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /ToplistsState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /ToplistsReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: ToplistsAction.detail),
+                    store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -155,19 +155,7 @@ struct ToplistsView_Previews: PreviewProvider {
             ToplistsView(
                 store: .init(
                     initialState: .init(),
-                    reducer: toplistsReducer,
-                    environment: ToplistsEnvironment(
-                        urlClient: .live,
-                        fileClient: .live,
-                        imageClient: .live,
-                        deviceClient: .live,
-                        hapticsClient: .live,
-                        cookieClient: .live,
-                        databaseClient: .live,
-                        clipboardClient: .live,
-                        appDelegateClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: ToplistsReducer()
                 ),
                 user: .init(),
                 setting: .constant(.init()),

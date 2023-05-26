@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct WatchedView: View {
-    private let store: Store<WatchedState, WatchedAction>
-    @ObservedObject private var viewStore: ViewStore<WatchedState, WatchedAction>
+    private let store: StoreOf<WatchedReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<WatchedReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<WatchedState, WatchedAction>,
+        store: StoreOf<WatchedReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -50,21 +50,21 @@ struct WatchedView: View {
         }
         .sheet(
             unwrapping: viewStore.binding(\.$route),
-            case: /WatchedState.Route.detail,
+            case: /WatchedReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.detailState, action: WatchedAction.detail),
+                    store: store.scope(state: \.detailState, action: WatchedReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedReducer.Route.quickSearch) { _ in
             QuickSearchView(
-                store: store.scope(state: \.quickSearchState, action: WatchedAction.quickSearch)
+                store: store.scope(state: \.quickSearchState, action: WatchedReducer.Action.quickSearch)
             ) { keyword in
                 viewStore.send(.setNavigation(nil))
                 viewStore.send(.fetchGalleries(keyword))
@@ -72,8 +72,8 @@ struct WatchedView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: WatchedAction.filters))
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedReducer.Route.filters) { _ in
+            FiltersView(store: store.scope(state: \.filtersState, action: WatchedReducer.Action.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
         .searchable(text: viewStore.binding(\.$keyword)) {
@@ -99,9 +99,9 @@ struct WatchedView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /WatchedReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: WatchedAction.detail),
+                    store: store.scope(state: \.detailState, action: WatchedReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -128,19 +128,7 @@ struct WatchedView_Previews: PreviewProvider {
             WatchedView(
                 store: .init(
                     initialState: .init(),
-                    reducer: watchedReducer,
-                    environment: WatchedEnvironment(
-                        urlClient: .live,
-                        fileClient: .live,
-                        imageClient: .live,
-                        deviceClient: .live,
-                        hapticsClient: .live,
-                        cookieClient: .live,
-                        databaseClient: .live,
-                        clipboardClient: .live,
-                        appDelegateClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: WatchedReducer()
                 ),
                 user: .init(),
                 setting: .constant(.init()),

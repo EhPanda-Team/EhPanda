@@ -13,7 +13,7 @@ struct AppState: Equatable {
     var appRouteState = AppRouteState()
     var appLockState = AppLockState()
     var tabBarState = TabBarState()
-    var homeState = HomeState()
+    var homeState = HomeReducer.State()
     var favoritesState = FavoritesReducer.State()
     var searchRootState = SearchRootReducer.State()
     var settingState = SettingReducer.State()
@@ -29,7 +29,7 @@ enum AppAction: BindableAction {
 
     case tabBar(TabBarAction)
 
-    case home(HomeAction)
+    case home(HomeReducer.Action)
     case favorites(FavoritesReducer.Action)
     case searchRoot(SearchRootReducer.Action)
     case setting(SettingReducer.Action)
@@ -258,27 +258,27 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 deviceClient: $0.deviceClient
             )
         }
-    ),
-    homeReducer.pullback(
-        state: \.homeState,
-        action: /AppAction.home,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticsClient: $0.hapticsClient,
-                libraryClient: $0.libraryClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
     )
 //    ,
+//    homeReducer.pullback(
+//        state: \.homeState,
+//        action: /AppAction.home,
+//        environment: {
+//            .init(
+//                urlClient: $0.urlClient,
+//                fileClient: $0.fileClient,
+//                imageClient: $0.imageClient,
+//                deviceClient: $0.deviceClient,
+//                hapticsClient: $0.hapticsClient,
+//                libraryClient: $0.libraryClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient,
+//                clipboardClient: $0.clipboardClient,
+//                appDelegateClient: $0.appDelegateClient,
+//                uiApplicationClient: $0.uiApplicationClient
+//            )
+//        }
+//    ),
 //    favoritesReducer.pullback(
 //        state: \.favoritesState,
 //        action: /AppAction.favorites,

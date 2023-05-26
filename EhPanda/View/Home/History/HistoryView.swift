@@ -1,5 +1,5 @@
 //
-//  PopularView.swift
+//  HistoryView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/09.
@@ -8,16 +8,16 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct PopularView: View {
-    private let store: Store<PopularState, PopularAction>
-    @ObservedObject private var viewStore: ViewStore<PopularState, PopularAction>
+struct HistoryView: View {
+    private let store: StoreOf<HistoryReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<HistoryReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<PopularState, PopularAction>,
+        store: StoreOf<HistoryReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -31,7 +31,8 @@ struct PopularView: View {
     var body: some View {
         GenericList(
             galleries: viewStore.filteredGalleries,
-            setting: setting, pageNumber: nil,
+            setting: setting,
+            pageNumber: nil,
             loadingState: viewStore.loadingState,
             footerLoadingState: .idle,
             fetchAction: { viewStore.send(.fetchGalleries) },
@@ -42,21 +43,17 @@ struct PopularView: View {
         )
         .sheet(
             unwrapping: viewStore.binding(\.$route),
-            case: /PopularState.Route.detail,
+            case: /HistoryReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.detailState, action: PopularAction.detail),
+                    store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-        }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /PopularState.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: PopularAction.filters))
-                .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
         .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
@@ -68,14 +65,14 @@ struct PopularView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.PopularView.Title.popular)
+        .navigationTitle(L10n.Localizable.HistoryView.Title.history)
     }
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /PopularState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HistoryReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: PopularAction.detail),
+                    store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -84,32 +81,32 @@ struct PopularView: View {
     }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            FiltersButton(hideText: true) {
-                viewStore.send(.setNavigation(.filters))
+            Button {
+                viewStore.send(.setNavigation(.clearHistory))
+            } label: {
+                Image(systemSymbol: .trashCircle)
+            }
+            .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
+            .confirmationDialog(
+                message: L10n.Localizable.ConfirmationDialog.Title.clear,
+                unwrapping: viewStore.binding(\.$route),
+                case: /HistoryReducer.Route.clearHistory
+            ) {
+                Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
+                    viewStore.send(.clearHistoryGalleries)
+                }
             }
         }
     }
 }
 
-struct PopularView_Previews: PreviewProvider {
+struct HistoryView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            PopularView(
+            HistoryView(
                 store: .init(
                     initialState: .init(),
-                    reducer: popularReducer,
-                    environment: PopularEnvironment(
-                        urlClient: .live,
-                        fileClient: .live,
-                        imageClient: .live,
-                        deviceClient: .live,
-                        hapticsClient: .live,
-                        cookieClient: .live,
-                        databaseClient: .live,
-                        clipboardClient: .live,
-                        appDelegateClient: .live,
-                        uiApplicationClient: .live
-                    )
+                    reducer: HistoryReducer()
                 ),
                 user: .init(),
                 setting: .constant(.init()),
