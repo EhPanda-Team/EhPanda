@@ -11,8 +11,8 @@ import CoreData
 import ComposableArchitecture
 
 struct DatabaseClient {
-    let prepareDatabase: () -> EffectTask<Result<Void, AppError>>
-    let dropDatabase: () -> EffectTask<Result<Void, AppError>>
+    let prepareDatabase: () -> EffectTask<AppError?>
+    let dropDatabase: () -> EffectTask<AppError?>
     private let saveContext: () -> Void
     private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
 }
@@ -21,19 +21,35 @@ extension DatabaseClient {
     static let live: Self = .init(
         prepareDatabase: {
             Future { promise in
-                PersistenceController.shared.prepare(completion: promise)
+                PersistenceController.shared.prepare {
+                    switch $0 {
+                    case .success:
+                        promise(.success(nil))
+
+                    case .failure(let appError):
+                        promise(.success(appError))
+                    }
+                }
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .catchToEffect()
+            .eraseToEffect()
         },
         dropDatabase: {
             Future { promise in
-                PersistenceController.shared.rebuild(completion: promise)
+                PersistenceController.shared.rebuild {
+                    switch $0 {
+                    case .success:
+                        promise(.success(nil))
+
+                    case .failure(let appError):
+                        promise(.success(appError))
+                    }
+                }
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .catchToEffect()
+            .eraseToEffect()
         },
         saveContext: {
             let context = PersistenceController.shared.container.viewContext

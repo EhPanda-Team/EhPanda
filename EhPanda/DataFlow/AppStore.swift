@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppState: Equatable {
-    var appDelegateState = AppDelegateState()
+    var appDelegateState = AppDelegateReducer.State()
     var appRouteState = AppRouteState()
     var appLockState = AppLockState()
     var tabBarState = TabBarReducer.State()
@@ -23,7 +23,7 @@ enum AppAction: BindableAction {
     case binding(BindingAction<AppState>)
     case onScenePhaseChange(ScenePhase)
 
-    case appDelegate(AppDelegateAction)
+    case appDelegate(AppDelegateReducer.Action)
     case appRoute(AppRouteAction)
     case appLock(AppLockAction)
 
@@ -237,20 +237,20 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 authorizationClient: $0.authorizationClient
             )
         }
-    ),
-    appDelegateReducer.pullback(
-        state: \.appDelegateState,
-        action: /AppAction.appDelegate,
-        environment: {
-            .init(
-                dfClient: $0.dfClient,
-                libraryClient: $0.libraryClient,
-                cookieClient: $0.cookieClient,
-                databaseClient: $0.databaseClient
-            )
-        }
     )
 //    ,
+//    appDelegateReducer.pullback(
+//        state: \.appDelegateState,
+//        action: /AppAction.appDelegate,
+//        environment: {
+//            .init(
+//                dfClient: $0.dfClient,
+//                libraryClient: $0.libraryClient,
+//                cookieClient: $0.cookieClient,
+//                databaseClient: $0.databaseClient
+//            )
+//        }
+//    ),
 //    tabBarReducer.pullback(
 //        state: \.tabBarState,
 //        action: /AppAction.tabBar,
