@@ -612,9 +612,9 @@ struct GalleryMPVImageURLRequest: Request {
     let index: Int
     let mpvKey: String
     let mpvImageKey: String
-    let skipServerIdentifier: String?
+    let skipServerIdentifier: Int?
 
-    var publisher: AnyPublisher<(URL, URL?, String), AppError> {
+    var publisher: AnyPublisher<(URL, URL?, Int), AppError> {
         var params: [String: Any] = [
             "method": "imagedispatch",
             "gid": gid,
@@ -638,7 +638,7 @@ struct GalleryMPVImageURLRequest: Request {
                         .jsonObject(with: data) as? [String: Any],
                       let imageURLString = dict["i"] as? String,
                       let imageURL = URL(string: imageURLString),
-                      let skipServerIdentifier = dict["s"] as? String
+                      let skipServerIdentifier = dict["s"] as? Int
                 else { throw AppError.parseFailed }
 
                 if let originalImageURLStringSlice = dict["lf"] as? String {
