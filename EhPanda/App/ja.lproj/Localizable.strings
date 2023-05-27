@@ -442,6 +442,8 @@
 "eh_setting_view.section.title.front_page_settings" = "フロントページ設定";
 "eh_setting_view.title.display_mode" = "表示モード";
 "eh_setting_view.description.display_mode" = "フロント・検索ページで使う表示モードはどれにしますか？";
+"eh_setting_view.section.title.show_search_range_indicator" = "検索範囲インジケーター";
+"eh_setting_view.title.show_search_range_indicator" = "検索範囲インジケーターを表示";
 "eh_setting_view.description.gallery_category" = "フロント・検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "コンパクト";
@@ -462,9 +464,6 @@
 "eh_setting_view.title.ratings_color" = "評価の色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
 "eh_setting_view.description.ratings_color" = "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
-
-"eh_setting_view.section.title.tags_namespaces" = "タグの名前空間";
-"eh_setting_view.description.tags_namespaces" = "下にある名前空間を削除仕様にすることで通常のタグ検索結果から排除できます。注意：排除された名前空間のタグを持つギャラリーが表示されなくなることはありません。";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "タグフィルタリングしきい値";
 "eh_setting_view.title.tag_filtering_threshold" = "タグフィルタリングしきい値";

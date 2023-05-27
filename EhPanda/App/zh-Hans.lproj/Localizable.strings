@@ -442,6 +442,8 @@
 "eh_setting_view.section.title.front_page_settings" = "扉页设置";
 "eh_setting_view.title.display_mode" = "显示样式";
 "eh_setting_view.description.display_mode" = "你希望在扉页和搜索页显示哪种样式？";
+"eh_setting_view.section.title.show_search_range_indicator" = "搜索范围指示器";
+"eh_setting_view.title.show_search_range_indicator" = "显示搜索范围指示器";
 "eh_setting_view.description.gallery_category" = "你希望在扉页和搜索页看到哪些类别？";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "紧凑";
@@ -462,9 +464,6 @@
 "eh_setting_view.title.ratings_color" = "评分颜色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
 "eh_setting_view.description.ratings_color" = "默认设置下，你评为 2 星及以下的画廊显示为红星，2.5 ~ 4 星显示为绿星，4.5 ~ 5 星显示为蓝星。你可以将其设定为其它颜色组合。每一个字幕代表一颗星, 默认的 RRGGB 表示第一第二颗星显示为红色 R(ed)，第三第四颗星显示是绿色 G(reen)，第五颗星显示为蓝色 B(lue)。你也可以使用黄色 (Y)ellow，R/G/B/Y 任何五个组合都是有效的。";
-
-"eh_setting_view.section.title.tags_namespaces" = "标签命名空间";
-"eh_setting_view.description.tags_namespaces" = "如果要从默认标签搜索中排除某些命名空间，可以将以下内容标记为删除样式。注意：这不会阻止带有这些命名空间中标签的画廊出现，它只是在搜索标签时排除这些命名空间。";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "标签筛选阈值";
 "eh_setting_view.title.tag_filtering_threshold" = "标签筛选阈值";

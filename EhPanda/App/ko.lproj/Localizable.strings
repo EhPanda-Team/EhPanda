@@ -442,6 +442,8 @@
 "eh_setting_view.section.title.front_page_settings" = "프론트 페이지 설정";
 "eh_setting_view.title.display_mode" = "표시방식";
 "eh_setting_view.description.display_mode" = "프론트와 검색 페이지에서 사용할 디스플레이 모드를 선택하세요.";
+"eh_setting_view.section.title.show_search_range_indicator" = "Search Range Indicator";
+"eh_setting_view.title.show_search_range_indicator" = "Show search range indicator";
 "eh_setting_view.description.gallery_category" = "프론트와 검색 페이지에서 어떤 카테고리가 보여지도록 할까요?";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "Compact";
@@ -462,9 +464,6 @@
 "eh_setting_view.title.ratings_color" = "별점 색깔";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
 "eh_setting_view.description.ratings_color" = "기본적으로 등급을 매긴 갤러리는 별 2개 이하의 등급에 대해 빨간색, 2.5~4개의 등급에 대해 녹색, 4.5~5개의 등급에 대해 파란색 별로 표시되어요. 아래에 원하는 색상 조합을 입력하여 사용자 정의할 수 있어요. 각 문자는 별 하나를 표현해요. 기본 RRGGB는 첫 번째와 두 번째 별의 경우 R(ed), 세 번째와 네 번째 별의 경우 G(reen), 다섯 번째 별의 경우 B(lue)를 의미해요. 일반 별에 (Y)ellow를 사용할 수도 있어요. 모든 5글자의 R/G/B/Y 콤보가 작동해요.";
-
-"eh_setting_view.section.title.tags_namespaces" = "태그 네임스페이스";
-"eh_setting_view.description.tags_namespaces" = "기본 태그 검색에서 특정 네임스페이스를 제외하려면 아래 네임스페이스들을 확인해주세요. 이렇게 해도 이러한 네임스페이스에 태그가 있는 갤러리가 나타나지 않고 태그를 검색할 때 해당 네임스페이스가 표시되지 않도록 할 수 있어요.";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "태그 필터링 임계값";
 "eh_setting_view.title.tag_filtering_threshold" = "태그 필터링 임계값";

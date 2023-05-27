@@ -776,10 +776,12 @@ struct SubmitEhSettingChangesRequest: Request {
             "tl": String(ehSetting.galleryName.rawValue),
             "ar": String(ehSetting.archiverBehavior.rawValue),
             "dm": String(ehSetting.displayMode.rawValue),
+            "pp": ehSetting.showSearchRangeIndicator ? "0" : "1",
             "fs": String(ehSetting.favoritesSortOrder.rawValue),
             "ru": ehSetting.ratingsColor,
             "ft": String(Int(ehSetting.tagFilteringThreshold)),
             "wt": String(Int(ehSetting.tagWatchingThreshold)),
+            "tf": ehSetting.showFilteredRemovalCount ? "0" : "1",
             "xu": ehSetting.excludedUploaders,
             "rc": String(ehSetting.searchResultCount.rawValue),
             "lt": String(ehSetting.thumbnailLoadTiming.rawValue),
@@ -800,18 +802,12 @@ struct SubmitEhSettingChangesRequest: Request {
         Array(0...9).forEach { index in
             params["favorite_\(index)"] = ehSetting.favoriteCategories[index]
         }
-        Array(0...10).forEach { index in
-            params["xn_\(index + 1)"] = ehSetting.excludedNamespaces[index] ? "1" : "0"
-        }
         ehSetting.excludedLanguages.enumerated().forEach { index, value in
             if value {
                 params["xl_\(EhSetting.languageValues[index])"] = "on"
             }
         }
 
-        if let showFilteredRemovalCount = ehSetting.showFilteredRemovalCount {
-            params["tf"] = showFilteredRemovalCount ? "0" : "1"
-        }
         if let useOriginalImages = ehSetting.useOriginalImages {
             params["oi"] = useOriginalImages ? "1" : "0"
         }

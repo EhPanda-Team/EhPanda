@@ -84,11 +84,10 @@ struct EhSettingView: View {
                 FrontPageSettingsSection(ehSetting: ehSetting)
                 FavoritesSection(ehSetting: ehSetting)
                 RatingsSection(ehSetting: ehSetting)
-                TagNamespacesSection(ehSetting: ehSetting)
                 TagFilteringThresholdSection(ehSetting: ehSetting)
+                TagWatchingThresholdSection(ehSetting: ehSetting)
             }
             Group {
-                TagWatchingThresholdSection(ehSetting: ehSetting)
                 FilteredRemovalCountSection(ehSetting: ehSetting)
                 ExcludedLanguagesSection(ehSetting: ehSetting)
                 ExcludedUploadersSection(ehSetting: ehSetting)
@@ -98,9 +97,9 @@ struct EhSettingView: View {
                 ViewportOverrideSection(ehSetting: ehSetting)
                 GalleryCommentsSection(ehSetting: ehSetting)
                 GalleryTagsSection(ehSetting: ehSetting)
+                GalleryPageNumberingSection(ehSetting: ehSetting)
             }
             Group {
-                GalleryPageNumberingSection(ehSetting: ehSetting)
                 OriginalImagesSection(ehSetting: ehSetting)
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
@@ -386,6 +385,16 @@ private struct FrontPageSettingsSection: View {
         }
         .textCase(nil)
 
+        Section {
+            Toggle(
+                L10n.Localizable.EhSettingView.Section.Title.showSearchRangeIndicator,
+                isOn: $ehSetting.showSearchRangeIndicator
+            )
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.showSearchRangeIndicator)
+        }
+        .textCase(nil)
+
         Section(L10n.Localizable.EhSettingView.Description.galleryCategory) {
             CategoryView(bindings: categoryBindings)
         }
@@ -472,79 +481,6 @@ private struct RatingsSection: View {
     }
 }
 
-// MARK: TagNamespacesSection
-private struct TagNamespacesSection: View {
-    @Binding private var ehSetting: EhSetting
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
-
-    private var tuples: [(String, Binding<Bool>)] {
-        TagNamespace.allCases.dropLast().enumerated().map { index, namespace in
-            (namespace.value, $ehSetting.excludedNamespaces[index])
-        }
-    }
-
-    var body: some View {
-        Section {
-            ExcludeView(tuples: tuples)
-        } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.tagsNamespaces)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.tagsNamespaces)
-        }
-        .textCase(nil)
-    }
-}
-
-private struct ExcludeView: View {
-    private let tuples: [(String, Binding<Bool>)]
-
-    init(tuples: [(String, Binding<Bool>)]) {
-        self.tuples = tuples
-    }
-
-    private let gridItems = [
-        GridItem(
-            .adaptive(
-                minimum: DeviceUtil.isPadWidth ? 100 : 80,
-                maximum: 100
-            )
-        )
-    ]
-
-    var body: some View {
-        LazyVGrid(columns: gridItems) {
-            ForEach(tuples, id: \.0) { text, isExcluded in
-                ZStack {
-                    Text(text)
-                        .bold()
-                        .opacity(isExcluded.wrappedValue ? 0 : 1)
-                    ZStack {
-                        Text(text)
-
-                        let width = (CGFloat(text.count) * 8) + 8
-                        let line = Rectangle()
-                            .frame(width: width, height: 1)
-                        VStack(spacing: 2) {
-                            line
-                            line
-                        }
-                    }
-                    .foregroundColor(.red)
-                    .opacity(isExcluded.wrappedValue ? 1 : 0)
-                }
-                .onTapGesture {
-                    HapticsUtil.generateFeedback(style: .soft)
-                    withAnimation { isExcluded.wrappedValue.toggle() }
-                }
-            }
-        }
-        .padding(.vertical)
-    }
-}
-
 // MARK: TagFilteringThresholdSection
 private struct TagFilteringThresholdSection: View {
     @Binding private var ehSetting: EhSetting
@@ -600,16 +536,14 @@ private struct FilteredRemovalCountSection: View {
     }
 
     var body: some View {
-        if let showFilteredRemovalCountBinding = Binding($ehSetting.showFilteredRemovalCount) {
-            Section {
-                Toggle(
-                    L10n.Localizable.EhSettingView.Title.showFilteredRemovalCount,
-                    isOn: showFilteredRemovalCountBinding
-                )
-            } header: {
-                Text(L10n.Localizable.EhSettingView.Section.Title.filteredRemovalCount).newlineBold()
-                + Text(L10n.Localizable.EhSettingView.Description.filteredRemovalCount)
-            }
+        Section {
+            Toggle(
+                L10n.Localizable.EhSettingView.Title.showFilteredRemovalCount,
+                isOn: $ehSetting.showFilteredRemovalCount
+            )
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.filteredRemovalCount).newlineBold()
+            + Text(L10n.Localizable.EhSettingView.Description.filteredRemovalCount)
         }
     }
 }
