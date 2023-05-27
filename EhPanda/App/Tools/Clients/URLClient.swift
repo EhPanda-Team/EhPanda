@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import Dependencies
 
 struct URLClient {
     let checkIfHandleable: (URL) -> Bool
@@ -66,4 +66,33 @@ extension URLClient {
 
         return (isGalleryImageURL, pageIndex, commentID)
     }
+}
+
+// MARK: API
+enum URLClientKey: DependencyKey {
+    static let liveValue = URLClient.live
+    static let previewValue = URLClient.noop
+    static let testValue = URLClient.unimplemented
+}
+
+extension DependencyValues {
+    var urlClient: URLClient {
+        get { self[URLClientKey.self] }
+        set { self[URLClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension URLClient {
+    static let noop: Self = .init(
+        checkIfHandleable: { _ in false },
+        checkIfMPVURL: { _ in false },
+        parseGalleryID: { _ in .init() }
+    )
+
+    static let unimplemented: Self = .init(
+        checkIfHandleable: XCTestDynamicOverlay.unimplemented("\(Self.self).checkIfHandleable"),
+        checkIfMPVURL: XCTestDynamicOverlay.unimplemented("\(Self.self).checkIfMPVURL"),
+        parseGalleryID: XCTestDynamicOverlay.unimplemented("\(Self.self).parseGalleryID")
+    )
 }

@@ -11,8 +11,8 @@ import CoreData
 import ComposableArchitecture
 
 struct DatabaseClient {
-    let prepareDatabase: () -> Effect<Result<Void, AppError>, Never>
-    let dropDatabase: () -> Effect<Result<Void, AppError>, Never>
+    let prepareDatabase: () -> EffectTask<AppError?>
+    let dropDatabase: () -> EffectTask<AppError?>
     private let saveContext: () -> Void
     private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
 }
@@ -21,19 +21,35 @@ extension DatabaseClient {
     static let live: Self = .init(
         prepareDatabase: {
             Future { promise in
-                PersistenceController.shared.prepare(completion: promise)
+                PersistenceController.shared.prepare {
+                    switch $0 {
+                    case .success:
+                        promise(.success(nil))
+
+                    case .failure(let appError):
+                        promise(.success(appError))
+                    }
+                }
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .catchToEffect()
+            .eraseToEffect()
         },
         dropDatabase: {
             Future { promise in
-                PersistenceController.shared.rebuild(completion: promise)
+                PersistenceController.shared.rebuild {
+                    switch $0 {
+                    case .success:
+                        promise(.success(nil))
+
+                    case .failure(let appError):
+                        promise(.success(appError))
+                    }
+                }
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
-            .catchToEffect()
+            .eraseToEffect()
         },
         saveContext: {
             let context = PersistenceController.shared.container.viewContext
@@ -200,7 +216,7 @@ extension DatabaseClient {
         }
         return entity
     }
-    func fetchAppEnv() -> Effect<AppEnv, Never> {
+    func fetchAppEnv() -> EffectTask<AppEnv> {
         Future { promise in
             DispatchQueue.main.async {
                 promise(.success(fetchOrCreate(entityType: AppEnvMO.self).toEntity()))
@@ -213,7 +229,7 @@ extension DatabaseClient {
     func fetchAppEnvSynchronously() -> AppEnv {
         fetchOrCreate(entityType: AppEnvMO.self).toEntity()
     }
-    func fetchGalleryState(gid: String) -> Effect<GalleryState, Never> {
+    func fetchGalleryState(gid: String) -> EffectTask<GalleryState> {
         guard gid.isValidGID else { return .none }
         return Future { promise in
             DispatchQueue.main.async {
@@ -226,7 +242,7 @@ extension DatabaseClient {
         .receive(on: DispatchQueue.main)
         .eraseToEffect()
     }
-    func fetchHistoryGalleries(fetchLimit: Int = 0) -> Effect<[Gallery], Never> {
+    func fetchHistoryGalleries(fetchLimit: Int = 0) -> EffectTask<[Gallery]> {
         Future { promise in
             DispatchQueue.main.async {
                 let predicate = NSPredicate(format: "lastOpenDate != nil")
@@ -258,13 +274,13 @@ extension DatabaseClient {
             return fetchAppEnvSynchronously().watchedFilter
         }
     }
-    func fetchHistoryKeywords() -> Effect<[String], Never> {
+    func fetchHistoryKeywords() -> EffectTask<[String]> {
         fetchAppEnv().map(\.historyKeywords)
     }
-    func fetchQuickSearchWords() -> Effect<[QuickSearchWord], Never> {
+    func fetchQuickSearchWords() -> EffectTask<[QuickSearchWord]> {
         fetchAppEnv().map(\.quickSearchWords)
     }
-    func fetchGalleryPreviewURLs(gid: String) -> Effect<[Int: URL], Never> {
+    func fetchGalleryPreviewURLs(gid: String) -> EffectTask<[Int: URL]> {
         guard gid.isValidGID else { return .none }
         return fetchGalleryState(gid: gid).map(\.previewURLs)
     }
@@ -272,7 +288,7 @@ extension DatabaseClient {
 
 // MARK: UpdateGallery
 extension DatabaseClient {
-    func updateGallery(gid: String, key: String, value: Any?) -> Effect<Never, Never> {
+    func updateGallery(gid: String, key: String, value: Any?) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return .fireAndForget {
             DispatchQueue.main.async {
@@ -283,11 +299,11 @@ extension DatabaseClient {
             }
         }
     }
-    func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never, Never> {
+    func updateLastOpenDate(gid: String, date: Date = .now) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGallery(gid: gid, key: "lastOpenDate", value: date)
     }
-    func clearHistoryGalleries() -> Effect<Never, Never> {
+    func clearHistoryGalleries() -> EffectTask<Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 let predicate = NSPredicate(format: "lastOpenDate != nil")
@@ -299,7 +315,7 @@ extension DatabaseClient {
             }
         }
     }
-    func cacheGalleries(_ galleries: [Gallery]) -> Effect<Never, Never> {
+    func cacheGalleries(_ galleries: [Gallery]) -> EffectTask<Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 for gallery in galleries.filter({ $0.id.isValidGID }) {
@@ -332,7 +348,7 @@ extension DatabaseClient {
 
 // MARK: UpdateGalleryDetail
 extension DatabaseClient {
-    func cacheGalleryDetail(_ detail: GalleryDetail) -> Effect<Never, Never> {
+    func cacheGalleryDetail(_ detail: GalleryDetail) -> EffectTask<Never> {
         guard detail.gid.isValidGID else { return .none }
         return .fireAndForget {
             DispatchQueue.main.async {
@@ -370,7 +386,7 @@ extension DatabaseClient {
 
 // MARK: UpdateGalleryState
 extension DatabaseClient {
-    func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) -> Effect<Never, Never> {
+    func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return .fireAndForget {
             DispatchQueue.main.async {
@@ -381,30 +397,30 @@ extension DatabaseClient {
             }
         }
     }
-    func updateGalleryState(gid: String, key: String, value: Any?) -> Effect<Never, Never> {
+    func updateGalleryState(gid: String, key: String, value: Any?) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid) { stateMO in
             stateMO.setValue(value, forKeyPath: key)
         }
     }
-    func updateGalleryTags(gid: String, tags: [GalleryTag]) -> Effect<Never, Never> {
+    func updateGalleryTags(gid: String, tags: [GalleryTag]) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid, key: "tags", value: tags.toData())
     }
-    func updatePreviewConfig(gid: String, config: PreviewConfig) -> Effect<Never, Never> {
+    func updatePreviewConfig(gid: String, config: PreviewConfig) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid, key: "previewConfig", value: config.toData())
     }
-    func updateReadingProgress(gid: String, progress: Int) -> Effect<Never, Never> {
+    func updateReadingProgress(gid: String, progress: Int) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid, key: "readingProgress", value: Int64(progress))
     }
-    func updateComments(gid: String, comments: [GalleryComment]) -> Effect<Never, Never> {
+    func updateComments(gid: String, comments: [GalleryComment]) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid, key: "comments", value: comments.toData())
     }
 
-    func removeImageURLs(gid: String) -> Effect<Never, Never> {
+    func removeImageURLs(gid: String) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid) { galleryStateMO in
             galleryStateMO.imageURLs = nil
@@ -413,7 +429,7 @@ extension DatabaseClient {
             galleryStateMO.originalImageURLs = nil
         }
     }
-    func removeImageURLs() -> Effect<Never, Never> {
+    func removeImageURLs() -> EffectTask<Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
@@ -427,14 +443,14 @@ extension DatabaseClient {
             }
         }
     }
-    func removeExpiredImageURLs() -> Effect<Never, Never> {
+    func removeExpiredImageURLs() -> EffectTask<Never> {
         fetchHistoryGalleries()
             .map { $0.filter { Date().timeIntervalSince($0.lastOpenDate ?? .distantPast) > .oneWeek } }
             .map { $0.map { removeImageURLs(gid: $0.id) } }
-            .map(Effect<Never, Never>.merge)
+            .map(EffectTask<Never>.merge)
             .fireAndForget()
     }
-    func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) -> Effect<Never, Never> {
+    func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.thumbnailURLs, new: thumbnailURLs)
@@ -442,14 +458,14 @@ extension DatabaseClient {
     }
     func updateImageURLs(
         gid: String, imageURLs: [Int: URL], originalImageURLs: [Int: URL]
-    ) -> Effect<Never, Never> {
+    ) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.imageURLs, new: imageURLs)
             update(gid: gid, storedData: &galleryStateMO.originalImageURLs, new: originalImageURLs)
         }
     }
-    func updatePreviewURLs(gid: String, previewURLs: [Int: URL]) -> Effect<Never, Never> {
+    func updatePreviewURLs(gid: String, previewURLs: [Int: URL]) -> EffectTask<Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.previewURLs, new: previewURLs)
@@ -473,7 +489,7 @@ extension DatabaseClient {
 
 // MARK: UpdateAppEnv
 extension DatabaseClient {
-    func updateAppEnv(key: String, value: Any?) -> Effect<Never, Never> {
+    func updateAppEnv(key: String, value: Any?) -> EffectTask<Never> {
         .fireAndForget {
             DispatchQueue.main.async {
                 update(
@@ -483,10 +499,10 @@ extension DatabaseClient {
             }
         }
     }
-    func updateSetting(_ setting: Setting) -> Effect<Never, Never> {
+    func updateSetting(_ setting: Setting) -> EffectTask<Never> {
         updateAppEnv(key: "setting", value: setting.toData())
     }
-    func updateFilter(_ filter: Filter, range: FilterRange) -> Effect<Never, Never> {
+    func updateFilter(_ filter: Filter, range: FilterRange) -> EffectTask<Never> {
         let key: String
         switch range {
         case .search:
@@ -498,21 +514,21 @@ extension DatabaseClient {
         }
         return updateAppEnv(key: key, value: filter.toData())
     }
-    func updateTagTranslator(_ tagTranslator: TagTranslator) -> Effect<Never, Never> {
+    func updateTagTranslator(_ tagTranslator: TagTranslator) -> EffectTask<Never> {
         updateAppEnv(key: "tagTranslator", value: tagTranslator.toData())
     }
-    func updateUser(_ user: User) -> Effect<Never, Never> {
+    func updateUser(_ user: User) -> EffectTask<Never> {
         updateAppEnv(key: "user", value: user.toData())
     }
-    func updateHistoryKeywords(_ keywords: [String]) -> Effect<Never, Never> {
+    func updateHistoryKeywords(_ keywords: [String]) -> EffectTask<Never> {
         updateAppEnv(key: "historyKeywords", value: keywords.toData())
     }
-    func updateQuickSearchWords(_ words: [QuickSearchWord]) -> Effect<Never, Never> {
+    func updateQuickSearchWords(_ words: [QuickSearchWord]) -> EffectTask<Never> {
         updateAppEnv(key: "quickSearchWords", value: words.toData())
     }
 
     // Update User
-    func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) -> Effect<Never, Never> {
+    func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) -> EffectTask<Never> {
         fetchAppEnv().map(\.user)
             .map { (user: User) -> User in
                 var user = user
@@ -522,12 +538,12 @@ extension DatabaseClient {
             .flatMap(updateUser)
             .eraseToEffect()
     }
-    func updateGreeting(_ greeting: Greeting) -> Effect<Never, Never> {
+    func updateGreeting(_ greeting: Greeting) -> EffectTask<Never> {
         updateUserProperty { user in
             user.greeting = greeting
         }
     }
-    func updateGalleryFunds(galleryPoints: String, credits: String) -> Effect<Never, Never> {
+    func updateGalleryFunds(galleryPoints: String, credits: String) -> EffectTask<Never> {
         updateUserProperty { user in
             user.credits = credits
             user.galleryPoints = galleryPoints
@@ -535,27 +551,33 @@ extension DatabaseClient {
     }
 }
 
-// MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension DatabaseClient {
-    static let failing: Self = .init(
-        prepareDatabase: { .failing("\(Self.self).prepareDatabase is unimplemented") },
-        dropDatabase: { .failing("\(Self.self).dropDatabase is unimplemented") },
-        saveContext: { XCTFail("\(Self.self).saveContext is unimplemented") },
-        materializedObjects: {
-            XCTFail("\(Self.self).materializedObjects(\($0), \($1)) is unimplemented")
-            return .init()
-        }
-    )
+// MARK: API
+enum DatabaseClientKey: DependencyKey {
+    static let liveValue = DatabaseClient.live
+    static let previewValue = DatabaseClient.noop
+    static let testValue = DatabaseClient.unimplemented
 }
-#endif
+
+extension DependencyValues {
+    var databaseClient: DatabaseClient {
+        get { self[DatabaseClientKey.self] }
+        set { self[DatabaseClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
 extension DatabaseClient {
     static let noop: Self = .init(
         prepareDatabase: { .none },
         dropDatabase: { .none },
         saveContext: {},
         materializedObjects: { _, _ in .init() }
+    )
+
+    static let unimplemented: Self = .init(
+        prepareDatabase: XCTestDynamicOverlay.unimplemented("\(Self.self).prepareDatabase"),
+        dropDatabase: XCTestDynamicOverlay.unimplemented("\(Self.self).dropDatabase"),
+        saveContext: XCTestDynamicOverlay.unimplemented("\(Self.self).saveContext"),
+        materializedObjects: XCTestDynamicOverlay.unimplemented("\(Self.self).materializedObjects")
     )
 }

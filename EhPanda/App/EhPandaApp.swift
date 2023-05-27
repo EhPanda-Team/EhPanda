@@ -14,7 +14,7 @@ import ComposableArchitecture
     var body: some Scene {
         WindowGroup {
             WithViewStore(
-                appDelegate.store.scope(state: \.appDelegateState.migrationState.databaseState)
+                appDelegate.store, observe: \.appDelegateState.migrationState.databaseState
             ) { viewStore in
                 ZStack {
                     if viewStore.state == .idle {
@@ -23,7 +23,7 @@ import ComposableArchitecture
                     MigrationView(
                         store: appDelegate.store.scope(
                             state: \.appDelegateState.migrationState,
-                            action: { AppAction.appDelegate(.migration($0)) }
+                            action: { AppReducer.Action.appDelegate(.migration($0)) }
                         )
                     )
                     .opacity(viewStore.state != .idle ? 1 : 0)

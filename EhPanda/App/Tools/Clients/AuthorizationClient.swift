@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct AuthorizationClient {
     let passcodeNotSet: () -> Bool
-    let localAuthroize: (String) -> Effect<Bool, Never>
+    let localAuthroize: (String) -> EffectTask<Bool>
 }
 
 extension AuthorizationClient {
@@ -40,23 +40,29 @@ extension AuthorizationClient {
     )
 }
 
-// MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension AuthorizationClient {
-    static let failing: Self = .init(
-        passcodeNotSet: {
-            XCTFail("\(Self.self).passcodeNotSet is unimplemented")
-            return false
-        },
-        localAuthroize: { .failing("\(Self.self).localAuthroize(\($0)) is unimplemented")}
-    )
+// MARK: API
+enum AuthorizationClientKey: DependencyKey {
+    static let liveValue = AuthorizationClient.live
+    static let previewValue = AuthorizationClient.noop
+    static let testValue = AuthorizationClient.unimplemented
 }
-#endif
+
+extension DependencyValues {
+    var authorizationClient: AuthorizationClient {
+        get { self[AuthorizationClientKey.self] }
+        set { self[AuthorizationClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
 extension AuthorizationClient {
     static let noop: Self = .init(
         passcodeNotSet: { false },
         localAuthroize: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        passcodeNotSet: XCTestDynamicOverlay.unimplemented("\(Self.self).passcodeNotSet"),
+        localAuthroize: XCTestDynamicOverlay.unimplemented("\(Self.self).localAuthroize")
     )
 }

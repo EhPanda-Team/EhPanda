@@ -9,13 +9,13 @@ import SwiftUI
 import ComposableArchitecture
 
 struct QuickSearchView: View {
-    private let store: Store<QuickSearchState, QuickSearchAction>
-    @ObservedObject private var viewStore: ViewStore<QuickSearchState, QuickSearchAction>
+    private let store: StoreOf<QuickSearchReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<QuickSearchReducer>
     private let searchAction: (String) -> Void
 
-    @FocusState private var focusedField: QuickSearchState.FocusField?
+    @FocusState private var focusedField: QuickSearchReducer.FocusField?
 
-    init(store: Store<QuickSearchState, QuickSearchAction>, searchAction: @escaping (String) -> Void) {
+    init(store: StoreOf<QuickSearchReducer>, searchAction: @escaping (String) -> Void) {
         self.store = store
         viewStore = ViewStore(store)
         self.searchAction = searchAction
@@ -55,7 +55,7 @@ struct QuickSearchView: View {
                         .confirmationDialog(
                             message: L10n.Localizable.ConfirmationDialog.Title.delete,
                             unwrapping: viewStore.binding(\.$route),
-                            case: /QuickSearchState.Route.deleteWord,
+                            case: /QuickSearchReducer.Route.deleteWord,
                             matching: word
                         ) { route in
                             Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
@@ -123,7 +123,7 @@ struct QuickSearchView: View {
         }
     }
     @ViewBuilder private var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.newWord) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchReducer.Route.newWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.newWord,
                 word: viewStore.binding(\.$editingWord),
@@ -135,7 +135,7 @@ struct QuickSearchView: View {
                 }
             )
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.editWord) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchReducer.Route.editWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.editWord,
                 word: viewStore.binding(\.$editingWord),
@@ -155,13 +155,13 @@ extension QuickSearchView {
     struct EditWordView: View {
         private let title: String
         @Binding private var word: QuickSearchWord
-        private let focusedField: FocusState<QuickSearchState.FocusField?>.Binding
+        private let focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding
         private let submitAction: () -> Void
         private let confirmAction: () -> Void
 
         init(
             title: String, word: Binding<QuickSearchWord>,
-            focusedField: FocusState<QuickSearchState.FocusField?>.Binding,
+            focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding,
             submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void
         ) {
             self.title = title
@@ -204,10 +204,7 @@ struct QuickSearchView_Previews: PreviewProvider {
         QuickSearchView(
             store: .init(
                 initialState: .init(),
-                reducer: quickSearchReducer,
-                environment: QuickSearchEnvironment(
-                    databaseClient: .live
-                )
+                reducer: QuickSearchReducer()
             ),
             searchAction: { _ in }
         )

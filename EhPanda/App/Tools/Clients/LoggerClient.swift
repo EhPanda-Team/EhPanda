@@ -8,8 +8,8 @@
 import ComposableArchitecture
 
 struct LoggerClient {
-    let info: (Any, Any?) -> Effect<Never, Never>
-    let error: (Any, Any?) -> Effect<Never, Never>
+    let info: (Any, Any?) -> EffectTask<Never>
+    let error: (Any, Any?) -> EffectTask<Never>
 }
 
 extension LoggerClient {
@@ -27,20 +27,29 @@ extension LoggerClient {
     )
 }
 
-// MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension LoggerClient {
-    static let failing: Self = .init(
-        info: { .failing("\(Self.self).info(\($0), \(String(describing: $1))) is unimplemented") },
-        error: { .failing("\(Self.self).error(\($0), \(String(describing: $1))) is unimplemented") }
-    )
+// MARK: API
+enum LoggerClientKey: DependencyKey {
+    static let liveValue = LoggerClient.live
+    static let previewValue = LoggerClient.noop
+    static let testValue = LoggerClient.unimplemented
 }
-#endif
+
+extension DependencyValues {
+    var loggerClient: LoggerClient {
+        get { self[LoggerClientKey.self] }
+        set { self[LoggerClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
 extension LoggerClient {
     static let noop: Self = .init(
         info: { _, _ in .none },
         error: { _, _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        info: XCTestDynamicOverlay.unimplemented("\(Self.self).info"),
+        error: XCTestDynamicOverlay.unimplemented("\(Self.self).error")
     )
 }

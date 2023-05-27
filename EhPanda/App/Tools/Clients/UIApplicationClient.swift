@@ -10,11 +10,11 @@ import Combine
 import ComposableArchitecture
 
 struct UIApplicationClient {
-    let openURL: (URL) -> Effect<Never, Never>
-    let hideKeyboard: () -> Effect<Never, Never>
+    let openURL: (URL) -> EffectTask<Never>
+    let hideKeyboard: () -> EffectTask<Never>
     let alternateIconName: () -> String?
-    let setAlternateIconName: (String?) -> Effect<Result<Bool, Never>, Never>
-    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> Effect<Never, Never>
+    let setAlternateIconName: (String?) -> EffectTask<Result<Bool, Never>>
+    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> EffectTask<Never>
 }
 
 extension UIApplicationClient {
@@ -51,13 +51,13 @@ extension UIApplicationClient {
             }
         }
     )
-    func openSettings() -> Effect<Never, Never> {
+    func openSettings() -> EffectTask<Never> {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             return openURL(url)
         }
         return .none
     }
-    func openFileApp() -> Effect<Never, Never> {
+    func openFileApp() -> EffectTask<Never> {
         if let dirPath = FileUtil.logsDirectoryURL?.path,
            let dirURL = URL(string: "shareddocuments://" + dirPath)
         {
@@ -67,25 +67,21 @@ extension UIApplicationClient {
     }
 }
 
-// MARK: Test
-// swiftlint:disable line_length
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension UIApplicationClient {
-    static let failing: Self = .init(
-        openURL: { .failing("\(Self.self).openURL(\($0)) is unimplemented") },
-        hideKeyboard: { .failing("\(Self.self).hideKeyboard is unimplemented") },
-        alternateIconName: {
-            XCTFail("\(Self.self).alternateIconName is unimplemented")
-            return nil
-        },
-        setAlternateIconName: { .failing("\(Self.self).setAlternateIconName(\(String(describing: $0))) is unimplemented") },
-        setUserInterfaceStyle: { .failing("\(Self.self).setUserInterfaceStyle(\($0)) is unimplemented") }
-    )
+// MARK: API
+enum UIApplicationClientKey: DependencyKey {
+    static let liveValue = UIApplicationClient.live
+    static let previewValue = UIApplicationClient.noop
+    static let testValue = UIApplicationClient.unimplemented
 }
-#endif
-// swiftlint:enable line_length
+
+extension DependencyValues {
+    var uiApplicationClient: UIApplicationClient {
+        get { self[UIApplicationClientKey.self] }
+        set { self[UIApplicationClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
 extension UIApplicationClient {
     static let noop: Self = .init(
         openURL: { _ in .none},
@@ -93,5 +89,13 @@ extension UIApplicationClient {
         alternateIconName: { nil },
         setAlternateIconName: { _ in .none },
         setUserInterfaceStyle: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        openURL: XCTestDynamicOverlay.unimplemented("\(Self.self).openURL"),
+        hideKeyboard: XCTestDynamicOverlay.unimplemented("\(Self.self).hideKeyboard"),
+        alternateIconName: XCTestDynamicOverlay.unimplemented("\(Self.self).alternateIconName"),
+        setAlternateIconName: XCTestDynamicOverlay.unimplemented("\(Self.self).importTagTranslator"),
+        setUserInterfaceStyle: XCTestDynamicOverlay.unimplemented("\(Self.self).setUserInterfaceStyle")
     )
 }

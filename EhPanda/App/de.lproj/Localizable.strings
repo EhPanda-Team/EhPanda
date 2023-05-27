@@ -139,8 +139,9 @@
 "search_view.section.title.recently_searched" = "Recently searched";
 "search_view.section.title.recently_seen" = "Recently seen";
 "search_view.section.title.quick_search" = "Quick search";
-// Searchable prompt
+// Searchable
 "searchable.prompt.filter" = "Filter";
+"searchable.title.matches_count" = "Found %d matches.";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "Quick search";
@@ -159,7 +160,7 @@
 "enum.setting_state_route.value.appearance" = "Oberfläche";
 "enum.setting_state_route.value.reading" = "Am Lesen";
 "enum.setting_state_route.value.laboratory" = "Experimentelles";
-"enum.setting_state_route.value.ehPanda" = "Über EhPanda";
+"enum.setting_state_route.value.about" = "Über EhPanda";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "Konto";
@@ -254,15 +255,15 @@
 "laboratory_setting_view.title.laboratory" = "Experimentelles";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI Filter umgehen";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "Website";
-"ehPanda_view.button.altStore_source" = "AltStore Quelle";
-"ehPanda_view.title.version" = "Version";
-"ehPanda_view.section.title.special_thanks" = "Special thanks";
-"ehPanda_view.section.title.code_level_contributors" = "Code-level contributors";
-"ehPanda_view.section.title.translation_contributors" = "Translation contributors";
-"ehPanda_view.section.title.acknowledgements" = "OK";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "Website";
+"about_view.button.altStore_source" = "AltStore Quelle";
+"about_view.title.version" = "Version";
+"about_view.section.title.special_thanks" = "Special thanks";
+"about_view.section.title.code_level_contributors" = "Code-level contributors";
+"about_view.section.title.translation_contributors" = "Translation contributors";
+"about_view.section.title.acknowledgements" = "OK";
 
 // MARK: DetailView
 "detail_view.button.read" = "Lesen";
@@ -442,6 +443,8 @@
 "eh_setting_view.section.title.front_page_settings" = "Front Page Settings";
 "eh_setting_view.title.display_mode" = "Display mode";
 "eh_setting_view.description.display_mode" = "Which display mode would you like to use on the front and search pages?";
+"eh_setting_view.section.title.show_search_range_indicator" = "Search Range Indicator";
+"eh_setting_view.title.show_search_range_indicator" = "Show search range indicator";
 "eh_setting_view.description.gallery_category" = "What categories would you like to show by default on the front page and in searches?";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "Compact";
@@ -462,9 +465,6 @@
 "eh_setting_view.title.ratings_color" = "Ratings color";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
 "eh_setting_view.description.ratings_color" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
-
-"eh_setting_view.section.title.tags_namespaces" = "Tag Namespaces";
-"eh_setting_view.description.tags_namespaces" = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces.";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "Tag Filtering Threshold";
 "eh_setting_view.title.tag_filtering_threshold" = "Tag Filtering Threshold";

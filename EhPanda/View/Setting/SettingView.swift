@@ -10,11 +10,11 @@ import SFSafeSymbols
 import ComposableArchitecture
 
 struct SettingView: View {
-    private let store: Store<SettingState, SettingAction>
-    @ObservedObject private var viewStore: ViewStore<SettingState, SettingAction>
+    private let store: StoreOf<SettingReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<SettingReducer>
     private let blurRadius: Double
 
-    init(store: Store<SettingState, SettingAction>, blurRadius: Double) {
+    init(store: StoreOf<SettingReducer>, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.blurRadius = blurRadius
@@ -25,7 +25,7 @@ struct SettingView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(SettingState.Route.allCases) { route in
+                    ForEach(SettingReducer.Route.allCases) { route in
                         SettingRow(rowType: route) {
                             viewStore.send(.setNavigation($0))
                         }
@@ -42,9 +42,9 @@ struct SettingView: View {
 // MARK: NavigationLinks
 private extension SettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.account) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingReducer.Route.account) { _ in
             AccountSettingView(
-                store: store.scope(state: \.accountSettingState, action: SettingAction.account),
+                store: store.scope(state: \.accountSettingState, action: SettingReducer.Action.account),
                 galleryHost: viewStore.binding(\.$setting.galleryHost),
                 showsNewDawnGreeting: viewStore.binding(\.$setting.showsNewDawnGreeting),
                 bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
@@ -52,9 +52,9 @@ private extension SettingView {
             )
             .tint(viewStore.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.general) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingReducer.Route.general) { _ in
             GeneralSettingView(
-                store: store.scope(state: \.generalSettingState, action: SettingAction.general),
+                store: store.scope(state: \.generalSettingState, action: SettingReducer.Action.general),
                 tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
                 tagTranslatorEmpty: viewStore.tagTranslator.translations.isEmpty,
                 tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
@@ -69,9 +69,9 @@ private extension SettingView {
             )
             .tint(viewStore.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.appearance) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingReducer.Route.appearance) { _ in
             AppearanceSettingView(
-                store: store.scope(state: \.appearanceSettingState, action: SettingAction.appearance),
+                store: store.scope(state: \.appearanceSettingState, action: SettingReducer.Action.appearance),
                 preferredColorScheme: viewStore.binding(\.$setting.preferredColorScheme),
                 accentColor: viewStore.binding(\.$setting.accentColor),
                 appIconType: viewStore.binding(\.$setting.appIconType),
@@ -82,7 +82,7 @@ private extension SettingView {
             )
             .tint(viewStore.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.reading) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingReducer.Route.reading) { _ in
             ReadingSettingView(
                 readingDirection: viewStore.binding(\.$setting.readingDirection),
                 prefetchLimit: viewStore.binding(\.$setting.prefetchLimit),
@@ -93,14 +93,14 @@ private extension SettingView {
             )
             .tint(viewStore.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.laboratory) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingReducer.Route.laboratory) { _ in
             LaboratorySettingView(
                 bypassesSNIFiltering: viewStore.binding(\.$setting.bypassesSNIFiltering)
             )
             .tint(viewStore.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.ehpanda) { _ in
-            EhPandaView().tint(viewStore.setting.accentColor)
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingReducer.Route.about) { _ in
+            AboutView().tint(viewStore.setting.accentColor)
         }
     }
 }
@@ -110,8 +110,8 @@ private struct SettingRow: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressing = false
 
-    private let rowType: SettingState.Route
-    private let tapAction: (SettingState.Route) -> Void
+    private let rowType: SettingReducer.Route
+    private let tapAction: (SettingReducer.Route) -> Void
 
     private var color: Color {
         colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
@@ -120,7 +120,7 @@ private struct SettingRow: View {
         isPressing ? color.opacity(0.1) : .clear
     }
 
-    init(rowType: SettingState.Route, tapAction: @escaping (SettingState.Route) -> Void) {
+    init(rowType: SettingReducer.Route, tapAction: @escaping (SettingReducer.Route) -> Void) {
         self.rowType = rowType
         self.tapAction = tapAction
     }
@@ -145,7 +145,7 @@ private struct SettingRow: View {
 }
 
 // MARK: Definition
-extension SettingState.Route {
+extension SettingReducer.Route {
     var value: String {
         switch self {
         case .account:
@@ -158,8 +158,8 @@ extension SettingState.Route {
             return L10n.Localizable.Enum.SettingStateRoute.Value.reading
         case .laboratory:
             return L10n.Localizable.Enum.SettingStateRoute.Value.laboratory
-        case .ehpanda:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.ehPanda
+        case .about:
+            return L10n.Localizable.Enum.SettingStateRoute.Value.about
         }
     }
     var symbol: SFSymbol {
@@ -174,7 +174,7 @@ extension SettingState.Route {
             return .newspaperFill
         case .laboratory:
             return .testtube2
-        case .ehpanda:
+        case .about:
             return .pCircleFill
         }
     }
@@ -185,22 +185,7 @@ struct SettingView_Previews: PreviewProvider {
         SettingView(
             store: .init(
                 initialState: .init(),
-                reducer: settingReducer,
-                environment: SettingEnvironment(
-                    dfClient: .live,
-                    fileClient: .live,
-                    deviceClient: .live,
-                    loggerClient: .live,
-                    hapticClient: .live,
-                    libraryClient: .live,
-                    cookiesClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    userDefaultsClient: .live,
-                    uiApplicationClient: .live,
-                    authorizationClient: .live
-                )
+                reducer: SettingReducer()
             ),
             blurRadius: 0
         )

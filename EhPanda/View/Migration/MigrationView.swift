@@ -10,14 +10,14 @@ import ComposableArchitecture
 
 struct MigrationView: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let store: Store<MigrationState, MigrationAction>
-    @ObservedObject private var viewStore: ViewStore<MigrationState, MigrationAction>
+    private let store: StoreOf<MigrationReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<MigrationReducer>
 
     private var reversedPrimary: Color {
         colorScheme == .light ? .white : .black
     }
 
-    init(store: Store<MigrationState, MigrationAction>) {
+    init(store: StoreOf<MigrationReducer>) {
         self.store = store
         viewStore = ViewStore(store)
     }
@@ -37,7 +37,7 @@ struct MigrationView: View {
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.dropDatabase,
                         unwrapping: viewStore.binding(\.$route),
-                        case: /MigrationState.Route.dropDialog
+                        case: /MigrationReducer.Route.dropDialog
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.dropDatabase, role: .destructive) {
                             viewStore.send(.dropDatabase)
@@ -56,10 +56,7 @@ struct MigrationView_Previews: PreviewProvider {
         MigrationView(
             store: .init(
                 initialState: .init(),
-                reducer: migrationReducer,
-                environment: MigrationEnvironment(
-                    databaseClient: .live
-                )
+                reducer: MigrationReducer()
             )
         )
     }

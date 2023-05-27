@@ -6,13 +6,14 @@
 //
 
 import Combine
+import Foundation
 import ComposableArchitecture
 
 struct FileClient {
     let createFile: (String, Data?) -> Bool
-    let fetchLogs: () -> Effect<Result<[Log], AppError>, Never>
-    let deleteLog: (String) -> Effect<Result<String, AppError>, Never>
-    let importTagTranslator: (URL) -> Effect<Result<TagTranslator, AppError>, Never>
+    let fetchLogs: () -> EffectTask<Result<[Log], AppError>>
+    let deleteLog: (String) -> EffectTask<Result<String, AppError>>
+    let importTagTranslator: (URL) -> EffectTask<Result<TagTranslator, AppError>>
 }
 
 extension FileClient {
@@ -104,27 +105,33 @@ extension FileClient {
     }
 }
 
-// MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension FileClient {
-    static let failing: Self = .init(
-        createFile: {
-            XCTFail("\(Self.self).createFile(\($0), \(String(describing: $1))) is unimplemented")
-            return false
-        },
-        fetchLogs: { .failing("\(Self.self).fetchLogs is unimplemented") },
-        deleteLog: { .failing("\(Self.self).deleteLog(\($0)) is unimplemented") },
-        importTagTranslator: { .failing("\(Self.self).importTagTranslator(\($0)) is unimplemented") }
-    )
+// MARK: API
+enum FileClientKey: DependencyKey {
+    static let liveValue = FileClient.live
+    static let previewValue = FileClient.noop
+    static let testValue = FileClient.unimplemented
 }
-#endif
+
+extension DependencyValues {
+    var fileClient: FileClient {
+        get { self[FileClientKey.self] }
+        set { self[FileClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
 extension FileClient {
     static let noop: Self = .init(
         createFile: { _, _ in false },
         fetchLogs: { .none },
         deleteLog: { _ in .none },
         importTagTranslator: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        createFile: XCTestDynamicOverlay.unimplemented("\(Self.self).createFile"),
+        fetchLogs: XCTestDynamicOverlay.unimplemented("\(Self.self).fetchLogs"),
+        deleteLog: XCTestDynamicOverlay.unimplemented("\(Self.self).deleteLog"),
+        importTagTranslator: XCTestDynamicOverlay.unimplemented("\(Self.self).importTagTranslator")
     )
 }

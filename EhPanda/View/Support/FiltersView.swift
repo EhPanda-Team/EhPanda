@@ -9,12 +9,12 @@ import SwiftUI
 import ComposableArchitecture
 
 struct FiltersView: View {
-    private let store: Store<FiltersState, FiltersAction>
-    @ObservedObject private var viewStore: ViewStore<FiltersState, FiltersAction>
+    private let store: StoreOf<FiltersReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<FiltersReducer>
 
-    @FocusState private var focusedBound: FiltersState.FocusedBound?
+    @FocusState private var focusedBound: FiltersReducer.FocusedBound?
 
-    init(store: Store<FiltersState, FiltersAction>) {
+    init(store: StoreOf<FiltersReducer>) {
         self.store = store
         viewStore = ViewStore(store)
     }
@@ -54,7 +54,7 @@ struct FiltersView: View {
 
 // MARK: BasicSection
 private struct BasicSection: View {
-    @Binding private var route: FiltersState.Route?
+    @Binding private var route: FiltersReducer.Route?
     @Binding private var filter: Filter
     @Binding private var filterRange: FilterRange
     private let resetFiltersAction: () -> Void
@@ -65,7 +65,7 @@ private struct BasicSection: View {
     ] }
 
     init(
-        route: Binding<FiltersState.Route?>, filter: Binding<Filter>, filterRange: Binding<FilterRange>,
+        route: Binding<FiltersReducer.Route?>, filter: Binding<Filter>, filterRange: Binding<FilterRange>,
         resetFiltersAction: @escaping () -> Void, resetFiltersDialogAction: @escaping () -> Void
     ) {
         _route = route
@@ -89,7 +89,7 @@ private struct BasicSection: View {
             }
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.reset,
-                unwrapping: $route, case: /FiltersState.Route.resetFilters
+                unwrapping: $route, case: /FiltersReducer.Route.resetFilters
             ) {
                 Button(
                     L10n.Localizable.ConfirmationDialog.Button.reset,
@@ -104,12 +104,12 @@ private struct BasicSection: View {
 // MARK: AdvancedSection
 private struct AdvancedSection: View {
     @Binding private var filter: Filter
-    private let focusedBound: FocusState<FiltersState.FocusedBound?>.Binding
+    private let focusedBound: FocusState<FiltersReducer.FocusedBound?>.Binding
     private let submitAction: () -> Void
 
     init(
         filter: Binding<Filter>,
-        focusedBound: FocusState<FiltersState.FocusedBound?>.Binding,
+        focusedBound: FocusState<FiltersReducer.FocusedBound?>.Binding,
         submitAction: @escaping () -> Void
     ) {
         _filter = filter
@@ -178,13 +178,13 @@ private struct MinimumRatingSetter: View {
 private struct PagesRangeSetter: View {
     @Binding private var lowerBound: String
     @Binding private var upperBound: String
-    private let focusedBound: FocusState<FiltersState.FocusedBound?>.Binding
+    private let focusedBound: FocusState<FiltersReducer.FocusedBound?>.Binding
     private let submitAction: () -> Void
 
     init(
         lowerBound: Binding<String>,
         upperBound: Binding<String>,
-        focusedBound: FocusState<FiltersState.FocusedBound?>.Binding,
+        focusedBound: FocusState<FiltersReducer.FocusedBound?>.Binding,
         submitAction: @escaping () -> Void
     ) {
         _lowerBound = lowerBound
@@ -242,10 +242,7 @@ struct FiltersView_Previews: PreviewProvider {
         FiltersView(
             store: .init(
                 initialState: .init(),
-                reducer: filtersReducer,
-                environment: FiltersEnvironment(
-                    databaseClient: .live
-                )
+                reducer: FiltersReducer()
             )
         )
     }

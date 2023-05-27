@@ -84,7 +84,7 @@ private struct CategoryCell: View {
         }
         .onTapGesture {
             isFiltered.toggle()
-            HapticUtil.generateFeedback(style: .soft)
+            HapticsUtil.generateFeedback(style: .soft)
         }
         .cornerRadius(5)
     }

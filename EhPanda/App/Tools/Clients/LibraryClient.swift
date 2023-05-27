@@ -14,11 +14,11 @@ import UIImageColors
 import ComposableArchitecture
 
 struct LibraryClient {
-    let initializeLogger: () -> Effect<Never, Never>
-    let initializeWebImage: () -> Effect<Never, Never>
-    let clearWebImageDiskCache: () -> Effect<Never, Never>
-    let analyzeImageColors: (UIImage) -> Effect<UIImageColors?, Never>
-    let calculateWebImageDiskCacheSize: () -> Effect<UInt?, Never>
+    let initializeLogger: () -> EffectTask<Never>
+    let initializeWebImage: () -> EffectTask<Never>
+    let clearWebImageDiskCache: () -> EffectTask<Never>
+    let analyzeImageColors: (UIImage) -> EffectTask<UIImageColors?>
+    let calculateWebImageDiskCacheSize: () -> EffectTask<UInt?>
 }
 
 extension LibraryClient {
@@ -88,20 +88,21 @@ extension LibraryClient {
     )
 }
 
-// MARK: Test
-#if DEBUG
-import XCTestDynamicOverlay
-
-extension LibraryClient {
-    static let failing: Self = .init(
-        initializeLogger: { .failing("\(Self.self).initializeLogger is unimplemented") },
-        initializeWebImage: { .failing("\(Self.self).initializeWebImage is unimplemented") },
-        clearWebImageDiskCache: { .failing("\(Self.self).clearWebImageDiskCache is unimplemented") },
-        analyzeImageColors: { _ in .failing("\(Self.self).analyzeImageColors is unimplemented") },
-        calculateWebImageDiskCacheSize: { .failing("\(Self.self).calculateWebImageDiskCacheSize is unimplemented") }
-    )
+// MARK: API
+enum LibraryClientKey: DependencyKey {
+    static let liveValue = LibraryClient.live
+    static let previewValue = LibraryClient.noop
+    static let testValue = LibraryClient.unimplemented
 }
-#endif
+
+extension DependencyValues {
+    var libraryClient: LibraryClient {
+        get { self[LibraryClientKey.self] }
+        set { self[LibraryClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
 extension LibraryClient {
     static let noop: Self = .init(
         initializeLogger: { .none },
@@ -109,5 +110,14 @@ extension LibraryClient {
         clearWebImageDiskCache: { .none },
         analyzeImageColors: { _ in .none },
         calculateWebImageDiskCacheSize: { .none }
+    )
+
+    static let unimplemented: Self = .init(
+        initializeLogger: XCTestDynamicOverlay.unimplemented("\(Self.self).initializeLogger"),
+        initializeWebImage: XCTestDynamicOverlay.unimplemented("\(Self.self).initializeWebImage"),
+        clearWebImageDiskCache: XCTestDynamicOverlay.unimplemented("\(Self.self).clearWebImageDiskCache"),
+        analyzeImageColors: XCTestDynamicOverlay.unimplemented("\(Self.self).analyzeImageColors"),
+        calculateWebImageDiskCacheSize:
+            XCTestDynamicOverlay.unimplemented("\(Self.self).calculateWebImageDiskCacheSize")
     )
 }

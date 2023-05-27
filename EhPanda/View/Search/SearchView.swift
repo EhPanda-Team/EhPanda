@@ -9,8 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SearchView: View {
-    private let store: Store<SearchState, SearchAction>
-    @ObservedObject private var viewStore: ViewStore<SearchState, SearchAction>
+    private let store: StoreOf<SearchReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<SearchReducer>
     private let keyword: String
     private let user: User
     @Binding private var setting: Setting
@@ -18,7 +18,7 @@ struct SearchView: View {
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<SearchState, SearchAction>,
+        store: StoreOf<SearchReducer>,
         keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -46,21 +46,21 @@ struct SearchView: View {
         )
         .sheet(
             unwrapping: viewStore.binding(\.$route),
-            case: /SearchState.Route.detail,
+            case: /SearchReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.detailState, action: SearchAction.detail),
+                    store: store.scope(state: \.detailState, action: SearchReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchReducer.Route.quickSearch) { _ in
             QuickSearchView(
-                store: store.scope(state: \.quickSearchState, action: SearchAction.quickSearch)
+                store: store.scope(state: \.quickSearchState, action: SearchReducer.Action.quickSearch)
             ) { keyword in
                 viewStore.send(.setNavigation(nil))
                 viewStore.send(.fetchGalleries(keyword))
@@ -68,11 +68,12 @@ struct SearchView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: SearchAction.filters))
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchReducer.Route.filters) { _ in
+            FiltersView(store: store.scope(state: \.filtersState, action: SearchReducer.Action.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
-        .searchable(text: viewStore.binding(\.$keyword)) {
+        .searchable(text: viewStore.binding(\.$keyword))
+        .searchSuggestions {
             TagSuggestionView(
                 keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
@@ -95,9 +96,9 @@ struct SearchView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: SearchAction.detail),
+                    store: store.scope(state: \.detailState, action: SearchReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -123,19 +124,7 @@ struct SearchView_Previews: PreviewProvider {
         SearchView(
             store: .init(
                 initialState: .init(),
-                reducer: searchReducer,
-                environment: SearchEnvironment(
-                    urlClient: .live,
-                    fileClient: .live,
-                    imageClient: .live,
-                    deviceClient: .live,
-                    hapticClient: .live,
-                    cookiesClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    uiApplicationClient: .live
-                )
+                reducer: SearchReducer()
             ),
             keyword: .init(),
             user: .init(),

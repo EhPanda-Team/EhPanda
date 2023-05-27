@@ -139,8 +139,9 @@
 "search_view.section.title.recently_searched" = "最近検索した項目";
 "search_view.section.title.recently_seen" = "最近閲覧した項目";
 "search_view.section.title.quick_search" = "クイック検索";
-// Searchable prompt
+// Searchable
 "searchable.prompt.filter" = "フィルター";
+"searchable.title.matches_count" = "%d 件の該当項目";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "クイック検索";
@@ -159,7 +160,7 @@
 "enum.setting_state_route.value.appearance" = "外観";
 "enum.setting_state_route.value.reading" = "閲覧";
 "enum.setting_state_route.value.laboratory" = "ラボ";
-"enum.setting_state_route.value.ehPanda" = "EhPanda について";
+"enum.setting_state_route.value.about" = "EhPanda について";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "アカウント";
@@ -254,15 +255,15 @@
 "laboratory_setting_view.title.laboratory" = "ラボ";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI フィルタリング回避";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "ウェブサイト";
-"ehPanda_view.button.altStore_source" = "AltStore ソース";
-"ehPanda_view.title.version" = "バージョン";
-"ehPanda_view.section.title.special_thanks" = "特別な感謝";
-"ehPanda_view.section.title.code_level_contributors" = "コードレベル貢献者";
-"ehPanda_view.section.title.translation_contributors" = "翻訳貢献者";
-"ehPanda_view.section.title.acknowledgements" = "謝辞";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "ウェブサイト";
+"about_view.button.altStore_source" = "AltStore ソース";
+"about_view.title.version" = "バージョン";
+"about_view.section.title.special_thanks" = "特別な感謝";
+"about_view.section.title.code_level_contributors" = "コードレベル貢献者";
+"about_view.section.title.translation_contributors" = "翻訳貢献者";
+"about_view.section.title.acknowledgements" = "謝辞";
 
 // MARK: DetailView
 "detail_view.button.read" = "閲覧";
@@ -442,6 +443,8 @@
 "eh_setting_view.section.title.front_page_settings" = "フロントページ設定";
 "eh_setting_view.title.display_mode" = "表示モード";
 "eh_setting_view.description.display_mode" = "フロント・検索ページで使う表示モードはどれにしますか？";
+"eh_setting_view.section.title.show_search_range_indicator" = "検索範囲インジケーター";
+"eh_setting_view.title.show_search_range_indicator" = "検索範囲インジケーターを表示";
 "eh_setting_view.description.gallery_category" = "フロント・検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "コンパクト";
@@ -462,9 +465,6 @@
 "eh_setting_view.title.ratings_color" = "評価の色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
 "eh_setting_view.description.ratings_color" = "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
-
-"eh_setting_view.section.title.tags_namespaces" = "タグの名前空間";
-"eh_setting_view.description.tags_namespaces" = "下にある名前空間を削除仕様にすることで通常のタグ検索結果から排除できます。注意：排除された名前空間のタグを持つギャラリーが表示されなくなることはありません。";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "タグフィルタリングしきい値";
 "eh_setting_view.title.tag_filtering_threshold" = "タグフィルタリングしきい値";

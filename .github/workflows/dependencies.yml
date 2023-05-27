@@ -1,0 +1,30 @@
+name: Xcode Dependencies
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  dependencies:
+    runs-on: macos-13
+    if: ${{ contains(github.event.head_commit.message, '[update dependencies]') || github.event_name == 'schedule' }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Resolve Dependencies
+        id: resolution
+        uses: GetSidetrack/action-xcodeproj-spm-update@main
+        with:
+          forceResolution: true
+          failWhenOutdated: false
+      - name: Create Pull Request
+        if: steps.resolution.outputs.dependenciesChanged == 'true'
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: 'update-dependencies'
+          delete-branch: true
+          commit-message: 'Update dependencies [skip test]'
+          title: 'Updated Dependencies'

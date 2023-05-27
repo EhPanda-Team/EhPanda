@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppDelegateClient {
-    let setOrientation: (UIInterfaceOrientation) -> Effect<Never, Never>
-    let setOrientationMask: (UIInterfaceOrientationMask) -> Effect<Never, Never>
+    let setOrientation: (UIInterfaceOrientationMask) -> EffectTask<Never>
+    let setOrientationMask: (UIInterfaceOrientationMask) -> EffectTask<Never>
 }
 
 extension AppDelegateClient {
     static let live: Self = .init(
-        setOrientation: { orientation in
+        setOrientation: { mask in
             .fireAndForget {
-                UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
+                DeviceUtil.keyWindow?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
             }
         },
         setOrientationMask: { mask in
@@ -27,13 +27,40 @@ extension AppDelegateClient {
         }
     )
 
-    func setPortraitOrientation() -> Effect<Never, Never> {
+    func setPortraitOrientation() -> EffectTask<Never> {
         setOrientation(.portrait)
     }
-    func setAllOrientationMask() -> Effect<Never, Never> {
+    func setAllOrientationMask() -> EffectTask<Never> {
         setOrientationMask([.all])
     }
-    func setPortraitOrientationMask() -> Effect<Never, Never> {
+    func setPortraitOrientationMask() -> EffectTask<Never> {
         setOrientationMask([.portrait, .portraitUpsideDown])
     }
+}
+
+// MARK: API
+enum AppDelegateClientKey: DependencyKey {
+    static let liveValue = AppDelegateClient.live
+    static let previewValue = AppDelegateClient.noop
+    static let testValue = AppDelegateClient.unimplemented
+}
+
+extension DependencyValues {
+    var appDelegateClient: AppDelegateClient {
+        get { self[AppDelegateClientKey.self] }
+        set { self[AppDelegateClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension AppDelegateClient {
+    static let noop: Self = .init(
+        setOrientation: { _ in .none },
+        setOrientationMask: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        setOrientation: XCTestDynamicOverlay.unimplemented("\(Self.self).setOrientation"),
+        setOrientationMask: XCTestDynamicOverlay.unimplemented("\(Self.self).setOrientationMask")
+    )
 }

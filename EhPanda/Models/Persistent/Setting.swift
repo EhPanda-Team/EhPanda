@@ -68,6 +68,15 @@ enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable {
             return Defaults.URL.exhentai
         }
     }
+    var cookieURLs: [URL] {
+        switch self {
+        case .ehentai:
+            return [Defaults.URL.ehentai]
+
+        case .exhentai:
+            return [Defaults.URL.exhentai, Defaults.URL.sexhentai]
+        }
+    }
     var abbr: String {
         switch self {
         case .ehentai:

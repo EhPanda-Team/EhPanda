@@ -12,15 +12,15 @@ import SFSafeSymbols
 import ComposableArchitecture
 
 struct HomeView: View {
-    private let store: Store<HomeState, HomeAction>
-    @ObservedObject private var viewStore: ViewStore<HomeState, HomeAction>
+    private let store: StoreOf<HomeReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<HomeReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<HomeState, HomeAction>,
+        store: StoreOf<HomeReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -37,7 +37,7 @@ struct HomeView: View {
             ZStack {
                 ScrollView(showsIndicators: false) {
                     VStack {
-                        if viewStore.popularLoadingState == .loading || !viewStore.popularGalleries.isEmpty {
+                        if !viewStore.popularGalleries.isEmpty {
                             CardSlideSection(
                                 galleries: viewStore.popularGalleries,
                                 pageIndex: viewStore.binding(\.$cardPageIndex),
@@ -51,7 +51,7 @@ struct HomeView: View {
                             .equatable().allowsHitTesting(viewStore.allowsCardHitTesting)
                         }
                         Group {
-                            if viewStore.frontpageLoadingState == .loading || viewStore.frontpageGalleries.count > 1 {
+                            if viewStore.frontpageGalleries.count > 1 {
                                 CoverWallSection(
                                     galleries: viewStore.frontpageGalleries,
                                     isLoading: viewStore.frontpageLoadingState == .loading,
@@ -89,12 +89,12 @@ struct HomeView: View {
             }
             .sheet(
                 unwrapping: viewStore.binding(\.$route),
-                case: /HomeState.Route.detail,
+                case: /HomeReducer.Route.detail,
                 isEnabled: DeviceUtil.isPad
             ) { route in
                 NavigationView {
                     DetailView(
-                        store: store.scope(state: \.detailState, action: HomeAction.detail),
+                        store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
                         gid: route.wrappedValue, user: user, setting: $setting,
                         blurRadius: blurRadius, tagTranslator: tagTranslator
                     )
@@ -136,46 +136,46 @@ private extension HomeView {
         sectionLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.detail) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: HomeAction.detail),
+                store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
     var miscGridLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.misc) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeReducer.Route.misc) { route in
             switch route.wrappedValue {
             case .popular:
                 PopularView(
-                    store: store.scope(state: \.popularState, action: HomeAction.popular),
+                    store: store.scope(state: \.popularState, action: HomeReducer.Action.popular),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .watched:
                 WatchedView(
-                    store: store.scope(state: \.watchedState, action: HomeAction.watched),
+                    store: store.scope(state: \.watchedState, action: HomeReducer.Action.watched),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .history:
                 HistoryView(
-                    store: store.scope(state: \.historyState, action: HomeAction.history),
+                    store: store.scope(state: \.historyState, action: HomeReducer.Action.history),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
         }
     }
     var sectionLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.section) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeReducer.Route.section) { route in
             switch route.wrappedValue {
             case .frontpage:
                 FrontpageView(
-                    store: store.scope(state: \.frontpageState, action: HomeAction.frontpage),
+                    store: store.scope(state: \.frontpageState, action: HomeReducer.Action.frontpage),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .toplists:
                 ToplistsView(
-                    store: store.scope(state: \.toplistsState, action: HomeAction.toplists),
+                    store: store.scope(state: \.toplistsState, action: HomeReducer.Action.toplists),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
@@ -521,20 +521,7 @@ struct HomeView_Previews: PreviewProvider {
         HomeView(
             store: .init(
                 initialState: .init(),
-                reducer: homeReducer,
-                environment: HomeEnvironment(
-                    urlClient: .live,
-                    fileClient: .live,
-                    imageClient: .live,
-                    deviceClient: .live,
-                    hapticClient: .live,
-                    libraryClient: .live,
-                    cookiesClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    uiApplicationClient: .live
-                )
+                reducer: HomeReducer()
             ),
             user: .init(),
             setting: .constant(.init()),

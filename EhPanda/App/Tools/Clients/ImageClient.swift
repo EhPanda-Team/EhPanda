@@ -12,10 +12,10 @@ import Kingfisher
 import ComposableArchitecture
 
 struct ImageClient {
-    let prefetchImages: ([URL]) -> Effect<Never, Never>
-    let saveImageToPhotoLibrary: (UIImage, Bool) -> Effect<Bool, Never>
-    let downloadImage: (URL) -> Effect<Result<UIImage, Error>, Never>
-    let retrieveImage: (String) -> Effect<Result<UIImage, Error>, Never>
+    let prefetchImages: ([URL]) -> EffectTask<Never>
+    let saveImageToPhotoLibrary: (UIImage, Bool) -> EffectTask<Bool>
+    let downloadImage: (URL) -> EffectTask<Result<UIImage, Error>>
+    let retrieveImage: (String) -> EffectTask<Result<UIImage, Error>>
 }
 
 extension ImageClient {
@@ -78,7 +78,7 @@ extension ImageClient {
         }
     )
 
-    func fetchImage(url: URL) -> Effect<Result<UIImage, Error>, Never> {
+    func fetchImage(url: URL) -> EffectTask<Result<UIImage, Error>> {
         if KingfisherManager.shared.cache.isCached(forKey: url.absoluteString) {
             return retrieveImage(url.absoluteString)
         } else {
@@ -102,4 +102,35 @@ private final class ImageSaver: NSObject {
     ) {
         completion(error == nil)
     }
+}
+
+// MARK: API
+enum ImageClientKey: DependencyKey {
+    static let liveValue = ImageClient.live
+    static let previewValue = ImageClient.noop
+    static let testValue = ImageClient.unimplemented
+}
+
+extension DependencyValues {
+    var imageClient: ImageClient {
+        get { self[ImageClientKey.self] }
+        set { self[ImageClientKey.self] = newValue }
+    }
+}
+
+// MARK: Test
+extension ImageClient {
+    static let noop: Self = .init(
+        prefetchImages: { _ in .none },
+        saveImageToPhotoLibrary: { _, _ in .none },
+        downloadImage: { _ in .none },
+        retrieveImage: { _ in .none }
+    )
+
+    static let unimplemented: Self = .init(
+        prefetchImages: XCTestDynamicOverlay.unimplemented("\(Self.self).prefetchImages"),
+        saveImageToPhotoLibrary: XCTestDynamicOverlay.unimplemented("\(Self.self).saveImageToPhotoLibrary"),
+        downloadImage: XCTestDynamicOverlay.unimplemented("\(Self.self).downloadImage"),
+        retrieveImage: XCTestDynamicOverlay.unimplemented("\(Self.self).retrieveImage")
+    )
 }

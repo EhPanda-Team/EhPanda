@@ -12,87 +12,87 @@
 "website.response.invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
 "website.response.gallery_unavailable" = "This gallery has been removed or is unavailable.";
 
-// MARK: EhPanda
-"EhPanda.copyright" = "Copyright © 2022 EhPanda Team";
+// MARK: App
+"app.copyright" = "Copyright © 2023 EhPanda Team";
 
-// Contacts
-"EhPanda.contacts.link.website" = "https://ehpanda.app";
-"EhPanda.contacts.link.gitHub" = "https://github.com/EhPanda-Team/EhPanda";
-"EhPanda.contacts.link.discord" = "https://discord.gg/BSBE9FCBTq";
-"EhPanda.contacts.link.telegram" = "https://t.me/ehpanda";
-"EhPanda.contacts.link.altStore" = "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json";
-"EhPanda.contacts.text.gitHub" = "GitHub";
-"EhPanda.contacts.text.discord" = "Discord";
-"EhPanda.contacts.text.telegram" = "Telegram";
+// Contact
+"app.contact.link.website" = "https://ehpanda.app";
+"app.contact.link.gitHub" = "https://github.com/EhPanda-Team/EhPanda";
+"app.contact.link.discord" = "https://discord.gg/BSBE9FCBTq";
+"app.contact.link.telegram" = "https://t.me/ehpanda";
+"app.contact.link.altStore" = "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json";
+"app.contact.text.gitHub" = "GitHub";
+"app.contact.text.discord" = "Discord";
+"app.contact.text.telegram" = "Telegram";
 
 // Special thanks
-"EhPanda.special_thanks.link.taylorlannister" = "https://github.com/taylorlannister";
-"EhPanda.special_thanks.link.luminescent_yq" = "";
-"EhPanda.special_thanks.link.caxerx" = "https://github.com/caxerx";
-"EhPanda.special_thanks.link.honjow" = "https://github.com/honjow";
-"EhPanda.special_thanks.text.taylorlannister" = "taylorlannister";
-"EhPanda.special_thanks.text.luminescent_yq" = "Luminescent_yq";
-"EhPanda.special_thanks.text.caxerx" = "caxerx";
-"EhPanda.special_thanks.text.honjow" = "honjow";
+"app.special_thanks.link.taylorlannister" = "https://github.com/taylorlannister";
+"app.special_thanks.link.luminescent_yq" = "";
+"app.special_thanks.link.caxerx" = "https://github.com/caxerx";
+"app.special_thanks.link.honjow" = "https://github.com/honjow";
+"app.special_thanks.text.taylorlannister" = "taylorlannister";
+"app.special_thanks.text.luminescent_yq" = "Luminescent_yq";
+"app.special_thanks.text.caxerx" = "caxerx";
+"app.special_thanks.text.honjow" = "honjow";
 
-// Code level contributors
-"EhPanda.code_level_contributors.link.tatsuz0u" = "https://github.com/tatsuz0u";
-"EhPanda.code_level_contributors.link.chihchy" = "https://github.com/chihchy";
-"EhPanda.code_level_contributors.link.xioxin" = "https://github.com/xioxin";
-"EhPanda.code_level_contributors.link.leng-yue" = "https://github.com/leng-yue";
-"EhPanda.code_level_contributors.link.ethanChinCN" = "https://github.com/EthanChinCN";
-"EhPanda.code_level_contributors.text.tatsuz0u" = "Tatsuzo Araki";
-"EhPanda.code_level_contributors.text.chihchy" = "Chihchy";
-"EhPanda.code_level_contributors.text.xioxin" = "xioxin";
-"EhPanda.code_level_contributors.text.leng-yue" = "LengYue";
-"EhPanda.code_level_contributors.text.ethanChinCN" = "Ethan Chin";
+// Code level contributor
+"app.code_level_contributor.link.tatsuz0u" = "https://github.com/tatsuz0u";
+"app.code_level_contributor.link.chihchy" = "https://github.com/chihchy";
+"app.code_level_contributor.link.xioxin" = "https://github.com/xioxin";
+"app.code_level_contributor.link.leng-yue" = "https://github.com/leng-yue";
+"app.code_level_contributor.link.ethanChinCN" = "https://github.com/EthanChinCN";
+"app.code_level_contributor.text.tatsuz0u" = "Tatsuzo Araki";
+"app.code_level_contributor.text.chihchy" = "Chihchy";
+"app.code_level_contributor.text.xioxin" = "xioxin";
+"app.code_level_contributor.text.leng-yue" = "LengYue";
+"app.code_level_contributor.text.ethanChinCN" = "Ethan Chin";
 
-// Translation contributors
-"EhPanda.translation_contributors.link.tatsuz0u" = "https://github.com/tatsuz0u";
-"EhPanda.translation_contributors.link.nebulosa-cat" = "https://github.com/Nebulosa-Cat";
-"EhPanda.translation_contributors.link.paulHaeussler" = "https://github.com/PaulHaeussler";
-"EhPanda.translation_contributors.link.caxerx" = "https://github.com/caxerx";
-"EhPanda.translation_contributors.link.nyaanim" = "https://github.com/nyaanim";
-"EhPanda.translation_contributors.text.tatsuz0u" = "Tatsuzo Araki";
-"EhPanda.translation_contributors.text.nebulosa-cat" = "雲豹 ΦωΦ";
-"EhPanda.translation_contributors.text.paulHaeussler" = "PaulHaeussler";
-"EhPanda.translation_contributors.text.caxerx" = "caxerx";
-"EhPanda.translation_contributors.text.nyaanim" = "nyaanim";
+// Translation contributor
+"app.translation_contributor.link.tatsuz0u" = "https://github.com/tatsuz0u";
+"app.translation_contributor.link.nebulosa-cat" = "https://github.com/Nebulosa-Cat";
+"app.translation_contributor.link.paulHaeussler" = "https://github.com/PaulHaeussler";
+"app.translation_contributor.link.caxerx" = "https://github.com/caxerx";
+"app.translation_contributor.link.nyaanim" = "https://github.com/nyaanim";
+"app.translation_contributor.text.tatsuz0u" = "Tatsuzo Araki";
+"app.translation_contributor.text.nebulosa-cat" = "雲豹 ΦωΦ";
+"app.translation_contributor.text.paulHaeussler" = "PaulHaeussler";
+"app.translation_contributor.text.caxerx" = "caxerx";
+"app.translation_contributor.text.nyaanim" = "nyaanim";
 
-// Acknowledgements links
-"EhPanda.acknowledgements.link.kanna" = "https://github.com/tid-kijyun/Kanna";
-"EhPanda.acknowledgements.link.swiftGen" = "https://github.com/SwiftGen/SwiftGen";
-"EhPanda.acknowledgements.link.alertKit" = "https://github.com/rebeloper/AlertKit";
-"EhPanda.acknowledgements.link.colorful" = "https://github.com/Co2333/Colorful";
-"EhPanda.acknowledgements.link.filePicker" = "https://github.com/markrenaud/FilePicker";
-"EhPanda.acknowledgements.link.kingfisher" = "https://github.com/onevcat/Kingfisher";
-"EhPanda.acknowledgements.link.swiftUIPager" = "https://github.com/fermoya/SwiftUIPager";
-"EhPanda.acknowledgements.link.swiftyBeaver" = "https://github.com/SwiftyBeaver/SwiftyBeaver";
-"EhPanda.acknowledgements.link.waterfallGrid" = "https://github.com/paololeonardi/WaterfallGrid";
-"EhPanda.acknowledgements.link.swiftyOpenCC" = "https://github.com/ddddxxx/SwiftyOpenCC";
-"EhPanda.acknowledgements.link.uiImageColors" = "https://github.com/jathu/UIImageColors";
-"EhPanda.acknowledgements.link.sfSafeSymbols" = "https://github.com/SFSafeSymbols/SFSafeSymbols";
-"EhPanda.acknowledgements.link.ttProgressHUD" = "https://github.com/honkmaster/TTProgressHUD";
-"EhPanda.acknowledgements.link.swiftUINavigation" = "https://github.com/pointfreeco/swiftui-navigation";
-"EhPanda.acknowledgements.link.swiftCommonMark" = "https://github.com/gonzalezreal/SwiftCommonMark";
-"EhPanda.acknowledgements.link.ehTagTranslationDatabase" = "https://github.com/EhTagTranslation/Database";
-"EhPanda.acknowledgements.link.tca" = "https://github.com/pointfreeco/swift-composable-architecture";
+// Acknowledgement link
+"app.acknowledgement.link.kanna" = "https://github.com/tid-kijyun/Kanna";
+"app.acknowledgement.link.swiftGen" = "https://github.com/SwiftGen/SwiftGen";
+"app.acknowledgement.link.alertKit" = "https://github.com/rebeloper/AlertKit";
+"app.acknowledgement.link.colorful" = "https://github.com/Co2333/Colorful";
+"app.acknowledgement.link.filePicker" = "https://github.com/markrenaud/FilePicker";
+"app.acknowledgement.link.kingfisher" = "https://github.com/onevcat/Kingfisher";
+"app.acknowledgement.link.swiftUIPager" = "https://github.com/fermoya/SwiftUIPager";
+"app.acknowledgement.link.swiftyBeaver" = "https://github.com/SwiftyBeaver/SwiftyBeaver";
+"app.acknowledgement.link.waterfallGrid" = "https://github.com/paololeonardi/WaterfallGrid";
+"app.acknowledgement.link.swiftyOpenCC" = "https://github.com/ddddxxx/SwiftyOpenCC";
+"app.acknowledgement.link.uiImageColors" = "https://github.com/jathu/UIImageColors";
+"app.acknowledgement.link.sfSafeSymbols" = "https://github.com/SFSafeSymbols/SFSafeSymbols";
+"app.acknowledgement.link.ttProgressHUD" = "https://github.com/honkmaster/TTProgressHUD";
+"app.acknowledgement.link.swiftUINavigation" = "https://github.com/pointfreeco/swiftui-navigation";
+"app.acknowledgement.link.swiftCommonMark" = "https://github.com/gonzalezreal/SwiftCommonMark";
+"app.acknowledgement.link.ehTagTranslationDatabase" = "https://github.com/EhTagTranslation/Database";
+"app.acknowledgement.link.tca" = "https://github.com/pointfreeco/swift-composable-architecture";
 
-// Acknowledgements texts
-"EhPanda.acknowledgements.text.kanna" = "Kanna";
-"EhPanda.acknowledgements.text.swiftGen" = "SwiftGen";
-"EhPanda.acknowledgements.text.alertKit" = "AlertKit";
-"EhPanda.acknowledgements.text.colorful" = "Colorful";
-"EhPanda.acknowledgements.text.filePicker" = "FilePicker";
-"EhPanda.acknowledgements.text.kingfisher" = "Kingfisher";
-"EhPanda.acknowledgements.text.swiftUIPager" = "SwiftUIPager";
-"EhPanda.acknowledgements.text.swiftyBeaver" = "SwiftyBeaver";
-"EhPanda.acknowledgements.text.waterfallGrid" = "WaterfallGrid";
-"EhPanda.acknowledgements.text.swiftyOpenCC" = "SwiftyOpenCC";
-"EhPanda.acknowledgements.text.uiImageColors" = "UIImageColors";
-"EhPanda.acknowledgements.text.sfSafeSymbols" = "SFSafeSymbols";
-"EhPanda.acknowledgements.text.ttProgressHUD" = "TTProgressHUD";
-"EhPanda.acknowledgements.text.swiftUINavigation" = "SwiftUI Navigation";
-"EhPanda.acknowledgements.text.swiftCommonMark" = "SwiftCommonMark";
-"EhPanda.acknowledgements.text.ehTagTranslationDatabase" = "EhTagTranslation/Database";
-"EhPanda.acknowledgements.text.tca" = "The Composable Architecture";
+// Acknowledgement text
+"app.acknowledgement.text.kanna" = "Kanna";
+"app.acknowledgement.text.swiftGen" = "SwiftGen";
+"app.acknowledgement.text.alertKit" = "AlertKit";
+"app.acknowledgement.text.colorful" = "Colorful";
+"app.acknowledgement.text.filePicker" = "FilePicker";
+"app.acknowledgement.text.kingfisher" = "Kingfisher";
+"app.acknowledgement.text.swiftUIPager" = "SwiftUIPager";
+"app.acknowledgement.text.swiftyBeaver" = "SwiftyBeaver";
+"app.acknowledgement.text.waterfallGrid" = "WaterfallGrid";
+"app.acknowledgement.text.swiftyOpenCC" = "SwiftyOpenCC";
+"app.acknowledgement.text.uiImageColors" = "UIImageColors";
+"app.acknowledgement.text.sfSafeSymbols" = "SFSafeSymbols";
+"app.acknowledgement.text.ttProgressHUD" = "TTProgressHUD";
+"app.acknowledgement.text.swiftUINavigation" = "SwiftUI Navigation";
+"app.acknowledgement.text.swiftCommonMark" = "SwiftCommonMark";
+"app.acknowledgement.text.ehTagTranslationDatabase" = "EhTagTranslation/Database";
+"app.acknowledgement.text.tca" = "The Composable Architecture";

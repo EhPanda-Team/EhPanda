@@ -139,8 +139,9 @@
 "search_view.section.title.recently_searched" = "最近搜尋";
 "search_view.section.title.recently_seen" = "最近閱讀";
 "search_view.section.title.quick_search" = "快速搜尋";
-// Searchable prompt
+// Searchable
 "searchable.prompt.filter" = "過濾";
+"searchable.title.matches_count" = "找到 %d 項結果";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "快速搜尋";
@@ -159,7 +160,7 @@
 "enum.setting_state_route.value.appearance" = "外觀";
 "enum.setting_state_route.value.reading" = "閱讀";
 "enum.setting_state_route.value.laboratory" = "實驗性功能";
-"enum.setting_state_route.value.ehPanda" = "關於 EhPanda";
+"enum.setting_state_route.value.about" = "關於 EhPanda";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "帳號設定";
@@ -254,15 +255,15 @@
 "laboratory_setting_view.title.laboratory" = "實驗性功能";
 "laboratory_setting_view.title.bypasses_SNI_filtering" = "繞過 SNI 過濾";
 
-// MARK: EhPandaView
-"ehPanda_view.title.ehPanda" = "EhPanda";
-"ehPanda_view.button.website" = "官方網站";
-"ehPanda_view.button.altStore_source" = "AltStore source";
-"ehPanda_view.title.version" = "版本";
-"ehPanda_view.section.title.special_thanks" = "特別銘謝";
-"ehPanda_view.section.title.code_level_contributors" = "程式碼貢獻者";
-"ehPanda_view.section.title.translation_contributors" = "翻譯貢獻者";
-"ehPanda_view.section.title.acknowledgements" = "致謝";
+// MARK: AboutView
+"about_view.title.ehPanda" = "EhPanda";
+"about_view.button.website" = "官方網站";
+"about_view.button.altStore_source" = "AltStore source";
+"about_view.title.version" = "版本";
+"about_view.section.title.special_thanks" = "特別銘謝";
+"about_view.section.title.code_level_contributors" = "程式碼貢獻者";
+"about_view.section.title.translation_contributors" = "翻譯貢獻者";
+"about_view.section.title.acknowledgements" = "致謝";
 
 // MARK: DetailView
 "detail_view.button.read" = "閱讀";
@@ -442,6 +443,8 @@
 "eh_setting_view.section.title.front_page_settings" = "首頁設定";
 "eh_setting_view.title.display_mode" = "顯示模式";
 "eh_setting_view.description.display_mode" = "你想在首頁和搜尋結果中使用哪一種顯示方式?";
+"eh_setting_view.section.title.show_search_range_indicator" = "搜尋範圍指示器";
+"eh_setting_view.title.show_search_range_indicator" = "顯示搜尋範圍指示器";
 "eh_setting_view.description.gallery_category" = "預設情況下你希望在首頁和搜尋結果中顯示哪些類別的結果?";
 // EhSetting.DisplayMode
 "enum.eh_setting.display_mode.value.compact" = "緊湊(Compact)";
@@ -462,9 +465,6 @@
 "eh_setting_view.title.ratings_color" = "評分顏色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
 "eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 通過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
-
-"eh_setting_view.section.title.tags_namespaces" = "標籤類型";
-"eh_setting_view.description.tags_namespaces" = "如果你想從標籤搜尋時排除從下列某些類型標籤出現在搜尋結果中，可以從下面更改設定。 注意!!這不會使搜尋結果中不出現那些畫廊，僅是限定搜尋標籤所在的類型範圍!";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "過濾標籤閾值";
 "eh_setting_view.title.tag_filtering_threshold" = "閾值";

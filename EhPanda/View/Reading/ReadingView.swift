@@ -13,8 +13,8 @@ import ComposableArchitecture
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    let store: Store<ReadingState, ReadingAction>
-    @ObservedObject private var viewStore: ViewStore<ReadingState, ReadingAction>
+    let store: StoreOf<ReadingReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<ReadingReducer>
     private let gid: String
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -26,7 +26,7 @@ struct ReadingView: View {
     @StateObject private var page: Page = .first()
 
     init(
-        store: Store<ReadingState, ReadingAction>,
+        store: StoreOf<ReadingReducer>,
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
@@ -57,7 +57,7 @@ struct ReadingView: View {
                         page: page, data: viewStore.state.containerDataSource(setting: setting),
                         id: \.self, content: imageStack
                     )
-                    .horizontal(setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight)
+                    .horizontal(setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
                     .swipeInteractionArea(.allAvailable).allowsDragging(gestureHandler.scale == 1)
                 }
             }
@@ -81,7 +81,7 @@ struct ReadingView: View {
                 fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
             )
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.readingSetting) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingReducer.Route.readingSetting) { _ in
             NavigationView {
                 ReadingSettingView(
                     readingDirection: $setting.readingDirection,
@@ -106,14 +106,14 @@ struct ReadingView: View {
             .accentColor(setting.accentColor).tint(setting.accentColor)
             .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingReducer.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue.associatedValue])
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
             config: viewStore.hudConfig,
             unwrapping: viewStore.binding(\.$route),
-            case: /ReadingState.Route.hud
+            case: /ReadingReducer.Route.hud
         )
 
         // Page
@@ -246,7 +246,14 @@ extension ReadingView {
                     Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
                 }
             case .failure(let error):
-                Logger.info("analyzeImageForLiveText failed", context: ["index": index, "error": error])
+                Logger.info(
+                    "analyzeImageForLiveText failed",
+                    context: [
+                        "index": index,
+                        "error": error
+                    ]
+                    as [String: Any]
+                )
             }
         }
     }
@@ -593,17 +600,7 @@ struct ReadingView_Previews: PreviewProvider {
                     ReadingView(
                         store: .init(
                             initialState: .init(gallery: .empty),
-                            reducer: readingReducer,
-                            environment: ReadingEnvironment(
-                                urlClient: .live,
-                                imageClient: .live,
-                                deviceClient: .live,
-                                hapticClient: .live,
-                                cookiesClient: .live,
-                                databaseClient: .live,
-                                clipboardClient: .live,
-                                appDelegateClient: .live
-                            )
+                            reducer: ReadingReducer()
                         ),
                         gid: .init(),
                         setting: .constant(.init()),

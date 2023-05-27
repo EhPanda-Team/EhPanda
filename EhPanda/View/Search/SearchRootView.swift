@@ -9,15 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SearchRootView: View {
-    private let store: Store<SearchRootState, SearchRootAction>
-    @ObservedObject private var viewStore: ViewStore<SearchRootState, SearchRootAction>
+    private let store: StoreOf<SearchRootReducer>
+    @ObservedObject private var viewStore: ViewStoreOf<SearchRootReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<SearchRootState, SearchRootAction>,
+        store: StoreOf<SearchRootReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -26,10 +26,6 @@ struct SearchRootView: View {
         _setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
-    }
-
-    private var searchFieldPlacement: SearchFieldPlacement {
-        DeviceUtil.isPad ? .toolbar : .navigationBarDrawer(displayMode: .always)
     }
 
     var body: some View {
@@ -50,25 +46,25 @@ struct SearchRootView: View {
             }
             .sheet(
                 unwrapping: viewStore.binding(\.$route),
-                case: /SearchRootState.Route.detail,
+                case: /SearchRootReducer.Route.detail,
                 isEnabled: DeviceUtil.isPad
             ) { route in
                 NavigationView {
                     DetailView(
-                        store: store.scope(state: \.detailState, action: SearchRootAction.detail),
+                        store: store.scope(state: \.detailState, action: SearchRootReducer.Action.detail),
                         gid: route.wrappedValue, user: user, setting: $setting,
                         blurRadius: blurRadius, tagTranslator: tagTranslator
                     )
                 }
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.filters) { _ in
-                FiltersView(store: store.scope(state: \.filtersState, action: SearchRootAction.filters))
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootReducer.Route.filters) { _ in
+                FiltersView(store: store.scope(state: \.filtersState, action: SearchRootReducer.Action.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.quickSearch) { _ in
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootReducer.Route.quickSearch) { _ in
                 QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: SearchRootAction.quickSearch)
+                    store: store.scope(state: \.quickSearchState, action: SearchRootReducer.Action.quickSearch)
                 ) { keyword in
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.setKeyword(keyword))
@@ -79,7 +75,8 @@ struct SearchRootView: View {
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement) {
+            .searchable(text: viewStore.binding(\.$keyword))
+            .searchSuggestions {
                 TagSuggestionView(
                     keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
                     showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
@@ -120,18 +117,18 @@ private extension SearchRootView {
         searchViewLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.detail) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: SearchRootAction.detail),
+                store: store.scope(state: \.detailState, action: SearchRootReducer.Action.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
     var searchViewLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.search) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootReducer.Route.search) { _ in
             SearchView(
-                store: store.scope(state: \.searchState, action: SearchRootAction.search),
+                store: store.scope(state: \.searchState, action: SearchRootReducer.Action.search),
                 keyword: viewStore.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
@@ -409,19 +406,7 @@ struct SearchRootView_Previews: PreviewProvider {
         SearchRootView(
             store: .init(
                 initialState: .init(),
-                reducer: searchRootReducer,
-                environment: SearchRootEnvironment(
-                    urlClient: .live,
-                    fileClient: .live,
-                    imageClient: .live,
-                    deviceClient: .live,
-                    hapticClient: .live,
-                    cookiesClient: .live,
-                    databaseClient: .live,
-                    clipboardClient: .live,
-                    appDelegateClient: .live,
-                    uiApplicationClient: .live
-                )
+                reducer: SearchRootReducer()
             ),
             user: .init(),
             setting: .constant(.init()),

@@ -34,7 +34,9 @@ extension NavigationLink {
 }
 
 extension View {
-    @ViewBuilder func sheet<Enum, Case, Content>(
+    @MainActor
+    @ViewBuilder
+    func sheet<Enum, Case, Content>(
         unwrapping enum: Binding<Enum?>,
         case casePath: CasePath<Enum, Case>,
         onDismiss: (() -> Void)? = nil,
