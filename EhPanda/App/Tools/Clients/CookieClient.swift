@@ -141,7 +141,24 @@ extension CookieClient {
     func removeYay() -> EffectTask<Never> {
         .fireAndForget {
             removeCookie(Defaults.URL.exhentai, Defaults.Cookie.yay)
+            removeCookie(Defaults.URL.sexhentai, Defaults.Cookie.yay)
         }
+    }
+    func syncExCookies() -> EffectTask<Never> {
+        .merge(
+            [
+                Defaults.Cookie.ipbMemberId,
+                Defaults.Cookie.ipbPassHash,
+                Defaults.Cookie.igneous
+            ]
+            .map {
+                setOrEditCookie(
+                    for: Defaults.URL.sexhentai,
+                    key: $0,
+                    value: getCookie(Defaults.URL.exhentai, $0).rawValue
+                )
+            }
+        )
     }
     func ignoreOffensive() -> EffectTask<Never> {
         .merge(
@@ -202,9 +219,11 @@ extension CookieClient {
 // MARK: SetCookies
 extension CookieClient {
     func setCookies(state: CookiesState) -> EffectTask<Never> {
-        let effects: [EffectTask<Never>] = state.allCases.map { subState in
-            setOrEditCookie(for: state.host.url, key: subState.key, value: subState.editingText)
-        }
+        let effects: [EffectTask<Never>] = state.allCases
+            .flatMap { subState in
+                state.host.cookieURLs
+                    .map({ setOrEditCookie(for: $0, key: subState.key, value: subState.editingText) })
+            }
         return effects.isEmpty ? .none : .merge(effects)
     }
     func setCredentials(response: HTTPURLResponse) -> EffectTask<Never> {

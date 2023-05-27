@@ -71,6 +71,7 @@ struct Defaults {
         static var host: Foundation.URL { AppUtil.galleryHost == .exhentai ? exhentai : ehentai }
         static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped
         static let exhentai: Foundation.URL = .init(string: "https://exhentai.org/").forceUnwrapped
+        static let sexhentai: Foundation.URL = .init(string: "https://s.exhentai.org/").forceUnwrapped
 
         static let torrentDownload: Foundation.URL = .init(string: "https://ehgt.org/g/t.png").forceUnwrapped
         static let torrentDownloadInvalid: Foundation.URL = .init(string: "https://ehgt.org/g/td.png").forceUnwrapped

@@ -33,6 +33,7 @@ struct AppDelegateReducer: ReducerProtocol {
                     libraryClient.initializeLogger().fireAndForget(),
                     libraryClient.initializeWebImage().fireAndForget(),
                     cookieClient.removeYay().fireAndForget(),
+                    cookieClient.syncExCookies().fireAndForget(),
                     cookieClient.ignoreOffensive().fireAndForget(),
                     cookieClient.fulfillAnotherHostField().fireAndForget(),
                     .init(value: .migration(.prepareDatabase))

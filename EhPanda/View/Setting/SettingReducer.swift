@@ -417,6 +417,7 @@ struct SettingReducer: ReducerProtocol {
             case .account(.login(.loginDone)):
                 return .merge(
                     cookieClient.removeYay().fireAndForget(),
+                    cookieClient.syncExCookies().fireAndForget(),
                     cookieClient.fulfillAnotherHostField().fireAndForget(),
                     .init(value: .fetchIgneous),
                     .init(value: .fetchUserInfo),
