@@ -185,6 +185,8 @@ struct ReadingReducer: ReducerProtocol {
     @Dependency(\.urlClient) private var urlClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$showsSliderPreview):
@@ -597,7 +599,5 @@ struct ReadingReducer: ReducerProtocol {
             case: /Route.share,
             hapticsClient: hapticsClient
         )
-
-        BindingReducer()
     }
 }

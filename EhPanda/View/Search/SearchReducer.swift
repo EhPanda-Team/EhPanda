@@ -65,6 +65,8 @@ struct SearchReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -183,7 +185,5 @@ struct SearchReducer: ReducerProtocol {
         Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
         Scope(state: \.quickSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
         Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
-
-        BindingReducer()
     }
 }

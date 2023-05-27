@@ -49,6 +49,8 @@ struct HistoryReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -92,7 +94,5 @@ struct HistoryReducer: ReducerProtocol {
         }
 
         Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
-
-        BindingReducer()
     }
 }

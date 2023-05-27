@@ -27,6 +27,8 @@ struct GalleryInfosReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -40,7 +42,5 @@ struct GalleryInfosReducer: ReducerProtocol {
                 )
             }
         }
-
-        BindingReducer()
     }
 }

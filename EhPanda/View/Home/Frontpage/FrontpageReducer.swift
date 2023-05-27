@@ -65,6 +65,8 @@ struct FrontpageReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -160,7 +162,5 @@ struct FrontpageReducer: ReducerProtocol {
 
         Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
         Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
-
-        BindingReducer()
     }
 }

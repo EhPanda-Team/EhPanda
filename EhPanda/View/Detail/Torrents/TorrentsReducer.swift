@@ -45,6 +45,8 @@ struct TorrentsReducer: ReducerProtocol {
     @Dependency(\.fileClient) private var fileClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -106,7 +108,5 @@ struct TorrentsReducer: ReducerProtocol {
             case: /Route.share,
             hapticsClient: hapticsClient
         )
-
-        BindingReducer()
     }
 }

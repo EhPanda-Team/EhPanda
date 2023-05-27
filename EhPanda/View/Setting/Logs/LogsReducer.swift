@@ -38,6 +38,8 @@ struct LogsReducer: ReducerProtocol {
     @Dependency(\.fileClient) private var fileClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -78,7 +80,5 @@ struct LogsReducer: ReducerProtocol {
                 return .none
             }
         }
-
-        BindingReducer()
     }
 }

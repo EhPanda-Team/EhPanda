@@ -32,6 +32,8 @@ struct MigrationReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -72,7 +74,5 @@ struct MigrationReducer: ReducerProtocol {
                 }
             }
         }
-
-        BindingReducer()
     }
 }

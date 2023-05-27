@@ -51,6 +51,8 @@ struct LoginReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -94,7 +96,5 @@ struct LoginReducer: ReducerProtocol {
             case: /Route.webView,
             hapticsClient: hapticsClient
         )
-
-        BindingReducer()
     }
 }

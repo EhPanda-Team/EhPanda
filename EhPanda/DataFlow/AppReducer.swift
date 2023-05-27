@@ -42,6 +42,8 @@ struct AppReducer: ReducerProtocol {
 
     var body: some ReducerProtocol<State, Action> {
         LoggingReducer {
+            BindingReducer()
+
             Reduce { state, action in
                 switch action {
                 case .binding(\.appRouteState.$route):
@@ -198,8 +200,6 @@ struct AppReducer: ReducerProtocol {
             Scope(state: \.favoritesState, action: /Action.favorites, child: FavoritesReducer.init)
             Scope(state: \.searchRootState, action: /Action.searchRoot, child: SearchRootReducer.init)
             Scope(state: \.settingState, action: /Action.setting, child: SettingReducer.init)
-
-            BindingReducer()
         }
     }
 }

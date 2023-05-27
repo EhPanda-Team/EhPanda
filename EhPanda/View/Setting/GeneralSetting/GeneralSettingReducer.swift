@@ -48,6 +48,8 @@ struct GeneralSettingReducer: ReducerProtocol {
     @Dependency(\.libraryClient) private var libraryClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -101,7 +103,5 @@ struct GeneralSettingReducer: ReducerProtocol {
         }
 
         Scope(state: \.logsState, action: /Action.logs, child: LogsReducer.init)
-
-        BindingReducer()
     }
 }

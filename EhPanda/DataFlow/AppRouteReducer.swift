@@ -54,6 +54,8 @@ struct AppRouteReducer: ReducerProtocol {
     @Dependency(\.urlClient) private var urlClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -172,7 +174,5 @@ struct AppRouteReducer: ReducerProtocol {
         )
 
         Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
-
-        BindingReducer()
     }
 }

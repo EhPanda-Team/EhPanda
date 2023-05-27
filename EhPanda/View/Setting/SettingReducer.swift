@@ -108,6 +108,8 @@ struct SettingReducer: ReducerProtocol {
     @Dependency(\.dfClient) private var dfClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$setting.galleryHost):
@@ -456,7 +458,5 @@ struct SettingReducer: ReducerProtocol {
         Scope(state: \.accountSettingState, action: /Action.account, child: AccountSettingReducer.init)
         Scope(state: \.generalSettingState, action: /Action.general, child: GeneralSettingReducer.init)
         Scope(state: \.appearanceSettingState, action: /Action.appearance, child: AppearanceSettingReducer.init)
-
-        BindingReducer()
     }
 }

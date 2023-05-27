@@ -71,6 +71,8 @@ struct CommentsReducer: ReducerProtocol {
     @Dependency(\.urlClient) private var urlClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -220,7 +222,5 @@ struct CommentsReducer: ReducerProtocol {
             case: /Route.postComment,
             hapticsClient: hapticsClient
         )
-
-        BindingReducer()
     }
 }

@@ -50,6 +50,8 @@ struct ArchivesReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -141,7 +143,5 @@ struct ArchivesReducer: ReducerProtocol {
                 return .fireAndForget({ hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
             }
         }
-
-        BindingReducer()
     }
 }

@@ -22,6 +22,8 @@ struct AppearanceSettingReducer: ReducerProtocol {
     }
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding:
@@ -32,7 +34,5 @@ struct AppearanceSettingReducer: ReducerProtocol {
                 return .none
             }
         }
-
-        BindingReducer()
     }
 }

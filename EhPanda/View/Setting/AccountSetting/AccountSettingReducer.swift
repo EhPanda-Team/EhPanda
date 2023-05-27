@@ -46,6 +46,8 @@ struct AccountSettingReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -106,8 +108,6 @@ struct AccountSettingReducer: ReducerProtocol {
 
         Scope(state: \.loginState, action: /Action.login, child: LoginReducer.init)
         Scope(state: \.ehSettingState, action: /Action.ehSetting, child: EhSettingReducer.init)
-
-        BindingReducer()
     }
 }
 

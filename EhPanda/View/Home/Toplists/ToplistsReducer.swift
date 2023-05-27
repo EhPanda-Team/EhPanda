@@ -86,6 +86,8 @@ struct ToplistsReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -200,7 +202,5 @@ struct ToplistsReducer: ReducerProtocol {
         }
 
         Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
-
-        BindingReducer()
     }
 }

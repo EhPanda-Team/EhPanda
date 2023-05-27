@@ -62,6 +62,8 @@ struct QuickSearchReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -128,7 +130,5 @@ struct QuickSearchReducer: ReducerProtocol {
                 return .none
             }
         }
-
-        BindingReducer()
     }
 }

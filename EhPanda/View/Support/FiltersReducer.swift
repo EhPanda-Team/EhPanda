@@ -41,6 +41,8 @@ struct FiltersReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$searchFilter):
@@ -108,7 +110,5 @@ struct FiltersReducer: ReducerProtocol {
                 return .none
             }
         }
-
-        BindingReducer()
     }
 }

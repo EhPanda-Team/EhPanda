@@ -94,6 +94,8 @@ struct HomeReducer: ReducerProtocol {
     @Dependency(\.libraryClient) private var libraryClient
 
     var body: some ReducerProtocol<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
@@ -253,7 +255,5 @@ struct HomeReducer: ReducerProtocol {
         Scope(state: \.watchedState, action: /Action.watched, child: WatchedReducer.init)
         Scope(state: \.historyState, action: /Action.history, child: HistoryReducer.init)
         Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
-
-        BindingReducer()
     }
 }

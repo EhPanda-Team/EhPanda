@@ -117,6 +117,8 @@ struct DetailReducer: ReducerProtocol {
 
     var body: some ReducerProtocol<State, Action> {
         RecurseReducer { (self) in
+            BindingReducer()
+
             Reduce { state, action in
                 switch action {
                 case .binding(\.$route):
@@ -414,7 +416,5 @@ struct DetailReducer: ReducerProtocol {
         Scope(state: \.torrentsState, action: /Action.torrents, child: TorrentsReducer.init)
         Scope(state: \.previewsState, action: /Action.previews, child: PreviewsReducer.init)
         Scope(state: \.galleryInfosState, action: /Action.galleryInfos, child: GalleryInfosReducer.init)
-
-        BindingReducer()
     }
 }
