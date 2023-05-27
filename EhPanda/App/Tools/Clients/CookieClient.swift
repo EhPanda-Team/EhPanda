@@ -218,11 +218,18 @@ extension CookieClient {
 
 // MARK: SetCookies
 extension CookieClient {
-    func setCookies(state: CookiesState) -> EffectTask<Never> {
+    func setCookies(state: CookiesState, trimsSpaces: Bool = true) -> EffectTask<Never> {
         let effects: [EffectTask<Never>] = state.allCases
             .flatMap { subState in
                 state.host.cookieURLs
-                    .map({ setOrEditCookie(for: $0, key: subState.key, value: subState.editingText) })
+                    .map {
+                        setOrEditCookie(
+                            for: $0,
+                            key: subState.key,
+                            value: trimsSpaces
+                            ? subState.editingText .trimmingCharacters(in: .whitespaces) : subState.editingText
+                        )
+                    }
             }
         return effects.isEmpty ? .none : .merge(effects)
     }
