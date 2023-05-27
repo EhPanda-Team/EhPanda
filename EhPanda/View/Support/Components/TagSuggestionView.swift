@@ -25,63 +25,22 @@ struct TagSuggestionView: View {
 
     var body: some View {
         if isEnabled {
-            DoubleHorizontalSuggestionsStack(
-                suggestions: translationHandler.suggestions, showsImages: showsImages,
-                action: { translationHandler.autoComplete(suggestion: $0, keyword: &keyword) }
-            )
-            .onChange(of: keyword) { _ in translationHandler.analyze(text: &keyword, translations: translations) }
-        }
-    }
-}
-
-// MARK: DoubleHorizontalSuggestionsStack
-private struct DoubleHorizontalSuggestionsStack: View {
-    private let suggestions: [TagSuggestion]
-    private let showsImages: Bool
-    private let action: (TagSuggestion) -> Void
-
-    init(suggestions: [TagSuggestion], showsImages: Bool, action: @escaping (TagSuggestion) -> Void) {
-        self.suggestions = suggestions
-        self.showsImages = showsImages
-        self.action = action
-    }
-
-    var singleSuggestions: [TagSuggestion] {
-        .init(suggestions.prefix(min(suggestions.count, 10)))
-    }
-    var doubleSuggestions: [(TagSuggestion, TagSuggestion?)] {
-        suggestions.enumerated().compactMap { (index, suggestion) in
-            if index < 20, index % 2 == 0 {
-                if index + 1 < suggestions.count {
-                    return (suggestion, suggestions[index + 1])
-                } else {
-                    return (suggestion, nil)
-                }
-            } else {
-                return nil
+            if DeviceUtil.isPhone {
+                Text(L10n.Localizable.Searchable.Title.matchesCount(translationHandler.suggestions.count))
+                    .foregroundColor(.secondary)
+                    .font(.subheadline)
             }
-        }
-    }
 
-    var body: some View {
-        if !DeviceUtil.isPad {
-            ForEach(singleSuggestions) { suggestion in
-                SuggestionCell(suggestion: suggestion, showsImages: showsImages) {
-                    action(suggestion)
-                }
+            let suggestions = translationHandler.suggestions
+            ForEach(suggestions.prefix(min(suggestions.count, 10))) { suggestion in
+                SuggestionCell(
+                    suggestion: suggestion,
+                    showsImages: showsImages,
+                    action: { translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword) }
+                )
             }
-        } else {
-            ForEach(doubleSuggestions, id: \.0) { leadingSuggestion, trailingSuggestion in
-                HStack(spacing: 30) {
-                    SuggestionCell(suggestion: leadingSuggestion, showsImages: showsImages) {
-                        action(leadingSuggestion)
-                    }
-                    if let trailingSuggestion = trailingSuggestion {
-                        SuggestionCell(suggestion: trailingSuggestion, showsImages: showsImages) {
-                            action(trailingSuggestion)
-                        }
-                    }
-                }
+            .onChange(of: keyword) { _ in
+                translationHandler.analyze(text: &keyword, translations: translations)
             }
         }
     }
@@ -105,24 +64,42 @@ private struct SuggestionCell: View {
     }
 
     var body: some View {
-        HStack(spacing: 20) {
-            Image(systemSymbol: .magnifyingglass)
-            VStack(alignment: .leading) {
-                HStack(spacing: 2) {
-                    Text(displayValue.localizedKey)
-                    if let imageURL = suggestion.tag.valueImageURL, showsImages {
-                        Image(systemSymbol: .photo).opacity(0)
-                            .overlay(KFImage(imageURL).resizable().scaledToFit())
+        if DeviceUtil.isPhone {
+            HStack(spacing: 20) {
+                Image(systemSymbol: .magnifyingglass)
+
+                VStack(alignment: .leading) {
+                    HStack(spacing: 2) {
+                        Text(displayValue.localizedKey)
+
+                        if let imageURL = suggestion.tag.valueImageURL, showsImages {
+                            Image(systemSymbol: .photo)
+                                .opacity(0)
+                                .overlay(
+                                    KFImage(imageURL)
+                                        .resizable()
+                                        .scaledToFit()
+                                )
+                        }
                     }
+                    .font(.callout)
+                    .lineLimit(1)
+
+                    Text(suggestion.displayKey.localizedKey)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
                 }
-                .font(.callout).lineLimit(1)
-                Text(suggestion.displayKey.localizedKey).font(.caption).foregroundColor(.secondary).lineLimit(1)
+                .allowsHitTesting(false)
+
+                Spacer()
             }
-            .allowsHitTesting(false)
-            Spacer()
+            .contentShape(Rectangle())
+            .onTapGesture(perform: action)
+        } else {
+            (Text(displayValue.localizedKey) + Text("\n") + Text(suggestion.displayKey.localizedKey))
+                .searchCompletion(suggestion.tag.searchKeyword)
         }
-        .contentShape(Rectangle())
-        .onTapGesture(perform: action)
     }
 }
 

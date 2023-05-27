@@ -139,8 +139,9 @@
 "search_view.section.title.recently_searched" = "最近検索した項目";
 "search_view.section.title.recently_seen" = "最近閲覧した項目";
 "search_view.section.title.quick_search" = "クイック検索";
-// Searchable prompt
+// Searchable
 "searchable.prompt.filter" = "フィルター";
+"searchable.title.matches_count" = "%d 件の該当項目";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "クイック検索";

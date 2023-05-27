@@ -72,7 +72,8 @@ struct DetailSearchView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: DetailSearchReducer.Action.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
-        .searchable(text: viewStore.binding(\.$keyword)) {
+        .searchable(text: viewStore.binding(\.$keyword))
+        .searchSuggestions {
             TagSuggestionView(
                 keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion

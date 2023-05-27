@@ -28,10 +28,6 @@ struct SearchRootView: View {
         self.tagTranslator = tagTranslator
     }
 
-    private var searchFieldPlacement: SearchFieldPlacement {
-        DeviceUtil.isPad ? .toolbar : .navigationBarDrawer(displayMode: .always)
-    }
-
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false) {
@@ -79,7 +75,8 @@ struct SearchRootView: View {
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement) {
+            .searchable(text: viewStore.binding(\.$keyword))
+            .searchSuggestions {
                 TagSuggestionView(
                     keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
                     showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion

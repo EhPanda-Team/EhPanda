@@ -139,8 +139,9 @@
 "search_view.section.title.recently_searched" = "最近搜尋";
 "search_view.section.title.recently_seen" = "最近閱讀";
 "search_view.section.title.quick_search" = "快速搜尋";
-// Searchable prompt
+// Searchable
 "searchable.prompt.filter" = "過濾";
+"searchable.title.matches_count" = "找到 %d 項結果";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "快速搜尋";

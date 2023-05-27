@@ -139,8 +139,9 @@
 "search_view.section.title.recently_searched" = "Recently searched";
 "search_view.section.title.recently_seen" = "Recently seen";
 "search_view.section.title.quick_search" = "빠른 검색";
-// Searchable prompt
+// Searchable
 "searchable.prompt.filter" = "Filter";
+"searchable.title.matches_count" = "Found %d matches.";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "빠른 검색";
