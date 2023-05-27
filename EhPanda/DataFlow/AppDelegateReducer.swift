@@ -69,7 +69,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication, didFinishLaunchingWithOptions
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        viewStore.send(.appDelegate(.onLaunchFinish))
+        if !AppUtil.isTesting {
+            viewStore.send(.appDelegate(.onLaunchFinish))
+        }
         return true
     }
 }

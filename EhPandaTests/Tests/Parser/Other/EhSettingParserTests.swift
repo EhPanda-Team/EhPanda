@@ -24,13 +24,13 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         let ehProfile1 = profiles[0]
         XCTAssertEqual(ehProfile1.value, 1)
         XCTAssertEqual(ehProfile1.name, "Default Profile")
-        XCTAssertEqual(ehProfile1.isSelected, true)
+        XCTAssertEqual(ehProfile1.isSelected, false)
         XCTAssertEqual(ehProfile1.isDefault, true)
 
         let ehProfile2 = profiles[1]
         XCTAssertEqual(ehProfile2.value, 2)
         XCTAssertEqual(ehProfile2.name, "EhPanda")
-        XCTAssertEqual(ehProfile2.isSelected, false)
+        XCTAssertEqual(ehProfile2.isSelected, true)
         XCTAssertEqual(ehProfile2.isDefault, false)
         XCTAssertTrue(EhSetting.verifyEhPandaProfileName(with: ehProfile2.name))
     }
@@ -42,8 +42,8 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(ehSetting.capableImageResolution, .x2400)
         XCTAssertEqual(ehSetting.capableImageResolutions, EhSetting.ImageResolution.allCases)
 
-        XCTAssertEqual(ehSetting.capableSearchResultCount, .twoHundred)
-        XCTAssertEqual(ehSetting.capableSearchResultCounts, EhSetting.SearchResultCount.allCases)
+        XCTAssertEqual(ehSetting.capableSearchResultCount, .oneHundred)
+        XCTAssertEqual(ehSetting.capableSearchResultCounts, [.twentyFive, .fifty, .oneHundred])
 
         XCTAssertEqual(ehSetting.capableThumbnailConfigSize, .large)
         XCTAssertEqual(ehSetting.capableThumbnailConfigSizes, EhSetting.ThumbnailSize.allCases)
@@ -62,6 +62,7 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(ehSetting.galleryName, .japanese)
         XCTAssertEqual(ehSetting.archiverBehavior, .manualSelectManualStart)
         XCTAssertEqual(ehSetting.displayMode, .compact)
+        XCTAssertEqual(ehSetting.showSearchRangeIndicator, true)
         XCTAssertEqual(ehSetting.disabledCategories, .init(repeating: false, count: 10))
         XCTAssertEqual(ehSetting.favoriteCategories, [
             "Favorites 0", "Favorites 1", "Favorites 2", "Favorites 3", "Favorites 4",
@@ -69,14 +70,13 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         ])
         XCTAssertEqual(ehSetting.favoritesSortOrder, .favoritedTime)
         XCTAssertEqual(ehSetting.ratingsColor, "")
-        XCTAssertEqual(ehSetting.excludedNamespaces, .init(repeating: false, count: 11))
         XCTAssertEqual(ehSetting.tagFilteringThreshold, 0)
         XCTAssertEqual(ehSetting.tagWatchingThreshold, 0)
         XCTAssertEqual(ehSetting.excludedLanguages, .init(repeating: false, count: 50))
         XCTAssertEqual(ehSetting.excludedUploaders, "")
-        XCTAssertEqual(ehSetting.searchResultCount, .twoHundred)
+        XCTAssertEqual(ehSetting.searchResultCount, .twentyFive)
         XCTAssertEqual(ehSetting.thumbnailLoadTiming, .onMouseOver)
-        XCTAssertEqual(ehSetting.thumbnailConfigSize, .normal)
+        XCTAssertEqual(ehSetting.thumbnailConfigSize, .large)
         XCTAssertEqual(ehSetting.thumbnailConfigRows, .four)
         XCTAssertEqual(ehSetting.thumbnailScaleFactor, 100)
         XCTAssertEqual(ehSetting.viewportVirtualWidth, 0)
