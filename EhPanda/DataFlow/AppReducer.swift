@@ -56,18 +56,21 @@ struct AppReducer: ReducerProtocol {
                     return .none
 
                 case .onScenePhaseChange(let scenePhase):
+                    guard state.settingState.hasLoadedInitialSetting else { return .none }
+
                     switch scenePhase {
                     case .active:
                         let threshold = state.settingState.setting.autoLockPolicy.rawValue
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
                         return .init(value: .appLock(.onBecomeActive(threshold, blurRadius)))
+
                     case .inactive:
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
                         return .init(value: .appLock(.onBecomeInactive(blurRadius)))
+
                     default:
-                        break
+                        return .none
                     }
-                    return .none
 
                 case .appDelegate(.migration(.onDatabasePreparationSuccess)):
                     return .merge(
