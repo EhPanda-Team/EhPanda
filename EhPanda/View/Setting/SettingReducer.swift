@@ -26,6 +26,8 @@ struct SettingReducer: ReducerProtocol {
         var tagTranslator = TagTranslator()
         var user = User()
 
+        var hasLoadedInitialSetting = false
+
         @BindingState var route: Route?
         var tagTranslatorLoadingState: LoadingState = .idle
 
@@ -263,6 +265,7 @@ struct SettingReducer: ReducerProtocol {
                 return .merge(effects)
 
             case .loadUserSettingsDone:
+                state.hasLoadedInitialSetting = true
                 return .none
 
             case .createDefaultEhProfile:

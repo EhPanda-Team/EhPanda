@@ -363,58 +363,58 @@ struct DetailReducer: ReducerProtocol {
                     return .none
                 }
             }
-        }
-        .ifLet(
-            \.commentsState,
-            action: /Action.comments,
-            then: CommentsReducer.init
-        )
-        .ifLet(
-            \.detailSearchState,
-            action: /Action.detailSearch,
-            then: DetailSearchReducer.init
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.detailSearch,
-            hapticsClient: hapticsClient,
-            style: .soft
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.postComment,
-            hapticsClient: hapticsClient
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.tagDetail,
-            hapticsClient: hapticsClient
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.torrents,
-            hapticsClient: hapticsClient
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.archives,
-            hapticsClient: hapticsClient
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.reading,
-            hapticsClient: hapticsClient
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: /Route.share,
-            hapticsClient: hapticsClient
-        )
+            .ifLet(
+                \.commentsState,
+                action: /Action.comments,
+                then: CommentsReducer.init
+            )
+            .ifLet(
+                \.detailSearchState,
+                action: /Action.detailSearch,
+                then: DetailSearchReducer.init
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.detailSearch,
+                hapticsClient: hapticsClient,
+                style: .soft
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.postComment,
+                hapticsClient: hapticsClient
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.tagDetail,
+                hapticsClient: hapticsClient
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.torrents,
+                hapticsClient: hapticsClient
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.archives,
+                hapticsClient: hapticsClient
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.reading,
+                hapticsClient: hapticsClient
+            )
+            .haptics(
+                unwrapping: \.route,
+                case: /Route.share,
+                hapticsClient: hapticsClient
+            )
 
-        Scope(state: \.readingState, action: /Action.reading, child: ReadingReducer.init)
-        Scope(state: \.archivesState, action: /Action.archives, child: ArchivesReducer.init)
-        Scope(state: \.torrentsState, action: /Action.torrents, child: TorrentsReducer.init)
-        Scope(state: \.previewsState, action: /Action.previews, child: PreviewsReducer.init)
-        Scope(state: \.galleryInfosState, action: /Action.galleryInfos, child: GalleryInfosReducer.init)
+            Scope(state: \.readingState, action: /Action.reading, child: ReadingReducer.init)
+            Scope(state: \.archivesState, action: /Action.archives, child: ArchivesReducer.init)
+            Scope(state: \.torrentsState, action: /Action.torrents, child: TorrentsReducer.init)
+            Scope(state: \.previewsState, action: /Action.previews, child: PreviewsReducer.init)
+            Scope(state: \.galleryInfosState, action: /Action.galleryInfos, child: GalleryInfosReducer.init)
+        }
     }
 }

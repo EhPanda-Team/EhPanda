@@ -36,7 +36,7 @@ struct AppLockReducer: ReducerProtocol {
             switch action {
             case .onBecomeActive(let threshold, let blurRadius):
                 if let date = state.becameInactiveDate, threshold >= 0,
-                   Date().timeIntervalSince(date) > Double(threshold)
+                   Date.now.timeIntervalSince(date) >= Double(threshold)
                 {
                     return .merge(
                         .init(value: .authorize),
