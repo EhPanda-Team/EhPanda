@@ -37,8 +37,9 @@ Der Inhalt der von dieser App verwaltet wird, wird von E-Hentai geladen. Hierbei
 **Nutzer dieser Anwendung greifen auf E-Hentai Inhalte auf eigene Verantwortung hin zu**
 
 ## Fragen & Feedback
+[![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
-[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
+[![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
 
 ## Screenshots
 https://ehpanda.app

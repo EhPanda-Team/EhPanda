@@ -37,8 +37,9 @@ iOS / iPadOS 버전이 16.0 이상인지 확인해주세요.
 **사용자 스스로가 E-Hentai를 방문하는 책임을 지는 것에 동의합니다.**
 
 ## 문의, 피드백
+[![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
-[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
+[![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
 
 ## 화면캡쳐
 https://ehpanda.app
