@@ -431,13 +431,13 @@ struct Parser {
                 }
                 if gdt1Text.contains("File Size") {
                     infoPanel[4] = gdt2Text
-                        .replacingOccurrences(of: " KB", with: "")
-                        .replacingOccurrences(of: " MB", with: "")
-                        .replacingOccurrences(of: " GB", with: "")
+                        .replacingOccurrences(of: " KiB", with: "")
+                        .replacingOccurrences(of: " MiB", with: "")
+                        .replacingOccurrences(of: " GiB", with: "")
 
-                    if gdt2Text.contains("KB") { infoPanel[5] = "KB" }
-                    if gdt2Text.contains("MB") { infoPanel[5] = "MB" }
-                    if gdt2Text.contains("GB") { infoPanel[5] = "GB" }
+                    if gdt2Text.contains("KiB") { infoPanel[5] = "KiB" }
+                    if gdt2Text.contains("MiB") { infoPanel[5] = "MiB" }
+                    if gdt2Text.contains("GiB") { infoPanel[5] = "GiB" }
                 }
                 if gdt1Text.contains("Length") {
                     infoPanel[6] = gdt2Text.replacingOccurrences(of: " pages", with: "")
@@ -837,9 +837,9 @@ struct Parser {
                             break
                         }
                     } else {
-                        if pText.contains("KB")
-                            || pText.contains("MB")
-                            || pText.contains("GB")
+                        if pText.contains("KiB")
+                            || pText.contains("MiB")
+                            || pText.contains("GiB")
                         {
                             tmpFileSize = pText
                         } else {

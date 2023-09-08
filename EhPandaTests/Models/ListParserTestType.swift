@@ -67,13 +67,13 @@ extension ListParserTestType {
     var assertCount: Int {
         switch self {
         case .frontPageMinimalList, .frontPageMinimalPlusList, .frontPageCompactList, .frontPageExtendedList, .frontPageThumbnailList:
-            return 200
+            return 100
         case .watchedMinimalList, .watchedMinimalPlusList, .watchedCompactList, .watchedExtendedList, .watchedThumbnailList:
-            return 200
+            return 100
         case .popularMinimalList, .popularMinimalPlusList, .popularCompactList, .popularExtendedList, .popularThumbnailList:
-            return 50
+            return 100
         case .favoritesMinimalList, .favoritesMinimalPlusList, .favoritesCompactList, .favoritesExtendedList, .favoritesThumbnailList:
-            return 107
+            return 100
         case .toplistsCompactList:
             return 50
         }
