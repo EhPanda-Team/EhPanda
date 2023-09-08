@@ -19,18 +19,18 @@ class EhSettingParserTests: XCTestCase, TestHelper {
     }
 
     func testEhProfiles(_ profiles: [EhProfile]) {
-        XCTAssertEqual(profiles.count, 2)
+        XCTAssertEqual(profiles.count, 3)
         
         let ehProfile1 = profiles[0]
         XCTAssertEqual(ehProfile1.value, 1)
         XCTAssertEqual(ehProfile1.name, "Default Profile")
-        XCTAssertEqual(ehProfile1.isSelected, false)
+        XCTAssertEqual(ehProfile1.isSelected, true)
         XCTAssertEqual(ehProfile1.isDefault, true)
 
         let ehProfile2 = profiles[1]
         XCTAssertEqual(ehProfile2.value, 2)
         XCTAssertEqual(ehProfile2.name, "EhPanda")
-        XCTAssertEqual(ehProfile2.isSelected, true)
+        XCTAssertEqual(ehProfile2.isSelected, false)
         XCTAssertEqual(ehProfile2.isDefault, false)
         XCTAssertTrue(EhSetting.verifyEhPandaProfileName(with: ehProfile2.name))
     }
@@ -72,6 +72,7 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(ehSetting.ratingsColor, "")
         XCTAssertEqual(ehSetting.tagFilteringThreshold, 0)
         XCTAssertEqual(ehSetting.tagWatchingThreshold, 0)
+        XCTAssertEqual(ehSetting.showFilteredRemovalCount, true)
         XCTAssertEqual(ehSetting.excludedLanguages, .init(repeating: false, count: 50))
         XCTAssertEqual(ehSetting.excludedUploaders, "")
         XCTAssertEqual(ehSetting.searchResultCount, .twentyFive)
@@ -85,7 +86,7 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(ehSetting.tagsSortOrder, .alphabetical)
         XCTAssertEqual(ehSetting.galleryShowPageNumbers, false)
         XCTAssertEqual(ehSetting.useOriginalImages, false)
-        XCTAssertEqual(ehSetting.useMultiplePageViewer, false)
+        XCTAssertEqual(ehSetting.useMultiplePageViewer, true)
         XCTAssertEqual(ehSetting.multiplePageViewerStyle, .alignLeftScaleIfOverWidth)
         XCTAssertEqual(ehSetting.multiplePageViewerShowThumbnailPane, true)
     }
