@@ -177,13 +177,29 @@ private extension URL {
             queryItems1[.fSrdd] = String(filter.minRating)
         }
 
-        if filter.pageRangeActivated, let minPages = Int(filter.pageLowerBound),
-           let maxPages = Int(filter.pageUpperBound),
-           minPages > 0 && maxPages > 0 && minPages <= maxPages
-        {
+        if filter.pageRangeActivated {
             queryItems2[.fSp] = .filterOn
-            queryItems1[.fSpf] = String(minPages)
-            queryItems1[.fSpt] = String(maxPages)
+
+            switch (Int(filter.pageLowerBound), Int(filter.pageUpperBound)) {
+            case let (.some(minPages), .some(maxPages)):
+                if minPages > 0 && maxPages > 0 && minPages <= maxPages {
+                    queryItems1[.fSpf] = String(minPages)
+                    queryItems1[.fSpt] = String(maxPages)
+                }
+
+            case let (.some(minPages), _):
+                if minPages > 0 {
+                    queryItems1[.fSpf] = String(minPages)
+                }
+
+            case let (_, .some(maxPages)):
+                if maxPages > 0 {
+                    queryItems1[.fSpt] = String(maxPages)
+                }
+
+            case (.none, .none):
+                break
+            }
         }
 
         if filter.disableLanguage { queryItems2[.fSfl] = .filterOn }
