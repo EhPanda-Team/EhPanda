@@ -13,10 +13,12 @@ jobs:
     runs-on: macos-13
     if: ${{ contains(github.event.head_commit.message, '[update dependencies]') || github.event_name == 'schedule' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
       - name: Resolve Dependencies
         id: resolution
-        uses: GetSidetrack/action-xcodeproj-spm-update@main
+        uses: GetSidetrack/action-xcodeproj-spm-update@v0.3.0
         with:
           forceResolution: true
           failWhenOutdated: false
