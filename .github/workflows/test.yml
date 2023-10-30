@@ -2,7 +2,7 @@ name: Test
 on: [push]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_14.3.1.app
+   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app
 jobs:
   Test:
     runs-on: macos-13
@@ -17,4 +17,4 @@ jobs:
       - name: Run tests
         run: xcodebuild clean test
           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-          -destination 'platform=iOS Simulator,name=iPhone 14 Pro'
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro'

@@ -18,7 +18,7 @@ jobs:
           ref: develop
       - name: Resolve Dependencies
         id: resolution
-        uses: GetSidetrack/action-xcodeproj-spm-update@v0.3.0
+        uses: GetSidetrack/action-xcodeproj-spm-update@0.3.0
         with:
           forceResolution: true
           failWhenOutdated: false
