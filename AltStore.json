@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.3",
-          "date": "2023-11-02T12:06:08",
-          "localizedDescription": "1. fix: Multiple page viewer mode.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.3/EhPanda.ipa",
-          "size": 6684864,
+          "version": "2.7.4",
+          "date": "2023-11-02T14:11:50",
+          "localizedDescription": "1. fix: Previews parsing.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.4/EhPanda.ipa",
+          "size": 6685295,
           "minOSVersion": "16.0"
         }
       ],
