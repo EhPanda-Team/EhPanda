@@ -312,23 +312,47 @@ struct Parser {
     static func parseGalleryDetail(doc: HTMLDocument, gid: String) throws -> (GalleryDetail, GalleryState) {
         func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
             guard let previewMode = try? parsePreviewMode(doc: doc),
-                  let gdoNode = doc.at_xpath("//div [@id='gdo']"),
-                  let rows = gdoNode.at_xpath("//div [@id='gdo2']")?.xpath("//div")
+                  let gpcText = doc.at_xpath("//p [@class='gpc']")?.text,
+                  let rangeA = gpcText.range(of: "Showing 1 - "),
+                  let rangeB = gpcText.range(of: " of "),
+                  let singlePageCount = Int(gpcText[rangeA.upperBound..<rangeB.lowerBound])
             else { throw AppError.parseFailed }
 
-            for rowLink in rows where rowLink.className == "ths nosel" {
-                guard let rowsCount = Int(
-                    rowLink.text?.replacingOccurrences(
-                        of: " rows", with: "") ?? ""
-                ) else { throw AppError.parseFailed }
+            if previewMode == "gdtl" {
+                switch singlePageCount {
+                case _ where singlePageCount <= 20:
+                    return .large(rows: 4)
 
-                if previewMode == "gdtl" {
-                    return .large(rows: rowsCount)
-                } else {
-                    return .normal(rows: rowsCount)
+                case _ where singlePageCount <= 50:
+                    return .large(rows: 10)
+
+                case _ where singlePageCount <= 100:
+                    return .large(rows: 20)
+
+                case _ where singlePageCount <= 200:
+                    return .large(rows: 40)
+
+                default:
+                    return .large(rows: 4)
+                }
+            } else {
+                switch singlePageCount {
+                case _ where singlePageCount <= 40:
+                    return .normal(rows: 4)
+
+                case _ where singlePageCount <= 100:
+                    return .normal(rows: 10)
+
+                case _ where singlePageCount <= 200:
+                    return .normal(rows: 20)
+
+                case _ where singlePageCount <= 400:
+                    return .normal(rows: 40)
+
+                default:
+                    return .normal(rows: 4)
                 }
             }
-            throw AppError.parseFailed
         }
 
         func parseCoverURL(node: XMLElement?) throws -> URL {
@@ -741,14 +765,13 @@ struct Parser {
     }
 
     static func parsePreviewMode(doc: HTMLDocument) throws -> String {
-        guard let gdoNode = doc.at_xpath("//div [@id='gdo']"),
-              let gdo4Node = gdoNode.at_xpath("//div [@id='gdo4']")
-        else { return "gdtm" }
-
-        for link in gdo4Node.xpath("//div") where link.text == "Large" {
-            return link["class"] == "ths nosel" ? "gdtl" : "gdtm"
+        if doc.at_xpath("//div [@class='gdtm']") != nil {
+            return "gdtm"
+        } else if doc.at_xpath("//div [@class='gdtl']") != nil {
+            return "gdtl"
+        } else {
+            throw AppError.parseFailed
         }
-        return "gdtm"
     }
 
     static func parseMPVKeys(doc: HTMLDocument) throws -> (String, [Int: String]) {
