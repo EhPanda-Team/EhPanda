@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.2",
-          "date": "2023-09-08T05:20:18",
-          "localizedDescription": "1. fix: A parsing error occurring when attempting to access the gallery detail page.\n2. fix: Page range filter mistakenly requires both minimum and maximum values, rather than either.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.2/EhPanda.ipa",
-          "size": 6725554,
+          "version": "2.7.3",
+          "date": "2023-11-02T12:06:08",
+          "localizedDescription": "1. fix: Multiple page viewer mode.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.3/EhPanda.ipa",
+          "size": 6684864,
           "minOSVersion": "16.0"
         }
       ],
