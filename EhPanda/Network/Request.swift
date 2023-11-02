@@ -612,9 +612,9 @@ struct GalleryMPVImageURLRequest: Request {
     let index: Int
     let mpvKey: String
     let mpvImageKey: String
-    let skipServerIdentifier: Int?
+    let skipServerIdentifier: String?
 
-    var publisher: AnyPublisher<(URL, URL?, Int), AppError> {
+    var publisher: AnyPublisher<(URL, URL?, String), AppError> {
         var params: [String: Any] = [
             "method": "imagedispatch",
             "gid": gid,
@@ -637,9 +637,18 @@ struct GalleryMPVImageURLRequest: Request {
                 guard let dict = try JSONSerialization
                         .jsonObject(with: data) as? [String: Any],
                       let imageURLString = dict["i"] as? String,
-                      let imageURL = URL(string: imageURLString),
-                      let skipServerIdentifier = dict["s"] as? Int
+                      let imageURL = URL(string: imageURLString)
                 else { throw AppError.parseFailed }
+
+                var skipServerIdentifier: String?
+
+                if let integerIdentifier = dict["s"] as? Int {
+                    skipServerIdentifier = integerIdentifier.description
+                } else if let stringIdentifier = dict["s"] as? String {
+                    skipServerIdentifier = stringIdentifier
+                }
+
+                guard let skipServerIdentifier else { throw AppError.parseFailed }
 
                 if let originalImageURLStringSlice = dict["lf"] as? String {
                     let originalImageURL = Defaults.URL.host.appendingPathComponent(originalImageURLStringSlice)
