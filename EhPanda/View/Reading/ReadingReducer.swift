@@ -69,7 +69,7 @@ struct ReadingReducer: ReducerProtocol {
 
         var mpvKey: String?
         var mpvImageKeys = [Int: String]()
-        var mpvSkipServerIdentifiers = [Int: Int]()
+        var mpvSkipServerIdentifiers = [Int: String]()
 
         @BindingState var showsPanel = false
         @BindingState var showsSliderPreview = false
@@ -172,7 +172,7 @@ struct ReadingReducer: ReducerProtocol {
         case fetchMPVKeys(Int, URL)
         case fetchMPVKeysDone(Int, Result<(String, [Int: String]), AppError>)
         case fetchMPVImageURL(Int, Bool)
-        case fetchMPVImageURLDone(Int, Result<(URL, URL?, Int), AppError>)
+        case fetchMPVImageURLDone(Int, Result<(URL, URL?, String), AppError>)
     }
 
     @Dependency(\.appDelegateClient) private var appDelegateClient
