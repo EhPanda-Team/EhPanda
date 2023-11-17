@@ -36,7 +36,7 @@ struct AccountSettingReducer: ReducerProtocol {
 
         case loadCookies
         case copyCookies(GalleryHost)
-
+        
         case login(LoginReducer.Action)
         case ehSetting(EhSettingReducer.Action)
     }
@@ -51,7 +51,7 @@ struct AccountSettingReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding(\.$ehCookiesState):
                 return cookieClient.setCookies(state: state.ehCookiesState).fireAndForget()
@@ -64,17 +64,17 @@ struct AccountSettingReducer: ReducerProtocol {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .onLogoutConfirmButtonTapped:
-                return .init(value: .loadCookies)
+                return Effect.send(.loadCookies)
 
             case .clearSubStates:
                 state.loginState = .init()
                 state.ehSettingState = .init()
                 return .merge(
-                    .init(value: .login(.teardown)),
-                    .init(value: .ehSetting(.teardown))
+                    Effect.send(.login(.teardown)),
+                    Effect.send(.ehSetting(.teardown))
                 )
 
             case .loadCookies:
@@ -85,13 +85,13 @@ struct AccountSettingReducer: ReducerProtocol {
             case .copyCookies(let host):
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
-                    .init(value: .setNavigation(.hud)),
+                    Effect.send(.setNavigation(.hud)),
                     clipboardClient.saveText(cookiesDescription).fireAndForget(),
                     .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .login(.loginDone):
-                return cookieClient.didLogin ? .init(value: .setNavigation(nil)) : .none
+                return cookieClient.didLogin ? Effect.send(.setNavigation(nil)) : .none
 
             case .login:
                 return .none
