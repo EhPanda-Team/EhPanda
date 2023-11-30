@@ -33,10 +33,8 @@ struct AccountSettingReducer: ReducerProtocol {
         case setNavigation(Route?)
         case onLogoutConfirmButtonTapped
         case clearSubStates
-
         case loadCookies
         case copyCookies(GalleryHost)
-        
         case login(LoginReducer.Action)
         case ehSetting(EhSettingReducer.Action)
     }
