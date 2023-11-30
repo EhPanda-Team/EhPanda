@@ -71,8 +71,8 @@ struct AccountSettingReducer: ReducerProtocol {
                 state.loginState = .init()
                 state.ehSettingState = .init()
                 return .merge(
-                    Effect.send(.login(.teardown)),
-                    Effect.send(.ehSetting(.teardown))
+                    .send(.login(.teardown)),
+                    .send(.ehSetting(.teardown))
                 )
 
             case .loadCookies:
@@ -83,7 +83,7 @@ struct AccountSettingReducer: ReducerProtocol {
             case .copyCookies(let host):
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
-                    Effect.send(.setNavigation(.hud)),
+                    .send(.setNavigation(.hud)),
                     clipboardClient.saveText(cookiesDescription).fireAndForget(),
                     .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
                 )
