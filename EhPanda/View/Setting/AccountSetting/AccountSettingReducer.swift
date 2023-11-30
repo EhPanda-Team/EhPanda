@@ -33,10 +33,8 @@ struct AccountSettingReducer: ReducerProtocol {
         case setNavigation(Route?)
         case onLogoutConfirmButtonTapped
         case clearSubStates
-
         case loadCookies
         case copyCookies(GalleryHost)
-        
         case login(LoginReducer.Action)
         case ehSetting(EhSettingReducer.Action)
     }
@@ -51,7 +49,7 @@ struct AccountSettingReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding(\.$ehCookiesState):
                 return cookieClient.setCookies(state: state.ehCookiesState).fireAndForget()
@@ -64,10 +62,10 @@ struct AccountSettingReducer: ReducerProtocol {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .onLogoutConfirmButtonTapped:
-                return Effect.send(.loadCookies)
+                return .send(.loadCookies)
 
             case .clearSubStates:
                 state.loginState = .init()
@@ -91,7 +89,7 @@ struct AccountSettingReducer: ReducerProtocol {
                 )
 
             case .login(.loginDone):
-                return cookieClient.didLogin ? Effect.send(.setNavigation(nil)) : .none
+                return cookieClient.didLogin ? .send(.setNavigation(nil)) : .none
 
             case .login:
                 return .none
