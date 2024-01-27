@@ -9,16 +9,20 @@ import CoreData
 
 public class GalleryMO: NSManagedObject {}
 
-extension GalleryMO: ManagedObjectProtocol {
-    func toEntity() -> Gallery {
+extension GalleryMO: ModelConvertible {
+    func toModel() -> Gallery {
         Gallery(
-            gid: gid, token: token,
-            title: title, rating: rating,
-            tags: tags?.toObject() ?? [GalleryTag](),
-            category: Category(rawValue: category) ?? .private,
-            uploader: uploader, pageCount: Int(pageCount),
+            gid: gid,
+            token: token,
+            title: title,
+            rating: rating,
+            tags: tags?.toObject() ?? .init(),
+            category: .init(rawValue: category) ?? .private,
+            uploader: uploader,
+            pageCount: .init(pageCount),
             postedDate: postedDate,
-            coverURL: coverURL, galleryURL: galleryURL,
+            coverURL: coverURL,
+            galleryURL: galleryURL,
             lastOpenDate: lastOpenDate
         )
     }

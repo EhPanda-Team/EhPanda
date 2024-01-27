@@ -33,8 +33,10 @@ struct AccountSettingReducer: ReducerProtocol {
         case setNavigation(Route?)
         case onLogoutConfirmButtonTapped
         case clearSubStates
+
         case loadCookies
         case copyCookies(GalleryHost)
+
         case login(LoginReducer.Action)
         case ehSetting(EhSettingReducer.Action)
     }
@@ -52,10 +54,12 @@ struct AccountSettingReducer: ReducerProtocol {
                 return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding(\.$ehCookiesState):
-                return cookieClient.setCookies(state: state.ehCookiesState).fireAndForget()
+                let ehCookiesState = state.ehCookiesState
+                return .run(operation: { _ in cookieClient.setCookies(state: ehCookiesState) })
 
             case .binding(\.$exCookiesState):
-                return cookieClient.setCookies(state: state.exCookiesState).fireAndForget()
+                let exCookiesState = state.exCookiesState
+                return .run(operation: { _ in cookieClient.setCookies(state: exCookiesState) })
 
             case .binding:
                 return .none
@@ -82,11 +86,11 @@ struct AccountSettingReducer: ReducerProtocol {
 
             case .copyCookies(let host):
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
-                return .merge(
-                    .send(.setNavigation(.hud)),
-                    clipboardClient.saveText(cookiesDescription).fireAndForget(),
-                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
-                )
+                return .run { send in
+                    await send(.setNavigation(.hud))
+                    clipboardClient.saveText(cookiesDescription)
+                    hapticsClient.generateNotificationFeedback(.success)
+                }
 
             case .login(.loginDone):
                 return cookieClient.didLogin ? .send(.setNavigation(nil)) : .none

@@ -10,60 +10,45 @@ import Combine
 import ComposableArchitecture
 
 struct UIApplicationClient {
-    let openURL: (URL) -> EffectTask<Never>
-    let hideKeyboard: () -> EffectTask<Never>
+    let openURL: (URL) -> Void
+    let hideKeyboard: () -> Void
     let alternateIconName: () -> String?
-    let setAlternateIconName: (String?) -> EffectTask<Result<Bool, Never>>
-    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> EffectTask<Never>
+    let setAlternateIconName: (String?) async -> Bool
+    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> Void
 }
 
 extension UIApplicationClient {
     static let live: Self = .init(
         openURL: { url in
-            .fireAndForget {
-                UIApplication.shared.open(url, options: [:])
-            }
+            UIApplication.shared.open(url, options: [:])
         },
         hideKeyboard: {
-            .fireAndForget {
-                UIApplication.shared.endEditing()
-            }
+            UIApplication.shared.endEditing()
         },
         alternateIconName: {
             UIApplication.shared.alternateIconName
         },
         setAlternateIconName: { iconName in
-            Future { promise in
-                UIApplication.shared.setAlternateIconName(iconName) { error in
-                    if let error = error {
-                        promise(.success(false))
-                    } else {
-                        promise(.success(true))
-                    }
-                }
+            do {
+                try await UIApplication.shared.setAlternateIconName(iconName)
+                return true
+            } catch {
+                return false
             }
-            .eraseToAnyPublisher()
-            .catchToEffect()
         },
         setUserInterfaceStyle: { userInterfaceStyle in
-            .fireAndForget {
-                (DeviceUtil.keyWindow ?? DeviceUtil.anyWindow)?.overrideUserInterfaceStyle = userInterfaceStyle
-            }
+            (DeviceUtil.keyWindow ?? DeviceUtil.anyWindow)?.overrideUserInterfaceStyle = userInterfaceStyle
         }
     )
-    func openSettings() -> EffectTask<Never> {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-            return openURL(url)
-        }
-        return .none
+    func openSettings() {
+        URL(string: UIApplication.openSettingsURLString).map(openURL)
     }
-    func openFileApp() -> EffectTask<Never> {
+    func openFileApp() {
         if let dirPath = FileUtil.logsDirectoryURL?.path,
            let dirURL = URL(string: "shareddocuments://" + dirPath)
         {
-            return openURL(dirURL)
+            openURL(dirURL)
         }
-        return .none
     }
 }
 
@@ -84,11 +69,11 @@ extension DependencyValues {
 // MARK: Test
 extension UIApplicationClient {
     static let noop: Self = .init(
-        openURL: { _ in .none},
-        hideKeyboard: { .none },
+        openURL: { _ in },
+        hideKeyboard: {},
         alternateIconName: { nil },
-        setAlternateIconName: { _ in .none },
-        setUserInterfaceStyle: { _ in .none }
+        setAlternateIconName: { _ in false },
+        setUserInterfaceStyle: { _ in }
     )
 
     static let unimplemented: Self = .init(

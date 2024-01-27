@@ -19,7 +19,7 @@ struct MigrationView: View {
 
     init(store: StoreOf<MigrationReducer>) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {
@@ -36,7 +36,7 @@ struct MigrationView: View {
                     }
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.dropDatabase,
-                        unwrapping: viewStore.binding(\.$route),
+                        unwrapping: viewStore.$route,
                         case: /MigrationReducer.Route.dropDialog
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.dropDatabase, role: .destructive) {
@@ -56,7 +56,7 @@ struct MigrationView_Previews: PreviewProvider {
         MigrationView(
             store: .init(
                 initialState: .init(),
-                reducer: MigrationReducer()
+                reducer: MigrationReducer.init
             )
         )
     }

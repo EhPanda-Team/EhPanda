@@ -9,17 +9,17 @@ import CoreData
 
 public class AppEnvMO: NSManagedObject {}
 
-extension AppEnvMO: ManagedObjectProtocol {
-    func toEntity() -> AppEnv {
-        AppEnv(
-            user: user?.toObject() ?? User(),
-            setting: setting?.toObject() ?? Setting(),
-            searchFilter: searchFilter?.toObject() ?? Filter(),
-            globalFilter: globalFilter?.toObject() ?? Filter(),
-            watchedFilter: watchedFilter?.toObject() ?? Filter(),
-            tagTranslator: tagTranslator?.toObject() ?? TagTranslator(),
-            historyKeywords: historyKeywords?.toObject() ?? [String](),
-            quickSearchWords: quickSearchWords?.toObject() ?? [QuickSearchWord]()
+extension AppEnvMO: ModelConvertible {
+    func toModel() -> AppEnv {
+        .init(
+            user: user?.toObject() ?? .init(),
+            setting: setting?.toObject() ?? .init(),
+            searchFilter: searchFilter?.toObject() ?? .init(),
+            globalFilter: globalFilter?.toObject() ?? .init(),
+            watchedFilter: watchedFilter?.toObject() ?? .init(),
+            tagTranslator: tagTranslator?.toObject() ?? .init(),
+            historyKeywords: historyKeywords?.toObject() ?? .init(),
+            quickSearchWords: quickSearchWords?.toObject() ?? .init()
         )
     }
 }

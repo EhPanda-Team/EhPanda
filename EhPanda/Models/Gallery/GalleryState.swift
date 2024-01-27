@@ -9,8 +9,10 @@ import SwiftUI
 import Foundation
 
 struct GalleryState: Codable {
-    static let empty = GalleryState(gid: "")
-    static let preview = GalleryState(gid: "")
+    static let empty = empty(gid: "")
+    static let preview = empty(gid: "")
+
+    static func empty(gid: String) -> Self { .init(gid: gid) }
 
     let gid: String
     var tags = [GalleryTag]()

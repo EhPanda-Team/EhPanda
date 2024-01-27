@@ -58,14 +58,15 @@ struct TorrentsReducer: ReducerProtocol {
 
             case .copyText(let magnetURL):
                 state.route = .hud
-                return .merge(
-                    clipboardClient.saveText(magnetURL).fireAndForget(),
-                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
-                )
+                return .run { _ in
+                    // TODO: Fix me later
+                    await clipboardClient.saveText(magnetURL)
+                    hapticsClient.generateNotificationFeedback(.success)
+                }
 
             case .presentTorrentActivity(let hash, let data):
                 if let url = fileClient.saveTorrent(hash: hash, data: data) {
-                    return .init(value: .setNavigation(.share(url)))
+                    return .send(.setNavigation(.share(url)))
                 }
                 return .none
 
@@ -74,11 +75,11 @@ struct TorrentsReducer: ReducerProtocol {
                     .cancellable(id: CancelID.fetchTorrent)
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel))
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {
-                    return .init(value: .presentTorrentActivity(hash, data))
+                    return .send(.presentTorrentActivity(hash, data))
                 }
                 return .none
 

@@ -29,18 +29,18 @@ struct AppDelegateReducer: ReducerProtocol {
         Reduce { _, action in
             switch action {
             case .onLaunchFinish:
-                return .merge(
-                    libraryClient.initializeLogger().fireAndForget(),
-                    libraryClient.initializeWebImage().fireAndForget(),
-                    cookieClient.removeYay().fireAndForget(),
-                    cookieClient.syncExCookies().fireAndForget(),
-                    cookieClient.ignoreOffensive().fireAndForget(),
-                    cookieClient.fulfillAnotherHostField().fireAndForget(),
-                    .init(value: .migration(.prepareDatabase))
-                )
+                return .run { send in
+                    libraryClient.initializeLogger()
+                    libraryClient.initializeWebImage()
+                    cookieClient.removeYay()
+                    cookieClient.syncExCookies()
+                    cookieClient.ignoreOffensive()
+                    cookieClient.fulfillAnotherHostField()
+                    await send(.migration(.prepareDatabase))
+                }
 
             case .removeExpiredImageURLs:
-                return databaseClient.removeExpiredImageURLs().fireAndForget()
+                return .run(operation: { _ in await databaseClient.removeExpiredImageURLs() })
 
             case .migration:
                 return .none
@@ -55,9 +55,9 @@ struct AppDelegateReducer: ReducerProtocol {
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let store = Store(
         initialState: .init(),
-        reducer: AppReducer()
+        reducer: AppReducer.init
     )
-    lazy var viewStore = ViewStore(store)
+    lazy var viewStore = ViewStore(store, observe: { $0 })
 
     static var orientationMask: UIInterfaceOrientationMask = DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 

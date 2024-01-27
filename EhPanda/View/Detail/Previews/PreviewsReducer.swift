@@ -62,35 +62,41 @@ struct PreviewsReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.readingState = .init()
-                return .init(value: .reading(.teardown))
+                return .send(.reading(.teardown))
 
             case .syncPreviewURLs(let previewURLs):
-                return databaseClient
-                    .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
+                let gid = state.gallery.id
+                return .run { _ in
+                    await databaseClient.cachePreviewURLs(gid: gid, previewURLs: previewURLs)
+                }
 
             case .updateReadingProgress(let progress):
-                return databaseClient
-                    .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
+                let gid = state.gallery.id
+                return .run(operation: { _ in await databaseClient.cacheReadingProgress(gid: gid, progress: progress) })
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel))
 
             case .fetchDatabaseInfos(let gid):
-                guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
-                state.gallery = gallery
-                return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
+                // TODO: Fix me later
+//                guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
+//                state.gallery = gallery
+                let gid = state.gallery.id
+                return .run { send in
+                    await send(.fetchDatabaseInfosDone(databaseClient.fetchGalleryState(gid: gid)))
+                }
+                .cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -119,14 +125,14 @@ struct PreviewsReducer: ReducerProtocol {
                         return .none
                     }
                     state.updatePreviewURLs(previewURLs)
-                    return .init(value: .syncPreviewURLs(previewURLs))
+                    return .send(.syncPreviewURLs(previewURLs))
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
                 return .none
 
             case .reading(.onPerformDismiss):
-                return .init(value: .setNavigation(nil))
+                return .send(.setNavigation(nil))
 
             case .reading:
                 return .none

@@ -67,16 +67,17 @@ struct EhSettingReducer: ReducerProtocol {
                 return .none
 
             case .setKeyboardHidden:
-                return uiApplicationClient.hideKeyboard().fireAndForget()
+                return .run(operation: { _ in uiApplicationClient.hideKeyboard() })
 
             case .setDefaultProfile(let profileSet):
-                return cookieClient.setOrEditCookie(
-                    for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
-                )
-                .fireAndForget()
+                return .run { _ in
+                    cookieClient.setOrEditCookie(
+                        for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
+                    )
+                }
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel))
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }

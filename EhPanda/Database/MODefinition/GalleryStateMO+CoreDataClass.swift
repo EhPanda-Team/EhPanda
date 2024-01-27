@@ -10,17 +10,17 @@ import CoreData
 
 public class GalleryStateMO: NSManagedObject {}
 
-extension GalleryStateMO: ManagedObjectProtocol {
-    func toEntity() -> GalleryState {
+extension GalleryStateMO: ModelConvertible {
+    func toModel() -> GalleryState {
         GalleryState(
-            gid: gid, tags: tags?.toObject() ?? [GalleryTag](),
-            readingProgress: Int(readingProgress),
-            previewURLs: previewURLs?.toObject() ?? [Int: URL](),
-            previewConfig: previewConfig?.toObject() ?? PreviewConfig.normal(rows: 4),
-            comments: comments?.toObject() ?? [GalleryComment](),
-            imageURLs: imageURLs?.toObject() ?? [Int: URL](),
-            originalImageURLs: originalImageURLs?.toObject() ?? [Int: URL](),
-            thumbnailURLs: thumbnailURLs?.toObject() ?? [Int: URL]()
+            gid: gid, tags: tags?.toObject() ?? .init(),
+            readingProgress: .init(readingProgress),
+            previewURLs: previewURLs?.toObject() ?? .init(),
+            previewConfig: previewConfig?.toObject() ?? .normal(rows: 4),
+            comments: comments?.toObject() ?? .init(),
+            imageURLs: imageURLs?.toObject() ?? .init(),
+            originalImageURLs: originalImageURLs?.toObject() ?? .init(),
+            thumbnailURLs: thumbnailURLs?.toObject() ?? .init()
         )
     }
 }

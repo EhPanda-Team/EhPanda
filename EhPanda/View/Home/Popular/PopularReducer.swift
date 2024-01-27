@@ -58,19 +58,19 @@ struct PopularReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
-                return .init(value: .detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .teardown:
                 return .cancel(id: CancelID.fetchGalleries)
@@ -78,9 +78,12 @@ struct PopularReducer: ReducerProtocol {
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return PopularGalleriesRequest(filter: filter)
-                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID.fetchGalleries)
+                return .run { send in
+                    let filter = await databaseClient.fetchFilter(range: .global)
+                    let result = await PopularGalleriesRequest(filter: filter).process()
+                    await send(.fetchGalleriesDone(result))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -91,7 +94,7 @@ struct PopularReducer: ReducerProtocol {
                         return .none
                     }
                     state.galleries = galleries
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }

@@ -16,8 +16,32 @@ protocol Request {
     var publisher: AnyPublisher<Response, AppError> { get }
 }
 extension Request {
-    var effect: EffectTask<Result<Response, AppError>> {
+    var effect: Effect<Result<Response, AppError>> {
         publisher.receive(on: DispatchQueue.main).catchToEffect()
+    }
+
+    func process() async -> Result<Response, AppError> {
+        await withCheckedContinuation { continuation in
+            var cancellable: AnyCancellable?
+            var finishedWithoutValue = true
+
+            cancellable = publisher
+                .first()
+                .sink { result in
+                    switch result {
+                    case .finished:
+                        if finishedWithoutValue {
+                            continuation.resume(returning: .failure(.networkingFailed))
+                        }
+                    case let .failure(error):
+                        continuation.resume(returning: .failure(error))
+                    }
+                    cancellable?.cancel()
+                } receiveValue: { value in
+                    finishedWithoutValue = false
+                    continuation.resume(returning: .success(value))
+                }
+        }
     }
 
     func mapAppError(error: Error) -> AppError {

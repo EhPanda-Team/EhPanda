@@ -62,11 +62,12 @@ struct ArchivesReducer: ReducerProtocol {
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
-                return databaseClient
-                    .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
+                return .run { _ in
+                    await databaseClient.cacheGalleryFunds(galleryPoints: galleryPoints, credits: credits)
+                }
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel))
 
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }
@@ -85,9 +86,9 @@ struct ArchivesReducer: ReducerProtocol {
                     }
                     state.hathArchives = archive.hathArchives
                     if let galleryPoints = galleryPoints, let credits = credits {
-                        return .init(value: .syncGalleryFunds(galleryPoints, credits))
+                        return .send(.syncGalleryFunds(galleryPoints, credits))
                     } else if cookieClient.isSameAccount {
-                        return .init(value: .fetchArchiveFunds(gid, galleryURL))
+                        return .send(.fetchArchiveFunds(gid, galleryURL))
                     } else {
                         return .none
                     }
@@ -103,7 +104,7 @@ struct ArchivesReducer: ReducerProtocol {
 
             case .fetchArchiveFundsDone(let result):
                 if case .success(let (galleryPoints, credits)) = result {
-                    return .init(value: .syncGalleryFunds(galleryPoints, credits))
+                    return .send(.syncGalleryFunds(galleryPoints, credits))
                 }
                 return .none
 
@@ -140,7 +141,9 @@ struct ArchivesReducer: ReducerProtocol {
                     state.messageHUDConfig = .error
                     isSuccess = false
                 }
-                return .fireAndForget({ hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
+                return .run { _ in
+                    hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error)
+                }
             }
         }
     }

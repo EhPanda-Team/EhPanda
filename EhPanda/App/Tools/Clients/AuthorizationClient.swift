@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct AuthorizationClient {
     let passcodeNotSet: () -> Bool
-    let localAuthroize: (String) -> EffectTask<Bool>
+    let localAuthroize: (String) async -> Bool
 }
 
 extension AuthorizationClient {
@@ -21,21 +21,14 @@ extension AuthorizationClient {
             return !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
         },
         localAuthroize: { reason in
-            Future { promise in
-                let context = LAContext()
-                var error: NSError?
+            let context = LAContext()
+            var error: NSError?
 
-                if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                    context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { isSuccess, _ in
-                        promise(.success(isSuccess))
-                    }
-                } else {
-                    promise(.success(false))
-                }
+            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                return (try? await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)) ?? false
+            } else {
+                return false
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         }
     )
 }
@@ -58,7 +51,7 @@ extension DependencyValues {
 extension AuthorizationClient {
     static let noop: Self = .init(
         passcodeNotSet: { false },
-        localAuthroize: { _ in .none }
+        localAuthroize: { _ in false }
     )
 
     static let unimplemented: Self = .init(

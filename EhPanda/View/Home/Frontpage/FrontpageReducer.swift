@@ -70,31 +70,33 @@ struct FrontpageReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
-                return .init(value: .detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel))
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return FrontpageGalleriesRequest(filter: filter).effect
-                    .map(Action.fetchGalleriesDone)
-                    .cancellable(id: CancelID.fetchGalleries)
+                return .run { send in
+                    let filter = await databaseClient.fetchFilter(range: .global)
+                    let result = await FrontpageGalleriesRequest(filter: filter).process()
+                    await send(.fetchGalleriesDone(result))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -103,11 +105,11 @@ struct FrontpageReducer: ReducerProtocol {
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
-                        return .init(value: .fetchMoreGalleries)
+                        return .send(.fetchMoreGalleries)
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
@@ -120,10 +122,12 @@ struct FrontpageReducer: ReducerProtocol {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).effect
-                    .map(Action.fetchMoreGalleriesDone)
-                    .cancellable(id: CancelID.fetchMoreGalleries)
+                return .run { send in
+                    let filter = await databaseClient.fetchFilter(range: .global)
+                    let result = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).process()
+                    await send(.fetchMoreGalleriesDone(result))
+                }
+                .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle
@@ -132,11 +136,11 @@ struct FrontpageReducer: ReducerProtocol {
                     state.pageNumber = pageNumber
                     state.insertGalleries(galleries)
 
-                    var effects: [EffectTask<Action>] = [
-                        databaseClient.cacheGalleries(galleries).fireAndForget()
+                    var effects: [Effect<Action>] = [
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.init(value: .fetchMoreGalleries))
+                        effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.loadingState = .idle
                     }

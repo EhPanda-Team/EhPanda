@@ -30,6 +30,7 @@ struct MigrationReducer: ReducerProtocol {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -47,7 +48,9 @@ struct MigrationReducer: ReducerProtocol {
                 return .none
 
             case .prepareDatabase:
-                return databaseClient.prepareDatabase().map(Action.prepareDatabaseDone)
+                return .run { send in
+                    await send(.prepareDatabaseDone(databaseClient.prepareDatabase()))
+                }
 
             case .prepareDatabaseDone(let appError):
                 if let appError {
@@ -55,14 +58,15 @@ struct MigrationReducer: ReducerProtocol {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return .send(.onDatabasePreparationSuccess)
                 }
 
             case .dropDatabase:
                 state.databaseState = .loading
-                return databaseClient.dropDatabase()
-                    .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
-                    .eraseToEffect().map(Action.dropDatabaseDone)
+                return .run { send in
+                    try await mainQueue.sleep(for: .milliseconds(500))
+                    await send(.dropDatabaseDone(databaseClient.dropDatabase()))
+                }
 
             case .dropDatabaseDone(let appError):
                 if let appError {
@@ -70,7 +74,7 @@ struct MigrationReducer: ReducerProtocol {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return .send(.onDatabasePreparationSuccess)
                 }
             }
         }

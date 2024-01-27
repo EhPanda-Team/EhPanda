@@ -14,6 +14,17 @@ struct AppEnv: Codable, Equatable {
     let tagTranslator: TagTranslator
     let historyKeywords: [String]
     let quickSearchWords: [QuickSearchWord]
+
+    static let empty: Self = .init(
+        user: .init(),
+        setting: .init(),
+        searchFilter: .init(),
+        globalFilter: .init(),
+        watchedFilter: .init(),
+        tagTranslator: .init(),
+        historyKeywords: .init(),
+        quickSearchWords: .init()
+    )
 }
 
 extension AppEnv: CustomStringConvertible {

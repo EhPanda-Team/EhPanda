@@ -52,6 +52,7 @@ struct AppRouteReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.urlClient) private var urlClient
+    @Dependency(\.mainQueue) private var mainQueue
 
     var body: some ReducerProtocol<State, Action> {
         BindingReducer()
@@ -59,14 +60,14 @@ struct AppRouteReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .setHUDConfig(let config):
                 state.hudConfig = config
@@ -74,20 +75,20 @@ struct AppRouteReducer: ReducerProtocol {
 
             case .clearSubStates:
                 state.detailState = .init()
-                return .init(value: .detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .detectClipboardURL:
                 let currentChangeCount = clipboardClient.changeCount()
                 guard currentChangeCount != userDefaultsClient
-                        .getValue(.clipboardChangeCount) else { return .none }
-                var effects: [EffectTask<Action>] = [
-                    userDefaultsClient
-                        .setValue(currentChangeCount, .clipboardChangeCount).fireAndForget()
-                ]
-                if let url = clipboardClient.url() {
-                    effects.append(.init(value: .handleDeepLink(url)))
+                    .getValue(.clipboardChangeCount)
+                else { return .none }
+
+                return .run { send in
+                    userDefaultsClient.setValue(currentChangeCount, .clipboardChangeCount)
+                    if let url = clipboardClient.url() {
+                        await send(.handleDeepLink(url))
+                    }
                 }
-                return .merge(effects)
 
             case .handleDeepLink(let url):
                 let url = urlClient.resolveAppSchemeURL(url) ?? url
@@ -100,39 +101,47 @@ struct AppRouteReducer: ReducerProtocol {
                 }
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
-                guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return .init(value: .handleGalleryLink(url))
-                        .delay(for: .milliseconds(delay + 250), scheduler: DispatchQueue.main).eraseToEffect()
+                return .run { [delay] send in
+                    try await mainQueue.sleep(for: .milliseconds(delay))
+                    if await databaseClient.fetchGallery(gid: gid) == nil {
+                        try await mainQueue.sleep(for: .milliseconds(250))
+                        await send(.handleGalleryLink(url))
+                    } else {
+                        await send(.fetchGallery(url, isGalleryImageURL))
+                    }
                 }
-                return .init(value: .fetchGallery(url, isGalleryImageURL))
-                    .delay(for: .milliseconds(delay), scheduler: DispatchQueue.main).eraseToEffect()
 
             case .handleGalleryLink(let url):
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 state.detailState = .init()
-                effects.append(.init(value: .detail(.fetchDatabaseInfos(gid))))
+                effects.append(.send(.detail(.fetchDatabaseInfos(gid))))
                 if let pageIndex = pageIndex {
-                    effects.append(.init(value: .updateReadingProgress(gid, pageIndex)))
+                    effects.append(.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        .init(value: .detail(.setNavigation(.reading)))
-                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                        .run { send in
+                            try await mainQueue.sleep(for: .milliseconds(500))
+                            await send(.detail(.setNavigation(.reading)))
+                        }
                     )
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        .init(value: .detail(.setNavigation(.comments(url))))
-                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                        .run { send in
+                            try await mainQueue.sleep(for: .milliseconds(500))
+                            await send(.detail(.setNavigation(.comments(url))))
+                        }
                     )
                 }
-                effects.append(.init(value: .setNavigation(.detail(gid))))
+                effects.append(.send(.setNavigation(.detail(gid))))
                 return .merge(effects)
 
             case .updateReadingProgress(let gid, let progress):
                 guard !gid.isEmpty else { return .none }
-                return databaseClient
-                    .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
+                return .run { _ in
+                    await databaseClient.cacheReadingProgress(gid: gid, progress: progress)
+                }
 
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
@@ -143,18 +152,20 @@ struct AppRouteReducer: ReducerProtocol {
                 state.route = nil
                 switch result {
                 case .success(let gallery):
-                    return .merge(
-                        databaseClient.cacheGalleries([gallery]).fireAndForget(),
-                        .init(value: .handleGalleryLink(url))
-                    )
+                    return .run { send in
+                        await databaseClient.cacheGalleries([gallery])
+                        await send(.handleGalleryLink(url))
+                    }
                 case .failure:
-                    return .init(value: .setHUDConfig(.error))
-                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                    return .run { send in
+                        try await mainQueue.sleep(for: .milliseconds(500))
+                        await send(.setHUDConfig(.error))
+                    }
                 }
 
             case .fetchGreetingDone(let result):
                 if case .success(let greeting) = result, !greeting.gainedNothing {
-                    return .init(value: .setNavigation(.newDawn(greeting)))
+                    return .send(.setNavigation(.newDawn(greeting)))
                 }
                 return .none
 

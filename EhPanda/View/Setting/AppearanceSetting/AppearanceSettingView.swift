@@ -31,7 +31,7 @@ struct AppearanceSettingView: View {
         displaysJapaneseTitle: Binding<Bool>
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         _preferredColorScheme = preferredColorScheme
         _accentColor = accentColor
         _appIconType = appIconType
@@ -107,7 +107,7 @@ struct AppearanceSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingReducer.Route.appIcon) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /AppearanceSettingReducer.Route.appIcon) { _ in
             AppIconView(appIconType: $appIconType)
         }
     }
@@ -230,7 +230,7 @@ struct AppearanceSettingView_Previews: PreviewProvider {
             AppearanceSettingView(
                 store: .init(
                     initialState: .init(),
-                    reducer: AppearanceSettingReducer()
+                    reducer: AppearanceSettingReducer.init
                 ),
                 preferredColorScheme: .constant(.automatic),
                 accentColor: .constant(.blue),

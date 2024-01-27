@@ -12,77 +12,70 @@ import Kingfisher
 import ComposableArchitecture
 
 struct ImageClient {
-    let prefetchImages: ([URL]) -> EffectTask<Never>
-    let saveImageToPhotoLibrary: (UIImage, Bool) -> EffectTask<Bool>
-    let downloadImage: (URL) -> EffectTask<Result<UIImage, Error>>
-    let retrieveImage: (String) -> EffectTask<Result<UIImage, Error>>
+    let prefetchImages: ([URL]) -> Void
+    let saveImageToPhotoLibrary: (UIImage, Bool) async -> Bool
+    let downloadImage: (URL) async -> Result<UIImage, Error>
+    let retrieveImage: (String) async -> Result<UIImage, Error>
 }
 
 extension ImageClient {
     static let live: Self = .init(
         prefetchImages: { urls in
-            .fireAndForget {
-                ImagePrefetcher(urls: urls).start()
-            }
+            ImagePrefetcher(urls: urls).start()
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
-            Future { promise in
-                DispatchQueue.global(qos: .utility).async {
-                    if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
-                        PHPhotoLibrary.shared().performChanges {
-                            let request = PHAssetCreationRequest.forAsset()
-                            request.addResource(with: .photo, data: data, options: nil)
-                        } completionHandler: { (isSuccess, _) in
-                            promise(.success(isSuccess))
-                        }
-                    } else {
-                        promise(.success(false))
+            if let data = await withCheckedContinuation({ continuation in
+                continuation.resume(returning: image.kf.data(format: isAnimated ? .GIF : .unknown))
+            }) {
+                do {
+                    try await PHPhotoLibrary.shared().performChanges {
+                        let request = PHAssetCreationRequest.forAsset()
+                        request.addResource(with: .photo, data: data, options: nil)
                     }
+                    return true
+                } catch {
+                    return false
                 }
+            } else {
+                return false
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         downloadImage: { url in
-            Future { promise in
+            await withCheckedContinuation { continuation in
                 KingfisherManager.shared.downloader.downloadImage(with: url, options: nil) { result in
-                    switch result {
-                    case .success(let result):
-                        promise(.success(result.image))
+                    switch result.map(\.image) {
+                    case .success(let image):
+                        continuation.resume(returning: .success(image))
+
                     case .failure(let error):
-                        promise(.failure(error))
+                        continuation.resume(returning: .failure(error))
                     }
                 }
             }
-            .eraseToAnyPublisher()
-            .catchToEffect()
         },
         retrieveImage: { key in
-            Future { promise in
+            await withCheckedContinuation { continuation in
                 KingfisherManager.shared.cache.retrieveImage(forKey: key) { result in
                     switch result {
                     case .success(let result):
                         if let image = result.image {
-                            promise(.success(image))
+                            continuation.resume(returning: .success(image))
                         } else {
-                            promise(.failure(AppError.notFound))
+                            continuation.resume(returning: .failure(AppError.notFound))
                         }
                     case .failure(let error):
-                        promise(.failure(error))
+                        continuation.resume(returning: .failure(error))
                     }
                 }
             }
-            .eraseToAnyPublisher()
-            .catchToEffect()
         }
     )
 
-    func fetchImage(url: URL) -> EffectTask<Result<UIImage, Error>> {
+    func fetchImage(url: URL) async -> Result<UIImage, Error> {
         if KingfisherManager.shared.cache.isCached(forKey: url.absoluteString) {
-            return retrieveImage(url.absoluteString)
+            return await retrieveImage(url.absoluteString)
         } else {
-            return downloadImage(url)
+            return await downloadImage(url)
         }
     }
 }
@@ -121,10 +114,10 @@ extension DependencyValues {
 // MARK: Test
 extension ImageClient {
     static let noop: Self = .init(
-        prefetchImages: { _ in .none },
-        saveImageToPhotoLibrary: { _, _ in .none },
-        downloadImage: { _ in .none },
-        retrieveImage: { _ in .none }
+        prefetchImages: { _ in },
+        saveImageToPhotoLibrary: { _, _ in false },
+        downloadImage: { _ in .failure(AppError.unknown) },
+        retrieveImage: { _ in .failure(AppError.unknown) }
     )
 
     static let unimplemented: Self = .init(

@@ -9,19 +9,29 @@ import CoreData
 
 public class GalleryDetailMO: NSManagedObject {}
 
-extension GalleryDetailMO: ManagedObjectProtocol {
-    func toEntity() -> GalleryDetail {
-        GalleryDetail(
-            gid: gid, title: title, jpnTitle: jpnTitle, isFavorited: isFavorited,
-            visibility: visibility?.toObject() ?? GalleryVisibility.yes,
-            rating: rating, userRating: userRating, ratingCount: Int(ratingCount),
-            category: Category(rawValue: category).forceUnwrapped,
-            language: Language(rawValue: language).forceUnwrapped,
-            uploader: uploader, postedDate: postedDate,
-            coverURL: coverURL, archiveURL: archiveURL, parentURL: parentURL,
-            favoritedCount: Int(favoritedCount), pageCount: Int(pageCount),
-            sizeCount: sizeCount, sizeType: sizeType,
-            torrentCount: Int(torrentCount)
+extension GalleryDetailMO: ModelConvertible {
+    func toModel() -> GalleryDetail {
+        .init(
+            gid: gid,
+            title: title,
+            jpnTitle: jpnTitle,
+            isFavorited: isFavorited,
+            visibility: visibility?.toObject() ?? .yes,
+            rating: rating,
+            userRating: userRating,
+            ratingCount: .init(ratingCount),
+            category: .init(rawValue: category).forceUnwrapped,
+            language: .init(rawValue: language).forceUnwrapped,
+            uploader: uploader,
+            postedDate: postedDate,
+            coverURL: coverURL,
+            archiveURL: archiveURL,
+            parentURL: parentURL,
+            favoritedCount: .init(favoritedCount),
+            pageCount: .init(pageCount),
+            sizeCount: sizeCount,
+            sizeType: sizeType,
+            torrentCount: .init(torrentCount)
         )
     }
 }

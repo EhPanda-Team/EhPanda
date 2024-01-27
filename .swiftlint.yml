@@ -12,6 +12,8 @@ identifier_name:
   - y
   - id
   - no
+  - mo
 
 excluded:
  - EhPandaTests
+ - EhPanda/App/Generated

@@ -115,33 +115,34 @@ struct SettingReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$setting.galleryHost):
-                return .merge(
-                    .init(value: .syncSetting),
-                    userDefaultsClient
-                        .setValue(state.setting.galleryHost.rawValue, .galleryHost).fireAndForget()
-                )
+                let galleryHost = state.setting.galleryHost.rawValue
+                return .run { send in
+                    await send(.syncSetting)
+                    userDefaultsClient.setValue(galleryHost, .galleryHost)
+                }
 
             case .binding(\.$setting.enablesTagsExtension):
-                var effects: [EffectTask<Action>] = [
-                    .init(value: .syncSetting)
+                var effects: [Effect<Action>] = [
+                    .send(.syncSetting)
                 ]
                 if state.setting.enablesTagsExtension {
-                    effects.append(.init(value: .fetchTagTranslator))
+                    effects.append(.send(.fetchTagTranslator))
                 }
                 return .merge(effects)
 
             case .binding(\.$setting.preferredColorScheme):
                 return .merge(
-                    .init(value: .syncSetting),
-                    .init(value: .syncUserInterfaceStyle)
+                    .send(.syncSetting),
+                    .send(.syncUserInterfaceStyle)
                 )
 
             case .binding(\.$setting.appIconType):
-                return .merge(
-                    .init(value: .syncSetting),
-                    uiApplicationClient.setAlternateIconName(state.setting.appIconType.filename)
-                        .map { _ in Action.syncAppIconType }
-                )
+                let filename = state.setting.appIconType.filename
+                return .run { send in
+                    await send(.syncSetting)
+                    _ = await uiApplicationClient.setAlternateIconName(filename)
+                    await send(.syncAppIconType)
+                }
 
             case .binding(\.$setting.autoLockPolicy):
                 if state.setting.autoLockPolicy != .never
@@ -149,7 +150,7 @@ struct SettingReducer: ReducerProtocol {
                 {
                     state.setting.backgroundBlurRadius = 10
                 }
-                return .init(value: .syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.backgroundBlurRadius):
                 if state.setting.autoLockPolicy != .never
@@ -157,14 +158,14 @@ struct SettingReducer: ReducerProtocol {
                 {
                     state.setting.autoLockPolicy = .never
                 }
-                return .init(value: .syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.enablesLandscape):
-                var effects: [EffectTask<Action>] = [
-                    .init(value: .syncSetting)
+                var effects: [Effect<Action>] = [
+                    .send(.syncSetting)
                 ]
                 if !state.setting.enablesLandscape && !deviceClient.isPad() {
-                    effects.append(appDelegateClient.setPortraitOrientationMask().fireAndForget())
+                    effects.append(.run(operation: { _ in appDelegateClient.setPortraitOrientationMask() }))
                 }
                 return .merge(effects)
 
@@ -172,32 +173,33 @@ struct SettingReducer: ReducerProtocol {
                 if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
                     state.setting.doubleTapScaleFactor = state.setting.maximumScaleFactor
                 }
-                return .init(value: .syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.doubleTapScaleFactor):
                 if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
                     state.setting.maximumScaleFactor = state.setting.doubleTapScaleFactor
                 }
-                return .init(value: .syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.bypassesSNIFiltering):
-                return .merge(
-                    .init(value: .syncSetting),
-                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
-                    dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
-                )
+                let bypassesSNIFiltering = state.setting.bypassesSNIFiltering
+                return .run { send in
+                    await send(.syncSetting)
+                    hapticsClient.generateFeedback(.soft)
+                    dfClient.setActive(bypassesSNIFiltering)
+                }
 
             case .binding(\.$setting):
-                return .init(value: .syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$route):
                 return .none
 
             case .binding:
                 return .merge(
-                    .init(value: .syncUser),
-                    .init(value: .syncSetting),
-                    .init(value: .syncTagTranslator)
+                    .send(.syncUser),
+                    .send(.syncSetting),
+                    .send(.syncTagTranslator)
                 )
 
             case .setNavigation(let route):
@@ -220,28 +222,33 @@ struct SettingReducer: ReducerProtocol {
 
             case .syncUserInterfaceStyle:
                 let style = state.setting.preferredColorScheme.userInterfaceStyle
-                return uiApplicationClient.setUserInterfaceStyle(style)
-                    .subscribe(on: DispatchQueue.main).fireAndForget()
+                return .run(operation: { _ in uiApplicationClient.setUserInterfaceStyle(style) })
 
             case .syncSetting:
-                return databaseClient.updateSetting(state.setting).fireAndForget()
+                let setting = state.setting
+                return .run(operation: { _ in await databaseClient.cacheSetting(setting) })
             case .syncTagTranslator:
-                return databaseClient.updateTagTranslator(state.tagTranslator).fireAndForget()
+                let tagTranslator = state.tagTranslator
+                return .run(operation: { _ in await databaseClient.cacheTagTranslator(tagTranslator) })
             case .syncUser:
-                return databaseClient.updateUser(state.user).fireAndForget()
+                let user = state.user
+                return .run(operation: { _ in await databaseClient.cacheUser(user) })
 
             case .loadUserSettings:
-                return databaseClient.fetchAppEnv().map(Action.onLoadUserSettings)
+                return .run { send in
+                    await send(.onLoadUserSettings(databaseClient.fetchAppEnv()))
+                }
 
             case .onLoadUserSettings(let appEnv):
                 state.setting = appEnv.setting
                 state.tagTranslator = appEnv.tagTranslator
                 state.user = appEnv.user
-                var effects: [EffectTask<Action>] = [
-                    .init(value: .syncAppIconType),
-                    .init(value: .loadUserSettingsDone),
-                    .init(value: .syncUserInterfaceStyle),
-                    dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
+                let bypassesSNIFiltering = state.setting.bypassesSNIFiltering
+                var effects: [Effect<Action>] = [
+                    .send(.syncAppIconType),
+                    .send(.loadUserSettingsDone),
+                    .send(.syncUserInterfaceStyle),
+                    .run(operation: { _ in dfClient.setActive(bypassesSNIFiltering) })
                 ]
                 if let value: String = userDefaultsClient.getValue(.galleryHost),
                    let galleryHost = GalleryHost(rawValue: value)
@@ -249,18 +256,18 @@ struct SettingReducer: ReducerProtocol {
                     state.setting.galleryHost = galleryHost
                 }
                 if cookieClient.shouldFetchIgneous {
-                    effects.append(.init(value: .fetchIgneous))
+                    effects.append(.send(.fetchIgneous))
                 }
                 if cookieClient.didLogin {
                     effects.append(contentsOf: [
-                        .init(value: .fetchUserInfo),
-                        .init(value: .fetchGreeting),
-                        .init(value: .fetchFavoriteCategories),
-                        .init(value: .fetchEhProfileIndex)
+                        .send(.fetchUserInfo),
+                        .send(.fetchGreeting),
+                        .send(.fetchFavoriteCategories),
+                        .send(.fetchEhProfileIndex)
                     ])
                 }
                 if state.setting.enablesTagsExtension {
-                    effects.append(.init(value: .fetchTagTranslator))
+                    effects.append(.send(.fetchTagTranslator))
                 }
                 return .merge(effects)
 
@@ -269,18 +276,18 @@ struct SettingReducer: ReducerProtocol {
                 return .none
 
             case .createDefaultEhProfile:
-                return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
+                return .run(operation: { _ in await _ = EhProfileRequest(action: .create, name: "EhPanda").process() })
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
                 return IgneousRequest().effect.map(Action.fetchIgneousDone)
 
             case .fetchIgneousDone(let result):
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if case .success(let response) = result {
-                    effects.append(cookieClient.setCredentials(response: response).fireAndForget())
+                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
                 }
-                effects.append(.init(value: .account(.loadCookies)))
+                effects.append(.send(.account(.loadCookies)))
                 return .merge(effects)
 
             case .fetchUserInfo:
@@ -295,7 +302,7 @@ struct SettingReducer: ReducerProtocol {
             case .fetchUserInfoDone(let result):
                 if case .success(let user) = result {
                     state.updateUser(user)
-                    return .init(value: .syncUser)
+                    return .send(.syncUser)
                 }
                 return .none
 
@@ -335,13 +342,13 @@ struct SettingReducer: ReducerProtocol {
                 switch result {
                 case .success(let greeting):
                     state.setGreeting(greeting)
-                    return .init(value: .syncUser)
+                    return .send(.syncUser)
                 case .failure(let error):
                     if case .parseFailed = error {
                         var greeting = Greeting()
                         greeting.updateTime = Date()
                         state.setGreeting(greeting)
-                        return .init(value: .syncUser)
+                        return .send(.syncUser)
                     }
                 }
                 return .none
@@ -353,10 +360,10 @@ struct SettingReducer: ReducerProtocol {
                 else { return .none }
                 state.tagTranslatorLoadingState = .loading
 
-                var databaseEffect: EffectTask<Action>?
+                var databaseEffect: Effect<Action>?
                 if state.tagTranslator.language != language {
                     state.tagTranslator = TagTranslator(language: language)
-                    databaseEffect = .init(value: .syncTagTranslator)
+                    databaseEffect = .send(.syncTagTranslator)
                 }
                 let updatedDate = state.tagTranslator.updatedDate
                 let requestEffect = TagTranslatorRequest(language: language, updatedDate: updatedDate)
@@ -372,7 +379,7 @@ struct SettingReducer: ReducerProtocol {
                 switch result {
                 case .success(let tagTranslator):
                     state.tagTranslator = tagTranslator
-                    return .init(value: .syncTagTranslator)
+                    return .send(.syncTagTranslator)
                 case .failure(let error):
                     state.tagTranslatorLoadingState = .failed(error)
                 }
@@ -383,7 +390,7 @@ struct SettingReducer: ReducerProtocol {
                 return VerifyEhProfileRequest().effect.map(Action.fetchEhProfileIndexDone)
 
             case .fetchEhProfileIndexDone(let result):
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
 
                 if case .success(let response) = result {
                     if let profileValue = response.profileValue {
@@ -394,17 +401,18 @@ struct SettingReducer: ReducerProtocol {
                         let cookieValue = cookieClient.getCookie(hostURL, selectedProfileKey)
                         if cookieValue.rawValue != profileValueString {
                             effects.append(
-                                cookieClient.setOrEditCookie(
-                                    for: hostURL, key: selectedProfileKey, value: profileValueString
-                                )
-                                .fireAndForget()
+                                .run { _ in
+                                    cookieClient.setOrEditCookie(
+                                        for: hostURL, key: selectedProfileKey, value: profileValueString
+                                    )
+                                }
                             )
                         }
                     } else if response.isProfileNotFound {
-                        effects.append(.init(value: .createDefaultEhProfile))
+                        effects.append(.send(.createDefaultEhProfile))
                     } else {
                         let message = "Found profile but failed in parsing value."
-                        effects.append(loggerClient.error(message, nil).fireAndForget())
+                        effects.append(.run(operation: { _ in loggerClient.error(message, nil) }))
                     }
                 }
                 return effects.isEmpty ? .none : .merge(effects)
@@ -420,35 +428,35 @@ struct SettingReducer: ReducerProtocol {
                 return .none
 
             case .account(.login(.loginDone)):
-                return .merge(
-                    cookieClient.removeYay().fireAndForget(),
-                    cookieClient.syncExCookies().fireAndForget(),
-                    cookieClient.fulfillAnotherHostField().fireAndForget(),
-                    .init(value: .fetchIgneous),
-                    .init(value: .fetchUserInfo),
-                    .init(value: .fetchFavoriteCategories),
-                    .init(value: .fetchEhProfileIndex)
-                )
+                return .run { send in
+                    cookieClient.removeYay()
+                    cookieClient.syncExCookies()
+                    cookieClient.fulfillAnotherHostField()
+                    await send(.fetchIgneous)
+                    await send(.fetchUserInfo)
+                    await send(.fetchFavoriteCategories)
+                    await send(.fetchEhProfileIndex)
+                }
 
             case .account(.onLogoutConfirmButtonTapped):
                 state.user = User()
-                return .merge(
-                    .init(value: .syncUser),
-                    cookieClient.clearAll().fireAndForget(),
-                    databaseClient.removeImageURLs().fireAndForget(),
-                    libraryClient.clearWebImageDiskCache().fireAndForget()
-                )
+                return .run { send in
+                    await send(.syncUser)
+                    cookieClient.clearAll()
+                    await databaseClient.removeImageURLs()
+                    libraryClient.clearWebImageDiskCache()
+                }
 
             case .account:
                 return .none
 
             case .general(.onTranslationsFilePicked(let url)):
-                return fileClient.importTagTranslator(url).map(Action.fetchTagTranslatorDone)
+                return .run(operation: { await $0(.fetchTagTranslatorDone(fileClient.importTagTranslator(url))) })
 
             case .general(.onRemoveCustomTranslations):
                 state.tagTranslator.hasCustomTranslations = false
                 state.tagTranslator.translations = .init()
-                return .init(value: .syncTagTranslator)
+                return .send(.syncTagTranslator)
 
             case .general:
                 return .none

@@ -81,23 +81,23 @@ struct FavoritesReducer: ReducerProtocol {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .setFavoritesIndex(let index):
                 state.index = index
                 guard state.galleries?.isEmpty != false else { return .none }
-                return .init(value: Action.fetchGalleries())
+                return .send(.fetchGalleries())
 
             case .clearSubStates:
                 state.detailState = .init()
-                return .init(value: .detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .onNotLoginViewButtonTapped:
                 return .none
@@ -125,12 +125,12 @@ struct FavoritesReducer: ReducerProtocol {
                     guard !galleries.isEmpty else {
                         state.rawLoadingState[targetFavIndex] = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
-                        return .init(value: .fetchMoreGalleries)
+                        return .send(.fetchMoreGalleries)
                     }
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = sortOrder
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }
@@ -160,11 +160,11 @@ struct FavoritesReducer: ReducerProtocol {
                     state.insertGalleries(index: targetFavIndex, galleries: galleries)
                     state.sortOrder = sortOrder
 
-                    var effects: [EffectTask<Action>] = [
-                        databaseClient.cacheGalleries(galleries).fireAndForget()
+                    var effects: [Effect<Action>] = [
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.init(value: .fetchMoreGalleries))
+                        effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.rawLoadingState[targetFavIndex] = .idle
                     }

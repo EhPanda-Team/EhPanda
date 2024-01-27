@@ -16,7 +16,7 @@ struct TabBarView: View {
 
     init(store: StoreOf<AppReducer>) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {
@@ -158,7 +158,7 @@ struct TabBarView_Previews: PreviewProvider {
         TabBarView(
             store: .init(
                 initialState: .init(),
-                reducer: AppReducer()
+                reducer: AppReducer.init
             )
         )
     }

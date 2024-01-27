@@ -39,11 +39,11 @@ struct AppLockReducer: ReducerProtocol {
                    Date.now.timeIntervalSince(date) >= Double(threshold)
                 {
                     return .merge(
-                        .init(value: .authorize),
-                        .init(value: .lockApp(blurRadius))
+                        .send(.authorize),
+                        .send(.lockApp(blurRadius))
                     )
                 } else {
-                    return .init(value: .unlockApp)
+                    return .send(.unlockApp)
                 }
 
             case .onBecomeInactive(let blurRadius):
@@ -63,11 +63,13 @@ struct AppLockReducer: ReducerProtocol {
                 return .none
 
             case .authorize:
-                return authorizationClient.localAuthroize(L10n.Localizable.LocalAuthorization.reason)
-                    .map(Action.authorizeDone)
+                return .run { send in
+                    let reason = L10n.Localizable.LocalAuthorization.reason
+                    await send(.authorizeDone(authorizationClient.localAuthroize(reason)))
+                }
 
             case .authorizeDone(let isSucceeded):
-                return isSucceeded ? .init(value: .unlockApp) : .none
+                return isSucceeded ? .send(.unlockApp) : .none
             }
         }
     }

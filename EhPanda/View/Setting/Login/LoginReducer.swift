@@ -69,24 +69,28 @@ struct LoginReducer: ReducerProtocol {
                 guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }
                 state.focusedField = nil
                 state.loginState = .loading
-                return .merge(
-                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
-                    LoginRequest(username: state.username, password: state.password)
-                        .effect.map(Action.loginDone).cancellable(id: CancelID.login)
-                )
+                let username = state.username
+                let password = state.password
+                return .run { send in
+                    hapticsClient.generateFeedback(.soft)
+
+                    let result = await LoginRequest(username: username, password: password).process()
+                    await send(.loginDone(result))
+                }
+                .cancellable(id: CancelID.login)
 
             case .loginDone(let result):
                 state.route = nil
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.success) }))
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }))
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.error) }))
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) }))
                 }
                 if case .success(let response) = result, let response = response {
-                    effects.append(cookieClient.setCredentials(response: response).fireAndForget())
+                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
                 }
                 return .merge(effects)
             }
