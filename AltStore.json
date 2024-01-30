@@ -30,6 +30,7 @@
         "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Setting_EN_Light.png",
         "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/DomainFronting_EN_Light.png"
       ],
+      "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.4/EhPanda.ipa"
       "versions": [
         {
           "version": "2.7.4",
