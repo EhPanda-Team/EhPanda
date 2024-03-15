@@ -183,7 +183,7 @@ struct SettingReducer: Reducer {
             case .binding(\.$setting.bypassesSNIFiltering):
                 return .merge(
                     Effect.send(.syncSetting),
-                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
+                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
                     dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
                 )
 

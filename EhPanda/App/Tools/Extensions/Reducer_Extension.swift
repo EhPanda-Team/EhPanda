@@ -16,7 +16,7 @@ extension Reducer {
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
     ) -> some Reducer<State, Action> {
         onBecomeNonNil(unwrapping: `enum`, case: casePath) { _, _ in
-            .fireAndForget({ hapticsClient.generateFeedback(style) })
+            .run(operation: { _ in hapticsClient.generateFeedback(style) })
         }
     }
 

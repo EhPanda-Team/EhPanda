@@ -166,11 +166,11 @@ struct DetailReducer: Reducer {
 
                 case .toggleShowFullTitle:
                     state.showsFullTitle.toggle()
-                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .toggleShowUserRating:
                     state.showsUserRating.toggle()
-                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .setCommentContent(let content):
                     state.commentContent = content
@@ -188,7 +188,7 @@ struct DetailReducer: Reducer {
                     state.updateRating(value: value)
                     return .merge(
                         Effect.send(.rateGallery),
-                        .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
+                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
                         Effect.send(.confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
                     )
 
@@ -320,10 +320,10 @@ struct DetailReducer: Reducer {
                     if case .success = result {
                         return .merge(
                             Effect.send(.fetchGalleryDetail),
-                            .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                            .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                         )
                     }
-                    return .fireAndForget({ hapticsClient.generateNotificationFeedback(.error) })
+                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
 
                 case .reading(.onPerformDismiss):
                     return Effect.send(.setNavigation(nil))

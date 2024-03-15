@@ -140,7 +140,7 @@ struct ArchivesReducer: Reducer {
                     state.messageHUDConfig = .error
                     isSuccess = false
                 }
-                return .fireAndForget({ hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
+                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
             }
         }
     }

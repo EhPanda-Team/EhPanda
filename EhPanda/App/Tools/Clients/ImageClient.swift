@@ -21,9 +21,9 @@ struct ImageClient {
 extension ImageClient {
     static let live: Self = .init(
         prefetchImages: { urls in
-            .fireAndForget {
+            .run(operation: { _ in
                 ImagePrefetcher(urls: urls).start()
-            }
+            })
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
             Future { promise in

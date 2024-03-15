@@ -19,13 +19,13 @@ struct CookieClient {
 extension CookieClient {
     static let live: Self = .init(
         clearAll: {
-            .fireAndForget {
+            .run(operation: { _ in
                 if let historyCookies = HTTPCookieStorage.shared.cookies {
                     historyCookies.forEach {
                         HTTPCookieStorage.shared.deleteCookie($0)
                     }
                 }
-            }
+            })
         },
         getCookie: { url, key in
             var value = CookieValue(
@@ -109,13 +109,13 @@ extension CookieClient {
         HTTPCookieStorage.shared.setCookie(cookie)
     }
     func setOrEditCookie(for url: URL, key: String, value: String) -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             if checkExistence(url, key) {
                 editCookie(for: url, key: key, value: value)
             } else {
                 setCookie(for: url, key: key, value: value)
             }
-        }
+        })
     }
 }
 
@@ -139,10 +139,10 @@ extension CookieClient {
         && getCookie(url, Defaults.Cookie.igneous).rawValue.isEmpty
     }
     func removeYay() -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             removeCookie(Defaults.URL.exhentai, Defaults.Cookie.yay)
             removeCookie(Defaults.URL.sexhentai, Defaults.Cookie.yay)
-        }
+        })
     }
     func syncExCookies() -> Effect<Never> {
         .merge(
@@ -234,7 +234,7 @@ extension CookieClient {
         return effects.isEmpty ? .none : .merge(effects)
     }
     func setCredentials(response: HTTPURLResponse) -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")
                 .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
@@ -250,10 +250,10 @@ extension CookieClient {
                         }
                     }
                 }
-        }
+        })
     }
     func setSkipServer(response: HTTPURLResponse) -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")
                 .flatMap { $0.components(separatedBy: "; ") }
@@ -266,7 +266,7 @@ extension CookieClient {
                         )
                     }
                 }
-        }
+        })
     }
 }
 

@@ -29,12 +29,12 @@ extension ClipboardClient {
             UIPasteboard.general.changeCount
         },
         saveText: { text in
-            .fireAndForget {
+            .run(operation: { _ in
                 UIPasteboard.general.string = text
-            }
+            })
         },
         saveImage: { (image, isAnimated) in
-            .fireAndForget {
+            .run(operation: { _ in
                 if isAnimated {
                     DispatchQueue.global(qos: .utility).async {
                         if let data = image.kf.data(format: .GIF) {
@@ -44,7 +44,7 @@ extension ClipboardClient {
                 } else {
                     UIPasteboard.general.image = image
                 }
-            }
+            })
         }
     )
 }

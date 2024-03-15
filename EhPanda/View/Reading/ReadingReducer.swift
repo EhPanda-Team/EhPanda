@@ -190,7 +190,7 @@ struct ReadingReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$showsSliderPreview):
-                return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
             case .binding:
                 return .none
@@ -214,7 +214,7 @@ struct ReadingReducer: Reducer {
                 return .merge(effects)
 
             case .onPerformDismiss:
-                return .fireAndForget({ hapticsClient.generateFeedback(.light) })
+                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
                 var effects: [Effect<Action>] = [

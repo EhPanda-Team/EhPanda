@@ -24,7 +24,7 @@ struct LibraryClient {
 extension LibraryClient {
     static let live: Self = .init(
         initializeLogger: {
-            .fireAndForget {
+            .run(operation: { _ in
                 // MARK: SwiftyBeaver
                 let file = FileDestination()
                 let console = ConsoleDestination()
@@ -52,19 +52,19 @@ extension LibraryClient {
                 #if DEBUG
                 SwiftyBeaver.addDestination(console)
                 #endif
-            }
+            })
         },
         initializeWebImage: {
-            .fireAndForget {
+            .run(operation: { _ in
                 let config = KingfisherManager.shared.downloader.sessionConfiguration
                 config.httpCookieStorage = HTTPCookieStorage.shared
                 KingfisherManager.shared.downloader.sessionConfiguration = config
-            }
+            })
         },
         clearWebImageDiskCache: {
-            .fireAndForget {
+            .run(operation: { _ in
                 KingfisherManager.shared.cache.clearDiskCache()
-            }
+            })
         },
         analyzeImageColors: { image in
             Future { promise in

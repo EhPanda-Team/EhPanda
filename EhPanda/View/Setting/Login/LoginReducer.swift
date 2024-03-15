@@ -70,7 +70,7 @@ struct LoginReducer: Reducer {
                 state.focusedField = nil
                 state.loginState = .loading
                 return .merge(
-                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
+                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
                     LoginRequest(username: state.username, password: state.password)
                         .effect.map(Action.loginDone).cancellable(id: CancelID.login)
                 )
@@ -80,10 +80,10 @@ struct LoginReducer: Reducer {
                 var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.success) }))
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }))
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.error) }))
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) }))
                 }
                 if case .success(let response) = result, let response = response {
                     effects.append(cookieClient.setCredentials(response: response).fireAndForget())

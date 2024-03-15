@@ -290,21 +290,21 @@ extension DatabaseClient {
 extension DatabaseClient {
     func updateGallery(gid: String, key: String, value: Any?) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
-        return .fireAndForget {
+        return .run(operation: { _ in
             DispatchQueue.main.async {
                 update(
                     entityType: GalleryMO.self, gid: gid, createIfNil: true,
                     commitChanges: { $0.setValue(value, forKeyPath: key) }
                 )
             }
-        }
+        })
     }
     func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
         return updateGallery(gid: gid, key: "lastOpenDate", value: date)
     }
     func clearHistoryGalleries() -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             DispatchQueue.main.async {
                 let predicate = NSPredicate(format: "lastOpenDate != nil")
                 batchUpdate(entityType: GalleryMO.self, predicate: predicate) { galleryMOs in
@@ -313,10 +313,10 @@ extension DatabaseClient {
                     }
                 }
             }
-        }
+        })
     }
     func cacheGalleries(_ galleries: [Gallery]) -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             DispatchQueue.main.async {
                 for gallery in galleries.filter({ $0.id.isValidGID }) {
                     let storedMO = fetch(
@@ -342,7 +342,7 @@ extension DatabaseClient {
                 }
                 saveContext()
             }
-        }
+        })
     }
 }
 
@@ -350,7 +350,7 @@ extension DatabaseClient {
 extension DatabaseClient {
     func cacheGalleryDetail(_ detail: GalleryDetail) -> Effect<Never> {
         guard detail.gid.isValidGID else { return .none }
-        return .fireAndForget {
+        return .run(operation: { _ in
             DispatchQueue.main.async {
                 let storedMO = fetch(
                     entityType: GalleryDetailMO.self, gid: detail.gid
@@ -380,7 +380,7 @@ extension DatabaseClient {
                 }
                 saveContext()
             }
-        }
+        })
     }
 }
 
@@ -388,14 +388,14 @@ extension DatabaseClient {
 extension DatabaseClient {
     func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
-        return .fireAndForget {
+        return .run(operation: { _ in
             DispatchQueue.main.async {
                 update(
                     entityType: GalleryStateMO.self, gid: gid, createIfNil: true,
                     commitChanges: commitChanges
                 )
             }
-        }
+        })
     }
     func updateGalleryState(gid: String, key: String, value: Any?) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
@@ -430,7 +430,7 @@ extension DatabaseClient {
         }
     }
     func removeImageURLs() -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             DispatchQueue.main.async {
                 batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
                     galleryStateMOs.forEach { galleryStateMO in
@@ -441,7 +441,7 @@ extension DatabaseClient {
                     }
                 }
             }
-        }
+        })
     }
     func removeExpiredImageURLs() -> Effect<Never> {
         fetchHistoryGalleries()
@@ -490,14 +490,14 @@ extension DatabaseClient {
 // MARK: UpdateAppEnv
 extension DatabaseClient {
     func updateAppEnv(key: String, value: Any?) -> Effect<Never> {
-        .fireAndForget {
+        .run(operation: { _ in
             DispatchQueue.main.async {
                 update(
                     entityType: AppEnvMO.self, createIfNil: true,
                     commitChanges: { $0.setValue(value, forKeyPath: key) }
                 )
             }
-        }
+        })
     }
     func updateSetting(_ setting: Setting) -> Effect<Never> {
         updateAppEnv(key: "setting", value: setting.toData())

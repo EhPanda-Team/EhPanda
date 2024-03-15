@@ -15,9 +15,9 @@ struct UserDefaultsClient {
 extension UserDefaultsClient {
     static let live: Self = .init(
         setValue: { value, key in
-            .fireAndForget {
+            .run(operation: { _ in
                 UserDefaults.standard.set(value, forKey: key.rawValue)
-            }
+            })
         }
     )
 
