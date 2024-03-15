@@ -77,7 +77,7 @@ struct LoginReducer: ReducerProtocol {
 
             case .loginDone(let result):
                 state.route = nil
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
                     effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.success) }))

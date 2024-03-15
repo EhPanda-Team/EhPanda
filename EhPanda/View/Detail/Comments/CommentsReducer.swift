@@ -135,7 +135,7 @@ struct CommentsReducer: ReducerProtocol {
             case .handleGalleryLink(let url):
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {
                     effects.append(.init(value: .updateReadingProgress(gid, pageIndex)))
                     effects.append(

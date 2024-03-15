@@ -145,7 +145,7 @@ struct HomeReducer: ReducerProtocol {
             case .fetchAllToplistsGalleries:
                 return .merge(
                     ToplistsType.allCases.map({ Action.fetchToplistsGalleries($0.categoryIndex) })
-                        .map(EffectTask<Action>.init)
+                        .map(Effect<Action>.init)
                 )
 
             case .fetchPopularGalleries:

@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 struct UserDefaultsClient {
-    let setValue: (Any, AppUserDefaults) -> EffectTask<Never>
+    let setValue: (Any, AppUserDefaults) -> Effect<Never>
 }
 
 extension UserDefaultsClient {

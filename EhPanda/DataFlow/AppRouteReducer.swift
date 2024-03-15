@@ -80,7 +80,7 @@ struct AppRouteReducer: ReducerProtocol {
                 let currentChangeCount = clipboardClient.changeCount()
                 guard currentChangeCount != userDefaultsClient
                         .getValue(.clipboardChangeCount) else { return .none }
-                var effects: [EffectTask<Action>] = [
+                var effects: [Effect<Action>] = [
                     userDefaultsClient
                         .setValue(currentChangeCount, .clipboardChangeCount).fireAndForget()
                 ]
@@ -110,7 +110,7 @@ struct AppRouteReducer: ReducerProtocol {
             case .handleGalleryLink(let url):
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 state.detailState = .init()
                 effects.append(.init(value: .detail(.fetchDatabaseInfos(gid))))
                 if let pageIndex = pageIndex {

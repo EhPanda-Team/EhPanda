@@ -12,8 +12,8 @@ import UniformTypeIdentifiers
 struct ClipboardClient {
     let url: () -> URL?
     let changeCount: () -> Int
-    let saveText: (String) -> EffectTask<Never>
-    let saveImage: (UIImage, Bool) -> EffectTask<Never>
+    let saveText: (String) -> Effect<Never>
+    let saveImage: (UIImage, Bool) -> Effect<Never>
 }
 
 extension ClipboardClient {

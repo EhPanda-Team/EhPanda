@@ -122,7 +122,7 @@ struct SettingReducer: ReducerProtocol {
                 )
 
             case .binding(\.$setting.enablesTagsExtension):
-                var effects: [EffectTask<Action>] = [
+                var effects: [Effect<Action>] = [
                     .init(value: .syncSetting)
                 ]
                 if state.setting.enablesTagsExtension {
@@ -160,7 +160,7 @@ struct SettingReducer: ReducerProtocol {
                 return .init(value: .syncSetting)
 
             case .binding(\.$setting.enablesLandscape):
-                var effects: [EffectTask<Action>] = [
+                var effects: [Effect<Action>] = [
                     .init(value: .syncSetting)
                 ]
                 if !state.setting.enablesLandscape && !deviceClient.isPad() {
@@ -237,7 +237,7 @@ struct SettingReducer: ReducerProtocol {
                 state.setting = appEnv.setting
                 state.tagTranslator = appEnv.tagTranslator
                 state.user = appEnv.user
-                var effects: [EffectTask<Action>] = [
+                var effects: [Effect<Action>] = [
                     .init(value: .syncAppIconType),
                     .init(value: .loadUserSettingsDone),
                     .init(value: .syncUserInterfaceStyle),
@@ -276,7 +276,7 @@ struct SettingReducer: ReducerProtocol {
                 return IgneousRequest().effect.map(Action.fetchIgneousDone)
 
             case .fetchIgneousDone(let result):
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if case .success(let response) = result {
                     effects.append(cookieClient.setCredentials(response: response).fireAndForget())
                 }
@@ -353,7 +353,7 @@ struct SettingReducer: ReducerProtocol {
                 else { return .none }
                 state.tagTranslatorLoadingState = .loading
 
-                var databaseEffect: EffectTask<Action>?
+                var databaseEffect: Effect<Action>?
                 if state.tagTranslator.language != language {
                     state.tagTranslator = TagTranslator(language: language)
                     databaseEffect = .init(value: .syncTagTranslator)
@@ -383,7 +383,7 @@ struct SettingReducer: ReducerProtocol {
                 return VerifyEhProfileRequest().effect.map(Action.fetchEhProfileIndexDone)
 
             case .fetchEhProfileIndexDone(let result):
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
 
                 if case .success(let response) = result {
                     if let profileValue = response.profileValue {

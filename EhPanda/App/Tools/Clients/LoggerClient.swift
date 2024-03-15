@@ -8,8 +8,8 @@
 import ComposableArchitecture
 
 struct LoggerClient {
-    let info: (Any, Any?) -> EffectTask<Never>
-    let error: (Any, Any?) -> EffectTask<Never>
+    let info: (Any, Any?) -> Effect<Never>
+    let error: (Any, Any?) -> Effect<Never>
 }
 
 extension LoggerClient {

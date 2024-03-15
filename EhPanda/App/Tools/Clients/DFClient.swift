@@ -10,7 +10,7 @@ import Kingfisher
 import ComposableArchitecture
 
 struct DFClient {
-    let setActive: (Bool) -> EffectTask<Never>
+    let setActive: (Bool) -> Effect<Never>
 }
 
 extension DFClient {

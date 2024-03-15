@@ -23,7 +23,7 @@ extension ReducerProtocol {
     private func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,
-        perform additionalEffects: @escaping (inout State, Action) -> EffectTask<Action>
+        perform additionalEffects: @escaping (inout State, Action) -> Effect<Action>
     ) -> some ReducerProtocol<State, Action> {
         Reduce { state, action in
             let previousCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue

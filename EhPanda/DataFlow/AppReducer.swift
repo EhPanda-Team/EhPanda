@@ -82,7 +82,7 @@ struct AppReducer: ReducerProtocol {
                     return .none
 
                 case .appRoute(.clearSubStates):
-                    var effects = [EffectTask<Action>]()
+                    var effects = [Effect<Action>]()
                     if deviceClient.isPad() {
                         state.settingState.route = nil
                         effects.append(.init(value: .setting(.clearSubStates)))
@@ -93,7 +93,7 @@ struct AppReducer: ReducerProtocol {
                     return .none
 
                 case .appLock(.unlockApp):
-                    var effects: [EffectTask<Action>] = [
+                    var effects: [Effect<Action>] = [
                         .init(value: .setting(.fetchGreeting))
                     ]
                     if state.settingState.setting.detectsLinksFromClipboard {
@@ -105,8 +105,8 @@ struct AppReducer: ReducerProtocol {
                     return .none
 
                 case .tabBar(.setTabBarItemType(let type)):
-                    var effects = [EffectTask<Action>]()
-                    let hapticEffect: EffectTask<Action> = .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    var effects = [Effect<Action>]()
+                    let hapticEffect: Effect<Action> = .fireAndForget({ hapticsClient.generateFeedback(.soft) })
                     if type == state.tabBarState.tabBarItemType {
                         switch type {
                         case .home:
@@ -148,7 +148,7 @@ struct AppReducer: ReducerProtocol {
                     return .none
 
                 case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
-                    var effects: [EffectTask<Action>] = [
+                    var effects: [Effect<Action>] = [
                         .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
                         .init(value: .tabBar(.setTabBarItemType(.setting)))
                     ]
@@ -175,7 +175,7 @@ struct AppReducer: ReducerProtocol {
                     return .none
 
                 case .setting(.loadUserSettingsDone):
-                    var effects = [EffectTask<Action>]()
+                    var effects = [Effect<Action>]()
                     let threshold = state.settingState.setting.autoLockPolicy.rawValue
                     let blurRadius = state.settingState.setting.backgroundBlurRadius
                     if threshold >= 0 {

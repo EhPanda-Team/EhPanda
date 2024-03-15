@@ -181,7 +181,7 @@ struct ToplistsReducer: ReducerProtocol {
                     state.rawPageNumber[type] = pageNumber
                     state.insertGalleries(type: type, galleries: galleries)
 
-                    var effects: [EffectTask<Action>] = [
+                    var effects: [Effect<Action>] = [
                         databaseClient.cacheGalleries(galleries).fireAndForget()
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {

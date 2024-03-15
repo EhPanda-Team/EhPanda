@@ -146,7 +146,7 @@ struct SearchReducer: ReducerProtocol {
                     state.pageNumber = pageNumber
                     state.insertGalleries(galleries)
 
-                    var effects: [EffectTask<Action>] = [
+                    var effects: [Effect<Action>] = [
                         databaseClient.cacheGalleries(galleries).fireAndForget()
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {

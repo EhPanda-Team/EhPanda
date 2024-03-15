@@ -204,7 +204,7 @@ struct ReadingReducer: ReducerProtocol {
                 return .none
 
             case .setOrientationPortrait(let isPortrait):
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if isPortrait {
                     effects.append(appDelegateClient.setPortraitOrientationMask().fireAndForget())
                     effects.append(appDelegateClient.setPortraitOrientation().fireAndForget())
@@ -217,7 +217,7 @@ struct ReadingReducer: ReducerProtocol {
                 return .fireAndForget({ hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
-                var effects: [EffectTask<Action>] = [
+                var effects: [Effect<Action>] = [
                     .init(value: .fetchDatabaseInfos(gid))
                 ]
                 if enablesLandscape {
@@ -322,7 +322,7 @@ struct ReadingReducer: ReducerProtocol {
                     .fireAndForget()
 
             case .teardown:
-                var effects: [EffectTask<Action>] = [
+                var effects: [Effect<Action>] = [
                     .cancel(ids: CancelID.allCases)
                 ]
                 if !deviceClient.isPad() {
@@ -406,7 +406,7 @@ struct ReadingReducer: ReducerProtocol {
                 }
                 var prefetchImageURLs = [URL]()
                 var fetchImageURLIndices = [Int]()
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 let previousUpperBound = max(index - 2, 1)
                 let previousLowerBound = max(previousUpperBound - prefetchLimit / 2, 1)
                 if previousUpperBound - previousLowerBound > 0 {
@@ -509,7 +509,7 @@ struct ReadingReducer: ReducerProtocol {
             case .refetchNormalImageURLsDone(let index, let result):
                 switch result {
                 case .success(let (imageURLs, response)):
-                    var effects = [EffectTask<Action>]()
+                    var effects = [Effect<Action>]()
                     if let response = response {
                         effects.append(cookieClient.setSkipServer(response: response).fireAndForget())
                     }

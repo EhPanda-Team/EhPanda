@@ -259,7 +259,7 @@ struct DetailReducer: ReducerProtocol {
                     state.loadingState = .idle
                     switch result {
                     case .success(let (galleryDetail, galleryState, apiKey, greeting)):
-                        var effects: [EffectTask<Action>] = [
+                        var effects: [Effect<Action>] = [
                             .init(value: .syncGalleryTags),
                             .init(value: .syncGalleryDetail),
                             .init(value: .syncGalleryPreviewURLs),
