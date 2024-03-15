@@ -55,7 +55,7 @@ struct MigrationReducer: Reducer {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return Effect.send(.onDatabasePreparationSuccess)
                 }
 
             case .dropDatabase:
@@ -70,7 +70,7 @@ struct MigrationReducer: Reducer {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return Effect.send(.onDatabasePreparationSuccess)
                 }
             }
         }

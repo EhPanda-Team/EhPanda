@@ -65,7 +65,7 @@ struct TorrentsReducer: Reducer {
 
             case .presentTorrentActivity(let hash, let data):
                 if let url = fileClient.saveTorrent(hash: hash, data: data) {
-                    return .init(value: .setNavigation(.share(url)))
+                    return Effect.send(.setNavigation(.share(url)))
                 }
                 return .none
 
@@ -78,7 +78,7 @@ struct TorrentsReducer: Reducer {
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {
-                    return .init(value: .presentTorrentActivity(hash, data))
+                    return Effect.send(.presentTorrentActivity(hash, data))
                 }
                 return .none
 

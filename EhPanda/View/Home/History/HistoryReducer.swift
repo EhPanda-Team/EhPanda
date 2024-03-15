@@ -54,23 +54,23 @@ struct HistoryReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
-                return .init(value: .detail(.teardown))
+                return Effect.send(.detail(.teardown))
 
             case .clearHistoryGalleries:
                 return .merge(
                     databaseClient.clearHistoryGalleries().fireAndForget(),
-                    .init(value: .fetchGalleries)
+                    Effect.send(.fetchGalleries)
                         .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
                 )
 

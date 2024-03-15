@@ -47,15 +47,15 @@ struct FiltersReducer: Reducer {
             switch action {
             case .binding(\.$searchFilter):
                 state.searchFilter.fixInvalidData()
-                return .init(value: .syncFilter(.search))
+                return Effect.send(.syncFilter(.search))
 
             case .binding(\.$globalFilter):
                 state.globalFilter.fixInvalidData()
-                return .init(value: .syncFilter(.global))
+                return Effect.send(.syncFilter(.global))
 
             case .binding(\.$watchedFilter):
                 state.watchedFilter.fixInvalidData()
-                return .init(value: .syncFilter(.watched))
+                return Effect.send(.syncFilter(.watched))
 
             case .binding:
                 return .none
@@ -91,13 +91,13 @@ struct FiltersReducer: Reducer {
                 switch state.filterRange {
                 case .search:
                     state.searchFilter = .init()
-                    return .init(value: .syncFilter(.search))
+                    return Effect.send(.syncFilter(.search))
                 case .global:
                     state.globalFilter = .init()
-                    return .init(value: .syncFilter(.global))
+                    return Effect.send(.syncFilter(.global))
                 case .watched:
                     state.watchedFilter = .init()
-                    return .init(value: .syncFilter(.watched))
+                    return Effect.send(.syncFilter(.watched))
                 }
 
             case .fetchFilters:

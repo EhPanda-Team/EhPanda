@@ -99,13 +99,13 @@ struct HomeReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding(\.$cardPageIndex):
                 guard state.cardPageIndex < state.popularGalleries.count else { return .none }
                 state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
                 state.allowsCardHitTesting = false
-                return .init(value: .setAllowsCardHitTesting(true))
+                return Effect.send(.setAllowsCardHitTesting(true))
                     .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
                     .eraseToEffect()
 
@@ -114,7 +114,7 @@ struct HomeReducer: Reducer {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.frontpageState = .init()
@@ -124,11 +124,11 @@ struct HomeReducer: Reducer {
                 state.historyState = .init()
                 state.detailState = .init()
                 return .merge(
-                    .init(value: .frontpage(.teardown)),
-                    .init(value: .toplists(.teardown)),
-                    .init(value: .popular(.teardown)),
-                    .init(value: .watched(.teardown)),
-                    .init(value: .detail(.teardown))
+                    Effect.send(.frontpage(.teardown)),
+                    Effect.send(.toplists(.teardown)),
+                    Effect.send(.popular(.teardown)),
+                    Effect.send(.watched(.teardown)),
+                    Effect.send(.detail(.teardown))
                 )
 
             case .setAllowsCardHitTesting(let isAllowed):
@@ -137,9 +137,9 @@ struct HomeReducer: Reducer {
 
             case .fetchAllGalleries:
                 return .merge(
-                    .init(value: .fetchPopularGalleries),
-                    .init(value: .fetchFrontpageGalleries),
-                    .init(value: .fetchAllToplistsGalleries)
+                    Effect.send(.fetchPopularGalleries),
+                    Effect.send(.fetchFrontpageGalleries),
+                    Effect.send(.fetchAllToplistsGalleries)
                 )
 
             case .fetchAllToplistsGalleries:

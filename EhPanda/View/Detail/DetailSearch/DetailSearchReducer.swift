@@ -70,7 +70,7 @@ struct DetailSearchReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding(\.$keyword):
                 if !state.keyword.isEmpty {
@@ -83,15 +83,15 @@ struct DetailSearchReducer: Reducer {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
                 state.quickDetailSearchState = .init()
                 return .merge(
-                    .init(value: .detail(.teardown)),
-                    .init(value: .quickSearch(.teardown))
+                    Effect.send(.detail(.teardown)),
+                    Effect.send(.quickSearch(.teardown))
                 )
 
             case .teardown:
@@ -116,7 +116,7 @@ struct DetailSearchReducer: Reducer {
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
-                        return .init(value: .fetchMoreGalleries)
+                        return Effect.send(.fetchMoreGalleries)
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
@@ -149,7 +149,7 @@ struct DetailSearchReducer: Reducer {
                         databaseClient.cacheGalleries(galleries).fireAndForget()
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.init(value: .fetchMoreGalleries))
+                        effects.append(Effect.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.loadingState = .idle
                     }

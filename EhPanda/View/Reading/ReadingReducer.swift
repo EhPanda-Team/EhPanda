@@ -218,10 +218,10 @@ struct ReadingReducer: Reducer {
 
             case .onAppear(let gid, let enablesLandscape):
                 var effects: [Effect<Action>] = [
-                    .init(value: .fetchDatabaseInfos(gid))
+                    Effect.send(.fetchDatabaseInfos(gid))
                 ]
                 if enablesLandscape {
-                    effects.append(.init(value: .setOrientationPortrait(false)))
+                    effects.append(Effect.send(.setOrientationPortrait(false)))
                 }
                 return .merge(effects)
 
@@ -263,17 +263,17 @@ struct ReadingReducer: Reducer {
                 return .none
 
             case .copyImage(let imageURL):
-                return .init(value: .fetchImage(.copy(imageURL.isGIF), imageURL))
+                return Effect.send(.fetchImage(.copy(imageURL.isGIF), imageURL))
 
             case .saveImage(let imageURL):
-                return .init(value: .fetchImage(.save(imageURL.isGIF), imageURL))
+                return Effect.send(.fetchImage(.save(imageURL.isGIF), imageURL))
 
             case .saveImageDone(let isSucceeded):
                 state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
-                return .init(value: .setNavigation(.hud))
+                return Effect.send(.setNavigation(.hud))
 
             case .shareImage(let imageURL):
-                return .init(value: .fetchImage(.share(imageURL.isGIF), imageURL))
+                return Effect.send(.fetchImage(.share(imageURL.isGIF), imageURL))
 
             case .fetchImage(let action, let imageURL):
                 return imageClient.fetchImage(url: imageURL)
@@ -286,7 +286,7 @@ struct ReadingReducer: Reducer {
                     case .copy(let isAnimated):
                         state.hudConfig = .copiedToClipboardSucceeded
                         return .merge(
-                            .init(value: .setNavigation(.hud)),
+                            Effect.send(.setNavigation(.hud)),
                             clipboardClient.saveImage(image, isAnimated).fireAndForget()
                         )
                     case .save(let isAnimated):
@@ -294,14 +294,14 @@ struct ReadingReducer: Reducer {
                             .saveImageToPhotoLibrary(image, isAnimated).map(Action.saveImageDone)
                     case .share(let isAnimated):
                         if isAnimated, let data = image.kf.data(format: .GIF) {
-                            return .init(value: .setNavigation(.share(.data(data))))
+                            return Effect.send(.setNavigation(.share(.data(data))))
                         } else {
-                            return .init(value: .setNavigation(.share(.image(image))))
+                            return Effect.send(.setNavigation(.share(.image(image))))
                         }
                     }
                 } else {
                     state.hudConfig = .error
-                    return .init(value: .setNavigation(.hud))
+                    return Effect.send(.setNavigation(.hud))
                 }
 
             case .syncReadingProgress(let progress):
@@ -326,7 +326,7 @@ struct ReadingReducer: Reducer {
                     .cancel(ids: CancelID.allCases)
                 ]
                 if !deviceClient.isPad() {
-                    effects.append(.init(value: .setOrientationPortrait(true)))
+                    effects.append(Effect.send(.setOrientationPortrait(true)))
                 }
                 return .merge(effects)
 
@@ -367,7 +367,7 @@ struct ReadingReducer: Reducer {
                     }
                     state.previewLoadingStates[index] = .idle
                     state.updatePreviewURLs(previewURLs)
-                    return .init(value: .syncPreviewURLs(previewURLs))
+                    return Effect.send(.syncPreviewURLs(previewURLs))
                 case .failure(let error):
                     state.previewLoadingStates[index] = .failed(error)
                 }
@@ -375,16 +375,16 @@ struct ReadingReducer: Reducer {
 
             case .fetchImageURLs(let index):
                 if state.mpvKey != nil {
-                    return .init(value: .fetchMPVImageURL(index, false))
+                    return Effect.send(.fetchMPVImageURL(index, false))
                 } else {
-                    return .init(value: .fetchThumbnailURLs(index))
+                    return Effect.send(.fetchThumbnailURLs(index))
                 }
 
             case .refetchImageURLs(let index):
                 if state.mpvKey != nil {
-                    return .init(value: .fetchMPVImageURL(index, true))
+                    return Effect.send(.fetchMPVImageURL(index, true))
                 } else {
-                    return .init(value: .refetchNormalImageURLs(index))
+                    return Effect.send(.refetchNormalImageURLs(index))
                 }
 
             case .prefetchImages(let index, let prefetchLimit):
@@ -420,7 +420,7 @@ struct ReadingReducer: Reducer {
                     fetchImageURLIndices += getFetchImageURLIndices(range: nextLowerBound...nextUpperBound)
                 }
                 fetchImageURLIndices.forEach {
-                    effects.append(.init(value: .fetchImageURLs($0)))
+                    effects.append(Effect.send(.fetchImageURLs($0)))
                 }
                 effects.append(imageClient.prefetchImages(prefetchImageURLs).fireAndForget())
                 return .merge(effects)
@@ -448,12 +448,12 @@ struct ReadingReducer: Reducer {
                         return .none
                     }
                     if let url = thumbnailURLs[index], urlClient.checkIfMPVURL(url) {
-                        return .init(value: .fetchMPVKeys(index, url))
+                        return Effect.send(.fetchMPVKeys(index, url))
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
                         return .merge(
-                            .init(value: .syncThumbnailURLs(thumbnailURLs)),
-                            .init(value: .fetchNormalImageURLs(index, thumbnailURLs))
+                            Effect.send(.syncThumbnailURLs(thumbnailURLs)),
+                            Effect.send(.fetchNormalImageURLs(index, thumbnailURLs))
                         )
                     }
                 case .failure(let error):
@@ -482,7 +482,7 @@ struct ReadingReducer: Reducer {
                         state.imageURLLoadingStates[$0] = .idle
                     }
                     state.updateImageURLs(imageURLs, originalImageURLs)
-                    return .init(value: .syncImageURLs(imageURLs, originalImageURLs))
+                    return Effect.send(.syncImageURLs(imageURLs, originalImageURLs))
                 case .failure(let error):
                     batchRange.forEach {
                         state.imageURLLoadingStates[$0] = .failed(error)
@@ -519,7 +519,7 @@ struct ReadingReducer: Reducer {
                     }
                     state.imageURLLoadingStates[index] = .idle
                     state.updateImageURLs(imageURLs, [:])
-                    effects.append(.init(value: .syncImageURLs(imageURLs, [:])))
+                    effects.append(Effect.send(.syncImageURLs(imageURLs, [:])))
                     return .merge(effects)
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
@@ -548,7 +548,7 @@ struct ReadingReducer: Reducer {
                     state.mpvImageKeys = mpvImageKeys
                     return .merge(
                         Array(1...min(3, max(1, pageCount))).map {
-                            .init(value: .fetchMPVImageURL($0, false))
+                            Effect.send(.fetchMPVImageURL($0, false))
                         }
                     )
                 case .failure(let error):
@@ -582,7 +582,7 @@ struct ReadingReducer: Reducer {
                     state.imageURLLoadingStates[index] = .idle
                     state.mpvSkipServerIdentifiers[index] = skipServerIdentifier
                     state.updateImageURLs(imageURLs, originalImageURLs)
-                    return .init(value: .syncImageURLs(imageURLs, originalImageURLs))
+                    return Effect.send(.syncImageURLs(imageURLs, originalImageURLs))
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
                 }

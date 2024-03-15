@@ -36,7 +36,7 @@ struct AppDelegateReducer: Reducer {
                     cookieClient.syncExCookies().fireAndForget(),
                     cookieClient.ignoreOffensive().fireAndForget(),
                     cookieClient.fulfillAnotherHostField().fireAndForget(),
-                    .init(value: .migration(.prepareDatabase))
+                    Effect.send(.migration(.prepareDatabase))
                 )
 
             case .removeExpiredImageURLs:

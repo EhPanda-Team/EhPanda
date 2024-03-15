@@ -94,8 +94,8 @@ struct SearchRootReducer: Reducer {
             case .binding(\.$route):
                 return state.route == nil
                 ? .merge(
-                    .init(value: .clearSubStates),
-                    .init(value: .fetchDatabaseInfos)
+                    Effect.send(.clearSubStates),
+                    Effect.send(.fetchDatabaseInfos)
                 )
                 : .none
 
@@ -106,8 +106,8 @@ struct SearchRootReducer: Reducer {
                 state.route = route
                 return route == nil
                 ? .merge(
-                    .init(value: .clearSubStates),
-                    .init(value: .fetchDatabaseInfos)
+                    Effect.send(.clearSubStates),
+                    Effect.send(.fetchDatabaseInfos)
                 )
                 : .none
 
@@ -121,9 +121,9 @@ struct SearchRootReducer: Reducer {
                 state.filtersState = .init()
                 state.quickSearchState = .init()
                 return .merge(
-                    .init(value: .search(.teardown)),
-                    .init(value: .quickSearch(.teardown)),
-                    .init(value: .detail(.teardown))
+                    Effect.send(.search(.teardown)),
+                    Effect.send(.quickSearch(.teardown)),
+                    Effect.send(.detail(.teardown))
                 )
 
             case .syncHistoryKeywords:
@@ -139,11 +139,11 @@ struct SearchRootReducer: Reducer {
 
             case .appendHistoryKeyword(let keyword):
                 state.appendHistoryKeywords([keyword])
-                return .init(value: .syncHistoryKeywords)
+                return Effect.send(.syncHistoryKeywords)
 
             case .removeHistoryKeyword(let keyword):
                 state.removeHistoryKeyword(keyword)
-                return .init(value: .syncHistoryKeywords)
+                return Effect.send(.syncHistoryKeywords)
 
             case .fetchHistoryGalleries:
                 return databaseClient.fetchHistoryGalleries(fetchLimit: 10).map(Action.fetchHistoryGalleriesDone)
@@ -158,7 +158,7 @@ struct SearchRootReducer: Reducer {
                 } else {
                     state.appendHistoryKeywords([state.searchState.lastKeyword])
                 }
-                return .init(value: .syncHistoryKeywords)
+                return Effect.send(.syncHistoryKeywords)
 
             case .search:
                 return .none
