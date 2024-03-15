@@ -104,10 +104,9 @@ struct HistoryView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             HistoryView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: HistoryReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    HistoryReducer()
+                },
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

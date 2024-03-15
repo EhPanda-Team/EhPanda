@@ -54,10 +54,9 @@ struct MigrationView: View {
 struct MigrationView_Previews: PreviewProvider {
     static var previews: some View {
         MigrationView(
-            store: .init(
-                initialState: .init(),
-                reducer: MigrationReducer()
-            )
+            store: .init(initialState: .init()) {
+                MigrationReducer()
+            }
         )
     }
 }

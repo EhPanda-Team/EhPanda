@@ -222,10 +222,9 @@ struct AccountSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             AccountSettingView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: AccountSettingReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    AccountSettingReducer()
+                },
                 galleryHost: .constant(.ehentai),
                 showsNewDawnGreeting: .constant(false),
                 bypassesSNIFiltering: false,

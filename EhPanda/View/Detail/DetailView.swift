@@ -847,10 +847,9 @@ struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             DetailView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: DetailReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    DetailReducer()
+                },
                 gid: .init(),
                 user: .init(),
                 setting: .constant(.init()),

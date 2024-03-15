@@ -1019,10 +1019,9 @@ struct EhSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             EhSettingView(
-                store: .init(
-                    initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
-                    reducer: EhSettingReducer()
-                ),
+                store: .init(initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle)) {
+                    EhSettingReducer()
+                },
                 bypassesSNIFiltering: false,
                 blurRadius: 0
             )

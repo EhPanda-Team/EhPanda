@@ -196,10 +196,9 @@ struct GeneralSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             GeneralSettingView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: GeneralSettingReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    GeneralSettingReducer()
+                },
                 tagTranslatorLoadingState: .idle,
                 tagTranslatorEmpty: false,
                 tagTranslatorHasCustomTranslations: false,

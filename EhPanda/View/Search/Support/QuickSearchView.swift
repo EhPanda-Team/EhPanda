@@ -202,10 +202,9 @@ extension QuickSearchView {
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
         QuickSearchView(
-            store: .init(
-                initialState: .init(),
-                reducer: QuickSearchReducer()
-            ),
+            store: .init(initialState: .init()) {
+                QuickSearchReducer()
+            },
             searchAction: { _ in }
         )
     }

@@ -95,10 +95,9 @@ struct PopularView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             PopularView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: PopularReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    PopularReducer()
+                },
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

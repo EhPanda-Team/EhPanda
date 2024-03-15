@@ -122,10 +122,9 @@ struct SearchView: View {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(
-            store: .init(
-                initialState: .init(),
-                reducer: SearchReducer()
-            ),
+            store: .init(initialState: .init()) {
+                SearchReducer()
+            },
             keyword: .init(),
             user: .init(),
             setting: .constant(.init()),

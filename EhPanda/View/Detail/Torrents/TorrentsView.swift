@@ -118,10 +118,9 @@ private extension TorrentsView {
 struct TorrentsView_Previews: PreviewProvider {
     static var previews: some View {
         TorrentsView(
-            store: .init(
-                initialState: .init(),
-                reducer: TorrentsReducer()
-            ),
+            store: .init(initialState: .init()) {
+                TorrentsReducer()
+            },
             gid: .init(),
             token: .init(),
             blurRadius: 0

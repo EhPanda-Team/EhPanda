@@ -272,10 +272,9 @@ struct CommentsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             CommentsView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: CommentsReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    CommentsReducer()
+                },
                 gid: .init(),
                 token: .init(),
                 apiKey: .init(),

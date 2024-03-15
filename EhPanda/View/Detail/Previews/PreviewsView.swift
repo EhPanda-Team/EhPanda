@@ -87,10 +87,9 @@ struct PreviewsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             PreviewsView(
-                store: .init(
-                    initialState: .init(gallery: .preview),
-                    reducer: PreviewsReducer()
-                ),
+                store: .init(initialState: .init(gallery: .preview)) {
+                    PreviewsReducer()
+                },
                 gid: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
