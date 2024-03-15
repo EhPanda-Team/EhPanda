@@ -9,7 +9,7 @@ import SwiftUI
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ReadingReducer: ReducerProtocol {
+struct ReadingReducer: Reducer {
     enum Route: Equatable {
         case hud
         case share(ShareItem)
@@ -184,7 +184,7 @@ struct ReadingReducer: ReducerProtocol {
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.urlClient) private var urlClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

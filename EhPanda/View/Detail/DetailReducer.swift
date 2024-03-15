@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 import ComposableArchitecture
 
-struct DetailReducer: ReducerProtocol {
+struct DetailReducer: Reducer {
     enum Route: Equatable {
         case reading
         case archives(URL, URL)
@@ -115,7 +115,7 @@ struct DetailReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         RecurseReducer { (self) in
             BindingReducer()
 

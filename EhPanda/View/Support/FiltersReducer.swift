@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct FiltersReducer: ReducerProtocol {
+struct FiltersReducer: Reducer {
     enum Route {
         case resetFilters
     }
@@ -40,7 +40,7 @@ struct FiltersReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

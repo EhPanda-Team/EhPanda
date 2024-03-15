@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct HistoryReducer: ReducerProtocol {
+struct HistoryReducer: Reducer {
     enum Route: Equatable {
         case detail(String)
         case clearHistory
@@ -48,7 +48,7 @@ struct HistoryReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

@@ -9,7 +9,7 @@ import Kingfisher
 import LocalAuthentication
 import ComposableArchitecture
 
-struct GeneralSettingReducer: ReducerProtocol {
+struct GeneralSettingReducer: Reducer {
     enum Route {
         case logs
         case clearCache
@@ -47,7 +47,7 @@ struct GeneralSettingReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

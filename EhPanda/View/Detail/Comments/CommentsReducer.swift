@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct CommentsReducer: ReducerProtocol {
+struct CommentsReducer: Reducer {
     enum Route: Equatable {
         case hud
         case detail(String)
@@ -70,7 +70,7 @@ struct CommentsReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.urlClient) private var urlClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

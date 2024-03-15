@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct QuickSearchReducer: ReducerProtocol {
+struct QuickSearchReducer: Reducer {
     enum Route: Equatable {
         case newWord
         case editWord
@@ -61,7 +61,7 @@ struct QuickSearchReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

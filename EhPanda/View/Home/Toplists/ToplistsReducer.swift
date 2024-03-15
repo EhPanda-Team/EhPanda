@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct ToplistsReducer: ReducerProtocol {
+struct ToplistsReducer: Reducer {
     enum Route: Equatable {
         case detail(String)
     }
@@ -85,7 +85,7 @@ struct ToplistsReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

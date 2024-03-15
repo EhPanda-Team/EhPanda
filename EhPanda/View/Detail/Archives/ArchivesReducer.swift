@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ArchivesReducer: ReducerProtocol {
+struct ArchivesReducer: Reducer {
     enum Route {
         case messageHUD
         case communicatingHUD
@@ -49,7 +49,7 @@ struct ArchivesReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

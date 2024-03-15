@@ -9,7 +9,7 @@ import SwiftUI
 import IdentifiedCollections
 import ComposableArchitecture
 
-struct FavoritesReducer: ReducerProtocol {
+struct FavoritesReducer: Reducer {
     enum Route: Equatable {
         case quickSearch
         case detail(String)
@@ -75,7 +75,7 @@ struct FavoritesReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

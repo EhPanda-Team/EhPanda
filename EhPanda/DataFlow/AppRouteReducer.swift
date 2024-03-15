@@ -9,7 +9,7 @@ import SwiftUI
 import TTProgressHUD
 import ComposableArchitecture
 
-struct AppRouteReducer: ReducerProtocol {
+struct AppRouteReducer: Reducer {
     enum Route: Equatable, Hashable {
         case hud
         case setting
@@ -53,7 +53,7 @@ struct AppRouteReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.urlClient) private var urlClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

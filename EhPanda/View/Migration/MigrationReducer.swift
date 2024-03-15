@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct MigrationReducer: ReducerProtocol {
+struct MigrationReducer: Reducer {
     enum Route: Equatable {
         case dropDialog
     }
@@ -31,7 +31,7 @@ struct MigrationReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

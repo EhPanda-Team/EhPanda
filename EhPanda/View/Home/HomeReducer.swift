@@ -10,7 +10,7 @@ import Kingfisher
 import UIImageColors
 import ComposableArchitecture
 
-struct HomeReducer: ReducerProtocol {
+struct HomeReducer: Reducer {
     enum Route: Equatable, Hashable {
         case detail(String)
         case misc(HomeMiscGridType)
@@ -93,7 +93,7 @@ struct HomeReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

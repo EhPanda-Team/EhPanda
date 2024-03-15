@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct SearchRootReducer: ReducerProtocol {
+struct SearchRootReducer: Reducer {
     enum Route: Equatable {
         case search
         case filters
@@ -86,7 +86,7 @@ struct SearchRootReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

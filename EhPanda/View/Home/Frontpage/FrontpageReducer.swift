@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct FrontpageReducer: ReducerProtocol {
+struct FrontpageReducer: Reducer {
     enum Route: Equatable {
         case filters
         case detail(String)
@@ -64,7 +64,7 @@ struct FrontpageReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

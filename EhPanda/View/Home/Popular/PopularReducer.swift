@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct PopularReducer: ReducerProtocol {
+struct PopularReducer: Reducer {
     enum Route: Equatable {
         case filters
         case detail(String)
@@ -52,7 +52,7 @@ struct PopularReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

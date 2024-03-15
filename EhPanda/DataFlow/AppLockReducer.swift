@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AppLockReducer: ReducerProtocol {
+struct AppLockReducer: Reducer {
     struct State: Equatable {
         @BindingState var blurRadius: Double = 0
         var becameInactiveDate: Date?
@@ -31,7 +31,7 @@ struct AppLockReducer: ReducerProtocol {
 
     @Dependency(\.authorizationClient) private var authorizationClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onBecomeActive(let threshold, let blurRadius):

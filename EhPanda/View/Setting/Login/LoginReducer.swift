@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct LoginReducer: ReducerProtocol {
+struct LoginReducer: Reducer {
     private enum CancelID: Hashable {
         case login
     }
@@ -50,7 +50,7 @@ struct LoginReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

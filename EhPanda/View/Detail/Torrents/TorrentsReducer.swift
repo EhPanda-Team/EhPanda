@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct TorrentsReducer: ReducerProtocol {
+struct TorrentsReducer: Reducer {
     enum Route: Equatable {
         case hud
         case share(URL)
@@ -44,7 +44,7 @@ struct TorrentsReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.fileClient) private var fileClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

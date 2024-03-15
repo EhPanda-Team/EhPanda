@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AppReducer: ReducerProtocol {
+struct AppReducer: Reducer {
     struct State: Equatable {
         var appDelegateState = AppDelegateReducer.State()
         var appRouteState = AppRouteReducer.State()
@@ -40,7 +40,7 @@ struct AppReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         LoggingReducer {
             BindingReducer()
 

@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftyBeaver
 import ComposableArchitecture
 
-struct AppDelegateReducer: ReducerProtocol {
+struct AppDelegateReducer: Reducer {
     struct State: Equatable {
         var migrationState = MigrationReducer.State()
     }
@@ -25,7 +25,7 @@ struct AppDelegateReducer: ReducerProtocol {
     @Dependency(\.libraryClient) private var libraryClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { _, action in
             switch action {
             case .onLaunchFinish:

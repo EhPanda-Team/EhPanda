@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct SettingReducer: ReducerProtocol {
+struct SettingReducer: Reducer {
     enum Route: Int, Equatable, Hashable, Identifiable, CaseIterable {
         var id: Int { rawValue }
 
@@ -109,7 +109,7 @@ struct SettingReducer: ReducerProtocol {
     @Dependency(\.fileClient) private var fileClient
     @Dependency(\.dfClient) private var dfClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
