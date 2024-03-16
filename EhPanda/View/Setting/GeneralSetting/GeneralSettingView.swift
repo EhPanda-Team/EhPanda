@@ -34,7 +34,7 @@ struct GeneralSettingView: View {
         autoLockPolicy: Binding<AutoLockPolicy>
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.tagTranslatorLoadingState = tagTranslatorLoadingState
         self.tagTranslatorEmpty = tagTranslatorEmpty
         self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations

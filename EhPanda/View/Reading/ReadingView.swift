@@ -30,7 +30,7 @@ struct ReadingView: View {
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius

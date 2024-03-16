@@ -24,7 +24,7 @@ struct DetailView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.user = user
         _setting = setting

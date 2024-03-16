@@ -24,7 +24,7 @@ struct HomeView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius

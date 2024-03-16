@@ -31,7 +31,7 @@ struct AppearanceSettingView: View {
         displaysJapaneseTitle: Binding<Bool>
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         _preferredColorScheme = preferredColorScheme
         _accentColor = accentColor
         _appIconType = appIconType

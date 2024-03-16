@@ -17,7 +17,7 @@ struct QuickSearchView: View {
 
     init(store: StoreOf<QuickSearchReducer>, searchAction: @escaping (String) -> Void) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.searchAction = searchAction
     }
 

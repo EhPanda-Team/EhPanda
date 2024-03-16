@@ -21,7 +21,7 @@ struct ArchivesView: View {
         gid: String, user: User, galleryURL: URL, archiveURL: URL
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.user = user
         self.galleryURL = galleryURL

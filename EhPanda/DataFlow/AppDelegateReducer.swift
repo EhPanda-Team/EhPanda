@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let store = Store(initialState: .init()) {
         AppReducer()
     }
-    lazy var viewStore = ViewStore(store)
+    lazy var viewStore = ViewStore(store, observe: { $0 })
 
     static var orientationMask: UIInterfaceOrientationMask = DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 

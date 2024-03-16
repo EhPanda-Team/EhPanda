@@ -18,7 +18,7 @@ struct LoginView: View {
 
     init(store: StoreOf<LoginReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }

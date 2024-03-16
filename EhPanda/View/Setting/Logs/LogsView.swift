@@ -14,7 +14,7 @@ struct LogsView: View {
 
     init(store: StoreOf<LogsReducer>) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {

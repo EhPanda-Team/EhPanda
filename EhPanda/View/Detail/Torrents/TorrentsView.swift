@@ -17,7 +17,7 @@ struct TorrentsView: View {
 
     init(store: StoreOf<TorrentsReducer>, gid: String, token: String, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.token = token
         self.blurRadius = blurRadius

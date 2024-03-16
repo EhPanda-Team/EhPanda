@@ -16,7 +16,7 @@ struct SettingView: View {
 
     init(store: StoreOf<SettingReducer>, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.blurRadius = blurRadius
     }
 

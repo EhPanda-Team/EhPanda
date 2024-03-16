@@ -22,7 +22,7 @@ struct AccountSettingView: View {
         bypassesSNIFiltering: Bool, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         _galleryHost = galleryHost
         _showsNewDawnGreeting = showsNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering

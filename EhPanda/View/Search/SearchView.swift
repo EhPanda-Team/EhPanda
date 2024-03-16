@@ -22,7 +22,7 @@ struct SearchView: View {
         keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.keyword = keyword
         self.user = user
         _setting = setting

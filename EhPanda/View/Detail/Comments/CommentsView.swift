@@ -29,7 +29,7 @@ struct CommentsView: View {
         blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.token = token
         self.apiKey = apiKey

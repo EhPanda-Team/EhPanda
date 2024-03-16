@@ -16,7 +16,7 @@ struct GalleryInfosView: View {
 
     init(store: StoreOf<GalleryInfosReducer>, gallery: Gallery, galleryDetail: GalleryDetail) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gallery = gallery
         self.galleryDetail = galleryDetail
     }

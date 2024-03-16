@@ -16,7 +16,7 @@ struct FiltersView: View {
 
     init(store: StoreOf<FiltersReducer>) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
     }
 
     private var filter: Binding<Filter> {

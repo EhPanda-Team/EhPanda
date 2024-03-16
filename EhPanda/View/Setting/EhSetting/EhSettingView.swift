@@ -16,7 +16,7 @@ struct EhSettingView: View {
 
     init(store: StoreOf<EhSettingReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
