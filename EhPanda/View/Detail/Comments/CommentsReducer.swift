@@ -180,7 +180,7 @@ struct CommentsReducer: Reducer {
                     .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .postComment(let galleryURL, let commentID):
                 guard !state.commentContent.isEmpty else { return .none }

@@ -76,7 +76,7 @@ struct EhSettingReducer: Reducer {
                 .fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }

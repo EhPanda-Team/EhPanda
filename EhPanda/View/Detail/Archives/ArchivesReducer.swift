@@ -66,7 +66,7 @@ struct ArchivesReducer: Reducer {
                     .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }

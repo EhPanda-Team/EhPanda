@@ -132,7 +132,7 @@ struct ToplistsReducer: Reducer {
                 return .none
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let pageNum):
                 guard state.loadingState != .loading else { return .none }

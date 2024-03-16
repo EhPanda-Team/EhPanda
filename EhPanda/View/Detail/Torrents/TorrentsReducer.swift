@@ -74,7 +74,7 @@ struct TorrentsReducer: Reducer {
                     .cancellable(id: CancelID.fetchTorrent)
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {

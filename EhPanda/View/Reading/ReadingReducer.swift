@@ -323,7 +323,7 @@ struct ReadingReducer: Reducer {
 
             case .teardown:
                 var effects: [Effect<Action>] = [
-                    .cancel(ids: CancelID.allCases)
+                    .merge(CancelID.allCases.map(Effect.cancel(id:)))
                 ]
                 if !deviceClient.isPad() {
                     effects.append(Effect.send(.setOrientationPortrait(true)))

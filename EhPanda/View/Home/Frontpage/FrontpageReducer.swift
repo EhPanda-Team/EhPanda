@@ -85,7 +85,7 @@ struct FrontpageReducer: Reducer {
                 return Effect.send(.detail(.teardown))
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }

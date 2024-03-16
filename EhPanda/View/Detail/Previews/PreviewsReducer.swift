@@ -84,7 +84,7 @@ struct PreviewsReducer: Reducer {
                     .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
