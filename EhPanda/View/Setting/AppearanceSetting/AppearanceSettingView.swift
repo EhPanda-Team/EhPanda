@@ -107,7 +107,7 @@ struct AppearanceSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingReducer.Route.appIcon) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /AppearanceSettingReducer.Route.appIcon) { _ in
             AppIconView(appIconType: $appIconType)
         }
     }

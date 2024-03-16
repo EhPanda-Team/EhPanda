@@ -68,7 +68,7 @@ struct PreviewsView: View {
             .padding(.bottom)
             .id(viewStore.databaseLoadingState)
         }
-        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsReducer.Route.reading) { _ in
+        .fullScreenCover(unwrapping: viewStore.$route, case: /PreviewsReducer.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: PreviewsReducer.Action.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius

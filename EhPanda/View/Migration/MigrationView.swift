@@ -36,7 +36,7 @@ struct MigrationView: View {
                     }
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.dropDatabase,
-                        unwrapping: viewStore.binding(\.$route),
+                        unwrapping: viewStore.$route,
                         case: /MigrationReducer.Route.dropDialog
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.dropDatabase, role: .destructive) {

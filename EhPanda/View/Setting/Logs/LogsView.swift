@@ -56,7 +56,7 @@ struct LogsView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /LogsReducer.Route.log) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /LogsReducer.Route.log) { route in
             LogView(log: route.wrappedValue)
         }
     }

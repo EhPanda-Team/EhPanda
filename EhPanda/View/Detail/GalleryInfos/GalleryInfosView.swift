@@ -118,7 +118,7 @@ struct GalleryInfosView: View {
         }
         .progressHUD(
             config: viewStore.hudConfig,
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /GalleryInfosReducer.Route.hud
         )
         .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)

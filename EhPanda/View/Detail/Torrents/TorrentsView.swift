@@ -45,13 +45,13 @@ struct TorrentsView: View {
                 }
                 .opacity(error != nil && viewStore.torrents.isEmpty ? 1 : 0)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsReducer.Route.share) { route in
+            .sheet(unwrapping: viewStore.$route, case: /TorrentsReducer.Route.share) { route in
                 ActivityView(activityItems: [route.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
             .progressHUD(
                 config: viewStore.hudConfig,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /TorrentsReducer.Route.hud
             )
             .animation(.default, value: viewStore.torrents)

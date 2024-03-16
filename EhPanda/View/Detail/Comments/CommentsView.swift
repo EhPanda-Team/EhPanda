@@ -92,14 +92,14 @@ struct CommentsView: View {
                 }
             }
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsReducer.Route.postComment) { route in
+        .sheet(unwrapping: viewStore.$route, case: /CommentsReducer.Route.postComment) { route in
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
                 ? L10n.Localizable.PostCommentView.Title.editComment
                 : L10n.Localizable.PostCommentView.Title.postComment,
-                content: viewStore.binding(\.$commentContent),
-                isFocused: viewStore.binding(\.$postCommentFocused),
+                content: viewStore.$commentContent,
+                isFocused: viewStore.$postCommentFocused,
                 postAction: {
                     if hasCommentID {
                         viewStore.send(.postComment(galleryURL, route.wrappedValue))
@@ -116,7 +116,7 @@ struct CommentsView: View {
         }
         .progressHUD(
             config: viewStore.hudConfig,
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /CommentsReducer.Route.hud
         )
         .animation(.default, value: viewStore.scrollRowOpacity)
@@ -143,7 +143,7 @@ struct CommentsView: View {
 // MARK: NavigationLinks
 private extension CommentsView {
     @ViewBuilder var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /CommentsReducer.Route.detail) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /CommentsReducer.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: CommentsReducer.Action.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,

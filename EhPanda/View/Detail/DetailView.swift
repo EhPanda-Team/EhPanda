@@ -121,7 +121,7 @@ struct DetailView: View {
             ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
                 .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
-        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.reading) { _ in
+        .fullScreenCover(unwrapping: viewStore.$route, case: /DetailReducer.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: DetailReducer.Action.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
@@ -129,7 +129,7 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.archives) { route in
+        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.archives) { route in
             let (galleryURL, archiveURL) = route.wrappedValue
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailReducer.Action.archives),
@@ -138,7 +138,7 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.torrents) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.torrents) { _ in
             TorrentsView(
                 store: store.scope(state: \.torrentsState, action: DetailReducer.Action.torrents),
                 gid: gid, token: viewStore.gallery.token, blurRadius: blurRadius
@@ -146,15 +146,15 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.share) { route in
+        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue])
                 .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.postComment) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.postComment) { _ in
             PostCommentView(
                 title: L10n.Localizable.PostCommentView.Title.postComment,
-                content: viewStore.binding(\.$commentContent),
-                isFocused: viewStore.binding(\.$postCommentFocused),
+                content: viewStore.$commentContent,
+                isFocused: viewStore.$postCommentFocused,
                 postAction: {
                     if let galleryURL = viewStore.gallery.galleryURL {
                         viewStore.send(.postComment(galleryURL))
@@ -167,10 +167,10 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.newDawn) { route in
+        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue).autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.tagDetail) { route in
+        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.tagDetail) { route in
             TagDetailView(detail: route.wrappedValue).autoBlur(radius: blurRadius)
         }
         .animation(.default, value: viewStore.showsUserRating)
@@ -189,13 +189,13 @@ struct DetailView: View {
 // MARK: NavigationLinks
 private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.previews) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: DetailReducer.Action.previews),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.comments) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.comments) { route in
             IfLetStore(store.scope(state: \.commentsState, action: DetailReducer.Action.comments)) { store in
                 CommentsView(
                     store: store, gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
@@ -205,7 +205,7 @@ private extension DetailView {
                 )
             }
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.detailSearch) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.detailSearch) { route in
             IfLetStore(store.scope(state: \.detailSearchState, action: DetailReducer.Action.detailSearch)) { store in
                 DetailSearchView(
                     store: store, keyword: route.wrappedValue, user: user, setting: $setting,
@@ -213,7 +213,7 @@ private extension DetailView {
                 )
             }
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailReducer.Route.galleryInfos) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
             GalleryInfosView(
                 store: store.scope(state: \.galleryInfosState, action: DetailReducer.Action.galleryInfos),

@@ -22,11 +22,11 @@ struct FiltersView: View {
     private var filter: Binding<Filter> {
         switch viewStore.filterRange {
         case .search:
-            return viewStore.binding(\.$searchFilter)
+            return viewStore.$searchFilter
         case .global:
-            return viewStore.binding(\.$globalFilter)
+            return viewStore.$globalFilter
         case .watched:
-            return viewStore.binding(\.$watchedFilter)
+            return viewStore.$watchedFilter
         }
     }
 
@@ -35,8 +35,8 @@ struct FiltersView: View {
         NavigationView {
             Form {
                 BasicSection(
-                    route: viewStore.binding(\.$route),
-                    filter: filter, filterRange: viewStore.binding(\.$filterRange),
+                    route: viewStore.$route,
+                    filter: filter, filterRange: viewStore.$filterRange,
                     resetFiltersAction: { viewStore.send(.resetFilters) },
                     resetFiltersDialogAction: { viewStore.send(.setNavigation(.resetFilters)) }
                 )
@@ -45,7 +45,7 @@ struct FiltersView: View {
                     submitAction: { viewStore.send(.onTextFieldSubmitted) }
                 )
             }
-            .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
+            .synchronize(viewStore.$focusedBound, $focusedBound)
             .navigationTitle(L10n.Localizable.FiltersView.Title.filters)
             .onAppear { viewStore.send(.fetchFilters) }
         }

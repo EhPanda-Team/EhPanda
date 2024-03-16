@@ -33,8 +33,8 @@ struct EhSettingView: View {
                     .tint(nil)
             }
             // Using `Binding.init` will crash the app
-            else if let ehSetting = Binding(unwrapping: viewStore.binding(\.$ehSetting)),
-                    let ehProfile = Binding(unwrapping: viewStore.binding(\.$ehProfile))
+            else if let ehSetting = Binding(unwrapping: viewStore.$ehSetting),
+                    let ehProfile = Binding(unwrapping: viewStore.$ehProfile)
             {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
                     .transition(.opacity.animation(.default))
@@ -50,7 +50,7 @@ struct EhSettingView: View {
                 viewStore.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingReducer.Route.webView) { route in
+        .sheet(unwrapping: viewStore.$route, case: /EhSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
@@ -62,10 +62,10 @@ struct EhSettingView: View {
         Form {
             Group {
                 EhProfileSection(
-                    route: viewStore.binding(\.$route),
+                    route: viewStore.$route,
                     ehSetting: ehSetting,
                     ehProfile: ehProfile,
-                    editingProfileName: viewStore.binding(\.$editingProfileName),
+                    editingProfileName: viewStore.$editingProfileName,
                     deleteAction: {
                         if let value = viewStore.ehProfile?.value {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {

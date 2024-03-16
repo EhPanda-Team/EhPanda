@@ -33,7 +33,7 @@ struct ArchivesView: View {
         NavigationView {
             ZStack {
                 VStack {
-                    HathArchivesView(archives: viewStore.hathArchives, selection: viewStore.binding(\.$selectedArchive))
+                    HathArchivesView(archives: viewStore.hathArchives, selection: viewStore.$selectedArchive)
                     Spacer()
                     if let credits = Int(user.credits ?? ""), let galleryPoints = Int(user.galleryPoints ?? "") {
                         ArchiveFundsView(credits: credits, galleryPoints: galleryPoints)
@@ -55,12 +55,12 @@ struct ArchivesView: View {
             }
             .progressHUD(
                 config: viewStore.communicatingHUDConfig,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /ArchivesReducer.Route.communicatingHUD
             )
             .progressHUD(
                 config: viewStore.messageHUDConfig,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /ArchivesReducer.Route.messageHUD
             )
             .animation(.default, value: viewStore.hathArchives)

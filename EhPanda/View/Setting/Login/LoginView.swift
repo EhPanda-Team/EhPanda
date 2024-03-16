@@ -35,11 +35,11 @@ struct LoginView: View {
                 VStack(spacing: 15) {
                     Group {
                         LoginTextField(
-                            focusedField: $focusedField, text: viewStore.binding(\.$username),
+                            focusedField: $focusedField, text: viewStore.$username,
                             description: L10n.Localizable.LoginView.Title.username, isPassword: false
                         )
                         LoginTextField(
-                            focusedField: $focusedField, text: viewStore.binding(\.$password),
+                            focusedField: $focusedField, text: viewStore.$password,
                             description: L10n.Localizable.LoginView.Title.password, isPassword: true
                         )
                     }
@@ -55,8 +55,8 @@ struct LoginView: View {
                 }
             }
         }
-        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /LoginReducer.Route.webView) { route in
+        .synchronize(viewStore.$focusedField, $focusedField)
+        .sheet(unwrapping: viewStore.$route, case: /LoginReducer.Route.webView) { route in
             WebView(url: route.wrappedValue) {
                 viewStore.send(.loginDone(.success(nil)))
             }

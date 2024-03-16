@@ -40,7 +40,7 @@ struct HomeView: View {
                         if !viewStore.popularGalleries.isEmpty {
                             CardSlideSection(
                                 galleries: viewStore.popularGalleries,
-                                pageIndex: viewStore.binding(\.$cardPageIndex),
+                                pageIndex: viewStore.$cardPageIndex,
                                 currentID: viewStore.currentCardID,
                                 colors: viewStore.cardColors,
                                 navigateAction: navigateTo(gid:),
@@ -88,7 +88,7 @@ struct HomeView: View {
                 .zIndex(1)
             }
             .sheet(
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /HomeReducer.Route.detail,
                 isEnabled: DeviceUtil.isPad
             ) { route in
@@ -136,7 +136,7 @@ private extension HomeView {
         sectionLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeReducer.Route.detail) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
@@ -145,7 +145,7 @@ private extension HomeView {
         }
     }
     var miscGridLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeReducer.Route.misc) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.misc) { route in
             switch route.wrappedValue {
             case .popular:
                 PopularView(
@@ -166,7 +166,7 @@ private extension HomeView {
         }
     }
     var sectionLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeReducer.Route.section) { route in
+        NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.section) { route in
             switch route.wrappedValue {
             case .frontpage:
                 FrontpageView(
