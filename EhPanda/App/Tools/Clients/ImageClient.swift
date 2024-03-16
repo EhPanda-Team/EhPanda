@@ -26,23 +26,24 @@ extension ImageClient {
             })
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
-            Future { promise in
-                DispatchQueue.global(qos: .utility).async {
-                    if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
-                        PHPhotoLibrary.shared().performChanges {
-                            let request = PHAssetCreationRequest.forAsset()
-                            request.addResource(with: .photo, data: data, options: nil)
-                        } completionHandler: { (isSuccess, _) in
-                            promise(.success(isSuccess))
+            Effect.publisher {
+                Future { promise in
+                    DispatchQueue.global(qos: .utility).async {
+                        if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
+                            PHPhotoLibrary.shared().performChanges {
+                                let request = PHAssetCreationRequest.forAsset()
+                                request.addResource(with: .photo, data: data, options: nil)
+                            } completionHandler: { (isSuccess, _) in
+                                promise(.success(isSuccess))
+                            }
+                        } else {
+                            promise(.success(false))
                         }
-                    } else {
-                        promise(.success(false))
                     }
                 }
+                .eraseToAnyPublisher()
+                .receive(on: DispatchQueue.main)
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         downloadImage: { url in
             Future { promise in

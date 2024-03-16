@@ -113,12 +113,18 @@ struct CommentsReducer: Reducer {
 
             case .performScrollOpacityEffect:
                 return .merge(
-                    Effect.send(.setScrollRowOpacity(0.25))
-                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect(),
-                    Effect.send(.setScrollRowOpacity(1))
-                        .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main).eraseToEffect(),
-                    Effect.send(.clearScrollCommentID)
-                        .delay(for: .milliseconds(2000), scheduler: DispatchQueue.main).eraseToEffect()
+                    Effect.publisher {
+                        Effect.send(.setScrollRowOpacity(0.25))
+                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                    },
+                    Effect.publisher {
+                        Effect.send(.setScrollRowOpacity(1))
+                            .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main)
+                    },
+                    Effect.publisher {
+                        Effect.send(.clearScrollCommentID)
+                            .delay(for: .milliseconds(2000), scheduler: DispatchQueue.main)
+                    }
                 )
 
             case .handleCommentLink(let url):
@@ -139,22 +145,28 @@ struct CommentsReducer: Reducer {
                 if let pageIndex = pageIndex {
                     effects.append(Effect.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        Effect.send(.detail(.setNavigation(.reading)))
-                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.detail(.setNavigation(.reading)))
+                                .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                        }
                     )
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        Effect.send(.detail(.setNavigation(.comments(url))))
-                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.detail(.setNavigation(.comments(url))))
+                                .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                        }
                     )
                 }
                 effects.append(Effect.send(.setNavigation(.detail(gid))))
                 return .merge(effects)
 
             case .onPostCommentAppear:
-                return Effect.send(.setPostCommentFocused(true))
-                    .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                return Effect.publisher {
+                    Effect.send(.setPostCommentFocused(true))
+                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                }
 
             case .onAppear:
                 if state.detailState == nil {
@@ -209,8 +221,10 @@ struct CommentsReducer: Reducer {
                         Effect.send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    return Effect.send(.setHUDConfig(.error))
-                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                    return Effect.publisher {
+                        Effect.send(.setHUDConfig(.error))
+                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                    }
                 }
 
             case .detail:

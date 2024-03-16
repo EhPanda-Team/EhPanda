@@ -70,8 +70,10 @@ struct HistoryReducer: Reducer {
             case .clearHistoryGalleries:
                 return .merge(
                     databaseClient.clearHistoryGalleries().fireAndForget(),
-                    Effect.send(.fetchGalleries)
-                        .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
+                    Effect.publisher {
+                        Effect.send(.fetchGalleries)
+                            .delay(for: .milliseconds(200), scheduler: DispatchQueue.main)
+                    }
                 )
 
             case .fetchGalleries:

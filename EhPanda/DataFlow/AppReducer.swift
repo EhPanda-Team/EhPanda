@@ -155,12 +155,13 @@ struct AppReducer: Reducer {
                     effects.append(Effect.send(.setting(.setNavigation(.account))))
                     if !cookieClient.didLogin {
                         effects.append(
-                            Effect.send(.setting(.account(.setNavigation(.login))))
-                            .delay(
-                                for: .milliseconds(deviceClient.isPad() ? 1200 : 200),
-                                scheduler: DispatchQueue.main
-                            )
-                            .eraseToEffect()
+                            Effect.publisher {
+                                Effect.send(.setting(.account(.setNavigation(.login))))
+                                    .delay(
+                                        for: .milliseconds(deviceClient.isPad() ? 1200 : 200),
+                                        scheduler: DispatchQueue.main
+                                    )
+                            }
                         )
                     }
                     return .merge(effects)

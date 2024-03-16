@@ -20,36 +20,36 @@ struct DatabaseClient {
 extension DatabaseClient {
     static let live: Self = .init(
         prepareDatabase: {
-            Future { promise in
-                PersistenceController.shared.prepare {
-                    switch $0 {
-                    case .success:
-                        promise(.success(nil))
+            Effect.publisher {
+                Future { promise in
+                    PersistenceController.shared.prepare {
+                        switch $0 {
+                        case .success:
+                            promise(.success(nil))
 
-                    case .failure(let appError):
-                        promise(.success(appError))
+                        case .failure(let appError):
+                            promise(.success(appError))
+                        }
                     }
                 }
+                .receive(on: DispatchQueue.main)
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         dropDatabase: {
-            Future { promise in
-                PersistenceController.shared.rebuild {
-                    switch $0 {
-                    case .success:
-                        promise(.success(nil))
+            Effect.publisher {
+                Future { promise in
+                    PersistenceController.shared.rebuild {
+                        switch $0 {
+                        case .success:
+                            promise(.success(nil))
 
-                    case .failure(let appError):
-                        promise(.success(appError))
+                        case .failure(let appError):
+                            promise(.success(appError))
+                        }
                     }
                 }
+                .receive(on: DispatchQueue.main)
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         saveContext: {
             let context = PersistenceController.shared.container.viewContext
@@ -217,49 +217,49 @@ extension DatabaseClient {
         return entity
     }
     func fetchAppEnv() -> Effect<AppEnv> {
-        Future { promise in
-            DispatchQueue.main.async {
-                promise(.success(fetchOrCreate(entityType: AppEnvMO.self).toEntity()))
+        Effect.publisher {
+            Future { promise in
+                DispatchQueue.main.async {
+                    promise(.success(fetchOrCreate(entityType: AppEnvMO.self).toEntity()))
+                }
             }
+            .receive(on: DispatchQueue.main)
         }
-        .eraseToAnyPublisher()
-        .receive(on: DispatchQueue.main)
-        .eraseToEffect()
     }
     func fetchAppEnvSynchronously() -> AppEnv {
         fetchOrCreate(entityType: AppEnvMO.self).toEntity()
     }
     func fetchGalleryState(gid: String) -> Effect<GalleryState> {
         guard gid.isValidGID else { return .none }
-        return Future { promise in
-            DispatchQueue.main.async {
-                promise(.success(
-                    fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
-                ))
+        return Effect.publisher {
+            Future { promise in
+                DispatchQueue.main.async {
+                    promise(.success(
+                        fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
+                    ))
+                }
             }
+            .receive(on: DispatchQueue.main)
         }
-        .eraseToAnyPublisher()
-        .receive(on: DispatchQueue.main)
-        .eraseToEffect()
     }
     func fetchHistoryGalleries(fetchLimit: Int = 0) -> Effect<[Gallery]> {
-        Future { promise in
-            DispatchQueue.main.async {
-                let predicate = NSPredicate(format: "lastOpenDate != nil")
-                let sortDescriptor = NSSortDescriptor(
-                    keyPath: \GalleryMO.lastOpenDate, ascending: false
-                )
-                let galleries = batchFetch(
-                    entityType: GalleryMO.self, fetchLimit: fetchLimit, predicate: predicate,
-                    findBeforeFetch: false, sortDescriptors: [sortDescriptor]
-                )
-                .map { $0.toEntity() }
-                promise(.success(galleries))
+        Effect.publisher {
+            Future { promise in
+                DispatchQueue.main.async {
+                    let predicate = NSPredicate(format: "lastOpenDate != nil")
+                    let sortDescriptor = NSSortDescriptor(
+                        keyPath: \GalleryMO.lastOpenDate, ascending: false
+                    )
+                    let galleries = batchFetch(
+                        entityType: GalleryMO.self, fetchLimit: fetchLimit, predicate: predicate,
+                        findBeforeFetch: false, sortDescriptors: [sortDescriptor]
+                    )
+                    .map { $0.toEntity() }
+                    promise(.success(galleries))
+                }
             }
+            .receive(on: DispatchQueue.main)
         }
-        .eraseToAnyPublisher()
-        .receive(on: DispatchQueue.main)
-        .eraseToEffect()
     }
 }
 // MARK: FetchAccessor
@@ -529,14 +529,15 @@ extension DatabaseClient {
 
     // Update User
     func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) -> Effect<Never> {
-        fetchAppEnv().map(\.user)
-            .map { (user: User) -> User in
-                var user = user
-                commitChanges(&user)
-                return user
-            }
-            .flatMap(updateUser)
-            .eraseToEffect()
+        Effect.publisher {
+            fetchAppEnv().map(\.user)
+                .map { (user: User) -> User in
+                    var user = user
+                    commitChanges(&user)
+                    return user
+                }
+                .flatMap(updateUser)
+        }
     }
     func updateGreeting(_ greeting: Greeting) -> Effect<Never> {
         updateUserProperty { user in

@@ -60,9 +60,11 @@ struct MigrationReducer: Reducer {
 
             case .dropDatabase:
                 state.databaseState = .loading
-                return databaseClient.dropDatabase()
-                    .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
-                    .eraseToEffect().map(Action.dropDatabaseDone)
+                return Effect.publisher {
+                    databaseClient.dropDatabase()
+                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                        .map(Action.dropDatabaseDone)
+                }
 
             case .dropDatabaseDone(let appError):
                 if let appError {

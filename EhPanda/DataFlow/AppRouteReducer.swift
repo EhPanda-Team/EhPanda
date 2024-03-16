@@ -101,11 +101,15 @@ struct AppRouteReducer: Reducer {
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return Effect.send(.handleGalleryLink(url))
-                        .delay(for: .milliseconds(delay + 250), scheduler: DispatchQueue.main).eraseToEffect()
+                    return Effect.publisher {
+                        Effect.send(.handleGalleryLink(url))
+                            .delay(for: .milliseconds(delay + 250), scheduler: DispatchQueue.main)
+                    }
                 }
-                return Effect.send(.fetchGallery(url, isGalleryImageURL))
-                    .delay(for: .milliseconds(delay), scheduler: DispatchQueue.main).eraseToEffect()
+                return Effect.publisher {
+                    Effect.send(.fetchGallery(url, isGalleryImageURL))
+                        .delay(for: .milliseconds(delay), scheduler: DispatchQueue.main)
+                }
 
             case .handleGalleryLink(let url):
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
@@ -116,14 +120,18 @@ struct AppRouteReducer: Reducer {
                 if let pageIndex = pageIndex {
                     effects.append(Effect.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        Effect.send(.detail(.setNavigation(.reading)))
-                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.detail(.setNavigation(.reading)))
+                                .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                        }
                     )
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        Effect.send(.detail(.setNavigation(.comments(url))))
-                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.detail(.setNavigation(.comments(url))))
+                                .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                        }
                     )
                 }
                 effects.append(Effect.send(.setNavigation(.detail(gid))))
@@ -148,8 +156,10 @@ struct AppRouteReducer: Reducer {
                         Effect.send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    return Effect.send(.setHUDConfig(.error))
-                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                    return Effect.publisher {
+                        Effect.send(Action.setHUDConfig(.error))
+                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                    }
                 }
 
             case .fetchGreetingDone(let result):

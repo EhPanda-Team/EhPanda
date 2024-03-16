@@ -151,8 +151,10 @@ struct DetailReducer: Reducer {
                     )
 
                 case .onPostCommentAppear:
-                    return Effect.send(.setPostCommentFocused(true))
-                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                    return Effect.publisher {
+                        Effect.send(.setPostCommentFocused(true))
+                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                    }
 
                 case .onAppear(let gid, let showsNewDawnGreeting):
                     state.showsNewDawnGreeting = showsNewDawnGreeting
@@ -189,7 +191,9 @@ struct DetailReducer: Reducer {
                     return .merge(
                         Effect.send(.rateGallery),
                         .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
-                        Effect.send(.confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main)
+                        }
                     )
 
                 case .confirmRatingDone:

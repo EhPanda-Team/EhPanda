@@ -67,23 +67,23 @@ extension LibraryClient {
             })
         },
         analyzeImageColors: { image in
-            Future { promise in
-                image.getColors(quality: .lowest) { colors in
-                    promise(.success(colors))
+            Effect.publisher {
+                Future { promise in
+                    image.getColors(quality: .lowest) { colors in
+                        promise(.success(colors))
+                    }
                 }
             }
-            .eraseToAnyPublisher()
-            .eraseToEffect()
         },
         calculateWebImageDiskCacheSize: {
-            Future { promise in
-                KingfisherManager.shared.cache.calculateDiskStorageSize {
-                    promise(.success(try? $0.get()))
+            Effect.publisher {
+                Future { promise in
+                    KingfisherManager.shared.cache.calculateDiskStorageSize {
+                        promise(.success(try? $0.get()))
+                    }
                 }
+                .receive(on: DispatchQueue.main)
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         }
     )
 }
