@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct ToplistsReducer: ReducerProtocol {
+struct ToplistsReducer: Reducer {
     enum Route: Equatable {
         case detail(String)
     }
@@ -85,13 +85,13 @@ struct ToplistsReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding(\.$jumpPageAlertPresented):
                 if !state.jumpPageAlertPresented {
@@ -104,35 +104,35 @@ struct ToplistsReducer: ReducerProtocol {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .setToplistsType(let type):
                 state.type = type
                 guard state.galleries?.isEmpty != false else { return .none }
-                return .init(value: Action.fetchGalleries())
+                return Effect.send(Action.fetchGalleries())
 
             case .clearSubStates:
                 state.detailState = .init()
-                return .init(value: .detail(.teardown))
+                return Effect.send(.detail(.teardown))
 
             case .performJumpPage:
                 guard let index = Int(state.jumpPageIndex),
                       let pageNumber = state.pageNumber,
                       index > 0, index <= pageNumber.maximum + 1 else {
-                    return .fireAndForget({ hapticsClient.generateNotificationFeedback(.error) })
+                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
                 }
-                return .init(value: .fetchGalleries(index - 1))
+                return Effect.send(.fetchGalleries(index - 1))
 
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
-                return .fireAndForget({ hapticsClient.generateFeedback(.light) })
+                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
 
             case .setJumpPageAlertFocused(let isFocused):
                 state.jumpPageAlertFocused = isFocused
                 return .none
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let pageNum):
                 guard state.loadingState != .loading else { return .none }
@@ -153,7 +153,7 @@ struct ToplistsReducer: ReducerProtocol {
                     guard !galleries.isEmpty else {
                         state.rawLoadingState[type] = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
-                        return .init(value: .fetchMoreGalleries)
+                        return Effect.send(.fetchMoreGalleries)
                     }
                     state.rawPageNumber[type] = pageNumber
                     state.rawGalleries[type] = galleries
@@ -181,11 +181,11 @@ struct ToplistsReducer: ReducerProtocol {
                     state.rawPageNumber[type] = pageNumber
                     state.insertGalleries(type: type, galleries: galleries)
 
-                    var effects: [EffectTask<Action>] = [
+                    var effects: [Effect<Action>] = [
                         databaseClient.cacheGalleries(galleries).fireAndForget()
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.init(value: .fetchMoreGalleries))
+                        effects.append(Effect.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.rawLoadingState[type] = .idle
                     }

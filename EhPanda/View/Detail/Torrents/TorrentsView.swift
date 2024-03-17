@@ -17,7 +17,7 @@ struct TorrentsView: View {
 
     init(store: StoreOf<TorrentsReducer>, gid: String, token: String, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.token = token
         self.blurRadius = blurRadius
@@ -45,13 +45,13 @@ struct TorrentsView: View {
                 }
                 .opacity(error != nil && viewStore.torrents.isEmpty ? 1 : 0)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsReducer.Route.share) { route in
+            .sheet(unwrapping: viewStore.$route, case: /TorrentsReducer.Route.share) { route in
                 ActivityView(activityItems: [route.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
             .progressHUD(
                 config: viewStore.hudConfig,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /TorrentsReducer.Route.hud
             )
             .animation(.default, value: viewStore.torrents)
@@ -118,10 +118,9 @@ private extension TorrentsView {
 struct TorrentsView_Previews: PreviewProvider {
     static var previews: some View {
         TorrentsView(
-            store: .init(
-                initialState: .init(),
-                reducer: TorrentsReducer()
-            ),
+            store: .init(initialState: .init()) {
+                TorrentsReducer()
+            },
             gid: .init(),
             token: .init(),
             blurRadius: 0

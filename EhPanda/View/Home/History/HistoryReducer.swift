@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct HistoryReducer: ReducerProtocol {
+struct HistoryReducer: Reducer {
     enum Route: Equatable {
         case detail(String)
         case clearHistory
@@ -48,30 +48,32 @@ struct HistoryReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
-                return .init(value: .detail(.teardown))
+                return Effect.send(.detail(.teardown))
 
             case .clearHistoryGalleries:
                 return .merge(
                     databaseClient.clearHistoryGalleries().fireAndForget(),
-                    .init(value: .fetchGalleries)
-                        .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
+                    Effect.publisher {
+                        Effect.send(.fetchGalleries)
+                            .delay(for: .milliseconds(200), scheduler: DispatchQueue.main)
+                    }
                 )
 
             case .fetchGalleries:

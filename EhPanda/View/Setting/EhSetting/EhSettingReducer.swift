@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct EhSettingReducer: ReducerProtocol {
+struct EhSettingReducer: Reducer {
     enum Route: Equatable {
         case webView(URL)
         case deleteProfile
@@ -54,7 +54,7 @@ struct EhSettingReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -76,7 +76,7 @@ struct EhSettingReducer: ReducerProtocol {
                 .fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }

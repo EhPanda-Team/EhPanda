@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct AccountSettingReducer: ReducerProtocol {
+struct AccountSettingReducer: Reducer {
     enum Route: Equatable {
         case hud
         case login
@@ -43,7 +43,7 @@ struct AccountSettingReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -85,7 +85,7 @@ struct AccountSettingReducer: ReducerProtocol {
                 return .merge(
                     .send(.setNavigation(.hud)),
                     clipboardClient.saveText(cookiesDescription).fireAndForget(),
-                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .login(.loginDone):

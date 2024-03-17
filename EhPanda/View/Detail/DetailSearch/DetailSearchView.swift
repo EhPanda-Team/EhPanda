@@ -22,7 +22,7 @@ struct DetailSearchView: View {
         keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.keyword = keyword
         self.user = user
         _setting = setting
@@ -45,7 +45,7 @@ struct DetailSearchView: View {
             }
         )
         .sheet(
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /DetailSearchReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
@@ -58,7 +58,7 @@ struct DetailSearchView: View {
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchReducer.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /DetailSearchReducer.Route.quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickDetailSearchState, action: DetailSearchReducer.Action.quickSearch)
             ) { keyword in
@@ -68,14 +68,14 @@ struct DetailSearchView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchReducer.Route.filters) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /DetailSearchReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: DetailSearchReducer.Action.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
-        .searchable(text: viewStore.binding(\.$keyword))
+        .searchable(text: viewStore.$keyword)
         .searchSuggestions {
             TagSuggestionView(
-                keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                keyword: viewStore.$keyword, translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
             )
         }
@@ -96,7 +96,7 @@ struct DetailSearchView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailSearchReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /DetailSearchReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: DetailSearchReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -122,10 +122,9 @@ struct DetailSearchView: View {
 struct DetailSearchView_Previews: PreviewProvider {
     static var previews: some View {
         DetailSearchView(
-            store: .init(
-                initialState: .init(),
-                reducer: DetailSearchReducer()
-            ),
+            store: .init(initialState: .init()) {
+                DetailSearchReducer()
+            },
             keyword: .init(),
             user: .init(),
             setting: .constant(.init()),

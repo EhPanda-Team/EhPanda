@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 struct CookieClient {
-    let clearAll: () -> EffectTask<Never>
+    let clearAll: () -> Effect<Never>
     let getCookie: (URL, String) -> CookieValue
     private let removeCookie: (URL, String) -> Void
     private let checkExistence: (URL, String) -> Bool
@@ -19,13 +19,13 @@ struct CookieClient {
 extension CookieClient {
     static let live: Self = .init(
         clearAll: {
-            .fireAndForget {
+            .run(operation: { _ in
                 if let historyCookies = HTTPCookieStorage.shared.cookies {
                     historyCookies.forEach {
                         HTTPCookieStorage.shared.deleteCookie($0)
                     }
                 }
-            }
+            })
         },
         getCookie: { url, key in
             var value = CookieValue(
@@ -108,14 +108,14 @@ extension CookieClient {
         guard let cookie = newCookie else { return }
         HTTPCookieStorage.shared.setCookie(cookie)
     }
-    func setOrEditCookie(for url: URL, key: String, value: String) -> EffectTask<Never> {
-        .fireAndForget {
+    func setOrEditCookie(for url: URL, key: String, value: String) -> Effect<Never> {
+        .run(operation: { _ in
             if checkExistence(url, key) {
                 editCookie(for: url, key: key, value: value)
             } else {
                 setCookie(for: url, key: key, value: value)
             }
-        }
+        })
     }
 }
 
@@ -138,13 +138,13 @@ extension CookieClient {
         && !getCookie(url, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
         && getCookie(url, Defaults.Cookie.igneous).rawValue.isEmpty
     }
-    func removeYay() -> EffectTask<Never> {
-        .fireAndForget {
+    func removeYay() -> Effect<Never> {
+        .run(operation: { _ in
             removeCookie(Defaults.URL.exhentai, Defaults.Cookie.yay)
             removeCookie(Defaults.URL.sexhentai, Defaults.Cookie.yay)
-        }
+        })
     }
-    func syncExCookies() -> EffectTask<Never> {
+    func syncExCookies() -> Effect<Never> {
         .merge(
             [
                 Defaults.Cookie.ipbMemberId,
@@ -160,13 +160,13 @@ extension CookieClient {
             }
         )
     }
-    func ignoreOffensive() -> EffectTask<Never> {
+    func ignoreOffensive() -> Effect<Never> {
         .merge(
             setOrEditCookie(for: Defaults.URL.ehentai, key: Defaults.Cookie.ignoreOffensive, value: "1"),
             setOrEditCookie(for: Defaults.URL.exhentai, key: Defaults.Cookie.ignoreOffensive, value: "1")
         )
     }
-    func fulfillAnotherHostField() -> EffectTask<Never> {
+    func fulfillAnotherHostField() -> Effect<Never> {
         let ehURL = Defaults.URL.ehentai
         let exURL = Defaults.URL.exhentai
         let memberIdKey = Defaults.Cookie.ipbMemberId
@@ -218,8 +218,8 @@ extension CookieClient {
 
 // MARK: SetCookies
 extension CookieClient {
-    func setCookies(state: CookiesState, trimsSpaces: Bool = true) -> EffectTask<Never> {
-        let effects: [EffectTask<Never>] = state.allCases
+    func setCookies(state: CookiesState, trimsSpaces: Bool = true) -> Effect<Never> {
+        let effects: [Effect<Never>] = state.allCases
             .flatMap { subState in
                 state.host.cookieURLs
                     .map {
@@ -233,8 +233,8 @@ extension CookieClient {
             }
         return effects.isEmpty ? .none : .merge(effects)
     }
-    func setCredentials(response: HTTPURLResponse) -> EffectTask<Never> {
-        .fireAndForget {
+    func setCredentials(response: HTTPURLResponse) -> Effect<Never> {
+        .run(operation: { _ in
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")
                 .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
@@ -250,10 +250,10 @@ extension CookieClient {
                         }
                     }
                 }
-        }
+        })
     }
-    func setSkipServer(response: HTTPURLResponse) -> EffectTask<Never> {
-        .fireAndForget {
+    func setSkipServer(response: HTTPURLResponse) -> Effect<Never> {
+        .run(operation: { _ in
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")
                 .flatMap { $0.components(separatedBy: "; ") }
@@ -266,7 +266,7 @@ extension CookieClient {
                         )
                     }
                 }
-        }
+        })
     }
 }
 

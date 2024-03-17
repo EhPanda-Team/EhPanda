@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct LogsReducer: ReducerProtocol {
+struct LogsReducer: Reducer {
     enum Route: Equatable {
         case log(Log)
     }
@@ -37,7 +37,7 @@ struct LogsReducer: ReducerProtocol {
     @Dependency(\.uiApplicationClient) private var uiApplicationClient
     @Dependency(\.fileClient) private var fileClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

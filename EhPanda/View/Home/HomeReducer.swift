@@ -10,7 +10,7 @@ import Kingfisher
 import UIImageColors
 import ComposableArchitecture
 
-struct HomeReducer: ReducerProtocol {
+struct HomeReducer: Reducer {
     enum Route: Equatable, Hashable {
         case detail(String)
         case misc(HomeMiscGridType)
@@ -93,28 +93,29 @@ struct HomeReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding(\.$cardPageIndex):
                 guard state.cardPageIndex < state.popularGalleries.count else { return .none }
                 state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
                 state.allowsCardHitTesting = false
-                return .init(value: .setAllowsCardHitTesting(true))
-                    .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
-                    .eraseToEffect()
+                return Effect.publisher {
+                    Effect.send(.setAllowsCardHitTesting(true))
+                        .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
+                }
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.frontpageState = .init()
@@ -124,11 +125,11 @@ struct HomeReducer: ReducerProtocol {
                 state.historyState = .init()
                 state.detailState = .init()
                 return .merge(
-                    .init(value: .frontpage(.teardown)),
-                    .init(value: .toplists(.teardown)),
-                    .init(value: .popular(.teardown)),
-                    .init(value: .watched(.teardown)),
-                    .init(value: .detail(.teardown))
+                    Effect.send(.frontpage(.teardown)),
+                    Effect.send(.toplists(.teardown)),
+                    Effect.send(.popular(.teardown)),
+                    Effect.send(.watched(.teardown)),
+                    Effect.send(.detail(.teardown))
                 )
 
             case .setAllowsCardHitTesting(let isAllowed):
@@ -137,15 +138,15 @@ struct HomeReducer: ReducerProtocol {
 
             case .fetchAllGalleries:
                 return .merge(
-                    .init(value: .fetchPopularGalleries),
-                    .init(value: .fetchFrontpageGalleries),
-                    .init(value: .fetchAllToplistsGalleries)
+                    Effect.send(.fetchPopularGalleries),
+                    Effect.send(.fetchFrontpageGalleries),
+                    Effect.send(.fetchAllToplistsGalleries)
                 )
 
             case .fetchAllToplistsGalleries:
                 return .merge(
                     ToplistsType.allCases.map({ Action.fetchToplistsGalleries($0.categoryIndex) })
-                        .map(EffectTask<Action>.init)
+                        .map(Effect<Action>.init)
                 )
 
             case .fetchPopularGalleries:

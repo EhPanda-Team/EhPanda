@@ -9,8 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppDelegateClient {
-    let setOrientation: (UIInterfaceOrientationMask) -> EffectTask<Never>
-    let setOrientationMask: (UIInterfaceOrientationMask) -> EffectTask<Never>
+    let setOrientation: (UIInterfaceOrientationMask) -> Effect<Never>
+    let setOrientationMask: (UIInterfaceOrientationMask) -> Effect<Never>
 }
 
 extension AppDelegateClient {
@@ -27,13 +27,13 @@ extension AppDelegateClient {
         }
     )
 
-    func setPortraitOrientation() -> EffectTask<Never> {
+    func setPortraitOrientation() -> Effect<Never> {
         setOrientation(.portrait)
     }
-    func setAllOrientationMask() -> EffectTask<Never> {
+    func setAllOrientationMask() -> Effect<Never> {
         setOrientationMask([.all])
     }
-    func setPortraitOrientationMask() -> EffectTask<Never> {
+    func setPortraitOrientationMask() -> Effect<Never> {
         setOrientationMask([.portrait, .portraitUpsideDown])
     }
 }

@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct AppearanceSettingReducer: ReducerProtocol {
+struct AppearanceSettingReducer: Reducer {
     enum Route {
         case appIcon
     }
@@ -21,7 +21,7 @@ struct AppearanceSettingReducer: ReducerProtocol {
         case setNavigation(Route?)
     }
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

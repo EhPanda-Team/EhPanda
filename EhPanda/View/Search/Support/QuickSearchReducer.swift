@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct QuickSearchReducer: ReducerProtocol {
+struct QuickSearchReducer: Reducer {
     enum Route: Equatable {
         case newWord
         case editWord
@@ -61,20 +61,20 @@ struct QuickSearchReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.focusedField = nil
@@ -94,26 +94,26 @@ struct QuickSearchReducer: ReducerProtocol {
 
             case .appendWord:
                 state.quickSearchWords.append(state.editingWord)
-                return .init(value: .syncQuickSearchWords)
+                return Effect.send(.syncQuickSearchWords)
 
             case .editWord:
                 if let index = state.quickSearchWords.firstIndex(where: { $0.id == state.editingWord.id }) {
                     state.quickSearchWords[index] = state.editingWord
-                    return .init(value: .syncQuickSearchWords)
+                    return Effect.send(.syncQuickSearchWords)
                 }
                 return .none
 
             case .deleteWord(let word):
                 state.quickSearchWords = state.quickSearchWords.filter({ $0 != word })
-                return .init(value: .syncQuickSearchWords)
+                return Effect.send(.syncQuickSearchWords)
 
             case .deleteWordWithOffsets(let offsets):
                 state.quickSearchWords.remove(atOffsets: offsets)
-                return .init(value: .syncQuickSearchWords)
+                return Effect.send(.syncQuickSearchWords)
 
             case .moveWord(let source, let destination):
                 state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
-                return .init(value: .syncQuickSearchWords)
+                return Effect.send(.syncQuickSearchWords)
 
             case .teardown:
                 return .cancel(id: CancelID.fetchQuickSearchWords)

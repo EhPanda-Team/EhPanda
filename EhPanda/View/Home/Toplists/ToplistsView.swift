@@ -21,7 +21,7 @@ struct ToplistsView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -47,7 +47,7 @@ struct ToplistsView: View {
             }
         )
         .sheet(
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /ToplistsReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
@@ -61,13 +61,13 @@ struct ToplistsView: View {
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
         .jumpPageAlert(
-            index: viewStore.binding(\.$jumpPageIndex),
-            isPresented: viewStore.binding(\.$jumpPageAlertPresented),
-            isFocused: viewStore.binding(\.$jumpPageAlertFocused),
+            index: viewStore.$jumpPageIndex,
+            isPresented: viewStore.$jumpPageAlertPresented,
+            isFocused: viewStore.$jumpPageAlertFocused,
             pageNumber: viewStore.pageNumber ?? .init(),
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {
@@ -84,7 +84,7 @@ struct ToplistsView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /ToplistsReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /ToplistsReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -153,10 +153,9 @@ struct ToplistsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ToplistsView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: ToplistsReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    ToplistsReducer()
+                },
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

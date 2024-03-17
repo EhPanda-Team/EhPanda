@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftyBeaver
 import ComposableArchitecture
 
-struct AppDelegateReducer: ReducerProtocol {
+struct AppDelegateReducer: Reducer {
     struct State: Equatable {
         var migrationState = MigrationReducer.State()
     }
@@ -25,7 +25,7 @@ struct AppDelegateReducer: ReducerProtocol {
     @Dependency(\.libraryClient) private var libraryClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { _, action in
             switch action {
             case .onLaunchFinish:
@@ -36,7 +36,7 @@ struct AppDelegateReducer: ReducerProtocol {
                     cookieClient.syncExCookies().fireAndForget(),
                     cookieClient.ignoreOffensive().fireAndForget(),
                     cookieClient.fulfillAnotherHostField().fireAndForget(),
-                    .init(value: .migration(.prepareDatabase))
+                    Effect.send(.migration(.prepareDatabase))
                 )
 
             case .removeExpiredImageURLs:
@@ -53,11 +53,10 @@ struct AppDelegateReducer: ReducerProtocol {
 
 // MARK: AppDelegate
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    let store = Store(
-        initialState: .init(),
-        reducer: AppReducer()
-    )
-    lazy var viewStore = ViewStore(store)
+    let store = Store(initialState: .init()) {
+        AppReducer()
+    }
+    lazy var viewStore = ViewStore(store, observe: { $0 })
 
     static var orientationMask: UIInterfaceOrientationMask = DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 

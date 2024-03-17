@@ -16,7 +16,7 @@ protocol Request {
     var publisher: AnyPublisher<Response, AppError> { get }
 }
 extension Request {
-    var effect: EffectTask<Result<Response, AppError>> {
+    var effect: Effect<Result<Response, AppError>> {
         publisher.receive(on: DispatchQueue.main).catchToEffect()
     }
 

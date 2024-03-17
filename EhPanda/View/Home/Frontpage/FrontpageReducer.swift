@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct FrontpageReducer: ReducerProtocol {
+struct FrontpageReducer: Reducer {
     enum Route: Equatable {
         case filters
         case detail(String)
@@ -64,28 +64,28 @@ struct FrontpageReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
-                return .init(value: .detail(.teardown))
+                return Effect.send(.detail(.teardown))
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
@@ -103,7 +103,7 @@ struct FrontpageReducer: ReducerProtocol {
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
-                        return .init(value: .fetchMoreGalleries)
+                        return Effect.send(.fetchMoreGalleries)
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
@@ -132,11 +132,11 @@ struct FrontpageReducer: ReducerProtocol {
                     state.pageNumber = pageNumber
                     state.insertGalleries(galleries)
 
-                    var effects: [EffectTask<Action>] = [
+                    var effects: [Effect<Action>] = [
                         databaseClient.cacheGalleries(galleries).fireAndForget()
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.init(value: .fetchMoreGalleries))
+                        effects.append(Effect.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.loadingState = .idle
                     }

@@ -10,13 +10,13 @@ import Kingfisher
 import ComposableArchitecture
 
 struct DFClient {
-    let setActive: (Bool) -> EffectTask<Never>
+    let setActive: (Bool) -> Effect<Never>
 }
 
 extension DFClient {
     static let live: Self = .init(
         setActive: { newValue in
-            .fireAndForget {
+            .run(operation: { _ in
                 if newValue {
                     URLProtocol.registerClass(DFURLProtocol.self)
                 } else {
@@ -26,7 +26,7 @@ extension DFClient {
                 let config = KingfisherManager.shared.downloader.sessionConfiguration
                 config.protocolClasses = newValue ? [DFURLProtocol.self] : nil
                 KingfisherManager.shared.downloader.sessionConfiguration = config
-            }
+            })
         }
     )
 }
