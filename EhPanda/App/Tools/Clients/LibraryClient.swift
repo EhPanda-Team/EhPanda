@@ -14,17 +14,17 @@ import UIImageColors
 import ComposableArchitecture
 
 struct LibraryClient {
-    let initializeLogger: () -> EffectTask<Never>
-    let initializeWebImage: () -> EffectTask<Never>
-    let clearWebImageDiskCache: () -> EffectTask<Never>
-    let analyzeImageColors: (UIImage) -> EffectTask<UIImageColors?>
-    let calculateWebImageDiskCacheSize: () -> EffectTask<UInt?>
+    let initializeLogger: () -> Effect<Never>
+    let initializeWebImage: () -> Effect<Never>
+    let clearWebImageDiskCache: () -> Effect<Never>
+    let analyzeImageColors: (UIImage) -> Effect<UIImageColors?>
+    let calculateWebImageDiskCacheSize: () -> Effect<UInt?>
 }
 
 extension LibraryClient {
     static let live: Self = .init(
         initializeLogger: {
-            .fireAndForget {
+            .run(operation: { _ in
                 // MARK: SwiftyBeaver
                 let file = FileDestination()
                 let console = ConsoleDestination()
@@ -52,38 +52,38 @@ extension LibraryClient {
                 #if DEBUG
                 SwiftyBeaver.addDestination(console)
                 #endif
-            }
+            })
         },
         initializeWebImage: {
-            .fireAndForget {
+            .run(operation: { _ in
                 let config = KingfisherManager.shared.downloader.sessionConfiguration
                 config.httpCookieStorage = HTTPCookieStorage.shared
                 KingfisherManager.shared.downloader.sessionConfiguration = config
-            }
+            })
         },
         clearWebImageDiskCache: {
-            .fireAndForget {
+            .run(operation: { _ in
                 KingfisherManager.shared.cache.clearDiskCache()
-            }
+            })
         },
         analyzeImageColors: { image in
-            Future { promise in
-                image.getColors(quality: .lowest) { colors in
-                    promise(.success(colors))
+            Effect.publisher {
+                Future { promise in
+                    image.getColors(quality: .lowest) { colors in
+                        promise(.success(colors))
+                    }
                 }
             }
-            .eraseToAnyPublisher()
-            .eraseToEffect()
         },
         calculateWebImageDiskCacheSize: {
-            Future { promise in
-                KingfisherManager.shared.cache.calculateDiskStorageSize {
-                    promise(.success(try? $0.get()))
+            Effect.publisher {
+                Future { promise in
+                    KingfisherManager.shared.cache.calculateDiskStorageSize {
+                        promise(.success(try? $0.get()))
+                    }
                 }
+                .receive(on: DispatchQueue.main)
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         }
     )
 }

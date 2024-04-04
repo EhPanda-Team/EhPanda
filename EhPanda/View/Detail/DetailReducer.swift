@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 import ComposableArchitecture
 
-struct DetailReducer: ReducerProtocol {
+struct DetailReducer: Reducer {
     enum Route: Equatable {
         case reading
         case archives(URL, URL)
@@ -115,21 +115,21 @@ struct DetailReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         RecurseReducer { (self) in
             BindingReducer()
 
             Reduce { state, action in
                 switch action {
                 case .binding(\.$route):
-                    return state.route == nil ? .init(value: .clearSubStates) : .none
+                    return state.route == nil ? Effect.send(.clearSubStates) : .none
 
                 case .binding:
                     return .none
 
                 case .setNavigation(let route):
                     state.route = route
-                    return route == nil ? .init(value: .clearSubStates) : .none
+                    return route == nil ? Effect.send(.clearSubStates) : .none
 
                 case .clearSubStates:
                     state.readingState = .init()
@@ -142,17 +142,19 @@ struct DetailReducer: ReducerProtocol {
                     state.galleryInfosState = .init()
                     state.detailSearchState = .init()
                     return .merge(
-                        .init(value: .reading(.teardown)),
-                        .init(value: .archives(.teardown)),
-                        .init(value: .torrents(.teardown)),
-                        .init(value: .previews(.teardown)),
-                        .init(value: .comments(.teardown)),
-                        .init(value: .detailSearch(.teardown))
+                        Effect.send(.reading(.teardown)),
+                        Effect.send(.archives(.teardown)),
+                        Effect.send(.torrents(.teardown)),
+                        Effect.send(.previews(.teardown)),
+                        Effect.send(.comments(.teardown)),
+                        Effect.send(.detailSearch(.teardown))
                     )
 
                 case .onPostCommentAppear:
-                    return .init(value: .setPostCommentFocused(true))
-                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                    return Effect.publisher {
+                        Effect.send(.setPostCommentFocused(true))
+                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                    }
 
                 case .onAppear(let gid, let showsNewDawnGreeting):
                     state.showsNewDawnGreeting = showsNewDawnGreeting
@@ -162,15 +164,15 @@ struct DetailReducer: ReducerProtocol {
                     if state.commentsState == nil {
                         state.commentsState = .init()
                     }
-                    return .init(value: .fetchDatabaseInfos(gid))
+                    return Effect.send(.fetchDatabaseInfos(gid))
 
                 case .toggleShowFullTitle:
                     state.showsFullTitle.toggle()
-                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .toggleShowUserRating:
                     state.showsUserRating.toggle()
-                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .setCommentContent(let content):
                     state.commentContent = content
@@ -187,9 +189,11 @@ struct DetailReducer: ReducerProtocol {
                 case .confirmRating(let value):
                     state.updateRating(value: value)
                     return .merge(
-                        .init(value: .rateGallery),
-                        .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
-                        .init(value: .confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.send(.rateGallery),
+                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                        Effect.publisher {
+                            Effect.send(.confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main)
+                        }
                     )
 
                 case .confirmRatingDone:
@@ -227,7 +231,7 @@ struct DetailReducer: ReducerProtocol {
                         .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
                 case .teardown:
-                    return .cancel(ids: CancelID.allCases)
+                    return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
                 case .fetchDatabaseInfos(let gid):
                     guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
@@ -236,7 +240,7 @@ struct DetailReducer: ReducerProtocol {
                         state.galleryDetail = detail
                     }
                     return .merge(
-                        .init(value: .saveGalleryHistory),
+                        Effect.send(.saveGalleryHistory),
                         databaseClient.fetchGalleryState(gid: state.gallery.id)
                             .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
                     )
@@ -245,7 +249,7 @@ struct DetailReducer: ReducerProtocol {
                     state.galleryTags = galleryState.tags
                     state.galleryPreviewURLs = galleryState.previewURLs
                     state.galleryComments = galleryState.comments
-                    return .init(value: .fetchGalleryDetail)
+                    return Effect.send(.fetchGalleryDetail)
 
                 case .fetchGalleryDetail:
                     guard state.loadingState != .loading,
@@ -259,11 +263,11 @@ struct DetailReducer: ReducerProtocol {
                     state.loadingState = .idle
                     switch result {
                     case .success(let (galleryDetail, galleryState, apiKey, greeting)):
-                        var effects: [EffectTask<Action>] = [
-                            .init(value: .syncGalleryTags),
-                            .init(value: .syncGalleryDetail),
-                            .init(value: .syncGalleryPreviewURLs),
-                            .init(value: .syncGalleryComments)
+                        var effects: [Effect<Action>] = [
+                            Effect.send(.syncGalleryTags),
+                            Effect.send(.syncGalleryDetail),
+                            Effect.send(.syncGalleryPreviewURLs),
+                            Effect.send(.syncGalleryComments)
                         ]
                         state.apiKey = apiKey
                         state.galleryDetail = galleryDetail
@@ -272,13 +276,13 @@ struct DetailReducer: ReducerProtocol {
                         state.galleryComments = galleryState.comments
                         state.userRating = Int(galleryDetail.userRating) * 2
                         if let greeting = greeting {
-                            effects.append(.init(value: .syncGreeting(greeting)))
+                            effects.append(Effect.send(.syncGreeting(greeting)))
                             if !greeting.gainedNothing && state.showsNewDawnGreeting {
-                                effects.append(.init(value: .setNavigation(.newDawn(greeting))))
+                                effects.append(Effect.send(.setNavigation(.newDawn(greeting))))
                             }
                         }
                         if let config = galleryState.previewConfig {
-                            effects.append(.init(value: .syncPreviewConfig(config)))
+                            effects.append(Effect.send(.syncPreviewConfig(config)))
                         }
                         return .merge(effects)
                     case .failure(let error):
@@ -319,14 +323,14 @@ struct DetailReducer: ReducerProtocol {
                 case .anyGalleryOpsDone(let result):
                     if case .success = result {
                         return .merge(
-                            .init(value: .fetchGalleryDetail),
-                            .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                            Effect.send(.fetchGalleryDetail),
+                            .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                         )
                     }
-                    return .fireAndForget({ hapticsClient.generateNotificationFeedback(.error) })
+                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
 
                 case .reading(.onPerformDismiss):
-                    return .init(value: .setNavigation(nil))
+                    return Effect.send(.setNavigation(nil))
 
                 case .reading:
                     return .none
@@ -341,7 +345,7 @@ struct DetailReducer: ReducerProtocol {
                     return .none
 
                 case .comments(.performCommentActionDone(let result)):
-                    return .init(value: .anyGalleryOpsDone(result))
+                    return Effect.send(.anyGalleryOpsDone(result))
 
                 case .comments(.detail(let recursiveAction)):
                     guard state.commentsState != nil else { return .none }

@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct TorrentsReducer: ReducerProtocol {
+struct TorrentsReducer: Reducer {
     enum Route: Equatable {
         case hud
         case share(URL)
@@ -44,7 +44,7 @@ struct TorrentsReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.fileClient) private var fileClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -60,12 +60,12 @@ struct TorrentsReducer: ReducerProtocol {
                 state.route = .hud
                 return .merge(
                     clipboardClient.saveText(magnetURL).fireAndForget(),
-                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .presentTorrentActivity(let hash, let data):
                 if let url = fileClient.saveTorrent(hash: hash, data: data) {
-                    return .init(value: .setNavigation(.share(url)))
+                    return Effect.send(.setNavigation(.share(url)))
                 }
                 return .none
 
@@ -74,11 +74,11 @@ struct TorrentsReducer: ReducerProtocol {
                     .cancellable(id: CancelID.fetchTorrent)
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {
-                    return .init(value: .presentTorrentActivity(hash, data))
+                    return Effect.send(.presentTorrentActivity(hash, data))
                 }
                 return .none
 

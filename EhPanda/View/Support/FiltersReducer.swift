@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct FiltersReducer: ReducerProtocol {
+struct FiltersReducer: Reducer {
     enum Route {
         case resetFilters
     }
@@ -40,22 +40,22 @@ struct FiltersReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$searchFilter):
                 state.searchFilter.fixInvalidData()
-                return .init(value: .syncFilter(.search))
+                return Effect.send(.syncFilter(.search))
 
             case .binding(\.$globalFilter):
                 state.globalFilter.fixInvalidData()
-                return .init(value: .syncFilter(.global))
+                return Effect.send(.syncFilter(.global))
 
             case .binding(\.$watchedFilter):
                 state.watchedFilter.fixInvalidData()
-                return .init(value: .syncFilter(.watched))
+                return Effect.send(.syncFilter(.watched))
 
             case .binding:
                 return .none
@@ -91,13 +91,13 @@ struct FiltersReducer: ReducerProtocol {
                 switch state.filterRange {
                 case .search:
                     state.searchFilter = .init()
-                    return .init(value: .syncFilter(.search))
+                    return Effect.send(.syncFilter(.search))
                 case .global:
                     state.globalFilter = .init()
-                    return .init(value: .syncFilter(.global))
+                    return Effect.send(.syncFilter(.global))
                 case .watched:
                     state.watchedFilter = .init()
-                    return .init(value: .syncFilter(.watched))
+                    return Effect.send(.syncFilter(.watched))
                 }
 
             case .fetchFilters:

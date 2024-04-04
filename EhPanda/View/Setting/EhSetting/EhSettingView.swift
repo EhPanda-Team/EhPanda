@@ -16,7 +16,7 @@ struct EhSettingView: View {
 
     init(store: StoreOf<EhSettingReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
@@ -33,8 +33,8 @@ struct EhSettingView: View {
                     .tint(nil)
             }
             // Using `Binding.init` will crash the app
-            else if let ehSetting = Binding(unwrapping: viewStore.binding(\.$ehSetting)),
-                    let ehProfile = Binding(unwrapping: viewStore.binding(\.$ehProfile))
+            else if let ehSetting = Binding(unwrapping: viewStore.$ehSetting),
+                    let ehProfile = Binding(unwrapping: viewStore.$ehProfile)
             {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
                     .transition(.opacity.animation(.default))
@@ -50,7 +50,7 @@ struct EhSettingView: View {
                 viewStore.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingReducer.Route.webView) { route in
+        .sheet(unwrapping: viewStore.$route, case: /EhSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
@@ -62,10 +62,10 @@ struct EhSettingView: View {
         Form {
             Group {
                 EhProfileSection(
-                    route: viewStore.binding(\.$route),
+                    route: viewStore.$route,
                     ehSetting: ehSetting,
                     ehProfile: ehProfile,
-                    editingProfileName: viewStore.binding(\.$editingProfileName),
+                    editingProfileName: viewStore.$editingProfileName,
                     deleteAction: {
                         if let value = viewStore.ehProfile?.value {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -1019,10 +1019,9 @@ struct EhSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             EhSettingView(
-                store: .init(
-                    initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
-                    reducer: EhSettingReducer()
-                ),
+                store: .init(initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle)) {
+                    EhSettingReducer()
+                },
                 bypassesSNIFiltering: false,
                 blurRadius: 0
             )

@@ -9,7 +9,7 @@ import Kingfisher
 import LocalAuthentication
 import ComposableArchitecture
 
-struct GeneralSettingReducer: ReducerProtocol {
+struct GeneralSettingReducer: Reducer {
     enum Route {
         case logs
         case clearCache
@@ -47,24 +47,24 @@ struct GeneralSettingReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.logsState = .init()
-                return .init(value: .logs(.teardown))
+                return Effect.send(.logs(.teardown))
 
             case .onTranslationsFilePicked:
                 return .none
@@ -76,7 +76,7 @@ struct GeneralSettingReducer: ReducerProtocol {
                 return .merge(
                     libraryClient.clearWebImageDiskCache().fireAndForget(),
                     databaseClient.removeImageURLs().fireAndForget(),
-                    .init(value: .calculateWebImageDiskCache)
+                    Effect.send(.calculateWebImageDiskCache)
                 )
 
             case .checkPasscodeSetting:

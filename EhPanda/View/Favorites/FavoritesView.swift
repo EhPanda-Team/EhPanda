@@ -22,7 +22,7 @@ struct FavoritesView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -56,7 +56,7 @@ struct FavoritesView: View {
                 }
             }
             .sheet(
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /FavoritesReducer.Route.detail,
                 isEnabled: DeviceUtil.isPad
             ) { route in
@@ -69,7 +69,7 @@ struct FavoritesView: View {
                 }
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /FavoritesReducer.Route.quickSearch) { _ in
+            .sheet(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: FavoritesReducer.Action.quickSearch)
                 ) { keyword in
@@ -79,10 +79,10 @@ struct FavoritesView: View {
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: viewStore.binding(\.$keyword))
+            .searchable(text: viewStore.$keyword)
             .searchSuggestions {
                 TagSuggestionView(
-                    keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                    keyword: viewStore.$keyword, translations: tagTranslator.translations,
                     showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
                 )
             }
@@ -104,7 +104,7 @@ struct FavoritesView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FavoritesReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -135,10 +135,9 @@ struct FavoritesView: View {
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
-            store: .init(
-                initialState: .init(),
-                reducer: FavoritesReducer()
-            ),
+            store: .init(initialState: .init()) {
+                FavoritesReducer()
+            },
             user: .init(),
             setting: .constant(.init()),
             blurRadius: 0,

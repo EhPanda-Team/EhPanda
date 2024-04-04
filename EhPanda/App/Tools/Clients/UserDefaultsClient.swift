@@ -9,15 +9,15 @@ import Foundation
 import ComposableArchitecture
 
 struct UserDefaultsClient {
-    let setValue: (Any, AppUserDefaults) -> EffectTask<Never>
+    let setValue: (Any, AppUserDefaults) -> Effect<Never>
 }
 
 extension UserDefaultsClient {
     static let live: Self = .init(
         setValue: { value, key in
-            .fireAndForget {
+            .run(operation: { _ in
                 UserDefaults.standard.set(value, forKey: key.rawValue)
-            }
+            })
         }
     )
 

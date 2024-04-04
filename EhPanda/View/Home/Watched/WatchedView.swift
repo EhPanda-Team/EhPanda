@@ -21,7 +21,7 @@ struct WatchedView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -49,7 +49,7 @@ struct WatchedView: View {
             }
         }
         .sheet(
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /WatchedReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
@@ -62,7 +62,7 @@ struct WatchedView: View {
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedReducer.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickSearchState, action: WatchedReducer.Action.quickSearch)
             ) { keyword in
@@ -72,14 +72,14 @@ struct WatchedView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedReducer.Route.filters) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: WatchedReducer.Action.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.binding(\.$keyword))
+        .searchable(text: viewStore.$keyword)
         .searchSuggestions {
             TagSuggestionView(
-                keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                keyword: viewStore.$keyword, translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
             )
         }
@@ -100,7 +100,7 @@ struct WatchedView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /WatchedReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /WatchedReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: WatchedReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -127,10 +127,9 @@ struct WatchedView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             WatchedView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: WatchedReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    WatchedReducer()
+                },
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

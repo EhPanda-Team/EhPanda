@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct CommentsReducer: ReducerProtocol {
+struct CommentsReducer: Reducer {
     enum Route: Equatable {
         case hud
         case detail(String)
@@ -70,26 +70,26 @@ struct CommentsReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.urlClient) private var urlClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? Effect.send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? Effect.send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
                 state.commentContent = .init()
                 state.postCommentFocused = false
-                return .init(value: .detail(.teardown))
+                return Effect.send(.detail(.teardown))
 
             case .clearScrollCommentID:
                 state.scrollCommentID = nil
@@ -113,12 +113,18 @@ struct CommentsReducer: ReducerProtocol {
 
             case .performScrollOpacityEffect:
                 return .merge(
-                    .init(value: .setScrollRowOpacity(0.25))
-                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect(),
-                    .init(value: .setScrollRowOpacity(1))
-                        .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main).eraseToEffect(),
-                    .init(value: .clearScrollCommentID)
-                        .delay(for: .milliseconds(2000), scheduler: DispatchQueue.main).eraseToEffect()
+                    Effect.publisher {
+                        Effect.send(.setScrollRowOpacity(0.25))
+                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                    },
+                    Effect.publisher {
+                        Effect.send(.setScrollRowOpacity(1))
+                            .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main)
+                    },
+                    Effect.publisher {
+                        Effect.send(.clearScrollCommentID)
+                            .delay(for: .milliseconds(2000), scheduler: DispatchQueue.main)
+                    }
                 )
 
             case .handleCommentLink(let url):
@@ -128,39 +134,45 @@ struct CommentsReducer: ReducerProtocol {
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return .init(value: .handleGalleryLink(url))
+                    return Effect.send(.handleGalleryLink(url))
                 }
-                return .init(value: .fetchGallery(url, isGalleryImageURL))
+                return Effect.send(.fetchGallery(url, isGalleryImageURL))
 
             case .handleGalleryLink(let url):
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {
-                    effects.append(.init(value: .updateReadingProgress(gid, pageIndex)))
+                    effects.append(Effect.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        .init(value: .detail(.setNavigation(.reading)))
-                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.detail(.setNavigation(.reading)))
+                                .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                        }
                     )
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        .init(value: .detail(.setNavigation(.comments(url))))
-                            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                        Effect.publisher {
+                            Effect.send(.detail(.setNavigation(.comments(url))))
+                                .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                        }
                     )
                 }
-                effects.append(.init(value: .setNavigation(.detail(gid))))
+                effects.append(Effect.send(.setNavigation(.detail(gid))))
                 return .merge(effects)
 
             case .onPostCommentAppear:
-                return .init(value: .setPostCommentFocused(true))
-                    .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                return Effect.publisher {
+                    Effect.send(.setPostCommentFocused(true))
+                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
+                }
 
             case .onAppear:
                 if state.detailState == nil {
                     state.detailState = .init()
                 }
-                return state.scrollCommentID != nil ? .init(value: .performScrollOpacityEffect) : .none
+                return state.scrollCommentID != nil ? Effect.send(.performScrollOpacityEffect) : .none
 
             case .updateReadingProgress(let gid, let progress):
                 guard !gid.isEmpty else { return .none }
@@ -168,7 +180,7 @@ struct CommentsReducer: ReducerProtocol {
                     .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .postComment(let galleryURL, let commentID):
                 guard !state.commentContent.isEmpty else { return .none }
@@ -206,11 +218,13 @@ struct CommentsReducer: ReducerProtocol {
                 case .success(let gallery):
                     return .merge(
                         databaseClient.cacheGalleries([gallery]).fireAndForget(),
-                        .init(value: .handleGalleryLink(url))
+                        Effect.send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    return .init(value: .setHUDConfig(.error))
-                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+                    return Effect.publisher {
+                        Effect.send(.setHUDConfig(.error))
+                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                    }
                 }
 
             case .detail:

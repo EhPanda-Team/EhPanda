@@ -16,7 +16,7 @@ struct TabBarView: View {
 
     init(store: StoreOf<AppReducer>) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {
@@ -156,10 +156,9 @@ extension TabBarItemType {
 struct TabBarView_Previews: PreviewProvider {
     static var previews: some View {
         TabBarView(
-            store: .init(
-                initialState: .init(),
-                reducer: AppReducer()
-            )
+            store: .init(initialState: .init()) {
+                AppReducer()
+            }
         )
     }
 }

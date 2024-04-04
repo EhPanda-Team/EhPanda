@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AppLockReducer: ReducerProtocol {
+struct AppLockReducer: Reducer {
     struct State: Equatable {
         @BindingState var blurRadius: Double = 0
         var becameInactiveDate: Date?
@@ -31,7 +31,7 @@ struct AppLockReducer: ReducerProtocol {
 
     @Dependency(\.authorizationClient) private var authorizationClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onBecomeActive(let threshold, let blurRadius):
@@ -39,11 +39,11 @@ struct AppLockReducer: ReducerProtocol {
                    Date.now.timeIntervalSince(date) >= Double(threshold)
                 {
                     return .merge(
-                        .init(value: .authorize),
-                        .init(value: .lockApp(blurRadius))
+                        Effect.send(.authorize),
+                        Effect.send(.lockApp(blurRadius))
                     )
                 } else {
-                    return .init(value: .unlockApp)
+                    return Effect.send(.unlockApp)
                 }
 
             case .onBecomeInactive(let blurRadius):
@@ -67,7 +67,7 @@ struct AppLockReducer: ReducerProtocol {
                     .map(Action.authorizeDone)
 
             case .authorizeDone(let isSucceeded):
-                return isSucceeded ? .init(value: .unlockApp) : .none
+                return isSucceeded ? Effect.send(.unlockApp) : .none
             }
         }
     }

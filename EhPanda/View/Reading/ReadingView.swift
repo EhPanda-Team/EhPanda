@@ -30,7 +30,7 @@ struct ReadingView: View {
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
@@ -67,8 +67,8 @@ struct ReadingView: View {
             .id(viewStore.databaseLoadingState)
             .id(viewStore.forceRefreshID)
             ControlPanel(
-                showsPanel: viewStore.binding(\.$showsPanel),
-                showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
+                showsPanel: viewStore.$showsPanel,
+                showsSliderPreview: viewStore.$showsSliderPreview,
                 sliderValue: $pageHandler.sliderValue, setting: $setting,
                 enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: setAutoPlayPolocy),
@@ -81,7 +81,7 @@ struct ReadingView: View {
                 fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
             )
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingReducer.Route.readingSetting) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /ReadingReducer.Route.readingSetting) { _ in
             NavigationView {
                 ReadingSettingView(
                     readingDirection: $setting.readingDirection,
@@ -106,13 +106,13 @@ struct ReadingView: View {
             .accentColor(setting.accentColor).tint(setting.accentColor)
             .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingReducer.Route.share) { route in
+        .sheet(unwrapping: viewStore.$route, case: /ReadingReducer.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue.associatedValue])
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
             config: viewStore.hudConfig,
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /ReadingReducer.Route.hud
         )
 
@@ -598,10 +598,9 @@ struct ReadingView_Previews: PreviewProvider {
             Text("")
                 .fullScreenCover(isPresented: .constant(true)) {
                     ReadingView(
-                        store: .init(
-                            initialState: .init(gallery: .empty),
-                            reducer: ReadingReducer()
-                        ),
+                        store: .init(initialState: .init(gallery: .empty)) {
+                            ReadingReducer()
+                        },
                         gid: .init(),
                         setting: .constant(.init()),
                         blurRadius: 0

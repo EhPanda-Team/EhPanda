@@ -18,7 +18,7 @@ struct LoginView: View {
 
     init(store: StoreOf<LoginReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
@@ -35,11 +35,11 @@ struct LoginView: View {
                 VStack(spacing: 15) {
                     Group {
                         LoginTextField(
-                            focusedField: $focusedField, text: viewStore.binding(\.$username),
+                            focusedField: $focusedField, text: viewStore.$username,
                             description: L10n.Localizable.LoginView.Title.username, isPassword: false
                         )
                         LoginTextField(
-                            focusedField: $focusedField, text: viewStore.binding(\.$password),
+                            focusedField: $focusedField, text: viewStore.$password,
                             description: L10n.Localizable.LoginView.Title.password, isPassword: true
                         )
                     }
@@ -55,8 +55,8 @@ struct LoginView: View {
                 }
             }
         }
-        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /LoginReducer.Route.webView) { route in
+        .synchronize(viewStore.$focusedField, $focusedField)
+        .sheet(unwrapping: viewStore.$route, case: /LoginReducer.Route.webView) { route in
             WebView(url: route.wrappedValue) {
                 viewStore.send(.loginDone(.success(nil)))
             }
@@ -134,10 +134,9 @@ struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             LoginView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: LoginReducer()
-                ),
+                store: .init(initialState: .init()) {
+                    LoginReducer()
+                },
                 bypassesSNIFiltering: false,
                 blurRadius: 0
             )

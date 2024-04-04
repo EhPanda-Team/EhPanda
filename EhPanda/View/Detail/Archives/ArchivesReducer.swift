@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ArchivesReducer: ReducerProtocol {
+struct ArchivesReducer: Reducer {
     enum Route {
         case messageHUD
         case communicatingHUD
@@ -49,7 +49,7 @@ struct ArchivesReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -66,7 +66,7 @@ struct ArchivesReducer: ReducerProtocol {
                     .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }
@@ -85,9 +85,9 @@ struct ArchivesReducer: ReducerProtocol {
                     }
                     state.hathArchives = archive.hathArchives
                     if let galleryPoints = galleryPoints, let credits = credits {
-                        return .init(value: .syncGalleryFunds(galleryPoints, credits))
+                        return Effect.send(.syncGalleryFunds(galleryPoints, credits))
                     } else if cookieClient.isSameAccount {
-                        return .init(value: .fetchArchiveFunds(gid, galleryURL))
+                        return Effect.send(.fetchArchiveFunds(gid, galleryURL))
                     } else {
                         return .none
                     }
@@ -103,7 +103,7 @@ struct ArchivesReducer: ReducerProtocol {
 
             case .fetchArchiveFundsDone(let result):
                 if case .success(let (galleryPoints, credits)) = result {
-                    return .init(value: .syncGalleryFunds(galleryPoints, credits))
+                    return Effect.send(.syncGalleryFunds(galleryPoints, credits))
                 }
                 return .none
 
@@ -140,7 +140,7 @@ struct ArchivesReducer: ReducerProtocol {
                     state.messageHUDConfig = .error
                     isSuccess = false
                 }
-                return .fireAndForget({ hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
+                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
             }
         }
     }

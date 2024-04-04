@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct MigrationReducer: ReducerProtocol {
+struct MigrationReducer: Reducer {
     enum Route: Equatable {
         case dropDialog
     }
@@ -31,7 +31,7 @@ struct MigrationReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -55,14 +55,16 @@ struct MigrationReducer: ReducerProtocol {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return Effect.send(.onDatabasePreparationSuccess)
                 }
 
             case .dropDatabase:
                 state.databaseState = .loading
-                return databaseClient.dropDatabase()
-                    .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
-                    .eraseToEffect().map(Action.dropDatabaseDone)
+                return Effect.publisher {
+                    databaseClient.dropDatabase()
+                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                        .map(Action.dropDatabaseDone)
+                }
 
             case .dropDatabaseDone(let appError):
                 if let appError {
@@ -70,7 +72,7 @@ struct MigrationReducer: ReducerProtocol {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return Effect.send(.onDatabasePreparationSuccess)
                 }
             }
         }

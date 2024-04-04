@@ -12,37 +12,38 @@ import Kingfisher
 import ComposableArchitecture
 
 struct ImageClient {
-    let prefetchImages: ([URL]) -> EffectTask<Never>
-    let saveImageToPhotoLibrary: (UIImage, Bool) -> EffectTask<Bool>
-    let downloadImage: (URL) -> EffectTask<Result<UIImage, Error>>
-    let retrieveImage: (String) -> EffectTask<Result<UIImage, Error>>
+    let prefetchImages: ([URL]) -> Effect<Never>
+    let saveImageToPhotoLibrary: (UIImage, Bool) -> Effect<Bool>
+    let downloadImage: (URL) -> Effect<Result<UIImage, Error>>
+    let retrieveImage: (String) -> Effect<Result<UIImage, Error>>
 }
 
 extension ImageClient {
     static let live: Self = .init(
         prefetchImages: { urls in
-            .fireAndForget {
+            .run(operation: { _ in
                 ImagePrefetcher(urls: urls).start()
-            }
+            })
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
-            Future { promise in
-                DispatchQueue.global(qos: .utility).async {
-                    if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
-                        PHPhotoLibrary.shared().performChanges {
-                            let request = PHAssetCreationRequest.forAsset()
-                            request.addResource(with: .photo, data: data, options: nil)
-                        } completionHandler: { (isSuccess, _) in
-                            promise(.success(isSuccess))
+            Effect.publisher {
+                Future { promise in
+                    DispatchQueue.global(qos: .utility).async {
+                        if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
+                            PHPhotoLibrary.shared().performChanges {
+                                let request = PHAssetCreationRequest.forAsset()
+                                request.addResource(with: .photo, data: data, options: nil)
+                            } completionHandler: { (isSuccess, _) in
+                                promise(.success(isSuccess))
+                            }
+                        } else {
+                            promise(.success(false))
                         }
-                    } else {
-                        promise(.success(false))
                     }
                 }
+                .eraseToAnyPublisher()
+                .receive(on: DispatchQueue.main)
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         downloadImage: { url in
             Future { promise in
@@ -78,7 +79,7 @@ extension ImageClient {
         }
     )
 
-    func fetchImage(url: URL) -> EffectTask<Result<UIImage, Error>> {
+    func fetchImage(url: URL) -> Effect<Result<UIImage, Error>> {
         if KingfisherManager.shared.cache.isCached(forKey: url.absoluteString) {
             return retrieveImage(url.absoluteString)
         } else {

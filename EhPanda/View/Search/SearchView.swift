@@ -22,7 +22,7 @@ struct SearchView: View {
         keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.keyword = keyword
         self.user = user
         _setting = setting
@@ -45,7 +45,7 @@ struct SearchView: View {
             }
         )
         .sheet(
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /SearchReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
@@ -58,7 +58,7 @@ struct SearchView: View {
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchReducer.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /SearchReducer.Route.quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickSearchState, action: SearchReducer.Action.quickSearch)
             ) { keyword in
@@ -68,14 +68,14 @@ struct SearchView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchReducer.Route.filters) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /SearchReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: SearchReducer.Action.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
-        .searchable(text: viewStore.binding(\.$keyword))
+        .searchable(text: viewStore.$keyword)
         .searchSuggestions {
             TagSuggestionView(
-                keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                keyword: viewStore.$keyword, translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
             )
         }
@@ -96,7 +96,7 @@ struct SearchView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /SearchReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: SearchReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -122,10 +122,9 @@ struct SearchView: View {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(
-            store: .init(
-                initialState: .init(),
-                reducer: SearchReducer()
-            ),
+            store: .init(initialState: .init()) {
+                SearchReducer()
+            },
             keyword: .init(),
             user: .init(),
             setting: .constant(.init()),
