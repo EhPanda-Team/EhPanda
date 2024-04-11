@@ -50,7 +50,7 @@ struct AppReducer: Reducer {
                     return state.appRouteState.route == nil ? Effect.send(.appRoute(.clearSubStates)) : .none
 
                 case .binding(\.settingState.$setting):
-                    return Effect.send(.setting(.syncSetting))
+                    return .send(.setting(.syncSetting))
 
                 case .binding:
                     return .none
@@ -62,11 +62,11 @@ struct AppReducer: Reducer {
                     case .active:
                         let threshold = state.settingState.setting.autoLockPolicy.rawValue
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
-                        return Effect.send(.appLock(.onBecomeActive(threshold, blurRadius)))
+                        return .send(.appLock(.onBecomeActive(threshold, blurRadius)))
 
                     case .inactive:
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
-                        return Effect.send(.appLock(.onBecomeInactive(blurRadius)))
+                        return .send(.appLock(.onBecomeInactive(blurRadius)))
 
                     default:
                         return .none
@@ -85,7 +85,7 @@ struct AppReducer: Reducer {
                     var effects = [Effect<Action>]()
                     if deviceClient.isPad() {
                         state.settingState.route = nil
-                        effects.append(Effect.send(.setting(.clearSubStates)))
+                        effects.append(.send(.setting(.clearSubStates)))
                     }
                     return effects.isEmpty ? .none : .merge(effects)
 
@@ -97,7 +97,7 @@ struct AppReducer: Reducer {
                         Effect.send(.setting(.fetchGreeting))
                     ]
                     if state.settingState.setting.detectsLinksFromClipboard {
-                        effects.append(Effect.send(.appRoute(.detectClipboardURL)))
+                        effects.append(.send(.appRoute(.detectClipboardURL)))
                     }
                     return .merge(effects)
 
@@ -111,27 +111,27 @@ struct AppReducer: Reducer {
                         switch type {
                         case .home:
                             if state.homeState.route != nil {
-                                effects.append(Effect.send(.home(.setNavigation(nil))))
+                                effects.append(.send(.home(.setNavigation(nil))))
                             } else {
-                                effects.append(Effect.send(.home(.fetchAllGalleries)))
+                                effects.append(.send(.home(.fetchAllGalleries)))
                             }
                         case .favorites:
                             if state.favoritesState.route != nil {
-                                effects.append(Effect.send(.favorites(.setNavigation(nil))))
+                                effects.append(.send(.favorites(.setNavigation(nil))))
                                 effects.append(hapticEffect)
                             } else if cookieClient.didLogin {
-                                effects.append(Effect.send(.favorites(.fetchGalleries())))
+                                effects.append(.send(.favorites(.fetchGalleries())))
                                 effects.append(hapticEffect)
                             }
                         case .search:
                             if state.searchRootState.route != nil {
-                                effects.append(Effect.send(.searchRoot(.setNavigation(nil))))
+                                effects.append(.send(.searchRoot(.setNavigation(nil))))
                             } else {
-                                effects.append(Effect.send(.searchRoot(.fetchDatabaseInfos)))
+                                effects.append(.send(.searchRoot(.fetchDatabaseInfos)))
                             }
                         case .setting:
                             if state.settingState.route != nil {
-                                effects.append(Effect.send(.setting(.setNavigation(nil))))
+                                effects.append(.send(.setting(.setNavigation(nil))))
                                 effects.append(hapticEffect)
                             }
                         }
@@ -140,7 +140,7 @@ struct AppReducer: Reducer {
                         }
                     }
                     if type == .setting && deviceClient.isPad() {
-                        effects.append(Effect.send(.appRoute(.setNavigation(.setting))))
+                        effects.append(.send(.appRoute(.setNavigation(.setting))))
                     }
                     return effects.isEmpty ? .none : .merge(effects)
 
@@ -152,10 +152,10 @@ struct AppReducer: Reducer {
                         .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
                         Effect.send(.tabBar(.setTabBarItemType(.setting)))
                     ]
-                    effects.append(Effect.send(.setting(.setNavigation(.account))))
+                    effects.append(.send(.setting(.setNavigation(.account))))
                     if !cookieClient.didLogin {
                         effects.append(
-                            Effect.publisher {
+                            .publisher {
                                 Effect.send(.setting(.account(.setNavigation(.login))))
                                     .delay(
                                         for: .milliseconds(deviceClient.isPad() ? 1200 : 200),
@@ -181,15 +181,15 @@ struct AppReducer: Reducer {
                     let blurRadius = state.settingState.setting.backgroundBlurRadius
                     if threshold >= 0 {
                         state.appLockState.becameInactiveDate = .distantPast
-                        effects.append(Effect.send(.appLock(.onBecomeActive(threshold, blurRadius))))
+                        effects.append(.send(.appLock(.onBecomeActive(threshold, blurRadius))))
                     }
                     if state.settingState.setting.detectsLinksFromClipboard {
-                        effects.append(Effect.send(.appRoute(.detectClipboardURL)))
+                        effects.append(.send(.appRoute(.detectClipboardURL)))
                     }
                     return effects.isEmpty ? .none : .merge(effects)
 
                 case .setting(.fetchGreetingDone(let result)):
-                    return Effect.send(.appRoute(.fetchGreetingDone(result)))
+                    return .send(.appRoute(.fetchGreetingDone(result)))
 
                 case .setting:
                     return .none

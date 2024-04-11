@@ -21,7 +21,7 @@ extension AuthorizationClient {
             return !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
         },
         localAuthroize: { reason in
-            Effect.publisher {
+            .publisher {
                 Future { promise in
                     let context = LAContext()
                     var error: NSError?

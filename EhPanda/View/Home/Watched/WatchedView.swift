@@ -127,9 +127,7 @@ struct WatchedView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             WatchedView(
-                store: .init(initialState: .init()) {
-                    WatchedReducer()
-                },
+                store: .init(initialState: .init(), reducer: WatchedReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

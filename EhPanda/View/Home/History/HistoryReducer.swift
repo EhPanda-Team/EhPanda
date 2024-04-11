@@ -65,12 +65,12 @@ struct HistoryReducer: Reducer {
 
             case .clearSubStates:
                 state.detailState = .init()
-                return Effect.send(.detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .clearHistoryGalleries:
                 return .merge(
                     databaseClient.clearHistoryGalleries().fireAndForget(),
-                    Effect.publisher {
+                    .publisher {
                         Effect.send(.fetchGalleries)
                             .delay(for: .milliseconds(200), scheduler: DispatchQueue.main)
                     }

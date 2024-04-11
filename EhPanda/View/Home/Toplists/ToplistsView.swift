@@ -153,9 +153,7 @@ struct ToplistsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ToplistsView(
-                store: .init(initialState: .init()) {
-                    ToplistsReducer()
-                },
+                store: .init(initialState: .init(), reducer: ToplistsReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

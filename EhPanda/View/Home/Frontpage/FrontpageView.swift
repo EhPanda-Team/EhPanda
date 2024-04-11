@@ -98,9 +98,7 @@ struct FrontpageView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             FrontpageView(
-                store: .init(initialState: .init()) {
-                    FrontpageReducer()
-                },
+                store: .init(initialState: .init(), reducer: FrontpageReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

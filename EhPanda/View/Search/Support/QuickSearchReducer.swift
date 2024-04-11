@@ -94,26 +94,26 @@ struct QuickSearchReducer: Reducer {
 
             case .appendWord:
                 state.quickSearchWords.append(state.editingWord)
-                return Effect.send(.syncQuickSearchWords)
+                return .send(.syncQuickSearchWords)
 
             case .editWord:
                 if let index = state.quickSearchWords.firstIndex(where: { $0.id == state.editingWord.id }) {
                     state.quickSearchWords[index] = state.editingWord
-                    return Effect.send(.syncQuickSearchWords)
+                    return .send(.syncQuickSearchWords)
                 }
                 return .none
 
             case .deleteWord(let word):
                 state.quickSearchWords = state.quickSearchWords.filter({ $0 != word })
-                return Effect.send(.syncQuickSearchWords)
+                return .send(.syncQuickSearchWords)
 
             case .deleteWordWithOffsets(let offsets):
                 state.quickSearchWords.remove(atOffsets: offsets)
-                return Effect.send(.syncQuickSearchWords)
+                return .send(.syncQuickSearchWords)
 
             case .moveWord(let source, let destination):
                 state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
-                return Effect.send(.syncQuickSearchWords)
+                return .send(.syncQuickSearchWords)
 
             case .teardown:
                 return .cancel(id: CancelID.fetchQuickSearchWords)

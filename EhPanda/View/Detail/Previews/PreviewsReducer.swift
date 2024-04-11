@@ -73,7 +73,7 @@ struct PreviewsReducer: Reducer {
 
             case .clearSubStates:
                 state.readingState = .init()
-                return Effect.send(.reading(.teardown))
+                return .send(.reading(.teardown))
 
             case .syncPreviewURLs(let previewURLs):
                 return databaseClient
@@ -119,14 +119,14 @@ struct PreviewsReducer: Reducer {
                         return .none
                     }
                     state.updatePreviewURLs(previewURLs)
-                    return Effect.send(.syncPreviewURLs(previewURLs))
+                    return .send(.syncPreviewURLs(previewURLs))
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
                 return .none
 
             case .reading(.onPerformDismiss):
-                return Effect.send(.setNavigation(nil))
+                return .send(.setNavigation(nil))
 
             case .reading:
                 return .none

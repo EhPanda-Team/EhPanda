@@ -151,7 +151,7 @@ struct DetailReducer: Reducer {
                     )
 
                 case .onPostCommentAppear:
-                    return Effect.publisher {
+                    return .publisher {
                         Effect.send(.setPostCommentFocused(true))
                             .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
                     }
@@ -164,7 +164,7 @@ struct DetailReducer: Reducer {
                     if state.commentsState == nil {
                         state.commentsState = .init()
                     }
-                    return Effect.send(.fetchDatabaseInfos(gid))
+                    return .send(.fetchDatabaseInfos(gid))
 
                 case .toggleShowFullTitle:
                     state.showsFullTitle.toggle()
@@ -191,7 +191,7 @@ struct DetailReducer: Reducer {
                     return .merge(
                         Effect.send(.rateGallery),
                         .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
-                        Effect.publisher {
+                        .publisher {
                             Effect.send(.confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main)
                         }
                     )
@@ -249,7 +249,7 @@ struct DetailReducer: Reducer {
                     state.galleryTags = galleryState.tags
                     state.galleryPreviewURLs = galleryState.previewURLs
                     state.galleryComments = galleryState.comments
-                    return Effect.send(.fetchGalleryDetail)
+                    return .send(.fetchGalleryDetail)
 
                 case .fetchGalleryDetail:
                     guard state.loadingState != .loading,
@@ -276,13 +276,13 @@ struct DetailReducer: Reducer {
                         state.galleryComments = galleryState.comments
                         state.userRating = Int(galleryDetail.userRating) * 2
                         if let greeting = greeting {
-                            effects.append(Effect.send(.syncGreeting(greeting)))
+                            effects.append(.send(.syncGreeting(greeting)))
                             if !greeting.gainedNothing && state.showsNewDawnGreeting {
-                                effects.append(Effect.send(.setNavigation(.newDawn(greeting))))
+                                effects.append(.send(.setNavigation(.newDawn(greeting))))
                             }
                         }
                         if let config = galleryState.previewConfig {
-                            effects.append(Effect.send(.syncPreviewConfig(config)))
+                            effects.append(.send(.syncPreviewConfig(config)))
                         }
                         return .merge(effects)
                     case .failure(let error):
@@ -330,7 +330,7 @@ struct DetailReducer: Reducer {
                     return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
 
                 case .reading(.onPerformDismiss):
-                    return Effect.send(.setNavigation(nil))
+                    return .send(.setNavigation(nil))
 
                 case .reading:
                     return .none
@@ -345,7 +345,7 @@ struct DetailReducer: Reducer {
                     return .none
 
                 case .comments(.performCommentActionDone(let result)):
-                    return Effect.send(.anyGalleryOpsDone(result))
+                    return .send(.anyGalleryOpsDone(result))
 
                 case .comments(.detail(let recursiveAction)):
                     guard state.commentsState != nil else { return .none }

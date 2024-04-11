@@ -67,7 +67,7 @@ extension LibraryClient {
             })
         },
         analyzeImageColors: { image in
-            Effect.publisher {
+            .publisher {
                 Future { promise in
                     image.getColors(quality: .lowest) { colors in
                         promise(.success(colors))
@@ -76,7 +76,7 @@ extension LibraryClient {
             }
         },
         calculateWebImageDiskCacheSize: {
-            Effect.publisher {
+            .publisher {
                 Future { promise in
                     KingfisherManager.shared.cache.calculateDiskStorageSize {
                         promise(.success(try? $0.get()))

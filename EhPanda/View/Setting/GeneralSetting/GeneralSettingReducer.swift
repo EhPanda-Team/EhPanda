@@ -64,7 +64,7 @@ struct GeneralSettingReducer: Reducer {
 
             case .clearSubStates:
                 state.logsState = .init()
-                return Effect.send(.logs(.teardown))
+                return .send(.logs(.teardown))
 
             case .onTranslationsFilePicked:
                 return .none

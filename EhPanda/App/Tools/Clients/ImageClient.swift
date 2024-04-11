@@ -26,7 +26,7 @@ extension ImageClient {
             })
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
-            Effect.publisher {
+            .publisher {
                 Future { promise in
                     DispatchQueue.global(qos: .utility).async {
                         if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {

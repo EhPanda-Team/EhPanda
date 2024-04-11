@@ -139,11 +139,11 @@ struct SearchRootReducer: Reducer {
 
             case .appendHistoryKeyword(let keyword):
                 state.appendHistoryKeywords([keyword])
-                return Effect.send(.syncHistoryKeywords)
+                return .send(.syncHistoryKeywords)
 
             case .removeHistoryKeyword(let keyword):
                 state.removeHistoryKeyword(keyword)
-                return Effect.send(.syncHistoryKeywords)
+                return .send(.syncHistoryKeywords)
 
             case .fetchHistoryGalleries:
                 return databaseClient.fetchHistoryGalleries(fetchLimit: 10).map(Action.fetchHistoryGalleriesDone)
@@ -158,7 +158,7 @@ struct SearchRootReducer: Reducer {
                 } else {
                     state.appendHistoryKeywords([state.searchState.lastKeyword])
                 }
-                return Effect.send(.syncHistoryKeywords)
+                return .send(.syncHistoryKeywords)
 
             case .search:
                 return .none

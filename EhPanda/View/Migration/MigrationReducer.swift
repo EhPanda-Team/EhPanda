@@ -55,12 +55,12 @@ struct MigrationReducer: Reducer {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return Effect.send(.onDatabasePreparationSuccess)
+                    return .send(.onDatabasePreparationSuccess)
                 }
 
             case .dropDatabase:
                 state.databaseState = .loading
-                return Effect.publisher {
+                return .publisher {
                     databaseClient.dropDatabase()
                         .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
                         .map(Action.dropDatabaseDone)
@@ -72,7 +72,7 @@ struct MigrationReducer: Reducer {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return Effect.send(.onDatabasePreparationSuccess)
+                    return .send(.onDatabasePreparationSuccess)
                 }
             }
         }

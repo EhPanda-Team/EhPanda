@@ -105,7 +105,7 @@ struct HomeReducer: Reducer {
                 guard state.cardPageIndex < state.popularGalleries.count else { return .none }
                 state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
                 state.allowsCardHitTesting = false
-                return Effect.publisher {
+                return .publisher {
                     Effect.send(.setAllowsCardHitTesting(true))
                         .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
                 }

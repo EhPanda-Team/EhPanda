@@ -228,9 +228,7 @@ struct AppearanceSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             AppearanceSettingView(
-                store: .init(initialState: .init()) {
-                    AppearanceSettingReducer()
-                },
+                store: .init(initialState: .init(), reducer: AppearanceSettingReducer.init),
                 preferredColorScheme: .constant(.automatic),
                 accentColor: .constant(.blue),
                 appIconType: .constant(.default),

@@ -221,9 +221,7 @@ private struct DownloadButton: View {
 struct ArchivesView_Previews: PreviewProvider {
     static var previews: some View {
         ArchivesView(
-            store: .init(initialState: .init()) {
-                ArchivesReducer()
-            },
+            store: .init(initialState: .init(), reducer: ArchivesReducer.init),
             gid: .init(),
             user: .init(),
             galleryURL: .mock,

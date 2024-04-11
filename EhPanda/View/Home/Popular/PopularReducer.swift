@@ -70,7 +70,7 @@ struct PopularReducer: Reducer {
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
-                return Effect.send(.detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .teardown:
                 return .cancel(id: CancelID.fetchGalleries)

@@ -519,9 +519,7 @@ enum HomeSectionType: String, CaseIterable, Identifiable {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(
-            store: .init(initialState: .init()) {
-                HomeReducer()
-            },
+            store: .init(initialState: .init(), reducer: HomeReducer.init),
             user: .init(),
             setting: .constant(.init()),
             blurRadius: 0,

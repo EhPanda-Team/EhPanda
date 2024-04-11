@@ -109,11 +109,11 @@ struct ToplistsReducer: Reducer {
             case .setToplistsType(let type):
                 state.type = type
                 guard state.galleries?.isEmpty != false else { return .none }
-                return Effect.send(Action.fetchGalleries())
+                return .send(Action.fetchGalleries())
 
             case .clearSubStates:
                 state.detailState = .init()
-                return Effect.send(.detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .performJumpPage:
                 guard let index = Int(state.jumpPageIndex),
@@ -121,7 +121,7 @@ struct ToplistsReducer: Reducer {
                       index > 0, index <= pageNumber.maximum + 1 else {
                     return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
                 }
-                return Effect.send(.fetchGalleries(index - 1))
+                return .send(.fetchGalleries(index - 1))
 
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
@@ -153,7 +153,7 @@ struct ToplistsReducer: Reducer {
                     guard !galleries.isEmpty else {
                         state.rawLoadingState[type] = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
-                        return Effect.send(.fetchMoreGalleries)
+                        return .send(.fetchMoreGalleries)
                     }
                     state.rawPageNumber[type] = pageNumber
                     state.rawGalleries[type] = galleries
@@ -185,7 +185,7 @@ struct ToplistsReducer: Reducer {
                         databaseClient.cacheGalleries(galleries).fireAndForget()
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(Effect.send(.fetchMoreGalleries))
+                        effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.rawLoadingState[type] = .idle
                     }

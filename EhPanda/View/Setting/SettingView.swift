@@ -183,9 +183,7 @@ extension SettingReducer.Route {
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
         SettingView(
-            store: .init(initialState: .init()) {
-                SettingReducer()
-            },
+            store: .init(initialState: .init(), reducer: SettingReducer.init),
             blurRadius: 0
         )
     }

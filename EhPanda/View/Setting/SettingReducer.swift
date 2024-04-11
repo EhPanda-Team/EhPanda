@@ -126,7 +126,7 @@ struct SettingReducer: Reducer {
                     Effect.send(.syncSetting)
                 ]
                 if state.setting.enablesTagsExtension {
-                    effects.append(Effect.send(.fetchTagTranslator))
+                    effects.append(.send(.fetchTagTranslator))
                 }
                 return .merge(effects)
 
@@ -149,7 +149,7 @@ struct SettingReducer: Reducer {
                 {
                     state.setting.backgroundBlurRadius = 10
                 }
-                return Effect.send(.syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.backgroundBlurRadius):
                 if state.setting.autoLockPolicy != .never
@@ -157,7 +157,7 @@ struct SettingReducer: Reducer {
                 {
                     state.setting.autoLockPolicy = .never
                 }
-                return Effect.send(.syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.enablesLandscape):
                 var effects: [Effect<Action>] = [
@@ -172,13 +172,13 @@ struct SettingReducer: Reducer {
                 if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
                     state.setting.doubleTapScaleFactor = state.setting.maximumScaleFactor
                 }
-                return Effect.send(.syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.doubleTapScaleFactor):
                 if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
                     state.setting.maximumScaleFactor = state.setting.doubleTapScaleFactor
                 }
-                return Effect.send(.syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$setting.bypassesSNIFiltering):
                 return .merge(
@@ -188,7 +188,7 @@ struct SettingReducer: Reducer {
                 )
 
             case .binding(\.$setting):
-                return Effect.send(.syncSetting)
+                return .send(.syncSetting)
 
             case .binding(\.$route):
                 return .none
@@ -249,7 +249,7 @@ struct SettingReducer: Reducer {
                     state.setting.galleryHost = galleryHost
                 }
                 if cookieClient.shouldFetchIgneous {
-                    effects.append(Effect.send(.fetchIgneous))
+                    effects.append(.send(.fetchIgneous))
                 }
                 if cookieClient.didLogin {
                     effects.append(contentsOf: [
@@ -260,7 +260,7 @@ struct SettingReducer: Reducer {
                     ])
                 }
                 if state.setting.enablesTagsExtension {
-                    effects.append(Effect.send(.fetchTagTranslator))
+                    effects.append(.send(.fetchTagTranslator))
                 }
                 return .merge(effects)
 
@@ -280,7 +280,7 @@ struct SettingReducer: Reducer {
                 if case .success(let response) = result {
                     effects.append(cookieClient.setCredentials(response: response).fireAndForget())
                 }
-                effects.append(Effect.send(.account(.loadCookies)))
+                effects.append(.send(.account(.loadCookies)))
                 return .merge(effects)
 
             case .fetchUserInfo:
@@ -295,7 +295,7 @@ struct SettingReducer: Reducer {
             case .fetchUserInfoDone(let result):
                 if case .success(let user) = result {
                     state.updateUser(user)
-                    return Effect.send(.syncUser)
+                    return .send(.syncUser)
                 }
                 return .none
 
@@ -335,13 +335,13 @@ struct SettingReducer: Reducer {
                 switch result {
                 case .success(let greeting):
                     state.setGreeting(greeting)
-                    return Effect.send(.syncUser)
+                    return .send(.syncUser)
                 case .failure(let error):
                     if case .parseFailed = error {
                         var greeting = Greeting()
                         greeting.updateTime = Date()
                         state.setGreeting(greeting)
-                        return Effect.send(.syncUser)
+                        return .send(.syncUser)
                     }
                 }
                 return .none
@@ -372,7 +372,7 @@ struct SettingReducer: Reducer {
                 switch result {
                 case .success(let tagTranslator):
                     state.tagTranslator = tagTranslator
-                    return Effect.send(.syncTagTranslator)
+                    return .send(.syncTagTranslator)
                 case .failure(let error):
                     state.tagTranslatorLoadingState = .failed(error)
                 }
@@ -401,7 +401,7 @@ struct SettingReducer: Reducer {
                             )
                         }
                     } else if response.isProfileNotFound {
-                        effects.append(Effect.send(.createDefaultEhProfile))
+                        effects.append(.send(.createDefaultEhProfile))
                     } else {
                         let message = "Found profile but failed in parsing value."
                         effects.append(loggerClient.error(message, nil).fireAndForget())
@@ -448,7 +448,7 @@ struct SettingReducer: Reducer {
             case .general(.onRemoveCustomTranslations):
                 state.tagTranslator.hasCustomTranslations = false
                 state.tagTranslator.translations = .init()
-                return Effect.send(.syncTagTranslator)
+                return .send(.syncTagTranslator)
 
             case .general:
                 return .none

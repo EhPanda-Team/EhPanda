@@ -43,7 +43,7 @@ struct AppLockReducer: Reducer {
                         Effect.send(.lockApp(blurRadius))
                     )
                 } else {
-                    return Effect.send(.unlockApp)
+                    return .send(.unlockApp)
                 }
 
             case .onBecomeInactive(let blurRadius):

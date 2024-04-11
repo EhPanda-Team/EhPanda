@@ -134,9 +134,7 @@ struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             LoginView(
-                store: .init(initialState: .init()) {
-                    LoginReducer()
-                },
+                store: .init(initialState: .init(), reducer: LoginReducer.init),
                 bypassesSNIFiltering: false,
                 blurRadius: 0
             )

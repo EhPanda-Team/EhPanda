@@ -239,10 +239,6 @@ extension FilterRange {
 
 struct FiltersView_Previews: PreviewProvider {
     static var previews: some View {
-        FiltersView(
-            store: .init(initialState: .init()) {
-                FiltersReducer()
-            }
-        )
+        FiltersView(store: .init(initialState: .init(), reducer: FiltersReducer.init))
     }
 }

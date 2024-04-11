@@ -89,7 +89,7 @@ struct CommentsReducer: Reducer {
                 state.detailState = .init()
                 state.commentContent = .init()
                 state.postCommentFocused = false
-                return Effect.send(.detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .clearScrollCommentID:
                 state.scrollCommentID = nil
@@ -113,15 +113,15 @@ struct CommentsReducer: Reducer {
 
             case .performScrollOpacityEffect:
                 return .merge(
-                    Effect.publisher {
+                    .publisher {
                         Effect.send(.setScrollRowOpacity(0.25))
                             .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
                     },
-                    Effect.publisher {
+                    .publisher {
                         Effect.send(.setScrollRowOpacity(1))
                             .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main)
                     },
-                    Effect.publisher {
+                    .publisher {
                         Effect.send(.clearScrollCommentID)
                             .delay(for: .milliseconds(2000), scheduler: DispatchQueue.main)
                     }
@@ -134,18 +134,18 @@ struct CommentsReducer: Reducer {
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return Effect.send(.handleGalleryLink(url))
+                    return .send(.handleGalleryLink(url))
                 }
-                return Effect.send(.fetchGallery(url, isGalleryImageURL))
+                return .send(.fetchGallery(url, isGalleryImageURL))
 
             case .handleGalleryLink(let url):
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {
-                    effects.append(Effect.send(.updateReadingProgress(gid, pageIndex)))
+                    effects.append(.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        Effect.publisher {
+                        .publisher {
                             Effect.send(.detail(.setNavigation(.reading)))
                                 .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
                         }
@@ -153,17 +153,17 @@ struct CommentsReducer: Reducer {
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        Effect.publisher {
+                        .publisher {
                             Effect.send(.detail(.setNavigation(.comments(url))))
                                 .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
                         }
                     )
                 }
-                effects.append(Effect.send(.setNavigation(.detail(gid))))
+                effects.append(.send(.setNavigation(.detail(gid))))
                 return .merge(effects)
 
             case .onPostCommentAppear:
-                return Effect.publisher {
+                return .publisher {
                     Effect.send(.setPostCommentFocused(true))
                         .delay(for: .milliseconds(750), scheduler: DispatchQueue.main)
                 }
@@ -221,7 +221,7 @@ struct CommentsReducer: Reducer {
                         Effect.send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    return Effect.publisher {
+                    return .publisher {
                         Effect.send(.setHUDConfig(.error))
                             .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
                     }

@@ -135,9 +135,7 @@ struct FavoritesView: View {
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
-            store: .init(initialState: .init()) {
-                FavoritesReducer()
-            },
+            store: .init(initialState: .init(), reducer: FavoritesReducer.init),
             user: .init(),
             setting: .constant(.init()),
             blurRadius: 0,

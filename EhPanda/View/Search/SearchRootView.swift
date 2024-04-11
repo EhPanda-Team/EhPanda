@@ -404,9 +404,7 @@ private struct WrappedKeyword: Hashable {
 struct SearchRootView_Previews: PreviewProvider {
     static var previews: some View {
         SearchRootView(
-            store: .init(initialState: .init()) {
-                SearchRootReducer()
-            },
+            store: .init(initialState: .init(), reducer: SearchRootReducer.init),
             user: .init(),
             setting: .constant(.init()),
             blurRadius: 0,

@@ -174,11 +174,7 @@ extension Log: CustomStringConvertible {
 struct LogsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            LogsView(
-                store: .init(initialState: .init()) {
-                    LogsReducer()
-                }
-            )
+            LogsView(store: .init(initialState: .init(), reducer: LogsReducer.init))
         }
     }
 }

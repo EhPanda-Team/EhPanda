@@ -85,9 +85,9 @@ struct ArchivesReducer: Reducer {
                     }
                     state.hathArchives = archive.hathArchives
                     if let galleryPoints = galleryPoints, let credits = credits {
-                        return Effect.send(.syncGalleryFunds(galleryPoints, credits))
+                        return .send(.syncGalleryFunds(galleryPoints, credits))
                     } else if cookieClient.isSameAccount {
-                        return Effect.send(.fetchArchiveFunds(gid, galleryURL))
+                        return .send(.fetchArchiveFunds(gid, galleryURL))
                     } else {
                         return .none
                     }
@@ -103,7 +103,7 @@ struct ArchivesReducer: Reducer {
 
             case .fetchArchiveFundsDone(let result):
                 if case .success(let (galleryPoints, credits)) = result {
-                    return Effect.send(.syncGalleryFunds(galleryPoints, credits))
+                    return .send(.syncGalleryFunds(galleryPoints, credits))
                 }
                 return .none
 
@@ -140,7 +140,9 @@ struct ArchivesReducer: Reducer {
                     state.messageHUDConfig = .error
                     isSuccess = false
                 }
-                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
+                return .run { _ in
+                    hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error)
+                }
             }
         }
     }

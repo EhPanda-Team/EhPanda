@@ -20,7 +20,7 @@ struct DatabaseClient {
 extension DatabaseClient {
     static let live: Self = .init(
         prepareDatabase: {
-            Effect.publisher {
+            .publisher {
                 Future { promise in
                     PersistenceController.shared.prepare {
                         switch $0 {
@@ -36,7 +36,7 @@ extension DatabaseClient {
             }
         },
         dropDatabase: {
-            Effect.publisher {
+            .publisher {
                 Future { promise in
                     PersistenceController.shared.rebuild {
                         switch $0 {
@@ -217,7 +217,7 @@ extension DatabaseClient {
         return entity
     }
     func fetchAppEnv() -> Effect<AppEnv> {
-        Effect.publisher {
+        .publisher {
             Future { promise in
                 DispatchQueue.main.async {
                     promise(.success(fetchOrCreate(entityType: AppEnvMO.self).toEntity()))
@@ -231,7 +231,7 @@ extension DatabaseClient {
     }
     func fetchGalleryState(gid: String) -> Effect<GalleryState> {
         guard gid.isValidGID else { return .none }
-        return Effect.publisher {
+        return .publisher {
             Future { promise in
                 DispatchQueue.main.async {
                     promise(.success(
@@ -243,7 +243,7 @@ extension DatabaseClient {
         }
     }
     func fetchHistoryGalleries(fetchLimit: Int = 0) -> Effect<[Gallery]> {
-        Effect.publisher {
+        .publisher {
             Future { promise in
                 DispatchQueue.main.async {
                     let predicate = NSPredicate(format: "lastOpenDate != nil")
@@ -290,14 +290,14 @@ extension DatabaseClient {
 extension DatabaseClient {
     func updateGallery(gid: String, key: String, value: Any?) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
-        return .run(operation: { _ in
+        return .run { _ in
             DispatchQueue.main.async {
                 update(
                     entityType: GalleryMO.self, gid: gid, createIfNil: true,
                     commitChanges: { $0.setValue(value, forKeyPath: key) }
                 )
             }
-        })
+        }
     }
     func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
@@ -350,7 +350,7 @@ extension DatabaseClient {
 extension DatabaseClient {
     func cacheGalleryDetail(_ detail: GalleryDetail) -> Effect<Never> {
         guard detail.gid.isValidGID else { return .none }
-        return .run(operation: { _ in
+        return .run { _ in
             DispatchQueue.main.async {
                 let storedMO = fetch(
                     entityType: GalleryDetailMO.self, gid: detail.gid
@@ -380,7 +380,7 @@ extension DatabaseClient {
                 }
                 saveContext()
             }
-        })
+        }
     }
 }
 
@@ -388,14 +388,14 @@ extension DatabaseClient {
 extension DatabaseClient {
     func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
-        return .run(operation: { _ in
+        return .run { _ in
             DispatchQueue.main.async {
                 update(
                     entityType: GalleryStateMO.self, gid: gid, createIfNil: true,
                     commitChanges: commitChanges
                 )
             }
-        })
+        }
     }
     func updateGalleryState(gid: String, key: String, value: Any?) -> Effect<Never> {
         guard gid.isValidGID else { return .none }
@@ -529,7 +529,7 @@ extension DatabaseClient {
 
     // Update User
     func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) -> Effect<Never> {
-        Effect.publisher {
+        .publisher {
             fetchAppEnv().map(\.user)
                 .map { (user: User) -> User in
                     var user = user

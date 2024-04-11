@@ -74,7 +74,7 @@ struct AppRouteReducer: Reducer {
 
             case .clearSubStates:
                 state.detailState = .init()
-                return Effect.send(.detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .detectClipboardURL:
                 let currentChangeCount = clipboardClient.changeCount()
@@ -85,7 +85,7 @@ struct AppRouteReducer: Reducer {
                         .setValue(currentChangeCount, .clipboardChangeCount).fireAndForget()
                 ]
                 if let url = clipboardClient.url() {
-                    effects.append(Effect.send(.handleDeepLink(url)))
+                    effects.append(.send(.handleDeepLink(url)))
                 }
                 return .merge(effects)
 
@@ -101,12 +101,12 @@ struct AppRouteReducer: Reducer {
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return Effect.publisher {
+                    return .publisher {
                         Effect.send(.handleGalleryLink(url))
                             .delay(for: .milliseconds(delay + 250), scheduler: DispatchQueue.main)
                     }
                 }
-                return Effect.publisher {
+                return .publisher {
                     Effect.send(.fetchGallery(url, isGalleryImageURL))
                         .delay(for: .milliseconds(delay), scheduler: DispatchQueue.main)
                 }
@@ -116,11 +116,11 @@ struct AppRouteReducer: Reducer {
                 let gid = urlClient.parseGalleryID(url)
                 var effects = [Effect<Action>]()
                 state.detailState = .init()
-                effects.append(Effect.send(.detail(.fetchDatabaseInfos(gid))))
+                effects.append(.send(.detail(.fetchDatabaseInfos(gid))))
                 if let pageIndex = pageIndex {
-                    effects.append(Effect.send(.updateReadingProgress(gid, pageIndex)))
+                    effects.append(.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        Effect.publisher {
+                        .publisher {
                             Effect.send(.detail(.setNavigation(.reading)))
                                 .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
                         }
@@ -128,13 +128,13 @@ struct AppRouteReducer: Reducer {
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        Effect.publisher {
+                        .publisher {
                             Effect.send(.detail(.setNavigation(.comments(url))))
                                 .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
                         }
                     )
                 }
-                effects.append(Effect.send(.setNavigation(.detail(gid))))
+                effects.append(.send(.setNavigation(.detail(gid))))
                 return .merge(effects)
 
             case .updateReadingProgress(let gid, let progress):
@@ -156,7 +156,7 @@ struct AppRouteReducer: Reducer {
                         Effect.send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    return Effect.publisher {
+                    return .publisher {
                         Effect.send(Action.setHUDConfig(.error))
                             .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
                     }
@@ -164,7 +164,7 @@ struct AppRouteReducer: Reducer {
 
             case .fetchGreetingDone(let result):
                 if case .success(let greeting) = result, !greeting.gainedNothing {
-                    return Effect.send(.setNavigation(.newDawn(greeting)))
+                    return .send(.setNavigation(.newDawn(greeting)))
                 }
                 return .none
 
