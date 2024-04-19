@@ -11,9 +11,9 @@ import ComposableArchitecture
 
 struct FileClient {
     let createFile: (String, Data?) -> Bool
-    let fetchLogs: () -> Effect<Result<[Log], AppError>>
-    let deleteLog: (String) -> Effect<Result<String, AppError>>
-    let importTagTranslator: (URL) -> Effect<Result<TagTranslator, AppError>>
+    let fetchLogs: () async -> Result<[Log], AppError>
+    let deleteLog: (String) async -> Result<String, AppError>
+    let importTagTranslator: (URL) async -> Result<TagTranslator, AppError>
 }
 
 extension FileClient {
@@ -22,76 +22,63 @@ extension FileClient {
             FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
         },
         fetchLogs: {
-            Future { promise in
-                DispatchQueue.global(qos: .userInitiated).async {
-                    guard let path = FileUtil.logsDirectoryURL?.path,
-                          let enumerator = FileManager.default.enumerator(atPath: path),
-                          let fileNames = (enumerator.allObjects as? [String])?
-                            .filter({ $0.contains(Defaults.FilePath.ehpandaLog) })
-                    else {
-                        promise(.failure(.notFound))
-                        return
-                    }
-
-                    let logs: [Log] = fileNames.compactMap { name in
-                        guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name),
-                              let content = try? String(contentsOf: fileURL)
-                        else { return nil }
-
-                        return Log(
-                            fileName: name, contents: content
-                                .components(separatedBy: "\n")
-                                .filter({ !$0.isEmpty })
-                        )
-                    }
-                    .sorted()
-                    promise(.success(logs))
+            await withCheckedContinuation { continuation in
+                guard let path = FileUtil.logsDirectoryURL?.path,
+                      let enumerator = FileManager.default.enumerator(atPath: path),
+                      let fileNames = (enumerator.allObjects as? [String])?
+                        .filter({ $0.contains(Defaults.FilePath.ehpandaLog) })
+                else {
+                    continuation.resume(returning: .failure(.notFound))
+                    return
                 }
+
+                let logs: [Log] = fileNames.compactMap { name in
+                    guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name),
+                          let content = try? String(contentsOf: fileURL)
+                    else { return nil }
+
+                    return Log(
+                        fileName: name, contents: content
+                            .components(separatedBy: "\n")
+                            .filter({ !$0.isEmpty })
+                    )
+                }
+                .sorted()
+                continuation.resume(returning: .success(logs))
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .catchToEffect()
         },
         deleteLog: { fileName in
-            Future { promise in
+            await withCheckedContinuation { continuation in
                 guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(fileName)
                 else {
-                    promise(.failure(.notFound))
+                continuation.resume(returning: .failure(.notFound))
                     return
                 }
 
                 try? FileManager.default.removeItem(at: fileURL)
 
                 if FileManager.default.fileExists(atPath: fileURL.path) {
-                    promise(.failure(.unknown))
+                    continuation.resume(returning: .failure(.unknown))
                 }
-                promise(.success(fileName))
+                continuation.resume(returning: .success(fileName))
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .catchToEffect()
         },
         importTagTranslator: { url in
-            Future { promise in
-                DispatchQueue.global(qos: .userInitiated).async {
-                    guard let data = try? Data(contentsOf: url),
-                          let translations = try? JSONDecoder().decode(
-                            EhTagTranslationDatabaseResponse.self, from: data
-                          ).tagTranslations
-                    else {
-                        promise(.failure(.parseFailed))
-                        return
-                    }
-                    guard !translations.isEmpty else {
-                        promise(.failure(.parseFailed))
-                        return
-                    }
-                    promise(.success(.init(hasCustomTranslations: true, translations: translations)))
-                }
+            await withCheckedContinuation { continuation in
+                guard let data = try? Data(contentsOf: url),
+                      let translations = try? JSONDecoder().decode(
+                        EhTagTranslationDatabaseResponse.self, from: data
+                      ).tagTranslations
+                else {
+                continuation.resume(returning: .failure(.parseFailed))
+                return
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .catchToEffect()
+                guard !translations.isEmpty else {
+                continuation.resume(returning: .failure(.parseFailed))
+                return
+            }
+                continuation.resume(returning: .success(.init(hasCustomTranslations: true, translations: translations)))
+            }
         }
     )
 
@@ -123,9 +110,9 @@ extension DependencyValues {
 extension FileClient {
     static let noop: Self = .init(
         createFile: { _, _ in false },
-        fetchLogs: { .none },
-        deleteLog: { _ in .none },
-        importTagTranslator: { _ in .none }
+        fetchLogs: { .success([]) },
+        deleteLog: { _ in .success("") },
+        importTagTranslator: { _ in .success(.init()) }
     )
 
     static let unimplemented: Self = .init(

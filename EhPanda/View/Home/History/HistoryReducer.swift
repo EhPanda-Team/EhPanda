@@ -54,14 +54,14 @@ struct HistoryReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
@@ -69,17 +69,22 @@ struct HistoryReducer: Reducer {
 
             case .clearHistoryGalleries:
                 return .merge(
-                    databaseClient.clearHistoryGalleries().fireAndForget(),
-                    .publisher {
-                        Effect.send(.fetchGalleries)
-                            .delay(for: .milliseconds(200), scheduler: DispatchQueue.main)
+                    .run { _ in
+                        await databaseClient.clearHistoryGalleries()
+                    },
+                    .run { send in
+                        try await Task.sleep(nanoseconds: UInt64(200) * NSEC_PER_MSEC)
+                        await send(.fetchGalleries)
                     }
                 )
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return databaseClient.fetchHistoryGalleries().map(Action.fetchGalleriesDone)
+                return .run { send in
+                    let historyGalleries = await databaseClient.fetchHistoryGalleries()
+                    await send(.fetchGalleriesDone(historyGalleries))
+                }
 
             case .fetchGalleriesDone(let galleries):
                 state.loadingState = .idle

@@ -99,15 +99,15 @@ struct HomeReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding(\.$cardPageIndex):
                 guard state.cardPageIndex < state.popularGalleries.count else { return .none }
                 state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
                 state.allowsCardHitTesting = false
-                return .publisher {
-                    Effect.send(.setAllowsCardHitTesting(true))
-                        .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
+                return .run { send in
+                    try await Task.sleep(nanoseconds: UInt64(300) * NSEC_PER_MSEC)
+                    await send(.setAllowsCardHitTesting(true))
                 }
 
             case .binding:
@@ -115,7 +115,7 @@ struct HomeReducer: Reducer {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.frontpageState = .init()
@@ -125,11 +125,11 @@ struct HomeReducer: Reducer {
                 state.historyState = .init()
                 state.detailState = .init()
                 return .merge(
-                    Effect.send(.frontpage(.teardown)),
-                    Effect.send(.toplists(.teardown)),
-                    Effect.send(.popular(.teardown)),
-                    Effect.send(.watched(.teardown)),
-                    Effect.send(.detail(.teardown))
+                    .send(.frontpage(.teardown)),
+                    .send(.toplists(.teardown)),
+                    .send(.popular(.teardown)),
+                    .send(.watched(.teardown)),
+                    .send(.detail(.teardown))
                 )
 
             case .setAllowsCardHitTesting(let isAllowed):
@@ -138,15 +138,16 @@ struct HomeReducer: Reducer {
 
             case .fetchAllGalleries:
                 return .merge(
-                    Effect.send(.fetchPopularGalleries),
-                    Effect.send(.fetchFrontpageGalleries),
-                    Effect.send(.fetchAllToplistsGalleries)
+                    .send(.fetchPopularGalleries),
+                    .send(.fetchFrontpageGalleries),
+                    .send(.fetchAllToplistsGalleries)
                 )
 
             case .fetchAllToplistsGalleries:
                 return .merge(
-                    ToplistsType.allCases.map({ Action.fetchToplistsGalleries($0.categoryIndex) })
-                        .map(Effect<Action>.init)
+                    ToplistsType.allCases
+                        .map { Action.fetchToplistsGalleries($0.categoryIndex) }
+                        .map(Effect<Action>.send)
                 )
 
             case .fetchPopularGalleries:
@@ -166,7 +167,9 @@ struct HomeReducer: Reducer {
                         return .none
                     }
                     state.setPopularGalleries(galleries)
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run { _ in
+                        await databaseClient.cacheGalleries(galleries)
+                    }
                 case .failure(let error):
                     state.popularLoadingState = .failed(error)
                 }
@@ -188,7 +191,9 @@ struct HomeReducer: Reducer {
                         return .none
                     }
                     state.setFrontpageGalleries(galleries)
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run { _ in
+                        await databaseClient.cacheGalleries(galleries)
+                    }
                 case .failure(let error):
                     state.frontpageLoadingState = .failed(error)
                 }
@@ -209,7 +214,9 @@ struct HomeReducer: Reducer {
                         return .none
                     }
                     state.toplistsGalleries[index] = galleries
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run { _ in
+                        await databaseClient.cacheGalleries(galleries)
+                    }
                 case .failure(let error):
                     state.toplistsLoadingState[index] = .failed(error)
                 }
@@ -217,8 +224,10 @@ struct HomeReducer: Reducer {
 
             case .analyzeImageColors(let gid, let result):
                 guard !state.rawCardColors.keys.contains(gid) else { return .none }
-                return libraryClient.analyzeImageColors(result.image)
-                    .map({ Action.analyzeImageColorsDone(gid, $0) })
+                return .run { send in
+                    let colors = await libraryClient.analyzeImageColors(result.image)
+                    await send(.analyzeImageColorsDone(gid, colors))
+                }
 
             case .analyzeImageColorsDone(let gid, let colors):
                 if let colors = colors {

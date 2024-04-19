@@ -9,15 +9,13 @@ import Foundation
 import ComposableArchitecture
 
 struct UserDefaultsClient {
-    let setValue: (Any, AppUserDefaults) -> Effect<Never>
+    let setValue: (Any, AppUserDefaults) -> Void
 }
 
 extension UserDefaultsClient {
     static let live: Self = .init(
         setValue: { value, key in
-            .run(operation: { _ in
-                UserDefaults.standard.set(value, forKey: key.rawValue)
-            })
+            UserDefaults.standard.set(value, forKey: key.rawValue)
         }
     )
 
@@ -43,7 +41,7 @@ extension DependencyValues {
 // MARK: Test
 extension UserDefaultsClient {
     static let noop: Self = .init(
-        setValue: { _, _ in .none }
+        setValue: { _, _ in }
     )
 
     static let unimplemented: Self = .init(

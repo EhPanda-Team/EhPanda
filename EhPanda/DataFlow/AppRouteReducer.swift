@@ -59,14 +59,14 @@ struct AppRouteReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .setHUDConfig(let config):
                 state.hudConfig = config
@@ -81,8 +81,9 @@ struct AppRouteReducer: Reducer {
                 guard currentChangeCount != userDefaultsClient
                         .getValue(.clipboardChangeCount) else { return .none }
                 var effects: [Effect<Action>] = [
-                    userDefaultsClient
-                        .setValue(currentChangeCount, .clipboardChangeCount).fireAndForget()
+                    .run { _ in
+                        userDefaultsClient.setValue(currentChangeCount, .clipboardChangeCount)
+                    }
                 ]
                 if let url = clipboardClient.url() {
                     effects.append(.send(.handleDeepLink(url)))
@@ -101,14 +102,14 @@ struct AppRouteReducer: Reducer {
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return .publisher {
-                        Effect.send(.handleGalleryLink(url))
-                            .delay(for: .milliseconds(delay + 250), scheduler: DispatchQueue.main)
+                    return .run { [delay] send in
+                        try await Task.sleep(nanoseconds: UInt64((delay + 250)) * NSEC_PER_MSEC)
+                        await send(.handleGalleryLink(url))
                     }
                 }
-                return .publisher {
-                    Effect.send(.fetchGallery(url, isGalleryImageURL))
-                        .delay(for: .milliseconds(delay), scheduler: DispatchQueue.main)
+                return .run { [delay] send in
+                    try await Task.sleep(nanoseconds: UInt64(delay) * NSEC_PER_MSEC)
+                    await send(.fetchGallery(url, isGalleryImageURL))
                 }
 
             case .handleGalleryLink(let url):
@@ -120,17 +121,17 @@ struct AppRouteReducer: Reducer {
                 if let pageIndex = pageIndex {
                     effects.append(.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
-                        .publisher {
-                            Effect.send(.detail(.setNavigation(.reading)))
-                                .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                        .run { send in
+                            try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                            await send(.detail(.setNavigation(.reading)))
                         }
                     )
                 } else if let commentID = commentID {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
-                        .publisher {
-                            Effect.send(.detail(.setNavigation(.comments(url))))
-                                .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                        .run { send in
+                            try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                            await send(.detail(.setNavigation(.comments(url))))
                         }
                     )
                 }
@@ -139,8 +140,9 @@ struct AppRouteReducer: Reducer {
 
             case .updateReadingProgress(let gid, let progress):
                 guard !gid.isEmpty else { return .none }
-                return databaseClient
-                    .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
+                return .run { _ in
+                    await databaseClient.updateReadingProgress(gid: gid, progress: progress)
+                }
 
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
@@ -152,13 +154,15 @@ struct AppRouteReducer: Reducer {
                 switch result {
                 case .success(let gallery):
                     return .merge(
-                        databaseClient.cacheGalleries([gallery]).fireAndForget(),
-                        Effect.send(.handleGalleryLink(url))
+                        .run { _ in
+                            await databaseClient.cacheGalleries([gallery])
+                        },
+                        .send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    return .publisher {
-                        Effect.send(Action.setHUDConfig(.error))
-                            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                    return .run { send in
+                        try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                        await send(Action.setHUDConfig(.error))
                     }
                 }
 

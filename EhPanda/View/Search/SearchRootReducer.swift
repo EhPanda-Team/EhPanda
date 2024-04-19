@@ -94,8 +94,8 @@ struct SearchRootReducer: Reducer {
             case .binding(\.$route):
                 return state.route == nil
                 ? .merge(
-                    Effect.send(.clearSubStates),
-                    Effect.send(.fetchDatabaseInfos)
+                    .send(.clearSubStates),
+                    .send(.fetchDatabaseInfos)
                 )
                 : .none
 
@@ -106,8 +106,8 @@ struct SearchRootReducer: Reducer {
                 state.route = route
                 return route == nil
                 ? .merge(
-                    Effect.send(.clearSubStates),
-                    Effect.send(.fetchDatabaseInfos)
+                    .send(.clearSubStates),
+                    .send(.fetchDatabaseInfos)
                 )
                 : .none
 
@@ -121,16 +121,21 @@ struct SearchRootReducer: Reducer {
                 state.filtersState = .init()
                 state.quickSearchState = .init()
                 return .merge(
-                    Effect.send(.search(.teardown)),
-                    Effect.send(.quickSearch(.teardown)),
-                    Effect.send(.detail(.teardown))
+                    .send(.search(.teardown)),
+                    .send(.quickSearch(.teardown)),
+                    .send(.detail(.teardown))
                 )
 
             case .syncHistoryKeywords:
-                return databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateHistoryKeywords(state.historyKeywords)
+                }
 
             case .fetchDatabaseInfos:
-                return databaseClient.fetchAppEnv().map(Action.fetchDatabaseInfosDone)
+                return .run { send in
+                    let appEnv = await databaseClient.fetchAppEnv()
+                    await send(.fetchDatabaseInfosDone(appEnv))
+                }
 
             case .fetchDatabaseInfosDone(let appEnv):
                 state.historyKeywords = appEnv.historyKeywords
@@ -146,7 +151,10 @@ struct SearchRootReducer: Reducer {
                 return .send(.syncHistoryKeywords)
 
             case .fetchHistoryGalleries:
-                return databaseClient.fetchHistoryGalleries(fetchLimit: 10).map(Action.fetchHistoryGalleriesDone)
+                return .run { send in
+                    let historyGalleries = await databaseClient.fetchHistoryGalleries(fetchLimit: 10)
+                    await send(.fetchHistoryGalleriesDone(historyGalleries))
+                }
 
             case .fetchHistoryGalleriesDone(let galleries):
                 state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))

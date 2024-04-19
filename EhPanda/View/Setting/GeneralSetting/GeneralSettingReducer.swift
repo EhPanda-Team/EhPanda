@@ -53,14 +53,14 @@ struct GeneralSettingReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.logsState = .init()
@@ -74,9 +74,13 @@ struct GeneralSettingReducer: Reducer {
 
             case .clearWebImageCache:
                 return .merge(
-                    libraryClient.clearWebImageDiskCache().fireAndForget(),
-                    databaseClient.removeImageURLs().fireAndForget(),
-                    Effect.send(.calculateWebImageDiskCache)
+                    .run { _ in
+                        libraryClient.clearWebImageDiskCache()
+                    },
+                    .run { _ in
+                        await databaseClient.removeImageURLs()
+                    },
+                    .send(.calculateWebImageDiskCache)
                 )
 
             case .checkPasscodeSetting:
@@ -84,11 +88,15 @@ struct GeneralSettingReducer: Reducer {
                 return .none
 
             case .navigateToSystemSetting:
-                return uiApplicationClient.openSettings().fireAndForget()
+                return .run { _ in
+                    uiApplicationClient.openSettings()
+                }
 
             case .calculateWebImageDiskCache:
-                return libraryClient.calculateWebImageDiskCacheSize()
-                    .map(Action.calculateWebImageDiskCacheDone)
+                return .run { send in
+                    let size = await libraryClient.calculateWebImageDiskCacheSize()
+                    await send(.calculateWebImageDiskCacheDone(size))
+                }
 
             case .calculateWebImageDiskCacheDone(let bytes):
                 guard let bytes = bytes else { return .none }

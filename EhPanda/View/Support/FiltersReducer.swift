@@ -85,7 +85,9 @@ struct FiltersReducer: Reducer {
                 case .watched:
                     filter = state.watchedFilter
                 }
-                return databaseClient.updateFilter(filter, range: range).fireAndForget()
+                return .run { _ in
+                    await databaseClient.updateFilter(filter, range: range)
+                }
 
             case .resetFilters:
                 switch state.filterRange {
@@ -101,7 +103,10 @@ struct FiltersReducer: Reducer {
                 }
 
             case .fetchFilters:
-                return databaseClient.fetchAppEnv().map(Action.fetchFiltersDone)
+                return .run { send in
+                    let appEnv = await databaseClient.fetchAppEnv()
+                    await send(.fetchFiltersDone(appEnv))
+                }
 
             case .fetchFiltersDone(let appEnv):
                 state.searchFilter = appEnv.searchFilter

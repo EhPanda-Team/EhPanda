@@ -52,10 +52,14 @@ struct AccountSettingReducer: Reducer {
                 return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding(\.$ehCookiesState):
-                return cookieClient.setCookies(state: state.ehCookiesState).fireAndForget()
+                return .run { [state] _ in
+                    cookieClient.setCookies(state: state.ehCookiesState)
+                }
 
             case .binding(\.$exCookiesState):
-                return cookieClient.setCookies(state: state.exCookiesState).fireAndForget()
+                return .run { [state] _ in
+                    cookieClient.setCookies(state: state.exCookiesState)
+                }
 
             case .binding:
                 return .none
@@ -84,8 +88,12 @@ struct AccountSettingReducer: Reducer {
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
                     .send(.setNavigation(.hud)),
-                    clipboardClient.saveText(cookiesDescription).fireAndForget(),
-                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                    .run { _ in
+                        clipboardClient.saveText(cookiesDescription)
+                    },
+                    .run { _ in
+                        hapticsClient.generateNotificationFeedback(.success)
+                    }
                 )
 
             case .login(.loginDone):

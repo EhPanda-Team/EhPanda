@@ -47,7 +47,10 @@ struct MigrationReducer: Reducer {
                 return .none
 
             case .prepareDatabase:
-                return databaseClient.prepareDatabase().map(Action.prepareDatabaseDone)
+                return .run { send in
+                    let result = await databaseClient.prepareDatabase()
+                    await send(.prepareDatabaseDone(result.error))
+                }
 
             case .prepareDatabaseDone(let appError):
                 if let appError {
@@ -60,10 +63,10 @@ struct MigrationReducer: Reducer {
 
             case .dropDatabase:
                 state.databaseState = .loading
-                return .publisher {
-                    databaseClient.dropDatabase()
-                        .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
-                        .map(Action.dropDatabaseDone)
+                return .run { send in
+                    try await Task.sleep(nanoseconds: 500 * NSEC_PER_MSEC)
+                    let result = await databaseClient.dropDatabase()
+                    await send(.dropDatabaseDone(result.error))
                 }
 
             case .dropDatabaseDone(let appError):
@@ -75,6 +78,17 @@ struct MigrationReducer: Reducer {
                     return .send(.onDatabasePreparationSuccess)
                 }
             }
+        }
+    }
+}
+
+private extension Result {
+    var error: Failure? {
+        switch self {
+        case .success:
+            return nil
+        case let .failure(error):
+            return error
         }
     }
 }

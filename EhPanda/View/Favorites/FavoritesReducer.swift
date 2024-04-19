@@ -81,14 +81,14 @@ struct FavoritesReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .setFavoritesIndex(let index):
                 state.index = index
@@ -130,7 +130,9 @@ struct FavoritesReducer: Reducer {
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = sortOrder
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run { _ in
+                        await databaseClient.cacheGalleries(galleries)
+                    }
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }
@@ -161,7 +163,9 @@ struct FavoritesReducer: Reducer {
                     state.sortOrder = sortOrder
 
                     var effects: [Effect<Action>] = [
-                        databaseClient.cacheGalleries(galleries).fireAndForget()
+                        .run { _ in
+                            await databaseClient.cacheGalleries(galleries)
+                        }
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))

@@ -30,17 +30,31 @@ struct AppDelegateReducer: Reducer {
             switch action {
             case .onLaunchFinish:
                 return .merge(
-                    libraryClient.initializeLogger().fireAndForget(),
-                    libraryClient.initializeWebImage().fireAndForget(),
-                    cookieClient.removeYay().fireAndForget(),
-                    cookieClient.syncExCookies().fireAndForget(),
-                    cookieClient.ignoreOffensive().fireAndForget(),
-                    cookieClient.fulfillAnotherHostField().fireAndForget(),
-                    Effect.send(.migration(.prepareDatabase))
+                    .run { _ in
+                        libraryClient.initializeLogger()
+                    },
+                    .run { _ in
+                        libraryClient.initializeWebImage()
+                    },
+                    .run { _ in
+                        cookieClient.removeYay()
+                    },
+                    .run { _ in
+                        cookieClient.syncExCookies()
+                    },
+                    .run { _ in
+                        cookieClient.ignoreOffensive()
+                    },
+                    .run { _ in
+                        cookieClient.fulfillAnotherHostField()
+                    },
+                    .send(.migration(.prepareDatabase))
                 )
 
             case .removeExpiredImageURLs:
-                return databaseClient.removeExpiredImageURLs().fireAndForget()
+                return .run { _ in
+                    await databaseClient.removeExpiredImageURLs()
+                }
 
             case .migration:
                 return .none

@@ -37,8 +37,12 @@ struct GalleryInfosReducer: Reducer {
             case .copyText(let text):
                 state.route = .hud
                 return .merge(
-                    clipboardClient.saveText(text).fireAndForget(),
-                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                    .run { _ in
+                        clipboardClient.saveText(text)
+                    },
+                    .run { _ in
+                        hapticsClient.generateNotificationFeedback(.success)
+                    }
                 )
             }
         }

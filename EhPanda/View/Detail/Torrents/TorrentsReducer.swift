@@ -59,8 +59,12 @@ struct TorrentsReducer: Reducer {
             case .copyText(let magnetURL):
                 state.route = .hud
                 return .merge(
-                    clipboardClient.saveText(magnetURL).fireAndForget(),
-                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                    .run { _ in
+                        clipboardClient.saveText(magnetURL)
+                    },
+                    .run { _ in
+                        hapticsClient.generateNotificationFeedback(.success)
+                    }
                 )
 
             case .presentTorrentActivity(let hash, let data):

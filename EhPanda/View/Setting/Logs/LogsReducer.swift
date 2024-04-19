@@ -50,7 +50,9 @@ struct LogsReducer: Reducer {
                 return .none
 
             case .navigateToFileApp:
-                return uiApplicationClient.openFileApp().fireAndForget()
+                return .run { _ in
+                    uiApplicationClient.openFileApp()
+                }
 
             case .teardown:
                 return .cancel(id: CancelID.fetchLogs)
@@ -58,7 +60,11 @@ struct LogsReducer: Reducer {
             case .fetchLogs:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return fileClient.fetchLogs().map(Action.fetchLogsDone).cancellable(id: CancelID.fetchLogs)
+                return .run { send in
+                    let result = await fileClient.fetchLogs()
+                    await send(.fetchLogsDone(result))
+                }
+                .cancellable(id: CancelID.fetchLogs)
 
             case .fetchLogsDone(let result):
                 switch result {
@@ -71,7 +77,10 @@ struct LogsReducer: Reducer {
                 return .none
 
             case .deleteLog(let fileName):
-                return fileClient.deleteLog(fileName).map(Action.deleteLogDone)
+                return .run { send in
+                    let result = await fileClient.deleteLog(fileName)
+                    await send(.deleteLogDone(result))
+                }
 
             case .deleteLogDone(let result):
                 if case .success(let fileName) = result {

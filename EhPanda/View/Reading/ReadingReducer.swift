@@ -190,7 +190,9 @@ struct ReadingReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$showsSliderPreview):
-                return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
+                return .run { _ in
+                    hapticsClient.generateFeedback(.soft)
+                }
 
             case .binding:
                 return .none
@@ -206,19 +208,27 @@ struct ReadingReducer: Reducer {
             case .setOrientationPortrait(let isPortrait):
                 var effects = [Effect<Action>]()
                 if isPortrait {
-                    effects.append(appDelegateClient.setPortraitOrientationMask().fireAndForget())
-                    effects.append(appDelegateClient.setPortraitOrientation().fireAndForget())
+                    effects.append(.run { _ in
+                        appDelegateClient.setPortraitOrientationMask()
+                    })
+                    effects.append(.run { _ in
+                        appDelegateClient.setPortraitOrientation()
+                    })
                 } else {
-                    effects.append(appDelegateClient.setAllOrientationMask().fireAndForget())
+                    effects.append(.run { _ in
+                        appDelegateClient.setAllOrientationMask()
+                    })
                 }
                 return .merge(effects)
 
             case .onPerformDismiss:
-                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
+                return .run { _ in
+                    hapticsClient.generateFeedback(.light)
+                }
 
             case .onAppear(let gid, let enablesLandscape):
                 var effects: [Effect<Action>] = [
-                    Effect.send(.fetchDatabaseInfos(gid))
+                    .send(.fetchDatabaseInfos(gid))
                 ]
                 if enablesLandscape {
                     effects.append(.send(.setOrientationPortrait(false)))
@@ -247,7 +257,9 @@ struct ReadingReducer: Reducer {
                 state.mpvImageKeys = .init()
                 state.mpvSkipServerIdentifiers = .init()
                 state.forceRefreshID = .init()
-                return databaseClient.removeImageURLs(gid: state.gallery.id).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.removeImageURLs(gid: state.gallery.id)
+                }
 
             case .retryAllFailedWebImages:
                 state.imageURLLoadingStates.forEach { (index, loadingState) in
@@ -276,9 +288,11 @@ struct ReadingReducer: Reducer {
                 return .send(.fetchImage(.share(imageURL.isGIF), imageURL))
 
             case .fetchImage(let action, let imageURL):
-                return imageClient.fetchImage(url: imageURL)
-                    .map({ Action.fetchImageDone(action, $0) })
-                    .cancellable(id: CancelID.fetchImage)
+                return .run { send in
+                    let result = await imageClient.fetchImage(url: imageURL)
+                    await send(.fetchImageDone(action, result))
+                }
+                .cancellable(id: CancelID.fetchImage)
 
             case .fetchImageDone(let action, let result):
                 if case .success(let image) = result {
@@ -286,12 +300,16 @@ struct ReadingReducer: Reducer {
                     case .copy(let isAnimated):
                         state.hudConfig = .copiedToClipboardSucceeded
                         return .merge(
-                            Effect.send(.setNavigation(.hud)),
-                            clipboardClient.saveImage(image, isAnimated).fireAndForget()
+                            .send(.setNavigation(.hud)),
+                            .run { _ in
+                                clipboardClient.saveImage(image, isAnimated)
+                            }
                         )
                     case .save(let isAnimated):
-                        return imageClient
-                            .saveImageToPhotoLibrary(image, isAnimated).map(Action.saveImageDone)
+                        return .run { send in
+                            let success = await imageClient.saveImageToPhotoLibrary(image, isAnimated)
+                            await send(.saveImageDone(success))
+                        }
                     case .share(let isAnimated):
                         if isAnimated, let data = image.kf.data(format: .GIF) {
                             return .send(.setNavigation(.share(.data(data))))
@@ -305,21 +323,28 @@ struct ReadingReducer: Reducer {
                 }
 
             case .syncReadingProgress(let progress):
-                return databaseClient
-                    .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                }
 
             case .syncPreviewURLs(let previewURLs):
-                return databaseClient
-                    .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
+                }
 
             case .syncThumbnailURLs(let thumbnailURLs):
-                return databaseClient
-                    .updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs)
+                }
 
             case .syncImageURLs(let imageURLs, let originalImageURLs):
-                return databaseClient
-                    .updateImageURLs(gid: state.gallery.id, imageURLs: imageURLs, originalImageURLs: originalImageURLs)
-                    .fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateImageURLs(
+                        gid: state.gallery.id,
+                        imageURLs: imageURLs,
+                        originalImageURLs: originalImageURLs
+                    )
+                }
 
             case .teardown:
                 var effects: [Effect<Action>] = [
@@ -334,8 +359,11 @@ struct ReadingReducer: Reducer {
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
                 state.gallery = gallery
                 state.galleryDetail = databaseClient.fetchGalleryDetail(gid: state.gallery.id)
-                return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
+                return .run { [state] send in
+                    guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
+                    await send(.fetchDatabaseInfosDone(dbState))
+                }
+                .cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -422,7 +450,9 @@ struct ReadingReducer: Reducer {
                 fetchImageURLIndices.forEach {
                     effects.append(.send(.fetchImageURLs($0)))
                 }
-                effects.append(imageClient.prefetchImages(prefetchImageURLs).fireAndForget())
+                effects.append(.run { [prefetchImageURLs] _ in
+                    imageClient.prefetchImages(prefetchImageURLs)
+                })
                 return .merge(effects)
 
             case .fetchThumbnailURLs(let index):
@@ -452,8 +482,8 @@ struct ReadingReducer: Reducer {
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
                         return .merge(
-                            Effect.send(.syncThumbnailURLs(thumbnailURLs)),
-                            Effect.send(.fetchNormalImageURLs(index, thumbnailURLs))
+                            .send(.syncThumbnailURLs(thumbnailURLs)),
+                            .send(.fetchNormalImageURLs(index, thumbnailURLs))
                         )
                     }
                 case .failure(let error):
@@ -511,7 +541,9 @@ struct ReadingReducer: Reducer {
                 case .success(let (imageURLs, response)):
                     var effects = [Effect<Action>]()
                     if let response = response {
-                        effects.append(cookieClient.setSkipServer(response: response).fireAndForget())
+                        effects.append(.run { _ in
+                            cookieClient.setSkipServer(response: response)
+                        })
                     }
                     guard !imageURLs.isEmpty else {
                         state.imageURLLoadingStates[index] = .failed(.notFound)
@@ -548,7 +580,7 @@ struct ReadingReducer: Reducer {
                     state.mpvImageKeys = mpvImageKeys
                     return .merge(
                         Array(1...min(3, max(1, pageCount))).map {
-                            Effect.send(.fetchMPVImageURL($0, false))
+                            .send(.fetchMPVImageURL($0, false))
                         }
                     )
                 case .failure(let error):

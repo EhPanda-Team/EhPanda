@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct LoginReducer: Reducer {
     private enum CancelID: Hashable {
         case login
+        case teardown
     }
 
     enum Route: Equatable {
@@ -63,14 +64,16 @@ struct LoginReducer: Reducer {
                 return .none
 
             case .teardown:
-                return .cancel(id: CancelID.self)
+                return .cancel(id: CancelID.teardown)
 
             case .login:
                 guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }
                 state.focusedField = nil
                 state.loginState = .loading
                 return .merge(
-                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                    .run { _ in
+                        hapticsClient.generateFeedback(.soft)
+                    },
                     LoginRequest(username: state.username, password: state.password)
                         .effect.map(Action.loginDone).cancellable(id: CancelID.login)
                 )
@@ -80,13 +83,19 @@ struct LoginReducer: Reducer {
                 var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }))
+                    effects.append(.run { _ in
+                        hapticsClient.generateNotificationFeedback(.success)
+                    })
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) }))
+                    effects.append(.run { _ in
+                        hapticsClient.generateNotificationFeedback(.error)
+                    })
                 }
                 if case .success(let response) = result, let response = response {
-                    effects.append(cookieClient.setCredentials(response: response).fireAndForget())
+                    effects.append(.run { _ in
+                        cookieClient.setCredentials(response: response)
+                    })
                 }
                 return .merge(effects)
             }

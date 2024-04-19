@@ -11,13 +11,13 @@ import ComposableArchitecture
 struct AppReducer: Reducer {
     struct State: Equatable {
         var appDelegateState = AppDelegateReducer.State()
-        var appRouteState = AppRouteReducer.State()
+        @BindingState var appRouteState = AppRouteReducer.State()
         var appLockState = AppLockReducer.State()
         var tabBarState = TabBarReducer.State()
         var homeState = HomeReducer.State()
         var favoritesState = FavoritesReducer.State()
         var searchRootState = SearchRootReducer.State()
-        var settingState = SettingReducer.State()
+        @BindingState var settingState = SettingReducer.State()
     }
 
     enum Action: BindableAction {
@@ -47,7 +47,7 @@ struct AppReducer: Reducer {
             Reduce { state, action in
                 switch action {
                 case .binding(\.appRouteState.$route):
-                    return state.appRouteState.route == nil ? Effect.send(.appRoute(.clearSubStates)) : .none
+                    return state.appRouteState.route == nil ? .send(.appRoute(.clearSubStates)) : .none
 
                 case .binding(\.settingState.$setting):
                     return .send(.setting(.syncSetting))
@@ -74,8 +74,8 @@ struct AppReducer: Reducer {
 
                 case .appDelegate(.migration(.onDatabasePreparationSuccess)):
                     return .merge(
-                        Effect.send(.appDelegate(.removeExpiredImageURLs)),
-                        Effect.send(.setting(.loadUserSettings))
+                        .send(.appDelegate(.removeExpiredImageURLs)),
+                        .send(.setting(.loadUserSettings))
                     )
 
                 case .appDelegate:
@@ -94,7 +94,7 @@ struct AppReducer: Reducer {
 
                 case .appLock(.unlockApp):
                     var effects: [Effect<Action>] = [
-                        Effect.send(.setting(.fetchGreeting))
+                        .send(.setting(.fetchGreeting))
                     ]
                     if state.settingState.setting.detectsLinksFromClipboard {
                         effects.append(.send(.appRoute(.detectClipboardURL)))
@@ -106,7 +106,9 @@ struct AppReducer: Reducer {
 
                 case .tabBar(.setTabBarItemType(let type)):
                     var effects = [Effect<Action>]()
-                    let hapticEffect: Effect<Action> = .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
+                    let hapticEffect: Effect<Action> = .run { _ in
+                        hapticsClient.generateFeedback(.soft)
+                    }
                     if type == state.tabBarState.tabBarItemType {
                         switch type {
                         case .home:
@@ -149,18 +151,18 @@ struct AppReducer: Reducer {
 
                 case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
                     var effects: [Effect<Action>] = [
-                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
-                        Effect.send(.tabBar(.setTabBarItemType(.setting)))
+                        .run { _ in
+                            hapticsClient.generateFeedback(.soft)
+                        },
+                        .send(.tabBar(.setTabBarItemType(.setting)))
                     ]
                     effects.append(.send(.setting(.setNavigation(.account))))
                     if !cookieClient.didLogin {
                         effects.append(
-                            .publisher {
-                                Effect.send(.setting(.account(.setNavigation(.login))))
-                                    .delay(
-                                        for: .milliseconds(deviceClient.isPad() ? 1200 : 200),
-                                        scheduler: DispatchQueue.main
-                                    )
+                            .run { send in
+                                let delay = UInt64(deviceClient.isPad() ? 1200 : 200)
+                                try await Task.sleep(nanoseconds: delay * NSEC_PER_MSEC)
+                                await send(.setting(.account(.setNavigation(.login))))
                             }
                         )
                     }

@@ -12,8 +12,8 @@ import UniformTypeIdentifiers
 struct ClipboardClient {
     let url: () -> URL?
     let changeCount: () -> Int
-    let saveText: (String) -> Effect<Never>
-    let saveImage: (UIImage, Bool) -> Effect<Never>
+    let saveText: (String) -> Void
+    let saveImage: (UIImage, Bool) -> Void
 }
 
 extension ClipboardClient {
@@ -29,22 +29,18 @@ extension ClipboardClient {
             UIPasteboard.general.changeCount
         },
         saveText: { text in
-            .run(operation: { _ in
-                UIPasteboard.general.string = text
-            })
+            UIPasteboard.general.string = text
         },
         saveImage: { (image, isAnimated) in
-            .run(operation: { _ in
-                if isAnimated {
-                    DispatchQueue.global(qos: .utility).async {
-                        if let data = image.kf.data(format: .GIF) {
-                            UIPasteboard.general.setData(data, forPasteboardType: UTType.gif.identifier)
-                        }
+            if isAnimated {
+                DispatchQueue.global(qos: .utility).async {
+                    if let data = image.kf.data(format: .GIF) {
+                        UIPasteboard.general.setData(data, forPasteboardType: UTType.gif.identifier)
                     }
-                } else {
-                    UIPasteboard.general.image = image
                 }
-            })
+            } else {
+                UIPasteboard.general.image = image
+            }
         }
     )
 }
@@ -68,8 +64,8 @@ extension ClipboardClient {
     static let noop: Self = .init(
         url: { nil },
         changeCount: { 0 },
-        saveText: { _ in .none },
-        saveImage: { _, _ in .none }
+        saveText: { _ in },
+        saveImage: { _, _ in }
     )
 
     static let unimplemented: Self = .init(
