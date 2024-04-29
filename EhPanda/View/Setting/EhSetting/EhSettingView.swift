@@ -463,19 +463,20 @@ private struct RatingsSection: View {
     }
 
     var body: some View {
-        Section {
-            LabeledContent(L10n.Localizable.EhSettingView.Title.ratingsColor) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleRatings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionRatingsColor())
+        ) {
+            HStack {
+                Text(R.string.localizable.ehSettingViewTitleRatingsColor())
+                Spacer()
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
-                    promptText: L10n.Localizable.EhSettingView.Promt.ratingsColor,
+                    promptText: R.string.localizable.ehSettingViewPromtRatingsColor(),
                     width: 80
                 )
                 .focused($isFocused)
             }
-        } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.ratings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.ratingsColor)
         }
         .textCase(nil)
     }
@@ -720,9 +721,13 @@ private struct ThumbnailSettingsSection: View {
     }
 
     var body: some View {
-        Section {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleThumbnailSettings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionThumbnailLoadTiming()),
+            footer: Text(ehSetting.thumbnailLoadTiming.description)
+        ) {
             Picker(
-                L10n.Localizable.EhSettingView.Title.thumbnailLoadTiming,
+                R.string.localizable.ehSettingViewTitleThumbnailLoadTiming(),
                 selection: $ehSetting.thumbnailLoadTiming
             ) {
                 ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
@@ -731,17 +736,13 @@ private struct ThumbnailSettingsSection: View {
                 }
             }
             .pickerStyle(.menu)
-        } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.thumbnailSettings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.thumbnailLoadTiming)
-        } footer: {
-            Text(ehSetting.thumbnailLoadTiming.description)
         }
         .textCase(nil)
 
-        Section(L10n.Localizable.EhSettingView.Description.thumbnailConfiguration) {
-            LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailSize) {
+        Section(R.string.localizable.ehSettingViewDescriptionThumbnailConfiguration()) {
+            HStack {
+                Text(R.string.localizable.ehSettingViewTitleThumbnailSize())
+                Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
                         Text(size.value)
@@ -754,7 +755,9 @@ private struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
 
-            LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailRowCount) {
+            HStack {
+                Text(R.string.localizable.ehSettingViewTitleThumbnailRowCount())
+                Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
                         Text(row.value)
@@ -835,9 +838,13 @@ private struct ValuePicker: View {
     }
 
     var body: some View {
-        LabeledContent(title) {
-            Text(String(Int(value)) + unit)
-                .foregroundStyle(.tint)
+        VStack {
+            HStack {
+                Text(title.localized())
+                Spacer()
+                Text(String(Int(value)) + unit)
+                    .foregroundStyle(.tint)
+            }
         }
 
         Slider(
