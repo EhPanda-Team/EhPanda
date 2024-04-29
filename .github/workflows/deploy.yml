@@ -87,17 +87,9 @@ jobs:
           echo "`jq '.apps[0].versions[0].localizedDescription="${{ steps.retrieve-data.outputs.notes }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versions[0].date="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versions[0].version="${{ steps.bump-version.outputs.version }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
-          echo "`jq '.apps[0].versions[0].downloadURL="https://github.com/EhPanda-Team/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].versions[0].downloadURL="https://github.com/borkleyspook/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
       - name: Commit update AltStore.json
         run: |
           git add .
           git commit -m "Update AltStore.json"
           git push origin HEAD
-      - name: Post release notes
-        run: |
-         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         -d text='*v${{ steps.bump-version.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
-
-         curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
