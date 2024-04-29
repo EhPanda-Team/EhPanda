@@ -75,8 +75,7 @@ struct SearchRootView: View {
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: viewStore.binding(\.$keyword))
-            .searchSuggestions {
+            .searchable(text: viewStore.binding(\.$keyword)) {
                 TagSuggestionView(
                     keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
                     showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
