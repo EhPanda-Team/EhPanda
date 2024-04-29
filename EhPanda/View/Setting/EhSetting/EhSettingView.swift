@@ -464,15 +464,14 @@ private struct RatingsSection: View {
 
     var body: some View {
         Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleRatings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionRatingsColor())
+            header: Text(L10n.Localizable.EhSettingView.Section.Title.ratings).newlineBold().appending(L10n.Localizable.EhSettingView.Description.ratingsColor)
         ) {
             HStack {
-                Text(R.string.localizable.ehSettingViewTitleRatingsColor())
+                Text(L10n.Localizable.EhSettingView.Title.ratingsColor)
                 Spacer()
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
-                    promptText: R.string.localizable.ehSettingViewPromtRatingsColor(),
+                    promptText: L10n.Localizable.EhSettingView.Promt.ratingsColor,
                     width: 80
                 )
                 .focused($isFocused)
@@ -722,12 +721,11 @@ private struct ThumbnailSettingsSection: View {
 
     var body: some View {
         Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleThumbnailSettings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionThumbnailLoadTiming()),
+            header: Text(L10n.Localizable.EhSettingView.Section.Title.thumbnailSettings).newlineBold().appending(L10n.Localizable.EhSettingView.Description.thumbnailLoadTiming),
             footer: Text(ehSetting.thumbnailLoadTiming.description)
         ) {
             Picker(
-                R.string.localizable.ehSettingViewTitleThumbnailLoadTiming(),
+                L10n.Localizable.EhSettingView.Title.thumbnailLoadTiming,
                 selection: $ehSetting.thumbnailLoadTiming
             ) {
                 ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
@@ -739,9 +737,9 @@ private struct ThumbnailSettingsSection: View {
         }
         .textCase(nil)
 
-        Section(R.string.localizable.ehSettingViewDescriptionThumbnailConfiguration()) {
+        Section(L10n.Localizable.EhSettingView.Description.thumbnailConfiguration) {
             HStack {
-                Text(R.string.localizable.ehSettingViewTitleThumbnailSize())
+                Text(L10n.Localizable.EhSettingView.Title.thumbnailSize)
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
@@ -756,7 +754,7 @@ private struct ThumbnailSettingsSection: View {
             }
 
             HStack {
-                Text(R.string.localizable.ehSettingViewTitleThumbnailRowCount())
+                Text(L10n.Localizable.EhSettingView.Title.thumbnailRowCount)
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
