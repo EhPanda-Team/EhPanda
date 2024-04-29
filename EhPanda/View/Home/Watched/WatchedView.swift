@@ -76,8 +76,7 @@ struct WatchedView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: WatchedReducer.Action.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.binding(\.$keyword))
-        .searchSuggestions {
+        .searchable(text: viewStore.binding(\.$keyword)) {
             TagSuggestionView(
                 keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion

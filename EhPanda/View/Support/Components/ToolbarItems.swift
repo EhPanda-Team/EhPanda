@@ -136,7 +136,7 @@ struct FavoritesIndexMenu: View {
                 }
             }
         } label: {
-            Image(systemSymbol: .dialLow)
+            Image(systemSymbol: .dialMin)
                 .symbolRenderingMode(.hierarchical)
         }
     }
@@ -164,7 +164,7 @@ struct ToplistsTypeMenu: View {
                 }
             }
         } label: {
-            Image(systemSymbol: .dialLow)
+            Image(systemSymbol: .dialMin)
                 .symbolRenderingMode(.hierarchical)
         }
     }
