@@ -838,7 +838,7 @@ private struct ValuePicker: View {
     var body: some View {
         VStack {
             HStack {
-                Text(title.localized())
+                Text(title)
                 Spacer()
                 Text(String(Int(value)) + unit)
                     .foregroundStyle(.tint)
