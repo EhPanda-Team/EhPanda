@@ -4,6 +4,7 @@ on:
     branches:
       - main
     types: [closed]
+  workflow_dispatch:
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app
   APP_VERSION: '2.7.4'
@@ -20,7 +21,6 @@ env:
 jobs:
   Deploy:
     runs-on: macos-13
-    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
