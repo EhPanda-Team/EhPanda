@@ -146,9 +146,11 @@ struct ToplistsReducer: Reducer {
                 } else {
                     state.rawPageNumber[state.type]?.resetPages()
                 }
-                return ToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
-                    .effect.map({ [type = state.type] in Action.fetchGalleriesDone(type, $0) })
-                    .cancellable(id: CancelID.fetchGalleries)
+                return .run { [type = state.type] send in
+                    let response = await ToplistsGalleriesRequest(catIndex: type.categoryIndex, pageNum: pageNum).response()
+                    await send(Action.fetchGalleriesDone(type, response))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let type, let result):
                 state.rawLoadingState[type] = .idle
@@ -176,9 +178,11 @@ struct ToplistsReducer: Reducer {
                 else { return .none }
                 state.rawFooterLoadingState[state.type] = .loading
                 let pageNum = pageNumber.current + 1
-                return MoreToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
-                    .effect.map({ [type = state.type] in Action.fetchMoreGalleriesDone(type, $0) })
-                    .cancellable(id: CancelID.fetchMoreGalleries)
+                return .run { [type = state.type] send in
+                    let response = await MoreToplistsGalleriesRequest(catIndex: type.categoryIndex, pageNum: pageNum).response()
+                    await send(Action.fetchMoreGalleriesDone(type, response))
+                }
+                .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let type, let result):
                 state.rawFooterLoadingState[type] = .idle

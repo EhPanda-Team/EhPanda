@@ -72,9 +72,11 @@ struct ArchivesReducer: Reducer {
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return GalleryArchiveRequest(archiveURL: archiveURL)
-                    .effect.map({ Action.fetchArchiveDone(gid, galleryURL, $0) })
-                    .cancellable(id: CancelID.fetchArchive)
+                return .run { send in
+                    let response = await GalleryArchiveRequest(archiveURL: archiveURL).response()
+                    await send(Action.fetchArchiveDone(gid, galleryURL, response))
+                }
+                .cancellable(id: CancelID.fetchArchive)
 
             case .fetchArchiveDone(let gid, let galleryURL, let result):
                 state.loadingState = .idle
@@ -99,8 +101,11 @@ struct ArchivesReducer: Reducer {
 
             case .fetchArchiveFunds(let gid, let galleryURL):
                 guard let galleryURL = galleryURL.replaceHost(to: Defaults.URL.ehentai.host) else { return .none }
-                return GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
-                    .effect.map(Action.fetchArchiveFundsDone).cancellable(id: CancelID.fetchArchiveFunds)
+                return .run { send in
+                    let response = await GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL).response()
+                    await send(Action.fetchArchiveFundsDone(response))
+                }
+                .cancellable(id: CancelID.fetchArchiveFunds)
 
             case .fetchArchiveFundsDone(let result):
                 if case .success(let (galleryPoints, credits)) = result {
@@ -113,10 +118,14 @@ struct ArchivesReducer: Reducer {
                       state.route != .communicatingHUD
                 else { return .none }
                 state.route = .communicatingHUD
-                return SendDownloadCommandRequest(
-                    archiveURL: archiveURL, resolution: selectedArchive.resolution.parameter
-                )
-                .effect.map(Action.fetchDownloadResponseDone).cancellable(id: CancelID.fetchDownloadResponse)
+                return .run {send in
+                    let response = await SendDownloadCommandRequest(
+                        archiveURL: archiveURL,
+                        resolution: selectedArchive.resolution.parameter
+                    ).response()
+                    await send(Action.fetchDownloadResponseDone(response))
+                }
+                .cancellable(id: CancelID.fetchDownloadResponse)
 
             case .fetchDownloadResponseDone(let result):
                 state.route = .messageHUD

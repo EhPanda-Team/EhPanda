@@ -79,8 +79,11 @@ struct PopularReducer: Reducer {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return PopularGalleriesRequest(filter: filter)
-                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID.fetchGalleries)
+                return .run { send in
+                    let response = await PopularGalleriesRequest(filter: filter).response()
+                    await send(Action.fetchGalleriesDone(response))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle

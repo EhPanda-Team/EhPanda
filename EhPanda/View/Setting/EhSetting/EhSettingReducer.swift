@@ -84,8 +84,11 @@ struct EhSettingReducer: Reducer {
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return EhSettingRequest().effect.map(Action.fetchEhSettingDone)
-                    .cancellable(id: CancelID.fetchEhSetting)
+                return .run { send in
+                    let response = await EhSettingRequest().response()
+                    await send(Action.fetchEhSettingDone(response))
+                }
+                .cancellable(id: CancelID.fetchEhSetting)
 
             case .fetchEhSettingDone(let result):
                 state.loadingState = .idle
@@ -104,8 +107,11 @@ struct EhSettingReducer: Reducer {
                 else { return .none }
 
                 state.submittingState = .loading
-                return SubmitEhSettingChangesRequest(ehSetting: ehSetting)
-                    .effect.map(Action.submitChangesDone).cancellable(id: CancelID.submitChanges)
+                return .run { send in
+                    let response = await SubmitEhSettingChangesRequest(ehSetting: ehSetting).response()
+                    await send(Action.submitChangesDone(response))
+                }
+                .cancellable(id: CancelID.submitChanges)
 
             case .submitChangesDone(let result):
                 state.submittingState = .idle
@@ -121,8 +127,11 @@ struct EhSettingReducer: Reducer {
             case .performAction(let action, let name, let set):
                 guard state.submittingState != .loading else { return .none }
                 state.submittingState = .loading
-                return EhProfileRequest(action: action, name: name, set: set)
-                    .effect.map(Action.performActionDone).cancellable(id: CancelID.performAction)
+                return .run { send in
+                    let response = await EhProfileRequest(action: action, name: name, set: set).response()
+                    await send(Action.performActionDone(response))
+                }
+                .cancellable(id: CancelID.performAction)
 
             case .performActionDone(let result):
                 state.submittingState = .idle

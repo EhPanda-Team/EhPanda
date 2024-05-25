@@ -383,8 +383,11 @@ struct ReadingReducer: Reducer {
                 else { return .none }
                 state.previewLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map({ Action.fetchPreviewURLsDone(index, $0) }).cancellable(id: CancelID.fetchPreviewURLs)
+                return .run { send in
+                    let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    await send(Action.fetchPreviewURLsDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchPreviewURLs)
 
             case .fetchPreviewURLsDone(let index, let result):
                 switch result {
@@ -463,9 +466,11 @@ struct ReadingReducer: Reducer {
                     state.imageURLLoadingStates[$0] = .loading
                 }
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map({ Action.fetchThumbnailURLsDone(index, $0) })
-                    .cancellable(id: CancelID.fetchThumbnailURLs)
+                return .run { send in
+                    let response = await ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    await send(Action.fetchThumbnailURLsDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchThumbnailURLs)
 
             case .fetchThumbnailURLsDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -494,9 +499,11 @@ struct ReadingReducer: Reducer {
                 return .none
 
             case .fetchNormalImageURLs(let index, let thumbnailURLs):
-                return GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs)
-                    .effect.map({ Action.fetchNormalImageURLsDone(index, $0) })
-                    .cancellable(id: CancelID.fetchNormalImageURLs)
+                return .run { send in
+                    let response = await GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs).response()
+                    await send(Action.fetchNormalImageURLsDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchNormalImageURLs)
 
             case .fetchNormalImageURLsDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -527,13 +534,16 @@ struct ReadingReducer: Reducer {
                 else { return .none }
                 state.imageURLLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return GalleryNormalImageURLRefetchRequest(
-                    index: index, pageNum: pageNum,
-                    galleryURL: galleryURL,
-                    thumbnailURL: state.thumbnailURLs[index],
-                    storedImageURL: imageURL
-                )
-                .effect.map({ Action.refetchNormalImageURLsDone(index, $0) })
+                return .run { [thumbnailURL = state.thumbnailURLs[index]] send in
+                    let response = await GalleryNormalImageURLRefetchRequest(
+                        index: index,
+                        pageNum: pageNum,
+                        galleryURL: galleryURL,
+                        thumbnailURL: thumbnailURL,
+                        storedImageURL: imageURL
+                    ).response()
+                    await send(Action.refetchNormalImageURLsDone(index, response))
+                }
                 .cancellable(id: CancelID.refetchNormalImageURLs)
 
             case .refetchNormalImageURLsDone(let index, let result):
@@ -559,8 +569,11 @@ struct ReadingReducer: Reducer {
                 return .none
 
             case .fetchMPVKeys(let index, let mpvURL):
-                return MPVKeysRequest(mpvURL: mpvURL)
-                    .effect.map({ Action.fetchMPVKeysDone(index, $0) }).cancellable(id: CancelID.fetchMPVKeys)
+                return .run { send in
+                    let response = await MPVKeysRequest(mpvURL: mpvURL).response()
+                    await send(Action.fetchMPVKeysDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchMPVKeys)
 
             case .fetchMPVKeysDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -597,11 +610,17 @@ struct ReadingReducer: Reducer {
                 else { return .none }
                 state.imageURLLoadingStates[index] = .loading
                 let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[index] : nil
-                return GalleryMPVImageURLRequest(
-                    gid: gidInteger, index: index, mpvKey: mpvKey,
-                    mpvImageKey: mpvImageKey, skipServerIdentifier: skipServerIdentifier
-                )
-                .effect.map({ Action.fetchMPVImageURLDone(index, $0) }).cancellable(id: CancelID.fetchMPVImageURL)
+                return .run { send in
+                    let response = await GalleryMPVImageURLRequest(
+                        gid: gidInteger,
+                        index: index,
+                        mpvKey: mpvKey,
+                        mpvImageKey: mpvImageKey,
+                        skipServerIdentifier: skipServerIdentifier
+                    ).response()
+                    await send(Action.fetchMPVImageURLDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchMPVImageURL)
 
             case .fetchMPVImageURLDone(let index, let result):
                 switch result {

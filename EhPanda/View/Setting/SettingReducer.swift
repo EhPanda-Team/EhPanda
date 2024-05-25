@@ -290,11 +290,16 @@ struct SettingReducer: Reducer {
                 return .none
 
             case .createDefaultEhProfile:
-                return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
+                return .run { _ in
+                    _ = await EhProfileRequest(action: .create, name: "EhPanda").response()
+                }
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
-                return IgneousRequest().effect.map(Action.fetchIgneousDone)
+                return .run { send in
+                    let response = await IgneousRequest().response()
+                    await send(Action.fetchIgneousDone(response))
+                }
 
             case .fetchIgneousDone(let result):
                 var effects = [Effect<Action>]()
@@ -311,7 +316,10 @@ struct SettingReducer: Reducer {
                 let uid = cookieClient
                     .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
                 if !uid.isEmpty {
-                    return UserInfoRequest(uid: uid).effect.map(Action.fetchUserInfoDone)
+                    return .run { send in
+                        let response = await UserInfoRequest(uid: uid).response()
+                        await send(Action.fetchUserInfoDone(response))
+                    }
                 }
                 return .none
 
@@ -343,8 +351,10 @@ struct SettingReducer: Reducer {
                 guard cookieClient.didLogin,
                       state.setting.showsNewDawnGreeting
                 else { return .none }
-                let requestEffect = GreetingRequest().effect
-                    .map(Action.fetchGreetingDone)
+                let requestEffect = Effect.run { send in
+                    let response = await GreetingRequest().response()
+                    await send(Action.fetchGreetingDone(response))
+                }
                 if let greeting = state.user.greeting {
                     if verifyDate(with: greeting.updateTime) {
                         return requestEffect
@@ -382,8 +392,10 @@ struct SettingReducer: Reducer {
                     databaseEffect = .send(.syncTagTranslator)
                 }
                 let updatedDate = state.tagTranslator.updatedDate
-                let requestEffect = TagTranslatorRequest(language: language, updatedDate: updatedDate)
-                    .effect.map(Action.fetchTagTranslatorDone)
+                let requestEffect = Effect.run { send in
+                    let response = await TagTranslatorRequest(language: language, updatedDate: updatedDate).response()
+                    await send(Action.fetchTagTranslatorDone(response))
+                }
                 if let databaseEffect = databaseEffect {
                     return .merge(databaseEffect, requestEffect)
                 } else {
@@ -403,7 +415,10 @@ struct SettingReducer: Reducer {
 
             case .fetchEhProfileIndex:
                 guard cookieClient.didLogin else { return .none }
-                return VerifyEhProfileRequest().effect.map(Action.fetchEhProfileIndexDone)
+                return .run { send in
+                    let response = await VerifyEhProfileRequest().response()
+                    await send(Action.fetchEhProfileIndexDone(response))
+                }
 
             case .fetchEhProfileIndexDone(let result):
                 var effects = [Effect<Action>]()
@@ -435,7 +450,10 @@ struct SettingReducer: Reducer {
 
             case .fetchFavoriteCategories:
                 guard cookieClient.didLogin else { return .none }
-                return FavoriteCategoriesRequest().effect.map(Action.fetchFavoriteCategoriesDone)
+                return .run { send in
+                    let response = await FavoriteCategoriesRequest().response()
+                    await send(Action.fetchFavoriteCategoriesDone(response))
+                }
 
             case .fetchFavoriteCategoriesDone(let result):
                 if case .success(let categories) = result {

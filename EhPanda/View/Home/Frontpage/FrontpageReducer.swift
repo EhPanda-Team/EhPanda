@@ -92,9 +92,11 @@ struct FrontpageReducer: Reducer {
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return FrontpageGalleriesRequest(filter: filter).effect
-                    .map(Action.fetchGalleriesDone)
-                    .cancellable(id: CancelID.fetchGalleries)
+                return .run { send in
+                    let response = await FrontpageGalleriesRequest(filter: filter).response()
+                    await send(Action.fetchGalleriesDone(response))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -123,9 +125,11 @@ struct FrontpageReducer: Reducer {
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).effect
-                    .map(Action.fetchMoreGalleriesDone)
-                    .cancellable(id: CancelID.fetchMoreGalleries)
+                return .run { send in
+                    let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).response()
+                    await send(Action.fetchMoreGalleriesDone(response))
+                }
+                .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle

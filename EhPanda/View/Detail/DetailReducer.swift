@@ -260,8 +260,8 @@ struct DetailReducer: Reducer {
                     }
                     return .merge(
                         .send(.saveGalleryHistory),
-                        .run { [state] send in
-                            guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
+                        .run { [galleryID = state.gallery.id] send in
+                            guard let dbState = await databaseClient.fetchGalleryState(gid: galleryID) else { return }
                             await send(.fetchDatabaseInfosDone(dbState))
                         }
                         .cancellable(id: CancelID.fetchDatabaseInfos)
@@ -278,8 +278,11 @@ struct DetailReducer: Reducer {
                           let galleryURL = state.gallery.galleryURL
                     else { return .none }
                     state.loadingState = .loading
-                    return GalleryDetailRequest(gid: state.gallery.id, galleryURL: galleryURL)
-                        .effect.map(Action.fetchGalleryDetailDone).cancellable(id: CancelID.fetchGalleryDetail)
+                    return .run { [galleryID = state.gallery.id] send in
+                        let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).response()
+                        await send(Action.fetchGalleryDetailDone(response))
+                    }
+                    .cancellable(id: CancelID.fetchGalleryDetail)
 
                 case .fetchGalleryDetailDone(let result):
                     state.loadingState = .idle
@@ -315,32 +318,58 @@ struct DetailReducer: Reducer {
                 case .rateGallery:
                     guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
                     else { return .none }
-                    return RateGalleryRequest(
-                        apiuid: apiuid, apikey: state.apiKey, gid: gid,
-                        token: state.gallery.token, rating: state.userRating
-                    )
-                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.rateGallery)
+                    return .run { [state] send in
+                        let response = await RateGalleryRequest(
+                            apiuid: apiuid,
+                            apikey: state.apiKey,
+                            gid: gid,
+                            token: state.gallery.token, 
+                            rating: state.userRating
+                        ).response()
+                        await send(Action.anyGalleryOpsDone(response))
+                    }.cancellable(id: CancelID.rateGallery)
 
                 case .favorGallery(let favIndex):
-                    return FavorGalleryRequest(gid: state.gallery.id, token: state.gallery.token, favIndex: favIndex)
-                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.favorGallery)
+                    return .run { [state] send in
+                        let response = await FavorGalleryRequest(
+                            gid: state.gallery.id,
+                            token: state.gallery.token,
+                            favIndex: favIndex
+                        ).response()
+                        await send(Action.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.favorGallery)
 
                 case .unfavorGallery:
-                    return UnfavorGalleryRequest(gid: state.gallery.id).effect.map(Action.anyGalleryOpsDone)
-                        .cancellable(id: CancelID.unfavorGallery)
+                    return .run { [galleryID = state.gallery.id] send in
+                        let response = await UnfavorGalleryRequest(gid: galleryID).response()
+                        await send(Action.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.unfavorGallery)
 
                 case .postComment(let galleryURL):
                     guard !state.commentContent.isEmpty else { return .none }
-                    return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.postComment)
+                    return .run { [commentContent = state.commentContent] send in
+                        let response = await CommentGalleryRequest(content: commentContent, galleryURL: galleryURL).response()
+                        await send(Action.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.postComment)
 
                 case .voteTag(let tag, let vote):
                     guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
                     else { return .none }
-                    return VoteGalleryTagRequest(
-                        apiuid: apiuid, apikey: state.apiKey, gid: gid, token: state.gallery.token, tag: tag, vote: vote
-                    )
-                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.voteTag)
+                    return .run { [state] send in
+                        let response = await VoteGalleryTagRequest(
+                            apiuid: apiuid,
+                            apikey: state.apiKey,
+                            gid: gid,
+                            token: state.gallery.token,
+                            tag: tag,
+                            vote: vote
+                        ).response()
+                        await send(Action.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.voteTag)
 
                 case .anyGalleryOpsDone(let result):
                     if case .success = result {

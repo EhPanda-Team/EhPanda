@@ -155,8 +155,10 @@ struct HomeReducer: Reducer {
                 state.popularLoadingState = .loading
                 state.rawCardColors = [String: [Color]]()
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return PopularGalleriesRequest(filter: filter)
-                    .effect.map(Action.fetchPopularGalleriesDone)
+                return .run { send in
+                    let response = await PopularGalleriesRequest(filter: filter).response()
+                    await send(Action.fetchPopularGalleriesDone(response))
+                }
 
             case .fetchPopularGalleriesDone(let result):
                 state.popularLoadingState = .idle
@@ -179,8 +181,10 @@ struct HomeReducer: Reducer {
                 guard state.frontpageLoadingState != .loading else { return .none }
                 state.frontpageLoadingState = .loading
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
-                return FrontpageGalleriesRequest(filter: filter)
-                    .effect.map(Action.fetchFrontpageGalleriesDone)
+                return .run { send in
+                    let response = await FrontpageGalleriesRequest(filter: filter).response()
+                    await send(Action.fetchFrontpageGalleriesDone(response))
+                }
 
             case .fetchFrontpageGalleriesDone(let result):
                 state.frontpageLoadingState = .idle
@@ -202,8 +206,10 @@ struct HomeReducer: Reducer {
             case .fetchToplistsGalleries(let index, let pageNum):
                 guard state.toplistsLoadingState[index] != .loading else { return .none }
                 state.toplistsLoadingState[index] = .loading
-                return ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum)
-                    .effect.map({ Action.fetchToplistsGalleriesDone(index, $0) })
+                return .run { send in
+                    let response = await ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum).response()
+                    await send(Action.fetchToplistsGalleriesDone(index, response))
+                }
 
             case .fetchToplistsGalleriesDone(let index, let result):
                 state.toplistsLoadingState[index] = .idle

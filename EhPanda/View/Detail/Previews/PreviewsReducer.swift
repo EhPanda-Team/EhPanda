@@ -111,8 +111,11 @@ struct PreviewsReducer: Reducer {
                 else { return .none }
                 state.loadingState = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map(Action.fetchPreviewURLsDone).cancellable(id: CancelID.fetchPreviewURLs)
+                return .run { send in
+                    let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    await send(Action.fetchPreviewURLsDone(response))
+                }
+                .cancellable(id: CancelID.fetchPreviewURLs)
 
             case .fetchPreviewURLsDone(let result):
                 state.loadingState = .idle
