@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct LoginReducer: Reducer {
     private enum CancelID: Hashable {
         case login
-        case teardown
     }
 
     enum Route: Equatable {
@@ -64,7 +63,7 @@ struct LoginReducer: Reducer {
                 return .none
 
             case .teardown:
-                return .cancel(id: CancelID.teardown)
+                return .cancel(id: CancelID.login)
 
             case .login:
                 guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }
