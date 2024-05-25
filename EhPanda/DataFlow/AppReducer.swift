@@ -161,7 +161,7 @@ struct AppReducer: Reducer {
                         effects.append(
                             .run { send in
                                 let delay = UInt64(deviceClient.isPad() ? 1200 : 200)
-                                try await Task.sleep(nanoseconds: delay * NSEC_PER_MSEC)
+                                try await Task.sleep(for: .milliseconds(delay))
                                 await send(.setting(.account(.setNavigation(.login))))
                             }
                         )

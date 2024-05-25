@@ -152,7 +152,7 @@ struct DetailReducer: Reducer {
 
                 case .onPostCommentAppear:
                     return .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(750) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(750))
                         await send(.setPostCommentFocused(true))
                     }
 
@@ -198,7 +198,7 @@ struct DetailReducer: Reducer {
                             hapticsClient.generateFeedback(.soft)
                         },
                         .run { send in
-                            try await Task.sleep(nanoseconds: NSEC_PER_SEC)
+                            try await Task.sleep(for: .seconds(1))
                             await send(.confirmRatingDone)
                         }
                     )

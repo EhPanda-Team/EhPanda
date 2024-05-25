@@ -103,12 +103,12 @@ struct AppRouteReducer: Reducer {
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
                     return .run { [delay] send in
-                        try await Task.sleep(nanoseconds: UInt64((delay + 250)) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(delay + 250))
                         await send(.handleGalleryLink(url))
                     }
                 }
                 return .run { [delay] send in
-                    try await Task.sleep(nanoseconds: UInt64(delay) * NSEC_PER_MSEC)
+                    try await Task.sleep(for: .milliseconds(delay))
                     await send(.fetchGallery(url, isGalleryImageURL))
                 }
 
@@ -122,7 +122,7 @@ struct AppRouteReducer: Reducer {
                     effects.append(.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
                         .run { send in
-                            try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                            try await Task.sleep(for: .milliseconds(500))
                             await send(.detail(.setNavigation(.reading)))
                         }
                     )
@@ -130,7 +130,7 @@ struct AppRouteReducer: Reducer {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
                         .run { send in
-                            try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                            try await Task.sleep(for: .milliseconds(500))
                             await send(.detail(.setNavigation(.comments(url))))
                         }
                     )
@@ -161,7 +161,7 @@ struct AppRouteReducer: Reducer {
                     )
                 case .failure:
                     return .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(500))
                         await send(Action.setHUDConfig(.error))
                     }
                 }

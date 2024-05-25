@@ -106,7 +106,7 @@ struct HomeReducer: Reducer {
                 state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
                 state.allowsCardHitTesting = false
                 return .run { send in
-                    try await Task.sleep(nanoseconds: UInt64(300) * NSEC_PER_MSEC)
+                    try await Task.sleep(for: .milliseconds(300))
                     await send(.setAllowsCardHitTesting(true))
                 }
 

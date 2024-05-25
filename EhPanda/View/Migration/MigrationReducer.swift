@@ -64,7 +64,7 @@ struct MigrationReducer: Reducer {
             case .dropDatabase:
                 state.databaseState = .loading
                 return .run { send in
-                    try await Task.sleep(nanoseconds: 500 * NSEC_PER_MSEC)
+                    try await Task.sleep(for: .milliseconds(500))
                     let result = await databaseClient.dropDatabase()
                     await send(.dropDatabaseDone(result.error))
                 }

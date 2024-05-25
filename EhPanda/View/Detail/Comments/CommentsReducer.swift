@@ -114,15 +114,15 @@ struct CommentsReducer: Reducer {
             case .performScrollOpacityEffect:
                 return .merge(
                     .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(750) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(750))
                         await send(.setScrollRowOpacity(0.25))
                     },
                     .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(1250) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(1250))
                         await send(.setScrollRowOpacity(1))
                     },
                     .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(2000) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(2000))
                         await send(.clearScrollCommentID)
                     }
                 )
@@ -148,7 +148,7 @@ struct CommentsReducer: Reducer {
                     effects.append(.send(.updateReadingProgress(gid, pageIndex)))
                     effects.append(
                         .run { send in
-                            try await Task.sleep(nanoseconds: UInt64(750) * NSEC_PER_MSEC)
+                            try await Task.sleep(for: .milliseconds(750))
                             await send(.detail(.setNavigation(.reading)))
                         }
                     )
@@ -156,7 +156,7 @@ struct CommentsReducer: Reducer {
                     state.detailState.commentsState?.scrollCommentID = commentID
                     effects.append(
                         .run { send in
-                            try await Task.sleep(nanoseconds: UInt64(750) * NSEC_PER_MSEC)
+                            try await Task.sleep(for: .milliseconds(750))
                             await send(.detail(.setNavigation(.comments(url))))
                         }
                     )
@@ -166,7 +166,7 @@ struct CommentsReducer: Reducer {
 
             case .onPostCommentAppear:
                 return .run { send in
-                    try await Task.sleep(nanoseconds: UInt64(750) * NSEC_PER_MSEC)
+                    try await Task.sleep(for: .milliseconds(750))
                     await send(.setPostCommentFocused(true))
                 }
 
@@ -227,7 +227,7 @@ struct CommentsReducer: Reducer {
                     )
                 case .failure:
                     return .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(500) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(500))
                         await send(.setHUDConfig(.error))
                     }
                 }

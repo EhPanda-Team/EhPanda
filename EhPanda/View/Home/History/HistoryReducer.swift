@@ -73,7 +73,7 @@ struct HistoryReducer: Reducer {
                         await databaseClient.clearHistoryGalleries()
                     },
                     .run { send in
-                        try await Task.sleep(nanoseconds: UInt64(200) * NSEC_PER_MSEC)
+                        try await Task.sleep(for: .milliseconds(200))
                         await send(.fetchGalleries)
                     }
                 )
