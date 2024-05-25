@@ -16,8 +16,13 @@ protocol Request {
     var publisher: AnyPublisher<Response, AppError> { get }
 }
 extension Request {
+    @available(*, deprecated, renamed: "response", message: "Use `response`")
     var effect: Effect<Result<Response, AppError>> {
         publisher.receive(on: DispatchQueue.main).catchToEffect()
+    }
+
+    func response() async -> Result<Response, AppError> {
+        await publisher.receive(on: DispatchQueue.main).async()
     }
 
     func mapAppError(error: Error) -> AppError {
@@ -40,6 +45,28 @@ extension Request {
 private extension Publisher {
     func genericRetry() -> Publishers.Retry<Self> {
         retry(3)
+    }
+
+    func async() async -> Result<Output, Failure> where Failure == AppError {
+        await withCheckedContinuation { continuation in
+            var cancellable: AnyCancellable?
+            var finishedWithoutValue = true
+            cancellable = first()
+                .sink { result in
+                    switch result {
+                    case .finished:
+                        if finishedWithoutValue {
+                            continuation.resume(returning: .failure(.unknown))
+                        }
+                    case let .failure(error):
+                        continuation.resume(returning: .failure(error))
+                    }
+                    cancellable?.cancel()
+                } receiveValue: { value in
+                    finishedWithoutValue = false
+                    continuation.resume(returning: .success(value))
+                }
+        }
     }
 }
 private extension URLRequest {
