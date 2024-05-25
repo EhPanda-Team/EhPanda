@@ -16,11 +16,6 @@ protocol Request {
     var publisher: AnyPublisher<Response, AppError> { get }
 }
 extension Request {
-    @available(*, deprecated, renamed: "response", message: "Use `response`")
-    var effect: Effect<Result<Response, AppError>> {
-        publisher.receive(on: DispatchQueue.main).catchToEffect()
-    }
-
     func response() async -> Result<Response, AppError> {
         await publisher.receive(on: DispatchQueue.main).async()
     }
