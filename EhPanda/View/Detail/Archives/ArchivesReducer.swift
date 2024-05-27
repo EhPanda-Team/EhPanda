@@ -62,8 +62,9 @@ struct ArchivesReducer: Reducer {
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
-                return databaseClient
-                    .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
+                return .run { _ in
+                    await databaseClient.updateGalleryFunds(galleryPoints: galleryPoints, credits: credits)
+                }
 
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))

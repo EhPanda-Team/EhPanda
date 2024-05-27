@@ -62,26 +62,28 @@ struct PreviewsReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.readingState = .init()
                 return .send(.reading(.teardown))
 
             case .syncPreviewURLs(let previewURLs):
-                return databaseClient
-                    .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
+                }
 
             case .updateReadingProgress(let progress):
-                return databaseClient
-                    .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                }
 
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))
@@ -89,8 +91,11 @@ struct PreviewsReducer: Reducer {
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
                 state.gallery = gallery
-                return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
+                return .run { [state] send in
+                    guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
+                    await send(.fetchDatabaseInfosDone(dbState))
+                }
+                .cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {

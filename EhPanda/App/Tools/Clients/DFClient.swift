@@ -10,23 +10,21 @@ import Kingfisher
 import ComposableArchitecture
 
 struct DFClient {
-    let setActive: (Bool) -> Effect<Never>
+    let setActive: (Bool) -> Void
 }
 
 extension DFClient {
     static let live: Self = .init(
         setActive: { newValue in
-            .run(operation: { _ in
-                if newValue {
-                    URLProtocol.registerClass(DFURLProtocol.self)
-                } else {
-                    URLProtocol.unregisterClass(DFURLProtocol.self)
-                }
-                // Kingfisher
-                let config = KingfisherManager.shared.downloader.sessionConfiguration
-                config.protocolClasses = newValue ? [DFURLProtocol.self] : nil
-                KingfisherManager.shared.downloader.sessionConfiguration = config
-            })
+            if newValue {
+                URLProtocol.registerClass(DFURLProtocol.self)
+            } else {
+                URLProtocol.unregisterClass(DFURLProtocol.self)
+            }
+            // Kingfisher
+            let config = KingfisherManager.shared.downloader.sessionConfiguration
+            config.protocolClasses = newValue ? [DFURLProtocol.self] : nil
+            KingfisherManager.shared.downloader.sessionConfiguration = config
         }
     )
 }
@@ -48,7 +46,7 @@ extension DependencyValues {
 // MARK: Test
 extension DFClient {
     static let noop: Self = .init(
-        setActive: { _ in .none }
+        setActive: { _ in }
     )
 
     static let unimplemented: Self = .init(

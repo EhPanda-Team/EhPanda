@@ -116,14 +116,15 @@ struct SettingReducer: Reducer {
             switch action {
             case .binding(\.$setting.galleryHost):
                 return .merge(
-                    Effect.send(.syncSetting),
-                    userDefaultsClient
-                        .setValue(state.setting.galleryHost.rawValue, .galleryHost).fireAndForget()
+                    .send(.syncSetting),
+                    .run { [state] _ in
+                        userDefaultsClient.setValue(state.setting.galleryHost.rawValue, .galleryHost)
+                    }
                 )
 
             case .binding(\.$setting.enablesTagsExtension):
                 var effects: [Effect<Action>] = [
-                    Effect.send(.syncSetting)
+                    .send(.syncSetting)
                 ]
                 if state.setting.enablesTagsExtension {
                     effects.append(.send(.fetchTagTranslator))
@@ -132,15 +133,17 @@ struct SettingReducer: Reducer {
 
             case .binding(\.$setting.preferredColorScheme):
                 return .merge(
-                    Effect.send(.syncSetting),
-                    Effect.send(.syncUserInterfaceStyle)
+                    .send(.syncSetting),
+                    .send(.syncUserInterfaceStyle)
                 )
 
             case .binding(\.$setting.appIconType):
                 return .merge(
-                    Effect.send(.syncSetting),
-                    uiApplicationClient.setAlternateIconName(state.setting.appIconType.filename)
-                        .map { _ in Action.syncAppIconType }
+                    .send(.syncSetting),
+                    .run { [state] send in
+                        _ = await uiApplicationClient.setAlternateIconName(state.setting.appIconType.filename)
+                        await send(.syncAppIconType)
+                    }
                 )
 
             case .binding(\.$setting.autoLockPolicy):
@@ -161,10 +164,12 @@ struct SettingReducer: Reducer {
 
             case .binding(\.$setting.enablesLandscape):
                 var effects: [Effect<Action>] = [
-                    Effect.send(.syncSetting)
+                    .send(.syncSetting)
                 ]
                 if !state.setting.enablesLandscape && !deviceClient.isPad() {
-                    effects.append(appDelegateClient.setPortraitOrientationMask().fireAndForget())
+                    effects.append(.run { _ in
+                        appDelegateClient.setPortraitOrientationMask()
+                    })
                 }
                 return .merge(effects)
 
@@ -182,9 +187,13 @@ struct SettingReducer: Reducer {
 
             case .binding(\.$setting.bypassesSNIFiltering):
                 return .merge(
-                    Effect.send(.syncSetting),
-                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
-                    dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
+                    .send(.syncSetting),
+                    .run { _ in
+                        hapticsClient.generateFeedback(.soft)
+                    },
+                    .run { [state] _ in
+                        dfClient.setActive(state.setting.bypassesSNIFiltering)
+                    }
                 )
 
             case .binding(\.$setting):
@@ -195,9 +204,9 @@ struct SettingReducer: Reducer {
 
             case .binding:
                 return .merge(
-                    Effect.send(.syncUser),
-                    Effect.send(.syncSetting),
-                    Effect.send(.syncTagTranslator)
+                    .send(.syncUser),
+                    .send(.syncSetting),
+                    .send(.syncTagTranslator)
                 )
 
             case .setNavigation(let route):
@@ -220,28 +229,40 @@ struct SettingReducer: Reducer {
 
             case .syncUserInterfaceStyle:
                 let style = state.setting.preferredColorScheme.userInterfaceStyle
-                return uiApplicationClient.setUserInterfaceStyle(style)
-                    .subscribe(on: DispatchQueue.main).fireAndForget()
+                return .run { _ in
+                    await uiApplicationClient.setUserInterfaceStyle(style)
+                }
 
             case .syncSetting:
-                return databaseClient.updateSetting(state.setting).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateSetting(state.setting)
+                }
             case .syncTagTranslator:
-                return databaseClient.updateTagTranslator(state.tagTranslator).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateTagTranslator(state.tagTranslator)
+                }
             case .syncUser:
-                return databaseClient.updateUser(state.user).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateUser(state.user)
+                }
 
             case .loadUserSettings:
-                return databaseClient.fetchAppEnv().map(Action.onLoadUserSettings)
+                return .run { send in
+                    let appEnv = await databaseClient.fetchAppEnv()
+                    await send(.onLoadUserSettings(appEnv))
+                }
 
             case .onLoadUserSettings(let appEnv):
                 state.setting = appEnv.setting
                 state.tagTranslator = appEnv.tagTranslator
                 state.user = appEnv.user
                 var effects: [Effect<Action>] = [
-                    Effect.send(.syncAppIconType),
-                    Effect.send(.loadUserSettingsDone),
-                    Effect.send(.syncUserInterfaceStyle),
-                    dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
+                    .send(.syncAppIconType),
+                    .send(.loadUserSettingsDone),
+                    .send(.syncUserInterfaceStyle),
+                    .run { [state] _ in
+                        dfClient.setActive(state.setting.bypassesSNIFiltering)
+                    }
                 ]
                 if let value: String = userDefaultsClient.getValue(.galleryHost),
                    let galleryHost = GalleryHost(rawValue: value)
@@ -253,10 +274,10 @@ struct SettingReducer: Reducer {
                 }
                 if cookieClient.didLogin {
                     effects.append(contentsOf: [
-                        Effect.send(.fetchUserInfo),
-                        Effect.send(.fetchGreeting),
-                        Effect.send(.fetchFavoriteCategories),
-                        Effect.send(.fetchEhProfileIndex)
+                        .send(.fetchUserInfo),
+                        .send(.fetchGreeting),
+                        .send(.fetchFavoriteCategories),
+                        .send(.fetchEhProfileIndex)
                     ])
                 }
                 if state.setting.enablesTagsExtension {
@@ -278,7 +299,9 @@ struct SettingReducer: Reducer {
             case .fetchIgneousDone(let result):
                 var effects = [Effect<Action>]()
                 if case .success(let response) = result {
-                    effects.append(cookieClient.setCredentials(response: response).fireAndForget())
+                    effects.append(.run { _ in
+                        cookieClient.setCredentials(response: response)
+                    })
                 }
                 effects.append(.send(.account(.loadCookies)))
                 return .merge(effects)
@@ -356,7 +379,7 @@ struct SettingReducer: Reducer {
                 var databaseEffect: Effect<Action>?
                 if state.tagTranslator.language != language {
                     state.tagTranslator = TagTranslator(language: language)
-                    databaseEffect = Effect.send(.syncTagTranslator)
+                    databaseEffect = .send(.syncTagTranslator)
                 }
                 let updatedDate = state.tagTranslator.updatedDate
                 let requestEffect = TagTranslatorRequest(language: language, updatedDate: updatedDate)
@@ -393,18 +416,19 @@ struct SettingReducer: Reducer {
 
                         let cookieValue = cookieClient.getCookie(hostURL, selectedProfileKey)
                         if cookieValue.rawValue != profileValueString {
-                            effects.append(
+                            effects.append(.run { _ in
                                 cookieClient.setOrEditCookie(
                                     for: hostURL, key: selectedProfileKey, value: profileValueString
                                 )
-                                .fireAndForget()
-                            )
+                            })
                         }
                     } else if response.isProfileNotFound {
                         effects.append(.send(.createDefaultEhProfile))
                     } else {
                         let message = "Found profile but failed in parsing value."
-                        effects.append(loggerClient.error(message, nil).fireAndForget())
+                        effects.append(.run { _ in
+                            loggerClient.error(message, nil)
+                        })
                     }
                 }
                 return effects.isEmpty ? .none : .merge(effects)
@@ -421,29 +445,44 @@ struct SettingReducer: Reducer {
 
             case .account(.login(.loginDone)):
                 return .merge(
-                    cookieClient.removeYay().fireAndForget(),
-                    cookieClient.syncExCookies().fireAndForget(),
-                    cookieClient.fulfillAnotherHostField().fireAndForget(),
-                    Effect.send(.fetchIgneous),
-                    Effect.send(.fetchUserInfo),
-                    Effect.send(.fetchFavoriteCategories),
-                    Effect.send(.fetchEhProfileIndex)
+                    .run { _ in
+                        cookieClient.removeYay()
+                    },
+                    .run { _ in
+                        cookieClient.syncExCookies()
+                    },
+                    .run { _ in
+                        cookieClient.fulfillAnotherHostField()
+                    },
+                    .send(.fetchIgneous),
+                    .send(.fetchUserInfo),
+                    .send(.fetchFavoriteCategories),
+                    .send(.fetchEhProfileIndex)
                 )
 
             case .account(.onLogoutConfirmButtonTapped):
                 state.user = User()
                 return .merge(
-                    Effect.send(.syncUser),
-                    cookieClient.clearAll().fireAndForget(),
-                    databaseClient.removeImageURLs().fireAndForget(),
-                    libraryClient.clearWebImageDiskCache().fireAndForget()
+                    .send(.syncUser),
+                    .run { _ in
+                        cookieClient.clearAll()
+                    },
+                    .run { _ in
+                        await databaseClient.removeImageURLs()
+                    },
+                    .run { _ in
+                        libraryClient.clearWebImageDiskCache()
+                    }
                 )
 
             case .account:
                 return .none
 
             case .general(.onTranslationsFilePicked(let url)):
-                return fileClient.importTagTranslator(url).map(Action.fetchTagTranslatorDone)
+                return .run { send in
+                    let result = await fileClient.importTagTranslator(url)
+                    await send(.fetchTagTranslatorDone(result))
+                }
 
             case .general(.onRemoveCustomTranslations):
                 state.tagTranslator.hasCustomTranslations = false

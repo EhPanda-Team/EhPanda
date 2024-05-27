@@ -67,14 +67,14 @@ struct QuickSearchReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.focusedField = nil
@@ -82,7 +82,9 @@ struct QuickSearchReducer: Reducer {
                 return .none
 
             case .syncQuickSearchWords:
-                return databaseClient.updateQuickSearchWords(state.quickSearchWords).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateQuickSearchWords(state.quickSearchWords)
+                }
 
             case .toggleListEditing:
                 state.isListEditing.toggle()
@@ -120,9 +122,11 @@ struct QuickSearchReducer: Reducer {
 
             case .fetchQuickSearchWords:
                 state.loadingState = .loading
-                return databaseClient.fetchQuickSearchWords()
-                    .map(Action.fetchQuickSearchWordsDone)
-                    .cancellable(id: CancelID.fetchQuickSearchWords)
+                return .run { send in
+                    let quickSearchWords = await databaseClient.fetchQuickSearchWords()
+                    await send(.fetchQuickSearchWordsDone(quickSearchWords))
+                }
+                .cancellable(id: CancelID.fetchQuickSearchWords)
 
             case .fetchQuickSearchWordsDone(let words):
                 state.loadingState = .idle

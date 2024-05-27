@@ -91,7 +91,7 @@ struct ToplistsReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding(\.$jumpPageAlertPresented):
                 if !state.jumpPageAlertPresented {
@@ -104,7 +104,7 @@ struct ToplistsReducer: Reducer {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .setToplistsType(let type):
                 state.type = type
@@ -119,13 +119,17 @@ struct ToplistsReducer: Reducer {
                 guard let index = Int(state.jumpPageIndex),
                       let pageNumber = state.pageNumber,
                       index > 0, index <= pageNumber.maximum + 1 else {
-                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+                    return .run { _ in
+                        hapticsClient.generateNotificationFeedback(.error)
+                    }
                 }
                 return .send(.fetchGalleries(index - 1))
 
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
-                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
+                return .run { _ in
+                    hapticsClient.generateFeedback(.light)
+                }
 
             case .setJumpPageAlertFocused(let isFocused):
                 state.jumpPageAlertFocused = isFocused
@@ -157,7 +161,9 @@ struct ToplistsReducer: Reducer {
                     }
                     state.rawPageNumber[type] = pageNumber
                     state.rawGalleries[type] = galleries
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run { _ in
+                        await databaseClient.cacheGalleries(galleries)
+                    }
                 case .failure(let error):
                     state.rawLoadingState[type] = .failed(error)
                 }
@@ -182,7 +188,9 @@ struct ToplistsReducer: Reducer {
                     state.insertGalleries(type: type, galleries: galleries)
 
                     var effects: [Effect<Action>] = [
-                        databaseClient.cacheGalleries(galleries).fireAndForget()
+                        .run { _ in
+                            await databaseClient.cacheGalleries(galleries)
+                        }
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))

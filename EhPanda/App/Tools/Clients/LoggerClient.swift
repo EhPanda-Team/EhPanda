@@ -8,21 +8,17 @@
 import ComposableArchitecture
 
 struct LoggerClient {
-    let info: (Any, Any?) -> Effect<Never>
-    let error: (Any, Any?) -> Effect<Never>
+    let info: (Any, Any?) -> Void
+    let error: (Any, Any?) -> Void
 }
 
 extension LoggerClient {
     static let live: Self = .init(
         info: { message, context in
-            .run(operation: { _ in
-                Logger.info(message, context: context)
-            })
+            Logger.info(message, context: context)
         },
         error: { message, context in
-            .run(operation: { _ in
-                Logger.error(message, context: context)
-            })
+            Logger.error(message, context: context)
         }
     )
 }
@@ -44,8 +40,8 @@ extension DependencyValues {
 // MARK: Test
 extension LoggerClient {
     static let noop: Self = .init(
-        info: { _, _ in .none },
-        error: { _, _ in .none }
+        info: { _, _ in },
+        error: { _, _ in }
     )
 
     static let unimplemented: Self = .init(

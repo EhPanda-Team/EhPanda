@@ -70,22 +70,22 @@ struct WatchedReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? Effect.send(.clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? Effect.send(.clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
                 state.filtersState = .init()
                 state.quickSearchState = .init()
                 return .merge(
-                    Effect.send(.detail(.teardown)),
-                    Effect.send(.quickSearch(.teardown))
+                    .send(.detail(.teardown)),
+                    .send(.quickSearch(.teardown))
                 )
 
             case .onNotLoginViewButtonTapped:
@@ -116,7 +116,9 @@ struct WatchedReducer: Reducer {
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
-                    return databaseClient.cacheGalleries(galleries).fireAndForget()
+                    return .run { _ in
+                        await databaseClient.cacheGalleries(galleries)
+                    }
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
@@ -142,7 +144,9 @@ struct WatchedReducer: Reducer {
                     state.insertGalleries(galleries)
 
                     var effects: [Effect<Action>] = [
-                        databaseClient.cacheGalleries(galleries).fireAndForget()
+                        .run { _ in
+                            await databaseClient.cacheGalleries(galleries)
+                        }
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))
