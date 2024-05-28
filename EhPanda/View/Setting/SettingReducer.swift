@@ -111,91 +111,107 @@ struct SettingReducer: Reducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.setting.galleryHost) { _, newValue in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .run { _ in
+                            userDefaultsClient.setValue(newValue.rawValue, .galleryHost)
+                        }
+                    )
+                }
+            }
+            .onChange(of: \.setting.enablesTagsExtension) { _, newValue in
+                Reduce { _, _ in
+                    var effects: [Effect<Action>] = [
+                        .send(.syncSetting)
+                    ]
+                    if newValue {
+                        effects.append(.send(.fetchTagTranslator))
+                    }
+                    return .merge(effects)
+                }
+            }
+            .onChange(of: \.setting.preferredColorScheme) { _, _ in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .send(.syncUserInterfaceStyle)
+                    )
+                }
+            }
+            .onChange(of: \.setting.appIconType) { _, newValue in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .run { send in
+                            _ = await uiApplicationClient.setAlternateIconName(newValue.filename)
+                            await send(.syncAppIconType)
+                        }
+                    )
+                }
+            }
+            .onChange(of: \.setting.autoLockPolicy) { _, newValue in
+                Reduce { state, _ in
+                    if newValue != .never && state.setting.backgroundBlurRadius == 0 {
+                        state.setting.backgroundBlurRadius = 10
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.backgroundBlurRadius) { _, newValue in
+                Reduce { state, _ in
+                    if state.setting.autoLockPolicy != .never && newValue == 0 {
+                        state.setting.autoLockPolicy = .never
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.enablesLandscape) { _, newValue in
+                Reduce { _, _ in
+                    var effects: [Effect<Action>] = [
+                        .send(.syncSetting)
+                    ]
+                    if !newValue && !deviceClient.isPad() {
+                        effects.append(.run { _ in
+                            appDelegateClient.setPortraitOrientationMask()
+                        })
+                    }
+                    return .merge(effects)
+                }
+            }
+            .onChange(of: \.setting.maximumScaleFactor) { _, newValue in
+                Reduce { state, _ in
+                    if state.setting.doubleTapScaleFactor > newValue {
+                        state.setting.doubleTapScaleFactor = newValue
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.doubleTapScaleFactor) { _, newValue in
+                Reduce { state, _ in
+                    if state.setting.maximumScaleFactor < newValue {
+                        state.setting.maximumScaleFactor = newValue
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.bypassesSNIFiltering) { _, newValue in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .run { _ in
+                            hapticsClient.generateFeedback(.soft)
+                        },
+                        .run { _ in
+                            dfClient.setActive(newValue)
+                        }
+                    )
+                }
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$setting.galleryHost):
-                return .merge(
-                    .send(.syncSetting),
-                    .run { [state] _ in
-                        userDefaultsClient.setValue(state.setting.galleryHost.rawValue, .galleryHost)
-                    }
-                )
-
-            case .binding(\.$setting.enablesTagsExtension):
-                var effects: [Effect<Action>] = [
-                    .send(.syncSetting)
-                ]
-                if state.setting.enablesTagsExtension {
-                    effects.append(.send(.fetchTagTranslator))
-                }
-                return .merge(effects)
-
-            case .binding(\.$setting.preferredColorScheme):
-                return .merge(
-                    .send(.syncSetting),
-                    .send(.syncUserInterfaceStyle)
-                )
-
-            case .binding(\.$setting.appIconType):
-                return .merge(
-                    .send(.syncSetting),
-                    .run { [state] send in
-                        _ = await uiApplicationClient.setAlternateIconName(state.setting.appIconType.filename)
-                        await send(.syncAppIconType)
-                    }
-                )
-
-            case .binding(\.$setting.autoLockPolicy):
-                if state.setting.autoLockPolicy != .never
-                    && state.setting.backgroundBlurRadius == 0
-                {
-                    state.setting.backgroundBlurRadius = 10
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.backgroundBlurRadius):
-                if state.setting.autoLockPolicy != .never
-                    && state.setting.backgroundBlurRadius == 0
-                {
-                    state.setting.autoLockPolicy = .never
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.enablesLandscape):
-                var effects: [Effect<Action>] = [
-                    .send(.syncSetting)
-                ]
-                if !state.setting.enablesLandscape && !deviceClient.isPad() {
-                    effects.append(.run { _ in
-                        appDelegateClient.setPortraitOrientationMask()
-                    })
-                }
-                return .merge(effects)
-
-            case .binding(\.$setting.maximumScaleFactor):
-                if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
-                    state.setting.doubleTapScaleFactor = state.setting.maximumScaleFactor
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.doubleTapScaleFactor):
-                if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
-                    state.setting.maximumScaleFactor = state.setting.doubleTapScaleFactor
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.bypassesSNIFiltering):
-                return .merge(
-                    .send(.syncSetting),
-                    .run { _ in
-                        hapticsClient.generateFeedback(.soft)
-                    },
-                    .run { [state] _ in
-                        dfClient.setActive(state.setting.bypassesSNIFiltering)
-                    }
-                )
-
             case .binding(\.$setting):
                 return .send(.syncSetting)
 
