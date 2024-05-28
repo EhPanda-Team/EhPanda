@@ -323,7 +323,7 @@ struct DetailReducer: Reducer {
                             apiuid: apiuid,
                             apikey: state.apiKey,
                             gid: gid,
-                            token: state.gallery.token, 
+                            token: state.gallery.token,
                             rating: state.userRating
                         ).response()
                         await send(Action.anyGalleryOpsDone(response))

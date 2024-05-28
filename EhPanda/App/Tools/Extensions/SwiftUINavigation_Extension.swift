@@ -23,7 +23,7 @@ extension NavigationLink {
     }
     init<Enum, Case, WrappedDestination>(
         unwrapping enum: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         @ViewBuilder destination: @escaping (Binding<Case>) -> WrappedDestination
     ) where Destination == WrappedDestination?, Label == Text {
         self.init(
@@ -38,7 +38,7 @@ extension View {
     @ViewBuilder
     func sheet<Enum, Case, Content>(
         unwrapping enum: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         onDismiss: (() -> Void)? = nil,
         isEnabled: Bool,
         @ViewBuilder content: @escaping (Binding<Case>) -> Content
@@ -53,7 +53,7 @@ extension View {
     func confirmationDialog<Enum, Case, A: View>(
         message: String,
         unwrapping enum: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         @ViewBuilder actions: @escaping (Case) -> A
     ) -> some View {
         self.confirmationDialog(
@@ -67,7 +67,7 @@ extension View {
     func confirmationDialog<Enum, Case: Equatable, A: View>(
         message: String,
         unwrapping enum: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         matching case: Case,
         @ViewBuilder actions: @escaping (Case) -> A
     ) -> some View {
@@ -87,7 +87,7 @@ extension View {
     func progressHUD<Enum: Equatable, Case>(
         config: TTProgressHUDConfig,
         unwrapping enum: Binding<Enum?>,
-        case casePath: CasePath<Enum, Case>
+        case casePath: AnyCasePath<Enum, Case>
     ) -> some View {
         ZStack {
             self

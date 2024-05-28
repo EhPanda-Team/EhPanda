@@ -11,7 +11,7 @@ import ComposableArchitecture
 extension Reducer {
     func haptics<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         hapticsClient: HapticsClient,
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
     ) -> some Reducer<State, Action> {
@@ -24,7 +24,7 @@ extension Reducer {
 
     private func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         perform additionalEffects: @escaping (inout State, Action) -> Effect<Action>
     ) -> some Reducer<State, Action> {
         Reduce { state, action in
