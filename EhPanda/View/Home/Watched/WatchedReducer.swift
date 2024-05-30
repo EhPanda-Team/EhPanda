@@ -102,8 +102,11 @@ struct WatchedReducer: Reducer {
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
                 let filter = databaseClient.fetchFilterSynchronously(range: .watched)
-                return WatchedGalleriesRequest(filter: filter, keyword: state.keyword)
-                    .effect.map(Action.fetchGalleriesDone).cancellable(id: CancelID.fetchGalleries)
+                return .run { [keyword = state.keyword] send in
+                    let response = await WatchedGalleriesRequest(filter: filter, keyword: keyword).response()
+                    await send(Action.fetchGalleriesDone(response))
+                }
+                .cancellable(id: CancelID.fetchGalleries)
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -132,9 +135,11 @@ struct WatchedReducer: Reducer {
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = databaseClient.fetchFilterSynchronously(range: .watched)
-                return MoreWatchedGalleriesRequest(filter: filter, lastID: lastID, keyword: state.keyword).effect
-                    .map(Action.fetchMoreGalleriesDone)
-                    .cancellable(id: CancelID.fetchMoreGalleries)
+                return .run { [keyword = state.keyword] send in
+                    let response = await MoreWatchedGalleriesRequest(filter: filter, lastID: lastID, keyword: keyword).response()
+                    await send(Action.fetchMoreGalleriesDone(response))
+                }
+                .cancellable(id: CancelID.fetchMoreGalleries)
 
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle

@@ -73,8 +73,11 @@ struct LoginReducer: Reducer {
                     .run { _ in
                         hapticsClient.generateFeedback(.soft)
                     },
-                    LoginRequest(username: state.username, password: state.password)
-                        .effect.map(Action.loginDone).cancellable(id: CancelID.login)
+                    .run { [state] send in
+                        let response = await LoginRequest(username: state.username, password: state.password).response()
+                        await send(Action.loginDone(response))
+                    }
+                    .cancellable(id: CancelID.login)
                 )
 
             case .loginDone(let result):

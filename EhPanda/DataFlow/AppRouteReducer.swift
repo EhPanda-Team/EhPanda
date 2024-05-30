@@ -146,8 +146,10 @@ struct AppRouteReducer: Reducer {
 
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
-                return GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL)
-                    .effect.map({ Action.fetchGalleryDone(url, $0) })
+                return .run { send in
+                    let response = await GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL).response()
+                    await send(Action.fetchGalleryDone(url, response))
+                }
 
             case .fetchGalleryDone(let url, let result):
                 state.route = nil

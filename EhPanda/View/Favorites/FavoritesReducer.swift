@@ -113,10 +113,12 @@ struct FavoritesReducer: Reducer {
                 } else {
                     state.rawPageNumber[state.index]?.resetPages()
                 }
-                return FavoritesGalleriesRequest(
-                    favIndex: state.index, keyword: state.keyword, sortOrder: sortOrder
-                )
-                .effect.map { [index = state.index] result in Action.fetchGalleriesDone(index, result) }
+                return .run { [state] send in
+                    let response = await FavoritesGalleriesRequest(
+                        favIndex: state.index, keyword: state.keyword, sortOrder: sortOrder
+                    ).response()
+                    await send(Action.fetchGalleriesDone(state.index, response))
+                }
 
             case .fetchGalleriesDone(let targetFavIndex, let result):
                 state.rawLoadingState[targetFavIndex] = .idle
@@ -146,13 +148,15 @@ struct FavoritesReducer: Reducer {
                       let lastItemTimestamp = pageNumber.lastItemTimestamp
                 else { return .none }
                 state.rawFooterLoadingState[state.index] = .loading
-                return MoreFavoritesGalleriesRequest(
-                    favIndex: state.index,
-                    lastID: lastID,
-                    lastTimestamp: lastItemTimestamp,
-                    keyword: state.keyword
-                )
-                .effect.map { [index = state.index] result in Action.fetchMoreGalleriesDone(index, result) }
+                return .run { [state] send in
+                    let response = await MoreFavoritesGalleriesRequest(
+                        favIndex: state.index,
+                        lastID: lastID,
+                        lastTimestamp: lastItemTimestamp,
+                        keyword: state.keyword
+                    ).response()
+                    await send(Action.fetchMoreGalleriesDone(state.index, response))
+                }
 
             case .fetchMoreGalleriesDone(let targetFavIndex, let result):
                 state.rawFooterLoadingState[targetFavIndex] = .idle

@@ -188,32 +188,50 @@ struct CommentsReducer: Reducer {
             case .postComment(let galleryURL, let commentID):
                 guard !state.commentContent.isEmpty else { return .none }
                 if let commentID = commentID {
-                    return EditGalleryCommentRequest(
-                        commentID: commentID, content: state.commentContent, galleryURL: galleryURL
-                    )
-                    .effect.map(Action.performCommentActionDone).cancellable(id: CancelID.postComment)
+                    return .run { [commentContent = state.commentContent] send in
+                        let response = await EditGalleryCommentRequest(
+                            commentID: commentID,
+                            content: commentContent,
+                            galleryURL: galleryURL
+                        ).response()
+                        await send(Action.performCommentActionDone(response))
+                    }
+                    .cancellable(id: CancelID.postComment)
                 } else {
-                    return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                        .effect.map(Action.performCommentActionDone).cancellable(id: CancelID.postComment)
+                    return .run { [commentContent = state.commentContent] send in
+                        let response = await CommentGalleryRequest(content: commentContent, galleryURL: galleryURL).response()
+                        await send(Action.performCommentActionDone(response))
+                    }
+                    .cancellable(id: CancelID.postComment)
                 }
 
             case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
                 guard let gid = Int(gid), let commentID = Int(commentID),
                       let apiuid = Int(cookieClient.apiuid)
                 else { return .none }
-                return VoteGalleryCommentRequest(
-                    apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
-                    commentID: commentID, commentVote: vote
-                )
-                .effect.map(Action.performCommentActionDone).cancellable(id: CancelID.voteComment)
+                return .run {  send in
+                    let response = await VoteGalleryCommentRequest(
+                        apiuid: apiuid,
+                        apikey: apiKey,
+                        gid: gid,
+                        token: token,
+                        commentID: commentID,
+                        commentVote: vote
+                    ).response()
+                    await send(Action.performCommentActionDone(response))
+                }
+                .cancellable(id: CancelID.voteComment)
 
             case .performCommentActionDone:
                 return .none
 
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
-                return GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL)
-                    .effect.map({ Action.fetchGalleryDone(url, $0) }).cancellable(id: CancelID.fetchGallery)
+                return .run {  send in
+                    let response = await GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL).response()
+                    await send(Action.fetchGalleryDone(url, response))
+                }
+                .cancellable(id: CancelID.fetchGallery)
 
             case .fetchGalleryDone(let url, let result):
                 state.route = nil

@@ -43,15 +43,19 @@ struct AppReducer: Reducer {
     var body: some Reducer<State, Action> {
         LoggingReducer {
             BindingReducer()
+                .onChange(of: \.appRouteState.route) { _, newValue in
+                    Reduce { _, _ in
+                        return newValue == nil ? .send(.appRoute(.clearSubStates)) : .none
+                    }
+                }
+                .onChange(of: \.settingState.setting) { _, _ in
+                    Reduce { _, _ in
+                        return .send(.setting(.syncSetting))
+                    }
+                }
 
             Reduce { state, action in
                 switch action {
-                case .binding(\.appRouteState.$route):
-                    return state.appRouteState.route == nil ? .send(.appRoute(.clearSubStates)) : .none
-
-                case .binding(\.settingState.$setting):
-                    return .send(.setting(.syncSetting))
-
                 case .binding:
                     return .none
 

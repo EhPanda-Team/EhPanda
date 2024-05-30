@@ -74,8 +74,11 @@ struct TorrentsReducer: Reducer {
                 return .none
 
             case .fetchTorrent(let hash, let torrentURL):
-                return DataRequest(url: torrentURL).effect.map({ Action.fetchTorrentDone(hash, $0) })
-                    .cancellable(id: CancelID.fetchTorrent)
+                return .run { send in
+                    let response = await DataRequest(url: torrentURL).response()
+                    await send(Action.fetchTorrentDone(hash, response))
+                }
+                .cancellable(id: CancelID.fetchTorrent)
 
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))
@@ -89,8 +92,11 @@ struct TorrentsReducer: Reducer {
             case .fetchGalleryTorrents(let gid, let token):
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return GalleryTorrentsRequest(gid: gid, token: token)
-                    .effect.map(Action.fetchGalleryTorrentsDone).cancellable(id: CancelID.fetchGalleryTorrents)
+                return .run { send in
+                    let response = await GalleryTorrentsRequest(gid: gid, token: token).response()
+                    await send(Action.fetchGalleryTorrentsDone(response))
+                }
+                .cancellable(id: CancelID.fetchGalleryTorrents)
 
             case .fetchGalleryTorrentsDone(let result):
                 state.loadingState = .idle

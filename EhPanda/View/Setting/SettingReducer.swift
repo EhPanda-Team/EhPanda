@@ -111,91 +111,107 @@ struct SettingReducer: Reducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.setting.galleryHost) { _, newValue in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .run { _ in
+                            userDefaultsClient.setValue(newValue.rawValue, .galleryHost)
+                        }
+                    )
+                }
+            }
+            .onChange(of: \.setting.enablesTagsExtension) { _, newValue in
+                Reduce { _, _ in
+                    var effects: [Effect<Action>] = [
+                        .send(.syncSetting)
+                    ]
+                    if newValue {
+                        effects.append(.send(.fetchTagTranslator))
+                    }
+                    return .merge(effects)
+                }
+            }
+            .onChange(of: \.setting.preferredColorScheme) { _, _ in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .send(.syncUserInterfaceStyle)
+                    )
+                }
+            }
+            .onChange(of: \.setting.appIconType) { _, newValue in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .run { send in
+                            _ = await uiApplicationClient.setAlternateIconName(newValue.filename)
+                            await send(.syncAppIconType)
+                        }
+                    )
+                }
+            }
+            .onChange(of: \.setting.autoLockPolicy) { _, newValue in
+                Reduce { state, _ in
+                    if newValue != .never && state.setting.backgroundBlurRadius == 0 {
+                        state.setting.backgroundBlurRadius = 10
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.backgroundBlurRadius) { _, newValue in
+                Reduce { state, _ in
+                    if state.setting.autoLockPolicy != .never && newValue == 0 {
+                        state.setting.autoLockPolicy = .never
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.enablesLandscape) { _, newValue in
+                Reduce { _, _ in
+                    var effects: [Effect<Action>] = [
+                        .send(.syncSetting)
+                    ]
+                    if !newValue && !deviceClient.isPad() {
+                        effects.append(.run { _ in
+                            appDelegateClient.setPortraitOrientationMask()
+                        })
+                    }
+                    return .merge(effects)
+                }
+            }
+            .onChange(of: \.setting.maximumScaleFactor) { _, newValue in
+                Reduce { state, _ in
+                    if state.setting.doubleTapScaleFactor > newValue {
+                        state.setting.doubleTapScaleFactor = newValue
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.doubleTapScaleFactor) { _, newValue in
+                Reduce { state, _ in
+                    if state.setting.maximumScaleFactor < newValue {
+                        state.setting.maximumScaleFactor = newValue
+                    }
+                    return .send(.syncSetting)
+                }
+            }
+            .onChange(of: \.setting.bypassesSNIFiltering) { _, newValue in
+                Reduce { _, _ in
+                    .merge(
+                        .send(.syncSetting),
+                        .run { _ in
+                            hapticsClient.generateFeedback(.soft)
+                        },
+                        .run { _ in
+                            dfClient.setActive(newValue)
+                        }
+                    )
+                }
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$setting.galleryHost):
-                return .merge(
-                    .send(.syncSetting),
-                    .run { [state] _ in
-                        userDefaultsClient.setValue(state.setting.galleryHost.rawValue, .galleryHost)
-                    }
-                )
-
-            case .binding(\.$setting.enablesTagsExtension):
-                var effects: [Effect<Action>] = [
-                    .send(.syncSetting)
-                ]
-                if state.setting.enablesTagsExtension {
-                    effects.append(.send(.fetchTagTranslator))
-                }
-                return .merge(effects)
-
-            case .binding(\.$setting.preferredColorScheme):
-                return .merge(
-                    .send(.syncSetting),
-                    .send(.syncUserInterfaceStyle)
-                )
-
-            case .binding(\.$setting.appIconType):
-                return .merge(
-                    .send(.syncSetting),
-                    .run { [state] send in
-                        _ = await uiApplicationClient.setAlternateIconName(state.setting.appIconType.filename)
-                        await send(.syncAppIconType)
-                    }
-                )
-
-            case .binding(\.$setting.autoLockPolicy):
-                if state.setting.autoLockPolicy != .never
-                    && state.setting.backgroundBlurRadius == 0
-                {
-                    state.setting.backgroundBlurRadius = 10
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.backgroundBlurRadius):
-                if state.setting.autoLockPolicy != .never
-                    && state.setting.backgroundBlurRadius == 0
-                {
-                    state.setting.autoLockPolicy = .never
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.enablesLandscape):
-                var effects: [Effect<Action>] = [
-                    .send(.syncSetting)
-                ]
-                if !state.setting.enablesLandscape && !deviceClient.isPad() {
-                    effects.append(.run { _ in
-                        appDelegateClient.setPortraitOrientationMask()
-                    })
-                }
-                return .merge(effects)
-
-            case .binding(\.$setting.maximumScaleFactor):
-                if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
-                    state.setting.doubleTapScaleFactor = state.setting.maximumScaleFactor
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.doubleTapScaleFactor):
-                if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
-                    state.setting.maximumScaleFactor = state.setting.doubleTapScaleFactor
-                }
-                return .send(.syncSetting)
-
-            case .binding(\.$setting.bypassesSNIFiltering):
-                return .merge(
-                    .send(.syncSetting),
-                    .run { _ in
-                        hapticsClient.generateFeedback(.soft)
-                    },
-                    .run { [state] _ in
-                        dfClient.setActive(state.setting.bypassesSNIFiltering)
-                    }
-                )
-
             case .binding(\.$setting):
                 return .send(.syncSetting)
 
@@ -290,11 +306,16 @@ struct SettingReducer: Reducer {
                 return .none
 
             case .createDefaultEhProfile:
-                return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
+                return .run { _ in
+                    _ = await EhProfileRequest(action: .create, name: "EhPanda").response()
+                }
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
-                return IgneousRequest().effect.map(Action.fetchIgneousDone)
+                return .run { send in
+                    let response = await IgneousRequest().response()
+                    await send(Action.fetchIgneousDone(response))
+                }
 
             case .fetchIgneousDone(let result):
                 var effects = [Effect<Action>]()
@@ -311,7 +332,10 @@ struct SettingReducer: Reducer {
                 let uid = cookieClient
                     .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
                 if !uid.isEmpty {
-                    return UserInfoRequest(uid: uid).effect.map(Action.fetchUserInfoDone)
+                    return .run { send in
+                        let response = await UserInfoRequest(uid: uid).response()
+                        await send(Action.fetchUserInfoDone(response))
+                    }
                 }
                 return .none
 
@@ -343,8 +367,10 @@ struct SettingReducer: Reducer {
                 guard cookieClient.didLogin,
                       state.setting.showsNewDawnGreeting
                 else { return .none }
-                let requestEffect = GreetingRequest().effect
-                    .map(Action.fetchGreetingDone)
+                let requestEffect = Effect.run { send in
+                    let response = await GreetingRequest().response()
+                    await send(Action.fetchGreetingDone(response))
+                }
                 if let greeting = state.user.greeting {
                     if verifyDate(with: greeting.updateTime) {
                         return requestEffect
@@ -382,8 +408,10 @@ struct SettingReducer: Reducer {
                     databaseEffect = .send(.syncTagTranslator)
                 }
                 let updatedDate = state.tagTranslator.updatedDate
-                let requestEffect = TagTranslatorRequest(language: language, updatedDate: updatedDate)
-                    .effect.map(Action.fetchTagTranslatorDone)
+                let requestEffect = Effect.run { send in
+                    let response = await TagTranslatorRequest(language: language, updatedDate: updatedDate).response()
+                    await send(Action.fetchTagTranslatorDone(response))
+                }
                 if let databaseEffect = databaseEffect {
                     return .merge(databaseEffect, requestEffect)
                 } else {
@@ -403,7 +431,10 @@ struct SettingReducer: Reducer {
 
             case .fetchEhProfileIndex:
                 guard cookieClient.didLogin else { return .none }
-                return VerifyEhProfileRequest().effect.map(Action.fetchEhProfileIndexDone)
+                return .run { send in
+                    let response = await VerifyEhProfileRequest().response()
+                    await send(Action.fetchEhProfileIndexDone(response))
+                }
 
             case .fetchEhProfileIndexDone(let result):
                 var effects = [Effect<Action>]()
@@ -435,7 +466,10 @@ struct SettingReducer: Reducer {
 
             case .fetchFavoriteCategories:
                 guard cookieClient.didLogin else { return .none }
-                return FavoriteCategoriesRequest().effect.map(Action.fetchFavoriteCategoriesDone)
+                return .run { send in
+                    let response = await FavoriteCategoriesRequest().response()
+                    await send(Action.fetchFavoriteCategoriesDone(response))
+                }
 
             case .fetchFavoriteCategoriesDone(let result):
                 if case .success(let categories) = result {
