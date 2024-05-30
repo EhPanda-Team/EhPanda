@@ -75,7 +75,7 @@ struct LoginReducer: Reducer {
                     },
                     .run { [state] send in
                         let response = await LoginRequest(username: state.username, password: state.password).response()
-                        await send(Action.loginDone(response))
+                        await send(.loginDone(response))
                     }
                     .cancellable(id: CancelID.login)
                 )

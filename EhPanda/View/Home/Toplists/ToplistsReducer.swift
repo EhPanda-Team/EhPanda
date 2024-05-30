@@ -109,7 +109,7 @@ struct ToplistsReducer: Reducer {
             case .setToplistsType(let type):
                 state.type = type
                 guard state.galleries?.isEmpty != false else { return .none }
-                return .send(Action.fetchGalleries())
+                return .send(.fetchGalleries())
 
             case .clearSubStates:
                 state.detailState = .init()
@@ -147,8 +147,11 @@ struct ToplistsReducer: Reducer {
                     state.rawPageNumber[state.type]?.resetPages()
                 }
                 return .run { [type = state.type] send in
-                    let response = await ToplistsGalleriesRequest(catIndex: type.categoryIndex, pageNum: pageNum).response()
-                    await send(Action.fetchGalleriesDone(type, response))
+                    let response = await ToplistsGalleriesRequest(
+                        catIndex: type.categoryIndex, pageNum: pageNum
+                    )
+                    .response()
+                    await send(.fetchGalleriesDone(type, response))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -179,8 +182,11 @@ struct ToplistsReducer: Reducer {
                 state.rawFooterLoadingState[state.type] = .loading
                 let pageNum = pageNumber.current + 1
                 return .run { [type = state.type] send in
-                    let response = await MoreToplistsGalleriesRequest(catIndex: type.categoryIndex, pageNum: pageNum).response()
-                    await send(Action.fetchMoreGalleriesDone(type, response))
+                    let response = await MoreToplistsGalleriesRequest(
+                        catIndex: type.categoryIndex, pageNum: pageNum
+                    )
+                    .response()
+                    await send(.fetchMoreGalleriesDone(type, response))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 

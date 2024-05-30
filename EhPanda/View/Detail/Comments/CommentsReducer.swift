@@ -193,14 +193,18 @@ struct CommentsReducer: Reducer {
                             commentID: commentID,
                             content: commentContent,
                             galleryURL: galleryURL
-                        ).response()
-                        await send(Action.performCommentActionDone(response))
+                        )
+                        .response()
+                        await send(.performCommentActionDone(response))
                     }
                     .cancellable(id: CancelID.postComment)
                 } else {
                     return .run { [commentContent = state.commentContent] send in
-                        let response = await CommentGalleryRequest(content: commentContent, galleryURL: galleryURL).response()
-                        await send(Action.performCommentActionDone(response))
+                        let response = await CommentGalleryRequest(
+                            content: commentContent, galleryURL: galleryURL
+                        )
+                        .response()
+                        await send(.performCommentActionDone(response))
                     }
                     .cancellable(id: CancelID.postComment)
                 }
@@ -217,8 +221,9 @@ struct CommentsReducer: Reducer {
                         token: token,
                         commentID: commentID,
                         commentVote: vote
-                    ).response()
-                    await send(Action.performCommentActionDone(response))
+                    )
+                    .response()
+                    await send(.performCommentActionDone(response))
                 }
                 .cancellable(id: CancelID.voteComment)
 
@@ -228,8 +233,11 @@ struct CommentsReducer: Reducer {
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
                 return .run {  send in
-                    let response = await GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL).response()
-                    await send(Action.fetchGalleryDone(url, response))
+                    let response = await GalleryReverseRequest(
+                        url: url, isGalleryImageURL: isGalleryImageURL
+                    )
+                    .response()
+                    await send(.fetchGalleryDone(url, response))
                 }
                 .cancellable(id: CancelID.fetchGallery)
 

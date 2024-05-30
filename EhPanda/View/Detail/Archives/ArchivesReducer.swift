@@ -74,7 +74,7 @@ struct ArchivesReducer: Reducer {
                 state.loadingState = .loading
                 return .run { send in
                     let response = await GalleryArchiveRequest(archiveURL: archiveURL).response()
-                    await send(Action.fetchArchiveDone(gid, galleryURL, response))
+                    await send(.fetchArchiveDone(gid, galleryURL, response))
                 }
                 .cancellable(id: CancelID.fetchArchive)
 
@@ -103,7 +103,7 @@ struct ArchivesReducer: Reducer {
                 guard let galleryURL = galleryURL.replaceHost(to: Defaults.URL.ehentai.host) else { return .none }
                 return .run { send in
                     let response = await GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL).response()
-                    await send(Action.fetchArchiveFundsDone(response))
+                    await send(.fetchArchiveFundsDone(response))
                 }
                 .cancellable(id: CancelID.fetchArchiveFunds)
 
@@ -122,8 +122,9 @@ struct ArchivesReducer: Reducer {
                     let response = await SendDownloadCommandRequest(
                         archiveURL: archiveURL,
                         resolution: selectedArchive.resolution.parameter
-                    ).response()
-                    await send(Action.fetchDownloadResponseDone(response))
+                    )
+                    .response()
+                    await send(.fetchDownloadResponseDone(response))
                 }
                 .cancellable(id: CancelID.fetchDownloadResponse)
 

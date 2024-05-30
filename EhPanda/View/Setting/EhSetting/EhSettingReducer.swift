@@ -86,7 +86,7 @@ struct EhSettingReducer: Reducer {
                 state.loadingState = .loading
                 return .run { send in
                     let response = await EhSettingRequest().response()
-                    await send(Action.fetchEhSettingDone(response))
+                    await send(.fetchEhSettingDone(response))
                 }
                 .cancellable(id: CancelID.fetchEhSetting)
 
@@ -109,7 +109,7 @@ struct EhSettingReducer: Reducer {
                 state.submittingState = .loading
                 return .run { send in
                     let response = await SubmitEhSettingChangesRequest(ehSetting: ehSetting).response()
-                    await send(Action.submitChangesDone(response))
+                    await send(.submitChangesDone(response))
                 }
                 .cancellable(id: CancelID.submitChanges)
 
@@ -129,7 +129,7 @@ struct EhSettingReducer: Reducer {
                 state.submittingState = .loading
                 return .run { send in
                     let response = await EhProfileRequest(action: action, name: name, set: set).response()
-                    await send(Action.performActionDone(response))
+                    await send(.performActionDone(response))
                 }
                 .cancellable(id: CancelID.performAction)
 

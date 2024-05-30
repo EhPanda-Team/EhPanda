@@ -385,7 +385,7 @@ struct ReadingReducer: Reducer {
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return .run { send in
                     let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
-                    await send(Action.fetchPreviewURLsDone(index, response))
+                    await send(.fetchPreviewURLsDone(index, response))
                 }
                 .cancellable(id: CancelID.fetchPreviewURLs)
 
@@ -468,7 +468,7 @@ struct ReadingReducer: Reducer {
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return .run { send in
                     let response = await ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
-                    await send(Action.fetchThumbnailURLsDone(index, response))
+                    await send(.fetchThumbnailURLsDone(index, response))
                 }
                 .cancellable(id: CancelID.fetchThumbnailURLs)
 
@@ -501,7 +501,7 @@ struct ReadingReducer: Reducer {
             case .fetchNormalImageURLs(let index, let thumbnailURLs):
                 return .run { send in
                     let response = await GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs).response()
-                    await send(Action.fetchNormalImageURLsDone(index, response))
+                    await send(.fetchNormalImageURLsDone(index, response))
                 }
                 .cancellable(id: CancelID.fetchNormalImageURLs)
 
@@ -541,8 +541,9 @@ struct ReadingReducer: Reducer {
                         galleryURL: galleryURL,
                         thumbnailURL: thumbnailURL,
                         storedImageURL: imageURL
-                    ).response()
-                    await send(Action.refetchNormalImageURLsDone(index, response))
+                    )
+                    .response()
+                    await send(.refetchNormalImageURLsDone(index, response))
                 }
                 .cancellable(id: CancelID.refetchNormalImageURLs)
 
@@ -571,7 +572,7 @@ struct ReadingReducer: Reducer {
             case .fetchMPVKeys(let index, let mpvURL):
                 return .run { send in
                     let response = await MPVKeysRequest(mpvURL: mpvURL).response()
-                    await send(Action.fetchMPVKeysDone(index, response))
+                    await send(.fetchMPVKeysDone(index, response))
                 }
                 .cancellable(id: CancelID.fetchMPVKeys)
 
@@ -617,8 +618,9 @@ struct ReadingReducer: Reducer {
                         mpvKey: mpvKey,
                         mpvImageKey: mpvImageKey,
                         skipServerIdentifier: skipServerIdentifier
-                    ).response()
-                    await send(Action.fetchMPVImageURLDone(index, response))
+                    )
+                    .response()
+                    await send(.fetchMPVImageURLDone(index, response))
                 }
                 .cancellable(id: CancelID.fetchMPVImageURL)
 

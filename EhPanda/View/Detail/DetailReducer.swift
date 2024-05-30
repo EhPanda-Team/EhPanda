@@ -280,7 +280,7 @@ struct DetailReducer: Reducer {
                     state.loadingState = .loading
                     return .run { [galleryID = state.gallery.id] send in
                         let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).response()
-                        await send(Action.fetchGalleryDetailDone(response))
+                        await send(.fetchGalleryDetailDone(response))
                     }
                     .cancellable(id: CancelID.fetchGalleryDetail)
 
@@ -325,8 +325,9 @@ struct DetailReducer: Reducer {
                             gid: gid,
                             token: state.gallery.token,
                             rating: state.userRating
-                        ).response()
-                        await send(Action.anyGalleryOpsDone(response))
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
                     }.cancellable(id: CancelID.rateGallery)
 
                 case .favorGallery(let favIndex):
@@ -335,23 +336,27 @@ struct DetailReducer: Reducer {
                             gid: state.gallery.id,
                             token: state.gallery.token,
                             favIndex: favIndex
-                        ).response()
-                        await send(Action.anyGalleryOpsDone(response))
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
                     }
                     .cancellable(id: CancelID.favorGallery)
 
                 case .unfavorGallery:
                     return .run { [galleryID = state.gallery.id] send in
                         let response = await UnfavorGalleryRequest(gid: galleryID).response()
-                        await send(Action.anyGalleryOpsDone(response))
+                        await send(.anyGalleryOpsDone(response))
                     }
                     .cancellable(id: CancelID.unfavorGallery)
 
                 case .postComment(let galleryURL):
                     guard !state.commentContent.isEmpty else { return .none }
                     return .run { [commentContent = state.commentContent] send in
-                        let response = await CommentGalleryRequest(content: commentContent, galleryURL: galleryURL).response()
-                        await send(Action.anyGalleryOpsDone(response))
+                        let response = await CommentGalleryRequest(
+                            content: commentContent, galleryURL: galleryURL
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
                     }
                     .cancellable(id: CancelID.postComment)
 
@@ -366,8 +371,9 @@ struct DetailReducer: Reducer {
                             token: state.gallery.token,
                             tag: tag,
                             vote: vote
-                        ).response()
-                        await send(Action.anyGalleryOpsDone(response))
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
                     }
                     .cancellable(id: CancelID.voteTag)
 

@@ -157,7 +157,7 @@ struct HomeReducer: Reducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
-                    await send(Action.fetchPopularGalleriesDone(response))
+                    await send(.fetchPopularGalleriesDone(response))
                 }
 
             case .fetchPopularGalleriesDone(let result):
@@ -183,7 +183,7 @@ struct HomeReducer: Reducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
-                    await send(Action.fetchFrontpageGalleriesDone(response))
+                    await send(.fetchFrontpageGalleriesDone(response))
                 }
 
             case .fetchFrontpageGalleriesDone(let result):
@@ -208,7 +208,7 @@ struct HomeReducer: Reducer {
                 state.toplistsLoadingState[index] = .loading
                 return .run { send in
                     let response = await ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum).response()
-                    await send(Action.fetchToplistsGalleriesDone(index, response))
+                    await send(.fetchToplistsGalleriesDone(index, response))
                 }
 
             case .fetchToplistsGalleriesDone(let index, let result):
