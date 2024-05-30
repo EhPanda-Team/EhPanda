@@ -76,7 +76,7 @@ struct TorrentsReducer: Reducer {
             case .fetchTorrent(let hash, let torrentURL):
                 return .run { send in
                     let response = await DataRequest(url: torrentURL).response()
-                    await send(Action.fetchTorrentDone(hash, response))
+                    await send(.fetchTorrentDone(hash, response))
                 }
                 .cancellable(id: CancelID.fetchTorrent)
 
@@ -94,7 +94,7 @@ struct TorrentsReducer: Reducer {
                 state.loadingState = .loading
                 return .run { send in
                     let response = await GalleryTorrentsRequest(gid: gid, token: token).response()
-                    await send(Action.fetchGalleryTorrentsDone(response))
+                    await send(.fetchGalleryTorrentsDone(response))
                 }
                 .cancellable(id: CancelID.fetchGalleryTorrents)
 

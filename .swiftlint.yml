@@ -15,3 +15,4 @@ identifier_name:
 
 excluded:
  - EhPandaTests
+ - EhPanda/App/Generated

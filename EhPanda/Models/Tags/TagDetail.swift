@@ -12,11 +12,4 @@ struct TagDetail: Equatable {
     let description: String
     let imageURLs: [URL]
     let links: [URL]
-
-    init(title: String, description: String, imageURLs: [URL], links: [URL]) {
-        self.title = title
-        self.description = description
-        self.imageURLs = imageURLs
-        self.links = links
-    }
 }

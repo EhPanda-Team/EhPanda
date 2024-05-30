@@ -93,7 +93,7 @@ struct FavoritesReducer: Reducer {
             case .setFavoritesIndex(let index):
                 state.index = index
                 guard state.galleries?.isEmpty != false else { return .none }
-                return .send(Action.fetchGalleries())
+                return .send(.fetchGalleries())
 
             case .clearSubStates:
                 state.detailState = .init()
@@ -116,8 +116,9 @@ struct FavoritesReducer: Reducer {
                 return .run { [state] send in
                     let response = await FavoritesGalleriesRequest(
                         favIndex: state.index, keyword: state.keyword, sortOrder: sortOrder
-                    ).response()
-                    await send(Action.fetchGalleriesDone(state.index, response))
+                    )
+                    .response()
+                    await send(.fetchGalleriesDone(state.index, response))
                 }
 
             case .fetchGalleriesDone(let targetFavIndex, let result):
@@ -154,8 +155,9 @@ struct FavoritesReducer: Reducer {
                         lastID: lastID,
                         lastTimestamp: lastItemTimestamp,
                         keyword: state.keyword
-                    ).response()
-                    await send(Action.fetchMoreGalleriesDone(state.index, response))
+                    )
+                    .response()
+                    await send(.fetchMoreGalleriesDone(state.index, response))
                 }
 
             case .fetchMoreGalleriesDone(let targetFavIndex, let result):

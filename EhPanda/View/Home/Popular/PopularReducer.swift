@@ -81,7 +81,7 @@ struct PopularReducer: Reducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
-                    await send(Action.fetchGalleriesDone(response))
+                    await send(.fetchGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 

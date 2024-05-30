@@ -314,7 +314,7 @@ struct SettingReducer: Reducer {
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
                     let response = await IgneousRequest().response()
-                    await send(Action.fetchIgneousDone(response))
+                    await send(.fetchIgneousDone(response))
                 }
 
             case .fetchIgneousDone(let result):
@@ -334,7 +334,7 @@ struct SettingReducer: Reducer {
                 if !uid.isEmpty {
                     return .run { send in
                         let response = await UserInfoRequest(uid: uid).response()
-                        await send(Action.fetchUserInfoDone(response))
+                        await send(.fetchUserInfoDone(response))
                     }
                 }
                 return .none
@@ -433,7 +433,7 @@ struct SettingReducer: Reducer {
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
                     let response = await VerifyEhProfileRequest().response()
-                    await send(Action.fetchEhProfileIndexDone(response))
+                    await send(.fetchEhProfileIndexDone(response))
                 }
 
             case .fetchEhProfileIndexDone(let result):
@@ -468,7 +468,7 @@ struct SettingReducer: Reducer {
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
                     let response = await FavoriteCategoriesRequest().response()
-                    await send(Action.fetchFavoriteCategoriesDone(response))
+                    await send(.fetchFavoriteCategoriesDone(response))
                 }
 
             case .fetchFavoriteCategoriesDone(let result):

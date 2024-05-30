@@ -113,7 +113,7 @@ struct PreviewsReducer: Reducer {
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return .run { send in
                     let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
-                    await send(Action.fetchPreviewURLsDone(response))
+                    await send(.fetchPreviewURLsDone(response))
                 }
                 .cancellable(id: CancelID.fetchPreviewURLs)
 

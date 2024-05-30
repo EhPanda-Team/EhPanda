@@ -1,20 +1,20 @@
 name: Test
-on: [push]
+on: [push, workflow_dispatch]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app
+   DEVELOPER_DIR: /Applications/Xcode_15.4.app
 jobs:
   Test:
-    runs-on: macos-13
+    runs-on: macos-14
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install dependencies
-        run: brew install swiftgen
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
         run: xcodebuild clean test
-          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+          -skipMacroValidation
+          -sdk iphonesimulator
+          -scheme ${{ env.SCHEME_NAME }}
           -destination 'platform=iOS Simulator,name=iPhone 15 Pro'

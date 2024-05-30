@@ -94,7 +94,7 @@ struct FrontpageReducer: Reducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
-                    await send(Action.fetchGalleriesDone(response))
+                    await send(.fetchGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -127,7 +127,7 @@ struct FrontpageReducer: Reducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return .run { send in
                     let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).response()
-                    await send(Action.fetchMoreGalleriesDone(response))
+                    await send(.fetchMoreGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 

@@ -147,8 +147,11 @@ struct AppRouteReducer: Reducer {
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
                 return .run { send in
-                    let response = await GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL).response()
-                    await send(Action.fetchGalleryDone(url, response))
+                    let response = await GalleryReverseRequest(
+                        url: url, isGalleryImageURL: isGalleryImageURL
+                    )
+                    .response()
+                    await send(.fetchGalleryDone(url, response))
                 }
 
             case .fetchGalleryDone(let url, let result):
@@ -164,7 +167,7 @@ struct AppRouteReducer: Reducer {
                 case .failure:
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(Action.setHUDConfig(.error))
+                        await send(.setHUDConfig(.error))
                     }
                 }
 
