@@ -10,7 +10,7 @@ import Combine
 import ComposableArchitecture
 
 struct UIApplicationClient {
-    let openURL: (URL) -> Void
+    let openURL: @MainActor (URL) -> Void
     let hideKeyboard: () -> Void
     let alternateIconName: () -> String?
     let setAlternateIconName: @MainActor (String?) async -> Bool
@@ -43,11 +43,13 @@ extension UIApplicationClient {
             (DeviceUtil.keyWindow ?? DeviceUtil.anyWindow)?.overrideUserInterfaceStyle = userInterfaceStyle
         }
     )
+    @MainActor
     func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             return openURL(url)
         }
     }
+    @MainActor
     func openFileApp() {
         if let dirPath = FileUtil.logsDirectoryURL?.path,
            let dirURL = URL(string: "shareddocuments://" + dirPath)

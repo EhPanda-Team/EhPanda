@@ -89,7 +89,7 @@ struct GeneralSettingReducer: Reducer {
 
             case .navigateToSystemSetting:
                 return .run { _ in
-                    uiApplicationClient.openSettings()
+                    await uiApplicationClient.openSettings()
                 }
 
             case .calculateWebImageDiskCache:

@@ -130,7 +130,7 @@ struct CommentsReducer: Reducer {
             case .handleCommentLink(let url):
                 guard urlClient.checkIfHandleable(url) else {
                     return .run { _ in
-                        uiApplicationClient.openURL(url)
+                        await uiApplicationClient.openURL(url)
                     }
                 }
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)

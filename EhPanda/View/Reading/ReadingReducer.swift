@@ -212,7 +212,7 @@ struct ReadingReducer: Reducer {
                         appDelegateClient.setPortraitOrientationMask()
                     })
                     effects.append(.run { _ in
-                        appDelegateClient.setPortraitOrientation()
+                        await appDelegateClient.setPortraitOrientation()
                     })
                 } else {
                     effects.append(.run { _ in

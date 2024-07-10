@@ -51,7 +51,7 @@ struct LogsReducer: Reducer {
 
             case .navigateToFileApp:
                 return .run { _ in
-                    uiApplicationClient.openFileApp()
+                    await uiApplicationClient.openFileApp()
                 }
 
             case .teardown:
