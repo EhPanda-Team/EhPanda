@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.4",
-          "date": "2023-11-02T14:11:50",
-          "localizedDescription": "1. fix: Previews parsing.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.4/EhPanda.ipa",
-          "size": 6685295,
+          "version": "2.7.5",
+          "date": "2024-07-10T13:10:54",
+          "localizedDescription": "1. Migrate to TCA 1.0 credit @Jimmy-Prime",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.5/EhPanda.ipa",
+          "size": 6590738,
           "minOSVersion": "16.0"
         }
       ],
