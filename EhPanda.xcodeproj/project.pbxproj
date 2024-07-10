@@ -269,6 +269,14 @@
 		ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ADD25F3313D00ECB568 /* SettingView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
 		ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */ = {isa = PBXBuildFile; fileRef = ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */; };
+		EA0C92452C3EB42300D211F6 /* ISSUE_TEMPLATE in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92432C3EB42300D211F6 /* ISSUE_TEMPLATE */; };
+		EA0C92462C3EB42300D211F6 /* workflows in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92442C3EB42300D211F6 /* workflows */; };
+		EA0C92592C3EB49500D211F6 /* README.cht.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92532C3EB49500D211F6 /* README.cht.md */; };
+		EA0C925A2C3EB49500D211F6 /* README.ko.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92542C3EB49500D211F6 /* README.ko.md */; };
+		EA0C925B2C3EB49500D211F6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92552C3EB49500D211F6 /* README.md */; };
+		EA0C925C2C3EB49500D211F6 /* README.de.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92562C3EB49500D211F6 /* README.de.md */; };
+		EA0C925D2C3EB49500D211F6 /* README.chs.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92572C3EB49500D211F6 /* README.chs.md */; };
+		EA0C925E2C3EB49500D211F6 /* README.jpn.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92582C3EB49500D211F6 /* README.jpn.md */; };
 		EA2E2E7F2A1F7E500038A261 /* SettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */; };
 		EA2E2E822A1FA1060038A261 /* SearchReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E2E812A1FA1050038A261 /* SearchReducer.swift */; };
 		EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = EAE63E2029E2A6330048C601 /* SwiftyBeaver */; };
@@ -579,6 +587,19 @@
 		ABF53F4725A306D200AB5918 /* EhPanda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EhPanda.entitlements; sourceTree = "<group>"; };
 		ABF75F3E25A19CD200544D29 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryDetailWithGreeting.html; sourceTree = "<group>"; };
+		EA0C92432C3EB42300D211F6 /* ISSUE_TEMPLATE */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ISSUE_TEMPLATE; path = .github/ISSUE_TEMPLATE; sourceTree = "<group>"; };
+		EA0C92442C3EB42300D211F6 /* workflows */ = {isa = PBXFileReference; lastKnownFileType = folder; name = workflows; path = .github/workflows; sourceTree = "<group>"; };
+		EA0C92482C3EB45E00D211F6 /* AltStore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AltStore.json; sourceTree = "<group>"; };
+		EA0C92492C3EB45E00D211F6 /* swiftgen.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = swiftgen.yml; sourceTree = "<group>"; };
+		EA0C924A2C3EB45E00D211F6 /* .gitattributes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
+		EA0C924B2C3EB45E00D211F6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		EA0C924C2C3EB45E00D211F6 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		EA0C92532C3EB49500D211F6 /* README.cht.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.cht.md; path = READMEs/README.cht.md; sourceTree = "<group>"; };
+		EA0C92542C3EB49500D211F6 /* README.ko.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.ko.md; path = READMEs/README.ko.md; sourceTree = "<group>"; };
+		EA0C92552C3EB49500D211F6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		EA0C92562C3EB49500D211F6 /* README.de.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.de.md; path = READMEs/README.de.md; sourceTree = "<group>"; };
+		EA0C92572C3EB49500D211F6 /* README.chs.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.chs.md; path = READMEs/README.chs.md; sourceTree = "<group>"; };
+		EA0C92582C3EB49500D211F6 /* README.jpn.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.jpn.md; path = READMEs/README.jpn.md; sourceTree = "<group>"; };
 		EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingReducer.swift; sourceTree = "<group>"; };
 		EA2E2E812A1FA1050038A261 /* SearchReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchReducer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1087,6 +1108,9 @@
 				ABC3C7562593696C00E0C11B /* EhPanda */,
 				AB5BE67726B95FDD007D4A55 /* ShareExtension */,
 				AB3E9E6126D210B1008FE518 /* EhPandaTests */,
+				EA0C92472C3EB44300D211F6 /* Config */,
+				EA0C92422C3EB40100D211F6 /* GitHub */,
+				EA0C92522C3EB47F00D211F6 /* READMEs */,
 				ABC3C7552593696C00E0C11B /* Products */,
 				AB82819926B1C39B00A80CFA /* Frameworks */,
 			);
@@ -1303,6 +1327,40 @@
 				EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */,
 			);
 			path = Setting;
+			sourceTree = "<group>";
+		};
+		EA0C92422C3EB40100D211F6 /* GitHub */ = {
+			isa = PBXGroup;
+			children = (
+				EA0C92432C3EB42300D211F6 /* ISSUE_TEMPLATE */,
+				EA0C92442C3EB42300D211F6 /* workflows */,
+			);
+			name = GitHub;
+			sourceTree = "<group>";
+		};
+		EA0C92472C3EB44300D211F6 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				EA0C924A2C3EB45E00D211F6 /* .gitattributes */,
+				EA0C924C2C3EB45E00D211F6 /* .gitignore */,
+				EA0C924B2C3EB45E00D211F6 /* .swiftlint.yml */,
+				EA0C92482C3EB45E00D211F6 /* AltStore.json */,
+				EA0C92492C3EB45E00D211F6 /* swiftgen.yml */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+		EA0C92522C3EB47F00D211F6 /* READMEs */ = {
+			isa = PBXGroup;
+			children = (
+				EA0C92572C3EB49500D211F6 /* README.chs.md */,
+				EA0C92532C3EB49500D211F6 /* README.cht.md */,
+				EA0C92562C3EB49500D211F6 /* README.de.md */,
+				EA0C92582C3EB49500D211F6 /* README.jpn.md */,
+				EA0C92542C3EB49500D211F6 /* README.ko.md */,
+				EA0C92552C3EB49500D211F6 /* README.md */,
+			);
+			name = READMEs;
 			sourceTree = "<group>";
 		};
 		EA2B9B042A0A89C900E7BA07 /* AccountSetting */ = {
@@ -1630,16 +1688,21 @@
 				AB90276E291F548700697256 /* AppIcon_NotMyPresident_iPad.png in Resources */,
 				AB90276D291F548700697256 /* AppIcon_NotMyPresident_iPad_Pro@2x.png in Resources */,
 				AB0CFB7A27BAB9D0004BD372 /* AppIcon_Default@2x.png in Resources */,
+				EA0C92592C3EB49500D211F6 /* README.cht.md in Resources */,
 				AB0CFB7527BAB9D0004BD372 /* AppIcon_Default_iPad@2x.png in Resources */,
 				AB0CFB9227BBD323004BD372 /* AppIcon_Ukiyoe_iPad@2x.png in Resources */,
 				ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */,
 				AB0CFB7B27BAB9D0004BD372 /* AppIcon_Default_iPad.png in Resources */,
 				AB90276C291F548700697256 /* AppIcon_NotMyPresident_iPad@2x.png in Resources */,
+				EA0C925D2C3EB49500D211F6 /* README.chs.md in Resources */,
 				AB0CFB9527BBD323004BD372 /* AppIcon_Ukiyoe_iPad.png in Resources */,
+				EA0C925C2C3EB49500D211F6 /* README.de.md in Resources */,
 				ABE9012427F722D100F3651D /* AppIcon_StandWithUkraine2022@3x.png in Resources */,
 				AB90276B291F548700697256 /* AppIcon_NotMyPresident@3x.png in Resources */,
+				EA0C92452C3EB42300D211F6 /* ISSUE_TEMPLATE in Resources */,
 				AB0CFB8827BBD2D7004BD372 /* AppIcon_Developer_iPad@2x.png in Resources */,
 				ABE9012227F722D100F3651D /* AppIcon_StandWithUkraine2022@2x.png in Resources */,
+				EA0C925B2C3EB49500D211F6 /* README.md in Resources */,
 				AB0CFB7427BAB9D0004BD372 /* AppIcon_Default@3x.png in Resources */,
 				AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */,
 				ABA9A6BC28EC786100EE28DE /* swiftgen.yml in Resources */,
@@ -1647,11 +1710,14 @@
 				AB0CFB8927BBD2D7004BD372 /* AppIcon_Developer@2x.png in Resources */,
 				ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */,
 				AB90276F291F548700697256 /* AppIcon_NotMyPresident@2x.png in Resources */,
+				EA0C92462C3EB42300D211F6 /* workflows in Resources */,
+				EA0C925A2C3EB49500D211F6 /* README.ko.md in Resources */,
 				ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */,
 				ABE9012527F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad_Pro@2x.png in Resources */,
 				ABE9012327F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad.png in Resources */,
 				AB0CFB7827BAB9D0004BD372 /* AppIcon_Default_iPad_Pro@2x.png in Resources */,
 				AB0CFB8B27BBD2D7004BD372 /* AppIcon_Developer_iPad_Pro@2x.png in Resources */,
+				EA0C925E2C3EB49500D211F6 /* README.jpn.md in Resources */,
 				AB0CFB8A27BBD2D7004BD372 /* AppIcon_Developer_iPad.png in Resources */,
 				ABE9012627F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad@2x.png in Resources */,
 				AB0CFB9427BBD323004BD372 /* AppIcon_Ukiyoe_iPad_Pro@2x.png in Resources */,
