@@ -71,7 +71,7 @@ struct ReadingView: View {
                 showsSliderPreview: viewStore.$showsSliderPreview,
                 sliderValue: $pageHandler.sliderValue, setting: $setting,
                 enablesLiveText: $liveTextHandler.enablesLiveText,
-                autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: setAutoPlayPolocy),
+                autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
                 range: 1...Float(viewStore.gallery.pageCount), previewURLs: viewStore.previewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { viewStore.send(.onPerformDismiss) },
