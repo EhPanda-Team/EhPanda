@@ -9,7 +9,9 @@ import SwiftUI
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ReadingReducer: Reducer {
+@Reducer
+struct ReadingReducer {
+    @CasePathable
     enum Route: Equatable {
         case hud
         case share(ShareItem)

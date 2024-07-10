@@ -7,7 +7,9 @@
 
 import ComposableArchitecture
 
-struct PopularReducer: Reducer {
+@Reducer
+struct PopularReducer {
+    @CasePathable
     enum Route: Equatable {
         case filters
         case detail(String)

@@ -8,7 +8,9 @@
 import Foundation
 import ComposableArchitecture
 
-struct EhSettingReducer: Reducer {
+@Reducer
+struct EhSettingReducer {
+    @CasePathable
     enum Route: Equatable {
         case webView(URL)
         case deleteProfile

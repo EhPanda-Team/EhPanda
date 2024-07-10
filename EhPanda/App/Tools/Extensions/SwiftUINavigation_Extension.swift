@@ -18,7 +18,7 @@ extension NavigationLink {
         self.init(
             title,
             destination: Binding(unwrapping: value).map(destination),
-            isActive: value.isPresent()
+            isActive: .init(value)
         )
     }
     init<Enum, Case, WrappedDestination>(
@@ -34,22 +34,6 @@ extension NavigationLink {
 }
 
 extension View {
-    @MainActor
-    @ViewBuilder
-    func sheet<Enum, Case, Content>(
-        unwrapping enum: Binding<Enum?>,
-        case casePath: AnyCasePath<Enum, Case>,
-        onDismiss: (() -> Void)? = nil,
-        isEnabled: Bool,
-        @ViewBuilder content: @escaping (Binding<Case>) -> Content
-    ) -> some View
-    where Content: View {
-        if isEnabled {
-            sheet(unwrapping: `enum`, case: casePath, onDismiss: onDismiss, content: content)
-        } else {
-            self
-        }
-    }
     func confirmationDialog<Enum, Case, A: View>(
         message: String,
         unwrapping enum: Binding<Enum?>,
@@ -57,9 +41,9 @@ extension View {
         @ViewBuilder actions: @escaping (Case) -> A
     ) -> some View {
         self.confirmationDialog(
-            title: { _ in Text("") },
+            item: `enum`.case(casePath),
             titleVisibility: .hidden,
-            unwrapping: `enum`.case(casePath),
+            title: { _ in Text("") },
             actions: actions,
             message: { _ in Text(message) }
         )
@@ -72,13 +56,13 @@ extension View {
         @ViewBuilder actions: @escaping (Case) -> A
     ) -> some View {
         self.confirmationDialog(
-            title: { _ in Text("") },
-            titleVisibility: .hidden,
-            unwrapping: {
+            item: {
                 let unwrapping = `enum`.case(casePath)
                 let isMatched = `case` == unwrapping.wrappedValue
                 return isMatched ? unwrapping : .constant(nil)
             }(),
+            titleVisibility: .hidden,
+            title: { _ in Text("") },
             actions: actions,
             message: { _ in Text(message) }
         )

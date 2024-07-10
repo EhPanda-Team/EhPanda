@@ -9,7 +9,8 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ArchivesReducer: Reducer {
+@Reducer
+struct ArchivesReducer {
     enum Route {
         case messageHUD
         case communicatingHUD

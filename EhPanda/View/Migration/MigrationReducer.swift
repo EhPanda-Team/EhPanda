@@ -8,7 +8,9 @@
 import Foundation
 import ComposableArchitecture
 
-struct MigrationReducer: Reducer {
+@Reducer
+struct MigrationReducer {
+    @CasePathable
     enum Route: Equatable {
         case dropDialog
     }

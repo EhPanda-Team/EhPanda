@@ -34,6 +34,7 @@ struct HomeView: View {
     // MARK: HomeView
     var body: some View {
         NavigationView {
+            let content =
             ZStack {
                 ScrollView(showsIndicators: false) {
                     VStack {
@@ -87,20 +88,6 @@ struct HomeView: View {
                 .opacity(viewStore.popularGalleries.isEmpty && error != nil ? 1 : 0)
                 .zIndex(1)
             }
-            .sheet(
-                unwrapping: viewStore.$route,
-                case: /HomeReducer.Route.detail,
-                isEnabled: DeviceUtil.isPad
-            ) { route in
-                NavigationView {
-                    DetailView(
-                        store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
-                        gid: route.wrappedValue, user: user, setting: $setting,
-                        blurRadius: blurRadius, tagTranslator: tagTranslator
-                    )
-                }
-                .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-            }
             .animation(.default, value: viewStore.popularLoadingState)
             .onAppear {
                 if viewStore.popularGalleries.isEmpty {
@@ -110,6 +97,22 @@ struct HomeView: View {
             .background(navigationLinks)
             .toolbar(content: toolbar)
             .navigationTitle(L10n.Localizable.HomeView.Title.home)
+
+            if DeviceUtil.isPad {
+                content
+                    .sheet(unwrapping: viewStore.$route, case: /HomeReducer.Route.detail) { route in
+                        NavigationView {
+                            DetailView(
+                                store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
+                                gid: route.wrappedValue, user: user, setting: $setting,
+                                blurRadius: blurRadius, tagTranslator: tagTranslator
+                            )
+                        }
+                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                    }
+            } else {
+                content
+            }
         }
     }
 

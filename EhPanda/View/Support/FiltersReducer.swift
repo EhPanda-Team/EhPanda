@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-struct FiltersReducer: Reducer {
+@Reducer
+struct FiltersReducer {
     enum Route {
         case resetFilters
     }

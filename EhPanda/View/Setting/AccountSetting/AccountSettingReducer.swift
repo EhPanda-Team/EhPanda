@@ -9,7 +9,9 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct AccountSettingReducer: Reducer {
+@Reducer
+struct AccountSettingReducer {
+    @CasePathable
     enum Route: Equatable {
         case hud
         case login

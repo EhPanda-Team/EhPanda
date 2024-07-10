@@ -7,7 +7,9 @@
 
 import ComposableArchitecture
 
-struct DetailSearchReducer: Reducer {
+@Reducer
+struct DetailSearchReducer {
+    @CasePathable
     enum Route: Equatable {
         case filters
         case quickSearch

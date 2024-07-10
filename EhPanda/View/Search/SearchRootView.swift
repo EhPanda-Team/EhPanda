@@ -30,6 +30,7 @@ struct SearchRootView: View {
 
     var body: some View {
         NavigationView {
+            let content =
             ScrollView(showsIndicators: false) {
                 SuggestionsPanel(
                     historyKeywords: viewStore.historyKeywords.reversed(),
@@ -43,20 +44,6 @@ struct SearchRootView: View {
                     },
                     removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) }
                 )
-            }
-            .sheet(
-                unwrapping: viewStore.$route,
-                case: /SearchRootReducer.Route.detail,
-                isEnabled: DeviceUtil.isPad
-            ) { route in
-                NavigationView {
-                    DetailView(
-                        store: store.scope(state: \.detailState, action: SearchRootReducer.Action.detail),
-                        gid: route.wrappedValue, user: user, setting: $setting,
-                        blurRadius: blurRadius, tagTranslator: tagTranslator
-                    )
-                }
-                .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
             }
             .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.filters) { _ in
                 FiltersView(store: store.scope(state: \.filtersState, action: SearchRootReducer.Action.filters))
@@ -92,6 +79,22 @@ struct SearchRootView: View {
             .background(navigationLinks)
             .toolbar(content: toolbar)
             .navigationTitle(L10n.Localizable.SearchView.Title.search)
+
+            if DeviceUtil.isPad {
+                content
+                    .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.detail) { route in
+                        NavigationView {
+                            DetailView(
+                                store: store.scope(state: \.detailState, action: SearchRootReducer.Action.detail),
+                                gid: route.wrappedValue, user: user, setting: $setting,
+                                blurRadius: blurRadius, tagTranslator: tagTranslator
+                            )
+                        }
+                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                    }
+            } else {
+                content
+            }
         }
     }
 

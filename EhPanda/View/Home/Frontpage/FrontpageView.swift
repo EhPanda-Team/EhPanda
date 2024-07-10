@@ -30,6 +30,7 @@ struct FrontpageView: View {
     }
 
     var body: some View {
+        let content =
         GenericList(
             galleries: viewStore.filteredGalleries,
             setting: setting,
@@ -43,20 +44,6 @@ struct FrontpageView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(
-            unwrapping: viewStore.$route,
-            case: /FrontpageReducer.Route.detail,
-            isEnabled: DeviceUtil.isPad
-        ) { route in
-            NavigationView {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: FrontpageReducer.Action.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-        }
         .sheet(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: FrontpageReducer.Action.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
@@ -72,6 +59,22 @@ struct FrontpageView: View {
         .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.FrontpageView.Title.frontpage)
+
+        if DeviceUtil.isPad {
+            content
+                .sheet(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.detail) { route in
+                    NavigationView {
+                        DetailView(
+                            store: store.scope(state: \.detailState, action: FrontpageReducer.Action.detail),
+                            gid: route.wrappedValue, user: user, setting: $setting,
+                            blurRadius: blurRadius, tagTranslator: tagTranslator
+                        )
+                    }
+                    .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                }
+        } else {
+            content
+        }
     }
 
     @ViewBuilder private var navigationLink: some View {

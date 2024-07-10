@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-struct AppearanceSettingReducer: Reducer {
+@Reducer
+struct AppearanceSettingReducer {
     enum Route {
         case appIcon
     }

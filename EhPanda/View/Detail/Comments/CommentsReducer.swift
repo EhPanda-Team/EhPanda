@@ -9,7 +9,9 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct CommentsReducer: Reducer {
+@Reducer
+struct CommentsReducer {
+    @CasePathable
     enum Route: Equatable {
         case hud
         case detail(String)

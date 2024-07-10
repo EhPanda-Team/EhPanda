@@ -9,7 +9,9 @@ import SwiftUI
 import TTProgressHUD
 import ComposableArchitecture
 
-struct AppRouteReducer: Reducer {
+@Reducer
+struct AppRouteReducer {
+    @CasePathable
     enum Route: Equatable, Hashable {
         case hud
         case setting

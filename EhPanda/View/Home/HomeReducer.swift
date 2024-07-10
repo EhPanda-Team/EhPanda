@@ -10,7 +10,9 @@ import Kingfisher
 import UIImageColors
 import ComposableArchitecture
 
-struct HomeReducer: Reducer {
+@Reducer
+struct HomeReducer {
+    @CasePathable
     enum Route: Equatable, Hashable {
         case detail(String)
         case misc(HomeMiscGridType)

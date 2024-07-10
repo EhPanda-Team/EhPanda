@@ -8,7 +8,9 @@
 import Foundation
 import ComposableArchitecture
 
-struct HistoryReducer: Reducer {
+@Reducer
+struct HistoryReducer {
+    @CasePathable
     enum Route: Equatable {
         case detail(String)
         case clearHistory

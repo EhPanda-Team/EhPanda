@@ -33,6 +33,7 @@ struct ToplistsView: View {
     }
 
     var body: some View {
+        let content =
         GenericList(
             galleries: viewStore.filteredGalleries ?? [],
             setting: setting,
@@ -46,20 +47,6 @@ struct ToplistsView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(
-            unwrapping: viewStore.$route,
-            case: /ToplistsReducer.Route.detail,
-            isEnabled: DeviceUtil.isPad
-        ) { route in
-            NavigationView {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-        }
         .jumpPageAlert(
             index: viewStore.$jumpPageIndex,
             isPresented: viewStore.$jumpPageAlertPresented,
@@ -80,6 +67,22 @@ struct ToplistsView: View {
         .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle(navigationTitle)
+
+        if DeviceUtil.isPad {
+            content
+                .sheet(unwrapping: viewStore.$route, case: /ToplistsReducer.Route.detail) { route in
+                    NavigationView {
+                        DetailView(
+                            store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
+                            gid: route.wrappedValue, user: user, setting: $setting,
+                            blurRadius: blurRadius, tagTranslator: tagTranslator
+                        )
+                    }
+                    .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                }
+        } else {
+            content
+        }
     }
 
     @ViewBuilder private var navigationLink: some View {

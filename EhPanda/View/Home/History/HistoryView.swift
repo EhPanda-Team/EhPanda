@@ -29,6 +29,7 @@ struct HistoryView: View {
     }
 
     var body: some View {
+        let content =
         GenericList(
             galleries: viewStore.filteredGalleries,
             setting: setting,
@@ -41,20 +42,6 @@ struct HistoryView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(
-            unwrapping: viewStore.$route,
-            case: /HistoryReducer.Route.detail,
-            isEnabled: DeviceUtil.isPad
-        ) { route in
-            NavigationView {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-        }
         .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
             if viewStore.galleries.isEmpty {
@@ -66,6 +53,22 @@ struct HistoryView: View {
         .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.HistoryView.Title.history)
+
+        if DeviceUtil.isPad {
+            content
+                .sheet(unwrapping: viewStore.$route, case: /HistoryReducer.Route.detail) { route in
+                    NavigationView {
+                        DetailView(
+                            store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
+                            gid: route.wrappedValue, user: user, setting: $setting,
+                            blurRadius: blurRadius, tagTranslator: tagTranslator
+                        )
+                    }
+                    .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                }
+        } else {
+            content
+        }
     }
 
     @ViewBuilder private var navigationLink: some View {

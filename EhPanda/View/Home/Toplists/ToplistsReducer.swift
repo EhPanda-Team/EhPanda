@@ -7,7 +7,9 @@
 
 import ComposableArchitecture
 
-struct ToplistsReducer: Reducer {
+@Reducer
+struct ToplistsReducer {
+    @CasePathable
     enum Route: Equatable {
         case detail(String)
     }

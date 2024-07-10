@@ -9,7 +9,9 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct TorrentsReducer: Reducer {
+@Reducer
+struct TorrentsReducer {
+    @CasePathable
     enum Route: Equatable {
         case hud
         case share(URL)

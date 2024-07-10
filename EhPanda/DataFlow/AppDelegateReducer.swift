@@ -9,7 +9,8 @@ import SwiftUI
 import SwiftyBeaver
 import ComposableArchitecture
 
-struct AppDelegateReducer: Reducer {
+@Reducer
+struct AppDelegateReducer {
     struct State: Equatable {
         var migrationState = MigrationReducer.State()
     }

@@ -7,7 +7,9 @@
 
 import ComposableArchitecture
 
-struct LogsReducer: Reducer {
+@Reducer
+struct LogsReducer {
+    @CasePathable
     enum Route: Equatable {
         case log(Log)
     }

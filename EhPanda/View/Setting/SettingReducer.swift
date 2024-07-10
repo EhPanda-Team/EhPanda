@@ -8,7 +8,9 @@
 import Foundation
 import ComposableArchitecture
 
-struct SettingReducer: Reducer {
+@Reducer
+struct SettingReducer {
+    @CasePathable
     enum Route: Int, Equatable, Hashable, Identifiable, CaseIterable {
         var id: Int { rawValue }
 

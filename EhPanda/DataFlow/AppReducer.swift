@@ -8,7 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AppReducer: Reducer {
+@Reducer
+struct AppReducer {
     struct State: Equatable {
         var appDelegateState = AppDelegateReducer.State()
         @BindingState var appRouteState = AppRouteReducer.State()

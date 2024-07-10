@@ -7,7 +7,8 @@
 
 import ComposableArchitecture
 
-struct TabBarReducer: Reducer {
+@Reducer
+struct TabBarReducer {
     struct State: Equatable {
         var tabBarItemType: TabBarItemType = .home
     }

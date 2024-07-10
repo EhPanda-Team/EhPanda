@@ -9,7 +9,9 @@ import SwiftUI
 import IdentifiedCollections
 import ComposableArchitecture
 
-struct FavoritesReducer: Reducer {
+@Reducer
+struct FavoritesReducer {
+    @CasePathable
     enum Route: Equatable {
         case quickSearch
         case detail(String)

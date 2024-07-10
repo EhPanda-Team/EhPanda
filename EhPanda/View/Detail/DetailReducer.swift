@@ -9,7 +9,9 @@ import SwiftUI
 import Foundation
 import ComposableArchitecture
 
-struct DetailReducer: Reducer {
+@Reducer
+struct DetailReducer {
+    @CasePathable
     enum Route: Equatable {
         case reading
         case archives(URL, URL)

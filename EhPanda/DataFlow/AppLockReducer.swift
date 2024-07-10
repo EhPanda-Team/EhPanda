@@ -8,7 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AppLockReducer: Reducer {
+@Reducer
+struct AppLockReducer {
     struct State: Equatable {
         @BindingState var blurRadius: Double = 0
         var becameInactiveDate: Date?

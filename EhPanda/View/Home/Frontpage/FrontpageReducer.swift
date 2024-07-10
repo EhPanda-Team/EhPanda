@@ -7,7 +7,9 @@
 
 import ComposableArchitecture
 
-struct FrontpageReducer: Reducer {
+@Reducer
+struct FrontpageReducer {
+    @CasePathable
     enum Route: Equatable {
         case filters
         case detail(String)

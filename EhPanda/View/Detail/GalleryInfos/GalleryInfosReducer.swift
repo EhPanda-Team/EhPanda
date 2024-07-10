@@ -8,7 +8,8 @@
 import TTProgressHUD
 import ComposableArchitecture
 
-struct GalleryInfosReducer: Reducer {
+@Reducer
+struct GalleryInfosReducer {
     enum Route {
         case hud
     }

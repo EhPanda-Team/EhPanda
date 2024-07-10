@@ -8,7 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct LoginReducer: Reducer {
+@Reducer
+struct LoginReducer {
     private enum CancelID: Hashable {
         case login
     }

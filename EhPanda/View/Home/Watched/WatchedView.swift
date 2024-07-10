@@ -29,6 +29,7 @@ struct WatchedView: View {
     }
 
     var body: some View {
+        let content =
         ZStack {
             if CookieUtil.didLogin {
                 GenericList(
@@ -47,20 +48,6 @@ struct WatchedView: View {
             } else {
                 NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
             }
-        }
-        .sheet(
-            unwrapping: viewStore.$route,
-            case: /WatchedReducer.Route.detail,
-            isEnabled: DeviceUtil.isPad
-        ) { route in
-            NavigationView {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: WatchedReducer.Action.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
         .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.quickSearch) { _ in
             QuickSearchView(
@@ -96,6 +83,22 @@ struct WatchedView: View {
         .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.WatchedView.Title.watched)
+
+        if DeviceUtil.isPad {
+            content
+                .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.detail) { route in
+                    NavigationView {
+                        DetailView(
+                            store: store.scope(state: \.detailState, action: WatchedReducer.Action.detail),
+                            gid: route.wrappedValue, user: user, setting: $setting,
+                            blurRadius: blurRadius, tagTranslator: tagTranslator
+                        )
+                    }
+                    .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                }
+        } else {
+            content
+        }
     }
 
     @ViewBuilder private var navigationLink: some View {

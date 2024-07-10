@@ -8,7 +8,9 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct QuickSearchReducer: Reducer {
+@Reducer
+struct QuickSearchReducer {
+    @CasePathable
     enum Route: Equatable {
         case newWord
         case editWord

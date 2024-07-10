@@ -36,6 +36,7 @@ struct FavoritesView: View {
 
     var body: some View {
         NavigationView {
+            let content =
             ZStack {
                 if CookieUtil.didLogin {
                     GenericList(
@@ -54,20 +55,6 @@ struct FavoritesView: View {
                 } else {
                     NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
                 }
-            }
-            .sheet(
-                unwrapping: viewStore.$route,
-                case: /FavoritesReducer.Route.detail,
-                isEnabled: DeviceUtil.isPad
-            ) { route in
-                NavigationView {
-                    DetailView(
-                        store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
-                        gid: route.wrappedValue, user: user, setting: $setting,
-                        blurRadius: blurRadius, tagTranslator: tagTranslator
-                    )
-                }
-                .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
             }
             .sheet(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.quickSearch) { _ in
                 QuickSearchView(
@@ -99,6 +86,22 @@ struct FavoritesView: View {
             .background(navigationLink)
             .toolbar(content: toolbar)
             .navigationTitle(navigationTitle)
+
+            if DeviceUtil.isPad {
+                content
+                    .sheet(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.detail) { route in
+                        NavigationView {
+                            DetailView(
+                                store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
+                                gid: route.wrappedValue, user: user, setting: $setting,
+                                blurRadius: blurRadius, tagTranslator: tagTranslator
+                            )
+                        }
+                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                    }
+            } else {
+                content
+            }
         }
     }
 

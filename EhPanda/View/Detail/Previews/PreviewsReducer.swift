@@ -8,7 +8,8 @@
 import Foundation
 import ComposableArchitecture
 
-struct PreviewsReducer: Reducer {
+@Reducer
+struct PreviewsReducer {
     enum Route {
         case reading
     }

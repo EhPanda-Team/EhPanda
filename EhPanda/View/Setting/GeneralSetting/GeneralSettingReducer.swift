@@ -9,7 +9,8 @@ import Kingfisher
 import LocalAuthentication
 import ComposableArchitecture
 
-struct GeneralSettingReducer: Reducer {
+@Reducer
+struct GeneralSettingReducer {
     enum Route {
         case logs
         case clearCache
