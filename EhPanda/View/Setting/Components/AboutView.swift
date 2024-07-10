@@ -111,12 +111,12 @@ struct AboutView: View {
             text: L10n.Constant.App.CodeLevelContributor.Text.chihchy
         ),
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.xioxin,
-            text: L10n.Constant.App.CodeLevelContributor.Text.xioxin
-        ),
-        .init(
             urlString: L10n.Constant.App.CodeLevelContributor.Link.jimmyPrime,
             text: L10n.Constant.App.CodeLevelContributor.Text.jimmyPrime
+        ),
+        .init(
+            urlString: L10n.Constant.App.CodeLevelContributor.Link.xioxin,
+            text: L10n.Constant.App.CodeLevelContributor.Text.xioxin
         ),
         .init(
             urlString: L10n.Constant.App.CodeLevelContributor.Link.remlostime,
