@@ -168,15 +168,11 @@ struct DetailReducer: Reducer {
 
                 case .toggleShowFullTitle:
                     state.showsFullTitle.toggle()
-                    return .run { _ in
-                        hapticsClient.generateFeedback(.soft)
-                    }
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .toggleShowUserRating:
                     state.showsUserRating.toggle()
-                    return .run { _ in
-                        hapticsClient.generateFeedback(.soft)
-                    }
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .setCommentContent(let content):
                     state.commentContent = content
@@ -194,9 +190,7 @@ struct DetailReducer: Reducer {
                     state.updateRating(value: value)
                     return .merge(
                         .send(.rateGallery),
-                        .run { _ in
-                            hapticsClient.generateFeedback(.soft)
-                        },
+                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
                         .run { send in
                             try await Task.sleep(for: .seconds(1))
                             await send(.confirmRatingDone)
@@ -214,9 +208,7 @@ struct DetailReducer: Reducer {
 
                 case .syncGalleryDetail:
                     guard let detail = state.galleryDetail else { return .none }
-                    return .run { _ in
-                        await databaseClient.cacheGalleryDetail(detail)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleryDetail(detail) })
 
                 case .syncGalleryPreviewURLs:
                     return .run { [state] _ in
@@ -230,9 +222,7 @@ struct DetailReducer: Reducer {
                     }
 
                 case .syncGreeting(let greeting):
-                    return .run { _ in
-                        await databaseClient.updateGreeting(greeting)
-                    }
+                    return .run(operation: { _ in await databaseClient.updateGreeting(greeting) })
 
                 case .syncPreviewConfig(let config):
                     return .run { [state] _ in
@@ -381,14 +371,10 @@ struct DetailReducer: Reducer {
                     if case .success = result {
                         return .merge(
                             .send(.fetchGalleryDetail),
-                            .run { _ in
-                                hapticsClient.generateNotificationFeedback(.success)
-                            }
+                            .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                         )
                     }
-                    return .run { _ in
-                        hapticsClient.generateNotificationFeedback(.error)
-                    }
+                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
 
                 case .reading(.onPerformDismiss):
                     return .send(.setNavigation(nil))

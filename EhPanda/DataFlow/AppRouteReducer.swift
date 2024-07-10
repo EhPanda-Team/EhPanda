@@ -81,9 +81,7 @@ struct AppRouteReducer: Reducer {
                 guard currentChangeCount != userDefaultsClient
                         .getValue(.clipboardChangeCount) else { return .none }
                 var effects: [Effect<Action>] = [
-                    .run { _ in
-                        userDefaultsClient.setValue(currentChangeCount, .clipboardChangeCount)
-                    }
+                    .run(operation: { _ in userDefaultsClient.setValue(currentChangeCount, .clipboardChangeCount) })
                 ]
                 if let url = clipboardClient.url() {
                     effects.append(.send(.handleDeepLink(url)))
@@ -159,9 +157,7 @@ struct AppRouteReducer: Reducer {
                 switch result {
                 case .success(let gallery):
                     return .merge(
-                        .run { _ in
-                            await databaseClient.cacheGalleries([gallery])
-                        },
+                        .run(operation: { _ in await databaseClient.cacheGalleries([gallery]) }),
                         .send(.handleGalleryLink(url))
                     )
                 case .failure:

@@ -169,9 +169,7 @@ struct HomeReducer: Reducer {
                         return .none
                     }
                     state.setPopularGalleries(galleries)
-                    return .run { _ in
-                        await databaseClient.cacheGalleries(galleries)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.popularLoadingState = .failed(error)
                 }
@@ -195,9 +193,7 @@ struct HomeReducer: Reducer {
                         return .none
                     }
                     state.setFrontpageGalleries(galleries)
-                    return .run { _ in
-                        await databaseClient.cacheGalleries(galleries)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.frontpageLoadingState = .failed(error)
                 }
@@ -220,9 +216,7 @@ struct HomeReducer: Reducer {
                         return .none
                     }
                     state.toplistsGalleries[index] = galleries
-                    return .run { _ in
-                        await databaseClient.cacheGalleries(galleries)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.toplistsLoadingState[index] = .failed(error)
                 }

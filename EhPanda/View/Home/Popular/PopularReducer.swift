@@ -94,9 +94,7 @@ struct PopularReducer: Reducer {
                         return .none
                     }
                     state.galleries = galleries
-                    return .run { _ in
-                        await databaseClient.cacheGalleries(galleries)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }

@@ -119,17 +119,13 @@ struct ToplistsReducer: Reducer {
                 guard let index = Int(state.jumpPageIndex),
                       let pageNumber = state.pageNumber,
                       index > 0, index <= pageNumber.maximum + 1 else {
-                    return .run { _ in
-                        hapticsClient.generateNotificationFeedback(.error)
-                    }
+                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
                 }
                 return .send(.fetchGalleries(index - 1))
 
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
-                return .run { _ in
-                    hapticsClient.generateFeedback(.light)
-                }
+                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
 
             case .setJumpPageAlertFocused(let isFocused):
                 state.jumpPageAlertFocused = isFocused
@@ -166,9 +162,7 @@ struct ToplistsReducer: Reducer {
                     }
                     state.rawPageNumber[type] = pageNumber
                     state.rawGalleries[type] = galleries
-                    return .run { _ in
-                        await databaseClient.cacheGalleries(galleries)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.rawLoadingState[type] = .failed(error)
                 }
@@ -198,9 +192,7 @@ struct ToplistsReducer: Reducer {
                     state.insertGalleries(type: type, galleries: galleries)
 
                     var effects: [Effect<Action>] = [
-                        .run { _ in
-                            await databaseClient.cacheGalleries(galleries)
-                        }
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))

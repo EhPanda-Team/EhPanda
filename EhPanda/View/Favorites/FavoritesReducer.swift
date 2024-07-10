@@ -133,9 +133,7 @@ struct FavoritesReducer: Reducer {
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = sortOrder
-                    return .run { _ in
-                        await databaseClient.cacheGalleries(galleries)
-                    }
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }
@@ -169,9 +167,7 @@ struct FavoritesReducer: Reducer {
                     state.sortOrder = sortOrder
 
                     var effects: [Effect<Action>] = [
-                        .run { _ in
-                            await databaseClient.cacheGalleries(galleries)
-                        }
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                     ]
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))

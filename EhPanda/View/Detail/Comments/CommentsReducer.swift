@@ -129,9 +129,7 @@ struct CommentsReducer: Reducer {
 
             case .handleCommentLink(let url):
                 guard urlClient.checkIfHandleable(url) else {
-                    return .run { _ in
-                        await uiApplicationClient.openURL(url)
-                    }
+                    return .run(operation: { _ in await uiApplicationClient.openURL(url) })
                 }
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
@@ -246,9 +244,7 @@ struct CommentsReducer: Reducer {
                 switch result {
                 case .success(let gallery):
                     return .merge(
-                        .run { _ in
-                            await databaseClient.cacheGalleries([gallery])
-                        },
+                        .run(operation: { _ in await databaseClient.cacheGalleries([gallery]) }),
                         .send(.handleGalleryLink(url))
                     )
                 case .failure:

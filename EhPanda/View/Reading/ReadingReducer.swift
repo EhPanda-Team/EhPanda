@@ -190,9 +190,7 @@ struct ReadingReducer: Reducer {
         Reduce { state, action in
             switch action {
             case .binding(\.$showsSliderPreview):
-                return .run { _ in
-                    hapticsClient.generateFeedback(.soft)
-                }
+                return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
             case .binding:
                 return .none
@@ -208,23 +206,15 @@ struct ReadingReducer: Reducer {
             case .setOrientationPortrait(let isPortrait):
                 var effects = [Effect<Action>]()
                 if isPortrait {
-                    effects.append(.run { _ in
-                        appDelegateClient.setPortraitOrientationMask()
-                    })
-                    effects.append(.run { _ in
-                        await appDelegateClient.setPortraitOrientation()
-                    })
+                    effects.append(.run(operation: { _ in appDelegateClient.setPortraitOrientationMask() }))
+                    effects.append(.run(operation: { _ in await appDelegateClient.setPortraitOrientation() }))
                 } else {
-                    effects.append(.run { _ in
-                        appDelegateClient.setAllOrientationMask()
-                    })
+                    effects.append(.run(operation: { _ in appDelegateClient.setAllOrientationMask() }))
                 }
                 return .merge(effects)
 
             case .onPerformDismiss:
-                return .run { _ in
-                    hapticsClient.generateFeedback(.light)
-                }
+                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
                 var effects: [Effect<Action>] = [
@@ -301,9 +291,7 @@ struct ReadingReducer: Reducer {
                         state.hudConfig = .copiedToClipboardSucceeded
                         return .merge(
                             .send(.setNavigation(.hud)),
-                            .run { _ in
-                                clipboardClient.saveImage(image, isAnimated)
-                            }
+                            .run(operation: { _ in clipboardClient.saveImage(image, isAnimated) })
                         )
                     case .save(let isAnimated):
                         return .run { send in
@@ -453,9 +441,11 @@ struct ReadingReducer: Reducer {
                 fetchImageURLIndices.forEach {
                     effects.append(.send(.fetchImageURLs($0)))
                 }
-                effects.append(.run { [prefetchImageURLs] _ in
-                    imageClient.prefetchImages(prefetchImageURLs)
-                })
+                effects.append(
+                    .run { [prefetchImageURLs] _ in
+                        imageClient.prefetchImages(prefetchImageURLs)
+                    }
+                )
                 return .merge(effects)
 
             case .fetchThumbnailURLs(let index):
@@ -552,9 +542,7 @@ struct ReadingReducer: Reducer {
                 case .success(let (imageURLs, response)):
                     var effects = [Effect<Action>]()
                     if let response = response {
-                        effects.append(.run { _ in
-                            cookieClient.setSkipServer(response: response)
-                        })
+                        effects.append(.run(operation: { _ in cookieClient.setSkipServer(response: response) }))
                     }
                     guard !imageURLs.isEmpty else {
                         state.imageURLLoadingStates[index] = .failed(.notFound)

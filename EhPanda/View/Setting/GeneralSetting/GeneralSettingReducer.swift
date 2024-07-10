@@ -74,12 +74,8 @@ struct GeneralSettingReducer: Reducer {
 
             case .clearWebImageCache:
                 return .merge(
-                    .run { _ in
-                        libraryClient.clearWebImageDiskCache()
-                    },
-                    .run { _ in
-                        await databaseClient.removeImageURLs()
-                    },
+                    .run(operation: { _ in libraryClient.clearWebImageDiskCache() }),
+                    .run(operation: { _ in await databaseClient.removeImageURLs() }),
                     .send(.calculateWebImageDiskCache)
                 )
 
@@ -88,9 +84,7 @@ struct GeneralSettingReducer: Reducer {
                 return .none
 
             case .navigateToSystemSetting:
-                return .run { _ in
-                    await uiApplicationClient.openSettings()
-                }
+                return .run(operation: { _ in await uiApplicationClient.openSettings() })
 
             case .calculateWebImageDiskCache:
                 return .run { send in

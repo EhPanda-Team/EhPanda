@@ -69,9 +69,7 @@ struct HistoryReducer: Reducer {
 
             case .clearHistoryGalleries:
                 return .merge(
-                    .run { _ in
-                        await databaseClient.clearHistoryGalleries()
-                    },
+                    .run(operation: { _ in await databaseClient.clearHistoryGalleries() }),
                     .run { send in
                         try await Task.sleep(for: .milliseconds(200))
                         await send(.fetchGalleries)

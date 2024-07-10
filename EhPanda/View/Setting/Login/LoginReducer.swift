@@ -70,9 +70,7 @@ struct LoginReducer: Reducer {
                 state.focusedField = nil
                 state.loginState = .loading
                 return .merge(
-                    .run { _ in
-                        hapticsClient.generateFeedback(.soft)
-                    },
+                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
                     .run { [state] send in
                         let response = await LoginRequest(username: state.username, password: state.password).response()
                         await send(.loginDone(response))
@@ -85,19 +83,13 @@ struct LoginReducer: Reducer {
                 var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(.run { _ in
-                        hapticsClient.generateNotificationFeedback(.success)
-                    })
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }))
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(.run { _ in
-                        hapticsClient.generateNotificationFeedback(.error)
-                    })
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) }))
                 }
                 if case .success(let response) = result, let response = response {
-                    effects.append(.run { _ in
-                        cookieClient.setCredentials(response: response)
-                    })
+                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
                 }
                 return .merge(effects)
             }

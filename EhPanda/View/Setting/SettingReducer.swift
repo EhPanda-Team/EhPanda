@@ -115,9 +115,7 @@ struct SettingReducer: Reducer {
                 Reduce { _, _ in
                     .merge(
                         .send(.syncSetting),
-                        .run { _ in
-                            userDefaultsClient.setValue(newValue.rawValue, .galleryHost)
-                        }
+                        .run(operation: { _ in userDefaultsClient.setValue(newValue.rawValue, .galleryHost) })
                     )
                 }
             }
@@ -173,9 +171,7 @@ struct SettingReducer: Reducer {
                         .send(.syncSetting)
                     ]
                     if !newValue && !deviceClient.isPad() {
-                        effects.append(.run { _ in
-                            appDelegateClient.setPortraitOrientationMask()
-                        })
+                        effects.append(.run(operation: { _ in appDelegateClient.setPortraitOrientationMask() }))
                     }
                     return .merge(effects)
                 }
@@ -200,12 +196,8 @@ struct SettingReducer: Reducer {
                 Reduce { _, _ in
                     .merge(
                         .send(.syncSetting),
-                        .run { _ in
-                            hapticsClient.generateFeedback(.soft)
-                        },
-                        .run { _ in
-                            dfClient.setActive(newValue)
-                        }
+                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                        .run(operation: { _ in dfClient.setActive(newValue) })
                     )
                 }
             }
@@ -245,9 +237,7 @@ struct SettingReducer: Reducer {
 
             case .syncUserInterfaceStyle:
                 let style = state.setting.preferredColorScheme.userInterfaceStyle
-                return .run { _ in
-                    await uiApplicationClient.setUserInterfaceStyle(style)
-                }
+                return .run(operation: { _ in await uiApplicationClient.setUserInterfaceStyle(style) })
 
             case .syncSetting:
                 return .run { [state] _ in
@@ -306,9 +296,7 @@ struct SettingReducer: Reducer {
                 return .none
 
             case .createDefaultEhProfile:
-                return .run { _ in
-                    _ = await EhProfileRequest(action: .create, name: "EhPanda").response()
-                }
+                return .run(operation: { _ in _ = await EhProfileRequest(action: .create, name: "EhPanda").response() })
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
@@ -320,9 +308,7 @@ struct SettingReducer: Reducer {
             case .fetchIgneousDone(let result):
                 var effects = [Effect<Action>]()
                 if case .success(let response) = result {
-                    effects.append(.run { _ in
-                        cookieClient.setCredentials(response: response)
-                    })
+                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
                 }
                 effects.append(.send(.account(.loadCookies)))
                 return .merge(effects)
@@ -447,19 +433,19 @@ struct SettingReducer: Reducer {
 
                         let cookieValue = cookieClient.getCookie(hostURL, selectedProfileKey)
                         if cookieValue.rawValue != profileValueString {
-                            effects.append(.run { _ in
-                                cookieClient.setOrEditCookie(
-                                    for: hostURL, key: selectedProfileKey, value: profileValueString
-                                )
-                            })
+                            effects.append(
+                                .run { _ in
+                                    cookieClient.setOrEditCookie(
+                                        for: hostURL, key: selectedProfileKey, value: profileValueString
+                                    )
+                                }
+                            )
                         }
                     } else if response.isProfileNotFound {
                         effects.append(.send(.createDefaultEhProfile))
                     } else {
                         let message = "Found profile but failed in parsing value."
-                        effects.append(.run { _ in
-                            loggerClient.error(message, nil)
-                        })
+                        effects.append(.run(operation: { _ in loggerClient.error(message, nil) }))
                     }
                 }
                 return effects.isEmpty ? .none : .merge(effects)
@@ -479,15 +465,9 @@ struct SettingReducer: Reducer {
 
             case .account(.login(.loginDone)):
                 return .merge(
-                    .run { _ in
-                        cookieClient.removeYay()
-                    },
-                    .run { _ in
-                        cookieClient.syncExCookies()
-                    },
-                    .run { _ in
-                        cookieClient.fulfillAnotherHostField()
-                    },
+                    .run(operation: { _ in cookieClient.removeYay() }),
+                    .run(operation: { _ in cookieClient.syncExCookies() }),
+                    .run(operation: { _ in cookieClient.fulfillAnotherHostField() }),
                     .send(.fetchIgneous),
                     .send(.fetchUserInfo),
                     .send(.fetchFavoriteCategories),
@@ -498,15 +478,9 @@ struct SettingReducer: Reducer {
                 state.user = User()
                 return .merge(
                     .send(.syncUser),
-                    .run { _ in
-                        cookieClient.clearAll()
-                    },
-                    .run { _ in
-                        await databaseClient.removeImageURLs()
-                    },
-                    .run { _ in
-                        libraryClient.clearWebImageDiskCache()
-                    }
+                    .run(operation: { _ in cookieClient.clearAll() }),
+                    .run(operation: { _ in await databaseClient.removeImageURLs() }),
+                    .run(operation: { _ in libraryClient.clearWebImageDiskCache() })
                 )
 
             case .account:

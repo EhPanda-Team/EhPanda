@@ -88,12 +88,8 @@ struct AccountSettingReducer: Reducer {
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
                     .send(.setNavigation(.hud)),
-                    .run { _ in
-                        clipboardClient.saveText(cookiesDescription)
-                    },
-                    .run { _ in
-                        hapticsClient.generateNotificationFeedback(.success)
-                    }
+                    .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),
+                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .login(.loginDone):

@@ -85,9 +85,7 @@ struct FiltersReducer: Reducer {
                 case .watched:
                     filter = state.watchedFilter
                 }
-                return .run { _ in
-                    await databaseClient.updateFilter(filter, range: range)
-                }
+                return .run(operation: { _ in await databaseClient.updateFilter(filter, range: range) })
 
             case .resetFilters:
                 switch state.filterRange {
