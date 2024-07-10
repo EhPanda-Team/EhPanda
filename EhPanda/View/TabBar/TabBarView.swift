@@ -32,7 +32,7 @@ struct TabBarView: View {
                         switch type {
                         case .home:
                             HomeView(
-                                store: store.scope(state: \.homeState, action: AppReducer.Action.home),
+                                store: store.scope(state: \.homeState, action: \.home),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.$settingState.setting,
                                 blurRadius: viewStore.appLockState.blurRadius,
@@ -40,7 +40,7 @@ struct TabBarView: View {
                             )
                         case .favorites:
                             FavoritesView(
-                                store: store.scope(state: \.favoritesState, action: AppReducer.Action.favorites),
+                                store: store.scope(state: \.favoritesState, action: \.favorites),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.$settingState.setting,
                                 blurRadius: viewStore.appLockState.blurRadius,
@@ -48,7 +48,7 @@ struct TabBarView: View {
                             )
                         case .search:
                             SearchRootView(
-                                store: store.scope(state: \.searchRootState, action: AppReducer.Action.searchRoot),
+                                store: store.scope(state: \.searchRootState, action: \.searchRoot),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.$settingState.setting,
                                 blurRadius: viewStore.appLockState.blurRadius,
@@ -56,7 +56,7 @@ struct TabBarView: View {
                             )
                         case .setting:
                             SettingView(
-                                store: store.scope(state: \.settingState, action: AppReducer.Action.setting),
+                                store: store.scope(state: \.settingState, action: \.setting),
                                 blurRadius: viewStore.appLockState.blurRadius
                             )
                         }
@@ -79,7 +79,7 @@ struct TabBarView: View {
         }
         .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.setting) { _ in
             SettingView(
-                store: store.scope(state: \.settingState, action: AppReducer.Action.setting),
+                store: store.scope(state: \.settingState, action: \.setting),
                 blurRadius: viewStore.appLockState.blurRadius
             )
             .accentColor(viewStore.settingState.setting.accentColor)
@@ -90,7 +90,7 @@ struct TabBarView: View {
                 DetailView(
                     store: store.scope(
                         state: \.appRouteState.detailState,
-                        action: { AppReducer.Action.appRoute(.detail($0)) }
+                        action: \.appRoute.detail
                     ),
                     gid: route.wrappedValue, user: viewStore.settingState.user,
                     setting: viewStore.$settingState.setting,

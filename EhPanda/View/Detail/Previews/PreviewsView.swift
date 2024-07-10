@@ -70,7 +70,7 @@ struct PreviewsView: View {
         }
         .fullScreenCover(unwrapping: viewStore.$route, case: /PreviewsReducer.Route.reading) { _ in
             ReadingView(
-                store: store.scope(state: \.readingState, action: PreviewsReducer.Action.reading),
+                store: store.scope(state: \.readingState, action: \.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)

@@ -187,7 +187,7 @@ struct GeneralSettingView: View {
 
     private var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /GeneralSettingReducer.Route.logs) { _ in
-            LogsView(store: store.scope(state: \.logsState, action: GeneralSettingReducer.Action.logs))
+            LogsView(store: store.scope(state: \.logsState, action: \.logs))
         }
     }
 }

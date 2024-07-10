@@ -58,7 +58,7 @@ struct FavoritesView: View {
             }
             .sheet(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.quickSearch) { _ in
                 QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: FavoritesReducer.Action.quickSearch)
+                    store: store.scope(state: \.quickSearchState, action: \.quickSearch)
                 ) { keyword in
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.fetchGalleries(keyword))
@@ -92,7 +92,7 @@ struct FavoritesView: View {
                     .sheet(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.detail) { route in
                         NavigationView {
                             DetailView(
-                                store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
+                                store: store.scope(state: \.detailState, action: \.detail),
                                 gid: route.wrappedValue, user: user, setting: $setting,
                                 blurRadius: blurRadius, tagTranslator: tagTranslator
                             )
@@ -109,7 +109,7 @@ struct FavoritesView: View {
         if DeviceUtil.isPhone {
             NavigationLink(unwrapping: viewStore.$route, case: /FavoritesReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: FavoritesReducer.Action.detail),
+                    store: store.scope(state: \.detailState, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

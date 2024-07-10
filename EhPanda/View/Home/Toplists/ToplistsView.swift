@@ -73,7 +73,7 @@ struct ToplistsView: View {
                 .sheet(unwrapping: viewStore.$route, case: /ToplistsReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
+                            store: store.scope(state: \.detailState, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -89,7 +89,7 @@ struct ToplistsView: View {
         if DeviceUtil.isPhone {
             NavigationLink(unwrapping: viewStore.$route, case: /ToplistsReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: ToplistsReducer.Action.detail),
+                    store: store.scope(state: \.detailState, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

@@ -46,12 +46,12 @@ struct SearchRootView: View {
                 )
             }
             .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.filters) { _ in
-                FiltersView(store: store.scope(state: \.filtersState, action: SearchRootReducer.Action.filters))
+                FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
             .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.quickSearch) { _ in
                 QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: SearchRootReducer.Action.quickSearch)
+                    store: store.scope(state: \.quickSearchState, action: \.quickSearch)
                 ) { keyword in
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.setKeyword(keyword))
@@ -85,7 +85,7 @@ struct SearchRootView: View {
                     .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.detail) { route in
                         NavigationView {
                             DetailView(
-                                store: store.scope(state: \.detailState, action: SearchRootReducer.Action.detail),
+                                store: store.scope(state: \.detailState, action: \.detail),
                                 gid: route.wrappedValue, user: user, setting: $setting,
                                 blurRadius: blurRadius, tagTranslator: tagTranslator
                             )
@@ -122,7 +122,7 @@ private extension SearchRootView {
     var detailViewLink: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: SearchRootReducer.Action.detail),
+                store: store.scope(state: \.detailState, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
@@ -131,7 +131,7 @@ private extension SearchRootView {
     var searchViewLink: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.search) { _ in
             SearchView(
-                store: store.scope(state: \.searchState, action: SearchRootReducer.Action.search),
+                store: store.scope(state: \.searchState, action: \.search),
                 keyword: viewStore.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )

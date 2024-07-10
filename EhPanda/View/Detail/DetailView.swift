@@ -123,7 +123,7 @@ struct DetailView: View {
         }
         .fullScreenCover(unwrapping: viewStore.$route, case: /DetailReducer.Route.reading) { _ in
             ReadingView(
-                store: store.scope(state: \.readingState, action: DetailReducer.Action.reading),
+                store: store.scope(state: \.readingState, action: \.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
@@ -132,7 +132,7 @@ struct DetailView: View {
         .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.archives) { route in
             let (galleryURL, archiveURL) = route.wrappedValue
             ArchivesView(
-                store: store.scope(state: \.archivesState, action: DetailReducer.Action.archives),
+                store: store.scope(state: \.archivesState, action: \.archives),
                 gid: gid, user: user, galleryURL: galleryURL, archiveURL: archiveURL
             )
             .accentColor(setting.accentColor)
@@ -140,7 +140,7 @@ struct DetailView: View {
         }
         .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.torrents) { _ in
             TorrentsView(
-                store: store.scope(state: \.torrentsState, action: DetailReducer.Action.torrents),
+                store: store.scope(state: \.torrentsState, action: \.torrents),
                 gid: gid, token: viewStore.gallery.token, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
@@ -191,12 +191,12 @@ private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.previews) { _ in
             PreviewsView(
-                store: store.scope(state: \.previewsState, action: DetailReducer.Action.previews),
+                store: store.scope(state: \.previewsState, action: \.previews),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
         }
         NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.comments) { route in
-            IfLetStore(store.scope(state: \.commentsState, action: DetailReducer.Action.comments)) { store in
+            IfLetStore(store.scope(state: \.commentsState, action: \.comments)) { store in
                 CommentsView(
                     store: store, gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
                     galleryURL: route.wrappedValue, comments: viewStore.galleryComments, user: user,
@@ -206,7 +206,7 @@ private extension DetailView {
             }
         }
         NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.detailSearch) { route in
-            IfLetStore(store.scope(state: \.detailSearchState, action: DetailReducer.Action.detailSearch)) { store in
+            IfLetStore(store.scope(state: \.detailSearchState, action: \.detailSearch)) { store in
                 DetailSearchView(
                     store: store, keyword: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
@@ -216,7 +216,7 @@ private extension DetailView {
         NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
             GalleryInfosView(
-                store: store.scope(state: \.galleryInfosState, action: DetailReducer.Action.galleryInfos),
+                store: store.scope(state: \.galleryInfosState, action: \.galleryInfos),
                 gallery: gallery, galleryDetail: galleryDetail
             )
         }

@@ -80,13 +80,13 @@ private extension AccountSettingView {
     @ViewBuilder var navigationLinks: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.login) { _ in
             LoginView(
-                store: store.scope(state: \.loginState, action: AccountSettingReducer.Action.login),
+                store: store.scope(state: \.loginState, action: \.login),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }
         NavigationLink(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.ehSetting) { _ in
             EhSettingView(
-                store: store.scope(state: \.ehSettingState, action: AccountSettingReducer.Action.ehSetting),
+                store: store.scope(state: \.ehSettingState, action: \.ehSetting),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }

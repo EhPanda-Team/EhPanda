@@ -45,7 +45,7 @@ struct FrontpageView: View {
             }
         )
         .sheet(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: FrontpageReducer.Action.filters))
+            FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
         .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
@@ -65,7 +65,7 @@ struct FrontpageView: View {
                 .sheet(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: FrontpageReducer.Action.detail),
+                            store: store.scope(state: \.detailState, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -81,7 +81,7 @@ struct FrontpageView: View {
         if DeviceUtil.isPhone {
             NavigationLink(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: FrontpageReducer.Action.detail),
+                    store: store.scope(state: \.detailState, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

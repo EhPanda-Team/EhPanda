@@ -59,7 +59,7 @@ struct HistoryView: View {
                 .sheet(unwrapping: viewStore.$route, case: /HistoryReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
+                            store: store.scope(state: \.detailState, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -75,7 +75,7 @@ struct HistoryView: View {
         if DeviceUtil.isPhone {
             NavigationLink(unwrapping: viewStore.$route, case: /HistoryReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
+                    store: store.scope(state: \.detailState, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

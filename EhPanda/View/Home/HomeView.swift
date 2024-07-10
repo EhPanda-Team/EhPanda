@@ -103,7 +103,7 @@ struct HomeView: View {
                     .sheet(unwrapping: viewStore.$route, case: /HomeReducer.Route.detail) { route in
                         NavigationView {
                             DetailView(
-                                store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
+                                store: store.scope(state: \.detailState, action: \.detail),
                                 gid: route.wrappedValue, user: user, setting: $setting,
                                 blurRadius: blurRadius, tagTranslator: tagTranslator
                             )
@@ -141,7 +141,7 @@ private extension HomeView {
     var detailViewLink: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: HomeReducer.Action.detail),
+                store: store.scope(state: \.detailState, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
@@ -152,17 +152,17 @@ private extension HomeView {
             switch route.wrappedValue {
             case .popular:
                 PopularView(
-                    store: store.scope(state: \.popularState, action: HomeReducer.Action.popular),
+                    store: store.scope(state: \.popularState, action: \.popular),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .watched:
                 WatchedView(
-                    store: store.scope(state: \.watchedState, action: HomeReducer.Action.watched),
+                    store: store.scope(state: \.watchedState, action: \.watched),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .history:
                 HistoryView(
-                    store: store.scope(state: \.historyState, action: HomeReducer.Action.history),
+                    store: store.scope(state: \.historyState, action: \.history),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
@@ -173,12 +173,12 @@ private extension HomeView {
             switch route.wrappedValue {
             case .frontpage:
                 FrontpageView(
-                    store: store.scope(state: \.frontpageState, action: HomeReducer.Action.frontpage),
+                    store: store.scope(state: \.frontpageState, action: \.frontpage),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .toplists:
                 ToplistsView(
-                    store: store.scope(state: \.toplistsState, action: HomeReducer.Action.toplists),
+                    store: store.scope(state: \.toplistsState, action: \.toplists),
                     user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }

@@ -47,7 +47,7 @@ struct SearchView: View {
         )
         .sheet(unwrapping: viewStore.$route, case: /SearchReducer.Route.quickSearch) { _ in
             QuickSearchView(
-                store: store.scope(state: \.quickSearchState, action: SearchReducer.Action.quickSearch)
+                store: store.scope(state: \.quickSearchState, action: \.quickSearch)
             ) { keyword in
                 viewStore.send(.setNavigation(nil))
                 viewStore.send(.fetchGalleries(keyword))
@@ -56,7 +56,7 @@ struct SearchView: View {
             .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.$route, case: /SearchReducer.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: SearchReducer.Action.filters))
+            FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .searchable(text: viewStore.$keyword)
@@ -85,7 +85,7 @@ struct SearchView: View {
                 .sheet(unwrapping: viewStore.$route, case: /SearchReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: SearchReducer.Action.detail),
+                            store: store.scope(state: \.detailState, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -101,7 +101,7 @@ struct SearchView: View {
         if DeviceUtil.isPhone {
             NavigationLink(unwrapping: viewStore.$route, case: /SearchReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: SearchReducer.Action.detail),
+                    store: store.scope(state: \.detailState, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

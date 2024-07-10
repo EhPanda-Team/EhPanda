@@ -42,7 +42,7 @@ struct PopularView: View {
             }
         )
         .sheet(unwrapping: viewStore.$route, case: /PopularReducer.Route.filters) { _ in
-            FiltersView(store: store.scope(state: \.filtersState, action: PopularReducer.Action.filters))
+            FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
         .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
@@ -62,7 +62,7 @@ struct PopularView: View {
                 .sheet(unwrapping: viewStore.$route, case: /PopularReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: PopularReducer.Action.detail),
+                            store: store.scope(state: \.detailState, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -78,7 +78,7 @@ struct PopularView: View {
         if DeviceUtil.isPhone {
             NavigationLink(unwrapping: viewStore.$route, case: /PopularReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: PopularReducer.Action.detail),
+                    store: store.scope(state: \.detailState, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

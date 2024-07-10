@@ -23,7 +23,7 @@ import ComposableArchitecture
                     MigrationView(
                         store: appDelegate.store.scope(
                             state: \.appDelegateState.migrationState,
-                            action: { AppReducer.Action.appDelegate(.migration($0)) }
+                            action: \.appDelegate.migration
                         )
                     )
                     .opacity(viewStore.state != .idle ? 1 : 0)

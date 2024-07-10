@@ -44,7 +44,7 @@ private extension SettingView {
     @ViewBuilder var navigationLinks: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.account) { _ in
             AccountSettingView(
-                store: store.scope(state: \.accountSettingState, action: SettingReducer.Action.account),
+                store: store.scope(state: \.accountSettingState, action: \.account),
                 galleryHost: viewStore.$setting.galleryHost,
                 showsNewDawnGreeting: viewStore.$setting.showsNewDawnGreeting,
                 bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
@@ -54,7 +54,7 @@ private extension SettingView {
         }
         NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.general) { _ in
             GeneralSettingView(
-                store: store.scope(state: \.generalSettingState, action: SettingReducer.Action.general),
+                store: store.scope(state: \.generalSettingState, action: \.general),
                 tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
                 tagTranslatorEmpty: viewStore.tagTranslator.translations.isEmpty,
                 tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
@@ -71,7 +71,7 @@ private extension SettingView {
         }
         NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.appearance) { _ in
             AppearanceSettingView(
-                store: store.scope(state: \.appearanceSettingState, action: SettingReducer.Action.appearance),
+                store: store.scope(state: \.appearanceSettingState, action: \.appearance),
                 preferredColorScheme: viewStore.$setting.preferredColorScheme,
                 accentColor: viewStore.$setting.accentColor,
                 appIconType: viewStore.$setting.appIconType,

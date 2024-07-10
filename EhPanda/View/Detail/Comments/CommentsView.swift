@@ -145,7 +145,7 @@ private extension CommentsView {
     @ViewBuilder var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.$route, case: /CommentsReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: CommentsReducer.Action.detail),
+                store: store.scope(state: \.detailState, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
