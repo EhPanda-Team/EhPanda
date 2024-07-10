@@ -5,8 +5,8 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.0.1.app
-  APP_VERSION: '2.7.4'
+  DEVELOPER_DIR: /Applications/Xcode_15.4.app
+  APP_VERSION: '2.7.5'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
@@ -19,7 +19,7 @@ env:
 
 jobs:
   Deploy:
-    runs-on: macos-13
+    runs-on: macos-14
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
     steps:
       - name: Checkout
@@ -28,12 +28,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Install dependencies
-        run: brew install swiftgen
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
-        run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+        run: xcodebuild clean test
+          -skipMacroValidation
+          -sdk iphonesimulator
+          -scheme ${{ env.SCHEME_NAME }}
           -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
       - name: Bump version
         id: bump-version
@@ -41,8 +42,17 @@ jobs:
         with:
           version: ${{ env.APP_VERSION }}
       - name: Xcode archive
-        run: xcodebuild archive -destination 'generic/platform=iOS'
-          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }} CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= CODE_SIGN_ENTITLEMENTS= GCC_OPTIMIZATION_LEVEL=s SWIFT_OPTIMIZATION_LEVEL=-O
+        run: xcodebuild archive
+          -skipMacroValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'generic/platform=iOS'
+          -archivePath ${{ env.ARCHIVE_PATH }}
+          CODE_SIGN_IDENTITY=
+          CODE_SIGN_ENTITLEMENTS=
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          GCC_OPTIMIZATION_LEVEL=s
+          SWIFT_OPTIMIZATION_LEVEL=-O
       - name: Export .ipa file
         run: |
           mkdir -p ${{ env.PAYLOAD_PATH }}

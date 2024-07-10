@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct SearchRootReducer: ReducerProtocol {
+struct SearchRootReducer: Reducer {
     enum Route: Equatable {
         case search
         case filters
@@ -86,7 +86,7 @@ struct SearchRootReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -94,8 +94,8 @@ struct SearchRootReducer: ReducerProtocol {
             case .binding(\.$route):
                 return state.route == nil
                 ? .merge(
-                    .init(value: .clearSubStates),
-                    .init(value: .fetchDatabaseInfos)
+                    .send(.clearSubStates),
+                    .send(.fetchDatabaseInfos)
                 )
                 : .none
 
@@ -106,8 +106,8 @@ struct SearchRootReducer: ReducerProtocol {
                 state.route = route
                 return route == nil
                 ? .merge(
-                    .init(value: .clearSubStates),
-                    .init(value: .fetchDatabaseInfos)
+                    .send(.clearSubStates),
+                    .send(.fetchDatabaseInfos)
                 )
                 : .none
 
@@ -121,16 +121,21 @@ struct SearchRootReducer: ReducerProtocol {
                 state.filtersState = .init()
                 state.quickSearchState = .init()
                 return .merge(
-                    .init(value: .search(.teardown)),
-                    .init(value: .quickSearch(.teardown)),
-                    .init(value: .detail(.teardown))
+                    .send(.search(.teardown)),
+                    .send(.quickSearch(.teardown)),
+                    .send(.detail(.teardown))
                 )
 
             case .syncHistoryKeywords:
-                return databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateHistoryKeywords(state.historyKeywords)
+                }
 
             case .fetchDatabaseInfos:
-                return databaseClient.fetchAppEnv().map(Action.fetchDatabaseInfosDone)
+                return .run { send in
+                    let appEnv = await databaseClient.fetchAppEnv()
+                    await send(.fetchDatabaseInfosDone(appEnv))
+                }
 
             case .fetchDatabaseInfosDone(let appEnv):
                 state.historyKeywords = appEnv.historyKeywords
@@ -139,14 +144,17 @@ struct SearchRootReducer: ReducerProtocol {
 
             case .appendHistoryKeyword(let keyword):
                 state.appendHistoryKeywords([keyword])
-                return .init(value: .syncHistoryKeywords)
+                return .send(.syncHistoryKeywords)
 
             case .removeHistoryKeyword(let keyword):
                 state.removeHistoryKeyword(keyword)
-                return .init(value: .syncHistoryKeywords)
+                return .send(.syncHistoryKeywords)
 
             case .fetchHistoryGalleries:
-                return databaseClient.fetchHistoryGalleries(fetchLimit: 10).map(Action.fetchHistoryGalleriesDone)
+                return .run { send in
+                    let historyGalleries = await databaseClient.fetchHistoryGalleries(fetchLimit: 10)
+                    await send(.fetchHistoryGalleriesDone(historyGalleries))
+                }
 
             case .fetchHistoryGalleriesDone(let galleries):
                 state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
@@ -158,7 +166,7 @@ struct SearchRootReducer: ReducerProtocol {
                 } else {
                     state.appendHistoryKeywords([state.searchState.lastKeyword])
                 }
-                return .init(value: .syncHistoryKeywords)
+                return .send(.syncHistoryKeywords)
 
             case .search:
                 return .none

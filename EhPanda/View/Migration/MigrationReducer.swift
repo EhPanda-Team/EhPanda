@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct MigrationReducer: ReducerProtocol {
+struct MigrationReducer: Reducer {
     enum Route: Equatable {
         case dropDialog
     }
@@ -31,7 +31,7 @@ struct MigrationReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -47,7 +47,10 @@ struct MigrationReducer: ReducerProtocol {
                 return .none
 
             case .prepareDatabase:
-                return databaseClient.prepareDatabase().map(Action.prepareDatabaseDone)
+                return .run { send in
+                    let result = await databaseClient.prepareDatabase()
+                    await send(.prepareDatabaseDone(result.error))
+                }
 
             case .prepareDatabaseDone(let appError):
                 if let appError {
@@ -55,14 +58,16 @@ struct MigrationReducer: ReducerProtocol {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return .send(.onDatabasePreparationSuccess)
                 }
 
             case .dropDatabase:
                 state.databaseState = .loading
-                return databaseClient.dropDatabase()
-                    .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
-                    .eraseToEffect().map(Action.dropDatabaseDone)
+                return .run { send in
+                    try await Task.sleep(for: .milliseconds(500))
+                    let result = await databaseClient.dropDatabase()
+                    await send(.dropDatabaseDone(result.error))
+                }
 
             case .dropDatabaseDone(let appError):
                 if let appError {
@@ -70,9 +75,20 @@ struct MigrationReducer: ReducerProtocol {
                     return .none
                 } else {
                     state.databaseState = .idle
-                    return .init(value: .onDatabasePreparationSuccess)
+                    return .send(.onDatabasePreparationSuccess)
                 }
             }
+        }
+    }
+}
+
+private extension Result {
+    var error: Failure? {
+        switch self {
+        case .success:
+            return nil
+        case let .failure(error):
+            return error
         }
     }
 }

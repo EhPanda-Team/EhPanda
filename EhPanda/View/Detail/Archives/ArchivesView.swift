@@ -21,7 +21,7 @@ struct ArchivesView: View {
         gid: String, user: User, galleryURL: URL, archiveURL: URL
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.user = user
         self.galleryURL = galleryURL
@@ -33,7 +33,7 @@ struct ArchivesView: View {
         NavigationView {
             ZStack {
                 VStack {
-                    HathArchivesView(archives: viewStore.hathArchives, selection: viewStore.binding(\.$selectedArchive))
+                    HathArchivesView(archives: viewStore.hathArchives, selection: viewStore.$selectedArchive)
                     Spacer()
                     if let credits = Int(user.credits ?? ""), let galleryPoints = Int(user.galleryPoints ?? "") {
                         ArchiveFundsView(credits: credits, galleryPoints: galleryPoints)
@@ -55,12 +55,12 @@ struct ArchivesView: View {
             }
             .progressHUD(
                 config: viewStore.communicatingHUDConfig,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /ArchivesReducer.Route.communicatingHUD
             )
             .progressHUD(
                 config: viewStore.messageHUDConfig,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /ArchivesReducer.Route.messageHUD
             )
             .animation(.default, value: viewStore.hathArchives)
@@ -221,10 +221,7 @@ private struct DownloadButton: View {
 struct ArchivesView_Previews: PreviewProvider {
     static var previews: some View {
         ArchivesView(
-            store: .init(
-                initialState: .init(),
-                reducer: ArchivesReducer()
-            ),
+            store: .init(initialState: .init(), reducer: ArchivesReducer.init),
             gid: .init(),
             user: .init(),
             galleryURL: .mock,

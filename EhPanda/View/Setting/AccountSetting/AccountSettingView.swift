@@ -22,7 +22,7 @@ struct AccountSettingView: View {
         bypassesSNIFiltering: Bool, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         _galleryHost = galleryHost
         _showsNewDawnGreeting = showsNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
@@ -40,7 +40,7 @@ struct AccountSettingView: View {
                 }
                 .pickerStyle(.segmented)
                 AccountSection(
-                    route: viewStore.binding(\.$route),
+                    route: viewStore.$route,
                     showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,
                     loginAction: { viewStore.send(.setNavigation(.login)) },
@@ -55,17 +55,17 @@ struct AccountSettingView: View {
                 )
             }
             CookieSection(
-                ehCookiesState: viewStore.binding(\.$ehCookiesState),
-                exCookiesState: viewStore.binding(\.$exCookiesState),
+                ehCookiesState: viewStore.$ehCookiesState,
+                exCookiesState: viewStore.$exCookiesState,
                 copyAction: { viewStore.send(.copyCookies($0)) }
             )
         }
         .progressHUD(
             config: viewStore.hudConfig,
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /AccountSettingReducer.Route.hud
         )
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /AccountSettingReducer.Route.webView) { route in
+        .sheet(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
@@ -78,13 +78,13 @@ struct AccountSettingView: View {
 // MARK: NavigationLinks
 private extension AccountSettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingReducer.Route.login) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.login) { _ in
             LoginView(
                 store: store.scope(state: \.loginState, action: AccountSettingReducer.Action.login),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingReducer.Route.ehSetting) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.ehSetting) { _ in
             EhSettingView(
                 store: store.scope(state: \.ehSettingState, action: AccountSettingReducer.Action.ehSetting),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
@@ -222,10 +222,7 @@ struct AccountSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             AccountSettingView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: AccountSettingReducer()
-                ),
+                store: .init(initialState: .init(), reducer: AccountSettingReducer.init),
                 galleryHost: .constant(.ehentai),
                 showsNewDawnGreeting: .constant(false),
                 bypassesSNIFiltering: false,

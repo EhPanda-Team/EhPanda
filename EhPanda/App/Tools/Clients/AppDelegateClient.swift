@@ -9,31 +9,28 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppDelegateClient {
-    let setOrientation: (UIInterfaceOrientationMask) -> EffectTask<Never>
-    let setOrientationMask: (UIInterfaceOrientationMask) -> EffectTask<Never>
+    let setOrientation: @MainActor (UIInterfaceOrientationMask) -> Void
+    let setOrientationMask: (UIInterfaceOrientationMask) -> Void
 }
 
 extension AppDelegateClient {
     static let live: Self = .init(
         setOrientation: { mask in
-            .fireAndForget {
-                DeviceUtil.keyWindow?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
-            }
+            DeviceUtil.keyWindow?.windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
         },
         setOrientationMask: { mask in
-            .fireAndForget {
-                AppDelegate.orientationMask = mask
-            }
+            AppDelegate.orientationMask = mask
         }
     )
 
-    func setPortraitOrientation() -> EffectTask<Never> {
+    @MainActor
+    func setPortraitOrientation() {
         setOrientation(.portrait)
     }
-    func setAllOrientationMask() -> EffectTask<Never> {
+    func setAllOrientationMask() {
         setOrientationMask([.all])
     }
-    func setPortraitOrientationMask() -> EffectTask<Never> {
+    func setPortraitOrientationMask() {
         setOrientationMask([.portrait, .portraitUpsideDown])
     }
 }
@@ -55,8 +52,8 @@ extension DependencyValues {
 // MARK: Test
 extension AppDelegateClient {
     static let noop: Self = .init(
-        setOrientation: { _ in .none },
-        setOrientationMask: { _ in .none }
+        setOrientation: { _ in },
+        setOrientationMask: { _ in }
     )
 
     static let unimplemented: Self = .init(

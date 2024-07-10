@@ -9,7 +9,7 @@ import SwiftUI
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ReadingReducer: ReducerProtocol {
+struct ReadingReducer: Reducer {
     enum Route: Equatable {
         case hud
         case share(ShareItem)
@@ -184,13 +184,13 @@ struct ReadingReducer: ReducerProtocol {
     @Dependency(\.imageClient) private var imageClient
     @Dependency(\.urlClient) private var urlClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$showsSliderPreview):
-                return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
             case .binding:
                 return .none
@@ -204,24 +204,24 @@ struct ReadingReducer: ReducerProtocol {
                 return .none
 
             case .setOrientationPortrait(let isPortrait):
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if isPortrait {
-                    effects.append(appDelegateClient.setPortraitOrientationMask().fireAndForget())
-                    effects.append(appDelegateClient.setPortraitOrientation().fireAndForget())
+                    effects.append(.run(operation: { _ in appDelegateClient.setPortraitOrientationMask() }))
+                    effects.append(.run(operation: { _ in await appDelegateClient.setPortraitOrientation() }))
                 } else {
-                    effects.append(appDelegateClient.setAllOrientationMask().fireAndForget())
+                    effects.append(.run(operation: { _ in appDelegateClient.setAllOrientationMask() }))
                 }
                 return .merge(effects)
 
             case .onPerformDismiss:
-                return .fireAndForget({ hapticsClient.generateFeedback(.light) })
+                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
-                var effects: [EffectTask<Action>] = [
-                    .init(value: .fetchDatabaseInfos(gid))
+                var effects: [Effect<Action>] = [
+                    .send(.fetchDatabaseInfos(gid))
                 ]
                 if enablesLandscape {
-                    effects.append(.init(value: .setOrientationPortrait(false)))
+                    effects.append(.send(.setOrientationPortrait(false)))
                 }
                 return .merge(effects)
 
@@ -247,7 +247,9 @@ struct ReadingReducer: ReducerProtocol {
                 state.mpvImageKeys = .init()
                 state.mpvSkipServerIdentifiers = .init()
                 state.forceRefreshID = .init()
-                return databaseClient.removeImageURLs(gid: state.gallery.id).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.removeImageURLs(gid: state.gallery.id)
+                }
 
             case .retryAllFailedWebImages:
                 state.imageURLLoadingStates.forEach { (index, loadingState) in
@@ -263,22 +265,24 @@ struct ReadingReducer: ReducerProtocol {
                 return .none
 
             case .copyImage(let imageURL):
-                return .init(value: .fetchImage(.copy(imageURL.isGIF), imageURL))
+                return .send(.fetchImage(.copy(imageURL.isGIF), imageURL))
 
             case .saveImage(let imageURL):
-                return .init(value: .fetchImage(.save(imageURL.isGIF), imageURL))
+                return .send(.fetchImage(.save(imageURL.isGIF), imageURL))
 
             case .saveImageDone(let isSucceeded):
                 state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
-                return .init(value: .setNavigation(.hud))
+                return .send(.setNavigation(.hud))
 
             case .shareImage(let imageURL):
-                return .init(value: .fetchImage(.share(imageURL.isGIF), imageURL))
+                return .send(.fetchImage(.share(imageURL.isGIF), imageURL))
 
             case .fetchImage(let action, let imageURL):
-                return imageClient.fetchImage(url: imageURL)
-                    .map({ Action.fetchImageDone(action, $0) })
-                    .cancellable(id: CancelID.fetchImage)
+                return .run { send in
+                    let result = await imageClient.fetchImage(url: imageURL)
+                    await send(.fetchImageDone(action, result))
+                }
+                .cancellable(id: CancelID.fetchImage)
 
             case .fetchImageDone(let action, let result):
                 if case .success(let image) = result {
@@ -286,47 +290,56 @@ struct ReadingReducer: ReducerProtocol {
                     case .copy(let isAnimated):
                         state.hudConfig = .copiedToClipboardSucceeded
                         return .merge(
-                            .init(value: .setNavigation(.hud)),
-                            clipboardClient.saveImage(image, isAnimated).fireAndForget()
+                            .send(.setNavigation(.hud)),
+                            .run(operation: { _ in clipboardClient.saveImage(image, isAnimated) })
                         )
                     case .save(let isAnimated):
-                        return imageClient
-                            .saveImageToPhotoLibrary(image, isAnimated).map(Action.saveImageDone)
+                        return .run { send in
+                            let success = await imageClient.saveImageToPhotoLibrary(image, isAnimated)
+                            await send(.saveImageDone(success))
+                        }
                     case .share(let isAnimated):
                         if isAnimated, let data = image.kf.data(format: .GIF) {
-                            return .init(value: .setNavigation(.share(.data(data))))
+                            return .send(.setNavigation(.share(.data(data))))
                         } else {
-                            return .init(value: .setNavigation(.share(.image(image))))
+                            return .send(.setNavigation(.share(.image(image))))
                         }
                     }
                 } else {
                     state.hudConfig = .error
-                    return .init(value: .setNavigation(.hud))
+                    return .send(.setNavigation(.hud))
                 }
 
             case .syncReadingProgress(let progress):
-                return databaseClient
-                    .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                }
 
             case .syncPreviewURLs(let previewURLs):
-                return databaseClient
-                    .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
+                }
 
             case .syncThumbnailURLs(let thumbnailURLs):
-                return databaseClient
-                    .updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs)
+                }
 
             case .syncImageURLs(let imageURLs, let originalImageURLs):
-                return databaseClient
-                    .updateImageURLs(gid: state.gallery.id, imageURLs: imageURLs, originalImageURLs: originalImageURLs)
-                    .fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateImageURLs(
+                        gid: state.gallery.id,
+                        imageURLs: imageURLs,
+                        originalImageURLs: originalImageURLs
+                    )
+                }
 
             case .teardown:
-                var effects: [EffectTask<Action>] = [
-                    .cancel(ids: CancelID.allCases)
+                var effects: [Effect<Action>] = [
+                    .merge(CancelID.allCases.map(Effect.cancel(id:)))
                 ]
                 if !deviceClient.isPad() {
-                    effects.append(.init(value: .setOrientationPortrait(true)))
+                    effects.append(.send(.setOrientationPortrait(true)))
                 }
                 return .merge(effects)
 
@@ -334,8 +347,11 @@ struct ReadingReducer: ReducerProtocol {
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
                 state.gallery = gallery
                 state.galleryDetail = databaseClient.fetchGalleryDetail(gid: state.gallery.id)
-                return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
+                return .run { [state] send in
+                    guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
+                    await send(.fetchDatabaseInfosDone(dbState))
+                }
+                .cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -355,8 +371,11 @@ struct ReadingReducer: ReducerProtocol {
                 else { return .none }
                 state.previewLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map({ Action.fetchPreviewURLsDone(index, $0) }).cancellable(id: CancelID.fetchPreviewURLs)
+                return .run { send in
+                    let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    await send(.fetchPreviewURLsDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchPreviewURLs)
 
             case .fetchPreviewURLsDone(let index, let result):
                 switch result {
@@ -367,7 +386,7 @@ struct ReadingReducer: ReducerProtocol {
                     }
                     state.previewLoadingStates[index] = .idle
                     state.updatePreviewURLs(previewURLs)
-                    return .init(value: .syncPreviewURLs(previewURLs))
+                    return .send(.syncPreviewURLs(previewURLs))
                 case .failure(let error):
                     state.previewLoadingStates[index] = .failed(error)
                 }
@@ -375,16 +394,16 @@ struct ReadingReducer: ReducerProtocol {
 
             case .fetchImageURLs(let index):
                 if state.mpvKey != nil {
-                    return .init(value: .fetchMPVImageURL(index, false))
+                    return .send(.fetchMPVImageURL(index, false))
                 } else {
-                    return .init(value: .fetchThumbnailURLs(index))
+                    return .send(.fetchThumbnailURLs(index))
                 }
 
             case .refetchImageURLs(let index):
                 if state.mpvKey != nil {
-                    return .init(value: .fetchMPVImageURL(index, true))
+                    return .send(.fetchMPVImageURL(index, true))
                 } else {
-                    return .init(value: .refetchNormalImageURLs(index))
+                    return .send(.refetchNormalImageURLs(index))
                 }
 
             case .prefetchImages(let index, let prefetchLimit):
@@ -406,7 +425,7 @@ struct ReadingReducer: ReducerProtocol {
                 }
                 var prefetchImageURLs = [URL]()
                 var fetchImageURLIndices = [Int]()
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 let previousUpperBound = max(index - 2, 1)
                 let previousLowerBound = max(previousUpperBound - prefetchLimit / 2, 1)
                 if previousUpperBound - previousLowerBound > 0 {
@@ -420,9 +439,13 @@ struct ReadingReducer: ReducerProtocol {
                     fetchImageURLIndices += getFetchImageURLIndices(range: nextLowerBound...nextUpperBound)
                 }
                 fetchImageURLIndices.forEach {
-                    effects.append(.init(value: .fetchImageURLs($0)))
+                    effects.append(.send(.fetchImageURLs($0)))
                 }
-                effects.append(imageClient.prefetchImages(prefetchImageURLs).fireAndForget())
+                effects.append(
+                    .run { [prefetchImageURLs] _ in
+                        imageClient.prefetchImages(prefetchImageURLs)
+                    }
+                )
                 return .merge(effects)
 
             case .fetchThumbnailURLs(let index):
@@ -433,9 +456,11 @@ struct ReadingReducer: ReducerProtocol {
                     state.imageURLLoadingStates[$0] = .loading
                 }
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map({ Action.fetchThumbnailURLsDone(index, $0) })
-                    .cancellable(id: CancelID.fetchThumbnailURLs)
+                return .run { send in
+                    let response = await ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    await send(.fetchThumbnailURLsDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchThumbnailURLs)
 
             case .fetchThumbnailURLsDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -448,12 +473,12 @@ struct ReadingReducer: ReducerProtocol {
                         return .none
                     }
                     if let url = thumbnailURLs[index], urlClient.checkIfMPVURL(url) {
-                        return .init(value: .fetchMPVKeys(index, url))
+                        return .send(.fetchMPVKeys(index, url))
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
                         return .merge(
-                            .init(value: .syncThumbnailURLs(thumbnailURLs)),
-                            .init(value: .fetchNormalImageURLs(index, thumbnailURLs))
+                            .send(.syncThumbnailURLs(thumbnailURLs)),
+                            .send(.fetchNormalImageURLs(index, thumbnailURLs))
                         )
                     }
                 case .failure(let error):
@@ -464,9 +489,11 @@ struct ReadingReducer: ReducerProtocol {
                 return .none
 
             case .fetchNormalImageURLs(let index, let thumbnailURLs):
-                return GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs)
-                    .effect.map({ Action.fetchNormalImageURLsDone(index, $0) })
-                    .cancellable(id: CancelID.fetchNormalImageURLs)
+                return .run { send in
+                    let response = await GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs).response()
+                    await send(.fetchNormalImageURLsDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchNormalImageURLs)
 
             case .fetchNormalImageURLsDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -482,7 +509,7 @@ struct ReadingReducer: ReducerProtocol {
                         state.imageURLLoadingStates[$0] = .idle
                     }
                     state.updateImageURLs(imageURLs, originalImageURLs)
-                    return .init(value: .syncImageURLs(imageURLs, originalImageURLs))
+                    return .send(.syncImageURLs(imageURLs, originalImageURLs))
                 case .failure(let error):
                     batchRange.forEach {
                         state.imageURLLoadingStates[$0] = .failed(error)
@@ -497,21 +524,25 @@ struct ReadingReducer: ReducerProtocol {
                 else { return .none }
                 state.imageURLLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return GalleryNormalImageURLRefetchRequest(
-                    index: index, pageNum: pageNum,
-                    galleryURL: galleryURL,
-                    thumbnailURL: state.thumbnailURLs[index],
-                    storedImageURL: imageURL
-                )
-                .effect.map({ Action.refetchNormalImageURLsDone(index, $0) })
+                return .run { [thumbnailURL = state.thumbnailURLs[index]] send in
+                    let response = await GalleryNormalImageURLRefetchRequest(
+                        index: index,
+                        pageNum: pageNum,
+                        galleryURL: galleryURL,
+                        thumbnailURL: thumbnailURL,
+                        storedImageURL: imageURL
+                    )
+                    .response()
+                    await send(.refetchNormalImageURLsDone(index, response))
+                }
                 .cancellable(id: CancelID.refetchNormalImageURLs)
 
             case .refetchNormalImageURLsDone(let index, let result):
                 switch result {
                 case .success(let (imageURLs, response)):
-                    var effects = [EffectTask<Action>]()
+                    var effects = [Effect<Action>]()
                     if let response = response {
-                        effects.append(cookieClient.setSkipServer(response: response).fireAndForget())
+                        effects.append(.run(operation: { _ in cookieClient.setSkipServer(response: response) }))
                     }
                     guard !imageURLs.isEmpty else {
                         state.imageURLLoadingStates[index] = .failed(.notFound)
@@ -519,7 +550,7 @@ struct ReadingReducer: ReducerProtocol {
                     }
                     state.imageURLLoadingStates[index] = .idle
                     state.updateImageURLs(imageURLs, [:])
-                    effects.append(.init(value: .syncImageURLs(imageURLs, [:])))
+                    effects.append(.send(.syncImageURLs(imageURLs, [:])))
                     return .merge(effects)
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
@@ -527,8 +558,11 @@ struct ReadingReducer: ReducerProtocol {
                 return .none
 
             case .fetchMPVKeys(let index, let mpvURL):
-                return MPVKeysRequest(mpvURL: mpvURL)
-                    .effect.map({ Action.fetchMPVKeysDone(index, $0) }).cancellable(id: CancelID.fetchMPVKeys)
+                return .run { send in
+                    let response = await MPVKeysRequest(mpvURL: mpvURL).response()
+                    await send(.fetchMPVKeysDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchMPVKeys)
 
             case .fetchMPVKeysDone(let index, let result):
                 let batchRange = state.previewConfig.batchRange(index: index)
@@ -548,7 +582,7 @@ struct ReadingReducer: ReducerProtocol {
                     state.mpvImageKeys = mpvImageKeys
                     return .merge(
                         Array(1...min(3, max(1, pageCount))).map {
-                            .init(value: .fetchMPVImageURL($0, false))
+                            .send(.fetchMPVImageURL($0, false))
                         }
                     )
                 case .failure(let error):
@@ -565,11 +599,18 @@ struct ReadingReducer: ReducerProtocol {
                 else { return .none }
                 state.imageURLLoadingStates[index] = .loading
                 let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[index] : nil
-                return GalleryMPVImageURLRequest(
-                    gid: gidInteger, index: index, mpvKey: mpvKey,
-                    mpvImageKey: mpvImageKey, skipServerIdentifier: skipServerIdentifier
-                )
-                .effect.map({ Action.fetchMPVImageURLDone(index, $0) }).cancellable(id: CancelID.fetchMPVImageURL)
+                return .run { send in
+                    let response = await GalleryMPVImageURLRequest(
+                        gid: gidInteger,
+                        index: index,
+                        mpvKey: mpvKey,
+                        mpvImageKey: mpvImageKey,
+                        skipServerIdentifier: skipServerIdentifier
+                    )
+                    .response()
+                    await send(.fetchMPVImageURLDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchMPVImageURL)
 
             case .fetchMPVImageURLDone(let index, let result):
                 switch result {
@@ -582,7 +623,7 @@ struct ReadingReducer: ReducerProtocol {
                     state.imageURLLoadingStates[index] = .idle
                     state.mpvSkipServerIdentifiers[index] = skipServerIdentifier
                     state.updateImageURLs(imageURLs, originalImageURLs)
-                    return .init(value: .syncImageURLs(imageURLs, originalImageURLs))
+                    return .send(.syncImageURLs(imageURLs, originalImageURLs))
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
                 }

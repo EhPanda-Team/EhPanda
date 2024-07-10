@@ -21,7 +21,7 @@ struct PopularView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -41,7 +41,7 @@ struct PopularView: View {
             }
         )
         .sheet(
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /PopularReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
@@ -54,11 +54,11 @@ struct PopularView: View {
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /PopularReducer.Route.filters) { _ in
+        .sheet(unwrapping: viewStore.$route, case: /PopularReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: PopularReducer.Action.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -73,7 +73,7 @@ struct PopularView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /PopularReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /PopularReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: PopularReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -95,10 +95,7 @@ struct PopularView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             PopularView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: PopularReducer()
-                ),
+                store: .init(initialState: .init(), reducer: PopularReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

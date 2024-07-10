@@ -8,23 +8,23 @@
 import SwiftUI
 import ComposableArchitecture
 
-extension ReducerProtocol {
+extension Reducer {
     func haptics<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: CasePath<Enum, Case>,
+        case casePath: AnyCasePath<Enum, Case>,
         hapticsClient: HapticsClient,
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
-    ) -> some ReducerProtocol<State, Action> {
+    ) -> some Reducer<State, Action> {
         onBecomeNonNil(unwrapping: `enum`, case: casePath) { _, _ in
-            .fireAndForget({ hapticsClient.generateFeedback(style) })
+            .run(operation: { _ in hapticsClient.generateFeedback(style) })
         }
     }
 
     private func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: CasePath<Enum, Case>,
-        perform additionalEffects: @escaping (inout State, Action) -> EffectTask<Action>
-    ) -> some ReducerProtocol<State, Action> {
+        case casePath: AnyCasePath<Enum, Case>,
+        perform additionalEffects: @escaping (inout State, Action) -> Effect<Action>
+    ) -> some Reducer<State, Action> {
         Reduce { state, action in
             let previousCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
             let effects = reduce(into: &state, action: action)
@@ -38,7 +38,7 @@ extension ReducerProtocol {
 }
 
 // MARK: Recurse
-struct RecurseReducer<State, Action, Base: ReducerProtocol>: ReducerProtocol
+struct RecurseReducer<State, Action, Base: Reducer>: Reducer
 where State == Base.State, Action == Base.Action {
     let base: (Reduce<State, Action>) -> Base
 
@@ -46,7 +46,7 @@ where State == Base.State, Action == Base.Action {
         self.base = base
     }
 
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some Reducer<State, Action> {
         var `self`: Reduce<State, Action>!
         self = Reduce { state, action in
             base(self).reduce(into: &state, action: action)
@@ -56,7 +56,7 @@ where State == Base.State, Action == Base.Action {
 }
 
 // MARK: Logging
-struct LoggingReducer<State, Action, Base: ReducerProtocol>: ReducerProtocol
+struct LoggingReducer<State, Action, Base: Reducer>: Reducer
 where State == Base.State, Action == Base.Action {
     let base: Base
 
@@ -65,7 +65,7 @@ where State == Base.State, Action == Base.Action {
     }
 
     @ReducerBuilder<State, Action>
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             if case .setting(.binding(let bindingAction)) = action as? AppReducer.Action {
                 Logger.info("setting(EhPanda.SettingReducer.Action.\(bindingAction.customDumpDescription)")

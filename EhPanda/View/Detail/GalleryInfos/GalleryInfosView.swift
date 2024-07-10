@@ -16,7 +16,7 @@ struct GalleryInfosView: View {
 
     init(store: StoreOf<GalleryInfosReducer>, gallery: Gallery, galleryDetail: GalleryDetail) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gallery = gallery
         self.galleryDetail = galleryDetail
     }
@@ -118,7 +118,7 @@ struct GalleryInfosView: View {
         }
         .progressHUD(
             config: viewStore.hudConfig,
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /GalleryInfosReducer.Route.hud
         )
         .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)
@@ -135,10 +135,7 @@ struct GalleryInfosView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             GalleryInfosView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: GalleryInfosReducer()
-                ),
+                store: .init(initialState: .init(), reducer: GalleryInfosReducer.init),
                 gallery: .preview,
                 galleryDetail: .preview
             )

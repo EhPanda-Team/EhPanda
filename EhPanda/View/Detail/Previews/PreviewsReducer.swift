@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct PreviewsReducer: ReducerProtocol {
+struct PreviewsReducer: Reducer {
     enum Route {
         case reading
     }
@@ -56,41 +56,46 @@ struct PreviewsReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.readingState = .init()
-                return .init(value: .reading(.teardown))
+                return .send(.reading(.teardown))
 
             case .syncPreviewURLs(let previewURLs):
-                return databaseClient
-                    .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
+                }
 
             case .updateReadingProgress(let progress):
-                return databaseClient
-                    .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
+                return .run { [state] _ in
+                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                }
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
                 state.gallery = gallery
-                return databaseClient.fetchGalleryState(gid: state.gallery.id)
-                    .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
+                return .run { [state] send in
+                    guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
+                    await send(.fetchDatabaseInfosDone(dbState))
+                }
+                .cancellable(id: CancelID.fetchDatabaseInfos)
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -106,8 +111,11 @@ struct PreviewsReducer: ReducerProtocol {
                 else { return .none }
                 state.loadingState = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
-                return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
-                    .effect.map(Action.fetchPreviewURLsDone).cancellable(id: CancelID.fetchPreviewURLs)
+                return .run { send in
+                    let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    await send(.fetchPreviewURLsDone(response))
+                }
+                .cancellable(id: CancelID.fetchPreviewURLs)
 
             case .fetchPreviewURLsDone(let result):
                 state.loadingState = .idle
@@ -119,14 +127,14 @@ struct PreviewsReducer: ReducerProtocol {
                         return .none
                     }
                     state.updatePreviewURLs(previewURLs)
-                    return .init(value: .syncPreviewURLs(previewURLs))
+                    return .send(.syncPreviewURLs(previewURLs))
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
                 return .none
 
             case .reading(.onPerformDismiss):
-                return .init(value: .setNavigation(nil))
+                return .send(.setNavigation(nil))
 
             case .reading:
                 return .none

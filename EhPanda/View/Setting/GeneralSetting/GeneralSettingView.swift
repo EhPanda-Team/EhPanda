@@ -34,7 +34,7 @@ struct GeneralSettingView: View {
         autoLockPolicy: Binding<AutoLockPolicy>
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.tagTranslatorLoadingState = tagTranslatorLoadingState
         self.tagTranslatorEmpty = tagTranslatorEmpty
         self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
@@ -106,7 +106,7 @@ struct GeneralSettingView: View {
                     )
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.removeCustomTranslations,
-                        unwrapping: viewStore.binding(\.$route),
+                        unwrapping: viewStore.$route,
                         case: /GeneralSettingReducer.Route.removeCustomTranslations
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.remove, role: .destructive) {
@@ -164,7 +164,7 @@ struct GeneralSettingView: View {
                 }
                 .confirmationDialog(
                     message: L10n.Localizable.ConfirmationDialog.Title.clear,
-                    unwrapping: viewStore.binding(\.$route),
+                    unwrapping: viewStore.$route,
                     case: /GeneralSettingReducer.Route.clearCache
                 ) {
                     Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
@@ -186,7 +186,7 @@ struct GeneralSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /GeneralSettingReducer.Route.logs) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /GeneralSettingReducer.Route.logs) { _ in
             LogsView(store: store.scope(state: \.logsState, action: GeneralSettingReducer.Action.logs))
         }
     }
@@ -196,10 +196,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             GeneralSettingView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: GeneralSettingReducer()
-                ),
+                store: .init(initialState: .init(), reducer: GeneralSettingReducer.init),
                 tagTranslatorLoadingState: .idle,
                 tagTranslatorEmpty: false,
                 tagTranslatorHasCustomTranslations: false,

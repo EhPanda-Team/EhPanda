@@ -17,7 +17,7 @@ struct QuickSearchView: View {
 
     init(store: StoreOf<QuickSearchReducer>, searchAction: @escaping (String) -> Void) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.searchAction = searchAction
     }
 
@@ -54,7 +54,7 @@ struct QuickSearchView: View {
                         .withArrow(isVisible: !viewStore.isListEditing).padding(5)
                         .confirmationDialog(
                             message: L10n.Localizable.ConfirmationDialog.Title.delete,
-                            unwrapping: viewStore.binding(\.$route),
+                            unwrapping: viewStore.$route,
                             case: /QuickSearchReducer.Route.deleteWord,
                             matching: word
                         ) { route in
@@ -82,8 +82,8 @@ struct QuickSearchView: View {
                     && viewStore.quickSearchWords.isEmpty ? 1 : 0
                 )
             }
-            .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-            .environment(\.editMode, viewStore.binding(\.$listEditMode))
+            .synchronize(viewStore.$focusedField, $focusedField)
+            .environment(\.editMode, viewStore.$listEditMode)
             .animation(.default, value: viewStore.quickSearchWords)
             .animation(.default, value: viewStore.listEditMode)
             .onAppear {
@@ -123,10 +123,10 @@ struct QuickSearchView: View {
         }
     }
     @ViewBuilder private var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchReducer.Route.newWord) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /QuickSearchReducer.Route.newWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.newWord,
-                word: viewStore.binding(\.$editingWord),
+                word: viewStore.$editingWord,
                 focusedField: $focusedField,
                 submitAction: onTextFieldSubmitted,
                 confirmAction: {
@@ -135,10 +135,10 @@ struct QuickSearchView: View {
                 }
             )
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchReducer.Route.editWord) { _ in
+        NavigationLink(unwrapping: viewStore.$route, case: /QuickSearchReducer.Route.editWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.editWord,
-                word: viewStore.binding(\.$editingWord),
+                word: viewStore.$editingWord,
                 focusedField: $focusedField,
                 submitAction: onTextFieldSubmitted,
                 confirmAction: {
@@ -202,10 +202,7 @@ extension QuickSearchView {
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
         QuickSearchView(
-            store: .init(
-                initialState: .init(),
-                reducer: QuickSearchReducer()
-            ),
+            store: .init(initialState: .init(), reducer: QuickSearchReducer.init),
             searchAction: { _ in }
         )
     }

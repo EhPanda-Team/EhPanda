@@ -8,7 +8,7 @@
 import TTProgressHUD
 import ComposableArchitecture
 
-struct GalleryInfosReducer: ReducerProtocol {
+struct GalleryInfosReducer: Reducer {
     enum Route {
         case hud
     }
@@ -26,7 +26,7 @@ struct GalleryInfosReducer: ReducerProtocol {
     @Dependency(\.clipboardClient) private var clipboardClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -37,8 +37,8 @@ struct GalleryInfosReducer: ReducerProtocol {
             case .copyText(let text):
                 state.route = .hud
                 return .merge(
-                    clipboardClient.saveText(text).fireAndForget(),
-                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in clipboardClient.saveText(text) }),
+                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                 )
             }
         }

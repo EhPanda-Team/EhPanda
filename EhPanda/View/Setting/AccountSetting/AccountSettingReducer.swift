@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct AccountSettingReducer: ReducerProtocol {
+struct AccountSettingReducer: Reducer {
     enum Route: Equatable {
         case hud
         case login
@@ -43,7 +43,7 @@ struct AccountSettingReducer: ReducerProtocol {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -52,10 +52,14 @@ struct AccountSettingReducer: ReducerProtocol {
                 return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding(\.$ehCookiesState):
-                return cookieClient.setCookies(state: state.ehCookiesState).fireAndForget()
+                return .run { [state] _ in
+                    cookieClient.setCookies(state: state.ehCookiesState)
+                }
 
             case .binding(\.$exCookiesState):
-                return cookieClient.setCookies(state: state.exCookiesState).fireAndForget()
+                return .run { [state] _ in
+                    cookieClient.setCookies(state: state.exCookiesState)
+                }
 
             case .binding:
                 return .none
@@ -84,8 +88,8 @@ struct AccountSettingReducer: ReducerProtocol {
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
                     .send(.setNavigation(.hud)),
-                    clipboardClient.saveText(cookiesDescription).fireAndForget(),
-                    .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),
+                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .login(.loginDone):

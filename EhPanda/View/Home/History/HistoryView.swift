@@ -21,7 +21,7 @@ struct HistoryView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -42,7 +42,7 @@ struct HistoryView: View {
             }
         )
         .sheet(
-            unwrapping: viewStore.binding(\.$route),
+            unwrapping: viewStore.$route,
             case: /HistoryReducer.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
@@ -55,7 +55,7 @@ struct HistoryView: View {
             }
             .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -70,7 +70,7 @@ struct HistoryView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HistoryReducer.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.$route, case: /HistoryReducer.Route.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState, action: HistoryReducer.Action.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -89,7 +89,7 @@ struct HistoryView: View {
             .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.clear,
-                unwrapping: viewStore.binding(\.$route),
+                unwrapping: viewStore.$route,
                 case: /HistoryReducer.Route.clearHistory
             ) {
                 Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
@@ -104,10 +104,7 @@ struct HistoryView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             HistoryView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: HistoryReducer()
-                ),
+                store: .init(initialState: .init(), reducer: HistoryReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0,

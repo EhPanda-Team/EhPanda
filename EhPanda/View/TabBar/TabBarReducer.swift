@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct TabBarReducer: ReducerProtocol {
+struct TabBarReducer: Reducer {
     struct State: Equatable {
         var tabBarItemType: TabBarItemType = .home
     }
@@ -18,7 +18,7 @@ struct TabBarReducer: ReducerProtocol {
 
     @Dependency(\.deviceClient) private var deviceClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .setTabBarItemType(let type):

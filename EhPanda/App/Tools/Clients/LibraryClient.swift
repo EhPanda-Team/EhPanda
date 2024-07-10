@@ -14,76 +14,65 @@ import UIImageColors
 import ComposableArchitecture
 
 struct LibraryClient {
-    let initializeLogger: () -> EffectTask<Never>
-    let initializeWebImage: () -> EffectTask<Never>
-    let clearWebImageDiskCache: () -> EffectTask<Never>
-    let analyzeImageColors: (UIImage) -> EffectTask<UIImageColors?>
-    let calculateWebImageDiskCacheSize: () -> EffectTask<UInt?>
+    let initializeLogger: () -> Void
+    let initializeWebImage: () -> Void
+    let clearWebImageDiskCache: () -> Void
+    let analyzeImageColors: (UIImage) async -> UIImageColors?
+    let calculateWebImageDiskCacheSize: () async -> UInt?
 }
 
 extension LibraryClient {
     static let live: Self = .init(
         initializeLogger: {
-            .fireAndForget {
-                // MARK: SwiftyBeaver
-                let file = FileDestination()
-                let console = ConsoleDestination()
-                let format = [
-                    "$Dyyyy-MM-dd HH:mm:ss.SSS$d",
-                    "$C$L$c $N.$F:$l - $M $X"
-                ].joined(separator: " ")
+            // MARK: SwiftyBeaver
+            let file = FileDestination()
+            let console = ConsoleDestination()
+            let format = [
+                "$Dyyyy-MM-dd HH:mm:ss.SSS$d",
+                "$C$L$c $N.$F:$l - $M $X"
+            ].joined(separator: " ")
 
-                file.format = format
-                file.logFileAmount = 10
-                file.calendar = Calendar(identifier: .gregorian)
-                file.logFileURL = FileUtil.logsDirectoryURL?
-                    .appendingPathComponent(Defaults.FilePath.ehpandaLog)
+            file.format = format
+            file.logFileAmount = 10
+            file.calendar = Calendar(identifier: .gregorian)
+            file.logFileURL = FileUtil.logsDirectoryURL?
+                .appendingPathComponent(Defaults.FilePath.ehpandaLog)
 
-                console.format = format
-                console.calendar = Calendar(identifier: .gregorian)
-                console.asynchronously = false
-                console.levelColor.verbose = "😪"
-                console.levelColor.warning = "⚠️"
-                console.levelColor.error = "‼️"
-                console.levelColor.debug = "🐛"
-                console.levelColor.info = "📖"
+            console.format = format
+            console.calendar = Calendar(identifier: .gregorian)
+            console.asynchronously = false
+            console.levelColor.verbose = "😪"
+            console.levelColor.warning = "⚠️"
+            console.levelColor.error = "‼️"
+            console.levelColor.debug = "🐛"
+            console.levelColor.info = "📖"
 
-                SwiftyBeaver.addDestination(file)
-                #if DEBUG
-                SwiftyBeaver.addDestination(console)
-                #endif
-            }
+            SwiftyBeaver.addDestination(file)
+            #if DEBUG
+            SwiftyBeaver.addDestination(console)
+            #endif
         },
         initializeWebImage: {
-            .fireAndForget {
-                let config = KingfisherManager.shared.downloader.sessionConfiguration
-                config.httpCookieStorage = HTTPCookieStorage.shared
-                KingfisherManager.shared.downloader.sessionConfiguration = config
-            }
+            let config = KingfisherManager.shared.downloader.sessionConfiguration
+            config.httpCookieStorage = HTTPCookieStorage.shared
+            KingfisherManager.shared.downloader.sessionConfiguration = config
         },
         clearWebImageDiskCache: {
-            .fireAndForget {
-                KingfisherManager.shared.cache.clearDiskCache()
-            }
+            KingfisherManager.shared.cache.clearDiskCache()
         },
         analyzeImageColors: { image in
-            Future { promise in
+            await withCheckedContinuation { continuation in
                 image.getColors(quality: .lowest) { colors in
-                    promise(.success(colors))
+                    continuation.resume(returning: colors)
                 }
             }
-            .eraseToAnyPublisher()
-            .eraseToEffect()
         },
         calculateWebImageDiskCacheSize: {
-            Future { promise in
+            await withCheckedContinuation { continuation in
                 KingfisherManager.shared.cache.calculateDiskStorageSize {
-                    promise(.success(try? $0.get()))
+                    continuation.resume(returning: try? $0.get())
                 }
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         }
     )
 }
@@ -105,9 +94,9 @@ extension DependencyValues {
 // MARK: Test
 extension LibraryClient {
     static let noop: Self = .init(
-        initializeLogger: { .none },
-        initializeWebImage: { .none },
-        clearWebImageDiskCache: { .none },
+        initializeLogger: {},
+        initializeWebImage: {},
+        clearWebImageDiskCache: {},
         analyzeImageColors: { _ in .none },
         calculateWebImageDiskCacheSize: { .none }
     )

@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct FiltersReducer: ReducerProtocol {
+struct FiltersReducer: Reducer {
     enum Route {
         case resetFilters
     }
@@ -40,22 +40,22 @@ struct FiltersReducer: ReducerProtocol {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$searchFilter):
                 state.searchFilter.fixInvalidData()
-                return .init(value: .syncFilter(.search))
+                return .send(.syncFilter(.search))
 
             case .binding(\.$globalFilter):
                 state.globalFilter.fixInvalidData()
-                return .init(value: .syncFilter(.global))
+                return .send(.syncFilter(.global))
 
             case .binding(\.$watchedFilter):
                 state.watchedFilter.fixInvalidData()
-                return .init(value: .syncFilter(.watched))
+                return .send(.syncFilter(.watched))
 
             case .binding:
                 return .none
@@ -85,23 +85,26 @@ struct FiltersReducer: ReducerProtocol {
                 case .watched:
                     filter = state.watchedFilter
                 }
-                return databaseClient.updateFilter(filter, range: range).fireAndForget()
+                return .run(operation: { _ in await databaseClient.updateFilter(filter, range: range) })
 
             case .resetFilters:
                 switch state.filterRange {
                 case .search:
                     state.searchFilter = .init()
-                    return .init(value: .syncFilter(.search))
+                    return .send(.syncFilter(.search))
                 case .global:
                     state.globalFilter = .init()
-                    return .init(value: .syncFilter(.global))
+                    return .send(.syncFilter(.global))
                 case .watched:
                     state.watchedFilter = .init()
-                    return .init(value: .syncFilter(.watched))
+                    return .send(.syncFilter(.watched))
                 }
 
             case .fetchFilters:
-                return databaseClient.fetchAppEnv().map(Action.fetchFiltersDone)
+                return .run { send in
+                    let appEnv = await databaseClient.fetchAppEnv()
+                    await send(.fetchFiltersDone(appEnv))
+                }
 
             case .fetchFiltersDone(let appEnv):
                 state.searchFilter = appEnv.searchFilter

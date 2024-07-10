@@ -21,7 +21,7 @@ struct PreviewsView: View {
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
@@ -68,7 +68,7 @@ struct PreviewsView: View {
             .padding(.bottom)
             .id(viewStore.databaseLoadingState)
         }
-        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsReducer.Route.reading) { _ in
+        .fullScreenCover(unwrapping: viewStore.$route, case: /PreviewsReducer.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: PreviewsReducer.Action.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
@@ -87,10 +87,7 @@ struct PreviewsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             PreviewsView(
-                store: .init(
-                    initialState: .init(gallery: .preview),
-                    reducer: PreviewsReducer()
-                ),
+                store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init),
                 gid: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0

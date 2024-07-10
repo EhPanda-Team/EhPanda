@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 import ComposableArchitecture
 
-struct DetailReducer: ReducerProtocol {
+struct DetailReducer: Reducer {
     enum Route: Equatable {
         case reading
         case archives(URL, URL)
@@ -115,21 +115,21 @@ struct DetailReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         RecurseReducer { (self) in
             BindingReducer()
 
             Reduce { state, action in
                 switch action {
                 case .binding(\.$route):
-                    return state.route == nil ? .init(value: .clearSubStates) : .none
+                    return state.route == nil ? .send(.clearSubStates) : .none
 
                 case .binding:
                     return .none
 
                 case .setNavigation(let route):
                     state.route = route
-                    return route == nil ? .init(value: .clearSubStates) : .none
+                    return route == nil ? .send(.clearSubStates) : .none
 
                 case .clearSubStates:
                     state.readingState = .init()
@@ -142,17 +142,19 @@ struct DetailReducer: ReducerProtocol {
                     state.galleryInfosState = .init()
                     state.detailSearchState = .init()
                     return .merge(
-                        .init(value: .reading(.teardown)),
-                        .init(value: .archives(.teardown)),
-                        .init(value: .torrents(.teardown)),
-                        .init(value: .previews(.teardown)),
-                        .init(value: .comments(.teardown)),
-                        .init(value: .detailSearch(.teardown))
+                        .send(.reading(.teardown)),
+                        .send(.archives(.teardown)),
+                        .send(.torrents(.teardown)),
+                        .send(.previews(.teardown)),
+                        .send(.comments(.teardown)),
+                        .send(.detailSearch(.teardown))
                     )
 
                 case .onPostCommentAppear:
-                    return .init(value: .setPostCommentFocused(true))
-                        .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+                    return .run { send in
+                        try await Task.sleep(for: .milliseconds(750))
+                        await send(.setPostCommentFocused(true))
+                    }
 
                 case .onAppear(let gid, let showsNewDawnGreeting):
                     state.showsNewDawnGreeting = showsNewDawnGreeting
@@ -162,15 +164,15 @@ struct DetailReducer: ReducerProtocol {
                     if state.commentsState == nil {
                         state.commentsState = .init()
                     }
-                    return .init(value: .fetchDatabaseInfos(gid))
+                    return .send(.fetchDatabaseInfos(gid))
 
                 case .toggleShowFullTitle:
                     state.showsFullTitle.toggle()
-                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .toggleShowUserRating:
                     state.showsUserRating.toggle()
-                    return .fireAndForget({ hapticsClient.generateFeedback(.soft) })
+                    return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
 
                 case .setCommentContent(let content):
                     state.commentContent = content
@@ -187,9 +189,12 @@ struct DetailReducer: ReducerProtocol {
                 case .confirmRating(let value):
                     state.updateRating(value: value)
                     return .merge(
-                        .init(value: .rateGallery),
-                        .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
-                        .init(value: .confirmRatingDone).delay(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
+                        .send(.rateGallery),
+                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                        .run { send in
+                            try await Task.sleep(for: .seconds(1))
+                            await send(.confirmRatingDone)
+                        }
                     )
 
                 case .confirmRatingDone:
@@ -197,37 +202,45 @@ struct DetailReducer: ReducerProtocol {
                     return .none
 
                 case .syncGalleryTags:
-                    return databaseClient
-                        .updateGalleryTags(gid: state.gallery.id, tags: state.galleryTags).fireAndForget()
+                    return .run { [state] _ in
+                        await databaseClient.updateGalleryTags(gid: state.gallery.id, tags: state.galleryTags)
+                    }
 
                 case .syncGalleryDetail:
                     guard let detail = state.galleryDetail else { return .none }
-                    return databaseClient.cacheGalleryDetail(detail).fireAndForget()
+                    return .run(operation: { _ in await databaseClient.cacheGalleryDetail(detail) })
 
                 case .syncGalleryPreviewURLs:
-                    return databaseClient
-                        .updatePreviewURLs(gid: state.gallery.id, previewURLs: state.galleryPreviewURLs).fireAndForget()
+                    return .run { [state] _ in
+                        await databaseClient
+                            .updatePreviewURLs(gid: state.gallery.id, previewURLs: state.galleryPreviewURLs)
+                    }
 
                 case .syncGalleryComments:
-                    return databaseClient
-                        .updateComments(gid: state.gallery.id, comments: state.galleryComments).fireAndForget()
+                    return .run { [state] _ in
+                        await databaseClient.updateComments(gid: state.gallery.id, comments: state.galleryComments)
+                    }
 
                 case .syncGreeting(let greeting):
-                    return databaseClient.updateGreeting(greeting).fireAndForget()
+                    return .run(operation: { _ in await databaseClient.updateGreeting(greeting) })
 
                 case .syncPreviewConfig(let config):
-                    return databaseClient
-                        .updatePreviewConfig(gid: state.gallery.id, config: config).fireAndForget()
+                    return .run { [state] _ in
+                        await databaseClient.updatePreviewConfig(gid: state.gallery.id, config: config)
+                    }
 
                 case .saveGalleryHistory:
-                    return databaseClient.updateLastOpenDate(gid: state.gallery.id).fireAndForget()
+                    return .run { [state] _ in
+                        await databaseClient.updateLastOpenDate(gid: state.gallery.id)
+                    }
 
                 case .updateReadingProgress(let progress):
-                    return databaseClient
-                        .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
+                    return .run { [state] _ in
+                        await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                    }
 
                 case .teardown:
-                    return .cancel(ids: CancelID.allCases)
+                    return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
                 case .fetchDatabaseInfos(let gid):
                     guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
@@ -236,34 +249,40 @@ struct DetailReducer: ReducerProtocol {
                         state.galleryDetail = detail
                     }
                     return .merge(
-                        .init(value: .saveGalleryHistory),
-                        databaseClient.fetchGalleryState(gid: state.gallery.id)
-                            .map(Action.fetchDatabaseInfosDone).cancellable(id: CancelID.fetchDatabaseInfos)
+                        .send(.saveGalleryHistory),
+                        .run { [galleryID = state.gallery.id] send in
+                            guard let dbState = await databaseClient.fetchGalleryState(gid: galleryID) else { return }
+                            await send(.fetchDatabaseInfosDone(dbState))
+                        }
+                        .cancellable(id: CancelID.fetchDatabaseInfos)
                     )
 
                 case .fetchDatabaseInfosDone(let galleryState):
                     state.galleryTags = galleryState.tags
                     state.galleryPreviewURLs = galleryState.previewURLs
                     state.galleryComments = galleryState.comments
-                    return .init(value: .fetchGalleryDetail)
+                    return .send(.fetchGalleryDetail)
 
                 case .fetchGalleryDetail:
                     guard state.loadingState != .loading,
                           let galleryURL = state.gallery.galleryURL
                     else { return .none }
                     state.loadingState = .loading
-                    return GalleryDetailRequest(gid: state.gallery.id, galleryURL: galleryURL)
-                        .effect.map(Action.fetchGalleryDetailDone).cancellable(id: CancelID.fetchGalleryDetail)
+                    return .run { [galleryID = state.gallery.id] send in
+                        let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).response()
+                        await send(.fetchGalleryDetailDone(response))
+                    }
+                    .cancellable(id: CancelID.fetchGalleryDetail)
 
                 case .fetchGalleryDetailDone(let result):
                     state.loadingState = .idle
                     switch result {
                     case .success(let (galleryDetail, galleryState, apiKey, greeting)):
-                        var effects: [EffectTask<Action>] = [
-                            .init(value: .syncGalleryTags),
-                            .init(value: .syncGalleryDetail),
-                            .init(value: .syncGalleryPreviewURLs),
-                            .init(value: .syncGalleryComments)
+                        var effects: [Effect<Action>] = [
+                            .send(.syncGalleryTags),
+                            .send(.syncGalleryDetail),
+                            .send(.syncGalleryPreviewURLs),
+                            .send(.syncGalleryComments)
                         ]
                         state.apiKey = apiKey
                         state.galleryDetail = galleryDetail
@@ -272,13 +291,13 @@ struct DetailReducer: ReducerProtocol {
                         state.galleryComments = galleryState.comments
                         state.userRating = Int(galleryDetail.userRating) * 2
                         if let greeting = greeting {
-                            effects.append(.init(value: .syncGreeting(greeting)))
+                            effects.append(.send(.syncGreeting(greeting)))
                             if !greeting.gainedNothing && state.showsNewDawnGreeting {
-                                effects.append(.init(value: .setNavigation(.newDawn(greeting))))
+                                effects.append(.send(.setNavigation(.newDawn(greeting))))
                             }
                         }
                         if let config = galleryState.previewConfig {
-                            effects.append(.init(value: .syncPreviewConfig(config)))
+                            effects.append(.send(.syncPreviewConfig(config)))
                         }
                         return .merge(effects)
                     case .failure(let error):
@@ -289,44 +308,76 @@ struct DetailReducer: ReducerProtocol {
                 case .rateGallery:
                     guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
                     else { return .none }
-                    return RateGalleryRequest(
-                        apiuid: apiuid, apikey: state.apiKey, gid: gid,
-                        token: state.gallery.token, rating: state.userRating
-                    )
-                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.rateGallery)
+                    return .run { [state] send in
+                        let response = await RateGalleryRequest(
+                            apiuid: apiuid,
+                            apikey: state.apiKey,
+                            gid: gid,
+                            token: state.gallery.token,
+                            rating: state.userRating
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
+                    }.cancellable(id: CancelID.rateGallery)
 
                 case .favorGallery(let favIndex):
-                    return FavorGalleryRequest(gid: state.gallery.id, token: state.gallery.token, favIndex: favIndex)
-                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.favorGallery)
+                    return .run { [state] send in
+                        let response = await FavorGalleryRequest(
+                            gid: state.gallery.id,
+                            token: state.gallery.token,
+                            favIndex: favIndex
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.favorGallery)
 
                 case .unfavorGallery:
-                    return UnfavorGalleryRequest(gid: state.gallery.id).effect.map(Action.anyGalleryOpsDone)
-                        .cancellable(id: CancelID.unfavorGallery)
+                    return .run { [galleryID = state.gallery.id] send in
+                        let response = await UnfavorGalleryRequest(gid: galleryID).response()
+                        await send(.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.unfavorGallery)
 
                 case .postComment(let galleryURL):
                     guard !state.commentContent.isEmpty else { return .none }
-                    return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                        .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.postComment)
+                    return .run { [commentContent = state.commentContent] send in
+                        let response = await CommentGalleryRequest(
+                            content: commentContent, galleryURL: galleryURL
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.postComment)
 
                 case .voteTag(let tag, let vote):
                     guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
                     else { return .none }
-                    return VoteGalleryTagRequest(
-                        apiuid: apiuid, apikey: state.apiKey, gid: gid, token: state.gallery.token, tag: tag, vote: vote
-                    )
-                    .effect.map(Action.anyGalleryOpsDone).cancellable(id: CancelID.voteTag)
+                    return .run { [state] send in
+                        let response = await VoteGalleryTagRequest(
+                            apiuid: apiuid,
+                            apikey: state.apiKey,
+                            gid: gid,
+                            token: state.gallery.token,
+                            tag: tag,
+                            vote: vote
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(response))
+                    }
+                    .cancellable(id: CancelID.voteTag)
 
                 case .anyGalleryOpsDone(let result):
                     if case .success = result {
                         return .merge(
-                            .init(value: .fetchGalleryDetail),
-                            .fireAndForget({ hapticsClient.generateNotificationFeedback(.success) })
+                            .send(.fetchGalleryDetail),
+                            .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
                         )
                     }
-                    return .fireAndForget({ hapticsClient.generateNotificationFeedback(.error) })
+                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
 
                 case .reading(.onPerformDismiss):
-                    return .init(value: .setNavigation(nil))
+                    return .send(.setNavigation(nil))
 
                 case .reading:
                     return .none
@@ -341,7 +392,7 @@ struct DetailReducer: ReducerProtocol {
                     return .none
 
                 case .comments(.performCommentActionDone(let result)):
-                    return .init(value: .anyGalleryOpsDone(result))
+                    return .send(.anyGalleryOpsDone(result))
 
                 case .comments(.detail(let recursiveAction)):
                     guard state.commentsState != nil else { return .none }

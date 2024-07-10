@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct EhSettingReducer: ReducerProtocol {
+struct EhSettingReducer: Reducer {
     enum Route: Equatable {
         case webView(URL)
         case deleteProfile
@@ -54,7 +54,7 @@ struct EhSettingReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    public var body: some ReducerProtocol<State, Action> {
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -67,22 +67,26 @@ struct EhSettingReducer: ReducerProtocol {
                 return .none
 
             case .setKeyboardHidden:
-                return uiApplicationClient.hideKeyboard().fireAndForget()
+                return .run(operation: { _ in uiApplicationClient.hideKeyboard() })
 
             case .setDefaultProfile(let profileSet):
-                return cookieClient.setOrEditCookie(
-                    for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
-                )
-                .fireAndForget()
+                return .run { _ in
+                    cookieClient.setOrEditCookie(
+                        for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
+                    )
+                }
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return EhSettingRequest().effect.map(Action.fetchEhSettingDone)
-                    .cancellable(id: CancelID.fetchEhSetting)
+                return .run { send in
+                    let response = await EhSettingRequest().response()
+                    await send(.fetchEhSettingDone(response))
+                }
+                .cancellable(id: CancelID.fetchEhSetting)
 
             case .fetchEhSettingDone(let result):
                 state.loadingState = .idle
@@ -101,8 +105,11 @@ struct EhSettingReducer: ReducerProtocol {
                 else { return .none }
 
                 state.submittingState = .loading
-                return SubmitEhSettingChangesRequest(ehSetting: ehSetting)
-                    .effect.map(Action.submitChangesDone).cancellable(id: CancelID.submitChanges)
+                return .run { send in
+                    let response = await SubmitEhSettingChangesRequest(ehSetting: ehSetting).response()
+                    await send(.submitChangesDone(response))
+                }
+                .cancellable(id: CancelID.submitChanges)
 
             case .submitChangesDone(let result):
                 state.submittingState = .idle
@@ -118,8 +125,11 @@ struct EhSettingReducer: ReducerProtocol {
             case .performAction(let action, let name, let set):
                 guard state.submittingState != .loading else { return .none }
                 state.submittingState = .loading
-                return EhProfileRequest(action: action, name: name, set: set)
-                    .effect.map(Action.performActionDone).cancellable(id: CancelID.performAction)
+                return .run { send in
+                    let response = await EhProfileRequest(action: action, name: name, set: set).response()
+                    await send(.performActionDone(response))
+                }
+                .cancellable(id: CancelID.performAction)
 
             case .performActionDone(let result):
                 state.submittingState = .idle

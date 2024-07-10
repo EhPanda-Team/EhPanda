@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct LoginReducer: ReducerProtocol {
+struct LoginReducer: Reducer {
     private enum CancelID: Hashable {
         case login
     }
@@ -50,7 +50,7 @@ struct LoginReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -63,30 +63,33 @@ struct LoginReducer: ReducerProtocol {
                 return .none
 
             case .teardown:
-                return .cancel(id: CancelID.self)
+                return .cancel(id: CancelID.login)
 
             case .login:
                 guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }
                 state.focusedField = nil
                 state.loginState = .loading
                 return .merge(
-                    .fireAndForget({ hapticsClient.generateFeedback(.soft) }),
-                    LoginRequest(username: state.username, password: state.password)
-                        .effect.map(Action.loginDone).cancellable(id: CancelID.login)
+                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                    .run { [state] send in
+                        let response = await LoginRequest(username: state.username, password: state.password).response()
+                        await send(.loginDone(response))
+                    }
+                    .cancellable(id: CancelID.login)
                 )
 
             case .loginDone(let result):
                 state.route = nil
-                var effects = [EffectTask<Action>]()
+                var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.success) }))
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }))
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(.fireAndForget({ hapticsClient.generateNotificationFeedback(.error) }))
+                    effects.append(.run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) }))
                 }
                 if case .success(let response) = result, let response = response {
-                    effects.append(cookieClient.setCredentials(response: response).fireAndForget())
+                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
                 }
                 return .merge(effects)
             }

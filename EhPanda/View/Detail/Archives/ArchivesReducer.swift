@@ -9,7 +9,7 @@ import Foundation
 import TTProgressHUD
 import ComposableArchitecture
 
-struct ArchivesReducer: ReducerProtocol {
+struct ArchivesReducer: Reducer {
     enum Route {
         case messageHUD
         case communicatingHUD
@@ -49,7 +49,7 @@ struct ArchivesReducer: ReducerProtocol {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -62,18 +62,21 @@ struct ArchivesReducer: ReducerProtocol {
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
-                return databaseClient
-                    .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
+                return .run { _ in
+                    await databaseClient.updateGalleryFunds(galleryPoints: galleryPoints, credits: credits)
+                }
 
             case .teardown:
-                return .cancel(ids: CancelID.allCases)
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return GalleryArchiveRequest(archiveURL: archiveURL)
-                    .effect.map({ Action.fetchArchiveDone(gid, galleryURL, $0) })
-                    .cancellable(id: CancelID.fetchArchive)
+                return .run { send in
+                    let response = await GalleryArchiveRequest(archiveURL: archiveURL).response()
+                    await send(.fetchArchiveDone(gid, galleryURL, response))
+                }
+                .cancellable(id: CancelID.fetchArchive)
 
             case .fetchArchiveDone(let gid, let galleryURL, let result):
                 state.loadingState = .idle
@@ -85,9 +88,9 @@ struct ArchivesReducer: ReducerProtocol {
                     }
                     state.hathArchives = archive.hathArchives
                     if let galleryPoints = galleryPoints, let credits = credits {
-                        return .init(value: .syncGalleryFunds(galleryPoints, credits))
+                        return .send(.syncGalleryFunds(galleryPoints, credits))
                     } else if cookieClient.isSameAccount {
-                        return .init(value: .fetchArchiveFunds(gid, galleryURL))
+                        return .send(.fetchArchiveFunds(gid, galleryURL))
                     } else {
                         return .none
                     }
@@ -98,12 +101,15 @@ struct ArchivesReducer: ReducerProtocol {
 
             case .fetchArchiveFunds(let gid, let galleryURL):
                 guard let galleryURL = galleryURL.replaceHost(to: Defaults.URL.ehentai.host) else { return .none }
-                return GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
-                    .effect.map(Action.fetchArchiveFundsDone).cancellable(id: CancelID.fetchArchiveFunds)
+                return .run { send in
+                    let response = await GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL).response()
+                    await send(.fetchArchiveFundsDone(response))
+                }
+                .cancellable(id: CancelID.fetchArchiveFunds)
 
             case .fetchArchiveFundsDone(let result):
                 if case .success(let (galleryPoints, credits)) = result {
-                    return .init(value: .syncGalleryFunds(galleryPoints, credits))
+                    return .send(.syncGalleryFunds(galleryPoints, credits))
                 }
                 return .none
 
@@ -112,10 +118,15 @@ struct ArchivesReducer: ReducerProtocol {
                       state.route != .communicatingHUD
                 else { return .none }
                 state.route = .communicatingHUD
-                return SendDownloadCommandRequest(
-                    archiveURL: archiveURL, resolution: selectedArchive.resolution.parameter
-                )
-                .effect.map(Action.fetchDownloadResponseDone).cancellable(id: CancelID.fetchDownloadResponse)
+                return .run {send in
+                    let response = await SendDownloadCommandRequest(
+                        archiveURL: archiveURL,
+                        resolution: selectedArchive.resolution.parameter
+                    )
+                    .response()
+                    await send(.fetchDownloadResponseDone(response))
+                }
+                .cancellable(id: CancelID.fetchDownloadResponse)
 
             case .fetchDownloadResponseDone(let result):
                 state.route = .messageHUD
@@ -140,7 +151,9 @@ struct ArchivesReducer: ReducerProtocol {
                     state.messageHUDConfig = .error
                     isSuccess = false
                 }
-                return .fireAndForget({ hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error) })
+                return .run { _ in
+                    hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error)
+                }
             }
         }
     }

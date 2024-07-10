@@ -11,8 +11,8 @@ import CoreData
 import ComposableArchitecture
 
 struct DatabaseClient {
-    let prepareDatabase: () -> EffectTask<AppError?>
-    let dropDatabase: () -> EffectTask<AppError?>
+    let prepareDatabase: () async -> Result<Void, AppError>
+    let dropDatabase: () async -> Result<Void, AppError>
     private let saveContext: () -> Void
     private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
 }
@@ -20,36 +20,18 @@ struct DatabaseClient {
 extension DatabaseClient {
     static let live: Self = .init(
         prepareDatabase: {
-            Future { promise in
-                PersistenceController.shared.prepare {
-                    switch $0 {
-                    case .success:
-                        promise(.success(nil))
-
-                    case .failure(let appError):
-                        promise(.success(appError))
-                    }
+            await withCheckedContinuation { continuation in
+                PersistenceController.shared.prepare { result in
+                    continuation.resume(returning: result)
                 }
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         dropDatabase: {
-            Future { promise in
-                PersistenceController.shared.rebuild {
-                    switch $0 {
-                    case .success:
-                        promise(.success(nil))
-
-                    case .failure(let appError):
-                        promise(.success(appError))
-                    }
+            await withCheckedContinuation { continuation in
+                PersistenceController.shared.rebuild { result in
+                    continuation.resume(returning: result)
                 }
             }
-            .eraseToAnyPublisher()
-            .receive(on: DispatchQueue.main)
-            .eraseToEffect()
         },
         saveContext: {
             let context = PersistenceController.shared.container.viewContext
@@ -216,50 +198,27 @@ extension DatabaseClient {
         }
         return entity
     }
-    func fetchAppEnv() -> EffectTask<AppEnv> {
-        Future { promise in
-            DispatchQueue.main.async {
-                promise(.success(fetchOrCreate(entityType: AppEnvMO.self).toEntity()))
-            }
-        }
-        .eraseToAnyPublisher()
-        .receive(on: DispatchQueue.main)
-        .eraseToEffect()
+    @MainActor func fetchAppEnv() -> AppEnv {
+        fetchOrCreate(entityType: AppEnvMO.self).toEntity()
     }
     func fetchAppEnvSynchronously() -> AppEnv {
         fetchOrCreate(entityType: AppEnvMO.self).toEntity()
     }
-    func fetchGalleryState(gid: String) -> EffectTask<GalleryState> {
-        guard gid.isValidGID else { return .none }
-        return Future { promise in
-            DispatchQueue.main.async {
-                promise(.success(
-                    fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
-                ))
-            }
-        }
-        .eraseToAnyPublisher()
-        .receive(on: DispatchQueue.main)
-        .eraseToEffect()
+    @MainActor func fetchGalleryState(gid: String) async -> GalleryState? {
+        guard gid.isValidGID else { return nil }
+        return fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
     }
-    func fetchHistoryGalleries(fetchLimit: Int = 0) -> EffectTask<[Gallery]> {
-        Future { promise in
-            DispatchQueue.main.async {
-                let predicate = NSPredicate(format: "lastOpenDate != nil")
-                let sortDescriptor = NSSortDescriptor(
-                    keyPath: \GalleryMO.lastOpenDate, ascending: false
-                )
-                let galleries = batchFetch(
-                    entityType: GalleryMO.self, fetchLimit: fetchLimit, predicate: predicate,
-                    findBeforeFetch: false, sortDescriptors: [sortDescriptor]
-                )
-                .map { $0.toEntity() }
-                promise(.success(galleries))
-            }
-        }
-        .eraseToAnyPublisher()
-        .receive(on: DispatchQueue.main)
-        .eraseToEffect()
+    @MainActor func fetchHistoryGalleries(fetchLimit: Int = 0) -> [Gallery] {
+        let predicate = NSPredicate(format: "lastOpenDate != nil")
+        let sortDescriptor = NSSortDescriptor(
+            keyPath: \GalleryMO.lastOpenDate, ascending: false
+        )
+        let galleries = batchFetch(
+            entityType: GalleryMO.self, fetchLimit: fetchLimit, predicate: predicate,
+            findBeforeFetch: false, sortDescriptors: [sortDescriptor]
+        )
+        .map { $0.toEntity() }
+        return galleries
     }
 }
 // MARK: FetchAccessor
@@ -274,200 +233,172 @@ extension DatabaseClient {
             return fetchAppEnvSynchronously().watchedFilter
         }
     }
-    func fetchHistoryKeywords() -> EffectTask<[String]> {
-        fetchAppEnv().map(\.historyKeywords)
+    @MainActor func fetchHistoryKeywords() -> [String] {
+        fetchAppEnv().historyKeywords
     }
-    func fetchQuickSearchWords() -> EffectTask<[QuickSearchWord]> {
-        fetchAppEnv().map(\.quickSearchWords)
+    @MainActor func fetchQuickSearchWords() -> [QuickSearchWord] {
+        fetchAppEnv().quickSearchWords
     }
-    func fetchGalleryPreviewURLs(gid: String) -> EffectTask<[Int: URL]> {
-        guard gid.isValidGID else { return .none }
-        return fetchGalleryState(gid: gid).map(\.previewURLs)
+    @MainActor func fetchGalleryPreviewURLs(gid: String) async -> [Int: URL]? {
+        guard gid.isValidGID else { return nil }
+        return await fetchGalleryState(gid: gid).map(\.previewURLs)
     }
 }
 
 // MARK: UpdateGallery
 extension DatabaseClient {
-    func updateGallery(gid: String, key: String, value: Any?) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return .fireAndForget {
-            DispatchQueue.main.async {
-                update(
-                    entityType: GalleryMO.self, gid: gid, createIfNil: true,
-                    commitChanges: { $0.setValue(value, forKeyPath: key) }
-                )
+    @MainActor func updateGallery(gid: String, key: String, value: Any?) {
+        guard gid.isValidGID else { return }
+        update(
+            entityType: GalleryMO.self, gid: gid, createIfNil: true,
+            commitChanges: { $0.setValue(value, forKeyPath: key) }
+        )
+    }
+    @MainActor func updateLastOpenDate(gid: String, date: Date = .now) {
+        guard gid.isValidGID else { return }
+        updateGallery(gid: gid, key: "lastOpenDate", value: date)
+    }
+    @MainActor func clearHistoryGalleries() {
+        let predicate = NSPredicate(format: "lastOpenDate != nil")
+        batchUpdate(entityType: GalleryMO.self, predicate: predicate) { galleryMOs in
+            galleryMOs.forEach { galleryMO in
+                galleryMO.lastOpenDate = nil
             }
         }
     }
-    func updateLastOpenDate(gid: String, date: Date = .now) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGallery(gid: gid, key: "lastOpenDate", value: date)
-    }
-    func clearHistoryGalleries() -> EffectTask<Never> {
-        .fireAndForget {
-            DispatchQueue.main.async {
-                let predicate = NSPredicate(format: "lastOpenDate != nil")
-                batchUpdate(entityType: GalleryMO.self, predicate: predicate) { galleryMOs in
-                    galleryMOs.forEach { galleryMO in
-                        galleryMO.lastOpenDate = nil
-                    }
+    @MainActor func cacheGalleries(_ galleries: [Gallery]) {
+        for gallery in galleries.filter({ $0.id.isValidGID }) {
+            let storedMO = fetch(
+                entityType: GalleryMO.self, gid: gallery.gid
+            ) { managedObject in
+                managedObject?.category = gallery.category.rawValue
+                managedObject?.coverURL = gallery.coverURL
+                managedObject?.galleryURL = gallery.galleryURL
+                // managedObject?.lastOpenDate = gallery.lastOpenDate
+                managedObject?.pageCount = Int64(gallery.pageCount)
+                managedObject?.postedDate = gallery.postedDate
+                managedObject?.rating = gallery.rating
+                managedObject?.tags = gallery.tags.toData()
+                managedObject?.title = gallery.title
+                managedObject?.token = gallery.token
+                if let uploader = gallery.uploader {
+                    managedObject?.uploader = uploader
                 }
             }
-        }
-    }
-    func cacheGalleries(_ galleries: [Gallery]) -> EffectTask<Never> {
-        .fireAndForget {
-            DispatchQueue.main.async {
-                for gallery in galleries.filter({ $0.id.isValidGID }) {
-                    let storedMO = fetch(
-                        entityType: GalleryMO.self, gid: gallery.gid
-                    ) { managedObject in
-                        managedObject?.category = gallery.category.rawValue
-                        managedObject?.coverURL = gallery.coverURL
-                        managedObject?.galleryURL = gallery.galleryURL
-                        // managedObject?.lastOpenDate = gallery.lastOpenDate
-                        managedObject?.pageCount = Int64(gallery.pageCount)
-                        managedObject?.postedDate = gallery.postedDate
-                        managedObject?.rating = gallery.rating
-                        managedObject?.tags = gallery.tags.toData()
-                        managedObject?.title = gallery.title
-                        managedObject?.token = gallery.token
-                        if let uploader = gallery.uploader {
-                            managedObject?.uploader = uploader
-                        }
-                    }
-                    if storedMO == nil {
-                        gallery.toManagedObject(in: PersistenceController.shared.container.viewContext)
-                    }
-                }
-                saveContext()
+            if storedMO == nil {
+                gallery.toManagedObject(in: PersistenceController.shared.container.viewContext)
             }
         }
+        saveContext()
     }
 }
 
 // MARK: UpdateGalleryDetail
 extension DatabaseClient {
-    func cacheGalleryDetail(_ detail: GalleryDetail) -> EffectTask<Never> {
-        guard detail.gid.isValidGID else { return .none }
-        return .fireAndForget {
-            DispatchQueue.main.async {
-                let storedMO = fetch(
-                    entityType: GalleryDetailMO.self, gid: detail.gid
-                ) { managedObject in
-                    managedObject?.archiveURL = detail.archiveURL
-                    managedObject?.category = detail.category.rawValue
-                    managedObject?.coverURL = detail.coverURL
-                    managedObject?.isFavorited = detail.isFavorited
-                    managedObject?.visibility = detail.visibility.toData()
-                    managedObject?.jpnTitle = detail.jpnTitle
-                    managedObject?.language = detail.language.rawValue
-                    managedObject?.favoritedCount = Int64(detail.favoritedCount)
-                    managedObject?.pageCount = Int64(detail.pageCount)
-                    managedObject?.parentURL = detail.parentURL
-                    managedObject?.postedDate = detail.postedDate
-                    managedObject?.rating = detail.rating
-                    managedObject?.userRating = detail.userRating
-                    managedObject?.ratingCount = Int64(detail.ratingCount)
-                    managedObject?.sizeCount = detail.sizeCount
-                    managedObject?.sizeType = detail.sizeType
-                    managedObject?.title = detail.title
-                    managedObject?.torrentCount = Int64(detail.torrentCount)
-                    managedObject?.uploader = detail.uploader
-                }
-                if storedMO == nil {
-                    detail.toManagedObject(in: PersistenceController.shared.container.viewContext)
-                }
-                saveContext()
-            }
+    @MainActor func cacheGalleryDetail(_ detail: GalleryDetail) {
+        guard detail.gid.isValidGID else { return }
+        let storedMO = fetch(
+            entityType: GalleryDetailMO.self, gid: detail.gid
+        ) { managedObject in
+            managedObject?.archiveURL = detail.archiveURL
+            managedObject?.category = detail.category.rawValue
+            managedObject?.coverURL = detail.coverURL
+            managedObject?.isFavorited = detail.isFavorited
+            managedObject?.visibility = detail.visibility.toData()
+            managedObject?.jpnTitle = detail.jpnTitle
+            managedObject?.language = detail.language.rawValue
+            managedObject?.favoritedCount = Int64(detail.favoritedCount)
+            managedObject?.pageCount = Int64(detail.pageCount)
+            managedObject?.parentURL = detail.parentURL
+            managedObject?.postedDate = detail.postedDate
+            managedObject?.rating = detail.rating
+            managedObject?.userRating = detail.userRating
+            managedObject?.ratingCount = Int64(detail.ratingCount)
+            managedObject?.sizeCount = detail.sizeCount
+            managedObject?.sizeType = detail.sizeType
+            managedObject?.title = detail.title
+            managedObject?.torrentCount = Int64(detail.torrentCount)
+            managedObject?.uploader = detail.uploader
         }
+        if storedMO == nil {
+            detail.toManagedObject(in: PersistenceController.shared.container.viewContext)
+        }
+        saveContext()
     }
 }
 
 // MARK: UpdateGalleryState
 extension DatabaseClient {
-    func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return .fireAndForget {
-            DispatchQueue.main.async {
-                update(
-                    entityType: GalleryStateMO.self, gid: gid, createIfNil: true,
-                    commitChanges: commitChanges
-                )
-            }
-        }
+    @MainActor func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) {
+        guard gid.isValidGID else { return }
+        update(
+            entityType: GalleryStateMO.self, gid: gid, createIfNil: true,
+            commitChanges: commitChanges
+        )
     }
-    func updateGalleryState(gid: String, key: String, value: Any?) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid) { stateMO in
+    @MainActor func updateGalleryState(gid: String, key: String, value: Any?) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid) { stateMO in
             stateMO.setValue(value, forKeyPath: key)
         }
     }
-    func updateGalleryTags(gid: String, tags: [GalleryTag]) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid, key: "tags", value: tags.toData())
+    @MainActor func updateGalleryTags(gid: String, tags: [GalleryTag]) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid, key: "tags", value: tags.toData())
     }
-    func updatePreviewConfig(gid: String, config: PreviewConfig) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid, key: "previewConfig", value: config.toData())
+    @MainActor func updatePreviewConfig(gid: String, config: PreviewConfig) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid, key: "previewConfig", value: config.toData())
     }
-    func updateReadingProgress(gid: String, progress: Int) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid, key: "readingProgress", value: Int64(progress))
+    @MainActor func updateReadingProgress(gid: String, progress: Int) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid, key: "readingProgress", value: Int64(progress))
     }
-    func updateComments(gid: String, comments: [GalleryComment]) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid, key: "comments", value: comments.toData())
+    @MainActor func updateComments(gid: String, comments: [GalleryComment]) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid, key: "comments", value: comments.toData())
     }
 
-    func removeImageURLs(gid: String) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid) { galleryStateMO in
+    @MainActor func removeImageURLs(gid: String) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid) { galleryStateMO in
             galleryStateMO.imageURLs = nil
             galleryStateMO.previewURLs = nil
             galleryStateMO.thumbnailURLs = nil
             galleryStateMO.originalImageURLs = nil
         }
     }
-    func removeImageURLs() -> EffectTask<Never> {
-        .fireAndForget {
-            DispatchQueue.main.async {
-                batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
-                    galleryStateMOs.forEach { galleryStateMO in
-                        galleryStateMO.imageURLs = nil
-                        galleryStateMO.previewURLs = nil
-                        galleryStateMO.thumbnailURLs = nil
-                        galleryStateMO.originalImageURLs = nil
-                    }
-                }
+    @MainActor func removeImageURLs() {
+        batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
+            galleryStateMOs.forEach { galleryStateMO in
+                galleryStateMO.imageURLs = nil
+                galleryStateMO.previewURLs = nil
+                galleryStateMO.thumbnailURLs = nil
+                galleryStateMO.originalImageURLs = nil
             }
         }
     }
-    func removeExpiredImageURLs() -> EffectTask<Never> {
+    @MainActor func removeExpiredImageURLs() {
         fetchHistoryGalleries()
-            .map { $0.filter { Date().timeIntervalSince($0.lastOpenDate ?? .distantPast) > .oneWeek } }
-            .map { $0.map { removeImageURLs(gid: $0.id) } }
-            .map(EffectTask<Never>.merge)
-            .fireAndForget()
+            .filter { Date().timeIntervalSince($0.lastOpenDate ?? .distantPast) > .oneWeek }
+            .forEach { removeImageURLs(gid: $0.id) }
     }
-    func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid) { galleryStateMO in
+    @MainActor func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.thumbnailURLs, new: thumbnailURLs)
         }
     }
-    func updateImageURLs(
-        gid: String, imageURLs: [Int: URL], originalImageURLs: [Int: URL]
-    ) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid) { galleryStateMO in
+    @MainActor func updateImageURLs(gid: String, imageURLs: [Int: URL], originalImageURLs: [Int: URL]) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.imageURLs, new: imageURLs)
             update(gid: gid, storedData: &galleryStateMO.originalImageURLs, new: originalImageURLs)
         }
     }
-    func updatePreviewURLs(gid: String, previewURLs: [Int: URL]) -> EffectTask<Never> {
-        guard gid.isValidGID else { return .none }
-        return updateGalleryState(gid: gid) { galleryStateMO in
+    @MainActor func updatePreviewURLs(gid: String, previewURLs: [Int: URL]) {
+        guard gid.isValidGID else { return }
+        updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.previewURLs, new: previewURLs)
         }
     }
@@ -489,20 +420,16 @@ extension DatabaseClient {
 
 // MARK: UpdateAppEnv
 extension DatabaseClient {
-    func updateAppEnv(key: String, value: Any?) -> EffectTask<Never> {
-        .fireAndForget {
-            DispatchQueue.main.async {
-                update(
-                    entityType: AppEnvMO.self, createIfNil: true,
-                    commitChanges: { $0.setValue(value, forKeyPath: key) }
-                )
-            }
-        }
+    @MainActor func updateAppEnv(key: String, value: Any?) {
+        update(
+            entityType: AppEnvMO.self, createIfNil: true,
+            commitChanges: { $0.setValue(value, forKeyPath: key) }
+        )
     }
-    func updateSetting(_ setting: Setting) -> EffectTask<Never> {
+    @MainActor func updateSetting(_ setting: Setting) {
         updateAppEnv(key: "setting", value: setting.toData())
     }
-    func updateFilter(_ filter: Filter, range: FilterRange) -> EffectTask<Never> {
+    @MainActor func updateFilter(_ filter: Filter, range: FilterRange) {
         let key: String
         switch range {
         case .search:
@@ -512,38 +439,33 @@ extension DatabaseClient {
         case .watched:
             key = "watchedFilter"
         }
-        return updateAppEnv(key: key, value: filter.toData())
+        updateAppEnv(key: key, value: filter.toData())
     }
-    func updateTagTranslator(_ tagTranslator: TagTranslator) -> EffectTask<Never> {
+    @MainActor func updateTagTranslator(_ tagTranslator: TagTranslator) {
         updateAppEnv(key: "tagTranslator", value: tagTranslator.toData())
     }
-    func updateUser(_ user: User) -> EffectTask<Never> {
+    @MainActor func updateUser(_ user: User) {
         updateAppEnv(key: "user", value: user.toData())
     }
-    func updateHistoryKeywords(_ keywords: [String]) -> EffectTask<Never> {
+    @MainActor func updateHistoryKeywords(_ keywords: [String]) {
         updateAppEnv(key: "historyKeywords", value: keywords.toData())
     }
-    func updateQuickSearchWords(_ words: [QuickSearchWord]) -> EffectTask<Never> {
+    @MainActor func updateQuickSearchWords(_ words: [QuickSearchWord]) {
         updateAppEnv(key: "quickSearchWords", value: words.toData())
     }
 
     // Update User
-    func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) -> EffectTask<Never> {
-        fetchAppEnv().map(\.user)
-            .map { (user: User) -> User in
-                var user = user
-                commitChanges(&user)
-                return user
-            }
-            .flatMap(updateUser)
-            .eraseToEffect()
+    @MainActor func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) {
+        var user = fetchAppEnv().user
+        commitChanges(&user)
+        updateUser(user)
     }
-    func updateGreeting(_ greeting: Greeting) -> EffectTask<Never> {
+    @MainActor func updateGreeting(_ greeting: Greeting) {
         updateUserProperty { user in
             user.greeting = greeting
         }
     }
-    func updateGalleryFunds(galleryPoints: String, credits: String) -> EffectTask<Never> {
+    @MainActor func updateGalleryFunds(galleryPoints: String, credits: String) {
         updateUserProperty { user in
             user.credits = credits
             user.galleryPoints = galleryPoints
@@ -568,8 +490,8 @@ extension DependencyValues {
 // MARK: Test
 extension DatabaseClient {
     static let noop: Self = .init(
-        prepareDatabase: { .none },
-        dropDatabase: { .none },
+        prepareDatabase: { .success(()) },
+        dropDatabase: { .success(()) },
         saveContext: {},
         materializedObjects: { _, _ in .init() }
     )

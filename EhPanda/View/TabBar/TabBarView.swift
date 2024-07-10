@@ -16,7 +16,7 @@ struct TabBarView: View {
 
     init(store: StoreOf<AppReducer>) {
         self.store = store
-        viewStore = ViewStore(store)
+        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {
@@ -34,7 +34,7 @@ struct TabBarView: View {
                             HomeView(
                                 store: store.scope(state: \.homeState, action: AppReducer.Action.home),
                                 user: viewStore.settingState.user,
-                                setting: viewStore.binding(\.settingState.$setting),
+                                setting: viewStore.$settingState.setting,
                                 blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
@@ -42,7 +42,7 @@ struct TabBarView: View {
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: AppReducer.Action.favorites),
                                 user: viewStore.settingState.user,
-                                setting: viewStore.binding(\.settingState.$setting),
+                                setting: viewStore.$settingState.setting,
                                 blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
@@ -50,7 +50,7 @@ struct TabBarView: View {
                             SearchRootView(
                                 store: store.scope(state: \.searchRootState, action: AppReducer.Action.searchRoot),
                                 user: viewStore.settingState.user,
-                                setting: viewStore.binding(\.settingState.$setting),
+                                setting: viewStore.$settingState.setting,
                                 blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
@@ -73,11 +73,11 @@ struct TabBarView: View {
             }
             .font(.system(size: 80)).opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.newDawn) { route in
+        .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue)
                 .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.setting) { _ in
+        .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.setting) { _ in
             SettingView(
                 store: store.scope(state: \.settingState, action: AppReducer.Action.setting),
                 blurRadius: viewStore.appLockState.blurRadius
@@ -85,7 +85,7 @@ struct TabBarView: View {
             .accentColor(viewStore.settingState.setting.accentColor)
             .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteReducer.Route.detail) { route in
+        .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.detail) { route in
             NavigationView {
                 DetailView(
                     store: store.scope(
@@ -93,7 +93,7 @@ struct TabBarView: View {
                         action: { AppReducer.Action.appRoute(.detail($0)) }
                     ),
                     gid: route.wrappedValue, user: viewStore.settingState.user,
-                    setting: viewStore.binding(\.settingState.$setting),
+                    setting: viewStore.$settingState.setting,
                     blurRadius: viewStore.appLockState.blurRadius,
                     tagTranslator: viewStore.settingState.tagTranslator
                 )
@@ -105,7 +105,7 @@ struct TabBarView: View {
         }
         .progressHUD(
             config: viewStore.appRouteState.hudConfig,
-            unwrapping: viewStore.binding(\.appRouteState.$route),
+            unwrapping: viewStore.$appRouteState.route,
             case: /AppRouteReducer.Route.hud
         )
         .onChange(of: scenePhase) { viewStore.send(.onScenePhaseChange($0)) }
@@ -155,11 +155,6 @@ extension TabBarItemType {
 
 struct TabBarView_Previews: PreviewProvider {
     static var previews: some View {
-        TabBarView(
-            store: .init(
-                initialState: .init(),
-                reducer: AppReducer()
-            )
-        )
+        TabBarView(store: .init(initialState: .init(), reducer: AppReducer.init))
     }
 }

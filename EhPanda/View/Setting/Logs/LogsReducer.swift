@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct LogsReducer: ReducerProtocol {
+struct LogsReducer: Reducer {
     enum Route: Equatable {
         case log(Log)
     }
@@ -37,7 +37,7 @@ struct LogsReducer: ReducerProtocol {
     @Dependency(\.uiApplicationClient) private var uiApplicationClient
     @Dependency(\.fileClient) private var fileClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
@@ -50,7 +50,7 @@ struct LogsReducer: ReducerProtocol {
                 return .none
 
             case .navigateToFileApp:
-                return uiApplicationClient.openFileApp().fireAndForget()
+                return .run(operation: { _ in await uiApplicationClient.openFileApp() })
 
             case .teardown:
                 return .cancel(id: CancelID.fetchLogs)
@@ -58,7 +58,11 @@ struct LogsReducer: ReducerProtocol {
             case .fetchLogs:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return fileClient.fetchLogs().map(Action.fetchLogsDone).cancellable(id: CancelID.fetchLogs)
+                return .run { send in
+                    let result = await fileClient.fetchLogs()
+                    await send(.fetchLogsDone(result))
+                }
+                .cancellable(id: CancelID.fetchLogs)
 
             case .fetchLogsDone(let result):
                 switch result {
@@ -71,7 +75,10 @@ struct LogsReducer: ReducerProtocol {
                 return .none
 
             case .deleteLog(let fileName):
-                return fileClient.deleteLog(fileName).map(Action.deleteLogDone)
+                return .run { send in
+                    let result = await fileClient.deleteLog(fileName)
+                    await send(.deleteLogDone(result))
+                }
 
             case .deleteLogDone(let result):
                 if case .success(let fileName) = result {

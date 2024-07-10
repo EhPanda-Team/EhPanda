@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct HistoryReducer: ReducerProtocol {
+struct HistoryReducer: Reducer {
     enum Route: Equatable {
         case detail(String)
         case clearHistory
@@ -48,36 +48,41 @@ struct HistoryReducer: ReducerProtocol {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
             switch action {
             case .binding(\.$route):
-                return state.route == nil ? .init(value: .clearSubStates) : .none
+                return state.route == nil ? .send(.clearSubStates) : .none
 
             case .binding:
                 return .none
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .init(value: .clearSubStates) : .none
+                return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
                 state.detailState = .init()
-                return .init(value: .detail(.teardown))
+                return .send(.detail(.teardown))
 
             case .clearHistoryGalleries:
                 return .merge(
-                    databaseClient.clearHistoryGalleries().fireAndForget(),
-                    .init(value: .fetchGalleries)
-                        .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
+                    .run(operation: { _ in await databaseClient.clearHistoryGalleries() }),
+                    .run { send in
+                        try await Task.sleep(for: .milliseconds(200))
+                        await send(.fetchGalleries)
+                    }
                 )
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                return databaseClient.fetchHistoryGalleries().map(Action.fetchGalleriesDone)
+                return .run { send in
+                    let historyGalleries = await databaseClient.fetchHistoryGalleries()
+                    await send(.fetchGalleriesDone(historyGalleries))
+                }
 
             case .fetchGalleriesDone(let galleries):
                 state.loadingState = .idle
