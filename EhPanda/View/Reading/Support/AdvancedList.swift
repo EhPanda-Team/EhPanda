@@ -44,7 +44,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
                 }
                 .onAppear { tryScrollTo(id: pagerModel.index + 1, proxy: proxy) }
             }
-            .onChange(of: pagerModel.index) { newValue in
+            .onChange(of: pagerModel.index) { _, newValue in
                 tryScrollTo(id: newValue + 1, proxy: proxy)
             }
         }

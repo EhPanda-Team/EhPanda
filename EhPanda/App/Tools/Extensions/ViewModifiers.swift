@@ -36,21 +36,30 @@ extension View {
             .animation(.linear(duration: 0.1), value: radius)
     }
 
-    func synchronize<Value: Equatable>(_ first: Binding<Value>, _ second: Binding<Value>) -> some View {
+    func synchronize<Value: Equatable>(
+        _ first: Binding<Value>,
+        _ second: Binding<Value>,
+        initial: (first: Bool, second: Bool) = (false, false)
+    ) -> some View {
         self
-            .onChange(of: first.wrappedValue) { newValue in
+            .onChange(of: first.wrappedValue, initial: initial.first) { _, newValue in
                 second.wrappedValue = newValue
             }
-            .onChange(of: second.wrappedValue) { newValue in
+            .onChange(of: second.wrappedValue, initial: initial.second) { _, newValue in
                 first.wrappedValue = newValue
             }
     }
-    func synchronize<Value: Equatable>(_ first: Binding<Value>, _ second: FocusState<Value>.Binding) -> some View {
+
+    func synchronize<Value>(
+        _ first: Binding<Value>,
+        _ second: FocusState<Value>.Binding,
+        initial: (first: Bool, second: Bool) = (false, false)
+    ) -> some View {
         self
-            .onChange(of: first.wrappedValue) { newValue in
+            .onChange(of: first.wrappedValue, initial: initial.first) { _, newValue in
                 second.wrappedValue = newValue
             }
-            .onChange(of: second.wrappedValue) { newValue in
+            .onChange(of: second.wrappedValue, initial: initial.second) { _, newValue in
                 first.wrappedValue = newValue
             }
     }

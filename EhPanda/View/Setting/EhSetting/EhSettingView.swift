@@ -195,8 +195,8 @@ private struct EhProfileSection: View {
                 }
             }
         }
-        .onChange(of: ehProfile) {
-            performEhProfileAction(nil, nil, $0.value)
+        .onChange(of: ehProfile) { _, newValue in
+            performEhProfileAction(nil, nil, newValue.value)
         }
         .textCase(nil)
 

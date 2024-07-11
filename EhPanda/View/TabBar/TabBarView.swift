@@ -108,7 +108,7 @@ struct TabBarView: View {
             unwrapping: viewStore.$appRouteState.route,
             case: /AppRouteReducer.Route.hud
         )
-        .onChange(of: scenePhase) { viewStore.send(.onScenePhaseChange($0)) }
+        .onChange(of: scenePhase) { _, newValue in viewStore.send(.onScenePhaseChange(newValue)) }
         .onOpenURL { viewStore.send(.appRoute(.handleDeepLink($0))) }
     }
 }

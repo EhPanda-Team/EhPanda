@@ -117,56 +117,56 @@ struct ReadingView: View {
         )
 
         // Page
-        .onChange(of: page.index) { pageIndex in
-            Logger.info("page.index changed", context: ["pageIndex": pageIndex])
+        .onChange(of: page.index) { _, newValue in
+            Logger.info("page.index changed", context: ["pageIndex": newValue])
             let newValue = pageHandler.mapFromPager(
-                index: pageIndex, pageCount: viewStore.gallery.pageCount, setting: setting
+                index: newValue, pageCount: viewStore.gallery.pageCount, setting: setting
             )
             pageHandler.sliderValue = .init(newValue)
             if viewStore.databaseLoadingState == .idle {
                 viewStore.send(.syncReadingProgress(.init(newValue)))
             }
         }
-        .onChange(of: pageHandler.sliderValue) { sliderValue in
-            Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": sliderValue])
+        .onChange(of: pageHandler.sliderValue) { _, newValue in
+            Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": newValue])
             if !viewStore.showsSliderPreview {
-                setPageIndex(sliderValue: sliderValue)
+                setPageIndex(sliderValue: newValue)
             }
         }
-        .onChange(of: viewStore.showsSliderPreview) { isShown in
-            Logger.info("viewStore.showsSliderPreview changed", context: ["isShown": isShown])
-            if !isShown { setPageIndex(sliderValue: pageHandler.sliderValue) }
+        .onChange(of: viewStore.showsSliderPreview) { _, newValue in
+            Logger.info("viewStore.showsSliderPreview changed", context: ["isShown": newValue])
+            if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
             setAutoPlayPolocy(.off)
         }
-        .onChange(of: viewStore.readingProgress) { readingProgress in
-            Logger.info("viewStore.readingProgress changed", context: ["readingProgress": readingProgress])
-            pageHandler.sliderValue = .init(readingProgress)
+        .onChange(of: viewStore.readingProgress) { _, newValue in
+            Logger.info("viewStore.readingProgress changed", context: ["readingProgress": newValue])
+            pageHandler.sliderValue = .init(newValue)
         }
 
         // AutoPlay
-        .onChange(of: viewStore.route) { route in
-            Logger.info("viewStore.route changed", context: ["route": route])
-            if ![.hud, .none].contains(route) {
+        .onChange(of: viewStore.route) { _, newValue in
+            Logger.info("viewStore.route changed", context: ["route": newValue])
+            if ![.hud, .none].contains(newValue) {
                 setAutoPlayPolocy(.off)
             }
         }
 
         // LiveText
-        .onChange(of: liveTextHandler.enablesLiveText) { isEnabled in
-            Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": isEnabled])
-            if isEnabled { viewStore.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
+        .onChange(of: liveTextHandler.enablesLiveText) { _, newValue in
+            Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": newValue])
+            if newValue { viewStore.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
         }
-        .onChange(of: viewStore.webImageLoadSuccessIndices) { indices in
+        .onChange(of: viewStore.webImageLoadSuccessIndices) { _, newValue in
             Logger.info("viewStore.webImageLoadSuccessIndices changed", context: [
                 "count": viewStore.webImageLoadSuccessIndices.count
             ])
             if liveTextHandler.enablesLiveText {
-                indices.forEach(analyzeImageForLiveText)
+                newValue.forEach(analyzeImageForLiveText)
             }
         }
 
         // Orientation
-        .onChange(of: setting.enablesLandscape) { newValue in
+        .onChange(of: setting.enablesLandscape) { _, newValue in
             Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
             viewStore.send(.setOrientationPortrait(!newValue))
         }
