@@ -10,8 +10,7 @@ import Kingfisher
 import ComposableArchitecture
 
 struct PreviewsView: View {
-    private let store: StoreOf<PreviewsReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<PreviewsReducer>
+    @Bindable private var store: StoreOf<PreviewsReducer>
     private let gid: String
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -21,7 +20,6 @@ struct PreviewsView: View {
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
@@ -40,35 +38,35 @@ struct PreviewsView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: gridItems) {
-                ForEach(1..<viewStore.gallery.pageCount + 1, id: \.self) { index in
+                ForEach(1..<store.gallery.pageCount + 1, id: \.self) { index in
                     VStack {
                         let (url, modifier) = PreviewResolver.getPreviewConfigs(
-                            originalURL: viewStore.previewURLs[index]
+                            originalURL: store.previewURLs[index]
                         )
                         Button {
-                            viewStore.send(.updateReadingProgress(index))
-                            viewStore.send(.setNavigation(.reading))
+                            store.send(.updateReadingProgress(index))
+                            store.send(.setNavigation(.reading))
                         } label: {
-                            KFImage.url(url, cacheKey: viewStore.previewURLs[index]?.absoluteString)
+                            KFImage.url(url, cacheKey: store.previewURLs[index]?.absoluteString)
                                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) }
                                 .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
                         }
                         Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption).foregroundColor(.secondary)
                     }
                     .onAppear {
-                        if viewStore.databaseLoadingState != .loading
-                            && viewStore.previewURLs[index] == nil && (index - 1) % 20 == 0
+                        if store.databaseLoadingState != .loading
+                            && store.previewURLs[index] == nil && (index - 1) % 20 == 0
                         {
-                            viewStore.send(.fetchPreviewURLs(index))
+                            store.send(.fetchPreviewURLs(index))
                         }
                     }
                 }
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .id(viewStore.databaseLoadingState)
+            .id(store.databaseLoadingState)
         }
-        .fullScreenCover(unwrapping: viewStore.$route, case: /PreviewsReducer.Route.reading) { _ in
+        .fullScreenCover(unwrapping: $store.route, case: /PreviewsReducer.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: \.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
@@ -77,7 +75,7 @@ struct PreviewsView: View {
             .autoBlur(radius: blurRadius)
         }
         .onAppear {
-            viewStore.send(.fetchDatabaseInfos(gid))
+            store.send(.fetchDatabaseInfos(gid))
         }
         .navigationTitle(L10n.Localizable.PreviewsView.Title.previews)
     }

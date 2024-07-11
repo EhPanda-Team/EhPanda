@@ -12,8 +12,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 
 struct HomeView: View {
-    private let store: StoreOf<HomeReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<HomeReducer>
+    @Bindable private var store: StoreOf<HomeReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -24,7 +23,6 @@ struct HomeView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -38,60 +36,60 @@ struct HomeView: View {
             ZStack {
                 ScrollView(showsIndicators: false) {
                     VStack {
-                        if !viewStore.popularGalleries.isEmpty {
+                        if !store.popularGalleries.isEmpty {
                             CardSlideSection(
-                                galleries: viewStore.popularGalleries,
-                                pageIndex: viewStore.$cardPageIndex,
-                                currentID: viewStore.currentCardID,
-                                colors: viewStore.cardColors,
+                                galleries: store.popularGalleries,
+                                pageIndex: $store.cardPageIndex,
+                                currentID: store.currentCardID,
+                                colors: store.cardColors,
                                 navigateAction: navigateTo(gid:),
                                 webImageSuccessAction: { gid, result in
-                                    viewStore.send(.analyzeImageColors(gid, result))
+                                    store.send(.analyzeImageColors(gid, result))
                                 }
                             )
-                            .equatable().allowsHitTesting(viewStore.allowsCardHitTesting)
+                            .equatable().allowsHitTesting(store.allowsCardHitTesting)
                         }
                         Group {
-                            if viewStore.frontpageGalleries.count > 1 {
+                            if store.frontpageGalleries.count > 1 {
                                 CoverWallSection(
-                                    galleries: viewStore.frontpageGalleries,
-                                    isLoading: viewStore.frontpageLoadingState == .loading,
+                                    galleries: store.frontpageGalleries,
+                                    isLoading: store.frontpageLoadingState == .loading,
                                     navigateAction: navigateTo(gid:),
-                                    showAllAction: { viewStore.send(.setNavigation(.section(.frontpage))) },
-                                    reloadAction: { viewStore.send(.fetchFrontpageGalleries) }
+                                    showAllAction: { store.send(.setNavigation(.section(.frontpage))) },
+                                    reloadAction: { store.send(.fetchFrontpageGalleries) }
                                 )
                             }
                             ToplistsSection(
-                                galleries: viewStore.toplistsGalleries,
-                                isLoading: !viewStore.toplistsLoadingState
+                                galleries: store.toplistsGalleries,
+                                isLoading: !store.toplistsLoadingState
                                     .values.allSatisfy({ $0 != .loading }),
                                 navigateAction: navigateTo(gid:),
-                                showAllAction: { viewStore.send(.setNavigation(.section(.toplists))) },
-                                reloadAction: { viewStore.send(.fetchAllToplistsGalleries) }
+                                showAllAction: { store.send(.setNavigation(.section(.toplists))) },
+                                reloadAction: { store.send(.fetchAllToplistsGalleries) }
                             )
                             MiscGridSection(navigateAction: navigateTo(type:))
                         }
                         .padding(.vertical)
                     }
                 }
-                .opacity(viewStore.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
+                .opacity(store.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
                 LoadingView()
                     .opacity(
-                        viewStore.popularLoadingState == .loading
-                        && viewStore.popularGalleries.isEmpty ? 1 : 0
+                        store.popularLoadingState == .loading
+                        && store.popularGalleries.isEmpty ? 1 : 0
                     )
                     .zIndex(0)
-                let error = (/LoadingState.failed).extract(from: viewStore.popularLoadingState)
+                let error = (/LoadingState.failed).extract(from: store.popularLoadingState)
                 ErrorView(error: error ?? .unknown) {
-                    viewStore.send(.fetchAllGalleries)
+                    store.send(.fetchAllGalleries)
                 }
-                .opacity(viewStore.popularGalleries.isEmpty && error != nil ? 1 : 0)
+                .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
                 .zIndex(1)
             }
-            .animation(.default, value: viewStore.popularLoadingState)
+            .animation(.default, value: store.popularLoadingState)
             .onAppear {
-                if viewStore.popularGalleries.isEmpty {
-                    viewStore.send(.fetchAllGalleries)
+                if store.popularGalleries.isEmpty {
+                    store.send(.fetchAllGalleries)
                 }
             }
             .background(navigationLinks)
@@ -100,10 +98,10 @@ struct HomeView: View {
 
             if DeviceUtil.isPad {
                 content
-                    .sheet(unwrapping: viewStore.$route, case: /HomeReducer.Route.detail) { route in
+                    .sheet(unwrapping: $store.route, case: /HomeReducer.Route.detail) { route in
                         NavigationView {
                             DetailView(
-                                store: store.scope(state: \.detailState, action: \.detail),
+                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                                 gid: route.wrappedValue, user: user, setting: $setting,
                                 blurRadius: blurRadius, tagTranslator: tagTranslator
                             )
@@ -119,12 +117,12 @@ struct HomeView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary) {
             Button {
-                viewStore.send(.fetchAllGalleries)
+                store.send(.fetchAllGalleries)
             } label: {
                 Image(systemSymbol: .arrowCounterclockwise)
             }
-            .opacity(viewStore.popularLoadingState == .loading ? 0 : 1)
-            .overlay(ProgressView().opacity(viewStore.popularLoadingState == .loading ? 1 : 0))
+            .opacity(store.popularLoadingState == .loading ? 0 : 1)
+            .overlay(ProgressView().opacity(store.popularLoadingState == .loading ? 1 : 0))
         }
     }
 }
@@ -139,16 +137,16 @@ private extension HomeView {
         sectionLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.detail) { route in
+        NavigationLink(unwrapping: $store.route, case: /HomeReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: \.detail),
+                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
     var miscGridLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.misc) { route in
+        NavigationLink(unwrapping: $store.route, case: /HomeReducer.Route.misc) { route in
             switch route.wrappedValue {
             case .popular:
                 PopularView(
@@ -169,7 +167,7 @@ private extension HomeView {
         }
     }
     var sectionLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /HomeReducer.Route.section) { route in
+        NavigationLink(unwrapping: $store.route, case: /HomeReducer.Route.section) { route in
             switch route.wrappedValue {
             case .frontpage:
                 FrontpageView(
@@ -185,10 +183,10 @@ private extension HomeView {
         }
     }
     func navigateTo(gid: String) {
-        viewStore.send(.setNavigation(.detail(gid)))
+        store.send(.setNavigation(.detail(gid)))
     }
     func navigateTo(type: HomeMiscGridType) {
-        viewStore.send(.setNavigation(.misc(type)))
+        store.send(.setNavigation(.misc(type)))
     }
 }
 

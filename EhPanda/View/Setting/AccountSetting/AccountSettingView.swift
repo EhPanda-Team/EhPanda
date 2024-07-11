@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AccountSettingView: View {
-    private let store: StoreOf<AccountSettingReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<AccountSettingReducer>
+    @Bindable private var store: StoreOf<AccountSettingReducer>
     @Binding private var galleryHost: GalleryHost
     @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
@@ -22,7 +21,6 @@ struct AccountSettingView: View {
         bypassesSNIFiltering: Bool, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         _galleryHost = galleryHost
         _showsNewDawnGreeting = showsNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
@@ -40,36 +38,36 @@ struct AccountSettingView: View {
                 }
                 .pickerStyle(.segmented)
                 AccountSection(
-                    route: viewStore.$route,
+                    route: $store.route,
                     showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,
-                    loginAction: { viewStore.send(.setNavigation(.login)) },
+                    loginAction: { store.send(.setNavigation(.login)) },
                     logoutAction: {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            viewStore.send(.onLogoutConfirmButtonTapped)
+                            store.send(.onLogoutConfirmButtonTapped)
                         }
                     },
-                    logoutDialogAction: { viewStore.send(.setNavigation(.logout)) },
-                    configureAccountAction: { viewStore.send(.setNavigation(.ehSetting)) },
-                    manageTagsAction: { viewStore.send(.setNavigation(.webView(Defaults.URL.myTags))) }
+                    logoutDialogAction: { store.send(.setNavigation(.logout)) },
+                    configureAccountAction: { store.send(.setNavigation(.ehSetting)) },
+                    manageTagsAction: { store.send(.setNavigation(.webView(Defaults.URL.myTags))) }
                 )
             }
             CookieSection(
-                ehCookiesState: viewStore.$ehCookiesState,
-                exCookiesState: viewStore.$exCookiesState,
-                copyAction: { viewStore.send(.copyCookies($0)) }
+                ehCookiesState: $store.ehCookiesState,
+                exCookiesState: $store.exCookiesState,
+                copyAction: { store.send(.copyCookies($0)) }
             )
         }
         .progressHUD(
-            config: viewStore.hudConfig,
-            unwrapping: viewStore.$route,
+            config: store.hudConfig,
+            unwrapping: $store.route,
             case: /AccountSettingReducer.Route.hud
         )
-        .sheet(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.webView) { route in
+        .sheet(unwrapping: $store.route, case: /AccountSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
-        .onAppear { viewStore.send(.loadCookies) }
+        .onAppear { store.send(.loadCookies) }
         .background(navigationLinks)
         .navigationTitle(L10n.Localizable.AccountSettingView.Title.account)
     }
@@ -78,13 +76,13 @@ struct AccountSettingView: View {
 // MARK: NavigationLinks
 private extension AccountSettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.login) { _ in
+        NavigationLink(unwrapping: $store.route, case: /AccountSettingReducer.Route.login) { _ in
             LoginView(
                 store: store.scope(state: \.loginState, action: \.login),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /AccountSettingReducer.Route.ehSetting) { _ in
+        NavigationLink(unwrapping: $store.route, case: /AccountSettingReducer.Route.ehSetting) { _ in
             EhSettingView(
                 store: store.scope(state: \.ehSettingState, action: \.ehSetting),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius

@@ -19,14 +19,15 @@ struct AppRouteReducer {
         case newDawn(Greeting)
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
         var hudConfig: TTProgressHUDConfig = .loading
 
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
     }
 
@@ -57,12 +58,12 @@ struct AppRouteReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
             case .binding:
                 return .none
 
@@ -75,7 +76,7 @@ struct AppRouteReducer {
                 return .none
 
             case .clearSubStates:
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 return .send(.detail(.teardown))
 
             case .detectClipboardURL:
@@ -97,7 +98,7 @@ struct AppRouteReducer {
                 if case .detail = state.route {
                     delay = 1000
                     state.route = nil
-                    state.detailState = .init()
+                    state.detailState.wrappedValue = .init()
                 }
                 let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
@@ -116,7 +117,7 @@ struct AppRouteReducer {
                 let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 var effects = [Effect<Action>]()
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 effects.append(.send(.detail(.fetchDatabaseInfos(gid))))
                 if let pageIndex = pageIndex {
                     effects.append(.send(.updateReadingProgress(gid, pageIndex)))
@@ -127,7 +128,7 @@ struct AppRouteReducer {
                         }
                     )
                 } else if let commentID = commentID {
-                    state.detailState.commentsState?.scrollCommentID = commentID
+                    state.detailState.wrappedValue?.commentsState.wrappedValue?.scrollCommentID = commentID
                     effects.append(
                         .run { send in
                             try await Task.sleep(for: .milliseconds(500))
@@ -190,6 +191,6 @@ struct AppRouteReducer {
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
     }
 }

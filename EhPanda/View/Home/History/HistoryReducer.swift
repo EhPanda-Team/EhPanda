@@ -16,10 +16,11 @@ struct HistoryReducer {
         case clearHistory
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var keyword = ""
-        @BindingState var clearDialogPresented = false
+        var route: Route?
+        var keyword = ""
+        var clearDialogPresented = false
 
         var filteredGalleries: [Gallery] {
             guard !keyword.isEmpty else { return galleries }
@@ -28,10 +29,10 @@ struct HistoryReducer {
         var galleries = [Gallery]()
         var loadingState: LoadingState = .idle
 
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
     }
 
@@ -52,12 +53,12 @@ struct HistoryReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
             case .binding:
                 return .none
 
@@ -66,7 +67,7 @@ struct HistoryReducer {
                 return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 return .send(.detail(.teardown))
 
             case .clearHistoryGalleries:
@@ -100,6 +101,6 @@ struct HistoryReducer {
             }
         }
 
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
     }
 }

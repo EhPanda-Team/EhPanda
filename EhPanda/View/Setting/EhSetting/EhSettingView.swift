@@ -9,14 +9,12 @@ import SwiftUI
 import ComposableArchitecture
 
 struct EhSettingView: View {
-    private let store: StoreOf<EhSettingReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<EhSettingReducer>
+    @Bindable private var store: StoreOf<EhSettingReducer>
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
     init(store: StoreOf<EhSettingReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
@@ -25,32 +23,32 @@ struct EhSettingView: View {
     var body: some View {
         ZStack {
             // workaround: Stay if-else approach
-            if viewStore.loadingState == .loading || viewStore.submittingState == .loading {
+            if store.loadingState == .loading || store.submittingState == .loading {
                 LoadingView()
                     .tint(nil)
-            } else if case .failed(let error) = viewStore.loadingState {
-                ErrorView(error: error, action: { viewStore.send(.fetchEhSetting) })
+            } else if case .failed(let error) = store.loadingState {
+                ErrorView(error: error, action: { store.send(.fetchEhSetting) })
                     .tint(nil)
             }
             // Using `Binding.init` will crash the app
-            else if let ehSetting = Binding(unwrapping: viewStore.$ehSetting),
-                    let ehProfile = Binding(unwrapping: viewStore.$ehProfile)
+            else if let ehSetting = Binding(unwrapping: $store.ehSetting),
+                    let ehProfile = Binding(unwrapping: $store.ehProfile)
             {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
                     .transition(.opacity.animation(.default))
             }
         }
         .onAppear {
-            if viewStore.ehSetting == nil {
-                viewStore.send(.fetchEhSetting)
+            if store.ehSetting == nil {
+                store.send(.fetchEhSetting)
             }
         }
         .onDisappear {
-            if let profileSet = viewStore.ehSetting?.ehpandaProfile?.value {
-                viewStore.send(.setDefaultProfile(profileSet))
+            if let profileSet = store.ehSetting?.ehpandaProfile?.value {
+                store.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(unwrapping: viewStore.$route, case: /EhSettingReducer.Route.webView) { route in
+        .sheet(unwrapping: $store.route, case: /EhSettingReducer.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
@@ -62,19 +60,19 @@ struct EhSettingView: View {
         Form {
             Group {
                 EhProfileSection(
-                    route: viewStore.$route,
+                    route: $store.route,
                     ehSetting: ehSetting,
                     ehProfile: ehProfile,
-                    editingProfileName: viewStore.$editingProfileName,
+                    editingProfileName: $store.editingProfileName,
                     deleteAction: {
-                        if let value = viewStore.ehProfile?.value {
+                        if let value = store.ehProfile?.value {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                viewStore.send(.performAction(.delete, nil, value))
+                                store.send(.performAction(.delete, nil, value))
                             }
                         }
                     },
-                    deleteDialogAction: { viewStore.send(.setNavigation(.deleteProfile)) },
-                    performEhProfileAction: { viewStore.send(.performAction($0, $1, $2)) }
+                    deleteDialogAction: { store.send(.setNavigation(.deleteProfile)) },
+                    performEhProfileAction: { store.send(.performAction($0, $1, $2)) }
                 )
 
                 ImageLoadSettingsSection(ehSetting: ehSetting)
@@ -110,7 +108,7 @@ struct EhSettingView: View {
         Group {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    viewStore.send(.setNavigation(.webView(Defaults.URL.uConfig)))
+                    store.send(.setNavigation(.webView(Defaults.URL.uConfig)))
                 } label: {
                     Image(systemSymbol: .globe)
                 }
@@ -119,16 +117,16 @@ struct EhSettingView: View {
 
             ToolbarItem(placement: .confirmationAction) {
                 Button {
-                    viewStore.send(.submitChanges)
+                    store.send(.submitChanges)
                 } label: {
                     Image(systemSymbol: .icloudAndArrowUp)
                 }
-                .disabled(viewStore.ehSetting == nil)
+                .disabled(store.ehSetting == nil)
             }
 
             ToolbarItem(placement: .keyboard) {
                 Button(L10n.Localizable.EhSettingView.ToolbarItem.Button.done) {
-                    viewStore.send(.setKeyboardHidden)
+                    store.send(.setKeyboardHidden)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }

@@ -10,8 +10,7 @@ import Kingfisher
 import ComposableArchitecture
 
 struct CommentsView: View {
-    private let store: StoreOf<CommentsReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<CommentsReducer>
+    @Bindable private var store: StoreOf<CommentsReducer>
     private let gid: String
     private let token: String
     private let apiKey: String
@@ -29,7 +28,6 @@ struct CommentsView: View {
         blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.token = token
         self.apiKey = apiKey
@@ -47,16 +45,16 @@ struct CommentsView: View {
             List(comments) { comment in
                 CommentCell(
                     gid: gid, comment: comment,
-                    linkAction: { viewStore.send(.handleCommentLink($0)) }
+                    linkAction: { store.send(.handleCommentLink($0)) }
                 )
                 .opacity(
-                    comment.commentID == viewStore.scrollCommentID
-                    ? viewStore.scrollRowOpacity : 1
+                    comment.commentID == store.scrollCommentID
+                    ? store.scrollRowOpacity : 1
                 )
                 .swipeActions(edge: .leading) {
                     if comment.votable {
                         Button {
-                            viewStore.send(.voteComment(gid, token, apiKey, comment.commentID, -1))
+                            store.send(.voteComment(gid, token, apiKey, comment.commentID, -1))
                         } label: {
                             Image(systemSymbol: .handThumbsdown)
                         }
@@ -66,7 +64,7 @@ struct CommentsView: View {
                 .swipeActions(edge: .trailing) {
                     if comment.votable {
                         Button {
-                            viewStore.send(.voteComment(gid, token, apiKey, comment.commentID, 1))
+                            store.send(.voteComment(gid, token, apiKey, comment.commentID, 1))
                         } label: {
                             Image(systemSymbol: .handThumbsup)
                         }
@@ -74,8 +72,8 @@ struct CommentsView: View {
                     }
                     if comment.editable {
                         Button {
-                            viewStore.send(.setCommentContent(comment.plainTextContent))
-                            viewStore.send(.setNavigation(.postComment(comment.commentID)))
+                            store.send(.setCommentContent(comment.plainTextContent))
+                            store.send(.setNavigation(.postComment(comment.commentID)))
                         } label: {
                             Image(systemSymbol: .squareAndPencil)
                         }
@@ -83,7 +81,7 @@ struct CommentsView: View {
                 }
             }
             .onAppear {
-                if let scrollCommentID = viewStore.scrollCommentID {
+                if let scrollCommentID = store.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                         withAnimation {
                             proxy.scrollTo(scrollCommentID, anchor: .top)
@@ -92,36 +90,36 @@ struct CommentsView: View {
                 }
             }
         }
-        .sheet(unwrapping: viewStore.$route, case: /CommentsReducer.Route.postComment) { route in
+        .sheet(unwrapping: $store.route, case: /CommentsReducer.Route.postComment) { route in
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
                 ? L10n.Localizable.PostCommentView.Title.editComment
                 : L10n.Localizable.PostCommentView.Title.postComment,
-                content: viewStore.$commentContent,
-                isFocused: viewStore.$postCommentFocused,
+                content: $store.commentContent,
+                isFocused: $store.postCommentFocused,
                 postAction: {
                     if hasCommentID {
-                        viewStore.send(.postComment(galleryURL, route.wrappedValue))
+                        store.send(.postComment(galleryURL, route.wrappedValue))
                     } else {
-                        viewStore.send(.postComment(galleryURL))
+                        store.send(.postComment(galleryURL))
                     }
-                    viewStore.send(.setNavigation(nil))
+                    store.send(.setNavigation(nil))
                 },
-                cancelAction: { viewStore.send(.setNavigation(nil)) },
-                onAppearAction: { viewStore.send(.onPostCommentAppear) }
+                cancelAction: { store.send(.setNavigation(nil)) },
+                onAppearAction: { store.send(.onPostCommentAppear) }
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .progressHUD(
-            config: viewStore.hudConfig,
-            unwrapping: viewStore.$route,
+            config: store.hudConfig,
+            unwrapping: $store.route,
             case: /CommentsReducer.Route.hud
         )
-        .animation(.default, value: viewStore.scrollRowOpacity)
+        .animation(.default, value: store.scrollRowOpacity)
         .onAppear {
-            viewStore.send(.onAppear)
+            store.send(.onAppear)
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
@@ -131,7 +129,7 @@ struct CommentsView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                viewStore.send(.setNavigation(.postComment("")))
+                store.send(.setNavigation(.postComment("")))
             } label: {
                 Image(systemSymbol: .squareAndPencil)
             }
@@ -143,9 +141,9 @@ struct CommentsView: View {
 // MARK: NavigationLinks
 private extension CommentsView {
     @ViewBuilder var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /CommentsReducer.Route.detail) { route in
+        NavigationLink(unwrapping: $store.route, case: /CommentsReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: \.detail),
+                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )

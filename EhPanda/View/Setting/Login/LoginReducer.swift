@@ -23,11 +23,12 @@ struct LoginReducer {
         case password
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var focusedField: FocusedField?
-        @BindingState var username = ""
-        @BindingState var password = ""
+        var route: Route?
+        var focusedField: FocusedField?
+        var username = ""
+        var password = ""
         var loginState: LoadingState = .idle
 
         var loginButtonDisabled: Bool {

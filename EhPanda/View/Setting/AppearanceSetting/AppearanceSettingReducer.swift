@@ -13,8 +13,9 @@ struct AppearanceSettingReducer {
         case appIcon
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
     }
 
     enum Action: BindableAction, Equatable {

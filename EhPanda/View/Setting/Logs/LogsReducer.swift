@@ -18,8 +18,9 @@ struct LogsReducer {
         case fetchLogs
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
         var loadingState: LoadingState = .idle
         var logs = [Log]()
     }

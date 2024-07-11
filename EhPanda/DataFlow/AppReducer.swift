@@ -10,15 +10,16 @@ import ComposableArchitecture
 
 @Reducer
 struct AppReducer {
+    @ObservableState
     struct State: Equatable {
         var appDelegateState = AppDelegateReducer.State()
-        @BindingState var appRouteState = AppRouteReducer.State()
+        var appRouteState = AppRouteReducer.State()
         var appLockState = AppLockReducer.State()
         var tabBarState = TabBarReducer.State()
         var homeState = HomeReducer.State()
         var favoritesState = FavoritesReducer.State()
         var searchRootState = SearchRootReducer.State()
-        @BindingState var settingState = SettingReducer.State()
+        var settingState = SettingReducer.State()
     }
 
     enum Action: BindableAction {
@@ -45,14 +46,10 @@ struct AppReducer {
         LoggingReducer {
             BindingReducer()
                 .onChange(of: \.appRouteState.route) { _, newValue in
-                    Reduce { _, _ in
-                        return newValue == nil ? .send(.appRoute(.clearSubStates)) : .none
-                    }
+                    Reduce({ _, _ in newValue == nil ? .send(.appRoute(.clearSubStates)) : .none })
                 }
                 .onChange(of: \.settingState.setting) { _, _ in
-                    Reduce { _, _ in
-                        return .send(.setting(.syncSetting))
-                    }
+                    Reduce({ _, _ in .send(.setting(.syncSetting)) })
                 }
 
             Reduce { state, action in

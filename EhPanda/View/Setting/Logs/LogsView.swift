@@ -9,25 +9,23 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LogsView: View {
-    private let store: StoreOf<LogsReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<LogsReducer>
+    @Bindable private var store: StoreOf<LogsReducer>
 
     init(store: StoreOf<LogsReducer>) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {
         ZStack {
-            List(viewStore.logs) { log in
+            List(store.logs) { log in
                 Button {
-                    viewStore.send(.setNavigation(.log(log)))
+                    store.send(.setNavigation(.log(log)))
                 } label: {
-                    LogCell(log: log, isLatest: log == viewStore.logs.first)
+                    LogCell(log: log, isLatest: log == store.logs.first)
                 }
                 .swipeActions {
                     Button {
-                        viewStore.send(.deleteLog(log.fileName))
+                        store.send(.deleteLog(log.fileName))
                     } label: {
                         Image(systemSymbol: .trash)
                     }
@@ -35,18 +33,18 @@ struct LogsView: View {
                 }
                 .foregroundColor(.primary)
             }
-            .opacity(viewStore.logs.isEmpty ? 0 : 1)
-            LoadingView().opacity(viewStore.loadingState == .loading && viewStore.logs.isEmpty ? 1 : 0)
-            let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
+            .opacity(store.logs.isEmpty ? 0 : 1)
+            LoadingView().opacity(store.loadingState == .loading && store.logs.isEmpty ? 1 : 0)
+            let error = (/LoadingState.failed).extract(from: store.loadingState)
             ErrorView(error: error ?? .notFound) {
-                viewStore.send(.fetchLogs)
+                store.send(.fetchLogs)
             }
-            .opacity(error != nil && viewStore.logs.isEmpty ? 1 : 0)
+            .opacity(error != nil && store.logs.isEmpty ? 1 : 0)
         }
         .onAppear {
-            if viewStore.logs.isEmpty {
+            if store.logs.isEmpty {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchLogs)
+                    store.send(.fetchLogs)
                 }
             }
         }
@@ -56,14 +54,14 @@ struct LogsView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /LogsReducer.Route.log) { route in
+        NavigationLink(unwrapping: $store.route, case: /LogsReducer.Route.log) { route in
             LogView(log: route.wrappedValue)
         }
     }
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                viewStore.send(.navigateToFileApp)
+                store.send(.navigateToFileApp)
             } label: {
                 Image(systemSymbol: .folderBadgeGearshape)
             }

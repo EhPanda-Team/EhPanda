@@ -20,10 +20,11 @@ struct AccountSettingReducer {
         case webView(URL)
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var ehCookiesState: CookiesState = .empty(.ehentai)
-        @BindingState var exCookiesState: CookiesState = .empty(.exhentai)
+        var route: Route?
+        var ehCookiesState: CookiesState = .empty(.ehentai)
+        var exCookiesState: CookiesState = .empty(.exhentai)
         var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
 
         var loginState = LoginReducer.State()
@@ -47,22 +48,18 @@ struct AccountSettingReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
+            .onChange(of: \.ehCookiesState) { _, newValue in
+                Reduce({ _, _ in .run(operation: { _ in cookieClient.setCookies(state: newValue) }) })
+            }
+            .onChange(of: \.exCookiesState) { _, newValue in
+                Reduce({ _, _ in .run(operation: { _ in cookieClient.setCookies(state: newValue) }) })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
-            case .binding(\.$ehCookiesState):
-                return .run { [state] _ in
-                    cookieClient.setCookies(state: state.ehCookiesState)
-                }
-
-            case .binding(\.$exCookiesState):
-                return .run { [state] _ in
-                    cookieClient.setCookies(state: state.exCookiesState)
-                }
-
             case .binding:
                 return .none
 

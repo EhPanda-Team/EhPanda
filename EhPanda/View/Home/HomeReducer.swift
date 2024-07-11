@@ -19,10 +19,11 @@ struct HomeReducer {
         case section(HomeSectionType)
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var cardPageIndex = 1
-        @BindingState var currentCardID = ""
+        var route: Route?
+        var cardPageIndex = 1
+        var currentCardID = ""
         var allowsCardHitTesting = true
         var rawCardColors = [String: [Color]]()
         var cardColors: [Color] {
@@ -41,10 +42,10 @@ struct HomeReducer {
         var popularState = PopularReducer.State()
         var watchedState = WatchedReducer.State()
         var historyState = HistoryReducer.State()
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
 
         mutating func setPopularGalleries(_ galleries: [Gallery]) {
@@ -97,21 +98,23 @@ struct HomeReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
+            .onChange(of: \.cardPageIndex) { _, newValue in
+                Reduce { state, _ in
+                    guard newValue < state.popularGalleries.count else { return .none }
+                    state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
+                    state.allowsCardHitTesting = false
+                    return .run { send in
+                        try await Task.sleep(for: .milliseconds(300))
+                        await send(.setAllowsCardHitTesting(true))
+                    }
+                }
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
-            case .binding(\.$cardPageIndex):
-                guard state.cardPageIndex < state.popularGalleries.count else { return .none }
-                state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
-                state.allowsCardHitTesting = false
-                return .run { send in
-                    try await Task.sleep(for: .milliseconds(300))
-                    await send(.setAllowsCardHitTesting(true))
-                }
-
             case .binding:
                 return .none
 
@@ -125,7 +128,7 @@ struct HomeReducer {
                 state.popularState = .init()
                 state.watchedState = .init()
                 state.historyState = .init()
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 return .merge(
                     .send(.frontpage(.teardown)),
                     .send(.toplists(.teardown)),
@@ -266,6 +269,6 @@ struct HomeReducer {
         Scope(state: \.popularState, action: /Action.popular, child: PopularReducer.init)
         Scope(state: \.watchedState, action: /Action.watched, child: WatchedReducer.init)
         Scope(state: \.historyState, action: /Action.history, child: HistoryReducer.init)
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
     }
 }

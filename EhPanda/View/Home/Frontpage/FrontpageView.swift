@@ -10,8 +10,7 @@ import AlertKit
 import ComposableArchitecture
 
 struct FrontpageView: View {
-    private let store: StoreOf<FrontpageReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<FrontpageReducer>
+    @Bindable private var store: StoreOf<FrontpageReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -22,7 +21,6 @@ struct FrontpageView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -32,27 +30,27 @@ struct FrontpageView: View {
     var body: some View {
         let content =
         GenericList(
-            galleries: viewStore.filteredGalleries,
+            galleries: store.filteredGalleries,
             setting: setting,
-            pageNumber: viewStore.pageNumber,
-            loadingState: viewStore.loadingState,
-            footerLoadingState: viewStore.footerLoadingState,
-            fetchAction: { viewStore.send(.fetchGalleries) },
-            fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+            pageNumber: store.pageNumber,
+            loadingState: store.loadingState,
+            footerLoadingState: store.footerLoadingState,
+            fetchAction: { store.send(.fetchGalleries) },
+            fetchMoreAction: { store.send(.fetchMoreGalleries) },
+            navigateAction: { store.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.filters) { _ in
+        .sheet(unwrapping: $store.route, case: /FrontpageReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
-            if viewStore.galleries.isEmpty {
+            if store.galleries.isEmpty {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchGalleries)
+                    store.send(.fetchGalleries)
                 }
             }
         }
@@ -62,10 +60,10 @@ struct FrontpageView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.detail) { route in
+                .sheet(unwrapping: $store.route, case: /FrontpageReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: \.detail),
+                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -79,9 +77,9 @@ struct FrontpageView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.$route, case: /FrontpageReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: /FrontpageReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: \.detail),
+                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -91,7 +89,7 @@ struct FrontpageView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {
-                viewStore.send(.setNavigation(.filters))
+                store.send(.setNavigation(.filters))
             }
         }
     }

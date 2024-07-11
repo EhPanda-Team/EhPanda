@@ -30,10 +30,11 @@ struct DetailReducer {
         case fetchDatabaseInfos, fetchGalleryDetail, rateGallery, favorGallery, unfavorGallery, postComment, voteTag
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var commentContent = ""
-        @BindingState var postCommentFocused = false
+        var route: Route?
+        var commentContent = ""
+        var postCommentFocused = false
 
         var showsNewDawnGreeting = false
         var showsUserRating = false
@@ -52,13 +53,13 @@ struct DetailReducer {
         var archivesState = ArchivesReducer.State()
         var torrentsState = TorrentsReducer.State()
         var previewsState = PreviewsReducer.State()
-        @Heap var commentsState: CommentsReducer.State?
+        var commentsState: Heap<CommentsReducer.State?>
         var galleryInfosState = GalleryInfosReducer.State()
-        @Heap var detailSearchState: DetailSearchReducer.State?
+        var detailSearchState: Heap<DetailSearchReducer.State?>
 
         init() {
-            _commentsState = .init(nil)
-            _detailSearchState = .init(nil)
+            commentsState = .init(nil)
+            detailSearchState = .init(nil)
         }
 
         mutating func updateRating(value: DragGesture.Value) {
@@ -120,12 +121,12 @@ struct DetailReducer {
     var body: some Reducer<State, Action> {
         RecurseReducer { (self) in
             BindingReducer()
+                .onChange(of: \.route) { _, newValue in
+                    Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+                }
 
             Reduce { state, action in
                 switch action {
-                case .binding(\.$route):
-                    return state.route == nil ? .send(.clearSubStates) : .none
-
                 case .binding:
                     return .none
 
@@ -138,11 +139,11 @@ struct DetailReducer {
                     state.archivesState = .init()
                     state.torrentsState = .init()
                     state.previewsState = .init()
-                    state.commentsState = .init()
+                    state.commentsState.wrappedValue = .init()
                     state.commentContent = .init()
                     state.postCommentFocused = false
                     state.galleryInfosState = .init()
-                    state.detailSearchState = .init()
+                    state.detailSearchState.wrappedValue = .init()
                     return .merge(
                         .send(.reading(.teardown)),
                         .send(.archives(.teardown)),
@@ -160,11 +161,11 @@ struct DetailReducer {
 
                 case .onAppear(let gid, let showsNewDawnGreeting):
                     state.showsNewDawnGreeting = showsNewDawnGreeting
-                    if state.detailSearchState == nil {
-                        state.detailSearchState = .init()
+                    if state.detailSearchState.wrappedValue == nil {
+                        state.detailSearchState.wrappedValue = .init()
                     }
-                    if state.commentsState == nil {
-                        state.commentsState = .init()
+                    if state.commentsState.wrappedValue == nil {
+                        state.commentsState.wrappedValue = .init()
                     }
                     return .send(.fetchDatabaseInfos(gid))
 
@@ -397,9 +398,11 @@ struct DetailReducer {
                     return .send(.anyGalleryOpsDone(result))
 
                 case .comments(.detail(let recursiveAction)):
-                    guard state.commentsState != nil else { return .none }
-                    return self.reduce(into: &state.commentsState!.detailState, action: recursiveAction)
-                        .map({ Action.comments(.detail($0)) })
+                    guard state.commentsState.wrappedValue != nil else { return .none }
+                    return self.reduce(
+                        into: &state.commentsState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
+                    )
+                    .map({ Action.comments(.detail($0)) })
 
                 case .comments:
                     return .none
@@ -408,21 +411,23 @@ struct DetailReducer {
                     return .none
 
                 case .detailSearch(.detail(let recursiveAction)):
-                    guard state.detailSearchState != nil else { return .none }
-                    return self.reduce(into: &state.detailSearchState!.detailState, action: recursiveAction)
-                        .map({ Action.detailSearch(.detail($0)) })
+                    guard state.detailSearchState.wrappedValue != nil else { return .none }
+                    return self.reduce(
+                        into: &state.detailSearchState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
+                    )
+                    .map({ Action.detailSearch(.detail($0)) })
 
                 case .detailSearch:
                     return .none
                 }
             }
             .ifLet(
-                \.commentsState,
+                \.commentsState.wrappedValue,
                 action: /Action.comments,
                 then: CommentsReducer.init
             )
             .ifLet(
-                \.detailSearchState,
+                \.detailSearchState.wrappedValue,
                 action: /Action.detailSearch,
                 then: DetailSearchReducer.init
             )

@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ArchivesView: View {
-    private let store: StoreOf<ArchivesReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<ArchivesReducer>
+    @Bindable private var store: StoreOf<ArchivesReducer>
     private let gid: String
     private let user: User
     private let galleryURL: URL
@@ -21,7 +20,6 @@ struct ArchivesView: View {
         gid: String, user: User, galleryURL: URL, archiveURL: URL
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.user = user
         self.galleryURL = galleryURL
@@ -33,41 +31,41 @@ struct ArchivesView: View {
         NavigationView {
             ZStack {
                 VStack {
-                    HathArchivesView(archives: viewStore.hathArchives, selection: viewStore.$selectedArchive)
+                    HathArchivesView(archives: store.hathArchives, selection: $store.selectedArchive)
                     Spacer()
                     if let credits = Int(user.credits ?? ""), let galleryPoints = Int(user.galleryPoints ?? "") {
                         ArchiveFundsView(credits: credits, galleryPoints: galleryPoints)
                     }
-                    DownloadButton(isDisabled: viewStore.selectedArchive == nil) {
-                        viewStore.send(.fetchDownloadResponse(archiveURL))
+                    DownloadButton(isDisabled: store.selectedArchive == nil) {
+                        store.send(.fetchDownloadResponse(archiveURL))
                     }
                 }
-                .padding(.horizontal).opacity(viewStore.hathArchives.isEmpty ? 0 : 1)
+                .padding(.horizontal).opacity(store.hathArchives.isEmpty ? 0 : 1)
                 LoadingView().opacity(
-                    viewStore.loadingState == .loading
-                    && viewStore.hathArchives.isEmpty ? 1 : 0
+                    store.loadingState == .loading
+                    && store.hathArchives.isEmpty ? 1 : 0
                 )
-                let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
+                let error = (/LoadingState.failed).extract(from: store.loadingState)
                 ErrorView(error: error ?? .unknown) {
-                    viewStore.send(.fetchArchive(gid, galleryURL, archiveURL))
+                    store.send(.fetchArchive(gid, galleryURL, archiveURL))
                 }
-                .opacity(error != nil && viewStore.hathArchives.isEmpty ? 1 : 0)
+                .opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
             }
             .progressHUD(
-                config: viewStore.communicatingHUDConfig,
-                unwrapping: viewStore.$route,
+                config: store.communicatingHUDConfig,
+                unwrapping: $store.route,
                 case: /ArchivesReducer.Route.communicatingHUD
             )
             .progressHUD(
-                config: viewStore.messageHUDConfig,
-                unwrapping: viewStore.$route,
+                config: store.messageHUDConfig,
+                unwrapping: $store.route,
                 case: /ArchivesReducer.Route.messageHUD
             )
-            .animation(.default, value: viewStore.hathArchives)
+            .animation(.default, value: store.hathArchives)
             .animation(.default, value: user.galleryPoints)
             .animation(.default, value: user.credits)
             .onAppear {
-                viewStore.send(.fetchArchive(gid, galleryURL, archiveURL))
+                store.send(.fetchArchive(gid, galleryURL, archiveURL))
             }
             .navigationTitle(L10n.Localizable.ArchivesView.Title.archives)
         }

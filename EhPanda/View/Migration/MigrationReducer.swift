@@ -15,8 +15,9 @@ struct MigrationReducer {
         case dropDialog
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
         var databaseState: LoadingState = .loading
     }
 

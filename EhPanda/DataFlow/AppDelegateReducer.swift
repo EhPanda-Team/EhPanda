@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 @Reducer
 struct AppDelegateReducer {
+    @ObservableState
     struct State: Equatable {
         var migrationState = MigrationReducer.State()
     }
@@ -57,7 +58,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let store = Store(initialState: .init()) {
         AppReducer()
     }
-    lazy var viewStore = ViewStore(store, observe: { $0 })
 
     static var orientationMask: UIInterfaceOrientationMask = DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 
@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         if !AppUtil.isTesting {
-            viewStore.send(.appDelegate(.onLaunchFinish))
+            store.send(.appDelegate(.onLaunchFinish))
         }
         return true
     }

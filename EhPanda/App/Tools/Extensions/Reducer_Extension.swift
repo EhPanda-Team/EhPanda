@@ -67,11 +67,7 @@ where State == Base.State, Action == Base.Action {
     @ReducerBuilder<State, Action>
     var body: some Reducer<State, Action> {
         Reduce { state, action in
-            if case .setting(.binding(let bindingAction)) = action as? AppReducer.Action {
-                Logger.info("setting(EhPanda.SettingReducer.Action.\(bindingAction.customDumpDescription)")
-            } else {
-                Logger.info(action)
-            }
+            Logger.info(action)
             return base.reduce(into: &state, action: action)
         }
     }

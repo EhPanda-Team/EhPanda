@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct HistoryView: View {
-    private let store: StoreOf<HistoryReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<HistoryReducer>
+    @Bindable private var store: StoreOf<HistoryReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -21,7 +20,6 @@ struct HistoryView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -31,22 +29,22 @@ struct HistoryView: View {
     var body: some View {
         let content =
         GenericList(
-            galleries: viewStore.filteredGalleries,
+            galleries: store.filteredGalleries,
             setting: setting,
             pageNumber: nil,
-            loadingState: viewStore.loadingState,
+            loadingState: store.loadingState,
             footerLoadingState: .idle,
-            fetchAction: { viewStore.send(.fetchGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+            fetchAction: { store.send(.fetchGalleries) },
+            navigateAction: { store.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
-            if viewStore.galleries.isEmpty {
+            if store.galleries.isEmpty {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchGalleries)
+                    store.send(.fetchGalleries)
                 }
             }
         }
@@ -56,10 +54,10 @@ struct HistoryView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: viewStore.$route, case: /HistoryReducer.Route.detail) { route in
+                .sheet(unwrapping: $store.route, case: /HistoryReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: \.detail),
+                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -73,9 +71,9 @@ struct HistoryView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.$route, case: /HistoryReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: /HistoryReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: \.detail),
+                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -85,18 +83,18 @@ struct HistoryView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                viewStore.send(.setNavigation(.clearHistory))
+                store.send(.setNavigation(.clearHistory))
             } label: {
                 Image(systemSymbol: .trashCircle)
             }
-            .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
+            .disabled(store.loadingState != .idle || store.galleries.isEmpty)
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.clear,
-                unwrapping: viewStore.$route,
+                unwrapping: $store.route,
                 case: /HistoryReducer.Route.clearHistory
             ) {
                 Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
-                    viewStore.send(.clearHistoryGalleries)
+                    store.send(.clearHistoryGalleries)
                 }
             }
         }

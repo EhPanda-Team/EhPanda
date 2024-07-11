@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct PopularView: View {
-    private let store: StoreOf<PopularReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<PopularReducer>
+    @Bindable private var store: StoreOf<PopularReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -21,7 +20,6 @@ struct PopularView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -31,25 +29,25 @@ struct PopularView: View {
     var body: some View {
         let content =
         GenericList(
-            galleries: viewStore.filteredGalleries,
+            galleries: store.filteredGalleries,
             setting: setting, pageNumber: nil,
-            loadingState: viewStore.loadingState,
+            loadingState: store.loadingState,
             footerLoadingState: .idle,
-            fetchAction: { viewStore.send(.fetchGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+            fetchAction: { store.send(.fetchGalleries) },
+            navigateAction: { store.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(unwrapping: viewStore.$route, case: /PopularReducer.Route.filters) { _ in
+        .sheet(unwrapping: $store.route, case: /PopularReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
-            if viewStore.galleries.isEmpty {
+            if store.galleries.isEmpty {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchGalleries)
+                    store.send(.fetchGalleries)
                 }
             }
         }
@@ -59,10 +57,10 @@ struct PopularView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: viewStore.$route, case: /PopularReducer.Route.detail) { route in
+                .sheet(unwrapping: $store.route, case: /PopularReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: \.detail),
+                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -76,9 +74,9 @@ struct PopularView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.$route, case: /PopularReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: /PopularReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: \.detail),
+                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -88,7 +86,7 @@ struct PopularView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {
-                viewStore.send(.setNavigation(.filters))
+                store.send(.setNavigation(.filters))
             }
         }
     }

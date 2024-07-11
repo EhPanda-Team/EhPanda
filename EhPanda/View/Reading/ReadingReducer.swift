@@ -48,8 +48,9 @@ struct ReadingReducer {
         case fetchMPVImageURL
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
         var gallery: Gallery = .empty
         var galleryDetail: GalleryDetail?
 
@@ -73,8 +74,8 @@ struct ReadingReducer {
         var mpvImageKeys = [Int: String]()
         var mpvSkipServerIdentifiers = [Int: String]()
 
-        @BindingState var showsPanel = false
-        @BindingState var showsSliderPreview = false
+        var showsPanel = false
+        var showsSliderPreview = false
 
         // Update
         func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
@@ -188,12 +189,12 @@ struct ReadingReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.showsSliderPreview) { _, _ in
+                Reduce({ _, _ in .run(operation: { _ in hapticsClient.generateFeedback(.soft) }) })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$showsSliderPreview):
-                return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
-
             case .binding:
                 return .none
 

@@ -17,9 +17,10 @@ struct SearchRootReducer {
         case detail(String)
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var keyword = ""
+        var route: Route?
+        var keyword = ""
         var historyGalleries = [Gallery]()
 
         var historyKeywords = [String]()
@@ -28,10 +29,10 @@ struct SearchRootReducer {
         var searchState = SearchReducer.State()
         var filtersState = FiltersReducer.State()
         var quickSearchState = QuickSearchReducer.State()
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
 
         mutating func appendHistoryKeywords(_ keywords: [String]) {
@@ -90,17 +91,19 @@ struct SearchRootReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce { _, _ in
+                    newValue == nil
+                    ? .merge(
+                        .send(.clearSubStates),
+                        .send(.fetchDatabaseInfos)
+                    )
+                    : .none
+                }
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil
-                ? .merge(
-                    .send(.clearSubStates),
-                    .send(.fetchDatabaseInfos)
-                )
-                : .none
-
             case .binding:
                 return .none
 
@@ -119,7 +122,7 @@ struct SearchRootReducer {
 
             case .clearSubStates:
                 state.searchState = .init()
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 state.filtersState = .init()
                 state.quickSearchState = .init()
                 return .merge(
@@ -197,6 +200,6 @@ struct SearchRootReducer {
         Scope(state: \.searchState, action: /Action.search, child: SearchReducer.init)
         Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
         Scope(state: \.quickSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
     }
 }

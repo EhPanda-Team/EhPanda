@@ -17,9 +17,10 @@ struct FavoritesReducer {
         case detail(String)
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var keyword = ""
+        var route: Route?
+        var keyword = ""
 
         var index = -1
         var sortOrder: FavoritesSortOrder?
@@ -42,11 +43,11 @@ struct FavoritesReducer {
             rawFooterLoadingState[index]
         }
 
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
         var quickSearchState = QuickSearchReducer.State()
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
 
         mutating func insertGalleries(index: Int, galleries: [Gallery]) {
@@ -79,12 +80,12 @@ struct FavoritesReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
             case .binding:
                 return .none
 
@@ -98,7 +99,7 @@ struct FavoritesReducer {
                 return .send(.fetchGalleries())
 
             case .clearSubStates:
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 return .send(.detail(.teardown))
 
             case .onNotLoginViewButtonTapped:
@@ -196,7 +197,7 @@ struct FavoritesReducer {
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
         Scope(state: \.quickSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
     }
 }

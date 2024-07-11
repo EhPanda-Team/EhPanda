@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ToplistsView: View {
-    private let store: StoreOf<ToplistsReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<ToplistsReducer>
+    @Bindable private var store: StoreOf<ToplistsReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -21,7 +20,6 @@ struct ToplistsView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -29,38 +27,38 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        [L10n.Localizable.ToplistsView.Title.toplists, viewStore.type.value].joined(separator: " - ")
+        [L10n.Localizable.ToplistsView.Title.toplists, store.type.value].joined(separator: " - ")
     }
 
     var body: some View {
         let content =
         GenericList(
-            galleries: viewStore.filteredGalleries ?? [],
+            galleries: store.filteredGalleries ?? [],
             setting: setting,
-            pageNumber: viewStore.pageNumber,
-            loadingState: viewStore.loadingState ?? .idle,
-            footerLoadingState: viewStore.footerLoadingState ?? .idle,
-            fetchAction: { viewStore.send(.fetchGalleries()) },
-            fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+            pageNumber: store.pageNumber,
+            loadingState: store.loadingState ?? .idle,
+            footerLoadingState: store.footerLoadingState ?? .idle,
+            fetchAction: { store.send(.fetchGalleries()) },
+            fetchMoreAction: { store.send(.fetchMoreGalleries) },
+            navigateAction: { store.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .jumpPageAlert(
-            index: viewStore.$jumpPageIndex,
-            isPresented: viewStore.$jumpPageAlertPresented,
-            isFocused: viewStore.$jumpPageAlertFocused,
-            pageNumber: viewStore.pageNumber ?? .init(),
-            jumpAction: { viewStore.send(.performJumpPage) }
+            index: $store.jumpPageIndex,
+            isPresented: $store.jumpPageAlertPresented,
+            isFocused: $store.jumpPageAlertFocused,
+            pageNumber: store.pageNumber ?? .init(),
+            jumpAction: { store.send(.performJumpPage) }
         )
-        .searchable(text: viewStore.$keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
-        .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
-        .animation(.default, value: viewStore.jumpPageAlertPresented)
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .navigationBarBackButtonHidden(store.jumpPageAlertPresented)
+        .animation(.default, value: store.jumpPageAlertPresented)
         .onAppear {
-            if viewStore.galleries?.isEmpty != false {
+            if store.galleries?.isEmpty != false {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchGalleries())
+                    store.send(.fetchGalleries())
                 }
             }
         }
@@ -70,10 +68,10 @@ struct ToplistsView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: viewStore.$route, case: /ToplistsReducer.Route.detail) { route in
+                .sheet(unwrapping: $store.route, case: /ToplistsReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: \.detail),
+                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -87,9 +85,9 @@ struct ToplistsView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.$route, case: /ToplistsReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: /ToplistsReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: \.detail),
+                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -97,17 +95,17 @@ struct ToplistsView: View {
         }
     }
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
-            ToplistsTypeMenu(type: viewStore.type) { type in
-                if type != viewStore.type {
-                    viewStore.send(.setToplistsType(type))
+        CustomToolbarItem(disabled: store.jumpPageAlertPresented) {
+            ToplistsTypeMenu(type: store.type) { type in
+                if type != store.type {
+                    store.send(.setToplistsType(type))
                 }
             }
             if AppUtil.galleryHost == .ehentai {
-                JumpPageButton(pageNumber: viewStore.pageNumber ?? .init(), hideText: true) {
-                    viewStore.send(.presentJumpPageAlert)
+                JumpPageButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
+                    store.send(.presentJumpPageAlert)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        viewStore.send(.setJumpPageAlertFocused(true))
+                        store.send(.setJumpPageAlertFocused(true))
                     }
                 }
             }

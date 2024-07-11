@@ -9,24 +9,22 @@ import SwiftUI
 import ComposableArchitecture
 
 struct FiltersView: View {
-    private let store: StoreOf<FiltersReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<FiltersReducer>
+    @Bindable private var store: StoreOf<FiltersReducer>
 
     @FocusState private var focusedBound: FiltersReducer.FocusedBound?
 
     init(store: StoreOf<FiltersReducer>) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
     }
 
     private var filter: Binding<Filter> {
-        switch viewStore.filterRange {
+        switch store.filterRange {
         case .search:
-            return viewStore.$searchFilter
+            return $store.searchFilter
         case .global:
-            return viewStore.$globalFilter
+            return $store.globalFilter
         case .watched:
-            return viewStore.$watchedFilter
+            return $store.watchedFilter
         }
     }
 
@@ -35,19 +33,19 @@ struct FiltersView: View {
         NavigationView {
             Form {
                 BasicSection(
-                    route: viewStore.$route,
-                    filter: filter, filterRange: viewStore.$filterRange,
-                    resetFiltersAction: { viewStore.send(.resetFilters) },
-                    resetFiltersDialogAction: { viewStore.send(.setNavigation(.resetFilters)) }
+                    route: $store.route,
+                    filter: filter, filterRange: $store.filterRange,
+                    resetFiltersAction: { store.send(.resetFilters) },
+                    resetFiltersDialogAction: { store.send(.setNavigation(.resetFilters)) }
                 )
                 AdvancedSection(
                     filter: filter, focusedBound: $focusedBound,
-                    submitAction: { viewStore.send(.onTextFieldSubmitted) }
+                    submitAction: { store.send(.onTextFieldSubmitted) }
                 )
             }
-            .synchronize(viewStore.$focusedBound, $focusedBound)
+            .synchronize($store.focusedBound, $focusedBound)
             .navigationTitle(L10n.Localizable.FiltersView.Title.filters)
-            .onAppear { viewStore.send(.fetchFilters) }
+            .onAppear { store.send(.fetchFilters) }
         }
     }
 }

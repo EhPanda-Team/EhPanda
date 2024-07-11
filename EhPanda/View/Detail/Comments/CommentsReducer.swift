@@ -22,19 +22,20 @@ struct CommentsReducer {
         case postComment, voteComment, fetchGallery
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var commentContent = ""
-        @BindingState var postCommentFocused = false
+        var route: Route?
+        var commentContent = ""
+        var postCommentFocused = false
 
         var hudConfig: TTProgressHUDConfig = .loading
         var scrollCommentID: String?
         var scrollRowOpacity: Double = 1
 
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
     }
 
@@ -74,12 +75,12 @@ struct CommentsReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
             case .binding:
                 return .none
 
@@ -88,7 +89,7 @@ struct CommentsReducer {
                 return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 state.commentContent = .init()
                 state.postCommentFocused = false
                 return .send(.detail(.teardown))
@@ -153,7 +154,7 @@ struct CommentsReducer {
                         }
                     )
                 } else if let commentID = commentID {
-                    state.detailState.commentsState?.scrollCommentID = commentID
+                    state.detailState.wrappedValue?.commentsState.wrappedValue?.scrollCommentID = commentID
                     effects.append(
                         .run { send in
                             try await Task.sleep(for: .milliseconds(750))
@@ -171,8 +172,8 @@ struct CommentsReducer {
                 }
 
             case .onAppear:
-                if state.detailState == nil {
-                    state.detailState = .init()
+                if state.detailState.wrappedValue == nil {
+                    state.detailState.wrappedValue = .init()
                 }
                 return state.scrollCommentID != nil ? .send(.performScrollOpacityEffect) : .none
 

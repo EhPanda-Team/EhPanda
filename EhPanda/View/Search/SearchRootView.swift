@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SearchRootView: View {
-    private let store: StoreOf<SearchRootReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<SearchRootReducer>
+    @Bindable private var store: StoreOf<SearchRootReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -21,7 +20,6 @@ struct SearchRootView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -33,48 +31,48 @@ struct SearchRootView: View {
             let content =
             ScrollView(showsIndicators: false) {
                 SuggestionsPanel(
-                    historyKeywords: viewStore.historyKeywords.reversed(),
-                    historyGalleries: viewStore.historyGalleries,
-                    quickSearchWords: viewStore.quickSearchWords,
-                    navigateGalleryAction: { viewStore.send(.setNavigation(.detail($0))) },
-                    navigateQuickSearchAction: { viewStore.send(.setNavigation(.quickSearch)) },
+                    historyKeywords: store.historyKeywords.reversed(),
+                    historyGalleries: store.historyGalleries,
+                    quickSearchWords: store.quickSearchWords,
+                    navigateGalleryAction: { store.send(.setNavigation(.detail($0))) },
+                    navigateQuickSearchAction: { store.send(.setNavigation(.quickSearch)) },
                     searchKeywordAction: { keyword in
-                        viewStore.send(.setKeyword(keyword))
-                        viewStore.send(.setNavigation(.search))
+                        store.send(.setKeyword(keyword))
+                        store.send(.setNavigation(.search))
                     },
-                    removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) }
+                    removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
                 )
             }
-            .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.filters) { _ in
+            .sheet(unwrapping: $store.route, case: /SearchRootReducer.Route.filters) { _ in
                 FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
-            .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.quickSearch) { _ in
+            .sheet(unwrapping: $store.route, case: /SearchRootReducer.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: \.quickSearch)
                 ) { keyword in
-                    viewStore.send(.setNavigation(nil))
-                    viewStore.send(.setKeyword(keyword))
+                    store.send(.setNavigation(nil))
+                    store.send(.setKeyword(keyword))
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        viewStore.send(.setNavigation(.search))
+                        store.send(.setNavigation(.search))
                     }
                 }
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: viewStore.$keyword)
+            .searchable(text: $store.keyword)
             .searchSuggestions {
                 TagSuggestionView(
-                    keyword: viewStore.$keyword, translations: tagTranslator.translations,
+                    keyword: $store.keyword, translations: tagTranslator.translations,
                     showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
                 )
             }
             .onSubmit(of: .search) {
-                viewStore.send(.setNavigation(.search))
+                store.send(.setNavigation(.search))
             }
             .onAppear {
-                viewStore.send(.fetchHistoryGalleries)
-                viewStore.send(.fetchDatabaseInfos)
+                store.send(.fetchHistoryGalleries)
+                store.send(.fetchDatabaseInfos)
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)
@@ -82,10 +80,10 @@ struct SearchRootView: View {
 
             if DeviceUtil.isPad {
                 content
-                    .sheet(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.detail) { route in
+                    .sheet(unwrapping: $store.route, case: /SearchRootReducer.Route.detail) { route in
                         NavigationView {
                             DetailView(
-                                store: store.scope(state: \.detailState, action: \.detail),
+                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                                 gid: route.wrappedValue, user: user, setting: $setting,
                                 blurRadius: blurRadius, tagTranslator: tagTranslator
                             )
@@ -102,10 +100,10 @@ struct SearchRootView: View {
         CustomToolbarItem(tint: .primary) {
             ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
-                    viewStore.send(.setNavigation(.filters))
+                    store.send(.setNavigation(.filters))
                 }
                 QuickSearchButton {
-                    viewStore.send(.setNavigation(.quickSearch))
+                    store.send(.setNavigation(.quickSearch))
                 }
             }
         }
@@ -120,19 +118,19 @@ private extension SearchRootView {
         searchViewLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.detail) { route in
+        NavigationLink(unwrapping: $store.route, case: /SearchRootReducer.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: \.detail),
+                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
     var searchViewLink: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /SearchRootReducer.Route.search) { _ in
+        NavigationLink(unwrapping: $store.route, case: /SearchRootReducer.Route.search) { _ in
             SearchView(
                 store: store.scope(state: \.searchState, action: \.search),
-                keyword: viewStore.keyword, user: user, setting: $setting,
+                keyword: store.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }

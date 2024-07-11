@@ -22,15 +22,16 @@ struct SettingReducer {
         case about
     }
 
+    @ObservableState
     struct State: Equatable {
         // AppEnvStorage
-        @BindingState var setting = Setting()
+        var setting = Setting()
         var tagTranslator = TagTranslator()
         var user = User()
 
         var hasLoadedInitialSetting = false
 
-        @BindingState var route: Route?
+        var route: Route?
         var tagTranslatorLoadingState: LoadingState = .idle
 
         var accountSettingState = AccountSettingReducer.State()
@@ -113,6 +114,9 @@ struct SettingReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.setting) { _, _ in
+                Reduce({ _, _ in .send(.syncSetting) })
+            }
             .onChange(of: \.setting.galleryHost) { _, newValue in
                 Reduce { _, _ in
                     .merge(
@@ -206,12 +210,6 @@ struct SettingReducer {
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$setting):
-                return .send(.syncSetting)
-
-            case .binding(\.$route):
-                return .none
-
             case .binding:
                 return .merge(
                     .send(.syncUser),

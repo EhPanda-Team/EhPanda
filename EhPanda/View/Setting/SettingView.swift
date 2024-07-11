@@ -10,13 +10,11 @@ import SFSafeSymbols
 import ComposableArchitecture
 
 struct SettingView: View {
-    private let store: StoreOf<SettingReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<SettingReducer>
+    @Bindable private var store: StoreOf<SettingReducer>
     private let blurRadius: Double
 
     init(store: StoreOf<SettingReducer>, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.blurRadius = blurRadius
     }
 
@@ -27,7 +25,7 @@ struct SettingView: View {
                 VStack(spacing: 0) {
                     ForEach(SettingReducer.Route.allCases) { route in
                         SettingRow(rowType: route) {
-                            viewStore.send(.setNavigation($0))
+                            store.send(.setNavigation($0))
                         }
                     }
                 }
@@ -42,65 +40,65 @@ struct SettingView: View {
 // MARK: NavigationLinks
 private extension SettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.account) { _ in
+        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.account) { _ in
             AccountSettingView(
                 store: store.scope(state: \.accountSettingState, action: \.account),
-                galleryHost: viewStore.$setting.galleryHost,
-                showsNewDawnGreeting: viewStore.$setting.showsNewDawnGreeting,
-                bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
+                galleryHost: $store.setting.galleryHost,
+                showsNewDawnGreeting: $store.setting.showsNewDawnGreeting,
+                bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
                 blurRadius: blurRadius
             )
-            .tint(viewStore.setting.accentColor)
+            .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.general) { _ in
+        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.general) { _ in
             GeneralSettingView(
                 store: store.scope(state: \.generalSettingState, action: \.general),
-                tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
-                tagTranslatorEmpty: viewStore.tagTranslator.translations.isEmpty,
-                tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
-                enablesTagsExtension: viewStore.$setting.enablesTagsExtension,
-                translatesTags: viewStore.$setting.translatesTags,
-                showsTagsSearchSuggestion: viewStore.$setting.showsTagsSearchSuggestion,
-                showsImagesInTags: viewStore.$setting.showsImagesInTags,
-                redirectsLinksToSelectedHost: viewStore.$setting.redirectsLinksToSelectedHost,
-                detectsLinksFromClipboard: viewStore.$setting.detectsLinksFromClipboard,
-                backgroundBlurRadius: viewStore.$setting.backgroundBlurRadius,
-                autoLockPolicy: viewStore.$setting.autoLockPolicy
+                tagTranslatorLoadingState: store.tagTranslatorLoadingState,
+                tagTranslatorEmpty: store.tagTranslator.translations.isEmpty,
+                tagTranslatorHasCustomTranslations: store.tagTranslator.hasCustomTranslations,
+                enablesTagsExtension: $store.setting.enablesTagsExtension,
+                translatesTags: $store.setting.translatesTags,
+                showsTagsSearchSuggestion: $store.setting.showsTagsSearchSuggestion,
+                showsImagesInTags: $store.setting.showsImagesInTags,
+                redirectsLinksToSelectedHost: $store.setting.redirectsLinksToSelectedHost,
+                detectsLinksFromClipboard: $store.setting.detectsLinksFromClipboard,
+                backgroundBlurRadius: $store.setting.backgroundBlurRadius,
+                autoLockPolicy: $store.setting.autoLockPolicy
             )
-            .tint(viewStore.setting.accentColor)
+            .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.appearance) { _ in
+        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.appearance) { _ in
             AppearanceSettingView(
                 store: store.scope(state: \.appearanceSettingState, action: \.appearance),
-                preferredColorScheme: viewStore.$setting.preferredColorScheme,
-                accentColor: viewStore.$setting.accentColor,
-                appIconType: viewStore.$setting.appIconType,
-                listDisplayMode: viewStore.$setting.listDisplayMode,
-                showsTagsInList: viewStore.$setting.showsTagsInList,
-                listTagsNumberMaximum: viewStore.$setting.listTagsNumberMaximum,
-                displaysJapaneseTitle: viewStore.$setting.displaysJapaneseTitle
+                preferredColorScheme: $store.setting.preferredColorScheme,
+                accentColor: $store.setting.accentColor,
+                appIconType: $store.setting.appIconType,
+                listDisplayMode: $store.setting.listDisplayMode,
+                showsTagsInList: $store.setting.showsTagsInList,
+                listTagsNumberMaximum: $store.setting.listTagsNumberMaximum,
+                displaysJapaneseTitle: $store.setting.displaysJapaneseTitle
             )
-            .tint(viewStore.setting.accentColor)
+            .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.reading) { _ in
+        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.reading) { _ in
             ReadingSettingView(
-                readingDirection: viewStore.$setting.readingDirection,
-                prefetchLimit: viewStore.$setting.prefetchLimit,
-                enablesLandscape: viewStore.$setting.enablesLandscape,
-                contentDividerHeight: viewStore.$setting.contentDividerHeight,
-                maximumScaleFactor: viewStore.$setting.maximumScaleFactor,
-                doubleTapScaleFactor: viewStore.$setting.doubleTapScaleFactor
+                readingDirection: $store.setting.readingDirection,
+                prefetchLimit: $store.setting.prefetchLimit,
+                enablesLandscape: $store.setting.enablesLandscape,
+                contentDividerHeight: $store.setting.contentDividerHeight,
+                maximumScaleFactor: $store.setting.maximumScaleFactor,
+                doubleTapScaleFactor: $store.setting.doubleTapScaleFactor
             )
-            .tint(viewStore.setting.accentColor)
+            .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.laboratory) { _ in
+        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.laboratory) { _ in
             LaboratorySettingView(
-                bypassesSNIFiltering: viewStore.$setting.bypassesSNIFiltering
+                bypassesSNIFiltering: $store.setting.bypassesSNIFiltering
             )
-            .tint(viewStore.setting.accentColor)
+            .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /SettingReducer.Route.about) { _ in
-            AboutView().tint(viewStore.setting.accentColor)
+        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.about) { _ in
+            AboutView().tint(store.setting.accentColor)
         }
     }
 }

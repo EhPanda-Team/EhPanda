@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 @Reducer
 struct TabBarReducer {
+    @ObservableState
     struct State: Equatable {
         var tabBarItemType: TabBarItemType = .home
     }

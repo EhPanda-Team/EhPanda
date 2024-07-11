@@ -13,8 +13,7 @@ import ComposableArchitecture
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    let store: StoreOf<ReadingReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<ReadingReducer>
+    @Bindable var store: StoreOf<ReadingReducer>
     private let gid: String
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -30,7 +29,6 @@ struct ReadingView: View {
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
@@ -46,7 +44,7 @@ struct ReadingView: View {
             ZStack {
                 if setting.readingDirection == .vertical {
                     AdvancedList(
-                        page: page, data: viewStore.state.containerDataSource(setting: setting),
+                        page: page, data: store.state.containerDataSource(setting: setting),
                         id: \.self, spacing: setting.contentDividerHeight,
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                         content: imageStack
@@ -54,7 +52,7 @@ struct ReadingView: View {
                     .disabled(gestureHandler.scale != 1)
                 } else {
                     Pager(
-                        page: page, data: viewStore.state.containerDataSource(setting: setting),
+                        page: page, data: store.state.containerDataSource(setting: setting),
                         id: \.self, content: imageStack
                     )
                     .horizontal(setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
@@ -64,24 +62,24 @@ struct ReadingView: View {
             .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
             .offset(gestureHandler.offset).gesture(tapGesture).gesture(dragGesture)
             .gesture(magnificationGesture).ignoresSafeArea()
-            .id(viewStore.databaseLoadingState)
-            .id(viewStore.forceRefreshID)
+            .id(store.databaseLoadingState)
+            .id(store.forceRefreshID)
             ControlPanel(
-                showsPanel: viewStore.$showsPanel,
-                showsSliderPreview: viewStore.$showsSliderPreview,
+                showsPanel: $store.showsPanel,
+                showsSliderPreview: $store.showsSliderPreview,
                 sliderValue: $pageHandler.sliderValue, setting: $setting,
                 enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
-                range: 1...Float(viewStore.gallery.pageCount), previewURLs: viewStore.previewURLs,
+                range: 1...Float(store.gallery.pageCount), previewURLs: store.previewURLs,
                 dismissGesture: controlPanelDismissGesture,
-                dismissAction: { viewStore.send(.onPerformDismiss) },
-                navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
-                reloadAllImagesAction: { viewStore.send(.reloadAllWebImages) },
-                retryAllFailedImagesAction: { viewStore.send(.retryAllFailedWebImages) },
-                fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
+                dismissAction: { store.send(.onPerformDismiss) },
+                navigateSettingAction: { store.send(.setNavigation(.readingSetting)) },
+                reloadAllImagesAction: { store.send(.reloadAllWebImages) },
+                retryAllFailedImagesAction: { store.send(.retryAllFailedWebImages) },
+                fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
             )
         }
-        .sheet(unwrapping: viewStore.$route, case: /ReadingReducer.Route.readingSetting) { _ in
+        .sheet(unwrapping: $store.route, case: /ReadingReducer.Route.readingSetting) { _ in
             NavigationView {
                 ReadingSettingView(
                     readingDirection: $setting.readingDirection,
@@ -95,7 +93,7 @@ struct ReadingView: View {
                     CustomToolbarItem(placement: .cancellationAction) {
                         if !DeviceUtil.isPad && DeviceUtil.isLandscape {
                             Button {
-                                viewStore.send(.setNavigation(nil))
+                                store.send(.setNavigation(nil))
                             } label: {
                                 Image(systemSymbol: .chevronDown)
                             }
@@ -106,13 +104,13 @@ struct ReadingView: View {
             .accentColor(setting.accentColor).tint(setting.accentColor)
             .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
-        .sheet(unwrapping: viewStore.$route, case: /ReadingReducer.Route.share) { route in
+        .sheet(unwrapping: $store.route, case: /ReadingReducer.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue.associatedValue])
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
-            config: viewStore.hudConfig,
-            unwrapping: viewStore.$route,
+            config: store.hudConfig,
+            unwrapping: $store.route,
             case: /ReadingReducer.Route.hud
         )
 
@@ -120,32 +118,32 @@ struct ReadingView: View {
         .onChange(of: page.index) { _, newValue in
             Logger.info("page.index changed", context: ["pageIndex": newValue])
             let newValue = pageHandler.mapFromPager(
-                index: newValue, pageCount: viewStore.gallery.pageCount, setting: setting
+                index: newValue, pageCount: store.gallery.pageCount, setting: setting
             )
             pageHandler.sliderValue = .init(newValue)
-            if viewStore.databaseLoadingState == .idle {
-                viewStore.send(.syncReadingProgress(.init(newValue)))
+            if store.databaseLoadingState == .idle {
+                store.send(.syncReadingProgress(.init(newValue)))
             }
         }
         .onChange(of: pageHandler.sliderValue) { _, newValue in
             Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": newValue])
-            if !viewStore.showsSliderPreview {
+            if !store.showsSliderPreview {
                 setPageIndex(sliderValue: newValue)
             }
         }
-        .onChange(of: viewStore.showsSliderPreview) { _, newValue in
-            Logger.info("viewStore.showsSliderPreview changed", context: ["isShown": newValue])
+        .onChange(of: store.showsSliderPreview) { _, newValue in
+            Logger.info("store.showsSliderPreview changed", context: ["isShown": newValue])
             if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
             setAutoPlayPolocy(.off)
         }
-        .onChange(of: viewStore.readingProgress) { _, newValue in
-            Logger.info("viewStore.readingProgress changed", context: ["readingProgress": newValue])
+        .onChange(of: store.readingProgress) { _, newValue in
+            Logger.info("store.readingProgress changed", context: ["readingProgress": newValue])
             pageHandler.sliderValue = .init(newValue)
         }
 
         // AutoPlay
-        .onChange(of: viewStore.route) { _, newValue in
-            Logger.info("viewStore.route changed", context: ["route": newValue])
+        .onChange(of: store.route) { _, newValue in
+            Logger.info("store.route changed", context: ["route": newValue])
             if ![.hud, .none].contains(newValue) {
                 setAutoPlayPolocy(.off)
             }
@@ -154,11 +152,11 @@ struct ReadingView: View {
         // LiveText
         .onChange(of: liveTextHandler.enablesLiveText) { _, newValue in
             Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": newValue])
-            if newValue { viewStore.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
+            if newValue { store.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
         }
-        .onChange(of: viewStore.webImageLoadSuccessIndices) { _, newValue in
-            Logger.info("viewStore.webImageLoadSuccessIndices changed", context: [
-                "count": viewStore.webImageLoadSuccessIndices.count
+        .onChange(of: store.webImageLoadSuccessIndices) { _, newValue in
+            Logger.info("store.webImageLoadSuccessIndices changed", context: [
+                "count": store.webImageLoadSuccessIndices.count
             ])
             if liveTextHandler.enablesLiveText {
                 newValue.forEach(analyzeImageForLiveText)
@@ -168,41 +166,41 @@ struct ReadingView: View {
         // Orientation
         .onChange(of: setting.enablesLandscape) { _, newValue in
             Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
-            viewStore.send(.setOrientationPortrait(!newValue))
+            store.send(.setOrientationPortrait(!newValue))
         }
 
         .animation(.linear(duration: 0.1), value: gestureHandler.offset)
         .animation(.default, value: liveTextHandler.enablesLiveText)
         .animation(.default, value: liveTextHandler.liveTextGroups)
         .animation(.default, value: gestureHandler.scale)
-        .animation(.default, value: viewStore.showsPanel)
-        .statusBar(hidden: !viewStore.showsPanel)
+        .animation(.default, value: store.showsPanel)
+        .statusBar(hidden: !store.showsPanel)
         .onDisappear {
             liveTextHandler.cancelRequests()
             setAutoPlayPolocy(.off)
         }
-        .onAppear { viewStore.send(.onAppear(gid, setting.enablesLandscape)) }
+        .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
     }
 
     @ViewBuilder private func imageStack(index: Int) -> some View {
-        let imageStackConfig = viewStore.state.imageContainerConfigs(index: index, setting: setting)
+        let imageStackConfig = store.state.imageContainerConfigs(index: index, setting: setting)
         let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
         HorizontalImageStack(
-            index: index, isDualPage: isDualPage, isDatabaseLoading: viewStore.databaseLoadingState != .idle,
-            backgroundColor: backgroundColor, config: imageStackConfig, imageURLs: viewStore.imageURLs,
-            originalImageURLs: viewStore.originalImageURLs, loadingStates: viewStore.imageURLLoadingStates,
+            index: index, isDualPage: isDualPage, isDatabaseLoading: store.databaseLoadingState != .idle,
+            backgroundColor: backgroundColor, config: imageStackConfig, imageURLs: store.imageURLs,
+            originalImageURLs: store.originalImageURLs, loadingStates: store.imageURLLoadingStates,
             enablesLiveText: liveTextHandler.enablesLiveText, liveTextGroups: liveTextHandler.liveTextGroups,
             focusedLiveTextGroup: liveTextHandler.focusedLiveTextGroup,
             liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
-            fetchAction: { viewStore.send(.fetchImageURLs($0)) },
-            refetchAction: { viewStore.send(.refetchImageURLs($0)) },
-            prefetchAction: { viewStore.send(.prefetchImages($0, setting.prefetchLimit)) },
-            loadRetryAction: { viewStore.send(.onWebImageRetry($0)) },
-            loadSucceededAction: { viewStore.send(.onWebImageSucceeded($0)) },
-            loadFailedAction: { viewStore.send(.onWebImageFailed($0)) },
-            copyImageAction: { viewStore.send(.copyImage($0)) },
-            saveImageAction: { viewStore.send(.saveImage($0)) },
-            shareImageAction: { viewStore.send(.shareImage($0)) }
+            fetchAction: { store.send(.fetchImageURLs($0)) },
+            refetchAction: { store.send(.refetchImageURLs($0)) },
+            prefetchAction: { store.send(.prefetchImages($0, setting.prefetchLimit)) },
+            loadRetryAction: { store.send(.onWebImageRetry($0)) },
+            loadSucceededAction: { store.send(.onWebImageSucceeded($0)) },
+            loadFailedAction: { store.send(.onWebImageFailed($0)) },
+            copyImageAction: { store.send(.copyImage($0)) },
+            saveImageAction: { store.send(.saveImage($0)) },
+            shareImageAction: { store.send(.shareImage($0)) }
         )
     }
 }
@@ -230,7 +228,7 @@ extension ReadingView {
             Logger.info("analyzeImageForLiveText duplicated", context: ["index": index])
             return
         }
-        guard let key = viewStore.imageURLs[index]?.absoluteString else {
+        guard let key = store.imageURLs[index]?.absoluteString else {
             Logger.info("analyzeImageForLiveText URL not found", context: ["index": index])
             return
         }
@@ -240,7 +238,7 @@ extension ReadingView {
                 if let image = result.image, let cgImage = image.cgImage {
                     liveTextHandler.analyzeImage(
                         cgImage, size: image.size, index: index, recognitionLanguages:
-                            viewStore.galleryDetail?.language.codes
+                            store.galleryDetail?.language.codes
                     )
                 } else {
                     Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
@@ -271,7 +269,7 @@ extension ReadingView {
                         page.update(.new(index: newValue))
                         Logger.info("Pager.update", context: ["update": newValue])
                     },
-                    toggleShowsPanelAction: { viewStore.send(.toggleShowsPanel) }
+                    toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
                 )
             }
         let doubleTap = TapGesture(count: 2)
@@ -304,7 +302,7 @@ extension ReadingView {
     var controlPanelDismissGesture: some Gesture {
         DragGesture().onEnded {
             gestureHandler.onControlPanelDismissGestureEnded(
-                value: $0, dismissAction: { viewStore.send(.onPerformDismiss) }
+                value: $0, dismissAction: { store.send(.onPerformDismiss) }
             )
         }
     }

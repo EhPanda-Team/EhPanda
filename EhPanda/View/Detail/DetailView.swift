@@ -11,8 +11,7 @@ import ComposableArchitecture
 import CommonMark
 
 struct DetailView: View {
-    private let store: StoreOf<DetailReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<DetailReducer>
+    @Bindable private var store: StoreOf<DetailReducer>
     private let gid: String
     private let user: User
     @Binding private var setting: Setting
@@ -24,7 +23,6 @@ struct DetailView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.user = user
         _setting = setting
@@ -37,91 +35,91 @@ struct DetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 30) {
                     HeaderSection(
-                        gallery: viewStore.gallery,
-                        galleryDetail: viewStore.galleryDetail ?? .empty,
+                        gallery: store.gallery,
+                        galleryDetail: store.galleryDetail ?? .empty,
                         user: user,
                         displaysJapaneseTitle: setting.displaysJapaneseTitle,
-                        showFullTitle: viewStore.showsFullTitle,
-                        showFullTitleAction: { viewStore.send(.toggleShowFullTitle) },
-                        favorAction: { viewStore.send(.favorGallery($0)) },
-                        unfavorAction: { viewStore.send(.unfavorGallery) },
-                        navigateReadingAction: { viewStore.send(.setNavigation(.reading)) },
+                        showFullTitle: store.showsFullTitle,
+                        showFullTitleAction: { store.send(.toggleShowFullTitle) },
+                        favorAction: { store.send(.favorGallery($0)) },
+                        unfavorAction: { store.send(.unfavorGallery) },
+                        navigateReadingAction: { store.send(.setNavigation(.reading)) },
                         navigateUploaderAction: {
-                            if let uploader = viewStore.galleryDetail?.uploader {
+                            if let uploader = store.galleryDetail?.uploader {
                                 let keyword = "uploader:" + "\"\(uploader)\""
-                                viewStore.send(.setNavigation(.detailSearch(keyword)))
+                                store.send(.setNavigation(.detailSearch(keyword)))
                             }
                         }
                     )
                     .padding(.horizontal)
                     DescriptionSection(
-                        gallery: viewStore.gallery,
-                        galleryDetail: viewStore.galleryDetail ?? .empty,
+                        gallery: store.gallery,
+                        galleryDetail: store.galleryDetail ?? .empty,
                         navigateGalleryInfosAction: {
-                            if let galleryDetail = viewStore.galleryDetail {
-                                viewStore.send(.setNavigation(.galleryInfos(viewStore.gallery, galleryDetail)))
+                            if let galleryDetail = store.galleryDetail {
+                                store.send(.setNavigation(.galleryInfos(store.gallery, galleryDetail)))
                             }
                         }
                     )
                     ActionSection(
-                        galleryDetail: viewStore.galleryDetail ?? .empty,
-                        userRating: viewStore.userRating,
-                        showUserRating: viewStore.showsUserRating,
-                        showUserRatingAction: { viewStore.send(.toggleShowUserRating) },
-                        updateRatingAction: { viewStore.send(.updateRating($0)) },
-                        confirmRatingAction: { viewStore.send(.confirmRating($0)) },
+                        galleryDetail: store.galleryDetail ?? .empty,
+                        userRating: store.userRating,
+                        showUserRating: store.showsUserRating,
+                        showUserRatingAction: { store.send(.toggleShowUserRating) },
+                        updateRatingAction: { store.send(.updateRating($0)) },
+                        confirmRatingAction: { store.send(.confirmRating($0)) },
                         navigateSimilarGalleryAction: {
-                            if let trimmedTitle = viewStore.galleryDetail?.trimmedTitle {
-                                viewStore.send(.setNavigation(.detailSearch(trimmedTitle)))
+                            if let trimmedTitle = store.galleryDetail?.trimmedTitle {
+                                store.send(.setNavigation(.detailSearch(trimmedTitle)))
                             }
                         }
                     )
-                    if !viewStore.galleryTags.isEmpty {
+                    if !store.galleryTags.isEmpty {
                         TagsSection(
-                            tags: viewStore.galleryTags, showsImages: setting.showsImagesInTags,
-                            voteTagAction: { viewStore.send(.voteTag($0, $1)) },
-                            navigateSearchAction: { viewStore.send(.setNavigation(.detailSearch($0))) },
-                            navigateTagDetailAction: { viewStore.send(.setNavigation(.tagDetail($0))) },
+                            tags: store.galleryTags, showsImages: setting.showsImagesInTags,
+                            voteTagAction: { store.send(.voteTag($0, $1)) },
+                            navigateSearchAction: { store.send(.setNavigation(.detailSearch($0))) },
+                            navigateTagDetailAction: { store.send(.setNavigation(.tagDetail($0))) },
                             translateAction: { tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags) }
                         )
                         .padding(.horizontal)
                     }
-                    if !viewStore.galleryPreviewURLs.isEmpty {
+                    if !store.galleryPreviewURLs.isEmpty {
                         PreviewsSection(
-                            pageCount: viewStore.galleryDetail?.pageCount ?? 0,
-                            previewURLs: viewStore.galleryPreviewURLs,
-                            navigatePreviewsAction: { viewStore.send(.setNavigation(.previews)) },
+                            pageCount: store.galleryDetail?.pageCount ?? 0,
+                            previewURLs: store.galleryPreviewURLs,
+                            navigatePreviewsAction: { store.send(.setNavigation(.previews)) },
                             navigateReadingAction: {
-                                viewStore.send(.updateReadingProgress($0))
-                                viewStore.send(.setNavigation(.reading))
+                                store.send(.updateReadingProgress($0))
+                                store.send(.setNavigation(.reading))
                             }
                         )
                     }
                     CommentsSection(
-                        comments: viewStore.galleryComments,
+                        comments: store.galleryComments,
                         navigateCommentAction: {
-                            if let galleryURL = viewStore.gallery.galleryURL {
-                                viewStore.send(.setNavigation(.comments(galleryURL)))
+                            if let galleryURL = store.gallery.galleryURL {
+                                store.send(.setNavigation(.comments(galleryURL)))
                             }
                         },
-                        navigatePostCommentAction: { viewStore.send(.setNavigation(.postComment)) }
+                        navigatePostCommentAction: { store.send(.setNavigation(.postComment)) }
                     )
                 }
                 .padding(.bottom, 20)
                 .padding(.top, -25)
             }
-            .opacity(viewStore.galleryDetail == nil ? 0 : 1)
+            .opacity(store.galleryDetail == nil ? 0 : 1)
             LoadingView()
                 .opacity(
-                    viewStore.galleryDetail == nil
-                    && viewStore.loadingState == .loading ? 1 : 0
+                    store.galleryDetail == nil
+                    && store.loadingState == .loading ? 1 : 0
                 )
-            let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
-            let retryAction: () -> Void = { viewStore.send(.fetchGalleryDetail) }
+            let error = (/LoadingState.failed).extract(from: store.loadingState)
+            let retryAction: () -> Void = { store.send(.fetchGalleryDetail) }
             ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
-                .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
+                .opacity(store.galleryDetail == nil && error != nil ? 1 : 0)
         }
-        .fullScreenCover(unwrapping: viewStore.$route, case: /DetailReducer.Route.reading) { _ in
+        .fullScreenCover(unwrapping: $store.route, case: /DetailReducer.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: \.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
@@ -129,7 +127,7 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.archives) { route in
+        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.archives) { route in
             let (galleryURL, archiveURL) = route.wrappedValue
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: \.archives),
@@ -138,47 +136,47 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.torrents) { _ in
+        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.torrents) { _ in
             TorrentsView(
                 store: store.scope(state: \.torrentsState, action: \.torrents),
-                gid: gid, token: viewStore.gallery.token, blurRadius: blurRadius
+                gid: gid, token: store.gallery.token, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.share) { route in
+        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue])
                 .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.postComment) { _ in
+        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.postComment) { _ in
             PostCommentView(
                 title: L10n.Localizable.PostCommentView.Title.postComment,
-                content: viewStore.$commentContent,
-                isFocused: viewStore.$postCommentFocused,
+                content: $store.commentContent,
+                isFocused: $store.postCommentFocused,
                 postAction: {
-                    if let galleryURL = viewStore.gallery.galleryURL {
-                        viewStore.send(.postComment(galleryURL))
+                    if let galleryURL = store.gallery.galleryURL {
+                        store.send(.postComment(galleryURL))
                     }
-                    viewStore.send(.setNavigation(nil))
+                    store.send(.setNavigation(nil))
                 },
-                cancelAction: { viewStore.send(.setNavigation(nil)) },
-                onAppearAction: { viewStore.send(.onPostCommentAppear) }
+                cancelAction: { store.send(.setNavigation(nil)) },
+                onAppearAction: { store.send(.onPostCommentAppear) }
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.newDawn) { route in
+        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue).autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /DetailReducer.Route.tagDetail) { route in
+        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.tagDetail) { route in
             TagDetailView(detail: route.wrappedValue).autoBlur(radius: blurRadius)
         }
-        .animation(.default, value: viewStore.showsUserRating)
-        .animation(.default, value: viewStore.showsFullTitle)
-        .animation(.default, value: viewStore.galleryDetail)
+        .animation(.default, value: store.showsUserRating)
+        .animation(.default, value: store.showsFullTitle)
+        .animation(.default, value: store.galleryDetail)
         .onAppear {
             DispatchQueue.main.async {
-                viewStore.send(.onAppear(gid, setting.showsNewDawnGreeting))
+                store.send(.onAppear(gid, setting.showsNewDawnGreeting))
             }
         }
         .background(navigationLinks)
@@ -189,31 +187,31 @@ struct DetailView: View {
 // MARK: NavigationLinks
 private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.previews) { _ in
+        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: \.previews),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.comments) { route in
-            IfLetStore(store.scope(state: \.commentsState, action: \.comments)) { store in
+        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.comments) { route in
+            if let commentStore = store.scope(state: \.commentsState.wrappedValue, action: \.comments) {
                 CommentsView(
-                    store: store, gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
-                    galleryURL: route.wrappedValue, comments: viewStore.galleryComments, user: user,
+                    store: commentStore, gid: gid, token: store.gallery.token, apiKey: store.apiKey,
+                    galleryURL: route.wrappedValue, comments: store.galleryComments, user: user,
                     setting: $setting, blurRadius: blurRadius,
                     tagTranslator: tagTranslator
                 )
             }
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.detailSearch) { route in
-            IfLetStore(store.scope(state: \.detailSearchState, action: \.detailSearch)) { store in
+        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.detailSearch) { route in
+            if let detailSearchStore = store.scope(state: \.detailSearchState.wrappedValue, action: \.detailSearch) {
                 DetailSearchView(
-                    store: store, keyword: route.wrappedValue, user: user, setting: $setting,
+                    store: detailSearchStore, keyword: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /DetailReducer.Route.galleryInfos) { route in
+        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
             GalleryInfosView(
                 store: store.scope(state: \.galleryInfosState, action: \.galleryInfos),
@@ -229,33 +227,33 @@ private extension DetailView {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
                 Button {
-                    if let galleryURL = viewStore.gallery.galleryURL,
-                       let archiveURL = viewStore.galleryDetail?.archiveURL
+                    if let galleryURL = store.gallery.galleryURL,
+                       let archiveURL = store.galleryDetail?.archiveURL
                     {
-                        viewStore.send(.setNavigation(.archives(galleryURL, archiveURL)))
+                        store.send(.setNavigation(.archives(galleryURL, archiveURL)))
                     }
                 } label: {
                     Label(L10n.Localizable.DetailView.ToolbarItem.Button.archives, systemSymbol: .docZipper)
                 }
-                .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
+                .disabled(store.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
                 Button {
-                    viewStore.send(.setNavigation(.torrents))
+                    store.send(.setNavigation(.torrents))
                 } label: {
                     let base = L10n.Localizable.DetailView.ToolbarItem.Button.torrents
-                    let torrentCount = viewStore.galleryDetail?.torrentCount ?? 0
+                    let torrentCount = store.galleryDetail?.torrentCount ?? 0
                     let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
                     Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)
                 }
-                .disabled((viewStore.galleryDetail?.torrentCount ?? 0 > 0) != true)
+                .disabled((store.galleryDetail?.torrentCount ?? 0 > 0) != true)
                 Button {
-                    if let galleryURL = viewStore.gallery.galleryURL {
-                        viewStore.send(.setNavigation(.share(galleryURL)))
+                    if let galleryURL = store.gallery.galleryURL {
+                        store.send(.setNavigation(.share(galleryURL)))
                     }
                 } label: {
                     Label(L10n.Localizable.DetailView.ToolbarItem.Button.share, systemSymbol: .squareAndArrowUp)
                 }
             }
-            .disabled(viewStore.galleryDetail == nil || viewStore.loadingState == .loading)
+            .disabled(store.galleryDetail == nil || store.loadingState == .loading)
         }
     }
 }

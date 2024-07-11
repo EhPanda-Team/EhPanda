@@ -9,15 +9,13 @@ import SwiftUI
 import ComposableArchitecture
 
 struct TorrentsView: View {
-    private let store: StoreOf<TorrentsReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<TorrentsReducer>
+    @Bindable private var store: StoreOf<TorrentsReducer>
     private let gid: String
     private let token: String
     private let blurRadius: Double
 
     init(store: StoreOf<TorrentsReducer>, gid: String, token: String, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.gid = gid
         self.token = token
         self.blurRadius = blurRadius
@@ -26,37 +24,37 @@ struct TorrentsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                List(viewStore.torrents) { torrent in
+                List(store.torrents) { torrent in
                     TorrentRow(torrent: torrent) { magnetURL in
-                        viewStore.send(.copyText(magnetURL))
+                        store.send(.copyText(magnetURL))
                     }
                     .swipeActions {
                         Button {
-                            viewStore.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
+                            store.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
                         } label: {
                             Image(systemSymbol: .arrowDownDocFill)
                         }
                     }
                 }
-                LoadingView().opacity(viewStore.loadingState == .loading && viewStore.torrents.isEmpty ? 1 : 0)
-                let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
+                LoadingView().opacity(store.loadingState == .loading && store.torrents.isEmpty ? 1 : 0)
+                let error = (/LoadingState.failed).extract(from: store.loadingState)
                 ErrorView(error: error ?? .unknown) {
-                    viewStore.send(.fetchGalleryTorrents(gid, token))
+                    store.send(.fetchGalleryTorrents(gid, token))
                 }
-                .opacity(error != nil && viewStore.torrents.isEmpty ? 1 : 0)
+                .opacity(error != nil && store.torrents.isEmpty ? 1 : 0)
             }
-            .sheet(unwrapping: viewStore.$route, case: /TorrentsReducer.Route.share) { route in
+            .sheet(unwrapping: $store.route, case: /TorrentsReducer.Route.share) { route in
                 ActivityView(activityItems: [route.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
             .progressHUD(
-                config: viewStore.hudConfig,
-                unwrapping: viewStore.$route,
+                config: store.hudConfig,
+                unwrapping: $store.route,
                 case: /TorrentsReducer.Route.hud
             )
-            .animation(.default, value: viewStore.torrents)
+            .animation(.default, value: store.torrents)
             .onAppear {
-                viewStore.send(.fetchGalleryTorrents(gid, token))
+                store.send(.fetchGalleryTorrents(gid, token))
             }
             .navigationTitle(L10n.Localizable.TorrentsView.Title.torrents)
         }

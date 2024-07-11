@@ -26,11 +26,12 @@ struct QuickSearchReducer {
         case fetchQuickSearchWords
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var focusedField: FocusField?
-        @BindingState var editingWord: QuickSearchWord = .empty
-        @BindingState var listEditMode: EditMode = .inactive
+        var route: Route?
+        var focusedField: FocusField?
+        var editingWord: QuickSearchWord = .empty
+        var listEditMode: EditMode = .inactive
         var isListEditing: Bool {
             get { listEditMode == .active }
             set { listEditMode = newValue ? .active : .inactive }
@@ -65,12 +66,12 @@ struct QuickSearchReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
             case .binding:
                 return .none
 

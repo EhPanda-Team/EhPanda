@@ -18,14 +18,15 @@ struct FiltersReducer {
         case upper
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var filterRange: FilterRange = .search
-        @BindingState var focusedBound: FocusedBound?
+        var route: Route?
+        var filterRange: FilterRange = .search
+        var focusedBound: FocusedBound?
 
-        @BindingState var searchFilter = Filter()
-        @BindingState var globalFilter = Filter()
-        @BindingState var watchedFilter = Filter()
+        var searchFilter = Filter()
+        var globalFilter = Filter()
+        var watchedFilter = Filter()
     }
 
     enum Action: BindableAction, Equatable {
@@ -43,21 +44,27 @@ struct FiltersReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.searchFilter) { _, _ in
+                Reduce { state, _ in
+                    state.searchFilter.fixInvalidData()
+                    return .send(.syncFilter(.search))
+                }
+            }
+            .onChange(of: \.globalFilter) { _, _ in
+                Reduce { state, _ in
+                    state.globalFilter.fixInvalidData()
+                    return .send(.syncFilter(.global))
+                }
+            }
+            .onChange(of: \.watchedFilter) { _, _ in
+                Reduce { state, _ in
+                    state.watchedFilter.fixInvalidData()
+                    return .send(.syncFilter(.watched))
+                }
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$searchFilter):
-                state.searchFilter.fixInvalidData()
-                return .send(.syncFilter(.search))
-
-            case .binding(\.$globalFilter):
-                state.globalFilter.fixInvalidData()
-                return .send(.syncFilter(.global))
-
-            case .binding(\.$watchedFilter):
-                state.watchedFilter.fixInvalidData()
-                return .send(.syncFilter(.watched))
-
             case .binding:
                 return .none
 

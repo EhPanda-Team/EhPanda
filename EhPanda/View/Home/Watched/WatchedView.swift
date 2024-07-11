@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct WatchedView: View {
-    private let store: StoreOf<WatchedReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<WatchedReducer>
+    @Bindable private var store: StoreOf<WatchedReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
@@ -21,7 +20,6 @@ struct WatchedView: View {
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
@@ -33,50 +31,50 @@ struct WatchedView: View {
         ZStack {
             if CookieUtil.didLogin {
                 GenericList(
-                    galleries: viewStore.galleries,
+                    galleries: store.galleries,
                     setting: setting,
-                    pageNumber: viewStore.pageNumber,
-                    loadingState: viewStore.loadingState,
-                    footerLoadingState: viewStore.footerLoadingState,
-                    fetchAction: { viewStore.send(.fetchGalleries()) },
-                    fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-                    navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+                    pageNumber: store.pageNumber,
+                    loadingState: store.loadingState,
+                    footerLoadingState: store.footerLoadingState,
+                    fetchAction: { store.send(.fetchGalleries()) },
+                    fetchMoreAction: { store.send(.fetchMoreGalleries) },
+                    navigateAction: { store.send(.setNavigation(.detail($0))) },
                     translateAction: {
                         tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                     }
                 )
             } else {
-                NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
+                NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
             }
         }
-        .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.quickSearch) { _ in
+        .sheet(unwrapping: $store.route, case: /WatchedReducer.Route.quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickSearchState, action: \.quickSearch)
             ) { keyword in
-                viewStore.send(.setNavigation(nil))
-                viewStore.send(.fetchGalleries(keyword))
+                store.send(.setNavigation(nil))
+                store.send(.fetchGalleries(keyword))
             }
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.filters) { _ in
+        .sheet(unwrapping: $store.route, case: /WatchedReducer.Route.filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.$keyword)
+        .searchable(text: $store.keyword)
         .searchSuggestions {
             TagSuggestionView(
-                keyword: viewStore.$keyword, translations: tagTranslator.translations,
+                keyword: $store.keyword, translations: tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {
-            viewStore.send(.fetchGalleries())
+            store.send(.fetchGalleries())
         }
         .onAppear {
-            if viewStore.galleries.isEmpty && CookieUtil.didLogin {
+            if store.galleries.isEmpty && CookieUtil.didLogin {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchGalleries())
+                    store.send(.fetchGalleries())
                 }
             }
         }
@@ -86,10 +84,10 @@ struct WatchedView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: viewStore.$route, case: /WatchedReducer.Route.detail) { route in
+                .sheet(unwrapping: $store.route, case: /WatchedReducer.Route.detail) { route in
                     NavigationView {
                         DetailView(
-                            store: store.scope(state: \.detailState, action: \.detail),
+                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                             gid: route.wrappedValue, user: user, setting: $setting,
                             blurRadius: blurRadius, tagTranslator: tagTranslator
                         )
@@ -103,9 +101,9 @@ struct WatchedView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.$route, case: /WatchedReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: /WatchedReducer.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: \.detail),
+                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -116,10 +114,10 @@ struct WatchedView: View {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
                 FiltersButton {
-                    viewStore.send(.setNavigation(.filters))
+                    store.send(.setNavigation(.filters))
                 }
                 QuickSearchButton {
-                    viewStore.send(.setNavigation(.quickSearch))
+                    store.send(.setNavigation(.quickSearch))
                 }
             }
         }

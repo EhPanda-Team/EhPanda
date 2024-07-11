@@ -20,9 +20,10 @@ struct ArchivesReducer {
         case fetchArchive, fetchArchiveFunds, fetchDownloadResponse
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var selectedArchive: GalleryArchive.HathArchive?
+        var route: Route?
+        var selectedArchive: GalleryArchive.HathArchive?
 
         var loadingState: LoadingState = .idle
         var hathArchives = [GalleryArchive.HathArchive]()

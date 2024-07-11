@@ -9,15 +9,13 @@ import SwiftUI
 import ComposableArchitecture
 
 struct QuickSearchView: View {
-    private let store: StoreOf<QuickSearchReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<QuickSearchReducer>
+    @Bindable private var store: StoreOf<QuickSearchReducer>
     private let searchAction: (String) -> Void
 
     @FocusState private var focusedField: QuickSearchReducer.FocusField?
 
     init(store: StoreOf<QuickSearchReducer>, searchAction: @escaping (String) -> Void) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.searchAction = searchAction
     }
 
@@ -25,7 +23,7 @@ struct QuickSearchView: View {
         NavigationView {
             ZStack {
                 List {
-                    ForEach(viewStore.quickSearchWords) { word in
+                    ForEach(store.quickSearchWords) { word in
                         Button {
                             searchAction(word.content)
                         } label: {
@@ -39,56 +37,56 @@ struct QuickSearchView: View {
                         }
                         .swipeActions(edge: .trailing) {
                             Button {
-                                viewStore.send(.setNavigation(.deleteWord(word)))
+                                store.send(.setNavigation(.deleteWord(word)))
                             } label: {
                                 Image(systemSymbol: .trash)
                             }
                             .tint(.red)
                             Button {
-                                viewStore.send(.setEditingWord(word))
-                                viewStore.send(.setNavigation(.editWord))
+                                store.send(.setEditingWord(word))
+                                store.send(.setNavigation(.editWord))
                             } label: {
                                 Image(systemSymbol: .squareAndPencil)
                             }
                         }
-                        .withArrow(isVisible: !viewStore.isListEditing).padding(5)
+                        .withArrow(isVisible: !store.isListEditing).padding(5)
                         .confirmationDialog(
                             message: L10n.Localizable.ConfirmationDialog.Title.delete,
-                            unwrapping: viewStore.$route,
+                            unwrapping: $store.route,
                             case: /QuickSearchReducer.Route.deleteWord,
                             matching: word
                         ) { route in
                             Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                    viewStore.send(.deleteWord(route))
+                                    store.send(.deleteWord(route))
                                 }
                             }
                         }
                     }
                     .onDelete { offsets in
-                        viewStore.send(.deleteWordWithOffsets(offsets))
+                        store.send(.deleteWordWithOffsets(offsets))
                     }
                     .onMove { source, destination in
-                        viewStore.send(.moveWord(source, destination))
+                        store.send(.moveWord(source, destination))
                     }
                 }
                 LoadingView().opacity(
-                    viewStore.loadingState == .loading
-                    && viewStore.quickSearchWords.isEmpty ? 1 : 0
+                    store.loadingState == .loading
+                    && store.quickSearchWords.isEmpty ? 1 : 0
                 )
                 ErrorView(error: .notFound)
                 .opacity(
-                    viewStore.loadingState != .loading
-                    && viewStore.quickSearchWords.isEmpty ? 1 : 0
+                    store.loadingState != .loading
+                    && store.quickSearchWords.isEmpty ? 1 : 0
                 )
             }
-            .synchronize(viewStore.$focusedField, $focusedField)
-            .environment(\.editMode, viewStore.$listEditMode)
-            .animation(.default, value: viewStore.quickSearchWords)
-            .animation(.default, value: viewStore.listEditMode)
+            .synchronize($store.focusedField, $focusedField)
+            .environment(\.editMode, $store.listEditMode)
+            .animation(.default, value: store.quickSearchWords)
+            .animation(.default, value: store.listEditMode)
             .onAppear {
-                if viewStore.quickSearchWords.isEmpty {
-                    viewStore.send(.fetchQuickSearchWords)
+                if store.quickSearchWords.isEmpty {
+                    store.send(.fetchQuickSearchWords)
                 }
             }
             .toolbar(content: toolbar)
@@ -109,41 +107,41 @@ struct QuickSearchView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                viewStore.send(.setEditingWord(.empty))
-                viewStore.send(.setNavigation(.newWord))
+                store.send(.setEditingWord(.empty))
+                store.send(.setNavigation(.newWord))
             } label: {
                 Image(systemSymbol: .plus)
             }
             Button {
-                viewStore.send(.toggleListEditing)
+                store.send(.toggleListEditing)
             } label: {
                 Image(systemSymbol: .pencilCircle)
-                    .symbolVariant(viewStore.isListEditing ? .fill : .none)
+                    .symbolVariant(store.isListEditing ? .fill : .none)
             }
         }
     }
     @ViewBuilder private var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.$route, case: /QuickSearchReducer.Route.newWord) { _ in
+        NavigationLink(unwrapping: $store.route, case: /QuickSearchReducer.Route.newWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.newWord,
-                word: viewStore.$editingWord,
+                word: $store.editingWord,
                 focusedField: $focusedField,
                 submitAction: onTextFieldSubmitted,
                 confirmAction: {
-                    viewStore.send(.appendWord)
-                    viewStore.send(.setNavigation(nil))
+                    store.send(.appendWord)
+                    store.send(.setNavigation(nil))
                 }
             )
         }
-        NavigationLink(unwrapping: viewStore.$route, case: /QuickSearchReducer.Route.editWord) { _ in
+        NavigationLink(unwrapping: $store.route, case: /QuickSearchReducer.Route.editWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.editWord,
-                word: viewStore.$editingWord,
+                word: $store.editingWord,
                 focusedField: $focusedField,
                 submitAction: onTextFieldSubmitted,
                 confirmAction: {
-                    viewStore.send(.editWord)
-                    viewStore.send(.setNavigation(nil))
+                    store.send(.editWord)
+                    store.send(.setNavigation(nil))
                 }
             )
         }

@@ -11,20 +11,18 @@ import ComposableArchitecture
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase
-    private let store: StoreOf<AppReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<AppReducer>
+    @Bindable private var store: StoreOf<AppReducer>
 
     init(store: StoreOf<AppReducer>) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
     }
 
     var body: some View {
         ZStack {
             TabView(
                 selection: .init(
-                    get: { viewStore.tabBarState.tabBarItemType },
-                    set: { viewStore.send(.tabBar(.setTabBarItemType($0))) }
+                    get: { store.tabBarState.tabBarItemType },
+                    set: { store.send(.tabBar(.setTabBarItemType($0))) }
                 )
             ) {
                 ForEach(TabBarItemType.allCases) { type in
@@ -33,83 +31,83 @@ struct TabBarView: View {
                         case .home:
                             HomeView(
                                 store: store.scope(state: \.homeState, action: \.home),
-                                user: viewStore.settingState.user,
-                                setting: viewStore.$settingState.setting,
-                                blurRadius: viewStore.appLockState.blurRadius,
-                                tagTranslator: viewStore.settingState.tagTranslator
+                                user: store.settingState.user,
+                                setting: $store.settingState.setting,
+                                blurRadius: store.appLockState.blurRadius,
+                                tagTranslator: store.settingState.tagTranslator
                             )
                         case .favorites:
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: \.favorites),
-                                user: viewStore.settingState.user,
-                                setting: viewStore.$settingState.setting,
-                                blurRadius: viewStore.appLockState.blurRadius,
-                                tagTranslator: viewStore.settingState.tagTranslator
+                                user: store.settingState.user,
+                                setting: $store.settingState.setting,
+                                blurRadius: store.appLockState.blurRadius,
+                                tagTranslator: store.settingState.tagTranslator
                             )
                         case .search:
                             SearchRootView(
                                 store: store.scope(state: \.searchRootState, action: \.searchRoot),
-                                user: viewStore.settingState.user,
-                                setting: viewStore.$settingState.setting,
-                                blurRadius: viewStore.appLockState.blurRadius,
-                                tagTranslator: viewStore.settingState.tagTranslator
+                                user: store.settingState.user,
+                                setting: $store.settingState.setting,
+                                blurRadius: store.appLockState.blurRadius,
+                                tagTranslator: store.settingState.tagTranslator
                             )
                         case .setting:
                             SettingView(
                                 store: store.scope(state: \.settingState, action: \.setting),
-                                blurRadius: viewStore.appLockState.blurRadius
+                                blurRadius: store.appLockState.blurRadius
                             )
                         }
                     }
                     .tabItem(type.label).tag(type)
                 }
-                .accentColor(viewStore.settingState.setting.accentColor)
+                .accentColor(store.settingState.setting.accentColor)
             }
-            .autoBlur(radius: viewStore.appLockState.blurRadius)
+            .autoBlur(radius: store.appLockState.blurRadius)
             Button {
-                viewStore.send(.appLock(.authorize))
+                store.send(.appLock(.authorize))
             } label: {
                 Image(systemSymbol: .lockFill)
             }
-            .font(.system(size: 80)).opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
+            .font(.system(size: 80)).opacity(store.appLockState.isAppLocked ? 1 : 0)
         }
-        .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.newDawn) { route in
+        .sheet(unwrapping: $store.appRouteState.route, case: /AppRouteReducer.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue)
-                .autoBlur(radius: viewStore.appLockState.blurRadius)
+                .autoBlur(radius: store.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.setting) { _ in
+        .sheet(unwrapping: $store.appRouteState.route, case: /AppRouteReducer.Route.setting) { _ in
             SettingView(
                 store: store.scope(state: \.settingState, action: \.setting),
-                blurRadius: viewStore.appLockState.blurRadius
+                blurRadius: store.appLockState.blurRadius
             )
-            .accentColor(viewStore.settingState.setting.accentColor)
-            .autoBlur(radius: viewStore.appLockState.blurRadius)
+            .accentColor(store.settingState.setting.accentColor)
+            .autoBlur(radius: store.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.$appRouteState.route, case: /AppRouteReducer.Route.detail) { route in
+        .sheet(unwrapping: $store.appRouteState.route, case: /AppRouteReducer.Route.detail) { route in
             NavigationView {
                 DetailView(
                     store: store.scope(
-                        state: \.appRouteState.detailState,
+                        state: \.appRouteState.detailState.wrappedValue!,
                         action: \.appRoute.detail
                     ),
-                    gid: route.wrappedValue, user: viewStore.settingState.user,
-                    setting: viewStore.$settingState.setting,
-                    blurRadius: viewStore.appLockState.blurRadius,
-                    tagTranslator: viewStore.settingState.tagTranslator
+                    gid: route.wrappedValue, user: store.settingState.user,
+                    setting: $store.settingState.setting,
+                    blurRadius: store.appLockState.blurRadius,
+                    tagTranslator: store.settingState.tagTranslator
                 )
             }
-            .accentColor(viewStore.settingState.setting.accentColor)
-            .autoBlur(radius: viewStore.appLockState.blurRadius)
+            .accentColor(store.settingState.setting.accentColor)
+            .autoBlur(radius: store.appLockState.blurRadius)
             .environment(\.inSheet, true)
             .navigationViewStyle(.stack)
         }
         .progressHUD(
-            config: viewStore.appRouteState.hudConfig,
-            unwrapping: viewStore.$appRouteState.route,
+            config: store.appRouteState.hudConfig,
+            unwrapping: $store.appRouteState.route,
             case: /AppRouteReducer.Route.hud
         )
-        .onChange(of: scenePhase) { _, newValue in viewStore.send(.onScenePhaseChange(newValue)) }
-        .onOpenURL { viewStore.send(.appRoute(.handleDeepLink($0))) }
+        .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
+        .onOpenURL { store.send(.appRoute(.handleDeepLink($0))) }
     }
 }
 

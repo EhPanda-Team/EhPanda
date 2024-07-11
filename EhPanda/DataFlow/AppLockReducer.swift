@@ -10,8 +10,9 @@ import ComposableArchitecture
 
 @Reducer
 struct AppLockReducer {
+    @ObservableState
     struct State: Equatable {
-        @BindingState var blurRadius: Double = 0
+        var blurRadius: Double = 0
         var becameInactiveDate: Date?
         var isAppLocked = false
 

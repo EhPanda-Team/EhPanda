@@ -9,8 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginView: View {
-    private let store: StoreOf<LoginReducer>
-    @ObservedObject private var viewStore: ViewStoreOf<LoginReducer>
+    @Bindable private var store: StoreOf<LoginReducer>
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
@@ -18,7 +17,6 @@ struct LoginView: View {
 
     init(store: StoreOf<LoginReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
-        viewStore = ViewStore(store, observe: { $0 })
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
@@ -35,30 +33,30 @@ struct LoginView: View {
                 VStack(spacing: 15) {
                     Group {
                         LoginTextField(
-                            focusedField: $focusedField, text: viewStore.$username,
+                            focusedField: $focusedField, text: $store.username,
                             description: L10n.Localizable.LoginView.Title.username, isPassword: false
                         )
                         LoginTextField(
-                            focusedField: $focusedField, text: viewStore.$password,
+                            focusedField: $focusedField, text: $store.password,
                             description: L10n.Localizable.LoginView.Title.password, isPassword: true
                         )
                     }
                     .padding(.horizontal, proxy.size.width * 0.2)
                     Button {
-                        viewStore.send(.login)
+                        store.send(.login)
                     } label: {
                         Image(systemSymbol: .chevronForwardCircleFill)
                     }
-                    .overlay { ProgressView().tint(nil).opacity(viewStore.loginState == .loading ? 1 : 0) }
-                    .imageScale(.large).font(.largeTitle).foregroundColor(viewStore.loginButtonColor)
-                    .disabled(viewStore.loginButtonDisabled).padding(.top, 30)
+                    .overlay { ProgressView().tint(nil).opacity(store.loginState == .loading ? 1 : 0) }
+                    .imageScale(.large).font(.largeTitle).foregroundColor(store.loginButtonColor)
+                    .disabled(store.loginButtonDisabled).padding(.top, 30)
                 }
             }
         }
-        .synchronize(viewStore.$focusedField, $focusedField)
-        .sheet(unwrapping: viewStore.$route, case: /LoginReducer.Route.webView) { route in
+        .synchronize($store.focusedField, $focusedField)
+        .sheet(unwrapping: $store.route, case: /LoginReducer.Route.webView) { route in
             WebView(url: route.wrappedValue) {
-                viewStore.send(.loginDone(.success(nil)))
+                store.send(.loginDone(.success(nil)))
             }
             .autoBlur(radius: blurRadius)
         }
@@ -68,10 +66,10 @@ struct LoginView: View {
                 focusedField = .password
             default:
                 focusedField = nil
-                viewStore.send(.login)
+                store.send(.login)
             }
         }
-        .animation(.default, value: viewStore.loginState)
+        .animation(.default, value: store.loginState)
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.LoginView.Title.login)
         .ignoresSafeArea()
@@ -80,7 +78,7 @@ struct LoginView: View {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                viewStore.send(.setNavigation(.webView(Defaults.URL.webLogin)))
+                store.send(.setNavigation(.webView(Defaults.URL.webLogin)))
             } label: {
                 Image(systemSymbol: .globe)
             }

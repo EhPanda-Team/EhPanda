@@ -20,11 +20,12 @@ struct EhSettingReducer {
         case fetchEhSetting, submitChanges, performAction
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var editingProfileName = ""
-        @BindingState var ehSetting: EhSetting?
-        @BindingState var ehProfile: EhProfile?
+        var route: Route?
+        var editingProfileName = ""
+        var ehSetting: EhSetting?
+        var ehProfile: EhProfile?
         var loadingState: LoadingState = .idle
         var submittingState: LoadingState = .idle
 

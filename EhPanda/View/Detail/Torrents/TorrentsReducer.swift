@@ -21,8 +21,9 @@ struct TorrentsReducer {
         case fetchTorrent, fetchGalleryTorrents
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
         var torrents = [GalleryTorrent]()
         var loadingState: LoadingState = .idle
         var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded

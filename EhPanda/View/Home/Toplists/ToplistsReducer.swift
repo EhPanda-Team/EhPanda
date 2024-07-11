@@ -18,12 +18,13 @@ struct ToplistsReducer {
         case fetchGalleries, fetchMoreGalleries
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
-        @BindingState var keyword = ""
-        @BindingState var jumpPageIndex = ""
-        @BindingState var jumpPageAlertFocused = false
-        @BindingState var jumpPageAlertPresented = false
+        var route: Route?
+        var keyword = ""
+        var jumpPageIndex = ""
+        var jumpPageAlertFocused = false
+        var jumpPageAlertPresented = false
 
         var type: ToplistsType = .yesterday
 
@@ -50,10 +51,10 @@ struct ToplistsReducer {
             rawFooterLoadingState[type]
         }
 
-        @Heap var detailState: DetailReducer.State!
+        var detailState: Heap<DetailReducer.State?>
 
         init() {
-            _detailState = .init(.init())
+            detailState = .init(.init())
         }
 
         mutating func insertGalleries(type: ToplistsType, galleries: [Gallery]) {
@@ -89,18 +90,20 @@ struct ToplistsReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
+            .onChange(of: \.route) { _, newValue in
+                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            }
+            .onChange(of: \.jumpPageAlertPresented) { _, newValue in
+                Reduce { state, _ in
+                    if !newValue {
+                        state.jumpPageAlertFocused = false
+                    }
+                    return .none
+                }
+            }
 
         Reduce { state, action in
             switch action {
-            case .binding(\.$route):
-                return state.route == nil ? .send(.clearSubStates) : .none
-
-            case .binding(\.$jumpPageAlertPresented):
-                if !state.jumpPageAlertPresented {
-                    state.jumpPageAlertFocused = false
-                }
-                return .none
-
             case .binding:
                 return .none
 
@@ -114,7 +117,7 @@ struct ToplistsReducer {
                 return .send(.fetchGalleries())
 
             case .clearSubStates:
-                state.detailState = .init()
+                state.detailState.wrappedValue = .init()
                 return .send(.detail(.teardown))
 
             case .performJumpPage:
@@ -213,6 +216,6 @@ struct ToplistsReducer {
             }
         }
 
-        Scope(state: \.detailState, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
     }
 }

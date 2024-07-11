@@ -14,8 +14,9 @@ struct GalleryInfosReducer {
         case hud
     }
 
+    @ObservableState
     struct State: Equatable {
-        @BindingState var route: Route?
+        var route: Route?
         var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
     }
 
