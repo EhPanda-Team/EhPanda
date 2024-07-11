@@ -45,4 +45,4 @@ https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/b
 https://ehpanda.app
 
 ## 應用程式圖示
-Copyright © 2023 荒木辰造. All rights reserved.
+Copyright © 2024 荒木辰造. All rights reserved.
