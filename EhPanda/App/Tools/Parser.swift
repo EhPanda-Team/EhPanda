@@ -318,7 +318,7 @@ struct Parser {
                   let singlePageCount = Int(gpcText[rangeA.upperBound..<rangeB.lowerBound])
             else { throw AppError.parseFailed }
 
-            if previewMode == "gdtl" {
+            if previewMode == "gdtl" || previewMode == "gt200" {
                 switch singlePageCount {
                 case _ where singlePageCount <= 20:
                     return .large(rows: 4)
@@ -640,6 +640,26 @@ struct Parser {
 
             return previewURLs
         }
+        func parseGT200PreviewURLs(node: XMLElement) -> [Int: URL] {
+            var previewURLs = [Int: URL]()
+
+            for link in node.xpath("//a") {
+                if let divNode = link.at_xpath("div"),
+                   let style = divNode["style"],
+                   let rangeA = style.range(of: "url("),
+                   let rangeB = style.range(of: ")"),
+                   let urlString = style[rangeA.upperBound..<rangeB.lowerBound]
+                       .replacingOccurrences(of: "'", with: "")
+                       .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                   let url = URL(string: urlString),
+                   let title = divNode["title"],
+                   let index = parseGT200IndexFromTitle(from: title)
+                {
+                    previewURLs[index] = url
+                }
+            }
+            return previewURLs
+        }
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -647,7 +667,11 @@ struct Parser {
 
         return previewMode == "gdtl"
             ? parseLargePreviewURLs(node: gdtNode)
-            : parseNormalPreviewURLs(node: gdtNode)
+            : previewMode == "gdtm"
+            ? parseNormalPreviewURLs(node: gdtNode)
+            : previewMode == "gt200"
+            ? parseGT200PreviewURLs(node: gdtNode)
+            : [:]
     }
 
     // MARK: Comment
@@ -722,6 +746,21 @@ struct Parser {
         return comments
     }
 
+    static func parseGT200IndexFromTitle(from title: String) -> Int? {
+        // The probable format of page title is "Page [Number]: filename.png"
+        Logger.info("Parse Title: " + title)
+        let components = title.components(separatedBy: ":")
+        if let pageComponent = components.first {
+            let pageNumberString = pageComponent
+                .replacingOccurrences(of: "Page ", with: "")
+                .trimmingCharacters(in: .whitespaces)
+            if let pageNumber = Int(pageNumberString) {
+                return pageNumber
+            }
+        }
+        return nil
+    }
+    
     // MARK: ImageURL
     static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
         var thumbnailURLs = [Int: URL]()
@@ -729,15 +768,28 @@ struct Parser {
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
         else { throw AppError.parseFailed }
+        
+        if previewMode == "gt200" {
+            for aLink in gdtNode.xpath("a") {
+                guard let href = aLink["href"],
+                      let thumbnailURL = URL(string: href),
+                      let divNode = aLink.at_xpath("div"),
+                      let title = divNode["title"],
+                      let index = parseGT200IndexFromTitle(from: title)
+                else { continue }
 
-        for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
-            guard let aLink = link.at_xpath("//a"),
-                  let thumbnailURLString = aLink["href"],
-                  let thumbnailURL = URL(string: thumbnailURLString),
-                  let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
-            else { continue }
+                thumbnailURLs[index] = thumbnailURL
+            }
+        } else {
+            for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
+                guard let aLink = link.at_xpath("//a"),
+                      let thumbnailURLString = aLink["href"],
+                      let thumbnailURL = URL(string: thumbnailURLString),
+                      let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
+                else { continue }
 
-            thumbnailURLs[index] = thumbnailURL
+                thumbnailURLs[index] = thumbnailURL
+            }
         }
 
         return thumbnailURLs
@@ -769,10 +821,13 @@ struct Parser {
             return "gdtm"
         } else if doc.at_xpath("//div [@class='gdtl']") != nil {
             return "gdtl"
+        } else if doc.at_xpath("//div [@class='gt200']") != nil {
+            return "gt200"
         } else {
             throw AppError.parseFailed
         }
     }
+
 
     static func parseMPVKeys(doc: HTMLDocument) throws -> (String, [Int: String]) {
         var tmpMPVKey: String?
