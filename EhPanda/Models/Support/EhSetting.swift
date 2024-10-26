@@ -8,7 +8,7 @@
 // MARK: EhSetting
 struct EhSetting: Equatable {
     // swiftlint:disable line_length
-    static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigSize: .normal, capableThumbnailConfigRowCount: .forty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryShowPageNumbers: true)
+    static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none)
     // swiftlint:enable line_length
 
     static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
@@ -35,8 +35,8 @@ struct EhSetting: Equatable {
     let capableLoadThroughHathSetting: LoadThroughHathSetting
     let capableImageResolution: ImageResolution
     let capableSearchResultCount: SearchResultCount
-    let capableThumbnailConfigSize: ThumbnailSize
     let capableThumbnailConfigRowCount: ThumbnailRowCount
+    let capableThumbnailConfigSizes: [ThumbnailSize]
 
     var capableLoadThroughHathSettings: [LoadThroughHathSetting] {
         LoadThroughHathSetting.allCases.filter { setting in
@@ -53,14 +53,16 @@ struct EhSetting: Equatable {
             count <= capableSearchResultCount
         }
     }
-    var capableThumbnailConfigSizes: [ThumbnailSize] {
-        ThumbnailSize.allCases.filter { size in
-            size <= capableThumbnailConfigSize
-        }
-    }
     var capableThumbnailConfigRowCounts: [ThumbnailRowCount] {
         ThumbnailRowCount.allCases.filter { row in
             row <= capableThumbnailConfigRowCount
+        }
+    }
+    var capableGalleryPageNumberingOptions: [GalleryPageNumbering] {
+        if Defaults.URL.host == Defaults.URL.ehentai {
+            return [.none, .pageNumberOnly]
+        } else {
+            return [.none, .pageNumberOnly, .pageNumberAndName]
         }
     }
     var localizedLiteralBrowsingCountry: String? {
@@ -95,7 +97,7 @@ struct EhSetting: Equatable {
     var commentsSortOrder: CommentsSortOrder
     var commentVotesShowTiming: CommentVotesShowTiming
     var tagsSortOrder: TagsSortOrder
-    var galleryShowPageNumbers: Bool
+    var galleryPageNumbering: GalleryPageNumbering
     var useOriginalImages: Bool?
     var useMultiplePageViewer: Bool?
     var multiplePageViewerStyle: MultiplePageViewerStyle?
@@ -389,13 +391,15 @@ extension EhSetting.ThumbnailLoadTiming {
 // MARK: ThumbnailSize
 extension EhSetting {
     enum ThumbnailSize: Int, CaseIterable, Identifiable, Comparable {
+        case auto
+        case small
         case normal
         case large
     }
 }
 extension EhSetting.ThumbnailSize {
     var id: Int { rawValue }
-    static func < (lhs: Self, rhs: Self) -> Bool {
+    static func < (lhs: EhSetting.ThumbnailSize, rhs: EhSetting.ThumbnailSize) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
@@ -405,6 +409,10 @@ extension EhSetting.ThumbnailSize {
             return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.normal
         case .large:
             return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.large
+        case .small:
+            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.small
+        case .auto:
+            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.auto
         }
     }
 }
@@ -429,7 +437,11 @@ extension EhSetting.ThumbnailRowCount {
         case .four:
             return "4"
         case .ten:
-            return "10"
+            if Defaults.URL.host == Defaults.URL.ehentai {
+                return "10"
+            } else {
+                return "8"
+            }
         case .twenty:
             return "20"
         case .forty:
@@ -520,6 +532,37 @@ extension EhSetting.MultiplePageViewerStyle {
             return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignCenterScaleIfOverWidth
         case .alignCenterAlwaysScale:
             return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignCenterAlwaysScale
+        }
+    }
+}
+
+// MARK: GalleryPageNumbering
+extension EhSetting {
+    enum GalleryPageNumbering: Int, CaseIterable, Identifiable {
+        case none
+        case pageNumberOnly
+        case pageNumberAndName
+    }
+}
+extension EhSetting.GalleryPageNumbering {
+    var id: Int { rawValue }
+
+    var value: String {
+        switch self {
+        case .none:
+            if Defaults.URL.host == Defaults.URL.ehentai {
+                return L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.no
+            } else {
+                return L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.none
+            }
+        case .pageNumberOnly:
+            if Defaults.URL.host == Defaults.URL.ehentai {
+                return L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.yes
+            } else {
+                return L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberOnly
+            }
+        case .pageNumberAndName:
+            return L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberAndName
         }
     }
 }

@@ -823,7 +823,7 @@ struct SubmitEhSettingChangesRequest: Request {
             "cs": String(ehSetting.commentsSortOrder.rawValue),
             "sc": String(ehSetting.commentVotesShowTiming.rawValue),
             "tb": String(ehSetting.tagsSortOrder.rawValue),
-            "pn": ehSetting.galleryShowPageNumbers ? "1" : "0",
+            "pn": String(ehSetting.galleryPageNumbering.rawValue),
             "apply": "Apply"
         ]
 

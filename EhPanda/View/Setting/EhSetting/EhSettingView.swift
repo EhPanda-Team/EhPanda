@@ -919,12 +919,18 @@ private struct GalleryPageNumberingSection: View {
         _ehSetting = ehSetting
     }
 
+    let sectionTitle = Defaults.URL.host == Defaults.URL.ehentai ? L10n.Localizable.EhSettingView.Section.Title.galleryPageNumbering : L10n.Localizable.EhSettingView.Section.Title.galleryPageThumbnailLabeling
+    let pickerTitle = Defaults.URL.host == Defaults.URL.ehentai ? L10n.Localizable.EhSettingView.Title.showGalleryPageNumbers : L10n.Localizable.EhSettingView.Title.showLabelBelowGalleryThumbnails
+    
     var body: some View {
-        Section(L10n.Localizable.EhSettingView.Section.Title.galleryPageNumbering) {
-            Toggle(
-                L10n.Localizable.EhSettingView.Title.showGalleryPageNumbers,
-                isOn: $ehSetting.galleryShowPageNumbers
-            )
+        Section(sectionTitle) {
+            Picker(pickerTitle, selection: $ehSetting.galleryPageNumbering) {
+                ForEach(ehSetting.capableGalleryPageNumberingOptions) { behavior in
+                    Text(behavior.value)
+                        .tag(behavior)
+                }
+            }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
     }

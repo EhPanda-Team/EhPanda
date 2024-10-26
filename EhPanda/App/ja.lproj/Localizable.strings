@@ -507,6 +507,8 @@
 // EhSetting.ThumbnailSize
 "enum.eh_setting.thumbnail_size.value.normal" = "普通";
 "enum.eh_setting.thumbnail_size.value.large" = "大きめ";
+"enum.eh_setting.thumbnail_size.value.small" = "小さめ";
+"enum.eh_setting.thumbnail_size.value.auto" = "自動";
 
 "eh_setting_view.section.title.thumbnail_scaling" = "サムネイルスケーリング";
 "eh_setting_view.title.scale_factor" = "スケール係数";
@@ -534,7 +536,9 @@
 "enum.eh_setting.tags_sort_order.value.tag_power" = "タグパワーの高い順";
 
 "eh_setting_view.section.title.gallery_page_numbering" = "ギャラリーページ数";
+"eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "ギャラリーサムネイルのラベル";
 "eh_setting_view.title.show_gallery_page_numbers" = "ギャラリーページ数を表示";
+"eh_setting_view.title.show_label_below_gallery_thumbnails" = "ギャラリーサムネイルの下にラベルを表示";
 
 "eh_setting_view.section.title.hath_local_network_host" = "Hath ローカルネットワークホスト";
 "eh_setting_view.title.ip_address_port" = "IP アドレス:ポート";
@@ -551,6 +555,12 @@
 "enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "左寄せ、幅によってスケール";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "中央揃え、幅によってスケール";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "中央揃え、常時スケール";
+// EhSetting.GalleryPageNumbering
+"enum.eh_setting.gallery_page_numbering.value.none" = "表示しない";
+"enum.eh_setting.gallery_page_numbering.value.page_number_only" = "ページ番号のみ表示";
+"enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "ページ番号と名前を表示";
+"enum.eh_setting.gallery_page_numbering.value.yes" = "表示する";
+"enum.eh_setting.gallery_page_numbering.value.no" = "表示しない";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "同人誌";
