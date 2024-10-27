@@ -644,7 +644,7 @@ struct Parser {
             var previewURLs = [Int: URL]()
 
             for link in node.xpath("//a") {
-                if let divNode = link.at_xpath("div"),
+                if let divNode = link.at_xpath(".//div[@title and @style]"),
                    let style = divNode["style"],
                    let rangeA = style.range(of: "width:"),
                    let rangeB = style.range(of: "px;height:"),
@@ -675,7 +675,7 @@ struct Parser {
             var previewURLs = [Int: URL]()
 
             for link in node.xpath("//a") {
-                if let divNode = link.at_xpath("div"),
+                if let divNode = link.at_xpath(".//div[@title and @style]"),
                    let style = divNode["style"],
                    let rangeA = style.range(of: "url("),
                    let rangeB = style.range(of: ")"),
@@ -801,7 +801,7 @@ struct Parser {
             for aLink in gdtNode.xpath("a") {
                 guard let href = aLink["href"],
                       let thumbnailURL = URL(string: href),
-                      let divNode = aLink.at_xpath("div"),
+                      let divNode = aLink.at_xpath(".//div[@title and @style]"),
                       let title = divNode["title"],
                       let index = parseGTX00IndexFromTitle(from: title)
                 else { continue }
