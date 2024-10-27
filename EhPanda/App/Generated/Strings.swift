@@ -94,10 +94,10 @@ internal enum L10n {
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.link.chihchy", fallback: "https://github.com/chihchy")
           /// https://github.com/Jimmy-Prime
           internal static let jimmyPrime = L10n.tr("Constant", "app.code_level_contributor.link.Jimmy-Prime", fallback: "https://github.com/Jimmy-Prime")
-          /// https://github.com/remlostime
-          internal static let remlostime = L10n.tr("Constant", "app.code_level_contributor.link.remlostime", fallback: "https://github.com/remlostime")
           /// https://github.com/tatsuz0u
           internal static let tatsuz0u = L10n.tr("Constant", "app.code_level_contributor.link.tatsuz0u", fallback: "https://github.com/tatsuz0u")
+          /// https://github.com/vvbbnn00
+          internal static let vvbbnn00 = L10n.tr("Constant", "app.code_level_contributor.link.vvbbnn00", fallback: "https://github.com/vvbbnn00")
           /// https://github.com/xioxin
           internal static let xioxin = L10n.tr("Constant", "app.code_level_contributor.link.xioxin", fallback: "https://github.com/xioxin")
         }
@@ -106,10 +106,10 @@ internal enum L10n {
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.text.chihchy", fallback: "Chihchy")
           /// Jimmy Prime
           internal static let jimmyPrime = L10n.tr("Constant", "app.code_level_contributor.text.Jimmy-Prime", fallback: "Jimmy Prime")
-          /// Kai Chen
-          internal static let remlostime = L10n.tr("Constant", "app.code_level_contributor.text.remlostime", fallback: "Kai Chen")
           /// Tatsuzo Araki
           internal static let tatsuz0u = L10n.tr("Constant", "app.code_level_contributor.text.tatsuz0u", fallback: "Tatsuzo Araki")
+          /// vvbbnn00
+          internal static let vvbbnn00 = L10n.tr("Constant", "app.code_level_contributor.text.vvbbnn00", fallback: "vvbbnn00")
           /// xioxin
           internal static let xioxin = L10n.tr("Constant", "app.code_level_contributor.text.xioxin", fallback: "xioxin")
         }

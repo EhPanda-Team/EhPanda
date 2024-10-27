@@ -119,8 +119,8 @@ struct AboutView: View {
             text: L10n.Constant.App.CodeLevelContributor.Text.xioxin
         ),
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.remlostime,
-            text: L10n.Constant.App.CodeLevelContributor.Text.remlostime
+            urlString: L10n.Constant.App.CodeLevelContributor.Link.vvbbnn00,
+            text: L10n.Constant.App.CodeLevelContributor.Text.vvbbnn00
         )
     ]}()
 
