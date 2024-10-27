@@ -453,6 +453,10 @@
 "enum.eh_setting.display_mode.value.minimal" = "最小化";
 "enum.eh_setting.display_mode.value.minimalPlus" = "最小化 +";
 
+"eh_setting_view.section.title.optional_UI_elements" = "可选的 UI 组件";
+"eh_setting_view.description.optional_UI_elements" = "一些旧版 UI 组件现已默认禁用。您可以在此启用这些组件。";
+"eh_setting_view.title.enable_gallery_thumbnail_selector" = "在画廊页面启用缩图选择器";
+
 "eh_setting_view.section.title.favorites" = "收藏";
 "eh_setting_view.description.favorite_categories" = "在这里你可以重命名你的收藏夹。";
 "eh_setting_view.title.favorites_sort_order" = "收藏排序方式";
@@ -507,10 +511,14 @@
 // EhSetting.ThumbnailSize
 "enum.eh_setting.thumbnail_size.value.normal" = "普通";
 "enum.eh_setting.thumbnail_size.value.large" = "较大";
+"enum.eh_setting.thumbnail_size.value.small" = "较小";
+"enum.eh_setting.thumbnail_size.value.auto" = "自动";
 
 "eh_setting_view.section.title.thumbnail_scaling" = "缩略图缩放";
+"eh_setting_view.section.title.cover_scaling" = "封面缩放";
 "eh_setting_view.title.scale_factor" = "缩放比例";
-"eh_setting_view.description.scale_factor" = "缩略图和扩展模式下的画廊列表缩略图可以缩放为 75%% 到 150%% 之间的自定义值。";
+"eh_setting_view.description.thumbnail_scale_factor" = "缩略图和扩展模式下的画廊列表缩略图可以缩放为 75%% 到 150%% 之间的自定义值。";
+"eh_setting_view.description.cover_scale_factor" = "缩略图和扩展模式下的画廊列表封面可以缩放为 75%% 到 150%% 之间的值。";
 
 "eh_setting_view.section.title.viewport_override" = "覆写可视区域";
 "eh_setting_view.title.virtual_width" = "虚拟宽度";
@@ -534,13 +542,15 @@
 "enum.eh_setting.tags_sort_order.value.tag_power" = "按标签权重";
 
 "eh_setting_view.section.title.gallery_page_numbering" = "画廊页面页码";
+"eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "画廊页面缩略图标签";
 "eh_setting_view.title.show_gallery_page_numbers" = "显示画廊页码";
+"eh_setting_view.title.show_label_below_gallery_thumbnails" = "在画廊缩略图下方显示标签";
 
 "eh_setting_view.section.title.hath_local_network_host" = "Hath 本地网络服务器";
 "eh_setting_view.title.ip_address_port" = "IP 地址:端口";
 "eh_setting_view.description.ip_address_port" = "如果你本地安装了 H@H 客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址 (127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
 
-"eh_setting_view.section.title.original_images" = "原始图像";
+"eh_setting_view.section.title.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
 "eh_setting_view.title.use_original_images" = "显示原图";
 
 "eh_setting_view.section.title.multi_page_viewer" = "多页查看器";
@@ -551,6 +561,12 @@
 "enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "左对齐，图像过宽时缩放";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "居中对齐，图像过宽时缩放";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "居中对齐，图像始终缩放";
+// EhSetting.GalleryPageNumbering
+"enum.eh_setting.gallery_page_numbering.value.none" = "不显示";
+"enum.eh_setting.gallery_page_numbering.value.page_number_only" = "仅显示页码";
+"enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "显示页码和名称";
+"enum.eh_setting.gallery_page_numbering.value.yes" = "显示";
+"enum.eh_setting.gallery_page_numbering.value.no" = "不显示";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "同人志";

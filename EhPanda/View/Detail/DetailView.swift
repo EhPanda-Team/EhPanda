@@ -33,6 +33,7 @@ struct DetailView: View {
     var body: some View {
         ZStack {
             ScrollView(showsIndicators: false) {
+                let content =
                 VStack(spacing: 30) {
                     HeaderSection(
                         gallery: store.gallery,
@@ -106,7 +107,14 @@ struct DetailView: View {
                     )
                 }
                 .padding(.bottom, 20)
-                .padding(.top, -25)
+
+                if #available(iOS 18.0, *) {
+                    content
+                        .padding(.top, 25)
+                } else {
+                    content
+                        .padding(.top, -25)
+                }
             }
             .opacity(store.galleryDetail == nil ? 0 : 1)
             LoadingView()

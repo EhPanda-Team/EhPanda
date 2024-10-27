@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 jobs:
   dependencies:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,10 +19,10 @@ jobs:
         with:
           forceResolution: true
           failWhenOutdated: false
-          xcodePath: '/Applications/Xcode_15.4.app'
+          xcodePath: '/Applications/Xcode_16.0.app'
       - name: Create Pull Request
         if: steps.resolution.outputs.dependenciesChanged == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           branch: 'update-dependencies'
           delete-branch: true
