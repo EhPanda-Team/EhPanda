@@ -453,6 +453,10 @@
 "enum.eh_setting.display_mode.value.minimal" = "Minimal";
 "enum.eh_setting.display_mode.value.minimalPlus" = "Minimal+";
 
+"eh_setting_view.section.title.optional_UI_elements" = "Optional UI Elements";
+"eh_setting_view.description.optional_UI_elements" = "Some historic UI elements are now disabled by default. You can enable those here.";
+"eh_setting_view.title.enable_gallery_thumbnail_selector" = "Enable thumbnail selector on gallery screen";
+
 "eh_setting_view.section.title.favorites" = "Favorites";
 "eh_setting_view.description.favorite_categories" = "Here you can choose and rename your favorite categories.";
 "eh_setting_view.title.favorites_sort_order" = "Favorites sort order";
@@ -507,10 +511,14 @@
 // EhSetting.ThumbnailSize
 "enum.eh_setting.thumbnail_size.value.normal" = "Normal";
 "enum.eh_setting.thumbnail_size.value.large" = "Large";
+"enum.eh_setting.thumbnail_size.value.small" = "Small";
+"enum.eh_setting.thumbnail_size.value.auto" = "Auto";
 
 "eh_setting_view.section.title.thumbnail_scaling" = "Thumbnail Scaling";
+"eh_setting_view.section.title.cover_scaling" = "Cover Scaling";
 "eh_setting_view.title.scale_factor" = "Scale factor";
-"eh_setting_view.description.scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.";
+"eh_setting_view.description.thumbnail_scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.";
+"eh_setting_view.description.cover_scale_factor" = "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.";
 
 "eh_setting_view.section.title.viewport_override" = "Viewport Override";
 "eh_setting_view.title.virtual_width" = "Virtual width";
@@ -534,13 +542,15 @@
 "enum.eh_setting.tags_sort_order.value.tag_power" = "By tag power";
 
 "eh_setting_view.section.title.gallery_page_numbering" = "Gallery Page Numbering";
+"eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "Gallery Page Thumbnail Labeling";
 "eh_setting_view.title.show_gallery_page_numbers" = "Show gallery page numbers";
+"eh_setting_view.title.show_label_below_gallery_thumbnails" = "Show label below gallery thumbnails";
 
 "eh_setting_view.section.title.hath_local_network_host" = "Hath Local Network Host";
 "eh_setting_view.title.ip_address_port" = "IP address:Port";
 "eh_setting_view.description.ip_address_port" = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.";
 
-"eh_setting_view.section.title.original_images" = "Original Images";
+"eh_setting_view.section.title.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
 "eh_setting_view.title.use_original_images" = "Use original images";
 
 "eh_setting_view.section.title.multi_page_viewer" = "Multi-Page Viewer";
@@ -551,6 +561,12 @@
 "enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "Align left, scale if overwidth";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "Align center, scale if overwidth";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "Align center, always scale";
+// EhSetting.GalleryPageNumbering
+"enum.eh_setting.gallery_page_numbering.value.none" = "None";
+"enum.eh_setting.gallery_page_numbering.value.page_number_only" = "Page Number Only";
+"enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "Page Number + Name";
+"enum.eh_setting.gallery_page_numbering.value.yes" = "Yes";
+"enum.eh_setting.gallery_page_numbering.value.no" = "No";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "Doujinshi";

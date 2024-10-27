@@ -484,6 +484,8 @@ internal enum L10n {
         internal static func browsingCountry(_ p1: Any) -> String {
           return L10n.tr("Localizable", "eh_setting_view.description.browsing_country", String(describing: p1), fallback: "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.")
         }
+        /// The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.
+        internal static let coverScaleFactor = L10n.tr("Localizable", "eh_setting_view.description.cover_scale_factor", fallback: "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.")
         /// Which display mode would you like to use on the front and search pages?
         internal static let displayMode = L10n.tr("Localizable", "eh_setting_view.description.display_mode", fallback: "Which display mode would you like to use on the front and search pages?")
         /// If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.
@@ -511,13 +513,13 @@ internal enum L10n {
         /// This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.
         /// If you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.
         internal static let ipAddressPort = L10n.tr("Localizable", "eh_setting_view.description.ip_address_port", fallback: "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.")
+        /// Some historic UI elements are now disabled by default. You can enable those here.
+        internal static let optionalUIElements = L10n.tr("Localizable", "eh_setting_view.description.optional_UI_elements", fallback: "Some historic UI elements are now disabled by default. You can enable those here.")
         /// By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.
         internal static let ratingsColor = L10n.tr("Localizable", "eh_setting_view.description.ratings_color", fallback: "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.")
         /// How many results would you like per page for the index/search page and torrent search pages?
         /// (Hath Perk: Paging Enlargement Required)
         internal static let resultCount = L10n.tr("Localizable", "eh_setting_view.description.result_count", fallback: "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)")
-        /// Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.
-        internal static let scaleFactor = L10n.tr("Localizable", "eh_setting_view.description.scale_factor", fallback: "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.")
         /// You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.
         internal static let tagFilteringThreshold = L10n.tr("Localizable", "eh_setting_view.description.tag_filtering_threshold", fallback: "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.")
         /// Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.
@@ -526,6 +528,8 @@ internal enum L10n {
         internal static let thumbnailConfiguration = L10n.tr("Localizable", "eh_setting_view.description.thumbnail_configuration", fallback: "You can set a default thumbnail configuration for all galleries you visit.")
         /// How would you like the mouse-over thumbnails on the front page to load when using List Mode?
         internal static let thumbnailLoadTiming = L10n.tr("Localizable", "eh_setting_view.description.thumbnail_load_timing", fallback: "How would you like the mouse-over thumbnails on the front page to load when using List Mode?")
+        /// Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.
+        internal static let thumbnailScaleFactor = L10n.tr("Localizable", "eh_setting_view.description.thumbnail_scale_factor", fallback: "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.")
         /// Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.
         internal static let virtualWidth = L10n.tr("Localizable", "eh_setting_view.description.virtual_width", fallback: "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.")
       }
@@ -537,6 +541,8 @@ internal enum L10n {
         internal enum Title {
           /// Archiver Settings
           internal static let archiverSettings = L10n.tr("Localizable", "eh_setting_view.section.title.archiver_settings", fallback: "Archiver Settings")
+          /// Cover Scaling
+          internal static let coverScaling = L10n.tr("Localizable", "eh_setting_view.section.title.cover_scaling", fallback: "Cover Scaling")
           /// Excluded Languages
           internal static let excludedLanguages = L10n.tr("Localizable", "eh_setting_view.section.title.excluded_languages", fallback: "Excluded Languages")
           /// Excluded Uploaders
@@ -553,6 +559,8 @@ internal enum L10n {
           internal static let galleryNameDisplay = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_name_display", fallback: "Gallery Name Display")
           /// Gallery Page Numbering
           internal static let galleryPageNumbering = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_page_numbering", fallback: "Gallery Page Numbering")
+          /// Gallery Page Thumbnail Labeling
+          internal static let galleryPageThumbnailLabeling = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_page_thumbnail_labeling", fallback: "Gallery Page Thumbnail Labeling")
           /// Gallery Tags
           internal static let galleryTags = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_tags", fallback: "Gallery Tags")
           /// Hath Local Network Host
@@ -563,8 +571,10 @@ internal enum L10n {
           internal static let imageSizeSettings = L10n.tr("Localizable", "eh_setting_view.section.title.image_size_settings", fallback: "Image Size Settings")
           /// Multi-Page Viewer
           internal static let multiPageViewer = L10n.tr("Localizable", "eh_setting_view.section.title.multi_page_viewer", fallback: "Multi-Page Viewer")
-          /// Original Images
-          internal static let originalImages = L10n.tr("Localizable", "eh_setting_view.section.title.original_images", fallback: "Original Images")
+          /// Optional UI Elements
+          internal static let optionalUIElements = L10n.tr("Localizable", "eh_setting_view.section.title.optional_UI_elements", fallback: "Optional UI Elements")
+          /// Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than "Auto" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).
+          internal static let originalImages = L10n.tr("Localizable", "eh_setting_view.section.title.original_images", fallback: "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).")
           /// Profile Settings
           internal static let profileSettings = L10n.tr("Localizable", "eh_setting_view.section.title.profile_settings", fallback: "Profile Settings")
           /// Ratings
@@ -598,6 +608,8 @@ internal enum L10n {
         internal static let displayMode = L10n.tr("Localizable", "eh_setting_view.title.display_mode", fallback: "Display mode")
         /// Display style
         internal static let displayStyle = L10n.tr("Localizable", "eh_setting_view.title.display_style", fallback: "Display style")
+        /// Enable thumbnail selector on gallery screen
+        internal static let enableGalleryThumbnailSelector = L10n.tr("Localizable", "eh_setting_view.title.enable_gallery_thumbnail_selector", fallback: "Enable thumbnail selector on gallery screen")
         /// Favorites sort order
         internal static let favoritesSortOrder = L10n.tr("Localizable", "eh_setting_view.title.favorites_sort_order", fallback: "Favorites sort order")
         /// Gallery name
@@ -628,6 +640,8 @@ internal enum L10n {
         internal static let showFilteredRemovalCount = L10n.tr("Localizable", "eh_setting_view.title.show_filtered_removal_count", fallback: "Show filtered removal count")
         /// Show gallery page numbers
         internal static let showGalleryPageNumbers = L10n.tr("Localizable", "eh_setting_view.title.show_gallery_page_numbers", fallback: "Show gallery page numbers")
+        /// Show label below gallery thumbnails
+        internal static let showLabelBelowGalleryThumbnails = L10n.tr("Localizable", "eh_setting_view.title.show_label_below_gallery_thumbnails", fallback: "Show label below gallery thumbnails")
         /// Show search range indicator
         internal static let showSearchRangeIndicator = L10n.tr("Localizable", "eh_setting_view.title.show_search_range_indicator", fallback: "Show search range indicator")
         /// Show thumbnail pane
@@ -1313,6 +1327,20 @@ internal enum L10n {
             internal static let japanese = L10n.tr("Localizable", "enum.eh_setting.gallery_name.value.japanese", fallback: "Japanese Title (if available)")
           }
         }
+        internal enum GalleryPageNumbering {
+          internal enum Value {
+            /// No
+            internal static let no = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.no", fallback: "No")
+            /// None
+            internal static let `none` = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.none", fallback: "None")
+            /// Page Number + Name
+            internal static let pageNumberAndName = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.page_number_and_name", fallback: "Page Number + Name")
+            /// Page Number Only
+            internal static let pageNumberOnly = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.page_number_only", fallback: "Page Number Only")
+            /// Yes
+            internal static let yes = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.yes", fallback: "Yes")
+          }
+        }
         internal enum ImageResolution {
           internal enum Value {
             /// Auto
@@ -1375,10 +1403,14 @@ internal enum L10n {
         }
         internal enum ThumbnailSize {
           internal enum Value {
+            /// Auto
+            internal static let auto = L10n.tr("Localizable", "enum.eh_setting.thumbnail_size.value.auto", fallback: "Auto")
             /// Large
             internal static let large = L10n.tr("Localizable", "enum.eh_setting.thumbnail_size.value.large", fallback: "Large")
             /// Normal
             internal static let normal = L10n.tr("Localizable", "enum.eh_setting.thumbnail_size.value.normal", fallback: "Normal")
+            /// Small
+            internal static let small = L10n.tr("Localizable", "enum.eh_setting.thumbnail_size.value.small", fallback: "Small")
           }
         }
       }

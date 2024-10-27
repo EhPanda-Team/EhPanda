@@ -453,6 +453,10 @@
 "enum.eh_setting.display_mode.value.minimal" = "最小(Minimal)";
 "enum.eh_setting.display_mode.value.minimalPlus" = "Minimal+";
 
+"eh_setting_view.section.title.optional_UI_elements" = "可選用的 UI 元件";
+"eh_setting_view.description.optional_UI_elements" = "一些舊版 UI 元件現已預設停用。您可以在此啟用這些元件。";
+"eh_setting_view.title.enable_gallery_thumbnail_selector" = "在畫廊頁面啟用縮圖選擇器";
+
 "eh_setting_view.section.title.favorites" = "收藏匣";
 "eh_setting_view.description.favorite_categories" = "在這裡你可以選擇並重新命名收藏匣";
 "eh_setting_view.title.favorites_sort_order" = "收藏匣排序";
@@ -507,10 +511,14 @@
 // EhSetting.ThumbnailSize
 "enum.eh_setting.thumbnail_size.value.normal" = "正常";
 "enum.eh_setting.thumbnail_size.value.large" = "大型";
+"enum.eh_setting.thumbnail_size.value.small" = "小型";
+"enum.eh_setting.thumbnail_size.value.auto" = "自動";
 
 "eh_setting_view.section.title.thumbnail_scaling" = "縮圖縮放";
+"eh_setting_view.section.title.cover_scaling" = "封面縮放";
 "eh_setting_view.title.scale_factor" = "縮放比例";
-"eh_setting_view.description.scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，縮圖的重新採樣比率介於 75%% 至 150%%.";
+"eh_setting_view.description.thumbnail_scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，縮圖的重新採樣比率介於 75%% 至 150%%.";
+"eh_setting_view.description.cover_scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，封面的重新採樣比率介於 75%% 至 150%%.";
 
 "eh_setting_view.section.title.viewport_override" = "視窗覆蓋";
 "eh_setting_view.title.virtual_width" = "虛擬寬度";
@@ -534,13 +542,15 @@
 "enum.eh_setting.tags_sort_order.value.tag_power" = "標籤權重";
 
 "eh_setting_view.section.title.gallery_page_numbering" = "畫廊頁數";
+"eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "畫廊頁面縮圖標籤";
 "eh_setting_view.title.show_gallery_page_numbers" = "顯示該畫廊的頁數";
+"eh_setting_view.title.show_label_below_gallery_thumbnails" = "在畫廊縮圖下方顯示標籤";
 
 "eh_setting_view.section.title.hath_local_network_host" = "內網 H@H 服務 (Hath Local Network Host)";
 "eh_setting_view.title.ip_address_port" = "IP 位址:連接埠號";
 "eh_setting_view.description.ip_address_port" = "如果你在內網上使用與瀏覽站點相同的公共 IP 架設 H@H 用戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一裝置上運行用戶端，請使用回環地址 (127.0.0.1:port)。 如果用戶端在您網路上的另一台裝置上運行，請使用其本地網路 IP。 某些瀏覽器配置會阻止外部網站存取具有本地網路 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
 
-"eh_setting_view.section.title.original_images" = "原始圖片";
+"eh_setting_view.section.title.original_images" = "要使用原始圖片而非重新取樣的版本嗎? 若您在上方選擇「自動」以外的水平解析度且圖片較寬，或原始圖片大於 10 MiB（一年以上的圖庫則為 4 MiB），系統仍會使用重新取樣的圖片。";
 "eh_setting_view.title.use_original_images" = "使用原始圖片(原解析度)";
 
 "eh_setting_view.section.title.multi_page_viewer" = "多頁瀏覽";
@@ -551,6 +561,12 @@
 "enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "向左對齊，若寬度超出頁面則進行縮放";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "置中對齊，若寬度超出頁面則進行縮放";
 "enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "置中對齊且總是縮放";
+// EhSetting.GalleryPageNumbering
+"enum.eh_setting.gallery_page_numbering.value.none" = "不顯示";
+"enum.eh_setting.gallery_page_numbering.value.page_number_only" = "只顯示頁碼";
+"enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "顯示頁碼和名稱";
+"enum.eh_setting.gallery_page_numbering.value.yes" = "顯示";
+"enum.eh_setting.gallery_page_numbering.value.no" = "不顯示";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "同人誌";
