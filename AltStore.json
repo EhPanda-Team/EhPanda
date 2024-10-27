@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.5",
-          "date": "2024-07-10T13:10:54",
-          "localizedDescription": "1. Migrate to TCA 1.0 credit @Jimmy-Prime",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.5/EhPanda.ipa",
-          "size": 6590738,
+          "version": "2.7.6",
+          "date": "2024-10-27T15:32:50",
+          "localizedDescription": "1. fix: Gallery and account configuration pages parsing issue.\n2. fix: Gallery page header layout issue.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.6/EhPanda.ipa",
+          "size": 6878436,
           "minOSVersion": "16.0"
         }
       ],
