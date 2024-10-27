@@ -640,6 +640,37 @@ struct Parser {
 
             return previewURLs
         }
+        func parseGT100PreviewURLs(node: XMLElement) -> [Int: URL] {
+            var previewURLs = [Int: URL]()
+
+            for link in node.xpath("//a") {
+                if let divNode = link.at_xpath("div"),
+                   let style = divNode["style"],
+                   let rangeA = style.range(of: "width:"),
+                   let rangeB = style.range(of: "px;height:"),
+                   let rangeC = style.range(of: "px;background"),
+                   let rangeD = style.range(of: "url("),
+                   let rangeE = style.range(of: ") -"),
+                   let rangeF = style[rangeE.upperBound...].range(of: "px "),
+                   let urlString = style[rangeD.upperBound..<rangeE.lowerBound]
+                       .replacingOccurrences(of: "'", with: "")
+                       .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                   let url = URL(string: urlString),
+                   let title = divNode["title"],
+                   let index = parseGTX00IndexFromTitle(from: title)
+                {
+                    let width = String(style[rangeA.upperBound..<rangeB.lowerBound])
+                    let height = String(style[rangeB.upperBound..<rangeC.lowerBound])
+                    let offset = String(style[rangeE.upperBound..<rangeF.lowerBound])
+
+                    previewURLs[index] = URLUtil.normalPreviewURL(
+                        plainURL: url, width: width,
+                        height: height, offset: offset
+                    )
+                }
+            }
+            return previewURLs
+        }
         func parseGT200PreviewURLs(node: XMLElement) -> [Int: URL] {
             var previewURLs = [Int: URL]()
 
@@ -653,7 +684,7 @@ struct Parser {
                        .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                    let url = URL(string: urlString),
                    let title = divNode["title"],
-                   let index = parseGT200IndexFromTitle(from: title)
+                   let index = parseGTX00IndexFromTitle(from: title)
                 {
                     previewURLs[index] = url
                 }
@@ -668,6 +699,7 @@ struct Parser {
         return switch previewMode {
         case "gdtl": parseLargePreviewURLs(node: gdtNode)
         case "gdtm": parseNormalPreviewURLs(node: gdtNode)
+        case "gt100": parseGT100PreviewURLs(node: gdtNode)
         case "gt200": parseGT200PreviewURLs(node: gdtNode)
         default: .init()
         }
@@ -745,7 +777,7 @@ struct Parser {
         return comments
     }
 
-    static func parseGT200IndexFromTitle(from title: String) -> Int? {
+    static func parseGTX00IndexFromTitle(from title: String) -> Int? {
         // The probable format of page title is "Page [Number]: filename"
         (
             title
@@ -765,13 +797,13 @@ struct Parser {
               let previewMode = try? parsePreviewMode(doc: doc)
         else { throw AppError.parseFailed }
 
-        if previewMode == "gt200" {
+        if ["gt100", "gt200"].contains(previewMode) {
             for aLink in gdtNode.xpath("a") {
                 guard let href = aLink["href"],
                       let thumbnailURL = URL(string: href),
                       let divNode = aLink.at_xpath("div"),
                       let title = divNode["title"],
-                      let index = parseGT200IndexFromTitle(from: title)
+                      let index = parseGTX00IndexFromTitle(from: title)
                 else { continue }
 
                 thumbnailURLs[index] = thumbnailURL
@@ -817,6 +849,8 @@ struct Parser {
             return "gdtm"
         } else if doc.at_xpath("//div [@class='gdtl']") != nil {
             return "gdtl"
+        } else if doc.at_xpath("//div [@class='gt100']") != nil {
+            return "gt100"
         } else if doc.at_xpath("//div [@class='gt200']") != nil {
             return "gt200"
         } else {
