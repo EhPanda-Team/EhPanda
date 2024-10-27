@@ -2,10 +2,10 @@ name: Test
 on: [push, workflow_dispatch]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_15.4.app
+   DEVELOPER_DIR: /Applications/Xcode_16.0.app
 jobs:
   Test:
-    runs-on: macos-14
+    runs-on: macos-15
     if: ${{ !contains(github.event.head_commit.message, '[skip test]') }}
     steps:
       - name: Checkout
@@ -16,4 +16,4 @@ jobs:
         run: xcodebuild clean test
           -skipMacroValidation
           -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro'

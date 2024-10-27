@@ -5,7 +5,7 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.4.app
+  DEVELOPER_DIR: /Applications/Xcode_16.0.app
   APP_VERSION: '2.7.5'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
@@ -19,7 +19,7 @@ env:
 
 jobs:
   Deploy:
-    runs-on: macos-14
+    runs-on: macos-15
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
     steps:
       - name: Checkout
@@ -34,7 +34,7 @@ jobs:
         run: xcodebuild clean test
           -skipMacroValidation
           -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
       - name: Bump version
         id: bump-version
         uses: yanamura/ios-bump-version@v1
@@ -77,7 +77,7 @@ jobs:
           [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
       - name: Release to GitHub
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
          fail_on_unmatched_files: true
          files: ${{ env.IPA_OUTPUT_PATH }}
