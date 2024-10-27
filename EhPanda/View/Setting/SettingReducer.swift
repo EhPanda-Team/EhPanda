@@ -296,7 +296,9 @@ struct SettingReducer {
                 return .none
 
             case .createDefaultEhProfile:
-                return .run(operation: { _ in _ = await EhProfileRequest(action: .create, name: "EhPanda").response() })
+                return .run { [galleryHost = state.setting.galleryHost] _ in
+                    _ = await EhProfileRequest(galleryHost: galleryHost, action: .create, name: "EhPanda").response()
+                }
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }

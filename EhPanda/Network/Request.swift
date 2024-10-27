@@ -751,6 +751,7 @@ struct VerifyEhProfileRequest: Request {
 }
 
 struct EhProfileRequest: Request {
+    let galleryHost: GalleryHost
     var action: EhProfileAction?
     var name: String?
     var set: Int?
@@ -776,24 +777,27 @@ struct EhProfileRequest: Request {
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting)
+            .tryMap({ try Parser.parseEhSetting(doc: $0, galleryHost: galleryHost) })
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
 
 struct EhSettingRequest: Request {
+    let galleryHost: GalleryHost
+
     var publisher: AnyPublisher<EhSetting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting)
+            .tryMap({ try Parser.parseEhSetting(doc: $0, galleryHost: galleryHost) })
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
 
 struct SubmitEhSettingChangesRequest: Request {
+    let galleryHost: GalleryHost
     let ehSetting: EhSetting
 
     var publisher: AnyPublisher<EhSetting, AppError> {
@@ -816,7 +820,6 @@ struct SubmitEhSettingChangesRequest: Request {
             "xu": ehSetting.excludedUploaders,
             "rc": String(ehSetting.searchResultCount.rawValue),
             "lt": String(ehSetting.thumbnailLoadTiming.rawValue),
-            "ts": "0",
             "tr": String(ehSetting.thumbnailConfigRows.rawValue),
             "tp": String(Int(ehSetting.thumbnailScaleFactor)),
             "vp": String(Int(ehSetting.viewportVirtualWidth)),
@@ -826,27 +829,18 @@ struct SubmitEhSettingChangesRequest: Request {
             "pn": String(ehSetting.galleryPageNumbering.rawValue),
             "apply": "Apply"
         ]
-        
-        if Defaults.URL.host == Defaults.URL.ehentai {
-            switch ehSetting.thumbnailConfigSize {
-            case .normal:
-                params["ts"] = "0"
-            case .large:
-                params["ts"] = "1"
-            default:
-                break
-            }
-        } else {
-            switch ehSetting.thumbnailConfigSize {
-            case .auto:
-                params["ts"] = "0"
-            case .normal:
-                params["ts"] = "1"
-            case .small:
-                params["ts"] = "2"
-            default:
-                break
-            }
+
+        if ehSetting.enableGalleryThumbnailSelector {
+            params["xn_0"] = "on"
+        }
+
+        switch (galleryHost, ehSetting.thumbnailConfigSize) {
+        case (.ehentai, .normal): params["ts"] = "0"
+        case (.ehentai, .large): params["ts"] = "1"
+        case (.exhentai, .auto): params["ts"] = "0"
+        case (.exhentai, .normal): params["ts"] = "1"
+        case (.exhentai, .small): params["ts"] = "2"
+        default: break
         }
 
         EhSetting.categoryNames.enumerated().forEach { index, name in
@@ -882,7 +876,7 @@ struct SubmitEhSettingChangesRequest: Request {
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting)
+            .tryMap({ try Parser.parseEhSetting(doc: $0, galleryHost: galleryHost) })
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
