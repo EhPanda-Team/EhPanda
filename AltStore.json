@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.6",
-          "date": "2024-10-27T15:32:50",
-          "localizedDescription": "1. fix: Gallery and account configuration pages parsing issue.\n2. fix: Gallery page header layout issue.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.6/EhPanda.ipa",
-          "size": 6878436,
+          "version": "2.7.7",
+          "date": "2024-10-28T16:28:26",
+          "localizedDescription": "1. fix: Gallery page parsing issue when thumbnail size is set to small or auto.\n2. fix: Gallery preview infinite loading issue.\n3. fix: A crash when closing the keyboard.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.7/EhPanda.ipa",
+          "size": 6870884,
           "minOSVersion": "16.0"
         }
       ],
