@@ -30,7 +30,7 @@ struct EhSettingView: View {
                 LoadingView()
                     .tint(nil)
             } else if case .failed(let error) = store.loadingState {
-                ErrorView(error: error, action: { store.send(.fetchEhSetting(galleryHost: galleryHost)) })
+                ErrorView(error: error, action: { store.send(.fetchEhSetting) })
                     .tint(nil)
             }
             // Using `Binding.init` will crash the app
@@ -43,7 +43,7 @@ struct EhSettingView: View {
         }
         .onAppear {
             if store.ehSetting == nil {
-                store.send(.fetchEhSetting(galleryHost: galleryHost))
+                store.send(.fetchEhSetting)
             }
         }
         .onDisappear {
@@ -70,16 +70,12 @@ struct EhSettingView: View {
                     deleteAction: {
                         if let value = store.ehProfile?.value {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                store.send(
-                                    .performAction(galleryHost: galleryHost, action: .delete, name: nil, set: value)
-                                )
+                                store.send(.performAction(action: .delete, name: nil, set: value))
                             }
                         }
                     },
                     deleteDialogAction: { store.send(.setNavigation(.deleteProfile)) },
-                    performEhProfileAction: {
-                        store.send(.performAction(galleryHost: galleryHost, action: $0, name: $1, set: $2))
-                    }
+                    performEhProfileAction: { store.send(.performAction(action: $0, name: $1, set: $2)) }
                 )
 
                 ImageLoadSettingsSection(ehSetting: ehSetting)
@@ -90,10 +86,10 @@ struct EhSettingView: View {
                 OptionalUIElementsSection(ehSetting: ehSetting)
                 FavoritesSection(ehSetting: ehSetting)
                 SearchResultCountSection(ehSetting: ehSetting)
-                ThumbnailSettingsSection(ehSetting: ehSetting, galleryHost: galleryHost)
+                ThumbnailSettingsSection(ehSetting: ehSetting)
             }
             Group {
-                ThumbnailScalingSection(ehSetting: ehSetting, galleryHost: galleryHost)
+                CoverScalingSection(ehSetting: ehSetting)
                 RatingsSection(ehSetting: ehSetting)
                 TagWatchingThresholdSection(ehSetting: ehSetting)
                 TagFilteringThresholdSection(ehSetting: ehSetting)
@@ -105,7 +101,7 @@ struct EhSettingView: View {
                 GalleryTagsSection(ehSetting: ehSetting)
             }
             Group {
-                GalleryPageNumberingSection(ehSetting: ehSetting, galleryHost: galleryHost)
+                GalleryPageThumbnailLabelingSection(ehSetting: ehSetting)
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
         }
@@ -124,7 +120,7 @@ struct EhSettingView: View {
 
             ToolbarItem(placement: .confirmationAction) {
                 Button {
-                    store.send(.submitChanges(galleryHost: galleryHost))
+                    store.send(.submitChanges)
                 } label: {
                     Image(systemSymbol: .icloudAndArrowUp)
                 }
@@ -751,11 +747,9 @@ private struct SearchResultCountSection: View {
 // MARK: ThumbnailSettingsSection
 private struct ThumbnailSettingsSection: View {
     @Binding private var ehSetting: EhSetting
-    private let galleryHost: GalleryHost
 
-    init(ehSetting: Binding<EhSetting>, galleryHost: GalleryHost) {
+    init(ehSetting: Binding<EhSetting>) {
         self._ehSetting = ehSetting
-        self.galleryHost = galleryHost
     }
 
     var body: some View {
@@ -796,11 +790,11 @@ private struct ThumbnailSettingsSection: View {
             LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailRowCount) {
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
-                        Text(row.value(galleryHost: galleryHost))
+                        Text(row.value)
                             .tag(row)
                     }
                 } label: {
-                    Text(ehSetting.capableThumbnailConfigRowCount.value(galleryHost: galleryHost))
+                    Text(ehSetting.capableThumbnailConfigRowCount.value)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 200)
@@ -810,40 +804,26 @@ private struct ThumbnailSettingsSection: View {
     }
 }
 
-// MARK: ThumbnailScalingSection
-private struct ThumbnailScalingSection: View {
+// MARK: CoverScalingSection
+private struct CoverScalingSection: View {
     @Binding private var ehSetting: EhSetting
-    private let galleryHost: GalleryHost
 
-    init(ehSetting: Binding<EhSetting>, galleryHost: GalleryHost) {
+    init(ehSetting: Binding<EhSetting>) {
         self._ehSetting = ehSetting
-        self.galleryHost = galleryHost
-    }
-
-    var scalingTitle: String {
-        galleryHost == .ehentai
-        ? L10n.Localizable.EhSettingView.Section.Title.thumbnailScaling
-        : L10n.Localizable.EhSettingView.Section.Title.coverScaling
-    }
-
-    var scalingFactorDescription: String {
-        galleryHost == .ehentai
-        ? L10n.Localizable.EhSettingView.Description.thumbnailScaleFactor
-        : L10n.Localizable.EhSettingView.Description.coverScaleFactor
     }
 
     var body: some View {
         Section {
             ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.scaleFactor,
-                value: $ehSetting.thumbnailScaleFactor,
+                value: $ehSetting.coverScaleFactor,
                 range: 75...150,
                 unit: "%"
             )
         } header: {
-            Text(scalingTitle)
+            Text(L10n.Localizable.EhSettingView.Section.Title.coverScaling)
                 .newlineBold()
-                .appending(scalingFactorDescription)
+                .appending(L10n.Localizable.EhSettingView.Description.coverScaleFactor)
         }
         .textCase(nil)
     }
@@ -966,32 +946,22 @@ private struct GalleryTagsSection: View {
     }
 }
 
-// MARK: GalleryPageNumberingSection
-private struct GalleryPageNumberingSection: View {
+// MARK: GalleryPageThumbnailLabelingSection
+private struct GalleryPageThumbnailLabelingSection: View {
     @Binding private var ehSetting: EhSetting
-    private let galleryHost: GalleryHost
 
-    init(ehSetting: Binding<EhSetting>, galleryHost: GalleryHost) {
+    init(ehSetting: Binding<EhSetting>) {
         self._ehSetting = ehSetting
-        self.galleryHost = galleryHost
-    }
-
-    var sectionTitle: String {
-        galleryHost == .ehentai
-        ? L10n.Localizable.EhSettingView.Section.Title.galleryPageNumbering
-        : L10n.Localizable.EhSettingView.Section.Title.galleryPageThumbnailLabeling
-    }
-    var pickerTitle: String {
-        galleryHost == .ehentai
-        ? L10n.Localizable.EhSettingView.Title.showGalleryPageNumbers
-        : L10n.Localizable.EhSettingView.Title.showLabelBelowGalleryThumbnails
     }
 
     var body: some View {
-        Section(sectionTitle) {
-            Picker(pickerTitle, selection: $ehSetting.galleryPageNumbering) {
-                ForEach(ehSetting.capableGalleryPageNumberingOptions(galleryHost: galleryHost)) { behavior in
-                    Text(behavior.value(galleryHost: galleryHost))
+        Section(L10n.Localizable.EhSettingView.Section.Title.galleryPageThumbnailLabeling) {
+            Picker(
+                L10n.Localizable.EhSettingView.Title.showLabelBelowGalleryThumbnails,
+                selection: $ehSetting.galleryPageNumbering
+            ) {
+                ForEach(EhSetting.GalleryPageNumbering.allCases) { behavior in
+                    Text(behavior.value)
                         .tag(behavior)
                 }
             }

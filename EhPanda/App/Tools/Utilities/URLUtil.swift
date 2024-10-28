@@ -124,7 +124,7 @@ struct URLUtil {
         url.appending(queryItems: [.letterP: String(pageNum)])
     }
 
-    static func normalPreviewURL(plainURL: URL, width: String, height: String, offset: String) -> URL {
+    static func combinedPreviewURL(plainURL: URL, width: String, height: String, offset: String) -> URL {
         plainURL.appending(queryItems: [.ehpandaWidth: width, .ehpandaHeight: height, .ehpandaOffset: offset])
     }
 

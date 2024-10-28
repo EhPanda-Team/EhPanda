@@ -45,11 +45,11 @@ struct EhSettingReducer {
         case setDefaultProfile(Int)
 
         case teardown
-        case fetchEhSetting(galleryHost: GalleryHost)
+        case fetchEhSetting
         case fetchEhSettingDone(Result<EhSetting, AppError>)
-        case submitChanges(galleryHost: GalleryHost)
+        case submitChanges
         case submitChangesDone(Result<EhSetting, AppError>)
-        case performAction(galleryHost: GalleryHost, action: EhProfileAction?, name: String?, set: Int)
+        case performAction(action: EhProfileAction?, name: String?, set: Int)
         case performActionDone(Result<EhSetting, AppError>)
     }
 
@@ -70,7 +70,7 @@ struct EhSettingReducer {
                 return .none
 
             case .setKeyboardHidden:
-                return .run(operation: { _ in uiApplicationClient.hideKeyboard() })
+                return .run(operation: { _ in await uiApplicationClient.hideKeyboard() })
 
             case .setDefaultProfile(let profileSet):
                 return .run { _ in
@@ -82,11 +82,11 @@ struct EhSettingReducer {
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
-            case .fetchEhSetting(let galleryHost):
+            case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return .run { send in
-                    let response = await EhSettingRequest(galleryHost: galleryHost).response()
+                    let response = await EhSettingRequest().response()
                     await send(.fetchEhSettingDone(response))
                 }
                 .cancellable(id: CancelID.fetchEhSetting)
@@ -102,17 +102,14 @@ struct EhSettingReducer {
                 }
                 return .none
 
-            case .submitChanges(let galleryHost):
+            case .submitChanges:
                 guard state.submittingState != .loading,
                       let ehSetting = state.ehSetting
                 else { return .none }
 
                 state.submittingState = .loading
                 return .run { send in
-                    let response = await SubmitEhSettingChangesRequest(
-                        galleryHost: galleryHost, ehSetting: ehSetting
-                    )
-                    .response()
+                    let response = await SubmitEhSettingChangesRequest(ehSetting: ehSetting).response()
                     await send(.submitChangesDone(response))
                 }
                 .cancellable(id: CancelID.submitChanges)
@@ -128,14 +125,11 @@ struct EhSettingReducer {
                 }
                 return .none
 
-            case .performAction(let galleryHost, let action, let name, let set):
+            case .performAction(let action, let name, let set):
                 guard state.submittingState != .loading else { return .none }
                 state.submittingState = .loading
                 return .run { send in
-                    let response = await EhProfileRequest(
-                        galleryHost: galleryHost, action: action, name: name, set: set
-                    )
-                    .response()
+                    let response = await EhProfileRequest(action: action, name: name, set: set).response()
                     await send(.performActionDone(response))
                 }
                 .cancellable(id: CancelID.performAction)

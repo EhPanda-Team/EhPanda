@@ -17,6 +17,7 @@ extension Encodable {
 
 // MARK: UIApplication
 extension UIApplication {
+    @MainActor
     func endEditing() {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

@@ -8,7 +8,7 @@
 // MARK: EhSetting
 struct EhSetting: Equatable {
     // swiftlint:disable line_length
-    static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none)
+    static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigRowCount: .forty, capableThumbnailConfigSizes: [], loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, showSearchRangeIndicator: true, enableGalleryThumbnailSelector: false, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", tagFilteringThreshold: 0, tagWatchingThreshold: 0, showFilteredRemovalCount: true, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, coverScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryPageNumbering: .none)
     // swiftlint:enable line_length
 
     static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
@@ -58,9 +58,6 @@ struct EhSetting: Equatable {
             row <= capableThumbnailConfigRowCount
         }
     }
-    func capableGalleryPageNumberingOptions(galleryHost: GalleryHost) -> [GalleryPageNumbering] {
-        galleryHost == .ehentai ? [.none, .pageNumberOnly] : [.none, .pageNumberOnly, .pageNumberAndName]
-    }
     var localizedLiteralBrowsingCountry: String? {
         BrowsingCountry.allCases.first(where: { $0.englishName == literalBrowsingCountry })?.name
     }
@@ -89,7 +86,7 @@ struct EhSetting: Equatable {
     var thumbnailLoadTiming: ThumbnailLoadTiming
     var thumbnailConfigSize: ThumbnailSize
     var thumbnailConfigRows: ThumbnailRowCount
-    var thumbnailScaleFactor: Float
+    var coverScaleFactor: Float
     var viewportVirtualWidth: Float
     var commentsSortOrder: CommentsSortOrder
     var commentVotesShowTiming: CommentVotesShowTiming
@@ -174,6 +171,7 @@ extension EhSetting {
     enum ImageResolution: Int, CaseIterable, Identifiable, Comparable {
         case auto
         case x780
+        /// Deprecated
         case x980
         case x1280
         case x1600
@@ -391,6 +389,7 @@ extension EhSetting {
         case auto
         case small
         case normal
+        /// Deprecated
         case large
     }
 }
@@ -429,10 +428,10 @@ extension EhSetting.ThumbnailRowCount {
         lhs.rawValue < rhs.rawValue
     }
 
-    func value(galleryHost: GalleryHost) -> String {
+    var value: String {
         switch self {
         case .four: "4"
-        case .ten: galleryHost == .ehentai ? "10" : "8"
+        case .ten: "8"
         case .twenty: "20"
         case .forty: "40"
         }
@@ -536,20 +535,11 @@ extension EhSetting {
 extension EhSetting.GalleryPageNumbering {
     var id: Int { rawValue }
 
-    func value(galleryHost: GalleryHost) -> String {
+    var value: String {
         switch self {
-        case .none:
-            return galleryHost == .ehentai
-            ? L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.no
-            : L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.none
-
-        case .pageNumberOnly:
-            return galleryHost == .ehentai
-            ? L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.yes
-            : L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberOnly
-
-        case .pageNumberAndName:
-            return L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberAndName
+        case .none: L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.none
+        case .pageNumberOnly: L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberOnly
+        case .pageNumberAndName: L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberAndName
         }
     }
 }

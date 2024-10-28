@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct UIApplicationClient {
     let openURL: @MainActor (URL) -> Void
-    let hideKeyboard: () -> Void
+    let hideKeyboard: @Sendable () async -> Void
     let alternateIconName: () -> String?
     let setAlternateIconName: @MainActor (String?) async -> Bool
     let setUserInterfaceStyle: @MainActor (UIUserInterfaceStyle) -> Void
@@ -23,7 +23,9 @@ extension UIApplicationClient {
             UIApplication.shared.open(url, options: [:])
         },
         hideKeyboard: {
-            UIApplication.shared.endEditing()
+            await MainActor.run {
+                UIApplication.shared.endEditing()
+            }
         },
         alternateIconName: {
             UIApplication.shared.alternateIconName

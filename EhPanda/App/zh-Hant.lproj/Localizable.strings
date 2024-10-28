@@ -514,10 +514,8 @@
 "enum.eh_setting.thumbnail_size.value.small" = "小型";
 "enum.eh_setting.thumbnail_size.value.auto" = "自動";
 
-"eh_setting_view.section.title.thumbnail_scaling" = "縮圖縮放";
 "eh_setting_view.section.title.cover_scaling" = "封面縮放";
 "eh_setting_view.title.scale_factor" = "縮放比例";
-"eh_setting_view.description.thumbnail_scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，縮圖的重新採樣比率介於 75%% 至 150%%.";
 "eh_setting_view.description.cover_scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，封面的重新採樣比率介於 75%% 至 150%%.";
 
 "eh_setting_view.section.title.viewport_override" = "視窗覆蓋";
@@ -541,9 +539,7 @@
 "enum.eh_setting.tags_sort_order.value.alphabetical" = "字母順序";
 "enum.eh_setting.tags_sort_order.value.tag_power" = "標籤權重";
 
-"eh_setting_view.section.title.gallery_page_numbering" = "畫廊頁數";
 "eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "畫廊頁面縮圖標籤";
-"eh_setting_view.title.show_gallery_page_numbers" = "顯示該畫廊的頁數";
 "eh_setting_view.title.show_label_below_gallery_thumbnails" = "在畫廊縮圖下方顯示標籤";
 
 "eh_setting_view.section.title.hath_local_network_host" = "內網 H@H 服務 (Hath Local Network Host)";
@@ -565,8 +561,6 @@
 "enum.eh_setting.gallery_page_numbering.value.none" = "不顯示";
 "enum.eh_setting.gallery_page_numbering.value.page_number_only" = "只顯示頁碼";
 "enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "顯示頁碼和名稱";
-"enum.eh_setting.gallery_page_numbering.value.yes" = "顯示";
-"enum.eh_setting.gallery_page_numbering.value.no" = "不顯示";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "同人誌";
