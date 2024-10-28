@@ -528,8 +528,6 @@ internal enum L10n {
         internal static let thumbnailConfiguration = L10n.tr("Localizable", "eh_setting_view.description.thumbnail_configuration", fallback: "You can set a default thumbnail configuration for all galleries you visit.")
         /// How would you like the mouse-over thumbnails on the front page to load when using List Mode?
         internal static let thumbnailLoadTiming = L10n.tr("Localizable", "eh_setting_view.description.thumbnail_load_timing", fallback: "How would you like the mouse-over thumbnails on the front page to load when using List Mode?")
-        /// Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.
-        internal static let thumbnailScaleFactor = L10n.tr("Localizable", "eh_setting_view.description.thumbnail_scale_factor", fallback: "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.")
         /// Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.
         internal static let virtualWidth = L10n.tr("Localizable", "eh_setting_view.description.virtual_width", fallback: "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.")
       }
@@ -557,8 +555,6 @@ internal enum L10n {
           internal static let galleryComments = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_comments", fallback: "Gallery Comments")
           /// Gallery Name Display
           internal static let galleryNameDisplay = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_name_display", fallback: "Gallery Name Display")
-          /// Gallery Page Numbering
-          internal static let galleryPageNumbering = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_page_numbering", fallback: "Gallery Page Numbering")
           /// Gallery Page Thumbnail Labeling
           internal static let galleryPageThumbnailLabeling = L10n.tr("Localizable", "eh_setting_view.section.title.gallery_page_thumbnail_labeling", fallback: "Gallery Page Thumbnail Labeling")
           /// Gallery Tags
@@ -587,8 +583,6 @@ internal enum L10n {
           internal static let tagFilteringThreshold = L10n.tr("Localizable", "eh_setting_view.section.title.tag_filtering_threshold", fallback: "Tag Filtering Threshold")
           /// Tag Watching Threshold
           internal static let tagWatchingThreshold = L10n.tr("Localizable", "eh_setting_view.section.title.tag_watching_threshold", fallback: "Tag Watching Threshold")
-          /// Thumbnail Scaling
-          internal static let thumbnailScaling = L10n.tr("Localizable", "eh_setting_view.section.title.thumbnail_scaling", fallback: "Thumbnail Scaling")
           /// Thumbnail Settings
           internal static let thumbnailSettings = L10n.tr("Localizable", "eh_setting_view.section.title.thumbnail_settings", fallback: "Thumbnail Settings")
           /// Viewport Override
@@ -638,8 +632,6 @@ internal enum L10n {
         internal static let selectedProfile = L10n.tr("Localizable", "eh_setting_view.title.selected_profile", fallback: "Selected profile")
         /// Show filtered removal count
         internal static let showFilteredRemovalCount = L10n.tr("Localizable", "eh_setting_view.title.show_filtered_removal_count", fallback: "Show filtered removal count")
-        /// Show gallery page numbers
-        internal static let showGalleryPageNumbers = L10n.tr("Localizable", "eh_setting_view.title.show_gallery_page_numbers", fallback: "Show gallery page numbers")
         /// Show label below gallery thumbnails
         internal static let showLabelBelowGalleryThumbnails = L10n.tr("Localizable", "eh_setting_view.title.show_label_below_gallery_thumbnails", fallback: "Show label below gallery thumbnails")
         /// Show search range indicator
@@ -1329,16 +1321,12 @@ internal enum L10n {
         }
         internal enum GalleryPageNumbering {
           internal enum Value {
-            /// No
-            internal static let no = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.no", fallback: "No")
             /// None
             internal static let `none` = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.none", fallback: "None")
             /// Page Number + Name
             internal static let pageNumberAndName = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.page_number_and_name", fallback: "Page Number + Name")
             /// Page Number Only
             internal static let pageNumberOnly = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.page_number_only", fallback: "Page Number Only")
-            /// Yes
-            internal static let yes = L10n.tr("Localizable", "enum.eh_setting.gallery_page_numbering.value.yes", fallback: "Yes")
           }
         }
         internal enum ImageResolution {

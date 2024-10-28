@@ -514,10 +514,8 @@
 "enum.eh_setting.thumbnail_size.value.small" = "Small";
 "enum.eh_setting.thumbnail_size.value.auto" = "Auto";
 
-"eh_setting_view.section.title.thumbnail_scaling" = "썸네일 크기";
 "eh_setting_view.section.title.cover_scaling" = "Cover Scaling";
 "eh_setting_view.title.scale_factor" = "크기 비율";
-"eh_setting_view.description.thumbnail_scale_factor" = "썸네일 그림 및 확장된 갤러리 목록 보기의 미리 보기는 75%에서 150%% 사이의 사용자 지정 값으로 조정할 수 있어요.";
 "eh_setting_view.description.cover_scale_factor" = "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.";
 
 "eh_setting_view.section.title.viewport_override" = "뷰포트 조정";
@@ -541,9 +539,7 @@
 "enum.eh_setting.tags_sort_order.value.alphabetical" = "알파벳순으로";
 "enum.eh_setting.tags_sort_order.value.tag_power" = "태크 가중치로";
 
-"eh_setting_view.section.title.gallery_page_numbering" = "갤러리 페이지 번호 매기기";
 "eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "Gallery Page Thumbnail Labeling";
-"eh_setting_view.title.show_gallery_page_numbers" = "갤러리 페이지 번호 보이기";
 "eh_setting_view.title.show_label_below_gallery_thumbnails" = "Show label below gallery thumbnails";
 
 "eh_setting_view.section.title.hath_local_network_host" = "Hath 로컬 네트워크 호스트";
@@ -565,8 +561,6 @@
 "enum.eh_setting.gallery_page_numbering.value.none" = "None";
 "enum.eh_setting.gallery_page_numbering.value.page_number_only" = "Page Number Only";
 "enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "Page Number + Name";
-"enum.eh_setting.gallery_page_numbering.value.yes" = "Yes";
-"enum.eh_setting.gallery_page_numbering.value.no" = "No";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "동인지";

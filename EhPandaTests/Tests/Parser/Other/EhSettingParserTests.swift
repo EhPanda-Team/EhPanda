@@ -12,7 +12,7 @@ import XCTest
 class EhSettingParserTests: XCTestCase, TestHelper {
     func testExample() throws {
         let document = try htmlDocument(filename: .ehSetting)
-        let ehSetting = try Parser.parseEhSetting(doc: document, galleryHost: .ehentai)
+        let ehSetting = try Parser.parseEhSetting(doc: document)
         testEhProfiles(ehSetting.ehProfiles)
         testCapability(ehSetting: ehSetting)
         testRemainingStuff(ehSetting: ehSetting)
@@ -45,8 +45,7 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(ehSetting.capableSearchResultCount, .oneHundred)
         XCTAssertEqual(ehSetting.capableSearchResultCounts, [.twentyFive, .fifty, .oneHundred])
 
-        XCTAssertEqual(ehSetting.thumbnailConfigSize, .normal)
-        XCTAssertEqual(ehSetting.capableThumbnailConfigSizes, [.normal, .large])
+        XCTAssertEqual(ehSetting.capableThumbnailConfigSizes, [.auto, .small, .normal])
 
         XCTAssertEqual(ehSetting.capableThumbnailConfigRowCount, .forty)
         XCTAssertEqual(ehSetting.capableThumbnailConfigRowCounts, EhSetting.ThumbnailRowCount.allCases)
@@ -77,9 +76,9 @@ class EhSettingParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(ehSetting.excludedUploaders, "")
         XCTAssertEqual(ehSetting.searchResultCount, .oneHundred)
         XCTAssertEqual(ehSetting.thumbnailLoadTiming, .onMouseOver)
-        XCTAssertEqual(ehSetting.thumbnailConfigSize, .normal)
+        XCTAssertEqual(ehSetting.thumbnailConfigSize, .auto)
         XCTAssertEqual(ehSetting.thumbnailConfigRows, .four)
-        XCTAssertEqual(ehSetting.thumbnailScaleFactor, 100)
+        XCTAssertEqual(ehSetting.coverScaleFactor, 100)
         XCTAssertEqual(ehSetting.viewportVirtualWidth, 0)
         XCTAssertEqual(ehSetting.commentsSortOrder, .oldest)
         XCTAssertEqual(ehSetting.commentVotesShowTiming, .onHoverOrClick)
