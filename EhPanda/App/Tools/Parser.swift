@@ -323,6 +323,11 @@ struct Parser {
                 case _ where singlePageCount <= 20:
                     return .large(rows: 4)
 
+                // gt200
+                case _ where singlePageCount <= 40:
+                    return .large(rows: 8)
+
+                // gdtl
                 case _ where singlePageCount <= 50:
                     return .large(rows: 10)
 
@@ -340,6 +345,11 @@ struct Parser {
                 case _ where singlePageCount <= 40:
                     return .normal(rows: 4)
 
+                // gt100
+                case _ where singlePageCount <= 80:
+                    return .normal(rows: 8)
+
+                // gdtm
                 case _ where singlePageCount <= 100:
                     return .normal(rows: 10)
 
