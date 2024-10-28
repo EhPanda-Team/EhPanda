@@ -70,7 +70,7 @@ struct EhSettingReducer {
                 return .none
 
             case .setKeyboardHidden:
-                return .run(operation: { _ in uiApplicationClient.hideKeyboard() })
+                return .run(operation: { _ in await uiApplicationClient.hideKeyboard() })
 
             case .setDefaultProfile(let profileSet):
                 return .run { _ in

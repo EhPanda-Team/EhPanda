@@ -550,7 +550,7 @@
 "eh_setting_view.title.ip_address_port" = "IP 地址:端口";
 "eh_setting_view.description.ip_address_port" = "如果你本地安装了 H@H 客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址 (127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
 
-"eh_setting_view.section.title.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
+"eh_setting_view.section.title.original_images" = "是否使用原始图像而非重新采样的版本？如果您在上方选择的水平分辨率不是“自动”，并且所查看的图像更宽，或者原始图像大于10 MiB（对于超过一年的图库，则为4 MiB），那么仍将使用重新采样的图像。";
 "eh_setting_view.title.use_original_images" = "显示原图";
 
 "eh_setting_view.section.title.multi_page_viewer" = "多页查看器";
