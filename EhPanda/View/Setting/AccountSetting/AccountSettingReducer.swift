@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 @Reducer
 struct AccountSettingReducer {
-    @CasePathable
+    @dynamicMemberLookup @CasePathable
     enum Route: Equatable {
         case hud
         case login
@@ -103,12 +103,12 @@ struct AccountSettingReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.webView,
+            case: \.webView,
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.loginState, action: /Action.login, child: LoginReducer.init)
-        Scope(state: \.ehSettingState, action: /Action.ehSetting, child: EhSettingReducer.init)
+        Scope(state: \.loginState, action: \.login, child: LoginReducer.init)
+        Scope(state: \.ehSettingState, action: \.ehSetting, child: EhSettingReducer.init)
     }
 }
 

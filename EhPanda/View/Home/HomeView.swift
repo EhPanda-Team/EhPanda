@@ -73,13 +73,15 @@ struct HomeView: View {
                     }
                 }
                 .opacity(store.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
+
                 LoadingView()
                     .opacity(
                         store.popularLoadingState == .loading
                         && store.popularGalleries.isEmpty ? 1 : 0
                     )
                     .zIndex(0)
-                let error = (/LoadingState.failed).extract(from: store.popularLoadingState)
+
+                let error = store.popularLoadingState.failed
                 ErrorView(error: error ?? .unknown) {
                     store.send(.fetchAllGalleries)
                 }
@@ -98,7 +100,7 @@ struct HomeView: View {
 
             if DeviceUtil.isPad {
                 content
-                    .sheet(unwrapping: $store.route, case: /HomeReducer.Route.detail) { route in
+                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
                         NavigationView {
                             DetailView(
                                 store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
@@ -137,7 +139,7 @@ private extension HomeView {
         sectionLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /HomeReducer.Route.detail) { route in
+        NavigationLink(unwrapping: $store.route, case: \.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
@@ -146,7 +148,7 @@ private extension HomeView {
         }
     }
     var miscGridLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /HomeReducer.Route.misc) { route in
+        NavigationLink(unwrapping: $store.route, case: \.misc) { route in
             switch route.wrappedValue {
             case .popular:
                 PopularView(
@@ -167,7 +169,7 @@ private extension HomeView {
         }
     }
     var sectionLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /HomeReducer.Route.section) { route in
+        NavigationLink(unwrapping: $store.route, case: \.section) { route in
             switch route.wrappedValue {
             case .frontpage:
                 FrontpageView(

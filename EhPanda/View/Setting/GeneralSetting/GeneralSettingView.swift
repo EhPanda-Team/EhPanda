@@ -105,7 +105,7 @@ struct GeneralSettingView: View {
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.removeCustomTranslations,
                         unwrapping: $store.route,
-                        case: /GeneralSettingReducer.Route.removeCustomTranslations
+                        case: \.removeCustomTranslations
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.remove, role: .destructive) {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -163,7 +163,7 @@ struct GeneralSettingView: View {
                 .confirmationDialog(
                     message: L10n.Localizable.ConfirmationDialog.Title.clear,
                     unwrapping: $store.route,
-                    case: /GeneralSettingReducer.Route.clearCache
+                    case: \.clearCache
                 ) {
                     Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
                         store.send(.clearWebImageCache)
@@ -184,7 +184,7 @@ struct GeneralSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /GeneralSettingReducer.Route.logs) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.logs) { _ in
             LogsView(store: store.scope(state: \.logsState, action: \.logs))
         }
     }

@@ -56,8 +56,10 @@ extension AppDelegateClient {
         setOrientationMask: { _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        setOrientation: XCTestDynamicOverlay.unimplemented("\(Self.self).setOrientation"),
-        setOrientationMask: XCTestDynamicOverlay.unimplemented("\(Self.self).setOrientationMask")
+        setOrientation: IssueReporting.unimplemented(placeholder: placeholder()),
+        setOrientationMask: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

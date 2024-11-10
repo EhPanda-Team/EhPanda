@@ -87,7 +87,8 @@ private struct BasicSection: View {
             }
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.reset,
-                unwrapping: $route, case: /FiltersReducer.Route.resetFilters
+                unwrapping: $route,
+                case: \.resetFilters
             ) {
                 Button(
                     L10n.Localizable.ConfirmationDialog.Button.reset,

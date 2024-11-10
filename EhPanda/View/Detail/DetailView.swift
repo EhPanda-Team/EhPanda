@@ -30,7 +30,7 @@ struct DetailView: View {
         self.tagTranslator = tagTranslator
     }
 
-    var body: some View {
+    var content: some View {
         ZStack {
             ScrollView(showsIndicators: false) {
                 let content =
@@ -44,7 +44,7 @@ struct DetailView: View {
                         showFullTitleAction: { store.send(.toggleShowFullTitle) },
                         favorAction: { store.send(.favorGallery($0)) },
                         unfavorAction: { store.send(.unfavorGallery) },
-                        navigateReadingAction: { store.send(.setNavigation(.reading)) },
+                        navigateReadingAction: { store.send(.setNavigation(.reading())) },
                         navigateUploaderAction: {
                             if let uploader = store.galleryDetail?.uploader {
                                 let keyword = "uploader:" + "\"\(uploader)\""
@@ -92,7 +92,7 @@ struct DetailView: View {
                             navigatePreviewsAction: { store.send(.setNavigation(.previews)) },
                             navigateReadingAction: {
                                 store.send(.updateReadingProgress($0))
-                                store.send(.setNavigation(.reading))
+                                store.send(.setNavigation(.reading()))
                             }
                         )
                     }
@@ -103,7 +103,7 @@ struct DetailView: View {
                                 store.send(.setNavigation(.comments(galleryURL)))
                             }
                         },
-                        navigatePostCommentAction: { store.send(.setNavigation(.postComment)) }
+                        navigatePostCommentAction: { store.send(.setNavigation(.postComment())) }
                     )
                 }
                 .padding(.bottom, 20)
@@ -117,91 +117,110 @@ struct DetailView: View {
                 }
             }
             .opacity(store.galleryDetail == nil ? 0 : 1)
+
             LoadingView()
                 .opacity(
                     store.galleryDetail == nil
                     && store.loadingState == .loading ? 1 : 0
                 )
-            let error = (/LoadingState.failed).extract(from: store.loadingState)
+
+            let error = store.loadingState.failed
             let retryAction: () -> Void = { store.send(.fetchGalleryDetail) }
             ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
                 .opacity(store.galleryDetail == nil && error != nil ? 1 : 0)
         }
-        .fullScreenCover(unwrapping: $store.route, case: /DetailReducer.Route.reading) { _ in
-            ReadingView(
-                store: store.scope(state: \.readingState, action: \.reading),
-                gid: gid, setting: $setting, blurRadius: blurRadius
-            )
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
-        }
-        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.archives) { route in
-            let (galleryURL, archiveURL) = route.wrappedValue
-            ArchivesView(
-                store: store.scope(state: \.archivesState, action: \.archives),
-                gid: gid, user: user, galleryURL: galleryURL, archiveURL: archiveURL
-            )
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
-        }
-        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.torrents) { _ in
-            TorrentsView(
-                store: store.scope(state: \.torrentsState, action: \.torrents),
-                gid: gid, token: store.gallery.token, blurRadius: blurRadius
-            )
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
-        }
-        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.share) { route in
-            ActivityView(activityItems: [route.wrappedValue])
+    }
+
+    func modalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .fullScreenCover(item: $store.route.sending(\.setNavigation).reading) { _ in
+                ReadingView(
+                    store: store.scope(state: \.readingState, action: \.reading),
+                    gid: gid,
+                    setting: $setting,
+                    blurRadius: blurRadius
+                )
+                .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
-        }
-        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.postComment) { _ in
-            PostCommentView(
-                title: L10n.Localizable.PostCommentView.Title.postComment,
-                content: $store.commentContent,
-                isFocused: $store.postCommentFocused,
-                postAction: {
-                    if let galleryURL = store.gallery.galleryURL {
-                        store.send(.postComment(galleryURL))
-                    }
-                    store.send(.setNavigation(nil))
-                },
-                cancelAction: { store.send(.setNavigation(nil)) },
-                onAppearAction: { store.send(.onPostCommentAppear) }
-            )
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
-        }
-        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.newDawn) { route in
-            NewDawnView(greeting: route.wrappedValue).autoBlur(radius: blurRadius)
-        }
-        .sheet(unwrapping: $store.route, case: /DetailReducer.Route.tagDetail) { route in
-            TagDetailView(detail: route.wrappedValue).autoBlur(radius: blurRadius)
-        }
-        .animation(.default, value: store.showsUserRating)
-        .animation(.default, value: store.showsFullTitle)
-        .animation(.default, value: store.galleryDetail)
-        .onAppear {
-            DispatchQueue.main.async {
-                store.send(.onAppear(gid, setting.showsNewDawnGreeting))
             }
-        }
-        .background(navigationLinks)
-        .toolbar(content: toolbar)
+            .sheet(item: $store.route.sending(\.setNavigation).archives, id: \.0.absoluteString) { urls in
+                let (galleryURL, archiveURL) = urls
+                ArchivesView(
+                    store: store.scope(state: \.archivesState, action: \.archives),
+                    gid: gid,
+                    user: user,
+                    galleryURL: galleryURL,
+                    archiveURL: archiveURL
+                )
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).torrents) { _ in
+                TorrentsView(
+                    store: store.scope(state: \.torrentsState, action: \.torrents),
+                    gid: gid,
+                    token: store.gallery.token,
+                    blurRadius: blurRadius
+                )
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).share, id: \.absoluteString) { url in
+                ActivityView(activityItems: [url])
+                    .autoBlur(radius: blurRadius)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).postComment) { _ in
+                PostCommentView(
+                    title: L10n.Localizable.PostCommentView.Title.postComment,
+                    content: $store.commentContent,
+                    isFocused: $store.postCommentFocused,
+                    postAction: {
+                        if let galleryURL = store.gallery.galleryURL {
+                            store.send(.postComment(galleryURL))
+                        }
+                        store.send(.setNavigation(nil))
+                    },
+                    cancelAction: { store.send(.setNavigation(nil)) },
+                    onAppearAction: { store.send(.onPostCommentAppear) }
+                )
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).newDawn) { greeting in
+                NewDawnView(greeting: greeting)
+                    .autoBlur(radius: blurRadius)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).tagDetail, id: \.title) { detail in
+                TagDetailView(detail: detail)
+                    .autoBlur(radius: blurRadius)
+            }
+    }
+
+    var body: some View {
+        modalModifiers(content: { content })
+            .animation(.default, value: store.showsUserRating)
+            .animation(.default, value: store.showsFullTitle)
+            .animation(.default, value: store.galleryDetail)
+            .onAppear {
+                DispatchQueue.main.async {
+                    store.send(.onAppear(gid, setting.showsNewDawnGreeting))
+                }
+            }
+            .background(navigationLinks)
+            .toolbar(content: toolbar)
     }
 }
 
 // MARK: NavigationLinks
 private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.previews) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: \.previews),
                 gid: gid, setting: $setting, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.comments) { route in
+        NavigationLink(unwrapping: $store.route, case: \.comments) { route in
             if let commentStore = store.scope(state: \.commentsState.wrappedValue, action: \.comments) {
                 CommentsView(
                     store: commentStore, gid: gid, token: store.gallery.token, apiKey: store.apiKey,
@@ -211,7 +230,7 @@ private extension DetailView {
                 )
             }
         }
-        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.detailSearch) { route in
+        NavigationLink(unwrapping: $store.route, case: \.detailSearch) { route in
             if let detailSearchStore = store.scope(state: \.detailSearchState.wrappedValue, action: \.detailSearch) {
                 DetailSearchView(
                     store: detailSearchStore, keyword: route.wrappedValue, user: user, setting: $setting,
@@ -219,7 +238,7 @@ private extension DetailView {
                 )
             }
         }
-        NavigationLink(unwrapping: $store.route, case: /DetailReducer.Route.galleryInfos) { route in
+        NavigationLink(unwrapping: $store.route, case: \.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
             GalleryInfosView(
                 store: store.scope(state: \.galleryInfosState, action: \.galleryInfos),
@@ -245,7 +264,7 @@ private extension DetailView {
                 }
                 .disabled(store.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
                 Button {
-                    store.send(.setNavigation(.torrents))
+                    store.send(.setNavigation(.torrents()))
                 } label: {
                     let base = L10n.Localizable.DetailView.ToolbarItem.Button.torrents
                     let torrentCount = store.galleryDetail?.torrentCount ?? 0

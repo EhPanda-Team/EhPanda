@@ -31,7 +31,7 @@ struct TorrentsReducer {
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route)
+        case setNavigation(Route?)
 
         case copyText(String)
         case presentTorrentActivity(String, Data)
@@ -114,7 +114,7 @@ struct TorrentsReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.share,
+            case: \.share,
             hapticsClient: hapticsClient
         )
     }

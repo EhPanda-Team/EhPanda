@@ -34,8 +34,10 @@ struct LogsView: View {
                 .foregroundColor(.primary)
             }
             .opacity(store.logs.isEmpty ? 0 : 1)
+
             LoadingView().opacity(store.loadingState == .loading && store.logs.isEmpty ? 1 : 0)
-            let error = (/LoadingState.failed).extract(from: store.loadingState)
+
+            let error = store.loadingState.failed
             ErrorView(error: error ?? .notFound) {
                 store.send(.fetchLogs)
             }
@@ -54,7 +56,7 @@ struct LogsView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /LogsReducer.Route.log) { route in
+        NavigationLink(unwrapping: $store.route, case: \.log) { route in
             LogView(log: route.wrappedValue)
         }
     }

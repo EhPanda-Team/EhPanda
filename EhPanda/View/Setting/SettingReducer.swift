@@ -507,8 +507,8 @@ struct SettingReducer {
             }
         }
 
-        Scope(state: \.accountSettingState, action: /Action.account, child: AccountSettingReducer.init)
-        Scope(state: \.generalSettingState, action: /Action.general, child: GeneralSettingReducer.init)
-        Scope(state: \.appearanceSettingState, action: /Action.appearance, child: AppearanceSettingReducer.init)
+        Scope(state: \.accountSettingState, action: \.account, child: AccountSettingReducer.init)
+        Scope(state: \.generalSettingState, action: \.general, child: GeneralSettingReducer.init)
+        Scope(state: \.appearanceSettingState, action: \.appearance, child: AppearanceSettingReducer.init)
     }
 }

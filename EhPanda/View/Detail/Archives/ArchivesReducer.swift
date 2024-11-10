@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 @Reducer
 struct ArchivesReducer {
+    @CasePathable
     enum Route {
         case messageHUD
         case communicatingHUD

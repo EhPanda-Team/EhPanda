@@ -101,6 +101,6 @@ struct HistoryReducer {
             }
         }
 
-        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

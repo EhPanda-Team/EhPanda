@@ -47,7 +47,7 @@ struct WatchedView: View {
                 NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
             }
         }
-        .sheet(unwrapping: $store.route, case: /WatchedReducer.Route.quickSearch) { _ in
+        .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickSearchState, action: \.quickSearch)
             ) { keyword in
@@ -57,7 +57,7 @@ struct WatchedView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: $store.route, case: /WatchedReducer.Route.filters) { _ in
+        .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
@@ -84,7 +84,7 @@ struct WatchedView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: $store.route, case: /WatchedReducer.Route.detail) { route in
+                .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
                     NavigationView {
                         DetailView(
                             store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
@@ -101,7 +101,7 @@ struct WatchedView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: /WatchedReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -114,10 +114,10 @@ struct WatchedView: View {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
                 FiltersButton {
-                    store.send(.setNavigation(.filters))
+                    store.send(.setNavigation(.filters()))
                 }
                 QuickSearchButton {
-                    store.send(.setNavigation(.quickSearch))
+                    store.send(.setNavigation(.quickSearch()))
                 }
             }
         }

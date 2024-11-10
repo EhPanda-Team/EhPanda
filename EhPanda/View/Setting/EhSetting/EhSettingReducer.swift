@@ -148,7 +148,7 @@ struct EhSettingReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.webView,
+            case: \.webView,
             hapticsClient: hapticsClient
         )
     }

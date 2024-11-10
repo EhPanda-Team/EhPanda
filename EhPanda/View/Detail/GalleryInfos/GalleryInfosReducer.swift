@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 @Reducer
 struct GalleryInfosReducer {
+    @CasePathable
     enum Route {
         case hud
     }

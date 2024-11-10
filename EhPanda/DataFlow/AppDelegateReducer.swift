@@ -49,7 +49,7 @@ struct AppDelegateReducer {
             }
         }
 
-        Scope(state: \.migrationState, action: /Action.migration, child: MigrationReducer.init)
+        Scope(state: \.migrationState, action: \.migration, child: MigrationReducer.init)
     }
 }
 

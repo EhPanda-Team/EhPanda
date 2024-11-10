@@ -14,7 +14,7 @@ struct AppRouteReducer {
     @CasePathable
     enum Route: Equatable, Hashable {
         case hud
-        case setting
+        case setting(EquatableVoid = .init())
         case detail(String)
         case newDawn(Greeting)
     }
@@ -124,7 +124,7 @@ struct AppRouteReducer {
                     effects.append(
                         .run { send in
                             try await Task.sleep(for: .milliseconds(500))
-                            await send(.detail(.setNavigation(.reading)))
+                            await send(.detail(.setNavigation(.reading())))
                         }
                     )
                 } else if let commentID = commentID {
@@ -182,15 +182,15 @@ struct AppRouteReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.newDawn,
+            case: \.newDawn,
             hapticsClient: hapticsClient
         )
         .haptics(
             unwrapping: \.route,
-            case: /Route.detail,
+            case: \.detail,
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

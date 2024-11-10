@@ -61,10 +61,10 @@ struct AccountSettingView: View {
         .progressHUD(
             config: store.hudConfig,
             unwrapping: $store.route,
-            case: /AccountSettingReducer.Route.hud
+            case: \.hud
         )
-        .sheet(unwrapping: $store.route, case: /AccountSettingReducer.Route.webView) { route in
-            WebView(url: route.wrappedValue)
+        .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
+            WebView(url: url)
                 .autoBlur(radius: blurRadius)
         }
         .onAppear { store.send(.loadCookies) }
@@ -76,13 +76,13 @@ struct AccountSettingView: View {
 // MARK: NavigationLinks
 private extension AccountSettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: /AccountSettingReducer.Route.login) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.login) { _ in
             LoginView(
                 store: store.scope(state: \.loginState, action: \.login),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: $store.route, case: /AccountSettingReducer.Route.ehSetting) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.ehSetting) { _ in
             EhSettingView(
                 store: store.scope(state: \.ehSettingState, action: \.ehSetting),
                 bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
@@ -130,7 +130,8 @@ private struct AccountSection: View {
             )
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.logout,
-                unwrapping: $route, case: /AccountSettingReducer.Route.logout
+                unwrapping: $route,
+                case: \.logout
             ) {
                 Button(
                     L10n.Localizable.ConfirmationDialog.Button.logout,

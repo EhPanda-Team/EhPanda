@@ -115,10 +115,12 @@ extension FileClient {
         importTagTranslator: { _ in .success(.init()) }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        createFile: XCTestDynamicOverlay.unimplemented("\(Self.self).createFile"),
-        fetchLogs: XCTestDynamicOverlay.unimplemented("\(Self.self).fetchLogs"),
-        deleteLog: XCTestDynamicOverlay.unimplemented("\(Self.self).deleteLog"),
-        importTagTranslator: XCTestDynamicOverlay.unimplemented("\(Self.self).importTagTranslator")
+        createFile: IssueReporting.unimplemented(placeholder: placeholder()),
+        fetchLogs: IssueReporting.unimplemented(placeholder: placeholder()),
+        deleteLog: IssueReporting.unimplemented(placeholder: placeholder()),
+        importTagTranslator: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

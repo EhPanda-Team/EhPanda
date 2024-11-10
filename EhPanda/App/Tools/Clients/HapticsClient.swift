@@ -45,8 +45,10 @@ extension HapticsClient {
         generateNotificationFeedback: { _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        generateFeedback: XCTestDynamicOverlay.unimplemented("\(Self.self).generateFeedback"),
-        generateNotificationFeedback: XCTestDynamicOverlay.unimplemented("\(Self.self).generateNotificationFeedback")
+        generateFeedback: IssueReporting.unimplemented(placeholder: placeholder()),
+        generateNotificationFeedback: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

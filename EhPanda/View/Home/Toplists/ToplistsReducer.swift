@@ -9,7 +9,7 @@ import ComposableArchitecture
 
 @Reducer
 struct ToplistsReducer {
-    @CasePathable
+    @dynamicMemberLookup @CasePathable
     enum Route: Equatable {
         case detail(String)
     }
@@ -216,6 +216,6 @@ struct ToplistsReducer {
             }
         }
 
-        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

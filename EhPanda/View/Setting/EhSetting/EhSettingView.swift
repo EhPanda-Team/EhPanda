@@ -51,8 +51,8 @@ struct EhSettingView: View {
                 store.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(unwrapping: $store.route, case: /EhSettingReducer.Route.webView) { route in
-            WebView(url: route.wrappedValue)
+        .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
+            WebView(url: url)
                 .autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar)
@@ -187,7 +187,7 @@ private struct EhProfileSection: View {
                 .confirmationDialog(
                     message: L10n.Localizable.ConfirmationDialog.Title.delete,
                     unwrapping: $route,
-                    case: /EhSettingReducer.Route.deleteProfile
+                    case: \.deleteProfile
                 ) {
                     Button(
                         L10n.Localizable.ConfirmationDialog.Button.delete,

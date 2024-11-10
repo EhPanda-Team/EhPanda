@@ -90,9 +90,11 @@ extension URLClient {
         parseGalleryID: { _ in .init() }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        checkIfHandleable: XCTestDynamicOverlay.unimplemented("\(Self.self).checkIfHandleable"),
-        checkIfMPVURL: XCTestDynamicOverlay.unimplemented("\(Self.self).checkIfMPVURL"),
-        parseGalleryID: XCTestDynamicOverlay.unimplemented("\(Self.self).parseGalleryID")
+        checkIfHandleable: IssueReporting.unimplemented(placeholder: placeholder()),
+        checkIfMPVURL: IssueReporting.unimplemented(placeholder: placeholder()),
+        parseGalleryID: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

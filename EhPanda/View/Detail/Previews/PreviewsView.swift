@@ -45,13 +45,18 @@ struct PreviewsView: View {
                         )
                         Button {
                             store.send(.updateReadingProgress(index))
-                            store.send(.setNavigation(.reading))
+                            store.send(.setNavigation(.reading()))
                         } label: {
                             KFImage.url(url, cacheKey: store.previewURLs[index]?.absoluteString)
-                                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) }
-                                .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
+                                .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) })
+                                .imageModifier(modifier)
+                                .fade(duration: 0.25)
+                                .resizable()
+                                .scaledToFit()
                         }
-                        Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption).foregroundColor(.secondary)
+                        Text("\(index)")
+                            .font(DeviceUtil.isPadWidth ? .callout : .caption)
+                            .foregroundColor(.secondary)
                     }
                     .onAppear {
                         if store.databaseLoadingState != .loading
@@ -66,7 +71,7 @@ struct PreviewsView: View {
             .padding(.bottom)
             .id(store.databaseLoadingState)
         }
-        .fullScreenCover(unwrapping: $store.route, case: /PreviewsReducer.Route.reading) { _ in
+        .fullScreenCover(item: $store.route.sending(\.setNavigation).reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: \.reading),
                 gid: gid, setting: $setting, blurRadius: blurRadius
