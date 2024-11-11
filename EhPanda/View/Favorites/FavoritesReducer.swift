@@ -13,7 +13,7 @@ import ComposableArchitecture
 struct FavoritesReducer {
     @CasePathable
     enum Route: Equatable {
-        case quickSearch
+        case quickSearch(EquatableVoid = .init())
         case detail(String)
     }
 
@@ -193,11 +193,11 @@ struct FavoritesReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.quickSearch,
+            case: \.quickSearch,
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
-        Scope(state: \.quickSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
     }
 }

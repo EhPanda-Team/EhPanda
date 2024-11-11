@@ -53,7 +53,7 @@ struct QuickSearchView: View {
                         .confirmationDialog(
                             message: L10n.Localizable.ConfirmationDialog.Title.delete,
                             unwrapping: $store.route,
-                            case: /QuickSearchReducer.Route.deleteWord,
+                            case: \.deleteWord,
                             matching: word
                         ) { route in
                             Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
@@ -121,7 +121,7 @@ struct QuickSearchView: View {
         }
     }
     @ViewBuilder private var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: /QuickSearchReducer.Route.newWord) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.newWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.newWord,
                 word: $store.editingWord,
@@ -133,7 +133,7 @@ struct QuickSearchView: View {
                 }
             )
         }
-        NavigationLink(unwrapping: $store.route, case: /QuickSearchReducer.Route.editWord) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.editWord) { _ in
             EditWordView(
                 title: L10n.Localizable.QuickSearchView.Title.editWord,
                 word: $store.editingWord,

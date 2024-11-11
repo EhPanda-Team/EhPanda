@@ -44,7 +44,9 @@ extension UserDefaultsClient {
         setValue: { _, _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        setValue: XCTestDynamicOverlay.unimplemented("\(Self.self).setValue")
+        setValue: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

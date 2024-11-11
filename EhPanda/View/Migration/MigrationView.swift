@@ -26,7 +26,7 @@ struct MigrationView: View {
                 reversedPrimary.ignoresSafeArea()
                 LoadingView(title: L10n.Localizable.LoadingView.Title.preparingDatabase)
                     .opacity(store.databaseState == .loading ? 1 : 0)
-                let error = (/LoadingState.failed).extract(from: store.databaseState)
+                let error = store.databaseState.failed
                 let errorNonNil = error ?? .databaseCorrupted(nil)
                 AlertView(symbol: errorNonNil.symbol, message: errorNonNil.localizedDescription) {
                     AlertViewButton(title: L10n.Localizable.ErrorView.Button.dropDatabase) {
@@ -35,7 +35,7 @@ struct MigrationView: View {
                     .confirmationDialog(
                         message: L10n.Localizable.ConfirmationDialog.Title.dropDatabase,
                         unwrapping: $store.route,
-                        case: /MigrationReducer.Route.dropDialog
+                        case: \.dropDialog
                     ) {
                         Button(L10n.Localizable.ConfirmationDialog.Button.dropDatabase, role: .destructive) {
                             store.send(.dropDatabase)

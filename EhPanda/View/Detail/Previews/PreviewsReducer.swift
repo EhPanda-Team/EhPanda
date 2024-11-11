@@ -10,8 +10,9 @@ import ComposableArchitecture
 
 @Reducer
 struct PreviewsReducer {
-    enum Route {
-        case reading
+    @CasePathable
+    enum Route: Equatable {
+        case reading(EquatableVoid = .init())
     }
 
     private enum CancelID: CaseIterable {
@@ -144,10 +145,10 @@ struct PreviewsReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.reading,
+            case: \.reading,
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.readingState, action: /Action.reading, child: ReadingReducer.init)
+        Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
     }
 }

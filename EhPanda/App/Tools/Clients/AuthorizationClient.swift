@@ -58,8 +58,10 @@ extension AuthorizationClient {
         localAuthroize: { _ in false }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        passcodeNotSet: XCTestDynamicOverlay.unimplemented("\(Self.self).passcodeNotSet"),
-        localAuthroize: XCTestDynamicOverlay.unimplemented("\(Self.self).localAuthroize")
+        passcodeNotSet: IssueReporting.unimplemented(placeholder: placeholder()),
+        localAuthroize: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

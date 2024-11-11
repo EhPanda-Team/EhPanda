@@ -150,7 +150,7 @@ struct CommentsReducer {
                     effects.append(
                         .run { send in
                             try await Task.sleep(for: .milliseconds(750))
-                            await send(.detail(.setNavigation(.reading)))
+                            await send(.detail(.setNavigation(.reading())))
                         }
                     )
                 } else if let commentID = commentID {
@@ -263,7 +263,7 @@ struct CommentsReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.postComment,
+            case: \.postComment,
             hapticsClient: hapticsClient
         )
     }

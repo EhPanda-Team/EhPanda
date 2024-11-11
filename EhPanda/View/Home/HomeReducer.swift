@@ -264,11 +264,11 @@ struct HomeReducer {
             }
         }
 
-        Scope(state: \.frontpageState, action: /Action.frontpage, child: FrontpageReducer.init)
-        Scope(state: \.toplistsState, action: /Action.toplists, child: ToplistsReducer.init)
-        Scope(state: \.popularState, action: /Action.popular, child: PopularReducer.init)
-        Scope(state: \.watchedState, action: /Action.watched, child: WatchedReducer.init)
-        Scope(state: \.historyState, action: /Action.history, child: HistoryReducer.init)
-        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.frontpageState, action: \.frontpage, child: FrontpageReducer.init)
+        Scope(state: \.toplistsState, action: \.toplists, child: ToplistsReducer.init)
+        Scope(state: \.popularState, action: \.popular, child: PopularReducer.init)
+        Scope(state: \.watchedState, action: \.watched, child: WatchedReducer.init)
+        Scope(state: \.historyState, action: \.history, child: HistoryReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

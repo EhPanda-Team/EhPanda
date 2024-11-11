@@ -42,19 +42,26 @@ struct LoginView: View {
                         )
                     }
                     .padding(.horizontal, proxy.size.width * 0.2)
+
                     Button {
                         store.send(.login)
                     } label: {
                         Image(systemSymbol: .chevronForwardCircleFill)
                     }
-                    .overlay { ProgressView().tint(nil).opacity(store.loginState == .loading ? 1 : 0) }
-                    .imageScale(.large).font(.largeTitle).foregroundColor(store.loginButtonColor)
+                    .overlay {
+                        ProgressView()
+                            .tint(nil)
+                            .opacity(store.loginState == .loading ? 1 : 0)
+                    }
+                    .imageScale(.large)
+                    .font(.largeTitle)
+                    .foregroundColor(store.loginButtonColor)
                     .disabled(store.loginButtonDisabled).padding(.top, 30)
                 }
             }
         }
         .synchronize($store.focusedField, $focusedField)
-        .sheet(unwrapping: $store.route, case: /LoginReducer.Route.webView) { route in
+        .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { route in
             WebView(url: route.wrappedValue) {
                 store.send(.loginDone(.success(nil)))
             }

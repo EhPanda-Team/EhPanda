@@ -46,8 +46,8 @@ private extension TagCloudView {
             ForEach(data, id: id) { content in
                 self.content(content)
                     .padding([.trailing, .bottom], spacing)
-                    .alignmentGuide(.leading, computeValue: { dimensions in
-                        if abs(width - dimensions.width) > proxy.size.width {
+                    .alignmentGuide(.leading, computeValue: { [proxyWidth = proxy.size.width] dimensions in
+                        if abs(width - dimensions.width) > proxyWidth {
                             width = 0
                             height -= dimensions.height
                         }

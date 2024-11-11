@@ -54,7 +54,7 @@ struct HistoryView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: $store.route, case: /HistoryReducer.Route.detail) { route in
+                .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
                     NavigationView {
                         DetailView(
                             store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
@@ -71,7 +71,7 @@ struct HistoryView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: /HistoryReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -91,7 +91,7 @@ struct HistoryView: View {
             .confirmationDialog(
                 message: L10n.Localizable.ConfirmationDialog.Title.clear,
                 unwrapping: $store.route,
-                case: /HistoryReducer.Route.clearHistory
+                case: \.clearHistory
             ) {
                 Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
                     store.send(.clearHistoryGalleries)

@@ -9,10 +9,10 @@ import ComposableArchitecture
 
 @Reducer
 struct DetailSearchReducer {
-    @CasePathable
+    @dynamicMemberLookup @CasePathable
     enum Route: Equatable {
-        case filters
-        case quickSearch
+        case filters(EquatableVoid = .unique)
+        case quickSearch(EquatableVoid = .unique)
         case detail(String)
     }
 
@@ -185,16 +185,16 @@ struct DetailSearchReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.quickSearch,
+            case: \.quickSearch,
             hapticsClient: hapticsClient
         )
         .haptics(
             unwrapping: \.route,
-            case: /Route.filters,
+            case: \.filters,
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
-        Scope(state: \.quickDetailSearchState, action: /Action.quickSearch, child: QuickSearchReducer.init)
+        Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
+        Scope(state: \.quickDetailSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
     }
 }

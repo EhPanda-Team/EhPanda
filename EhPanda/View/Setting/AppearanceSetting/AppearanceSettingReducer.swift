@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 @Reducer
 struct AppearanceSettingReducer {
+    @CasePathable
     enum Route {
         case appIcon
     }

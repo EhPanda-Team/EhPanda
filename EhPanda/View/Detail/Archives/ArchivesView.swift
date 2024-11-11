@@ -32,20 +32,27 @@ struct ArchivesView: View {
             ZStack {
                 VStack {
                     HathArchivesView(archives: store.hathArchives, selection: $store.selectedArchive)
+
                     Spacer()
+
                     if let credits = Int(user.credits ?? ""), let galleryPoints = Int(user.galleryPoints ?? "") {
                         ArchiveFundsView(credits: credits, galleryPoints: galleryPoints)
                     }
+
                     DownloadButton(isDisabled: store.selectedArchive == nil) {
                         store.send(.fetchDownloadResponse(archiveURL))
                     }
                 }
-                .padding(.horizontal).opacity(store.hathArchives.isEmpty ? 0 : 1)
-                LoadingView().opacity(
-                    store.loadingState == .loading
-                    && store.hathArchives.isEmpty ? 1 : 0
-                )
-                let error = (/LoadingState.failed).extract(from: store.loadingState)
+                .padding(.horizontal)
+                .opacity(store.hathArchives.isEmpty ? 0 : 1)
+
+                LoadingView()
+                    .opacity(
+                        store.loadingState == .loading
+                        && store.hathArchives.isEmpty ? 1 : 0
+                    )
+
+                let error = store.loadingState.failed
                 ErrorView(error: error ?? .unknown) {
                     store.send(.fetchArchive(gid, galleryURL, archiveURL))
                 }
@@ -54,12 +61,12 @@ struct ArchivesView: View {
             .progressHUD(
                 config: store.communicatingHUDConfig,
                 unwrapping: $store.route,
-                case: /ArchivesReducer.Route.communicatingHUD
+                case: \.communicatingHUD
             )
             .progressHUD(
                 config: store.messageHUDConfig,
                 unwrapping: $store.route,
-                case: /ArchivesReducer.Route.messageHUD
+                case: \.messageHUD
             )
             .animation(.default, value: store.hathArchives)
             .animation(.default, value: user.galleryPoints)

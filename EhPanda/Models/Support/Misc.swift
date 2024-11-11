@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 3/01/15.
 //
 
+import CasePaths
 import Foundation
 import SwiftyBeaver
 
@@ -50,6 +51,7 @@ struct QuickSearchWord: Codable, Equatable, Identifiable {
     var content: String
 }
 
+@dynamicMemberLookup @CasePathable
 enum LoadingState: Equatable, Hashable {
     case idle
     case loading

@@ -496,10 +496,12 @@ extension DatabaseClient {
         materializedObjects: { _, _ in .init() }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        prepareDatabase: XCTestDynamicOverlay.unimplemented("\(Self.self).prepareDatabase"),
-        dropDatabase: XCTestDynamicOverlay.unimplemented("\(Self.self).dropDatabase"),
-        saveContext: XCTestDynamicOverlay.unimplemented("\(Self.self).saveContext"),
-        materializedObjects: XCTestDynamicOverlay.unimplemented("\(Self.self).materializedObjects")
+        prepareDatabase: IssueReporting.unimplemented(placeholder: placeholder()),
+        dropDatabase: IssueReporting.unimplemented(placeholder: placeholder()),
+        saveContext: IssueReporting.unimplemented(placeholder: placeholder()),
+        materializedObjects: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

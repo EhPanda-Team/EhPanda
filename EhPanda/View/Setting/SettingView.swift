@@ -40,7 +40,7 @@ struct SettingView: View {
 // MARK: NavigationLinks
 private extension SettingView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.account) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.account) { _ in
             AccountSettingView(
                 store: store.scope(state: \.accountSettingState, action: \.account),
                 galleryHost: $store.setting.galleryHost,
@@ -50,7 +50,7 @@ private extension SettingView {
             )
             .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.general) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.general) { _ in
             GeneralSettingView(
                 store: store.scope(state: \.generalSettingState, action: \.general),
                 tagTranslatorLoadingState: store.tagTranslatorLoadingState,
@@ -67,7 +67,7 @@ private extension SettingView {
             )
             .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.appearance) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.appearance) { _ in
             AppearanceSettingView(
                 store: store.scope(state: \.appearanceSettingState, action: \.appearance),
                 preferredColorScheme: $store.setting.preferredColorScheme,
@@ -80,7 +80,7 @@ private extension SettingView {
             )
             .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.reading) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.reading) { _ in
             ReadingSettingView(
                 readingDirection: $store.setting.readingDirection,
                 prefetchLimit: $store.setting.prefetchLimit,
@@ -91,13 +91,13 @@ private extension SettingView {
             )
             .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.laboratory) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.laboratory) { _ in
             LaboratorySettingView(
                 bypassesSNIFiltering: $store.setting.bypassesSNIFiltering
             )
             .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: $store.route, case: /SettingReducer.Route.about) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.about) { _ in
             AboutView().tint(store.setting.accentColor)
         }
     }

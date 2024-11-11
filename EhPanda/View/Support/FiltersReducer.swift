@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 @Reducer
 struct FiltersReducer {
+    @CasePathable
     enum Route {
         case resetFilters
     }

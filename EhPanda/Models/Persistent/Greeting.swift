@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Greeting: Codable, Equatable, Hashable {
+struct Greeting: Codable, Equatable, Hashable, Identifiable {
     static let mock: Self = {
         var greeting = Greeting()
         greeting.gainedEXP = 10
@@ -16,6 +16,8 @@ struct Greeting: Codable, Equatable, Hashable {
         greeting.gainedHath = 10
         return greeting
     }()
+
+    var id = UUID()
 
     var gainedEXP: Int?
     var gainedCredits: Int?

@@ -14,8 +14,8 @@ struct ReadingReducer {
     @CasePathable
     enum Route: Equatable {
         case hud
-        case share(ShareItem)
-        case readingSetting
+        case share(IdentifiableBox<ShareItem>)
+        case readingSetting(EquatableVoid = .init())
     }
 
     enum ShareItem: Equatable {
@@ -303,9 +303,9 @@ struct ReadingReducer {
                         }
                     case .share(let isAnimated):
                         if isAnimated, let data = image.kf.data(format: .GIF) {
-                            return .send(.setNavigation(.share(.data(data))))
+                            return .send(.setNavigation(.share(.init(value: .data(data)))))
                         } else {
-                            return .send(.setNavigation(.share(.image(image))))
+                            return .send(.setNavigation(.share(.init(value: .image(image)))))
                         }
                     }
                 } else {
@@ -635,12 +635,12 @@ struct ReadingReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.readingSetting,
+            case: \.readingSetting,
             hapticsClient: hapticsClient
         )
         .haptics(
             unwrapping: \.route,
-            case: /Route.share,
+            case: \.share,
             hapticsClient: hapticsClient
         )
     }

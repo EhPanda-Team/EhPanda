@@ -42,7 +42,7 @@ struct FrontpageView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(unwrapping: $store.route, case: /FrontpageReducer.Route.filters) { _ in
+        .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
@@ -60,7 +60,7 @@ struct FrontpageView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: $store.route, case: /FrontpageReducer.Route.detail) { route in
+                .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
                     NavigationView {
                         DetailView(
                             store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
@@ -77,7 +77,7 @@ struct FrontpageView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: /FrontpageReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -89,7 +89,7 @@ struct FrontpageView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {
-                store.send(.setNavigation(.filters))
+                store.send(.setNavigation(.filters()))
             }
         }
     }

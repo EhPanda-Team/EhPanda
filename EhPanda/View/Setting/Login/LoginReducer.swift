@@ -14,6 +14,7 @@ struct LoginReducer {
         case login
     }
 
+    @CasePathable
     enum Route: Equatable {
         case webView(URL)
     }
@@ -98,7 +99,7 @@ struct LoginReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.webView,
+            case: \.webView,
             hapticsClient: hapticsClient
         )
     }

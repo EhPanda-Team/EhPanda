@@ -55,10 +55,12 @@ extension DeviceClient {
         touchPoint: { .zero }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        isPad: XCTestDynamicOverlay.unimplemented("\(Self.self).isPad"),
-        absWindowW: XCTestDynamicOverlay.unimplemented("\(Self.self).absWindowW"),
-        absWindowH: XCTestDynamicOverlay.unimplemented("\(Self.self).absWindowH"),
-        touchPoint: XCTestDynamicOverlay.unimplemented("\(Self.self).touchPoint")
+        isPad: IssueReporting.unimplemented(placeholder: placeholder()),
+        absWindowW: IssueReporting.unimplemented(placeholder: placeholder()),
+        absWindowH: IssueReporting.unimplemented(placeholder: placeholder()),
+        touchPoint: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

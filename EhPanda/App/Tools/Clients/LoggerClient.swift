@@ -44,8 +44,10 @@ extension LoggerClient {
         error: { _, _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        info: XCTestDynamicOverlay.unimplemented("\(Self.self).info"),
-        error: XCTestDynamicOverlay.unimplemented("\(Self.self).error")
+        info: IssueReporting.unimplemented(placeholder: placeholder()),
+        error: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

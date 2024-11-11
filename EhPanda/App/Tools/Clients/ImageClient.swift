@@ -116,10 +116,12 @@ extension ImageClient {
         retrieveImage: { _ in .success(UIImage()) }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        prefetchImages: XCTestDynamicOverlay.unimplemented("\(Self.self).prefetchImages"),
-        saveImageToPhotoLibrary: XCTestDynamicOverlay.unimplemented("\(Self.self).saveImageToPhotoLibrary"),
-        downloadImage: XCTestDynamicOverlay.unimplemented("\(Self.self).downloadImage"),
-        retrieveImage: XCTestDynamicOverlay.unimplemented("\(Self.self).retrieveImage")
+        prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
+        saveImageToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
+        downloadImage: IssueReporting.unimplemented(placeholder: placeholder()),
+        retrieveImage: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

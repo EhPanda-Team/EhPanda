@@ -101,12 +101,14 @@ extension LibraryClient {
         calculateWebImageDiskCacheSize: { .none }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        initializeLogger: XCTestDynamicOverlay.unimplemented("\(Self.self).initializeLogger"),
-        initializeWebImage: XCTestDynamicOverlay.unimplemented("\(Self.self).initializeWebImage"),
-        clearWebImageDiskCache: XCTestDynamicOverlay.unimplemented("\(Self.self).clearWebImageDiskCache"),
-        analyzeImageColors: XCTestDynamicOverlay.unimplemented("\(Self.self).analyzeImageColors"),
+        initializeLogger: IssueReporting.unimplemented(placeholder: placeholder()),
+        initializeWebImage: IssueReporting.unimplemented(placeholder: placeholder()),
+        clearWebImageDiskCache: IssueReporting.unimplemented(placeholder: placeholder()),
+        analyzeImageColors: IssueReporting.unimplemented(placeholder: placeholder()),
         calculateWebImageDiskCacheSize:
-            XCTestDynamicOverlay.unimplemented("\(Self.self).calculateWebImageDiskCacheSize")
+            IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

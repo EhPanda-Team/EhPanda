@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 @Reducer
 struct GeneralSettingReducer {
+    @CasePathable
     enum Route {
         case logs
         case clearCache
@@ -106,6 +107,6 @@ struct GeneralSettingReducer {
             }
         }
 
-        Scope(state: \.logsState, action: /Action.logs, child: LogsReducer.init)
+        Scope(state: \.logsState, action: \.logs, child: LogsReducer.init)
     }
 }

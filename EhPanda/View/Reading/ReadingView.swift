@@ -39,157 +39,185 @@ struct ReadingView: View {
     }
 
     var body: some View {
+        changeTriggers(content: { content })
+            .sheet(item: $store.route.sending(\.setNavigation).readingSetting) { _ in
+                NavigationView {
+                    ReadingSettingView(
+                        readingDirection: $setting.readingDirection,
+                        prefetchLimit: $setting.prefetchLimit,
+                        enablesLandscape: $setting.enablesLandscape,
+                        contentDividerHeight: $setting.contentDividerHeight,
+                        maximumScaleFactor: $setting.maximumScaleFactor,
+                        doubleTapScaleFactor: $setting.doubleTapScaleFactor
+                    )
+                    .toolbar {
+                        CustomToolbarItem(placement: .cancellationAction) {
+                            if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                                Button {
+                                    store.send(.setNavigation(nil))
+                                } label: {
+                                    Image(systemSymbol: .chevronDown)
+                                }
+                            }
+                        }
+                    }
+                }
+                .accentColor(setting.accentColor)
+                .tint(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+                .navigationViewStyle(.stack)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).share) { shareItemBox in
+                ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
+                    .accentColor(setting.accentColor)
+                    .autoBlur(radius: blurRadius)
+            }
+            .progressHUD(
+                config: store.hudConfig,
+                unwrapping: $store.route,
+                case: \.hud
+            )
+
+            .animation(.linear(duration: 0.1), value: gestureHandler.offset)
+            .animation(.default, value: liveTextHandler.enablesLiveText)
+            .animation(.default, value: liveTextHandler.liveTextGroups)
+            .animation(.default, value: gestureHandler.scale)
+            .animation(.default, value: store.showsPanel)
+            .statusBar(hidden: !store.showsPanel)
+            .onDisappear {
+                liveTextHandler.cancelRequests()
+                setAutoPlayPolocy(.off)
+            }
+            .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
+    }
+
+    var content: some View {
         ZStack {
             backgroundColor.ignoresSafeArea()
+
             ZStack {
                 if setting.readingDirection == .vertical {
                     AdvancedList(
-                        page: page, data: store.state.containerDataSource(setting: setting),
-                        id: \.self, spacing: setting.contentDividerHeight,
+                        page: page,
+                        data: store.state.containerDataSource(setting: setting),
+                        id: \.self,
+                        spacing: setting.contentDividerHeight,
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                         content: imageStack
                     )
                     .disabled(gestureHandler.scale != 1)
                 } else {
                     Pager(
-                        page: page, data: store.state.containerDataSource(setting: setting),
-                        id: \.self, content: imageStack
+                        page: page,
+                        data: store.state.containerDataSource(setting: setting),
+                        id: \.self,
+                        content: imageStack
                     )
                     .horizontal(setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
-                    .swipeInteractionArea(.allAvailable).allowsDragging(gestureHandler.scale == 1)
+                    .swipeInteractionArea(.allAvailable)
+                    .allowsDragging(gestureHandler.scale == 1)
                 }
             }
             .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
-            .offset(gestureHandler.offset).gesture(tapGesture).gesture(dragGesture)
-            .gesture(magnificationGesture).ignoresSafeArea()
+            .offset(gestureHandler.offset)
+            .gesture(tapGesture)
+            .gesture(dragGesture)
+            .gesture(magnificationGesture)
+            .ignoresSafeArea()
             .id(store.databaseLoadingState)
             .id(store.forceRefreshID)
+
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
                 sliderValue: $pageHandler.sliderValue, setting: $setting,
                 enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
-                range: 1...Float(store.gallery.pageCount), previewURLs: store.previewURLs,
+                range: 1...Float(store.gallery.pageCount),
+                previewURLs: store.previewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { store.send(.onPerformDismiss) },
-                navigateSettingAction: { store.send(.setNavigation(.readingSetting)) },
+                navigateSettingAction: { store.send(.setNavigation(.readingSetting())) },
                 reloadAllImagesAction: { store.send(.reloadAllWebImages) },
                 retryAllFailedImagesAction: { store.send(.retryAllFailedWebImages) },
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
             )
         }
-        .sheet(unwrapping: $store.route, case: /ReadingReducer.Route.readingSetting) { _ in
-            NavigationView {
-                ReadingSettingView(
-                    readingDirection: $setting.readingDirection,
-                    prefetchLimit: $setting.prefetchLimit,
-                    enablesLandscape: $setting.enablesLandscape,
-                    contentDividerHeight: $setting.contentDividerHeight,
-                    maximumScaleFactor: $setting.maximumScaleFactor,
-                    doubleTapScaleFactor: $setting.doubleTapScaleFactor
+    }
+
+    @ViewBuilder
+    private func changeTriggers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+             // Page
+            .onChange(of: page.index) { _, newValue in
+                Logger.info("page.index changed", context: ["pageIndex": newValue])
+                let newValue = pageHandler.mapFromPager(
+                    index: newValue, pageCount: store.gallery.pageCount, setting: setting
                 )
-                .toolbar {
-                    CustomToolbarItem(placement: .cancellationAction) {
-                        if !DeviceUtil.isPad && DeviceUtil.isLandscape {
-                            Button {
-                                store.send(.setNavigation(nil))
-                            } label: {
-                                Image(systemSymbol: .chevronDown)
-                            }
-                        }
-                    }
+                pageHandler.sliderValue = .init(newValue)
+                if store.databaseLoadingState == .idle {
+                    store.send(.syncReadingProgress(.init(newValue)))
                 }
             }
-            .accentColor(setting.accentColor).tint(setting.accentColor)
-            .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
-        }
-        .sheet(unwrapping: $store.route, case: /ReadingReducer.Route.share) { route in
-            ActivityView(activityItems: [route.wrappedValue.associatedValue])
-                .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
-        }
-        .progressHUD(
-            config: store.hudConfig,
-            unwrapping: $store.route,
-            case: /ReadingReducer.Route.hud
-        )
-
-        // Page
-        .onChange(of: page.index) { _, newValue in
-            Logger.info("page.index changed", context: ["pageIndex": newValue])
-            let newValue = pageHandler.mapFromPager(
-                index: newValue, pageCount: store.gallery.pageCount, setting: setting
-            )
-            pageHandler.sliderValue = .init(newValue)
-            if store.databaseLoadingState == .idle {
-                store.send(.syncReadingProgress(.init(newValue)))
+            .onChange(of: pageHandler.sliderValue) { _, newValue in
+                Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": newValue])
+                if !store.showsSliderPreview {
+                    setPageIndex(sliderValue: newValue)
+                }
             }
-        }
-        .onChange(of: pageHandler.sliderValue) { _, newValue in
-            Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": newValue])
-            if !store.showsSliderPreview {
-                setPageIndex(sliderValue: newValue)
-            }
-        }
-        .onChange(of: store.showsSliderPreview) { _, newValue in
-            Logger.info("store.showsSliderPreview changed", context: ["isShown": newValue])
-            if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
-            setAutoPlayPolocy(.off)
-        }
-        .onChange(of: store.readingProgress) { _, newValue in
-            Logger.info("store.readingProgress changed", context: ["readingProgress": newValue])
-            pageHandler.sliderValue = .init(newValue)
-        }
-
-        // AutoPlay
-        .onChange(of: store.route) { _, newValue in
-            Logger.info("store.route changed", context: ["route": newValue])
-            if ![.hud, .none].contains(newValue) {
+            .onChange(of: store.showsSliderPreview) { _, newValue in
+                Logger.info("store.showsSliderPreview changed", context: ["isShown": newValue])
+                if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
                 setAutoPlayPolocy(.off)
             }
-        }
-
-        // LiveText
-        .onChange(of: liveTextHandler.enablesLiveText) { _, newValue in
-            Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": newValue])
-            if newValue { store.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
-        }
-        .onChange(of: store.webImageLoadSuccessIndices) { _, newValue in
-            Logger.info("store.webImageLoadSuccessIndices changed", context: [
-                "count": store.webImageLoadSuccessIndices.count
-            ])
-            if liveTextHandler.enablesLiveText {
-                newValue.forEach(analyzeImageForLiveText)
+            .onChange(of: store.readingProgress) { _, newValue in
+                Logger.info("store.readingProgress changed", context: ["readingProgress": newValue])
+                pageHandler.sliderValue = .init(newValue)
             }
-        }
 
-        // Orientation
-        .onChange(of: setting.enablesLandscape) { _, newValue in
-            Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
-            store.send(.setOrientationPortrait(!newValue))
-        }
+            // AutoPlay
+            .onChange(of: store.route) { _, newValue in
+                Logger.info("store.route changed", context: ["route": newValue])
+                if ![.hud, .none].contains(newValue) {
+                    setAutoPlayPolocy(.off)
+                }
+            }
 
-        .animation(.linear(duration: 0.1), value: gestureHandler.offset)
-        .animation(.default, value: liveTextHandler.enablesLiveText)
-        .animation(.default, value: liveTextHandler.liveTextGroups)
-        .animation(.default, value: gestureHandler.scale)
-        .animation(.default, value: store.showsPanel)
-        .statusBar(hidden: !store.showsPanel)
-        .onDisappear {
-            liveTextHandler.cancelRequests()
-            setAutoPlayPolocy(.off)
-        }
-        .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
+            // LiveText
+            .onChange(of: liveTextHandler.enablesLiveText) { _, newValue in
+                Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": newValue])
+                if newValue { store.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
+            }
+            .onChange(of: store.webImageLoadSuccessIndices) { _, newValue in
+                Logger.info("store.webImageLoadSuccessIndices changed", context: [
+                    "count": store.webImageLoadSuccessIndices.count
+                ])
+                if liveTextHandler.enablesLiveText {
+                    newValue.forEach(analyzeImageForLiveText)
+                }
+            }
+
+            // Orientation
+            .onChange(of: setting.enablesLandscape) { _, newValue in
+                Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
+                store.send(.setOrientationPortrait(!newValue))
+            }
     }
 
     @ViewBuilder private func imageStack(index: Int) -> some View {
         let imageStackConfig = store.state.imageContainerConfigs(index: index, setting: setting)
         let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
         HorizontalImageStack(
-            index: index, isDualPage: isDualPage, isDatabaseLoading: store.databaseLoadingState != .idle,
-            backgroundColor: backgroundColor, config: imageStackConfig, imageURLs: store.imageURLs,
-            originalImageURLs: store.originalImageURLs, loadingStates: store.imageURLLoadingStates,
-            enablesLiveText: liveTextHandler.enablesLiveText, liveTextGroups: liveTextHandler.liveTextGroups,
+            index: index,
+            isDualPage: isDualPage,
+            isDatabaseLoading: store.databaseLoadingState != .idle,
+            backgroundColor: backgroundColor,
+            config: imageStackConfig,
+            imageURLs: store.imageURLs,
+            originalImageURLs: store.originalImageURLs,
+            loadingStates: store.imageURLLoadingStates,
+            enablesLiveText: liveTextHandler.enablesLiveText,
+            liveTextGroups: liveTextHandler.liveTextGroups,
             focusedLiveTextGroup: liveTextHandler.focusedLiveTextGroup,
             liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
             fetchAction: { store.send(.fetchImageURLs($0)) },
@@ -542,7 +570,7 @@ private struct ImageContainer: View {
         }
     }
     private func reloadImage() {
-        if let error = (/LoadingState.failed).extract(from: loadingState) {
+        if let error = loadingState.failed {
             if case .webImageFailed = error {
                 loadRetryAction(index)
             } else {

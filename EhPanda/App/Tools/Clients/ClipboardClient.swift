@@ -68,10 +68,12 @@ extension ClipboardClient {
         saveImage: { _, _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        url: XCTestDynamicOverlay.unimplemented("\(Self.self).url"),
-        changeCount: XCTestDynamicOverlay.unimplemented("\(Self.self).changeCount"),
-        saveText: XCTestDynamicOverlay.unimplemented("\(Self.self).saveText"),
-        saveImage: XCTestDynamicOverlay.unimplemented("\(Self.self).saveImage")
+        url: IssueReporting.unimplemented(placeholder: placeholder()),
+        changeCount: IssueReporting.unimplemented(placeholder: placeholder()),
+        saveText: IssueReporting.unimplemented(placeholder: placeholder()),
+        saveImage: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

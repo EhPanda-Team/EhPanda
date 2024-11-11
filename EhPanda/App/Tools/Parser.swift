@@ -538,7 +538,8 @@ struct Parser {
                 torrentCount: arcAndTor.1
             )
             tmpGalleryState = GalleryState(
-                gid: gid, tags: tags,
+                gid: gid,
+                tags: tags,
                 previewURLs: previewURLs,
                 previewConfig: try? parsePreviewConfig(doc: doc),
                 comments: parseComments(doc: doc)
@@ -570,7 +571,7 @@ struct Parser {
 
     // MARK: Preview
     static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
-        func parseGT100PreviewURLs(node: XMLElement) -> [Int: URL] {
+        func parseCombinedPreviewURLs(node: XMLElement) -> [Int: URL] {
             var previewURLs = [Int: URL]()
 
             for link in node.xpath("//a") {
@@ -594,14 +595,16 @@ struct Parser {
                     let offset = String(style[rangeE.upperBound..<rangeF.lowerBound])
 
                     previewURLs[index] = URLUtil.combinedPreviewURL(
-                        plainURL: url, width: width,
-                        height: height, offset: offset
+                        plainURL: url,
+                        width: width,
+                        height: height,
+                        offset: offset
                     )
                 }
             }
             return previewURLs
         }
-        func parseGT200PreviewURLs(node: XMLElement) -> [Int: URL] {
+        func parseStandalonePreviewURLs(node: XMLElement) -> [Int: URL] {
             var previewURLs = [Int: URL]()
 
             for link in node.xpath("//a") {
@@ -622,15 +625,11 @@ struct Parser {
             return previewURLs
         }
 
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
-              let previewMode = try? parsePreviewMode(doc: doc)
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
 
-        return switch previewMode {
-        case "gt100": parseGT100PreviewURLs(node: gdtNode)
-        case "gt200": parseGT200PreviewURLs(node: gdtNode)
-        default: .init()
-        }
+        let combinedURLs = parseCombinedPreviewURLs(node: gdtNode)
+        return combinedURLs.isEmpty ? parseStandalonePreviewURLs(node: gdtNode) : combinedURLs
     }
 
     // MARK: Comment
@@ -721,31 +720,18 @@ struct Parser {
     static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
         var thumbnailURLs = [Int: URL]()
 
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
-              let previewMode = try? parsePreviewMode(doc: doc)
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
 
-        if ["gt100", "gt200"].contains(previewMode) {
-            for aLink in gdtNode.xpath("a") {
-                guard let href = aLink["href"],
-                      let thumbnailURL = URL(string: href),
-                      let divNode = aLink.at_xpath(".//div[@title and @style]"),
-                      let title = divNode["title"],
-                      let index = parseGTX00IndexFromTitle(from: title)
-                else { continue }
+        for aLink in gdtNode.xpath("a") {
+            guard let href = aLink["href"],
+                  let thumbnailURL = URL(string: href),
+                  let divNode = aLink.at_xpath(".//div[@title and @style]"),
+                  let title = divNode["title"],
+                  let index = parseGTX00IndexFromTitle(from: title)
+            else { continue }
 
-                thumbnailURLs[index] = thumbnailURL
-            }
-        } else {
-            for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
-                guard let aLink = link.at_xpath("//a"),
-                      let thumbnailURLString = aLink["href"],
-                      let thumbnailURL = URL(string: thumbnailURLString),
-                      let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
-                else { continue }
-
-                thumbnailURLs[index] = thumbnailURL
-            }
+            thumbnailURLs[index] = thumbnailURL
         }
 
         return thumbnailURLs

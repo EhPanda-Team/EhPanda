@@ -85,11 +85,13 @@ extension UIApplicationClient {
         setUserInterfaceStyle: { _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        openURL: XCTestDynamicOverlay.unimplemented("\(Self.self).openURL"),
-        hideKeyboard: XCTestDynamicOverlay.unimplemented("\(Self.self).hideKeyboard"),
-        alternateIconName: XCTestDynamicOverlay.unimplemented("\(Self.self).alternateIconName"),
-        setAlternateIconName: XCTestDynamicOverlay.unimplemented("\(Self.self).importTagTranslator"),
-        setUserInterfaceStyle: XCTestDynamicOverlay.unimplemented("\(Self.self).setUserInterfaceStyle")
+        openURL: IssueReporting.unimplemented(placeholder: placeholder()),
+        hideKeyboard: IssueReporting.unimplemented(placeholder: placeholder()),
+        alternateIconName: IssueReporting.unimplemented(placeholder: placeholder()),
+        setAlternateIconName: IssueReporting.unimplemented(placeholder: placeholder()),
+        setUserInterfaceStyle: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

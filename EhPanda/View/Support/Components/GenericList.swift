@@ -58,10 +58,13 @@ struct GenericList: View {
                 }
             }
             .opacity(loadingState == .idle ? 1 : 0).zIndex(2)
-            LoadingView().opacity(loadingState == .loading ? 1 : 0).zIndex(0)
-            let error = (/LoadingState.failed).extract(from: loadingState)
-            ErrorView(error: error ?? .unknown, action: fetchAction)
-                .opacity([.idle, .loading].contains(loadingState) ? 0 : 1).zIndex(1)
+
+            LoadingView()
+                .opacity(loadingState == .loading ? 1 : 0).zIndex(0)
+
+            ErrorView(error: loadingState.failed ?? .unknown, action: fetchAction)
+                .opacity([.idle, .loading].contains(loadingState) ? 0 : 1)
+                .zIndex(1)
         }
         .animation(.default, value: loadingState)
         .animation(.default, value: galleries)

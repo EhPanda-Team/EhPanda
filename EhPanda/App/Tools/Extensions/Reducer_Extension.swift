@@ -11,24 +11,24 @@ import ComposableArchitecture
 extension Reducer {
     func haptics<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: AnyCasePath<Enum, Case>,
+        case caseKeyPath: CaseKeyPath<Enum, Case>,
         hapticsClient: HapticsClient,
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
     ) -> some Reducer<State, Action> {
-        onBecomeNonNil(unwrapping: `enum`, case: casePath) { _, _ in
+        onBecomeNonNil(unwrapping: `enum`, case: caseKeyPath) { _, _ in
             .run(operation: { _ in hapticsClient.generateFeedback(style) })
         }
     }
 
     private func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
-        case casePath: AnyCasePath<Enum, Case>,
+        case caseKeyPath: CaseKeyPath<Enum, Case>,
         perform additionalEffects: @escaping (inout State, Action) -> Effect<Action>
     ) -> some Reducer<State, Action> {
         Reduce { state, action in
-            let previousCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
+            let previousCase = Binding.constant(`enum`(state)).case(caseKeyPath).wrappedValue
             let effects = reduce(into: &state, action: action)
-            let currentCase = Binding.constant(`enum`(state)).case(casePath).wrappedValue
+            let currentCase = Binding.constant(`enum`(state)).case(caseKeyPath).wrappedValue
 
             return previousCase == nil && currentCase != nil
             ? .merge(effects, additionalEffects(&state, action))

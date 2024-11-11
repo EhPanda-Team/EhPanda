@@ -39,7 +39,7 @@ struct PopularView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .sheet(unwrapping: $store.route, case: /PopularReducer.Route.filters) { _ in
+        .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
@@ -57,7 +57,7 @@ struct PopularView: View {
 
         if DeviceUtil.isPad {
             content
-                .sheet(unwrapping: $store.route, case: /PopularReducer.Route.detail) { route in
+                .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
                     NavigationView {
                         DetailView(
                             store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
@@ -74,7 +74,7 @@ struct PopularView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: /PopularReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -86,7 +86,7 @@ struct PopularView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {
-                store.send(.setNavigation(.filters))
+                store.send(.setNavigation(.filters()))
             }
         }
     }

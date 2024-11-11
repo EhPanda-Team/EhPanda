@@ -54,7 +54,7 @@ struct FavoritesView: View {
                     NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                 }
             }
-            .sheet(unwrapping: $store.route, case: /FavoritesReducer.Route.quickSearch) { _ in
+            .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: \.quickSearch)
                 ) { keyword in
@@ -87,7 +87,7 @@ struct FavoritesView: View {
 
             if DeviceUtil.isPad {
                 content
-                    .sheet(unwrapping: $store.route, case: /FavoritesReducer.Route.detail) { route in
+                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
                         NavigationView {
                             DetailView(
                                 store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
@@ -105,7 +105,7 @@ struct FavoritesView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: /FavoritesReducer.Route.detail) { route in
+            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
                 DetailView(
                     store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
@@ -127,7 +127,7 @@ struct FavoritesView: View {
                 }
             }
             QuickSearchButton(hideText: true) {
-                store.send(.setNavigation(.quickSearch))
+                store.send(.setNavigation(.quickSearch()))
             }
         }
     }

@@ -279,6 +279,8 @@
 		EA0C925E2C3EB49500D211F6 /* README.jpn.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92582C3EB49500D211F6 /* README.jpn.md */; };
 		EA2E2E7F2A1F7E500038A261 /* SettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */; };
 		EA2E2E822A1FA1060038A261 /* SearchReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E2E812A1FA1050038A261 /* SearchReducer.swift */; };
+		EA698C032CCDD2FB0058BC19 /* EquatableVoid.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */; };
+		EA698C092CCDE7090058BC19 /* IdentifiableBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */; };
 		EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = EAE63E2029E2A6330048C601 /* SwiftyBeaver */; };
 /* End PBXBuildFile section */
 
@@ -602,6 +604,8 @@
 		EA0C92582C3EB49500D211F6 /* README.jpn.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.jpn.md; path = READMEs/README.jpn.md; sourceTree = "<group>"; };
 		EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingReducer.swift; sourceTree = "<group>"; };
 		EA2E2E812A1FA1050038A261 /* SearchReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchReducer.swift; sourceTree = "<group>"; };
+		EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquatableVoid.swift; sourceTree = "<group>"; };
+		EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableBox.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -870,6 +874,8 @@
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
+				EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */,
+				EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */,
 				ABBB2670279AFA61007B6149 /* EnvironmentKeys.swift */,
 			);
 			path = Tools;
@@ -1652,7 +1658,7 @@
 				AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */,
 				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
-				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */,
+				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swift-navigation" */,
 				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
 				AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */,
 				AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
@@ -1860,6 +1866,7 @@
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB7BF2CE27AA3E58001865A3 /* AppUtil.swift in Sources */,
 				AB86AC1A2785C2B300E61E6A /* HomeReducer.swift in Sources */,
+				EA698C032CCDD2FB0058BC19 /* EquatableVoid.swift in Sources */,
 				AB7BF2D427AA3F12001865A3 /* CookieUtil.swift in Sources */,
 				AB7BF30A27ABDFF1001865A3 /* CoreDataMigrationStep.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
@@ -1943,6 +1950,7 @@
 				AB86AC0A2782FAFA00E61E6A /* AppearanceSettingReducer.swift in Sources */,
 				AB7BF2C427A9683F001865A3 /* GalleryArchive.swift in Sources */,
 				ABF45AF525F3313D00ECB568 /* ReadingSettingView.swift in Sources */,
+				EA698C092CCDE7090058BC19 /* IdentifiableBox.swift in Sources */,
 				AB0CFBD727C3B2D0004BD372 /* TagDetailView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
 				ABC732C127B8962000D47DA9 /* LiveTextHandler.swift in Sources */,
@@ -2404,7 +2412,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Co2333/Colorful.git";
+			repositoryURL = "https://github.com/Co2333/Colorful";
 			requirement = {
 				kind = exactVersion;
 				version = 1.0.1;
@@ -2412,7 +2420,7 @@
 		};
 		AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/jathu/UIImageColors.git";
+			repositoryURL = "https://github.com/jathu/UIImageColors";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
@@ -2420,7 +2428,7 @@
 		};
 		AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/SwiftCommonMark.git";
+			repositoryURL = "https://github.com/gonzalezreal/SwiftCommonMark";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
@@ -2428,7 +2436,7 @@
 		};
 		AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/markrenaud/FilePicker.git";
+			repositoryURL = "https://github.com/markrenaud/FilePicker";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
@@ -2436,7 +2444,7 @@
 		};
 		AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/TTProgressHUD.git";
+			repositoryURL = "https://github.com/EhPanda-Team/TTProgressHUD";
 			requirement = {
 				branch = custom;
 				kind = branch;
@@ -2444,7 +2452,7 @@
 		};
 		AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/AlertKit.git";
+			repositoryURL = "https://github.com/EhPanda-Team/AlertKit";
 			requirement = {
 				branch = custom;
 				kind = branch;
@@ -2452,7 +2460,7 @@
 		};
 		AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/DeprecatedAPI.git";
+			repositoryURL = "https://github.com/EhPanda-Team/DeprecatedAPI";
 			requirement = {
 				branch = main;
 				kind = branch;
@@ -2460,7 +2468,7 @@
 		};
 		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
+			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
@@ -2468,7 +2476,7 @@
 		};
 		AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
+			repositoryURL = "https://github.com/fermoya/SwiftUIPager";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
@@ -2476,31 +2484,31 @@
 		};
 		AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.11.2;
+				minimumVersion = 1.15.2;
 			};
 		};
 		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ddddxxx/SwiftyOpenCC.git";
+			repositoryURL = "https://github.com/ddddxxx/SwiftyOpenCC";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = "2.0.0-beta";
 			};
 		};
-		ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */ = {
+		ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swift-navigation" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swiftui-navigation.git";
+			repositoryURL = "https://github.com/pointfreeco/swift-navigation";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 2.0.0;
 			};
 		};
 		ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 7.0.0;
@@ -2508,7 +2516,7 @@
 		};
 		ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols.git";
+			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 4.0.0;
@@ -2516,7 +2524,7 @@
 		};
 		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
+			repositoryURL = "https://github.com/tid-kijyun/Kanna";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.0.0;
@@ -2524,7 +2532,7 @@
 		};
 		EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
+			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
@@ -2590,7 +2598,7 @@
 		};
 		ABBB2635278FB888007B6149 /* SwiftUINavigation */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */;
+			package = ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swift-navigation" */;
 			productName = SwiftUINavigation;
 		};
 		ABC4A0782751B40E00968A4F /* Kingfisher */ = {

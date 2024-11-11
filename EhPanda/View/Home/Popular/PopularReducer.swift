@@ -9,9 +9,9 @@ import ComposableArchitecture
 
 @Reducer
 struct PopularReducer {
-    @CasePathable
+    @dynamicMemberLookup @CasePathable
     enum Route: Equatable {
-        case filters
+        case filters(EquatableVoid = .unique)
         case detail(String)
     }
 
@@ -112,11 +112,11 @@ struct PopularReducer {
         }
         .haptics(
             unwrapping: \.route,
-            case: /Route.filters,
+            case: \.filters,
             hapticsClient: hapticsClient
         )
 
-        Scope(state: \.filtersState, action: /Action.filters, child: FiltersReducer.init)
-        Scope(state: \.detailState.wrappedValue!, action: /Action.detail, child: DetailReducer.init)
+        Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

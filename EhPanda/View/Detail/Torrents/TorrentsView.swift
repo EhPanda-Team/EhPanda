@@ -36,21 +36,24 @@ struct TorrentsView: View {
                         }
                     }
                 }
-                LoadingView().opacity(store.loadingState == .loading && store.torrents.isEmpty ? 1 : 0)
-                let error = (/LoadingState.failed).extract(from: store.loadingState)
+
+                LoadingView()
+                    .opacity(store.loadingState == .loading && store.torrents.isEmpty ? 1 : 0)
+
+                let error = store.loadingState.failed
                 ErrorView(error: error ?? .unknown) {
                     store.send(.fetchGalleryTorrents(gid, token))
                 }
                 .opacity(error != nil && store.torrents.isEmpty ? 1 : 0)
             }
-            .sheet(unwrapping: $store.route, case: /TorrentsReducer.Route.share) { route in
+            .sheet(item: $store.route.sending(\.setNavigation).share, id: \.absoluteString) { route in
                 ActivityView(activityItems: [route.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
             .progressHUD(
                 config: store.hudConfig,
                 unwrapping: $store.route,
-                case: /TorrentsReducer.Route.hud
+                case: \.hud
             )
             .animation(.default, value: store.torrents)
             .onAppear {

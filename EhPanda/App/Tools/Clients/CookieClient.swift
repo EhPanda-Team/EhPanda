@@ -272,11 +272,13 @@ extension CookieClient {
         initializeCookie: { _, _ in .init() }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        clearAll: XCTestDynamicOverlay.unimplemented("\(Self.self).clearAll"),
-        getCookie: XCTestDynamicOverlay.unimplemented("\(Self.self).getCookie"),
-        removeCookie: XCTestDynamicOverlay.unimplemented("\(Self.self).removeCookie"),
-        checkExistence: XCTestDynamicOverlay.unimplemented("\(Self.self).checkExistence"),
-        initializeCookie: XCTestDynamicOverlay.unimplemented("\(Self.self).initializeCookie")
+        clearAll: IssueReporting.unimplemented(placeholder: placeholder()),
+        getCookie: IssueReporting.unimplemented(placeholder: placeholder()),
+        removeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
+        checkExistence: IssueReporting.unimplemented(placeholder: placeholder()),
+        initializeCookie: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

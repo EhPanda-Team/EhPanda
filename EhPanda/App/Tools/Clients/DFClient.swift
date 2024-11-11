@@ -49,7 +49,9 @@ extension DFClient {
         setActive: { _ in }
     )
 
+    static func placeholder<Result>() -> Result { fatalError() }
+
     static let unimplemented: Self = .init(
-        setActive: XCTestDynamicOverlay.unimplemented("\(Self.self).setActive")
+        setActive: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

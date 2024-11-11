@@ -35,7 +35,7 @@ struct SearchRootView: View {
                     historyGalleries: store.historyGalleries,
                     quickSearchWords: store.quickSearchWords,
                     navigateGalleryAction: { store.send(.setNavigation(.detail($0))) },
-                    navigateQuickSearchAction: { store.send(.setNavigation(.quickSearch)) },
+                    navigateQuickSearchAction: { store.send(.setNavigation(.quickSearch())) },
                     searchKeywordAction: { keyword in
                         store.send(.setKeyword(keyword))
                         store.send(.setNavigation(.search))
@@ -43,11 +43,11 @@ struct SearchRootView: View {
                     removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
                 )
             }
-            .sheet(unwrapping: $store.route, case: /SearchRootReducer.Route.filters) { _ in
+            .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
                 FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
-            .sheet(unwrapping: $store.route, case: /SearchRootReducer.Route.quickSearch) { _ in
+            .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: \.quickSearch)
                 ) { keyword in
@@ -80,12 +80,15 @@ struct SearchRootView: View {
 
             if DeviceUtil.isPad {
                 content
-                    .sheet(unwrapping: $store.route, case: /SearchRootReducer.Route.detail) { route in
+                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { gid in
                         NavigationView {
                             DetailView(
                                 store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                                gid: route.wrappedValue, user: user, setting: $setting,
-                                blurRadius: blurRadius, tagTranslator: tagTranslator
+                                gid: gid,
+                                user: user,
+                                setting: $setting,
+                                blurRadius: blurRadius,
+                                tagTranslator: tagTranslator
                             )
                         }
                         .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
@@ -100,10 +103,10 @@ struct SearchRootView: View {
         CustomToolbarItem(tint: .primary) {
             ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
-                    store.send(.setNavigation(.filters))
+                    store.send(.setNavigation(.filters()))
                 }
                 QuickSearchButton {
-                    store.send(.setNavigation(.quickSearch))
+                    store.send(.setNavigation(.quickSearch()))
                 }
             }
         }
@@ -118,7 +121,7 @@ private extension SearchRootView {
         searchViewLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /SearchRootReducer.Route.detail) { route in
+        NavigationLink(unwrapping: $store.route, case: \.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
@@ -127,7 +130,7 @@ private extension SearchRootView {
         }
     }
     var searchViewLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /SearchRootReducer.Route.search) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.search) { _ in
             SearchView(
                 store: store.scope(state: \.searchState, action: \.search),
                 keyword: store.keyword, user: user, setting: $setting,

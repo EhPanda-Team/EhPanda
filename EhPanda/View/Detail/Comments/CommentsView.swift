@@ -90,7 +90,7 @@ struct CommentsView: View {
                 }
             }
         }
-        .sheet(unwrapping: $store.route, case: /CommentsReducer.Route.postComment) { route in
+        .sheet(item: $store.route.sending(\.setNavigation).postComment, id: \.self) { route in
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
@@ -115,7 +115,7 @@ struct CommentsView: View {
         .progressHUD(
             config: store.hudConfig,
             unwrapping: $store.route,
-            case: /CommentsReducer.Route.hud
+            case: \.hud
         )
         .animation(.default, value: store.scrollRowOpacity)
         .onAppear {
@@ -141,7 +141,7 @@ struct CommentsView: View {
 // MARK: NavigationLinks
 private extension CommentsView {
     @ViewBuilder var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: /CommentsReducer.Route.detail) { route in
+        NavigationLink(unwrapping: $store.route, case: \.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
