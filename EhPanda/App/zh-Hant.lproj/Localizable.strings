@@ -17,7 +17,7 @@
 
 // MARK: Response
 "website.response.hath_client_not_found" = "你需要一個連結到帳號的 H@H 用戶端才能使用這個功能";
-"website.response.hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啓動後再試";
+"website.response.hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啟動後再試";
 "website.response.invalid_resolution" = "該畫廊不能以目前選擇的解析度下載";
 
 // MARK: HUD
@@ -816,7 +816,7 @@
 "enum.browsing_country.name.nauru" = "諾魯";
 "enum.browsing_country.name.nepal" = "尼泊爾";
 "enum.browsing_country.name.netherlands" = "荷蘭";
-"enum.browsing_country.name.new_caledonia" = "新喀裡多尼亞";
+"enum.browsing_country.name.new_caledonia" = "新喀里多尼亞";
 "enum.browsing_country.name.new_zealand" = "新西蘭";
 "enum.browsing_country.name.nicaragua" = "尼加拉瓜";
 "enum.browsing_country.name.niger" = "尼日";
