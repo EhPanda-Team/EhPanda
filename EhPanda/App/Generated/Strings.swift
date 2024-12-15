@@ -164,8 +164,8 @@ internal enum L10n {
           internal static let caxerx = L10n.tr("Constant", "app.translation_contributor.link.caxerx", fallback: "https://github.com/caxerx")
           /// https://github.com/Nebulosa-Cat
           internal static let nebulosaCat = L10n.tr("Constant", "app.translation_contributor.link.nebulosa-cat", fallback: "https://github.com/Nebulosa-Cat")
-          /// https://github.com/nyaanim
-          internal static let nyaanim = L10n.tr("Constant", "app.translation_contributor.link.nyaanim", fallback: "https://github.com/nyaanim")
+          /// https://github.com/NeKoOuO
+          internal static let neKoOuO = L10n.tr("Constant", "app.translation_contributor.link.NeKoOuO", fallback: "https://github.com/NeKoOuO")
           /// https://github.com/PaulHaeussler
           internal static let paulHaeussler = L10n.tr("Constant", "app.translation_contributor.link.paulHaeussler", fallback: "https://github.com/PaulHaeussler")
           /// https://github.com/tatsuz0u
@@ -176,8 +176,8 @@ internal enum L10n {
           internal static let caxerx = L10n.tr("Constant", "app.translation_contributor.text.caxerx", fallback: "caxerx")
           /// 雲豹 ΦωΦ
           internal static let nebulosaCat = L10n.tr("Constant", "app.translation_contributor.text.nebulosa-cat", fallback: "雲豹 ΦωΦ")
-          /// nyaanim
-          internal static let nyaanim = L10n.tr("Constant", "app.translation_contributor.text.nyaanim", fallback: "nyaanim")
+          /// ɴᴇᴋᴏ
+          internal static let neKoOuO = L10n.tr("Constant", "app.translation_contributor.text.NeKoOuO", fallback: "ɴᴇᴋᴏ")
           /// PaulHaeussler
           internal static let paulHaeussler = L10n.tr("Constant", "app.translation_contributor.text.paulHaeussler", fallback: "PaulHaeussler")
           /// Tatsuzo Araki

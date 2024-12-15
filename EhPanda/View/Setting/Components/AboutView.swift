@@ -143,8 +143,8 @@ struct AboutView: View {
             text: L10n.Constant.App.TranslationContributor.Text.caxerx
         ),
         .init(
-            urlString: L10n.Constant.App.TranslationContributor.Link.nyaanim,
-            text: L10n.Constant.App.TranslationContributor.Text.nyaanim
+            urlString: L10n.Constant.App.TranslationContributor.Link.neKoOuO,
+            text: L10n.Constant.App.TranslationContributor.Text.neKoOuO
         )
     ]}()
 
