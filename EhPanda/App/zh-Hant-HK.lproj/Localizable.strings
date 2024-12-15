@@ -7,89 +7,89 @@
 */
 
 // MARK: BanInterval
-"enum.ban_interval.description.and" = "and";
+"enum.ban_interval.description.and" = "";
 
 // MARK: ToplistsType
-"enum.toplists_type.value.yesterday" = "Yesterday";
-"enum.toplists_type.value.past_month" = "Past month";
-"enum.toplists_type.value.past_year" = "Past year";
-"enum.toplists_type.value.all_time" = "All time";
+"enum.toplists_type.value.yesterday" = "昨天";
+"enum.toplists_type.value.past_month" = "上個月";
+"enum.toplists_type.value.past_year" = "去年";
+"enum.toplists_type.value.all_time" = "所有時間";
 
 // MARK: Response
-"website.response.hath_client_not_found" = "你需要一個關聯到帳號的 H@H 客戶端才能使用這個功能";
-"website.response.hath_client_not_online" = "你的 H@H 客戶端為離線狀態，請啓動後再試";
-"website.response.invalid_resolution" = "該畫廊不能以選定的解析度下載";
+"website.response.hath_client_not_found" = "你需要一個連結到帳號的 H@H 用戶端才能使用這個功能";
+"website.response.hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啟動後再試";
+"website.response.invalid_resolution" = "該畫廊不能以目前選擇的解像度下載";
 
 // MARK: HUD
 "hud.title.error" = "錯誤";
 "hud.title.success" = "成功";
 "hud.title.loading" = "載入中...";
-"hud.title.communicating" = "通訊中...";
+"hud.title.communicating" = "連線中...";
 "hud.caption.copied_to_clipboard" = "已複製到剪貼簿";
-"hud.caption.saved_to_photo_library" = "Saved to photo library";
+"hud.caption.saved_to_photo_library" = "已儲存到照片";
 
 // MARK: AutoLock
-"local_authorization.reason" = "因超過自動鎖定期限，App 已被鎖定";
+"local_authorization.reason" = "由於超過 APP 自動鎖定期限，APP 已被鎖定，請重新解鎖";
 
 // MARK: Common value
 "common.value.stars" = "%@ 星";
 "common.value.pages" = "%@ 頁";
 "common.value.times" = "%@ 次";
-"common.value.day" = "%@ day";
-"common.value.days" = "%@ days";
-"common.value.hour" = "%@ hour";
-"common.value.hours" = "%@ hours";
-"common.value.minute" = "%@ minute";
-"common.value.minutes" = "%@ minutes";
-"common.value.second" = "%@ second";
-"common.value.seconds" = "%@ seconds";
-"common.value.records" = "%@ 條記錄";
+"common.value.day" = "%@ 天";
+"common.value.days" = "%@ 天";
+"common.value.hour" = "%@ 小時";
+"common.value.hours" = "%@ 小時";
+"common.value.minute" = "%@ 分";
+"common.value.minutes" = "%@ 分";
+"common.value.second" = "%@ 秒";
+"common.value.seconds" = "%@ 秒";
+"common.value.records" = "%@ 筆紀錄";
 
 // MARK: TabItem
-"tab_item.title.home" = "主頁";
+"tab_item.title.home" = "總覽";
 "tab_item.title.favorites" = "收藏";
 "tab_item.title.search" = "搜尋";
 "tab_item.title.setting" = "設定";
 
 // MARK: ToolbarItem
-"toolbar_item.button.filters" = "篩選";
-"toolbar_item.button.jump_page" = "Jump page";
+"toolbar_item.button.filters" = "過濾";
+"toolbar_item.button.jump_page" = "跳到...";
 "toolbar_item.button.quick_search" = "快速搜尋";
 
 // MARK: JumpPage
-"jump_page_view.title.jump_page" = "Jump page";
-"jump_page_view.button.confirm" = "Confirm";
+"jump_page_view.title.jump_page" = "跳到...";
+"jump_page_view.button.confirm" = "確定";
 
 // MARK: AlertView
 "loading_view.title.loading" = "載入中...";
-"loading_view.title.preparing_database" = "Preparing the database...";
-"not_login_view.title.need_login" = "You need to login to access this feature.";
-"not_login_view.button.login" = "Login";
+"loading_view.title.preparing_database" = "正在準備...";
+"not_login_view.title.need_login" = "你需要登入才能完成這個動作";
+"not_login_view.button.login" = "登入";
 "error_view.button.retry" = "重試";
-"error_view.button.drop_database" = "Drop the database";
+"error_view.button.drop_database" = "刪除資料庫";
 "error_view.title.try_later" = "請稍後再試";
-"error_view.title.network" = "網絡發生故障";
-"error_view.title.parsing" = "A parsing error occurred.";
-"error_view.title.unknown" = "An unknown error occurred.";
-"error_view.title.not_found" = "There seems to be nothing here.";
-"error_view.title.database_corrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
-"error_view.title.ip_banned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
-"error_view.title.copyright_claim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
-"error_view.title.gallery_unavailable" = "This gallery has been removed or is unavailable.";
+"error_view.title.network" = "網絡發生故障，請檢查網絡狀態";
+"error_view.title.parsing" = "網頁解析器發生故障";
+"error_view.title.unknown" = "發生不明錯誤";
+"error_view.title.not_found" = "這邊看起來空空如也";
+"error_view.title.database_corrupted" = "資料庫已經損壞\n請提交 issue 至 GitHub.";
+"error_view.title.ip_banned" = "你的 IP 因為頁面載入次數過於頻繁而被暫時禁止存取，這可能是因為你正在使用爬蟲/鏡像軟件，禁止存取將在 %@ 後解除";
+"error_view.title.copyright_claim" = "非常抱歉，這個畫廊已因為 %@ 提出的版權聲索而不再提供存取";
+"error_view.title.gallery_unavailable" = "此畫廊已被刪除或你沒有權限存取";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.title.drop_database" = "You will lose all your data in this app.\nAre you sure to drop the database?";
-"confirmation_dialog.title.remove_custom_translations" = "Are you sure to remove your custom translations?";
-"confirmation_dialog.title.logout" = "確定要登出嗎？";
-"confirmation_dialog.title.delete" = "Are you sure to delete this item?";
-"confirmation_dialog.title.clear" = "確定要清空嗎？";
-"confirmation_dialog.title.reset" = "確定要重置嗎？";
-"confirmation_dialog.button.drop_database" = "Drop the database";
-"confirmation_dialog.button.remove" = "Remove";
+"confirmation_dialog.title.drop_database" = "繼續此操作將會清除 APP 中的所有資料\n確定要刪除資料庫?";
+"confirmation_dialog.title.remove_custom_translations" = "是否確定要刪除所有自訂翻譯?";
+"confirmation_dialog.title.logout" = "確定要登出嗎?";
+"confirmation_dialog.title.delete" = "確定要刪除?";
+"confirmation_dialog.title.clear" = "確定要清空嗎?";
+"confirmation_dialog.title.reset" = "確定要重設嗎?";
+"confirmation_dialog.button.drop_database" = "刪除資料庫";
+"confirmation_dialog.button.remove" = "移除";
 "confirmation_dialog.button.logout" = "登出";
-"confirmation_dialog.button.delete" = "Delete";
+"confirmation_dialog.button.delete" = "刪除";
 "confirmation_dialog.button.clear" = "清空";
-"confirmation_dialog.button.reset" = "重置";
+"confirmation_dialog.button.reset" = "重設";
 
 // MARK: SubSection
 "sub_section.button.show_all" = "顯示全部";
@@ -104,53 +104,53 @@
 "struct.greeting.mark.end" = "！";
 
 // MARK: HomeView
-"home_view.title.home" = "主頁";
-"home_view.section.title.frontpage" = "Frontpage";
-"home_view.section.title.toplists" = "Toplists";
-"home_view.section.title.other" = "其它";
+"home_view.title.home" = "總覽";
+"home_view.section.title.frontpage" = "首頁";
+"home_view.section.title.toplists" = "排行";
+"home_view.section.title.other" = "其他";
 // HomeMiscGridType
 "enum.home_misc_grid_type.title.popular" = "熱門";
-"enum.home_misc_grid_type.title.watched" = "標籤";
-"enum.home_misc_grid_type.title.history" = "歷史";
+"enum.home_misc_grid_type.title.watched" = "關注";
+"enum.home_misc_grid_type.title.history" = "歷程";
 
 // MARK: FrontpageView
-"frontpage_view.title.frontpage" = "Frontpage";
+"frontpage_view.title.frontpage" = "首頁";
 
 // MARK: ToplistsView
-"toplists_view.title.toplists" = "Toplists";
+"toplists_view.title.toplists" = "排行";
 
 // MARK: PopularView
 "popular_view.title.popular" = "熱門";
 
 // MARK: WatchedView
-"watched_view.title.watched" = "標籤";
+"watched_view.title.watched" = "關注";
 
 // MARK: HistoryView
-"history_view.title.history" = "歷史";
+"history_view.title.history" = "歷程";
 
 // MARK: FavoritesView
 "favorites_view.title.favorites" = "收藏";
 // FavoriteCategory
-"struct.user.favorite_category.default" = "收藏夾 %@";
+"struct.user.favorite_category.default" = "收藏匣 %@";
 "struct.user.favorite_category.all" = "全部";
 
 // MARK: SearchView
 "search_view.title.search" = "搜尋";
-"search_view.section.title.recently_searched" = "Recently searched";
-"search_view.section.title.recently_seen" = "Recently seen";
+"search_view.section.title.recently_searched" = "最近搜尋";
+"search_view.section.title.recently_seen" = "最近閱讀";
 "search_view.section.title.quick_search" = "快速搜尋";
 // Searchable
-"searchable.prompt.filter" = "篩選";
+"searchable.prompt.filter" = "過濾";
 "searchable.title.matches_count" = "找到 %d 項結果";
 
 // MARK: QuickSearchView
 "quick_search_view.title.quick_search" = "快速搜尋";
-"quick_search_view.title.edit_word" = "Edit word";
-"quick_search_view.title.new_word" = "New word";
-"quick_search_view.title.content" = "Content";
+"quick_search_view.title.edit_word" = "編輯關鍵字";
+"quick_search_view.title.new_word" = "新關鍵字";
+"quick_search_view.title.content" = "搜尋內容";
 "quick_search_view.title.name" = "名稱";
-"quick_search_view.placeholder.optional" = "Optional";
-"quick_search_view.toolbar_item.button.confirm" = "Confirm";
+"quick_search_view.placeholder.optional" = "(可選)";
+"quick_search_view.toolbar_item.button.confirm" = "確定";
 
 // MARK: SettingView
 "setting_view.title.setting" = "設定";
@@ -159,21 +159,21 @@
 "enum.setting_state_route.value.general" = "一般";
 "enum.setting_state_route.value.appearance" = "外觀";
 "enum.setting_state_route.value.reading" = "閱讀";
-"enum.setting_state_route.value.laboratory" = "實驗室";
+"enum.setting_state_route.value.laboratory" = "實驗性功能";
 "enum.setting_state_route.value.about" = "關於 EhPanda";
 
 // MARK: AccountSettingView
-"account_setting_view.title.account" = "帳號";
+"account_setting_view.title.account" = "帳號設定";
 "account_setting_view.title.shows_new_dawn_greeting" = "顯示黎明問候";
 "account_setting_view.button.login" = "登入";
 "account_setting_view.button.logout" = "登出";
 "account_setting_view.button.account_configuration" = "帳號設定";
 "account_setting_view.button.tags_management" = "管理訂閱標籤";
-"account_setting_view.button.copy_cookies" = "複製 cookies";
+"account_setting_view.button.copy_cookies" = "複製 Cookies";
 // CookieValue
 "struct.cookie_value.localized_string.expired" = "已過期";
 "struct.cookie_value.localized_string.mystery" = "被拒絕";
-"struct.cookie_value.localized_string.none" = "無內容";
+"struct.cookie_value.localized_string.none" = "None";
 
 // MARK: LoginView
 "login_view.title.login" = "登入";
@@ -181,45 +181,45 @@
 "login_view.title.password" = "Password";
 
 // MARK: GeneralSettingView
-"general_setting_view.title.general" = "一般";
+"general_setting_view.title.general" = "一般設定";
 "general_setting_view.title.language" = "語言";
 "general_setting_view.title.auto_lock" = "自動鎖定";
-"general_setting_view.title.enables_tags_extension" = "Enables tags extension";
-"general_setting_view.title.translates_tags" = "翻譯標籤";
-"general_setting_view.title.shows_tags_search_suggestion" = "Shows tags search suggestion";
-"general_setting_view.title.shows_images_in_tags" = "Shows images in tags";
-"general_setting_view.title.redirects_links_to_the_selected_host" = "重定向連結到選定的站點";
+"general_setting_view.title.enables_tags_extension" = "啟用自訂標籤擴充功能";
+"general_setting_view.title.translates_tags" = "標籤翻譯";
+"general_setting_view.title.shows_tags_search_suggestion" = "搜尋時顯示標籤建議";
+"general_setting_view.title.shows_images_in_tags" = "在標籤顯示圖片";
+"general_setting_view.title.redirects_links_to_the_selected_host" = "將連結重新導向至選擇的網站";
 "general_setting_view.title.detects_links_from_clipboard" = "偵測剪貼簿中的連結";
-"general_setting_view.title.background_blur_radius" = "Background blur radius";
+"general_setting_view.title.background_blur_radius" = "後台背景模糊";
 "general_setting_view.button.logs" = "日誌";
-"general_setting_view.button.import_custom_translations" = "Import custom translations";
-"general_setting_view.button.remove_custom_translations" = "Remove custom translations";
-"general_setting_view.button.clear_image_caches" = "清空圖片快取";
+"general_setting_view.button.import_custom_translations" = "匯入自訂標籤翻譯";
+"general_setting_view.button.remove_custom_translations" = "刪除自訂標籤翻譯";
+"general_setting_view.button.clear_image_caches" = "清理圖片快取";
 "general_setting_view.value.default_language_description" = "N/A";
-"general_setting_view.section.title.tags" = "Tags";
-"general_setting_view.section.title.navigation" = "導航";
+"general_setting_view.section.title.tags" = "標籤";
+"general_setting_view.section.title.navigation" = "導覽";
 "general_setting_view.section.title.security" = "安全";
 "general_setting_view.section.title.caches" = "快取";
 // AutoLockPolicy
-"enum.auto_lock_policy.value.never" = "不鎖定";
-"enum.auto_lock_policy.value.instantly" = "立即";
+"enum.auto_lock_policy.value.never" = "永不自動鎖定";
+"enum.auto_lock_policy.value.instantly" = "立刻";
 
 // MARK: LogsView
 "logs_view.title.logs" = "日誌";
 "logs_view.title.latest" = "最新";
 
 // MARK: AppearanceSettingView
-"appearance_setting_view.title.appearance" = "外觀";
+"appearance_setting_view.title.appearance" = "外觀設定";
 "appearance_setting_view.title.theme" = "主題";
-"appearance_setting_view.title.tint_color" = "主題色";
+"appearance_setting_view.title.tint_color" = "強調色";
 "appearance_setting_view.title.display_mode" = "顯示模式";
 "appearance_setting_view.title.shows_tags_in_list" = "在列表中顯示標籤";
-"appearance_setting_view.title.maximum_number_of_tags" = "標籤數量上限";
-"appearance_setting_view.title.displays_japanese_title" = "Displays Japanese title";
-"appearance_setting_view.button.app_icon" = "應用圖標";
+"appearance_setting_view.title.maximum_number_of_tags" = "標籤最大顯示數量";
+"appearance_setting_view.title.displays_japanese_title" = "以日文顯示標籤";
+"appearance_setting_view.button.app_icon" = "App 圖案";
 "appearance_setting_view.menu.title.infite" = "無限";
 "appearance_setting_view.section.title.list" = "列表";
-"appearance_setting_view.section.title.gallery" = "Gallery";
+"appearance_setting_view.section.title.gallery" = "畫廊";
 // PreferredColorScheme
 "enum.preferred_color_scheme.value.automatic" = "自動";
 "enum.preferred_color_scheme.value.light" = "淺色";
@@ -231,116 +231,116 @@
 "enum.app_icon_type.value.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
 "enum.app_icon_type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
-"enum.list_display_mode.value.detail" = "詳情";
-"enum.list_display_mode.value.thumbnail" = "縮略圖";
+"enum.list_display_mode.value.detail" = "詳細";
+"enum.list_display_mode.value.thumbnail" = "縮圖";
 
 // MARK: AppIconView
-"app_icon_view.title.app_icon" = "應用圖標";
+"app_icon_view.title.app_icon" = "App 圖案";
 
 // MARK: reading_settingView
-"reading_setting_view.title.reading" = "閱讀";
-"reading_setting_view.title.direction" = "方向";
-"reading_setting_view.title.preload_limit" = "預先載入數量上限";
-"reading_setting_view.title.enables_landscape" = "Enables landscape";
-"reading_setting_view.title.separator_height" = "分隔線高度";
+"reading_setting_view.title.reading" = "閱讀設定";
+"reading_setting_view.title.direction" = "翻頁方向";
+"reading_setting_view.title.preload_limit" = "預先載入頁數";
+"reading_setting_view.title.enables_landscape" = "啟用橫向顯示";
+"reading_setting_view.title.separator_height" = "頁間分隔高度";
 "reading_setting_view.title.maximum_scale_factor" = "縮放上限";
 "reading_setting_view.title.double_tap_scale_factor" = "雙擊縮放值";
 "reading_setting_view.section.title.appearance" = "外觀";
 // ReadingDirection
 "enum.reading_direction.value.vertical" = "垂直";
-"enum.reading_direction.value.right_to_left" = "右至左";
-"enum.reading_direction.value.left_to_right" = "左至右";
+"enum.reading_direction.value.right_to_left" = "由右至左滑";
+"enum.reading_direction.value.left_to_right" = "由左至右滑";
 
 // MARK: LaboratorySettingView
-"laboratory_setting_view.title.laboratory" = "實驗室";
-"laboratory_setting_view.title.bypasses_SNI_filtering" = "域前置繞過 SNI 阻斷";
+"laboratory_setting_view.title.laboratory" = "實驗性功能";
+"laboratory_setting_view.title.bypasses_SNI_filtering" = "繞過 SNI 過濾";
 
 // MARK: AboutView
 "about_view.title.ehPanda" = "EhPanda";
-"about_view.button.website" = "網站";
-"about_view.button.altStore_source" = "AltStore 源";
+"about_view.button.website" = "官方網站";
+"about_view.button.altStore_source" = "AltStore source";
 "about_view.title.version" = "版本";
-"about_view.section.title.special_thanks" = "Special thanks";
-"about_view.section.title.code_level_contributors" = "Code-level contributors";
-"about_view.section.title.translation_contributors" = "Translation contributors";
+"about_view.section.title.special_thanks" = "特別銘謝";
+"about_view.section.title.code_level_contributors" = "程式碼貢獻者";
+"about_view.section.title.translation_contributors" = "翻譯貢獻者";
 "about_view.section.title.acknowledgements" = "致謝";
 
 // MARK: DetailView
 "detail_view.button.read" = "閱讀";
-"detail_view.button.post_comment" = "發表評論";
-"detail_view.toolbar_item.button.archives" = "封存";
+"detail_view.button.post_comment" = "發表留言";
+"detail_view.toolbar_item.button.archives" = "存檔至 H@H 用戶端";
 "detail_view.toolbar_item.button.torrents" = "種子";
 "detail_view.toolbar_item.button.share" = "分享";
 "detail_view.context_menu.button.detail" = "Detail";
-"detail_view.context_menu.button.withdraw_vote" = "Withdraw vote";
+"detail_view.context_menu.button.withdraw_vote" = "收回評分";
 "detail_view.context_menu.button.vote_up" = "Vote up";
 "detail_view.context_menu.button.vote_down" = "Vote down";
 "detail_view.description_section.title.favorited" = "收藏";
 "detail_view.description_section.title.language" = "語言";
 "detail_view.description_section.title.ratings" = "%@ 個評分";
 "detail_view.description_section.title.page_count" = "頁數";
-"detail_view.description_section.title.file_size" = "文件大小";
+"detail_view.description_section.title.file_size" = "檔案大小";
 "detail_view.description_section.description.favorited" = "次";
 "detail_view.description_section.description.page_count" = "頁";
 "detail_view.action_section.button.give_a_rating" = "給予評分";
-"detail_view.action_section.button.similar_gallery" = "相似畫廊";
+"detail_view.action_section.button.similar_gallery" = "類似畫廊";
 "detail_view.section.title.previews" = "預覽";
-"detail_view.section.title.comments" = "評論";
+"detail_view.section.title.comments" = "留言";
 
 // MARK: ArchivesView
-"archives_view.title.archives" = "封存";
-"archives_view.button.download_to_hath_client" = "下載到 H@H 客戶端";
+"archives_view.title.archives" = "存檔";
+"archives_view.button.download_to_hath_client" = "下載至 H@H 用戶端";
 // HathArchive
 "struct.hath_archive.price.free" = "免費";
-"struct.hath_archive.price.not_available" = "不適用";
+"struct.hath_archive.price.not_available" = "N/A";
 // ArchiveResolution
-"enum.archive_resolution.value.original" = "原始解析度";
+"enum.archive_resolution.value.original" = "原始畫質";
 
 // MARK: TorrentsView
 "torrents_view.title.torrents" = "種子";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.title.gallery_infos" = "Gallery infos";
-"gallery_infos_view.title.id" = "ID";
+"gallery_infos_view.title.gallery_infos" = "畫廊資訊";
+"gallery_infos_view.title.id" = "畫廊 ID";
 "gallery_infos_view.title.token" = "Token";
-"gallery_infos_view.title.title" = "Title";
-"gallery_infos_view.title.japanese_title" = "Japanese title";
-"gallery_infos_view.title.gallery_URL" = "Gallery URL";
-"gallery_infos_view.title.cover_URL" = "Cover URL";
-"gallery_infos_view.title.archive_URL" = "Archive URL";
-"gallery_infos_view.title.torrent_URL" = "Torrent URL";
+"gallery_infos_view.title.title" = "標題";
+"gallery_infos_view.title.japanese_title" = "日文標題";
+"gallery_infos_view.title.gallery_URL" = "畫廊 URL";
+"gallery_infos_view.title.cover_URL" = "封面 URL";
+"gallery_infos_view.title.archive_URL" = "存檔 URL";
+"gallery_infos_view.title.torrent_URL" = "種子 URL";
 "gallery_infos_view.title.parent_URL" = "Parent URL";
-"gallery_infos_view.title.category" = "Category";
-"gallery_infos_view.title.uploader" = "Uploader";
-"gallery_infos_view.title.posted_date" = "Posted date";
-"gallery_infos_view.title.visibility" = "Visibility";
-"gallery_infos_view.title.language" = "Language";
-"gallery_infos_view.title.page_count" = "Page count";
-"gallery_infos_view.title.file_size" = "File size";
-"gallery_infos_view.title.favorited_times" = "Favorited times";
-"gallery_infos_view.title.favorited" = "Favorited";
-"gallery_infos_view.title.rating_count" = "Rating count";
-"gallery_infos_view.title.average_rating" = "Average rating";
-"gallery_infos_view.title.my_rating" = "My rating";
-"gallery_infos_view.title.torrent_count" = "Torrent count";
+"gallery_infos_view.title.category" = "類別";
+"gallery_infos_view.title.uploader" = "上傳者";
+"gallery_infos_view.title.posted_date" = "發佈日期";
+"gallery_infos_view.title.visibility" = "能見度";
+"gallery_infos_view.title.language" = "語言";
+"gallery_infos_view.title.page_count" = "頁數";
+"gallery_infos_view.title.file_size" = "檔案大小";
+"gallery_infos_view.title.favorited_times" = "被收藏次數";
+"gallery_infos_view.title.favorited" = "已收藏";
+"gallery_infos_view.title.rating_count" = "被評分次數";
+"gallery_infos_view.title.average_rating" = "平均評分";
+"gallery_infos_view.title.my_rating" = "我的評分";
+"gallery_infos_view.title.torrent_count" = "種子數量";
 "gallery_infos_view.value.none" = "None";
 "gallery_infos_view.value.yes" = "Yes";
 "gallery_infos_view.value.no" = "No";
 // GalleryVisibility
 "enum.gallery_visibility.value.yes" = "Yes";
 "enum.gallery_visibility.value.no" = "No (%@)";
-"enum.gallery_visibility.value.no.reason.expunged" = "Expunged";
+"enum.gallery_visibility.value.no.reason.expunged" = "已被刪除";
 
 // MARK: TagDetailView
-"tag_detail_view.section.title.images" = "Images";
-"tag_detail_view.section.title.links" = "Links";
+"tag_detail_view.section.title.images" = "圖片";
+"tag_detail_view.section.title.links" = "連結";
 
 // MARK: CommentsView
-"comments_view.title.comments" = "評論";
+"comments_view.title.comments" = "留言";
 
 // MARK: PostCommentView
-"post_comment_view.title.post_comment" = "發表評論";
-"post_comment_view.title.edit_comment" = "編輯評論";
+"post_comment_view.title.post_comment" = "發表留言";
+"post_comment_view.title.edit_comment" = "編輯留言";
 "post_comment_view.button.cancel" = "取消";
 "post_comment_view.button.post" = "發表";
 
@@ -348,22 +348,22 @@
 "previews_view.title.previews" = "預覽";
 
 // MARK: ReadingView
-"reading_view.context_menu.button.reload" = "Reload";
-"reading_view.context_menu.button.copy" = "Copy";
-"reading_view.context_menu.button.save" = "Save";
-"reading_view.context_menu.button.save_original" = "Save original";
-"reading_view.context_menu.button.share" = "Share";
-"reading_view.toolbar_item.title.auto_play" = "Auto-Play";
+"reading_view.context_menu.button.reload" = "重新整理";
+"reading_view.context_menu.button.copy" = "複製";
+"reading_view.context_menu.button.save" = "儲存圖片";
+"reading_view.context_menu.button.save_original" = "儲存原始圖片";
+"reading_view.context_menu.button.share" = "分享";
+"reading_view.toolbar_item.title.auto_play" = "自動播放";
 "reading_view.toolbar_item.title.dual_page_mode" = "雙頁模式";
 "reading_view.toolbar_item.title.except_the_cover" = "封面除外";
-"reading_view.toolbar_item.button.retry_all_failed_images" = "Retry failed images";
-"reading_view.toolbar_item.button.reload_all_images" = "Reload all images";
-"reading_view.toolbar_item.button.reading_setting" = "Reading setting";
+"reading_view.toolbar_item.button.retry_all_failed_images" = "重新載入失敗圖片";
+"reading_view.toolbar_item.button.reload_all_images" = "重新載入所有圖片";
+"reading_view.toolbar_item.button.reading_setting" = "閱讀設定";
 // AutoPlayPolicy
-"enum.auto_play_policy.value.off" = "Off";
+"enum.auto_play_policy.value.off" = "關閉";
 
 // MARK: FiltersView
-"filters_view.title.filters" = "篩選";
+"filters_view.title.filters" = "過濾";
 "filters_view.title.advanced_settings" = "進階選項";
 "filters_view.title.search_gallery_name" = "搜尋畫廊名稱";
 "filters_view.title.search_gallery_tags" = "搜尋畫廊標籤";
@@ -377,190 +377,190 @@
 "filters_view.title.minimum_rating" = "評分下限";
 "filters_view.title.set_pages_range" = "設定頁數範圍";
 "filters_view.title.pages_range" = "頁數範圍";
-"filters_view.title.disable_language_filter" = "禁用語言篩選";
-"filters_view.title.disable_uploader_filter" = "禁用上傳者篩選";
-"filters_view.title.disable_tags_filter" = "禁用標籤篩選";
-"filters_view.button.reset_filters" = "重置所有選項";
+"filters_view.title.disable_language_filter" = "停用語言篩選";
+"filters_view.title.disable_uploader_filter" = "停用上傳者篩選";
+"filters_view.title.disable_tags_filter" = "停用標籤篩選";
+"filters_view.button.reset_filters" = "重設所有選項";
 "filters_view.section.title.advanced" = "進階";
 "filters_view.section.title.default_filter" = "預設篩選";
 // FilterRange
 "enum.filter_range.value.search" = "搜尋";
-"enum.filter_range.value.global" = "全局";
+"enum.filter_range.value.global" = "全域";
 "enum.filter_range.value.watched" = "標籤";
 
 // MARK: EhSettingView
-"eh_setting_view.title.host_settings" = "%@ settings";
-"eh_setting_view.section.title.profile_settings" = "Profile Settings";
-"eh_setting_view.title.selected_profile" = "Selected profile";
-"eh_setting_view.button.set_as_default" = "Set as default";
-"eh_setting_view.button.delete_profile" = "Delete profile";
-"eh_setting_view.button.rename" = "Rename";
-"eh_setting_view.button.create_new" = "Create new";
-"eh_setting_view.toolbar_item.button.done" = "Done";
+"eh_setting_view.title.host_settings" = "%@ 設定";
+"eh_setting_view.section.title.profile_settings" = "設定檔設定";
+"eh_setting_view.title.selected_profile" = "選擇設定檔";
+"eh_setting_view.button.set_as_default" = "設為預設";
+"eh_setting_view.button.delete_profile" = "刪除設定檔";
+"eh_setting_view.button.rename" = "重新命名";
+"eh_setting_view.button.create_new" = "新增設定檔";
+"eh_setting_view.toolbar_item.button.done" = "完成";
 
-"eh_setting_view.section.title.image_load_settings" = "Image Load Settings";
-"eh_setting_view.title.load_images_through_the_hath_network" = "Load images through the Hath network";
-"eh_setting_view.title.browsing_country" = "Browsing country";
-"eh_setting_view.description.browsing_country" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
+"eh_setting_view.section.title.image_load_settings" = "圖片來源設定";
+"eh_setting_view.title.load_images_through_the_hath_network" = "透過 Hath Network 載入圖片";
+"eh_setting_view.title.browsing_country" = "所在國家";
+"eh_setting_view.description.browsing_country" = "你似乎是從 **%@** 瀏覽這個網站或在使用當地的 VPN，這意味着網站將嘗試從這個地理區域的 H@H 用戶端載入圖片。如果這不正確或你出於任何原因想要使用不同的區域（例如你正在透過 VPN 連線），您可以在下面選擇不同的國家/地區。";
 // EhSetting.LoadThroughHathSetting
-"enum.eh_setting.load_through_hath_setting.value.any_client" = "Any client";
-"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "Default port clients only";
-"enum.eh_setting.load_through_hath_setting.value.modern_no" = "No [Modern/HTTPS]";
-"enum.eh_setting.load_through_hath_setting.value.legacy_no" = "No [Legacy/HTTP]";
-"enum.eh_setting.load_through_hath_setting.description.any_client" = "Recommended.";
-"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.";
-"enum.eh_setting.load_through_hath_setting.description.modern_no" = "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.";
-"enum.eh_setting.load_through_hath_setting.description.legacy_no" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
+"enum.eh_setting.load_through_hath_setting.value.any_client" = "任何用戶端";
+"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "只使用預設連接埠的用戶端";
+"enum.eh_setting.load_through_hath_setting.value.modern_no" = "No [現代/Modern/HTTPS]";
+"enum.eh_setting.load_through_hath_setting.value.legacy_no" = "No [傳統/Legacy/HTTP]";
+"enum.eh_setting.load_through_hath_setting.description.any_client" = "建議選項(預設)";
+"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "如果網絡防火牆會阻擋任何非預設傳出連接埠則使用這個選項(可能較慢)";
+"enum.eh_setting.load_through_hath_setting.description.modern_no" = "E-Hentai 贊助者功能: 你將無法同時瀏覽多個頁面，僅在出現重大錯誤時才啟用這個選項";
+"enum.eh_setting.load_through_hath_setting.description.legacy_no" = "E-Hentai 贊助者功能: 在現代瀏覽器上預設設定可能無法正常工作，僅推薦用於傳統瀏覽器";
 
-"eh_setting_view.section.title.image_size_settings" = "Image Size Settings";
-"eh_setting_view.title.image_resolution" = "Image resolution";
-"eh_setting_view.description.image_resolution" = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.";
-"eh_setting_view.title.image_size" = "Image size";
-"eh_setting_view.description.image_size" = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)";
-"eh_setting_view.title.horizontal" = "Horizontal";
-"eh_setting_view.title.vertical" = "Vertical";
+"eh_setting_view.section.title.image_size_settings" = "圖片尺寸設定";
+"eh_setting_view.title.image_resolution" = "圖片解像度";
+"eh_setting_view.description.image_resolution" = "一般情況下圖片會被縮放成 1280 px 水平解像度以供線上瀏覽，你也可以選擇下列解像度之一。為了避免破壞伺服器正常運作，高於 1280x 的解像度暫時僅提供下列使用者使用: 贊助者、具有任何 Hath Perk 的使用者以及 UID 低於 3,000,000 的使用者";
+"eh_setting_view.title.image_size" = "圖片尺寸";
+"eh_setting_view.description.image_size" = "雖然網站會自動縮小圖片以適應瀏覽裝置的螢幕寬度，但您也可以手動限製圖片的最大顯示尺寸。 像自動縮放一樣，這不會重新採樣圖像，因為調整大小是在瀏覽器完成的 (0 = 沒有限制)";
+"eh_setting_view.title.horizontal" = "水平尺寸(寬)";
+"eh_setting_view.title.vertical" = "垂直尺寸(長)";
 // EhSetting.ImageResolution
-"enum.eh_setting.image_resolution.value.auto" = "Auto";
+"enum.eh_setting.image_resolution.value.auto" = "自動";
 
-"eh_setting_view.section.title.gallery_name_display" = "Gallery Name Display";
-"eh_setting_view.title.gallery_name" = "Gallery name";
-"eh_setting_view.description.gallery_name" = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?";
+"eh_setting_view.section.title.gallery_name_display" = "畫廊顯示名稱";
+"eh_setting_view.title.gallery_name" = "畫廊名稱";
+"eh_setting_view.description.gallery_name" = "許多畫廊同時提供了英文/預設標題與日文標題，你想優先顯示哪種畫廊名稱?";
 // EhSetting.GalleryName
-"enum.eh_setting.gallery_name.value.default" = "Default Title";
-"enum.eh_setting.gallery_name.value.japanese" = "Japanese Title (if available)";
+"enum.eh_setting.gallery_name.value.default" = "預設標題";
+"enum.eh_setting.gallery_name.value.japanese" = "日文標題(若該畫廊支援)";
 
-"eh_setting_view.section.title.archiver_settings" = "Archiver Settings";
-"eh_setting_view.title.archiver_behavior" = "Archiver behavior";
-"eh_setting_view.description.archiver_behavior" = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.";
+"eh_setting_view.section.title.archiver_settings" = "存檔設定";
+"eh_setting_view.title.archiver_behavior" = "存檔邏輯設定";
+"eh_setting_view.description.archiver_behavior" = "存檔的預設邏輯是確認原始圖片或重新採樣後進行存檔的成本差異與選擇，然後顯示一個可以在其他地方點擊、複製的連結，你可以在此處更改他的運作方式。";
 // EhSetting.ArchiverBehavior
-"enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "Manual Select, Manual Start (Default)";
-"enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "Manual Select, Auto Start";
-"enum.eh_setting.archiver_behavior.value.auto_select_original_manual_start" = "Auto Select Original, Manual Start";
-"enum.eh_setting.archiver_behavior.value.auto_select_original_auto_start" = "Auto Select Original, Auto Start";
-"enum.eh_setting.archiver_behavior.value.auto_select_resample_manual_start" = "Auto Select Resample, Manual Start";
-"enum.eh_setting.archiver_behavior.value.auto_select_resample_auto_start" = "Auto Select Resample, Auto Start";
+"enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "手動選擇，手動開始下載(預設)";
+"enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "手動選擇，自動開始下載";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_manual_start" = "自動選擇原始畫質,，手動開始下載";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_auto_start" = "自動選擇原始畫質並開始下載";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_manual_start" = "自動選擇重新採樣，手動開始下載";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_auto_start" = "自動選擇重新採樣並開始下載";
 
-"eh_setting_view.section.title.front_page_settings" = "Front Page Settings";
-"eh_setting_view.title.display_mode" = "Display mode";
-"eh_setting_view.description.display_mode" = "Which display mode would you like to use on the front and search pages?";
-"eh_setting_view.section.title.show_search_range_indicator" = "Search Range Indicator";
-"eh_setting_view.title.show_search_range_indicator" = "Show search range indicator";
-"eh_setting_view.description.gallery_category" = "What categories would you like to show by default on the front page and in searches?";
+"eh_setting_view.section.title.front_page_settings" = "首頁設定";
+"eh_setting_view.title.display_mode" = "顯示模式";
+"eh_setting_view.description.display_mode" = "你想在首頁和搜尋結果中使用哪一種顯示方式?";
+"eh_setting_view.section.title.show_search_range_indicator" = "搜尋範圍指示器";
+"eh_setting_view.title.show_search_range_indicator" = "顯示搜尋範圍指示器";
+"eh_setting_view.description.gallery_category" = "預設情況下你希望在首頁和搜尋結果中顯示哪些類別的結果?";
 // EhSetting.DisplayMode
-"enum.eh_setting.display_mode.value.compact" = "Compact";
-"enum.eh_setting.display_mode.value.thumbnail" = "Thumbnail";
-"enum.eh_setting.display_mode.value.extended" = "Extended";
-"enum.eh_setting.display_mode.value.minimal" = "Minimal";
+"enum.eh_setting.display_mode.value.compact" = "緊湊(Compact)";
+"enum.eh_setting.display_mode.value.thumbnail" = "縮圖(Thumbnail)";
+"enum.eh_setting.display_mode.value.extended" = "放大(Extended)";
+"enum.eh_setting.display_mode.value.minimal" = "最小(Minimal)";
 "enum.eh_setting.display_mode.value.minimalPlus" = "Minimal+";
 
-"eh_setting_view.section.title.optional_UI_elements" = "Optional UI Elements";
-"eh_setting_view.description.optional_UI_elements" = "Some historic UI elements are now disabled by default. You can enable those here.";
-"eh_setting_view.title.enable_gallery_thumbnail_selector" = "Enable thumbnail selector on gallery screen";
+"eh_setting_view.section.title.optional_UI_elements" = "可選用的 UI 元件";
+"eh_setting_view.description.optional_UI_elements" = "一些舊版 UI 元件現已預設停用。您可以在此啟用這些元件。";
+"eh_setting_view.title.enable_gallery_thumbnail_selector" = "在畫廊頁面啟用縮圖選擇器";
 
-"eh_setting_view.section.title.favorites" = "Favorites";
-"eh_setting_view.description.favorite_categories" = "Here you can choose and rename your favorite categories.";
-"eh_setting_view.title.favorites_sort_order" = "Favorites sort order";
-"eh_setting_view.description.favorites_sort_order" = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.";
+"eh_setting_view.section.title.favorites" = "收藏匣";
+"eh_setting_view.description.favorite_categories" = "在這裏你可以選擇並重新命名收藏匣";
+"eh_setting_view.title.favorites_sort_order" = "收藏匣排序";
+"eh_setting_view.description.favorites_sort_order" = "你還可以在收藏匣頁面上為畫廊選擇預設排列順序。 請注意，在 2016 年 3 月網站改版之前新增的畫廊並不儲存時間印記，並且無論使用何種設定，都將使用畫廊發佈時間作為排序參考。";
 // EhSetting.FavoritesSortOrder
-"enum.eh_setting.favorites_sort_order.value.last_update_time" = "By last gallery update time";
-"enum.eh_setting.favorites_sort_order.value.favorited_time" = "By favorited time";
+"enum.eh_setting.favorites_sort_order.value.last_update_time" = "透過最後更新時間排序";
+"enum.eh_setting.favorites_sort_order.value.favorited_time" = "透過收藏順序排序";
 
-"eh_setting_view.section.title.ratings" = "Ratings";
-"eh_setting_view.title.ratings_color" = "Ratings color";
+"eh_setting_view.section.title.ratings" = "評分";
+"eh_setting_view.title.ratings_color" = "評分顏色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
-"eh_setting_view.description.ratings_color" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
+"eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 透過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
 
-"eh_setting_view.section.title.tag_filtering_threshold" = "Tag Filtering Threshold";
-"eh_setting_view.title.tag_filtering_threshold" = "Tag Filtering Threshold";
-"eh_setting_view.description.tag_filtering_threshold" = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.";
+"eh_setting_view.section.title.tag_filtering_threshold" = "過濾標籤閾值";
+"eh_setting_view.title.tag_filtering_threshold" = "閾值";
+"eh_setting_view.description.tag_filtering_threshold" = "你可以透過將標籤新增到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間";
 
-"eh_setting_view.section.title.tag_watching_threshold" = "Tag Watching Threshold";
-"eh_setting_view.title.tag_watching_threshold" = "Tag Watching Threshold";
-"eh_setting_view.description.tag_watching_threshold" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
+"eh_setting_view.section.title.tag_watching_threshold" = "關注標籤閾值";
+"eh_setting_view.title.tag_watching_threshold" = "關注標籤生效的閾值";
+"eh_setting_view.description.tag_watching_threshold" = "如果最近上傳的畫廊中至少有一個具有正權重的你正在關注/追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在「追蹤標籤」頁面中，此閾值可以設定在 0 ~ -9999 之間";
 
-"eh_setting_view.section.title.filtered_removal_count" = "Show Filtered Removal Count";
-"eh_setting_view.description.filtered_removal_count" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh_setting_view.title.show_filtered_removal_count" = "Show filtered removal count";
+"eh_setting_view.section.title.filtered_removal_count" = "顯示過濾結果計數器";
+"eh_setting_view.description.filtered_removal_count" = "顯示 \"Your default filters removed XX galleries from this page\" ?";
+"eh_setting_view.title.show_filtered_removal_count" = "是否顯示過濾結果計數器";
 
-"eh_setting_view.section.title.excluded_languages" = "Excluded Languages";
-"eh_setting_view.description.excluded_languages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+"eh_setting_view.section.title.excluded_languages" = "排除語言";
+"eh_setting_view.description.excluded_languages" = "如果你希望從畫廊列表和搜尋中隱藏掉某些語言的畫廊，請從下面的清單中選取它們。請注意，無論你的搜尋查詢如何，相符於篩除規則的畫廊都不會出現。";
 // EhSetting.ExcludedLanguagesCategory
-"enum.eh_setting.excluded_languages_category.value.original" = "Original";
-"enum.eh_setting.excluded_languages_category.value.translated" = "Translated";
-"enum.eh_setting.excluded_languages_category.value.rewrite" = "Rewrite";
+"enum.eh_setting.excluded_languages_category.value.original" = "原始語言";
+"enum.eh_setting.excluded_languages_category.value.translated" = "翻譯語言";
+"enum.eh_setting.excluded_languages_category.value.rewrite" = "覆寫";
 
-"eh_setting_view.section.title.excluded_uploaders" = "Excluded Uploaders";
-"eh_setting_view.description.excluded_uploaders" = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.";
-"eh_setting_view.description.excluded_uploaders_count" = "You are currently using **%@ / %@** exclusion slots.";
+"eh_setting_view.section.title.excluded_uploaders" = "排除的上傳者";
+"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜尋結果中隱藏某些上傳者的畫廊，請將它們新增到下方，每行輸入一個使用者名稱。請注意，無論你的搜尋結果如何，這些上傳者的畫廊都不會出現。";
+"eh_setting_view.description.excluded_uploaders_count" = "你正在使用 **%@ / %@** 排除欄位";
 
-"eh_setting_view.section.title.search_result_count" = "Search Result Count";
-"eh_setting_view.title.result_count" = "Result count";
-"eh_setting_view.description.result_count" = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)";
+"eh_setting_view.section.title.search_result_count" = "搜尋結果數量上限";
+"eh_setting_view.title.result_count" = "數量上限";
+"eh_setting_view.description.result_count" = "你希望每頁顯示幾個搜尋結果?\n(該功能需要有 Hath Perk: Paging Enlargement)";
 
-"eh_setting_view.section.title.thumbnail_settings" = "Thumbnail Settings";
-"eh_setting_view.title.thumbnail_load_timing" = "Thumbnail load timing";
-"eh_setting_view.description.thumbnail_load_timing" = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?";
-"eh_setting_view.description.thumbnail_configuration" = "You can set a default thumbnail configuration for all galleries you visit.";
-"eh_setting_view.title.thumbnail_size" = "Size";
-"eh_setting_view.title.thumbnail_row_count" = "Rows";
+"eh_setting_view.section.title.thumbnail_settings" = "縮圖設定";
+"eh_setting_view.title.thumbnail_load_timing" = "縮圖載入時機設定";
+"eh_setting_view.description.thumbnail_load_timing" = "使用列表模式時，你希望如何載入以滑鼠位置顯示的縮圖?";
+"eh_setting_view.description.thumbnail_configuration" = "你可以為存取的所有畫廊設定預設的縮圖配置。";
+"eh_setting_view.title.thumbnail_size" = "尺寸";
+"eh_setting_view.title.thumbnail_row_count" = "行數";
 // EhSetting.ThumbnailLoadTiming
-"enum.eh_setting.thumbnail_load_timing.value.on_mouse_over" = "On mouse-over";
-"enum.eh_setting.thumbnail_load_timing.value.on_page_load" = "On page load";
-"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "Pages load faster, but there may be a slight delay before a thumb appears.";
-"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded.";
+"enum.eh_setting.thumbnail_load_timing.value.on_mouse_over" = "滑鼠位置";
+"enum.eh_setting.thumbnail_load_timing.value.on_page_load" = "網頁載入位置";
+"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "網頁的載入速度更快，但縮圖出現的時間可能稍有延遲";
+"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "網頁需要更多的載入時間，但是在網頁完全載入後縮圖顯示不會有任何延遲";
 // EhSetting.ThumbnailSize
-"enum.eh_setting.thumbnail_size.value.normal" = "Normal";
-"enum.eh_setting.thumbnail_size.value.large" = "Large";
-"enum.eh_setting.thumbnail_size.value.small" = "Small";
-"enum.eh_setting.thumbnail_size.value.auto" = "Auto";
+"enum.eh_setting.thumbnail_size.value.normal" = "正常";
+"enum.eh_setting.thumbnail_size.value.large" = "大型";
+"enum.eh_setting.thumbnail_size.value.small" = "小型";
+"enum.eh_setting.thumbnail_size.value.auto" = "自動";
 
-"eh_setting_view.section.title.cover_scaling" = "Cover Scaling";
-"eh_setting_view.title.scale_factor" = "Scale factor";
-"eh_setting_view.description.cover_scale_factor" = "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.";
+"eh_setting_view.section.title.cover_scaling" = "封面縮放";
+"eh_setting_view.title.scale_factor" = "縮放比例";
+"eh_setting_view.description.cover_scale_factor" = "在縮圖與放大檢視這兩種檢視模式下，封面的重新採樣比率介於 75%% 至 150%%.";
 
-"eh_setting_view.section.title.viewport_override" = "Viewport Override";
-"eh_setting_view.title.virtual_width" = "Virtual width";
-"eh_setting_view.description.virtual_width" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.";
+"eh_setting_view.section.title.viewport_override" = "視窗覆蓋";
+"eh_setting_view.title.virtual_width" = "虛擬寬度";
+"eh_setting_view.description.virtual_width" = "允許你覆蓋流動裝置網站的虛擬寬度。 這通常由你的裝置根據其 DPI 自動確定。 100%% 縮圖比例的合理值介於 640 和 1400 之間。";
 
-"eh_setting_view.section.title.gallery_comments" = "Gallery Comments";
-"eh_setting_view.title.comments_sort_order" = "Comments sort order";
-"eh_setting_view.title.comments_votes_show_timing" = "Comment votes show timing";
+"eh_setting_view.section.title.gallery_comments" = "畫廊留言";
+"eh_setting_view.title.comments_sort_order" = "留言排序方式";
+"eh_setting_view.title.comments_votes_show_timing" = "留言投票數顯示時機";
 // EhSetting.CommentsSortOrder
-"enum.eh_setting.comments_sort_order.value.oldest" = "Oldest comments first";
-"enum.eh_setting.comments_sort_order.value.recent" = "Recent comments first";
-"enum.eh_setting.comments_sort_order.value.highest_score" = "By highest score";
+"enum.eh_setting.comments_sort_order.value.oldest" = "最舊留言優先";
+"enum.eh_setting.comments_sort_order.value.recent" = "最新留言優先";
+"enum.eh_setting.comments_sort_order.value.highest_score" = "最相關留言優先";
 // EhSetting.CommentVotesShowTiming
-"enum.eh_setting.comments_votes_show_timing.value.on_hover_or_click" = "On score hover or click";
-"enum.eh_setting.comments_votes_show_timing.value.always" = "Always";
+"enum.eh_setting.comments_votes_show_timing.value.on_hover_or_click" = "滑鼠在分數上停留或點擊時";
+"enum.eh_setting.comments_votes_show_timing.value.always" = "總是顯示";
 
-"eh_setting_view.section.title.gallery_tags" = "Gallery Tags";
-"eh_setting_view.title.tags_sort_order" = "Tags sort order";
+"eh_setting_view.section.title.gallery_tags" = "畫廊標籤";
+"eh_setting_view.title.tags_sort_order" = "標籤顯示順序";
 // EhSetting.tags_sort_order
-"enum.eh_setting.tags_sort_order.value.alphabetical" = "Alphabetical";
-"enum.eh_setting.tags_sort_order.value.tag_power" = "By tag power";
+"enum.eh_setting.tags_sort_order.value.alphabetical" = "字母順序";
+"enum.eh_setting.tags_sort_order.value.tag_power" = "標籤權重";
 
-"eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "Gallery Page Thumbnail Labeling";
-"eh_setting_view.title.show_label_below_gallery_thumbnails" = "Show label below gallery thumbnails";
+"eh_setting_view.section.title.gallery_page_thumbnail_labeling" = "畫廊頁面縮圖標籤";
+"eh_setting_view.title.show_label_below_gallery_thumbnails" = "在畫廊縮圖下方顯示標籤";
 
-"eh_setting_view.section.title.hath_local_network_host" = "Hath Local Network Host";
-"eh_setting_view.title.ip_address_port" = "IP address:Port";
-"eh_setting_view.description.ip_address_port" = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.";
+"eh_setting_view.section.title.hath_local_network_host" = "內網 H@H 服務 (Hath Local Network Host)";
+"eh_setting_view.title.ip_address_port" = "IP 位址:連接埠號";
+"eh_setting_view.description.ip_address_port" = "如果你在內網絡上使用與瀏覽站點相同的公共 IP 架設 H@H 用戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一裝置上執行用戶端，請使用回環地址 (127.0.0.1:port)。 如果用戶端在您網絡上的另一台裝置上執行，請使用其本機網絡 IP。 某些瀏覽器配置會阻止外部網站存取具有本機網絡 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
 
-"eh_setting_view.section.title.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
-"eh_setting_view.title.use_original_images" = "Use original images";
+"eh_setting_view.section.title.original_images" = "要使用原始圖片而非重新取樣的版本嗎? 若您在上方選擇「自動」以外的水準解像度且圖片較寬，或原始圖片大於 10 MiB（一年以上的圖庫則為 4 MiB），系統仍會使用重新取樣的圖片。";
+"eh_setting_view.title.use_original_images" = "使用原始圖片(原解像度)";
 
-"eh_setting_view.section.title.multi_page_viewer" = "Multi-Page Viewer";
-"eh_setting_view.title.use_multi_page_viewer" = "Use Multi-Page Viewer";
-"eh_setting_view.title.display_style" = "Display style";
-"eh_setting_view.title.show_thumbnail_pane" = "Show thumbnail pane";
+"eh_setting_view.section.title.multi_page_viewer" = "多頁瀏覽";
+"eh_setting_view.title.use_multi_page_viewer" = "使用多頁瀏覽";
+"eh_setting_view.title.display_style" = "顯示方式";
+"eh_setting_view.title.show_thumbnail_pane" = "顯示縮圖窗格";
 // EhSetting.MultiplePageViewerStyle
-"enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "Align left, scale if overwidth";
-"enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "Align center, scale if overwidth";
-"enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "Align center, always scale";
+"enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "向左對齊，若寬度超出頁面則進行縮放";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "置中對齊，若寬度超出頁面則進行縮放";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "置中對齊且總是縮放";
 // EhSetting.GalleryPageNumbering
-"enum.eh_setting.gallery_page_numbering.value.none" = "None";
-"enum.eh_setting.gallery_page_numbering.value.page_number_only" = "Page Number Only";
-"enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "Page Number + Name";
+"enum.eh_setting.gallery_page_numbering.value.none" = "不顯示";
+"enum.eh_setting.gallery_page_numbering.value.page_number_only" = "只顯示頁碼";
+"enum.eh_setting.gallery_page_numbering.value.page_number_and_name" = "顯示頁碼和名稱";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "同人誌";
@@ -572,8 +572,8 @@
 "enum.category.value.image_set" = "圖片集";
 "enum.category.value.cosplay" = "角色扮演";
 "enum.category.value.asian_porn" = "亞洲";
-"enum.category.value.misc" = "其它";
-"enum.category.value.private" = "Private";
+"enum.category.value.misc" = "其他";
+"enum.category.value.private" = "私人";
 
 // MARK: TagNamespace
 "enum.tag_namespace.value.reclass" = "重新分類";
@@ -586,20 +586,20 @@
 "enum.tag_namespace.value.female" = "女性";
 "enum.tag_namespace.value.mixed" = "Mixed";
 "enum.tag_namespace.value.cosplayer" = "Cosplayer";
-"enum.tag_namespace.value.other" = "Other";
+"enum.tag_namespace.value.other" = "其他";
 "enum.tag_namespace.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "無效";
-"enum.language.value.other" = "其它";
+"enum.language.value.other" = "其他";
 "enum.language.value.afrikaans" = "南非語";
 "enum.language.value.albanian" = "阿爾巴尼亞語";
 "enum.language.value.arabic" = "阿拉伯語";
 "enum.language.value.bengali" = "孟加拉語";
-"enum.language.value.bosnian" = "波士尼亞語";
+"enum.language.value.bosnian" = "波斯尼亞語";
 "enum.language.value.bulgarian" = "保加利亞語";
 "enum.language.value.burmese" = "緬甸語";
-"enum.language.value.catalan" = "加泰羅尼亞語";
+"enum.language.value.catalan" = "加泰隆尼亞語";
 "enum.language.value.cebuano" = "宿霧語";
 "enum.language.value.chinese" = "漢語";
 "enum.language.value.croatian" = "克羅地亞語";
@@ -615,7 +615,7 @@
 "enum.language.value.german" = "德語";
 "enum.language.value.greek" = "希臘語";
 "enum.language.value.hebrew" = "希伯來語";
-"enum.language.value.hindi" = "印地語";
+"enum.language.value.hindi" = "印度語";
 "enum.language.value.hmong" = "苗語";
 "enum.language.value.hungarian" = "匈牙利語";
 "enum.language.value.indonesian" = "印尼語";
@@ -644,11 +644,11 @@
 "enum.language.value.shona" = "紹納語";
 "enum.language.value.slovak" = "斯洛伐克語";
 "enum.language.value.slovenian" = "斯洛文尼亞語";
-"enum.language.value.somali" = "索馬里語";
+"enum.language.value.somali" = "索馬利語";
 "enum.language.value.spanish" = "西班牙語";
 "enum.language.value.swahili" = "斯瓦希里語";
 "enum.language.value.swedish" = "瑞典語";
-"enum.language.value.tagalog" = "他加洛語";
+"enum.language.value.tagalog" = "他加祿語";
 "enum.language.value.thai" = "泰語";
 "enum.language.value.tigrinya" = "提格利尼亞語";
 "enum.language.value.turkish" = "土耳其語";
@@ -658,255 +658,255 @@
 "enum.language.value.zulu" = "祖魯語";
 
 // MARK: BrowsingCountry
-"enum.browsing_country.name.auto_detect" = "Auto-Detect";
-"enum.browsing_country.name.afghanistan" = "Afghanistan";
-"enum.browsing_country.name.aland_islands" = "Aland Islands";
-"enum.browsing_country.name.albania" = "Albania";
-"enum.browsing_country.name.algeria" = "Algeria";
-"enum.browsing_country.name.american_samoa" = "American Samoa";
-"enum.browsing_country.name.andorra" = "Andorra";
-"enum.browsing_country.name.angola" = "Angola";
-"enum.browsing_country.name.anguilla" = "Anguilla";
-"enum.browsing_country.name.antarctica" = "Antarctica";
-"enum.browsing_country.name.antigua_and_barbuda" = "Antigua and Barbuda";
-"enum.browsing_country.name.argentina" = "Argentina";
-"enum.browsing_country.name.armenia" = "Armenia";
-"enum.browsing_country.name.aruba" = "Aruba";
-"enum.browsing_country.name.asia_pacific_region" = "Asia-Pacific Region";
-"enum.browsing_country.name.australia" = "Australia";
-"enum.browsing_country.name.austria" = "Austria";
-"enum.browsing_country.name.azerbaijan" = "Azerbaijan";
-"enum.browsing_country.name.bahamas" = "Bahamas";
-"enum.browsing_country.name.bahrain" = "Bahrain";
-"enum.browsing_country.name.bangladesh" = "Bangladesh";
-"enum.browsing_country.name.barbados" = "Barbados";
-"enum.browsing_country.name.belarus" = "Belarus";
-"enum.browsing_country.name.belgium" = "Belgium";
-"enum.browsing_country.name.belize" = "Belize";
-"enum.browsing_country.name.benin" = "Benin";
-"enum.browsing_country.name.bermuda" = "Bermuda";
-"enum.browsing_country.name.bhutan" = "Bhutan";
-"enum.browsing_country.name.bolivia" = "Bolivia";
-"enum.browsing_country.name.bonaire_saint_eustatius_and_saba" = "Bonaire Saint Eustatius and Saba";
-"enum.browsing_country.name.bosnia_and_herzegovina" = "Bosnia and Herzegovina";
-"enum.browsing_country.name.botswana" = "Botswana";
-"enum.browsing_country.name.bouvet_island" = "Bouvet Island";
-"enum.browsing_country.name.brazil" = "Brazil";
-"enum.browsing_country.name.british_indian_ocean_territory" = "British Indian Ocean Territory";
-"enum.browsing_country.name.brunei_darussalam" = "Brunei Darussalam";
-"enum.browsing_country.name.bulgaria" = "Bulgaria";
-"enum.browsing_country.name.burkina_faso" = "Burkina Faso";
-"enum.browsing_country.name.burundi" = "Burundi";
-"enum.browsing_country.name.cambodia" = "Cambodia";
-"enum.browsing_country.name.cameroon" = "Cameroon";
-"enum.browsing_country.name.canada" = "Canada";
-"enum.browsing_country.name.cape_verde" = "Cape Verde";
-"enum.browsing_country.name.cayman_islands" = "Cayman Islands";
-"enum.browsing_country.name.central_african_republic" = "Central African Republic";
-"enum.browsing_country.name.chad" = "Chad";
-"enum.browsing_country.name.chile" = "Chile";
-"enum.browsing_country.name.china" = "China";
-"enum.browsing_country.name.christmas_island" = "Christmas Island";
-"enum.browsing_country.name.cocos_islands" = "Cocos Islands";
-"enum.browsing_country.name.colombia" = "Colombia";
-"enum.browsing_country.name.comoros" = "Comoros";
-"enum.browsing_country.name.congo" = "Congo";
-"enum.browsing_country.name.the_democratic_republic_of_the_congo" = "The Democratic Republic of the Congo";
-"enum.browsing_country.name.cook_islands" = "Cook Islands";
-"enum.browsing_country.name.costa_rica" = "Costa Rica";
-"enum.browsing_country.name.cote_d_ivoire" = "Cote D'Ivoire";
-"enum.browsing_country.name.croatia" = "Croatia";
-"enum.browsing_country.name.cuba" = "Cuba";
-"enum.browsing_country.name.curacao" = "Curacao";
-"enum.browsing_country.name.cyprus" = "Cyprus";
-"enum.browsing_country.name.czech_republic" = "Czech Republic";
-"enum.browsing_country.name.denmark" = "Denmark";
-"enum.browsing_country.name.djibouti" = "Djibouti";
-"enum.browsing_country.name.dominica" = "Dominica";
-"enum.browsing_country.name.dominican_republic" = "Dominican Republic";
-"enum.browsing_country.name.ecuador" = "Ecuador";
-"enum.browsing_country.name.egypt" = "Egypt";
-"enum.browsing_country.name.el_salvador" = "El Salvador";
-"enum.browsing_country.name.equatorial_guinea" = "Equatorial Guinea";
-"enum.browsing_country.name.eritrea" = "Eritrea";
-"enum.browsing_country.name.estonia" = "Estonia";
-"enum.browsing_country.name.ethiopia" = "Ethiopia";
-"enum.browsing_country.name.europe" = "Europe";
-"enum.browsing_country.name.falkland_islands" = "Falkland Islands";
-"enum.browsing_country.name.faroe_islands" = "Faroe Islands";
-"enum.browsing_country.name.fiji" = "Fiji";
-"enum.browsing_country.name.finland" = "Finland";
-"enum.browsing_country.name.france" = "France";
-"enum.browsing_country.name.french_guiana" = "French Guiana";
-"enum.browsing_country.name.french_polynesia" = "French Polynesia";
-"enum.browsing_country.name.french_southern_territories" = "French Southern Territories";
-"enum.browsing_country.name.gabon" = "Gabon";
-"enum.browsing_country.name.gambia" = "Gambia";
-"enum.browsing_country.name.georgia" = "Georgia";
-"enum.browsing_country.name.germany" = "Germany";
-"enum.browsing_country.name.ghana" = "Ghana";
-"enum.browsing_country.name.gibraltar" = "Gibraltar";
-"enum.browsing_country.name.greece" = "Greece";
-"enum.browsing_country.name.greenland" = "Greenland";
-"enum.browsing_country.name.grenada" = "Grenada";
-"enum.browsing_country.name.guadeloupe" = "Guadeloupe";
-"enum.browsing_country.name.guam" = "Guam";
-"enum.browsing_country.name.guatemala" = "Guatemala";
-"enum.browsing_country.name.guernsey" = "Guernsey";
-"enum.browsing_country.name.guinea" = "Guinea";
-"enum.browsing_country.name.guinea_bissau" = "Guinea-Bissau";
-"enum.browsing_country.name.guyana" = "Guyana";
-"enum.browsing_country.name.haiti" = "Haiti";
-"enum.browsing_country.name.heard_island_and_mc_donald_islands" = "Heard Island and McDonald Islands";
-"enum.browsing_country.name.vatican_city_state" = "Vatican City State";
-"enum.browsing_country.name.honduras" = "Honduras";
-"enum.browsing_country.name.hong_kong" = "Hong Kong";
-"enum.browsing_country.name.hungary" = "Hungary";
-"enum.browsing_country.name.iceland" = "Iceland";
-"enum.browsing_country.name.india" = "India";
-"enum.browsing_country.name.indonesia" = "Indonesia";
-"enum.browsing_country.name.iran" = "Iran";
-"enum.browsing_country.name.iraq" = "Iraq";
-"enum.browsing_country.name.ireland" = "Ireland";
-"enum.browsing_country.name.isle_of_man" = "Isle of Man";
-"enum.browsing_country.name.israel" = "Israel";
-"enum.browsing_country.name.italy" = "Italy";
-"enum.browsing_country.name.jamaica" = "Jamaica";
-"enum.browsing_country.name.japan" = "Japan";
-"enum.browsing_country.name.jersey" = "Jersey";
-"enum.browsing_country.name.jordan" = "Jordan";
-"enum.browsing_country.name.kazakhstan" = "Kazakhstan";
-"enum.browsing_country.name.kenya" = "Kenya";
-"enum.browsing_country.name.kiribati" = "Kiribati";
-"enum.browsing_country.name.kuwait" = "Kuwait";
-"enum.browsing_country.name.kyrgyzstan" = "Kyrgyzstan";
-"enum.browsing_country.name.lao_peoples_democratic_republic" = "Lao People's Democratic Republic";
-"enum.browsing_country.name.latvia" = "Latvia";
-"enum.browsing_country.name.lebanon" = "Lebanon";
-"enum.browsing_country.name.lesotho" = "Lesotho";
-"enum.browsing_country.name.liberia" = "Liberia";
-"enum.browsing_country.name.libya" = "Libya";
-"enum.browsing_country.name.liechtenstein" = "Liechtenstein";
-"enum.browsing_country.name.lithuania" = "Lithuania";
-"enum.browsing_country.name.luxembourg" = "Luxembourg";
-"enum.browsing_country.name.macau" = "Macau";
-"enum.browsing_country.name.macedonia" = "Macedonia";
-"enum.browsing_country.name.madagascar" = "Madagascar";
-"enum.browsing_country.name.malawi" = "Malawi";
-"enum.browsing_country.name.malaysia" = "Malaysia";
-"enum.browsing_country.name.maldives" = "Maldives";
-"enum.browsing_country.name.mali" = "Mali";
-"enum.browsing_country.name.malta" = "Malta";
-"enum.browsing_country.name.marshall_islands" = "Marshall Islands";
-"enum.browsing_country.name.martinique" = "Martinique";
-"enum.browsing_country.name.mauritania" = "Mauritania";
-"enum.browsing_country.name.mauritius" = "Mauritius";
-"enum.browsing_country.name.mayotte" = "Mayotte";
-"enum.browsing_country.name.mexico" = "Mexico";
-"enum.browsing_country.name.micronesia" = "Micronesia";
-"enum.browsing_country.name.moldova" = "Moldova";
-"enum.browsing_country.name.monaco" = "Monaco";
-"enum.browsing_country.name.mongolia" = "Mongolia";
-"enum.browsing_country.name.montenegro" = "Montenegro";
-"enum.browsing_country.name.montserrat" = "Montserrat";
-"enum.browsing_country.name.morocco" = "Morocco";
-"enum.browsing_country.name.mozambique" = "Mozambique";
-"enum.browsing_country.name.myanmar" = "Myanmar";
-"enum.browsing_country.name.namibia" = "Namibia";
-"enum.browsing_country.name.nauru" = "Nauru";
-"enum.browsing_country.name.nepal" = "Nepal";
-"enum.browsing_country.name.netherlands" = "Netherlands";
-"enum.browsing_country.name.new_caledonia" = "New Caledonia";
-"enum.browsing_country.name.new_zealand" = "New Zealand";
-"enum.browsing_country.name.nicaragua" = "Nicaragua";
-"enum.browsing_country.name.niger" = "Niger";
-"enum.browsing_country.name.nigeria" = "Nigeria";
-"enum.browsing_country.name.niue" = "Niue";
-"enum.browsing_country.name.norfolk_island" = "Norfolk Island";
-"enum.browsing_country.name.north_korea" = "North Korea";
-"enum.browsing_country.name.northern_mariana_islands" = "Northern Mariana Islands";
-"enum.browsing_country.name.norway" = "Norway";
-"enum.browsing_country.name.oman" = "Oman";
-"enum.browsing_country.name.pakistan" = "Pakistan";
-"enum.browsing_country.name.palau" = "Palau";
-"enum.browsing_country.name.palestinian_territory" = "Palestinian Territory";
-"enum.browsing_country.name.panama" = "Panama";
-"enum.browsing_country.name.papua_new_guinea" = "Papua New Guinea";
-"enum.browsing_country.name.paraguay" = "Paraguay";
-"enum.browsing_country.name.peru" = "Peru";
-"enum.browsing_country.name.philippines" = "Philippines";
-"enum.browsing_country.name.pitcairn_islands" = "Pitcairn Islands";
-"enum.browsing_country.name.poland" = "Poland";
-"enum.browsing_country.name.portugal" = "Portugal";
-"enum.browsing_country.name.puerto_rico" = "Puerto Rico";
-"enum.browsing_country.name.qatar" = "Qatar";
-"enum.browsing_country.name.reunion" = "Reunion";
-"enum.browsing_country.name.romania" = "Romania";
-"enum.browsing_country.name.russian_federation" = "Russian Federation";
-"enum.browsing_country.name.rwanda" = "Rwanda";
-"enum.browsing_country.name.saint_barthelemy" = "Saint Barthelemy";
-"enum.browsing_country.name.saint_helena" = "Saint Helena";
-"enum.browsing_country.name.saint_kitts_and_nevis" = "Saint Kitts and Nevis";
-"enum.browsing_country.name.saint_lucia" = "Saint Lucia";
-"enum.browsing_country.name.saint_martin" = "Saint Martin";
-"enum.browsing_country.name.saint_pierre_and_miquelon" = "Saint Pierre and Miquelon";
-"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "Saint Vincent and the Grenadines";
-"enum.browsing_country.name.samoa" = "Samoa";
-"enum.browsing_country.name.san_marino" = "San Marino";
-"enum.browsing_country.name.sao_tome_and_principe" = "Sao Tome and Principe";
-"enum.browsing_country.name.saudi_arabia" = "Saudi Arabia";
-"enum.browsing_country.name.senegal" = "Senegal";
-"enum.browsing_country.name.serbia" = "Serbia";
-"enum.browsing_country.name.seychelles" = "Seychelles";
-"enum.browsing_country.name.sierra_leone" = "Sierra Leone";
-"enum.browsing_country.name.singapore" = "Singapore";
-"enum.browsing_country.name.sint_maarten" = "Sint Maarten";
-"enum.browsing_country.name.slovakia" = "Slovakia";
-"enum.browsing_country.name.slovenia" = "Slovenia";
-"enum.browsing_country.name.solomon_islands" = "Solomon Islands";
-"enum.browsing_country.name.somalia" = "Somalia";
-"enum.browsing_country.name.south_africa" = "South Africa";
-"enum.browsing_country.name.south_georgia_and_the_south_sandwich_islands" = "South Georgia and the South Sandwich Islands";
-"enum.browsing_country.name.south_korea" = "South Korea";
-"enum.browsing_country.name.south_sudan" = "South Sudan";
-"enum.browsing_country.name.spain" = "Spain";
-"enum.browsing_country.name.sri_lanka" = "Sri Lanka";
-"enum.browsing_country.name.sudan" = "Sudan";
-"enum.browsing_country.name.suriname" = "Suriname";
-"enum.browsing_country.name.svalbard_and_jan_mayen" = "Svalbard and Jan Mayen";
-"enum.browsing_country.name.swaziland" = "Swaziland";
-"enum.browsing_country.name.sweden" = "Sweden";
-"enum.browsing_country.name.switzerland" = "Switzerland";
-"enum.browsing_country.name.syrian_arab_republic" = "Syrian Arab Republic";
-"enum.browsing_country.name.taiwan" = "Taiwan";
-"enum.browsing_country.name.tajikistan" = "Tajikistan";
-"enum.browsing_country.name.tanzania" = "Tanzania";
-"enum.browsing_country.name.thailand" = "Thailand";
-"enum.browsing_country.name.timor_leste" = "Timor-Leste";
-"enum.browsing_country.name.togo" = "Togo";
-"enum.browsing_country.name.tokelau" = "Tokelau";
-"enum.browsing_country.name.tonga" = "Tonga";
-"enum.browsing_country.name.trinidad_and_tobago" = "Trinidad and Tobago";
-"enum.browsing_country.name.tunisia" = "Tunisia";
-"enum.browsing_country.name.turkey" = "Turkey";
-"enum.browsing_country.name.turkmenistan" = "Turkmenistan";
-"enum.browsing_country.name.turks_and_caicos_islands" = "Turks and Caicos Islands";
-"enum.browsing_country.name.tuvalu" = "Tuvalu";
-"enum.browsing_country.name.uganda" = "Uganda";
-"enum.browsing_country.name.ukraine" = "Ukraine";
-"enum.browsing_country.name.united_arab_emirates" = "United Arab Emirates";
-"enum.browsing_country.name.united_kingdom" = "United Kingdom";
-"enum.browsing_country.name.united_states" = "United States";
-"enum.browsing_country.name.united_states_minor_outlying_islands" = "United States Minor Outlying Islands";
-"enum.browsing_country.name.uruguay" = "Uruguay";
-"enum.browsing_country.name.uzbekistan" = "Uzbekistan";
-"enum.browsing_country.name.vanuatu" = "Vanuatu";
-"enum.browsing_country.name.venezuela" = "Venezuela";
-"enum.browsing_country.name.vietnam" = "Vietnam";
-"enum.browsing_country.name.virgin_islands_british" = "British Virgin Islands";
-"enum.browsing_country.name.virgin_islands_US" = "U.S. Virgin Islands";
-"enum.browsing_country.name.wallis_and_futuna" = "Wallis and Futuna";
-"enum.browsing_country.name.western_sahara" = "Western Sahara";
-"enum.browsing_country.name.yemen" = "Yemen";
-"enum.browsing_country.name.zambia" = "Zambia";
-"enum.browsing_country.name.zimbabwe" = "Zimbabwe";
+"enum.browsing_country.name.auto_detect" = "自動偵測";
+"enum.browsing_country.name.afghanistan" = "阿富汗";
+"enum.browsing_country.name.aland_islands" = "奧蘭群島";
+"enum.browsing_country.name.albania" = "阿爾巴尼亞";
+"enum.browsing_country.name.algeria" = "阿爾及利亞";
+"enum.browsing_country.name.american_samoa" = "美屬薩摩亞";
+"enum.browsing_country.name.andorra" = "安道爾";
+"enum.browsing_country.name.angola" = "安哥拉";
+"enum.browsing_country.name.anguilla" = "安圭拉";
+"enum.browsing_country.name.antarctica" = "南極洲";
+"enum.browsing_country.name.antigua_and_barbuda" = "安提瓜和巴布達";
+"enum.browsing_country.name.argentina" = "阿根廷";
+"enum.browsing_country.name.armenia" = "亞美尼亞";
+"enum.browsing_country.name.aruba" = "阿魯巴";
+"enum.browsing_country.name.asia_pacific_region" = "亞太地區";
+"enum.browsing_country.name.australia" = "澳洲";
+"enum.browsing_country.name.austria" = "奧地利";
+"enum.browsing_country.name.azerbaijan" = "阿塞拜疆";
+"enum.browsing_country.name.bahamas" = "巴哈馬";
+"enum.browsing_country.name.bahrain" = "巴林";
+"enum.browsing_country.name.bangladesh" = "孟加拉";
+"enum.browsing_country.name.barbados" = "巴巴多斯";
+"enum.browsing_country.name.belarus" = "白俄羅斯";
+"enum.browsing_country.name.belgium" = "比利時";
+"enum.browsing_country.name.belize" = "伯利茲";
+"enum.browsing_country.name.benin" = "貝南";
+"enum.browsing_country.name.bermuda" = "百慕達";
+"enum.browsing_country.name.bhutan" = "不丹";
+"enum.browsing_country.name.bolivia" = "玻利維亞";
+"enum.browsing_country.name.bonaire_saint_eustatius_and_saba" = "博奈爾、聖尤斯特歇斯和薩巴";
+"enum.browsing_country.name.bosnia_and_herzegovina" = "波斯尼亞";
+"enum.browsing_country.name.botswana" = "博茨瓦納";
+"enum.browsing_country.name.bouvet_island" = "布威島";
+"enum.browsing_country.name.brazil" = "巴西";
+"enum.browsing_country.name.british_indian_ocean_territory" = "英屬印度洋領地";
+"enum.browsing_country.name.brunei_darussalam" = "汶萊";
+"enum.browsing_country.name.bulgaria" = "保加利亞";
+"enum.browsing_country.name.burkina_faso" = "布基納法索";
+"enum.browsing_country.name.burundi" = "布隆迪";
+"enum.browsing_country.name.cambodia" = "柬埔寨";
+"enum.browsing_country.name.cameroon" = "喀麥隆";
+"enum.browsing_country.name.canada" = "加拿大";
+"enum.browsing_country.name.cape_verde" = "佛得角";
+"enum.browsing_country.name.cayman_islands" = "開曼群島";
+"enum.browsing_country.name.central_african_republic" = "中非";
+"enum.browsing_country.name.chad" = "乍德";
+"enum.browsing_country.name.chile" = "智利";
+"enum.browsing_country.name.china" = "中國";
+"enum.browsing_country.name.christmas_island" = "聖誕島";
+"enum.browsing_country.name.cocos_islands" = "科科斯(基林)群島";
+"enum.browsing_country.name.colombia" = "哥倫比亞";
+"enum.browsing_country.name.comoros" = "科摩羅";
+"enum.browsing_country.name.congo" = "剛果共和國";
+"enum.browsing_country.name.the_democratic_republic_of_the_congo" = "剛果民主共和國";
+"enum.browsing_country.name.cook_islands" = "庫克群島";
+"enum.browsing_country.name.costa_rica" = "哥斯達黎加";
+"enum.browsing_country.name.cote_d_ivoire" = "象牙海岸";
+"enum.browsing_country.name.croatia" = "克羅地亞";
+"enum.browsing_country.name.cuba" = "古巴";
+"enum.browsing_country.name.curacao" = "古拉索";
+"enum.browsing_country.name.cyprus" = "塞浦路斯";
+"enum.browsing_country.name.czech_republic" = "捷克共和國";
+"enum.browsing_country.name.denmark" = "丹麥";
+"enum.browsing_country.name.djibouti" = "吉布堤";
+"enum.browsing_country.name.dominica" = "多米尼克";
+"enum.browsing_country.name.dominican_republic" = "多明尼加";
+"enum.browsing_country.name.ecuador" = "厄瓜多爾";
+"enum.browsing_country.name.egypt" = "埃及";
+"enum.browsing_country.name.el_salvador" = "薩爾瓦多";
+"enum.browsing_country.name.equatorial_guinea" = "赤道幾內亞";
+"enum.browsing_country.name.eritrea" = "厄立特里亞";
+"enum.browsing_country.name.estonia" = "愛沙尼亞";
+"enum.browsing_country.name.ethiopia" = "埃塞俄比亞";
+"enum.browsing_country.name.europe" = "歐洲";
+"enum.browsing_country.name.falkland_islands" = "福克蘭群島";
+"enum.browsing_country.name.faroe_islands" = "法羅群島";
+"enum.browsing_country.name.fiji" = "斐濟";
+"enum.browsing_country.name.finland" = "芬蘭";
+"enum.browsing_country.name.france" = "法國";
+"enum.browsing_country.name.french_guiana" = "法屬圭亞那";
+"enum.browsing_country.name.french_polynesia" = "法屬波利尼西亞";
+"enum.browsing_country.name.french_southern_territories" = "法屬南部領土";
+"enum.browsing_country.name.gabon" = "加蓬";
+"enum.browsing_country.name.gambia" = "岡比亞";
+"enum.browsing_country.name.georgia" = "格魯吉亞";
+"enum.browsing_country.name.germany" = "德國";
+"enum.browsing_country.name.ghana" = "加納";
+"enum.browsing_country.name.gibraltar" = "直布羅陀";
+"enum.browsing_country.name.greece" = "希臘";
+"enum.browsing_country.name.greenland" = "格陵蘭";
+"enum.browsing_country.name.grenada" = "格林納達";
+"enum.browsing_country.name.guadeloupe" = "瓜地洛普";
+"enum.browsing_country.name.guam" = "關島";
+"enum.browsing_country.name.guatemala" = "危地馬拉";
+"enum.browsing_country.name.guernsey" = "耿西";
+"enum.browsing_country.name.guinea" = "幾內亞";
+"enum.browsing_country.name.guinea_bissau" = "幾內亞比紹";
+"enum.browsing_country.name.guyana" = "圭亞那";
+"enum.browsing_country.name.haiti" = "海地";
+"enum.browsing_country.name.heard_island_and_mc_donald_islands" = "赫德島和麥克唐納群島";
+"enum.browsing_country.name.vatican_city_state" = "梵蒂岡";
+"enum.browsing_country.name.honduras" = "洪都拉斯";
+"enum.browsing_country.name.hong_kong" = "香港";
+"enum.browsing_country.name.hungary" = "匈牙利";
+"enum.browsing_country.name.iceland" = "冰島";
+"enum.browsing_country.name.india" = "印度";
+"enum.browsing_country.name.indonesia" = "印度尼西亞(印尼)";
+"enum.browsing_country.name.iran" = "伊朗";
+"enum.browsing_country.name.iraq" = "伊拉克";
+"enum.browsing_country.name.ireland" = "愛爾蘭";
+"enum.browsing_country.name.isle_of_man" = "曼島";
+"enum.browsing_country.name.israel" = "以色列";
+"enum.browsing_country.name.italy" = "意大利";
+"enum.browsing_country.name.jamaica" = "牙買加";
+"enum.browsing_country.name.japan" = "日本";
+"enum.browsing_country.name.jersey" = "澤西島";
+"enum.browsing_country.name.jordan" = "約旦";
+"enum.browsing_country.name.kazakhstan" = "哈薩克共和國";
+"enum.browsing_country.name.kenya" = "肯亞";
+"enum.browsing_country.name.kiribati" = "基里巴斯";
+"enum.browsing_country.name.kuwait" = "科威特";
+"enum.browsing_country.name.kyrgyzstan" = "吉爾吉斯";
+"enum.browsing_country.name.lao_peoples_democratic_republic" = "老撾";
+"enum.browsing_country.name.latvia" = "拉脫維亞";
+"enum.browsing_country.name.lebanon" = "黎巴嫩";
+"enum.browsing_country.name.lesotho" = "萊索托";
+"enum.browsing_country.name.liberia" = "利比里亞";
+"enum.browsing_country.name.libya" = "利比亞";
+"enum.browsing_country.name.liechtenstein" = "列支敦士登";
+"enum.browsing_country.name.lithuania" = "立陶宛";
+"enum.browsing_country.name.luxembourg" = "盧森堡";
+"enum.browsing_country.name.macau" = "澳門";
+"enum.browsing_country.name.macedonia" = "北馬其頓";
+"enum.browsing_country.name.madagascar" = "馬達加斯加";
+"enum.browsing_country.name.malawi" = "馬拉維";
+"enum.browsing_country.name.malaysia" = "馬來西亞";
+"enum.browsing_country.name.maldives" = "馬爾代夫";
+"enum.browsing_country.name.mali" = "馬利";
+"enum.browsing_country.name.malta" = "馬爾他";
+"enum.browsing_country.name.marshall_islands" = "馬紹爾群島";
+"enum.browsing_country.name.martinique" = "馬丁尼克";
+"enum.browsing_country.name.mauritania" = "毛里塔尼亞";
+"enum.browsing_country.name.mauritius" = "毛里裘斯";
+"enum.browsing_country.name.mayotte" = "馬約特";
+"enum.browsing_country.name.mexico" = "墨西哥";
+"enum.browsing_country.name.micronesia" = "密克羅尼西亞";
+"enum.browsing_country.name.moldova" = "摩爾多瓦";
+"enum.browsing_country.name.monaco" = "摩納哥";
+"enum.browsing_country.name.mongolia" = "蒙古";
+"enum.browsing_country.name.montenegro" = "黑山";
+"enum.browsing_country.name.montserrat" = "蒙特塞拉特";
+"enum.browsing_country.name.morocco" = "摩洛哥";
+"enum.browsing_country.name.mozambique" = "莫桑比克";
+"enum.browsing_country.name.myanmar" = "緬甸";
+"enum.browsing_country.name.namibia" = "納米比亞";
+"enum.browsing_country.name.nauru" = "諾魯";
+"enum.browsing_country.name.nepal" = "尼泊爾";
+"enum.browsing_country.name.netherlands" = "荷蘭";
+"enum.browsing_country.name.new_caledonia" = "新喀里多尼亞";
+"enum.browsing_country.name.new_zealand" = "新西蘭";
+"enum.browsing_country.name.nicaragua" = "尼加拉瓜";
+"enum.browsing_country.name.niger" = "尼日爾";
+"enum.browsing_country.name.nigeria" = "尼日利亞";
+"enum.browsing_country.name.niue" = "紐埃";
+"enum.browsing_country.name.norfolk_island" = "諾福克島";
+"enum.browsing_country.name.north_korea" = "朝鮮";
+"enum.browsing_country.name.northern_mariana_islands" = "北馬里亞納群島";
+"enum.browsing_country.name.norway" = "挪威";
+"enum.browsing_country.name.oman" = "阿曼";
+"enum.browsing_country.name.pakistan" = "巴基斯坦";
+"enum.browsing_country.name.palau" = "帕勞";
+"enum.browsing_country.name.palestinian_territory" = "巴勒斯坦領土";
+"enum.browsing_country.name.panama" = "巴拿馬";
+"enum.browsing_country.name.papua_new_guinea" = "巴布亞新幾內亞";
+"enum.browsing_country.name.paraguay" = "巴拉圭";
+"enum.browsing_country.name.peru" = "秘魯";
+"enum.browsing_country.name.philippines" = "菲律賓";
+"enum.browsing_country.name.pitcairn_islands" = "皮特凱恩群島";
+"enum.browsing_country.name.poland" = "波蘭";
+"enum.browsing_country.name.portugal" = "葡萄牙";
+"enum.browsing_country.name.puerto_rico" = "波多黎各";
+"enum.browsing_country.name.qatar" = "卡達";
+"enum.browsing_country.name.reunion" = "留尼旺";
+"enum.browsing_country.name.romania" = "羅馬尼亞";
+"enum.browsing_country.name.russian_federation" = "俄羅斯";
+"enum.browsing_country.name.rwanda" = "盧旺達";
+"enum.browsing_country.name.saint_barthelemy" = "聖巴瑟米";
+"enum.browsing_country.name.saint_helena" = "聖赫勒拿";
+"enum.browsing_country.name.saint_kitts_and_nevis" = "聖吉斯納域斯";
+"enum.browsing_country.name.saint_lucia" = "聖盧西亞";
+"enum.browsing_country.name.saint_martin" = "聖馬丁";
+"enum.browsing_country.name.saint_pierre_and_miquelon" = "聖皮耶與密克隆";
+"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "聖文森特和格林納丁斯";
+"enum.browsing_country.name.samoa" = "薩摩亞";
+"enum.browsing_country.name.san_marino" = "聖馬力諾";
+"enum.browsing_country.name.sao_tome_and_principe" = "聖多美和普林西比";
+"enum.browsing_country.name.saudi_arabia" = "沙特阿拉伯";
+"enum.browsing_country.name.senegal" = "塞內加爾";
+"enum.browsing_country.name.serbia" = "塞爾維亞";
+"enum.browsing_country.name.seychelles" = "塞舌爾";
+"enum.browsing_country.name.sierra_leone" = "獅子山";
+"enum.browsing_country.name.singapore" = "新加坡";
+"enum.browsing_country.name.sint_maarten" = "聖馬丁";
+"enum.browsing_country.name.slovakia" = "斯洛伐克";
+"enum.browsing_country.name.slovenia" = "斯洛文尼亞";
+"enum.browsing_country.name.solomon_islands" = "所羅門群島";
+"enum.browsing_country.name.somalia" = "索馬里";
+"enum.browsing_country.name.south_africa" = "南非";
+"enum.browsing_country.name.south_georgia_and_the_south_sandwich_islands" = "南格魯吉亞和南桑威奇群島";
+"enum.browsing_country.name.south_korea" = "韓國";
+"enum.browsing_country.name.south_sudan" = "南蘇丹";
+"enum.browsing_country.name.spain" = "西班牙";
+"enum.browsing_country.name.sri_lanka" = "斯里蘭卡";
+"enum.browsing_country.name.sudan" = "蘇丹";
+"enum.browsing_country.name.suriname" = "蘇里南";
+"enum.browsing_country.name.svalbard_and_jan_mayen" = "斯瓦巴和揚馬延";
+"enum.browsing_country.name.swaziland" = "斯威士蘭";
+"enum.browsing_country.name.sweden" = "瑞典";
+"enum.browsing_country.name.switzerland" = "瑞士";
+"enum.browsing_country.name.syrian_arab_republic" = "敘利亞";
+"enum.browsing_country.name.taiwan" = "臺灣";
+"enum.browsing_country.name.tajikistan" = "塔吉克";
+"enum.browsing_country.name.tanzania" = "坦桑尼亞";
+"enum.browsing_country.name.thailand" = "泰國";
+"enum.browsing_country.name.timor_leste" = "東帝汶";
+"enum.browsing_country.name.togo" = "多哥";
+"enum.browsing_country.name.tokelau" = "托克勞";
+"enum.browsing_country.name.tonga" = "湯加";
+"enum.browsing_country.name.trinidad_and_tobago" = "千里達和托巴哥";
+"enum.browsing_country.name.tunisia" = "突尼斯";
+"enum.browsing_country.name.turkey" = "土耳其";
+"enum.browsing_country.name.turkmenistan" = "土庫曼";
+"enum.browsing_country.name.turks_and_caicos_islands" = "土克斯及開科斯群島";
+"enum.browsing_country.name.tuvalu" = "圖瓦盧";
+"enum.browsing_country.name.uganda" = "烏干達";
+"enum.browsing_country.name.ukraine" = "烏克蘭";
+"enum.browsing_country.name.united_arab_emirates" = "阿拉伯聯合酋長國";
+"enum.browsing_country.name.united_kingdom" = "英國";
+"enum.browsing_country.name.united_states" = "美國";
+"enum.browsing_country.name.united_states_minor_outlying_islands" = "美國外圍小島嶼";
+"enum.browsing_country.name.uruguay" = "烏拉圭";
+"enum.browsing_country.name.uzbekistan" = "烏茲別克";
+"enum.browsing_country.name.vanuatu" = "瓦努阿圖";
+"enum.browsing_country.name.venezuela" = "委內瑞拉";
+"enum.browsing_country.name.vietnam" = "越南";
+"enum.browsing_country.name.virgin_islands_british" = "英屬維京群島";
+"enum.browsing_country.name.virgin_islands_US" = "美屬維京群島";
+"enum.browsing_country.name.wallis_and_futuna" = "瓦利斯和富圖納";
+"enum.browsing_country.name.western_sahara" = "西撒哈拉";
+"enum.browsing_country.name.yemen" = "也門";
+"enum.browsing_country.name.zambia" = "贊比亞";
+"enum.browsing_country.name.zimbabwe" = "津巴布韋";

@@ -17,7 +17,7 @@
 
 // MARK: Response
 "website.response.hath_client_not_found" = "你需要一個連結到帳號的 H@H 用戶端才能使用這個功能";
-"website.response.hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啓動後再試";
+"website.response.hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啟動後再試";
 "website.response.invalid_resolution" = "該畫廊不能以目前選擇的解析度下載";
 
 // MARK: HUD
@@ -26,7 +26,7 @@
 "hud.title.loading" = "載入中...";
 "hud.title.communicating" = "連線中...";
 "hud.caption.copied_to_clipboard" = "已複製到剪貼簿";
-"hud.caption.saved_to_photo_library" = "已保存到照片";
+"hud.caption.saved_to_photo_library" = "已儲存到照片";
 
 // MARK: AutoLock
 "local_authorization.reason" = "由於超過 APP 自動鎖定期限，APP 已被鎖定，請重新解鎖";
@@ -72,7 +72,7 @@
 "error_view.title.parsing" = "網頁解析器發生故障";
 "error_view.title.unknown" = "發生不明錯誤";
 "error_view.title.not_found" = "這邊看起來空空如也";
-"error_view.title.database_corrupted" = "數據庫已經損壞\n請提交 issue 至 GitHub.";
+"error_view.title.database_corrupted" = "資料庫已經損壞\n請提交 issue 至 GitHub.";
 "error_view.title.ip_banned" = "你的 IP 因為頁面載入次數過於頻繁而被暫時禁止存取，這可能是因為你正在使用爬蟲/鏡像軟體，禁止存取將在 %@ 後解除";
 "error_view.title.copyright_claim" = "非常抱歉，這個畫廊已因為 %@ 提出的版權聲索而不再提供存取";
 "error_view.title.gallery_unavailable" = "此畫廊已被刪除或你沒有權限存取";
@@ -83,13 +83,13 @@
 "confirmation_dialog.title.logout" = "確定要登出嗎?";
 "confirmation_dialog.title.delete" = "確定要刪除?";
 "confirmation_dialog.title.clear" = "確定要清空嗎?";
-"confirmation_dialog.title.reset" = "確定要重置嗎?";
+"confirmation_dialog.title.reset" = "確定要重設嗎?";
 "confirmation_dialog.button.drop_database" = "刪除資料庫";
 "confirmation_dialog.button.remove" = "移除";
 "confirmation_dialog.button.logout" = "登出";
 "confirmation_dialog.button.delete" = "刪除";
 "confirmation_dialog.button.clear" = "清空";
-"confirmation_dialog.button.reset" = "重置";
+"confirmation_dialog.button.reset" = "重設";
 
 // MARK: SubSection
 "sub_section.button.show_all" = "顯示全部";
@@ -184,7 +184,7 @@
 "general_setting_view.title.general" = "一般設定";
 "general_setting_view.title.language" = "語言";
 "general_setting_view.title.auto_lock" = "自動鎖定";
-"general_setting_view.title.enables_tags_extension" = "啟用自定義標籤擴充功能";
+"general_setting_view.title.enables_tags_extension" = "啟用自訂標籤擴充功能";
 "general_setting_view.title.translates_tags" = "標籤翻譯";
 "general_setting_view.title.shows_tags_search_suggestion" = "搜尋時顯示標籤建議";
 "general_setting_view.title.shows_images_in_tags" = "在標籤顯示圖片";
@@ -279,7 +279,7 @@
 "detail_view.description_section.title.language" = "語言";
 "detail_view.description_section.title.ratings" = "%@ 個評分";
 "detail_view.description_section.title.page_count" = "頁數";
-"detail_view.description_section.title.file_size" = "文件大小";
+"detail_view.description_section.title.file_size" = "檔案大小";
 "detail_view.description_section.description.favorited" = "次";
 "detail_view.description_section.description.page_count" = "頁";
 "detail_view.action_section.button.give_a_rating" = "給予評分";
@@ -350,8 +350,8 @@
 // MARK: ReadingView
 "reading_view.context_menu.button.reload" = "重新整理";
 "reading_view.context_menu.button.copy" = "複製";
-"reading_view.context_menu.button.save" = "保存圖片";
-"reading_view.context_menu.button.save_original" = "保存原始圖片";
+"reading_view.context_menu.button.save" = "儲存圖片";
+"reading_view.context_menu.button.save_original" = "儲存原始圖片";
 "reading_view.context_menu.button.share" = "分享";
 "reading_view.toolbar_item.title.auto_play" = "自動播放";
 "reading_view.toolbar_item.title.dual_page_mode" = "雙頁模式";
@@ -380,7 +380,7 @@
 "filters_view.title.disable_language_filter" = "停用語言篩選";
 "filters_view.title.disable_uploader_filter" = "停用上傳者篩選";
 "filters_view.title.disable_tags_filter" = "停用標籤篩選";
-"filters_view.button.reset_filters" = "重置所有選項";
+"filters_view.button.reset_filters" = "重設所有選項";
 "filters_view.section.title.advanced" = "進階";
 "filters_view.section.title.default_filter" = "預設篩選";
 // FilterRange
@@ -468,11 +468,11 @@
 "eh_setting_view.section.title.ratings" = "評分";
 "eh_setting_view.title.ratings_color" = "評分顏色";
 "eh_setting_view.promt.ratings_color" = "RRGGB";
-"eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 通過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
+"eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 ~ 4 顆星的評分為綠色，4.5 ~ 5 顆星的評分為藍色。 透過在下面輸入顏色組合你可以自訂想顯示的顏色。 每個字母各代表一顆星(1~5)，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "過濾標籤閾值";
 "eh_setting_view.title.tag_filtering_threshold" = "閾值";
-"eh_setting_view.description.tag_filtering_threshold" = "你可以通過將標籤新增到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間";
+"eh_setting_view.description.tag_filtering_threshold" = "你可以透過將標籤新增到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會被從列表中過濾掉，此閾值可以設定在 0 ~ -9999 之間";
 
 "eh_setting_view.section.title.tag_watching_threshold" = "關注標籤閾值";
 "eh_setting_view.title.tag_watching_threshold" = "關注標籤生效的閾值";
@@ -490,7 +490,7 @@
 "enum.eh_setting.excluded_languages_category.value.rewrite" = "覆寫";
 
 "eh_setting_view.section.title.excluded_uploaders" = "排除的上傳者";
-"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜尋結果中隱藏某些上傳者的畫廊，請將它們新增到下方，每行輸入一個用戶名。請注意，無論你的搜尋結果如何，這些上傳者的畫廊都不會出現。";
+"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜尋結果中隱藏某些上傳者的畫廊，請將它們新增到下方，每行輸入一個使用者名稱。請注意，無論你的搜尋結果如何，這些上傳者的畫廊都不會出現。";
 "eh_setting_view.description.excluded_uploaders_count" = "你正在使用 **%@ / %@** 排除欄位";
 
 "eh_setting_view.section.title.search_result_count" = "搜尋結果數量上限";
@@ -544,9 +544,9 @@
 
 "eh_setting_view.section.title.hath_local_network_host" = "內網 H@H 服務 (Hath Local Network Host)";
 "eh_setting_view.title.ip_address_port" = "IP 位址:連接埠號";
-"eh_setting_view.description.ip_address_port" = "如果你在內網上使用與瀏覽站點相同的公共 IP 架設 H@H 用戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一裝置上運行用戶端，請使用回環地址 (127.0.0.1:port)。 如果用戶端在您網路上的另一台裝置上運行，請使用其本地網路 IP。 某些瀏覽器配置會阻止外部網站存取具有本地網路 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
+"eh_setting_view.description.ip_address_port" = "如果你在內網路上使用與瀏覽站點相同的公共 IP 架設 H@H 用戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一裝置上執行用戶端，請使用回環地址 (127.0.0.1:port)。 如果用戶端在您網路上的另一台裝置上執行，請使用其本機網路 IP。 某些瀏覽器配置會阻止外部網站存取具有本機網路 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
 
-"eh_setting_view.section.title.original_images" = "要使用原始圖片而非重新取樣的版本嗎? 若您在上方選擇「自動」以外的水平解析度且圖片較寬，或原始圖片大於 10 MiB（一年以上的圖庫則為 4 MiB），系統仍會使用重新取樣的圖片。";
+"eh_setting_view.section.title.original_images" = "要使用原始圖片而非重新取樣的版本嗎? 若您在上方選擇「自動」以外的水準解析度且圖片較寬，或原始圖片大於 10 MiB（一年以上的圖庫則為 4 MiB），系統仍會使用重新取樣的圖片。";
 "eh_setting_view.title.use_original_images" = "使用原始圖片(原解析度)";
 
 "eh_setting_view.section.title.multi_page_viewer" = "多頁瀏覽";
@@ -668,14 +668,14 @@
 "enum.browsing_country.name.angola" = "安哥拉";
 "enum.browsing_country.name.anguilla" = "安圭拉";
 "enum.browsing_country.name.antarctica" = "南極洲";
-"enum.browsing_country.name.antigua_and_barbuda" = "安提瓜和巴布達";
+"enum.browsing_country.name.antigua_and_barbuda" = "安地卡及巴布達";
 "enum.browsing_country.name.argentina" = "阿根廷";
 "enum.browsing_country.name.armenia" = "亞美尼亞";
 "enum.browsing_country.name.aruba" = "阿魯巴";
 "enum.browsing_country.name.asia_pacific_region" = "亞太地區";
-"enum.browsing_country.name.australia" = "澳大利亞";
+"enum.browsing_country.name.australia" = "澳洲";
 "enum.browsing_country.name.austria" = "奧地利";
-"enum.browsing_country.name.azerbaijan" = "阿塞拜疆";
+"enum.browsing_country.name.azerbaijan" = "亞塞拜然";
 "enum.browsing_country.name.bahamas" = "巴哈馬";
 "enum.browsing_country.name.bahrain" = "巴林";
 "enum.browsing_country.name.bangladesh" = "孟加拉";
@@ -759,7 +759,7 @@
 "enum.browsing_country.name.haiti" = "海地";
 "enum.browsing_country.name.heard_island_and_mc_donald_islands" = "赫德島和麥克唐納群島";
 "enum.browsing_country.name.vatican_city_state" = "梵蒂岡";
-"enum.browsing_country.name.honduras" = "洪都拉斯";
+"enum.browsing_country.name.honduras" = "宏都拉斯";
 "enum.browsing_country.name.hong_kong" = "香港";
 "enum.browsing_country.name.hungary" = "匈牙利";
 "enum.browsing_country.name.iceland" = "冰島";
@@ -779,7 +779,7 @@
 "enum.browsing_country.name.kenya" = "肯亞";
 "enum.browsing_country.name.kiribati" = "吉里巴斯";
 "enum.browsing_country.name.kuwait" = "科威特";
-"enum.browsing_country.name.kyrgyzstan" = "吉爾吉斯斯坦";
+"enum.browsing_country.name.kyrgyzstan" = "吉爾吉斯";
 "enum.browsing_country.name.lao_peoples_democratic_republic" = "寮國";
 "enum.browsing_country.name.latvia" = "拉脫維亞";
 "enum.browsing_country.name.lebanon" = "黎巴嫩";
@@ -816,8 +816,8 @@
 "enum.browsing_country.name.nauru" = "諾魯";
 "enum.browsing_country.name.nepal" = "尼泊爾";
 "enum.browsing_country.name.netherlands" = "荷蘭";
-"enum.browsing_country.name.new_caledonia" = "新喀裡多尼亞";
-"enum.browsing_country.name.new_zealand" = "新西蘭";
+"enum.browsing_country.name.new_caledonia" = "新喀里多尼亞";
+"enum.browsing_country.name.new_zealand" = "紐西蘭";
 "enum.browsing_country.name.nicaragua" = "尼加拉瓜";
 "enum.browsing_country.name.niger" = "尼日";
 "enum.browsing_country.name.nigeria" = "奈及利亞";
@@ -831,7 +831,7 @@
 "enum.browsing_country.name.palau" = "帛琉";
 "enum.browsing_country.name.palestinian_territory" = "巴勒斯坦領土";
 "enum.browsing_country.name.panama" = "巴拿馬";
-"enum.browsing_country.name.papua_new_guinea" = "巴布亞新幾內亞";
+"enum.browsing_country.name.papua_new_guinea" = "巴布亞紐幾內亞";
 "enum.browsing_country.name.paraguay" = "巴拉圭";
 "enum.browsing_country.name.peru" = "秘魯";
 "enum.browsing_country.name.philippines" = "菲律賓";
@@ -839,7 +839,7 @@
 "enum.browsing_country.name.poland" = "波蘭";
 "enum.browsing_country.name.portugal" = "葡萄牙";
 "enum.browsing_country.name.puerto_rico" = "波多黎各";
-"enum.browsing_country.name.qatar" = "卡塔爾";
+"enum.browsing_country.name.qatar" = "卡達";
 "enum.browsing_country.name.reunion" = "留尼旺";
 "enum.browsing_country.name.romania" = "羅馬尼亞";
 "enum.browsing_country.name.russian_federation" = "俄羅斯";
@@ -847,23 +847,23 @@
 "enum.browsing_country.name.saint_barthelemy" = "聖巴瑟米";
 "enum.browsing_country.name.saint_helena" = "聖赫勒拿";
 "enum.browsing_country.name.saint_kitts_and_nevis" = "聖克里斯多福及尼維斯";
-"enum.browsing_country.name.saint_lucia" = "聖盧西亞";
+"enum.browsing_country.name.saint_lucia" = "聖露西亞";
 "enum.browsing_country.name.saint_martin" = "聖馬丁";
-"enum.browsing_country.name.saint_pierre_and_miquelon" = "聖皮埃爾和密克隆";
-"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "聖文森特和格林納丁斯";
+"enum.browsing_country.name.saint_pierre_and_miquelon" = "聖皮耶與密克隆";
+"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "聖文森及格瑞那丁";
 "enum.browsing_country.name.samoa" = "薩摩亞";
-"enum.browsing_country.name.san_marino" = "聖馬力諾";
-"enum.browsing_country.name.sao_tome_and_principe" = "聖多美和普林西比";
+"enum.browsing_country.name.san_marino" = "聖馬利諾";
+"enum.browsing_country.name.sao_tome_and_principe" = "聖多美普林西比";
 "enum.browsing_country.name.saudi_arabia" = "沙烏地阿拉伯";
 "enum.browsing_country.name.senegal" = "塞內加爾";
 "enum.browsing_country.name.serbia" = "塞爾維亞";
-"enum.browsing_country.name.seychelles" = "塞舌爾";
+"enum.browsing_country.name.seychelles" = "塞席爾";
 "enum.browsing_country.name.sierra_leone" = "獅子山";
 "enum.browsing_country.name.singapore" = "新加坡";
 "enum.browsing_country.name.sint_maarten" = "聖馬丁";
 "enum.browsing_country.name.slovakia" = "斯洛伐克";
 "enum.browsing_country.name.slovenia" = "斯洛維尼亞";
-"enum.browsing_country.name.solomon_islands" = "所羅門群島";
+"enum.browsing_country.name.solomon_islands" = "索羅門群島";
 "enum.browsing_country.name.somalia" = "索馬利亞";
 "enum.browsing_country.name.south_africa" = "南非";
 "enum.browsing_country.name.south_georgia_and_the_south_sandwich_islands" = "南喬治亞和南桑威奇群島";

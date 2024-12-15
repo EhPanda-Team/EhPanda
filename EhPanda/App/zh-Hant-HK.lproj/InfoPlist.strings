@@ -6,5 +6,5 @@
   
 */
 
-"NSFaceIDUsageDescription" = "需要此權限以在解鎖 App 時提供 Face ID 選項";
-"NSPhotoLibraryAddUsageDescription" = "We need this permission to save images to your photo library.";
+"NSFaceIDUsageDescription" = "我們需要您提供 Face ID 權限來使用 Face ID 解鎖";
+"NSPhotoLibraryAddUsageDescription" = "我們需要您提供照片權限來保存圖片到照片";
