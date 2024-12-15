@@ -105,7 +105,7 @@ struct ReadingView: View {
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                         content: imageStack
                     )
-                    .disabled(gestureHandler.scale != 1)
+                    .scrollDisabled(gestureHandler.scale != 1)
                 } else {
                     Pager(
                         page: page,
@@ -120,8 +120,7 @@ struct ReadingView: View {
             }
             .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
             .offset(gestureHandler.offset)
-            .gesture(tapGesture)
-            .gesture(dragGesture)
+            .highPriorityGesture(dragGesture.simultaneously(with: tapGesture))
             .gesture(magnificationGesture)
             .ignoresSafeArea()
             .id(store.databaseLoadingState)
