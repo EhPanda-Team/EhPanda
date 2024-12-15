@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.8",
-          "date": "2024-11-11T05:44:30",
-          "localizedDescription": "1. fix: Gallery preview parsing issue, again.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.8/EhPanda.ipa",
-          "size": 7193274,
+          "version": "2.7.9",
+          "date": "2024-12-15T05:32:13",
+          "localizedDescription": "1. Fixed reading page gestures not responding issue when scale is greater than 1.\n2. Improved Taiwanese Mandarin & Traditional Chinese (HK) localizations.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.9/EhPanda.ipa",
+          "size": 7231285,
           "minOSVersion": "16.0"
         }
       ],
