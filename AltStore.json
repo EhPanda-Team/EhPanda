@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.9",
-          "date": "2024-12-15T05:32:13",
-          "localizedDescription": "1. Fixed reading page gestures not responding issue when scale is greater than 1.\n2. Improved Taiwanese Mandarin & Traditional Chinese (HK) localizations.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.9/EhPanda.ipa",
-          "size": 7231285,
+          "version": "2.7.10",
+          "date": "2024-12-21T03:22:52",
+          "localizedDescription": "1. Fixed reading page scroll functionality.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.10/EhPanda.ipa",
+          "size": 7231227,
           "minOSVersion": "16.0"
         }
       ],
