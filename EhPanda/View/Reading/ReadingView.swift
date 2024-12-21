@@ -120,7 +120,11 @@ struct ReadingView: View {
             }
             .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
             .offset(gestureHandler.offset)
-            .highPriorityGesture(dragGesture.simultaneously(with: tapGesture))
+            .highPriorityGesture(
+                dragGesture.simultaneously(with: tapGesture),
+                isEnabled: gestureHandler.scale > 1
+            )
+            .gesture(tapGesture, isEnabled: gestureHandler.scale == 1)
             .gesture(magnificationGesture)
             .ignoresSafeArea()
             .id(store.databaseLoadingState)
