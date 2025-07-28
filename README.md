@@ -3,7 +3,7 @@
 <h4 align="center">An unofficial fork of the E-Hentai App for iOS.</h4>
 
 <p align="center">
-<img src="" width="400"></img>
+<!--<img src="" width="400"></img>-->
 </p>
 
 <p align="center">
