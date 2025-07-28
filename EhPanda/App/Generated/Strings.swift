@@ -12,8 +12,8 @@ import Foundation
 internal enum L10n {
   internal enum Constant {
     internal enum App {
-      /// Copyright © 2024 EhPanda Team
-      internal static let copyright = L10n.tr("Constant", "app.copyright", fallback: "Copyright © 2024 EhPanda Team")
+      /// Copyright © 2025 EhPanda Team
+      internal static let copyright = L10n.tr("Constant", "app.copyright", fallback: "Copyright © 2025 EhPanda Team")
       internal enum Acknowledgement {
         internal enum Link {
           /// https://github.com/rebeloper/AlertKit
