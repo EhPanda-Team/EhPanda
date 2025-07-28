@@ -269,6 +269,7 @@
 		ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ADD25F3313D00ECB568 /* SettingView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
 		ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */ = {isa = PBXBuildFile; fileRef = ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */; };
+		EA0BBD472E37CCB700DC8143 /* CODEOWNERS in Resources */ = {isa = PBXBuildFile; fileRef = EA0BBD462E37CCB700DC8143 /* CODEOWNERS */; };
 		EA0C92452C3EB42300D211F6 /* ISSUE_TEMPLATE in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92432C3EB42300D211F6 /* ISSUE_TEMPLATE */; };
 		EA0C92462C3EB42300D211F6 /* workflows in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92442C3EB42300D211F6 /* workflows */; };
 		EA0C92592C3EB49500D211F6 /* README.cht.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92532C3EB49500D211F6 /* README.cht.md */; };
@@ -589,6 +590,7 @@
 		ABF53F4725A306D200AB5918 /* EhPanda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EhPanda.entitlements; sourceTree = "<group>"; };
 		ABF75F3E25A19CD200544D29 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryDetailWithGreeting.html; sourceTree = "<group>"; };
+		EA0BBD462E37CCB700DC8143 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; name = CODEOWNERS; path = .github/CODEOWNERS; sourceTree = "<group>"; };
 		EA0C92432C3EB42300D211F6 /* ISSUE_TEMPLATE */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ISSUE_TEMPLATE; path = .github/ISSUE_TEMPLATE; sourceTree = "<group>"; };
 		EA0C92442C3EB42300D211F6 /* workflows */ = {isa = PBXFileReference; lastKnownFileType = folder; name = workflows; path = .github/workflows; sourceTree = "<group>"; };
 		EA0C92482C3EB45E00D211F6 /* AltStore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AltStore.json; sourceTree = "<group>"; };
@@ -1338,6 +1340,7 @@
 		EA0C92422C3EB40100D211F6 /* GitHub */ = {
 			isa = PBXGroup;
 			children = (
+				EA0BBD462E37CCB700DC8143 /* CODEOWNERS */,
 				EA0C92432C3EB42300D211F6 /* ISSUE_TEMPLATE */,
 				EA0C92442C3EB42300D211F6 /* workflows */,
 			);
@@ -1714,6 +1717,7 @@
 				ABA9A6BC28EC786100EE28DE /* swiftgen.yml in Resources */,
 				AB0CFB9327BBD323004BD372 /* AppIcon_Ukiyoe@3x.png in Resources */,
 				AB0CFB8927BBD2D7004BD372 /* AppIcon_Developer@2x.png in Resources */,
+				EA0BBD472E37CCB700DC8143 /* CODEOWNERS in Resources */,
 				ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */,
 				AB90276F291F548700697256 /* AppIcon_NotMyPresident@2x.png in Resources */,
 				EA0C92462C3EB42300D211F6 /* workflows in Resources */,
