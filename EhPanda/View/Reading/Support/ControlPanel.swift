@@ -119,15 +119,129 @@ private struct UpperPanel: View {
     }
 
     var body: some View {
-        ZStack {
-            HStack {
+        HStack {
+            // Liquid Glass Dismiss Button
+            if #available(iOS 26.0, *) {
                 Button(action: dismissAction) {
                     Image(systemSymbol: .xmark)
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
                 }
-                .font(.title2).padding(.leading, 20)
-                Spacer()
-                Slider(value: .constant(0)).opacity(0)
-                Spacer()
+                .glassEffect()
+                .padding(.leading, 20)
+            } else {
+                Button(action: dismissAction) {
+                    Image(systemSymbol: .xmark)
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(Material.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                .padding(.leading, 20)
+            }
+            
+            Spacer()
+            
+            // Page Number Display in Liquid Glass Bubble
+            if #available(iOS 26.0, *) {
+                Text(title)
+                    .bold()
+                    .lineLimit(1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .glassEffect()
+            } else {
+                Text(title)
+                    .bold()
+                    .lineLimit(1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Material.thinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            
+            Spacer()
+            
+            // Toolbar Grouped in Liquid Glass Container
+            if #available(iOS 26.0, *) {
+                HStack(spacing: 16) {
+                    Button {
+                        enablesLiveText.toggle()
+                    }
+                    label: {
+                        Image(systemSymbol: .viewfinderCircle)
+                            .symbolVariant(enablesLiveText ? .fill : .none)
+                            .font(.title2)
+                    }
+                    
+                    if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
+                        Menu {
+                            Button {
+                                setting.enablesDualPageMode.toggle()
+                            } label: {
+                                Text(L10n.Localizable.ReadingView.ToolbarItem.Title.dualPageMode)
+                                if setting.enablesDualPageMode {
+                                    Image(systemSymbol: .checkmark)
+                                }
+                            }
+                            Button {
+                                setting.exceptCover.toggle()
+                            } label: {
+                                Text(L10n.Localizable.ReadingView.ToolbarItem.Title.exceptTheCover)
+                                if setting.exceptCover {
+                                    Image(systemSymbol: .checkmark)
+                                }
+                            }
+                            .disabled(!setting.enablesDualPageMode)
+                        } label: {
+                            Image(systemSymbol: .rectangleSplit2x1)
+                                .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
+                                .font(.title2)
+                        }
+                    }
+                    
+                    Menu {
+                        Text(L10n.Localizable.ReadingView.ToolbarItem.Title.autoPlay).foregroundColor(.secondary)
+                        ForEach(AutoPlayPolicy.allCases) { policy in
+                            Button {
+                                autoPlayPolicy = policy
+                            } label: {
+                                Text(policy.value)
+                                if autoPlayPolicy == policy {
+                                    Image(systemSymbol: .checkmark)
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemSymbol: .timer)
+                            .font(.title2)
+                    }
+                    .menuStyle(BorderlessButtonMenuStyle())
+                    
+                    ToolbarFeaturesMenu {
+                        Button(action: retryAllFailedImagesAction) {
+                            Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                            Text(L10n.Localizable.ReadingView.ToolbarItem.Button.retryAllFailedImages)
+                        }
+                        Button(action: reloadAllImagesAction) {
+                            Image(systemSymbol: .arrowCounterclockwise)
+                            Text(L10n.Localizable.ReadingView.ToolbarItem.Button.reloadAllImages)
+                        }
+                        Button(action: navigateSettingAction) {
+                            Image(systemSymbol: .gear)
+                            Text(L10n.Localizable.ReadingView.ToolbarItem.Button.readingSetting)
+                        }
+                    }
+                    .font(.title2)
+                    .menuStyle(BorderlessButtonMenuStyle())
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .glassEffect()
+                .padding(.trailing, 20)
+            } else {
                 HStack(spacing: 20) {
                     Button {
                         enablesLiveText.toggle()
@@ -191,10 +305,13 @@ private struct UpperPanel: View {
                     .padding(.trailing, 20)
                 }
                 .font(.title2)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Material.thinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(.trailing, 20)
             }
-            Text(title).bold().lineLimit(1).padding()
         }
-        .background(.thinMaterial)
     }
 }
 
@@ -227,33 +344,81 @@ private struct LowerPanel<G: Gesture>: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            Button(action: dismissAction) {
-                Image(systemSymbol: .xmark).foregroundColor(.primary).padding()
-                    .background(.ultraThinMaterial).cornerRadius(.infinity)
-            }
-            .gesture(dismissGesture).opacity(showsSliderPreview ? 0 : 1)
-            VStack(spacing: 0) {
-                SliderPreivew(
-                    showsSliderPreview: $showsSliderPreview,
-                    sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
-                    isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
-                )
-                VStack {
-                    HStack {
-                        Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
-                            .fontWeight(.medium).font(.caption).padding()
-                        Slider(
-                            value: $sliderValue, in: range, step: 1,
-                            onEditingChanged: { showsSliderPreview = $0 }
-                        )
-                        .rotationEffect(.init(degrees: isReversed ? 180 : 0))
-                        Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
-                            .fontWeight(.medium).font(.caption).padding()
-                    }
-                    .padding(.horizontal).padding(.bottom)
+            // Dismiss Button
+            if #available(iOS 26.0, *) {
+                Button(action: dismissAction) {
+                    Image(systemSymbol: .xmark)
+                        .foregroundColor(.primary)
+                        .font(.title2)
+                        .frame(width: 44, height: 44)
                 }
+                .glassEffect(in: RoundedRectangle(cornerRadius: 22))
+                .gesture(dismissGesture)
+                .opacity(showsSliderPreview ? 0 : 1)
+            } else {
+                Button(action: dismissAction) {
+                    Image(systemSymbol: .xmark)
+                        .foregroundColor(.primary)
+                        .font(.title2)
+                        .frame(width: 44, height: 44)
+                        .background(Material.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                .gesture(dismissGesture)
+                .opacity(showsSliderPreview ? 0 : 1)
             }
-            .background(.thinMaterial)
+            
+            // Slider in Liquid Glass Bubble
+            if #available(iOS 26.0, *) {
+                VStack(spacing: 0) {
+                    SliderPreivew(
+                        showsSliderPreview: $showsSliderPreview,
+                        sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
+                        isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
+                    )
+                    VStack {
+                        HStack {
+                            Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
+                                .fontWeight(.medium).font(.caption).padding()
+                            Slider(
+                                value: $sliderValue, in: range, step: 1,
+                                onEditingChanged: { showsSliderPreview = $0 }
+                            )
+                            // wtaf is happening here? 
+                            .frame(width: DeviceUtil.windowW * 0.6)
+                            .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                            Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
+                                .fontWeight(.medium).font(.caption).padding()
+                        }
+                        .padding(.horizontal).padding(.bottom)
+                    }
+                }
+                .glassEffect()
+            } else {
+                VStack(spacing: 0) {
+                    SliderPreivew(
+                        showsSliderPreview: $showsSliderPreview,
+                        sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
+                        isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
+                    )
+                    VStack {
+                        HStack {
+                            Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
+                                .fontWeight(.medium).font(.caption).padding()
+                            Slider(
+                                value: $sliderValue, in: range, step: 1,
+                                onEditingChanged: { showsSliderPreview = $0 }
+                            )
+                            .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                            Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
+                                .fontWeight(.medium).font(.caption).padding()
+                        }
+                        .padding(.horizontal).padding(.bottom)
+                    }
+                }
+                .background(Material.thinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+            }
         }
     }
 }
