@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install iOS 26 Platform
+        run: xcodebuild -downloadPlatform iOS
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
