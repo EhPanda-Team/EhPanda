@@ -1,9 +1,9 @@
 <h1 align="center">EhPanda</h1>
 
-<h4 align="center">An unofficial fork of the E-Hentai App for iOS.</h4>
+<h4 align="center">An unofficial E-Hentai App for iOS.</h4>
 
 <p align="center">
-<!--<img src="" width="400"></img>-->
+<img src="https://user-images.githubusercontent.com/31207151/105609404-0acbff00-5de4-11eb-9e88-f3c6e0ba9d44.png" width="400"></img>
 </p>
 
 <p align="center">
@@ -22,8 +22,10 @@ App Strings: [{lang}.lproj](/EhPanda/App)
 
 GitHub Readme: [README.{lang}.md](/READMEs)
 
+https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/blob/main/src/main.js)
+
 ## Installation
-1. Get the ipa file from [Releases](https://github.com/aalberrty/EhPanda/releases).
+1. Get the ipa file from [Releases](https://github.com/EhPanda-Team/EhPanda/releases).
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
 
 ## System Requirements
@@ -35,4 +37,12 @@ The content in this application is derived from E-Hentai, which is user-generate
 **Users of this application should access the E-Hentai content at their own risk.**
 
 ## Questions & Feedback
-Please use [Github Issues](https://github.com/aalberrty/EhPanda/issues) for feedback.
+[![Twitter](https://img.shields.io/badge/Twitter-2CA5E0?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/ehpandaapp)
+[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
+[![Telegram](https://img.shields.io/badge/Telegram-858585?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/ehpanda)
+
+## Screenshots
+https://ehpanda.app
+
+## App Icon
+Copyright © 2024 荒木辰造. All rights reserved.
