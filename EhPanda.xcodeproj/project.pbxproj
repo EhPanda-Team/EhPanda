@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		145E7E3E2E36DE6D00822CB0 /* ReadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E3D2E36DE6D00822CB0 /* ReadingViewModel.swift */; };
+		145E7E3F2E36DE6D00822CB0 /* GestureCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E382E36DE6D00822CB0 /* GestureCoordinator.swift */; };
+		145E7E412E36DE6D00822CB0 /* PageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E3A2E36DE6D00822CB0 /* PageCoordinator.swift */; };
+		145E7E422E36DE6D00822CB0 /* ReadingViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E3C2E36DE6D00822CB0 /* ReadingViewExtensions.swift */; };
+		145E7E432E36DE6D00822CB0 /* ImageStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E392E36DE6D00822CB0 /* ImageStackView.swift */; };
 		AB0929B6277F043D00F107CA /* AccountSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingReducer.swift */; };
 		AB0929C027805A8200F107CA /* LoginReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginReducer.swift */; };
@@ -214,14 +219,10 @@
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
 		ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABC4A0782751B40E00968A4F /* Kingfisher */; };
 		ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ABC681F126898D46007BBD69 /* Model.xcdatamodeld */; };
-		ABC732C127B8962000D47DA9 /* LiveTextHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C027B8962000D47DA9 /* LiveTextHandler.swift */; };
 		ABC732C527B9024500D47DA9 /* LiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C427B9024500D47DA9 /* LiveText.swift */; };
 		ABC732C727B90F0900D47DA9 /* LiveTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C627B90F0900D47DA9 /* LiveTextView.swift */; };
 		ABC8355D27B118330091DCDB /* DetailSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8355C27B118330091DCDB /* DetailSearchView.swift */; };
 		ABC8355F27B118370091DCDB /* DetailSearchReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8355E27B118370091DCDB /* DetailSearchReducer.swift */; };
-		ABC8356127B357C50091DCDB /* GestureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8356027B357C50091DCDB /* GestureHandler.swift */; };
-		ABC8356327B366760091DCDB /* PageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8356227B366760091DCDB /* PageHandler.swift */; };
-		ABC8356527B36E550091DCDB /* AutoPlayHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8356427B36E550091DCDB /* AutoPlayHandler.swift */; };
 		ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93BD26918DE100A98BC6 /* Persistence.swift */; };
 		ABCA93C02691925900A98BC6 /* GalleryMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93BF2691925900A98BC6 /* GalleryMO+CoreDataClass.swift */; };
 		ABCA93C22691929D00A98BC6 /* GalleryDetailMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93C12691929D00A98BC6 /* GalleryDetailMO+CoreDataClass.swift */; };
@@ -316,6 +317,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		145E7E382E36DE6D00822CB0 /* GestureCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureCoordinator.swift; sourceTree = "<group>"; };
+		145E7E392E36DE6D00822CB0 /* ImageStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStackView.swift; sourceTree = "<group>"; };
+		145E7E3A2E36DE6D00822CB0 /* PageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageCoordinator.swift; sourceTree = "<group>"; };
+		145E7E3C2E36DE6D00822CB0 /* ReadingViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewExtensions.swift; sourceTree = "<group>"; };
+		145E7E3D2E36DE6D00822CB0 /* ReadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewModel.swift; sourceTree = "<group>"; };
 		AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingReducer.swift; sourceTree = "<group>"; };
 		AB0929BD2780032400F107CA /* EhSettingReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingReducer.swift; sourceTree = "<group>"; };
 		AB0929BF27805A8200F107CA /* LoginReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginReducer.swift; sourceTree = "<group>"; };
@@ -526,14 +532,10 @@
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 5.xcdatamodel"; sourceTree = "<group>"; };
 		ABC681F226898D46007BBD69 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		ABC732C027B8962000D47DA9 /* LiveTextHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveTextHandler.swift; sourceTree = "<group>"; };
 		ABC732C427B9024500D47DA9 /* LiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveText.swift; sourceTree = "<group>"; };
 		ABC732C627B90F0900D47DA9 /* LiveTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTextView.swift; sourceTree = "<group>"; };
 		ABC8355C27B118330091DCDB /* DetailSearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailSearchView.swift; sourceTree = "<group>"; };
 		ABC8355E27B118370091DCDB /* DetailSearchReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailSearchReducer.swift; sourceTree = "<group>"; };
-		ABC8356027B357C50091DCDB /* GestureHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHandler.swift; sourceTree = "<group>"; };
-		ABC8356227B366760091DCDB /* PageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageHandler.swift; sourceTree = "<group>"; };
-		ABC8356427B36E550091DCDB /* AutoPlayHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoPlayHandler.swift; sourceTree = "<group>"; };
 		ABCA93BD26918DE100A98BC6 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		ABCA93BF2691925900A98BC6 /* GalleryMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		ABCA93C12691929D00A98BC6 /* GalleryDetailMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryDetailMO+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -708,13 +710,14 @@
 		AB24C561276757A30085C33A /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				145E7E382E36DE6D00822CB0 /* GestureCoordinator.swift */,
+				145E7E392E36DE6D00822CB0 /* ImageStackView.swift */,
+				145E7E3A2E36DE6D00822CB0 /* PageCoordinator.swift */,
+				145E7E3C2E36DE6D00822CB0 /* ReadingViewExtensions.swift */,
+				145E7E3D2E36DE6D00822CB0 /* ReadingViewModel.swift */,
 				ABC732C627B90F0900D47DA9 /* LiveTextView.swift */,
 				AB69CB8126B3DAF400699359 /* ControlPanel.swift */,
 				AB69CB7F26B3DABC00699359 /* AdvancedList.swift */,
-				ABC8356227B366760091DCDB /* PageHandler.swift */,
-				ABC8356027B357C50091DCDB /* GestureHandler.swift */,
-				ABC732C027B8962000D47DA9 /* LiveTextHandler.swift */,
-				ABC8356427B36E550091DCDB /* AutoPlayHandler.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1851,7 +1854,6 @@
 				AB86ABF92782EC0D00E61E6A /* AboutView.swift in Sources */,
 				AB7BF2BA27A96562001865A3 /* Gallery.swift in Sources */,
 				AB0929BE2780032400F107CA /* EhSettingReducer.swift in Sources */,
-				ABC8356127B357C50091DCDB /* GestureHandler.swift in Sources */,
 				AB0929D42781EDDC00F107CA /* UserDefaultsClient.swift in Sources */,
 				AB0929D82782A83A00F107CA /* AuthorizationClient.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
@@ -1896,7 +1898,6 @@
 				AB7BF2AB27A642FB001865A3 /* BrowsingCountry.swift in Sources */,
 				ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */,
 				AB26F59027ABF21000AB3468 /* Model5toModel6.xcmappingmodel in Sources */,
-				ABC8356327B366760091DCDB /* PageHandler.swift in Sources */,
 				AB706FA5278C3DDE0025A48A /* PreviewsView.swift in Sources */,
 				ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */,
 				AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */,
@@ -1906,6 +1907,11 @@
 				AB706F862789AD490025A48A /* ToplistsReducer.swift in Sources */,
 				AB7BF2CC27A96A3C001865A3 /* GalleryTorrent.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
+				145E7E3E2E36DE6D00822CB0 /* ReadingViewModel.swift in Sources */,
+				145E7E3F2E36DE6D00822CB0 /* GestureCoordinator.swift in Sources */,
+				145E7E412E36DE6D00822CB0 /* PageCoordinator.swift in Sources */,
+				145E7E422E36DE6D00822CB0 /* ReadingViewExtensions.swift in Sources */,
+				145E7E432E36DE6D00822CB0 /* ImageStackView.swift in Sources */,
 				ABD4032826B7967F00001B8C /* CategoryView.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,
 				ABBB266627977C2A007B6149 /* ArchivesReducer.swift in Sources */,
@@ -1936,7 +1942,6 @@
 				AB706F8A278A4CC50025A48A /* PopularReducer.swift in Sources */,
 				ABD49D64277C7AD5003D1A07 /* TabBarReducer.swift in Sources */,
 				ABF45AF025F3313D00ECB568 /* CommentsView.swift in Sources */,
-				ABC8356527B36E550091DCDB /* AutoPlayHandler.swift in Sources */,
 				ABBB2671279AFA61007B6149 /* EnvironmentKeys.swift in Sources */,
 				AB7BF2DA27AA78CF001865A3 /* Reducer_Extension.swift in Sources */,
 				ABBD2B602768D7AD0072AED2 /* GalleryRankingCell.swift in Sources */,
@@ -1953,7 +1958,6 @@
 				EA698C092CCDE7090058BC19 /* IdentifiableBox.swift in Sources */,
 				AB0CFBD727C3B2D0004BD372 /* TagDetailView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
-				ABC732C127B8962000D47DA9 /* LiveTextHandler.swift in Sources */,
 				ABBB2675279B933D007B6149 /* ReadingReducer.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */,
@@ -2084,10 +2088,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 156;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = RYCYM2Y5FL;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -2098,9 +2102,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zack.ehpanda.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShareExtension_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2112,10 +2116,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 156;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = RYCYM2Y5FL;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -2126,9 +2130,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zack.ehpanda.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShareExtension_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2263,11 +2267,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 156;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = RYCYM2Y5FL;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = EhPanda/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -2276,9 +2280,9 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zack.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = App_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2292,11 +2296,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 156;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = RYCYM2Y5FL;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = EhPanda/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -2305,9 +2309,9 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
+				PRODUCT_BUNDLE_IDENTIFIER = app.zack.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = App_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
