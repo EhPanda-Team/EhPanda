@@ -45,4 +45,4 @@ The content in this application is derived from E-Hentai, which is user-generate
 https://ehpanda.app
 
 ## App Icon
-Copyright © 2024 荒木辰造. All rights reserved.
+Copyright © 2025 荒木辰造. All rights reserved.
