@@ -121,6 +121,7 @@ final class GestureCoordinator: ObservableObject {
             }
         } else {
             scale = finalScale
+            // Apply constraints after scale change to ensure proper bounds
             constrainOffset()
         }
         
@@ -154,14 +155,14 @@ final class GestureCoordinator: ObservableObject {
             height: baseOffset.height + currentPanOffset.height
         )
         
-        // Temporarily remove constraints for testing
-        offset = totalOffset
+        // Apply boundary constraints to prevent dragging beyond image edges
+        offset = constrainOffset(totalOffset)
         
         Logger.info("Offset updated", context: [
             "adjustedTranslation": adjustedTranslation,
             "currentPanOffset": currentPanOffset,
             "totalOffset": totalOffset,
-            "offset": offset
+            "constrainedOffset": offset
         ])
     }
     
@@ -175,8 +176,12 @@ final class GestureCoordinator: ObservableObject {
         guard scale > 1.0 else { return }
         Logger.info("Handle drag ended")
         
-        // Update base offset with final position
-        baseOffset = offset
+        // Ensure the final position is properly constrained
+        let finalOffset = constrainOffset(offset)
+        offset = finalOffset
+        
+        // Update base offset with final constrained position
+        baseOffset = finalOffset
         currentPanOffset = .zero
     }
     
@@ -233,17 +238,18 @@ final class GestureCoordinator: ObservableObject {
     private func constrainOffset(_ newOffset: CGSize? = nil) -> CGSize {
         let targetOffset = newOffset ?? offset
         
-        let constrainedWidth = constrainOffsetDimension(
-            value: targetOffset.width,
-            anchor: scaleAnchor.x,
-            screenSize: DeviceUtil.absWindowW
-        )
+        // Calculate the maximum allowed offset based on scale and screen size
+        let screenWidth = DeviceUtil.absWindowW
+        let screenHeight = DeviceUtil.absWindowH
         
-        let constrainedHeight = constrainOffsetDimension(
-            value: targetOffset.height,
-            anchor: scaleAnchor.y,
-            screenSize: DeviceUtil.absWindowH
-        )
+        // When scaled, the image is larger than the screen, so we need to constrain
+        // the offset to keep the image content visible
+        let maxOffsetX = screenWidth * (scale - 1) / 2
+        let maxOffsetY = screenHeight * (scale - 1) / 2
+        
+        // Apply constraints to keep the image within bounds
+        let constrainedWidth = min(max(targetOffset.width, -maxOffsetX), maxOffsetX)
+        let constrainedHeight = min(max(targetOffset.height, -maxOffsetY), maxOffsetY)
         
         let constrained = CGSize(width: constrainedWidth, height: constrainedHeight)
         
@@ -252,33 +258,6 @@ final class GestureCoordinator: ObservableObject {
         }
         
         return constrained
-    }
-    
-    private func constrainOffsetDimension(
-        value: Double,
-        anchor: Double,
-        screenSize: Double
-    ) -> Double {
-        let margin = screenSize * (scale - 1) / 2
-        let leadingMargin = (anchor / 0.5) * margin
-        let trailingMargin = ((1 - anchor) / 0.5) * margin
-        
-        return min(max(value, -trailingMargin), leadingMargin)
-    }
-    
-    private func constrainOffsetSimple(_ newOffset: CGSize) -> CGSize {
-        let screenWidth = DeviceUtil.absWindowW
-        let screenHeight = DeviceUtil.absWindowH
-        
-        // Calculate maximum allowed offset based on zoom level with more flexibility
-        let maxOffsetX = screenWidth * (scale - 1) * 0.8  // Allow 80% of theoretical max
-        let maxOffsetY = screenHeight * (scale - 1) * 0.8
-        
-        // Apply bounds with more flexibility for natural panning
-        let constrainedWidth = min(max(newOffset.width, -maxOffsetX), maxOffsetX)
-        let constrainedHeight = min(max(newOffset.height, -maxOffsetY), maxOffsetY)
-        
-        return CGSize(width: constrainedWidth, height: constrainedHeight)
     }
 }
 
