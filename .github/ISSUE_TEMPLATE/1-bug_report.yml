@@ -1,0 +1,75 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "[BUG] "
+labels: [bug]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thank you for contributing to EhPanda! 
+      
+      Before you submit your issue, please complete each text area below with the relevant details for your bug, and complete the steps in the checklist
+- type: textarea
+  attributes:
+    label: Description
+    description: |
+      Provide a brief description of the incorrect behavior. If applicable, include screenshots to help illustrate the issue.
+
+      If you believe this issue was introduced recently and did not occur in a previous version, please mention that. If possible, specify the last version where the behavior was correct, along with the current version.
+  validations:
+    required: true
+- type: checkboxes
+  attributes:
+    label: Checklist
+    options:
+    - label: If possible, I've reproduced the issue using the latest version of this app.
+      required: false
+    - label: This issue hasn't been addressed in an [existing GitHub issue](https://github.com/EhPanda-Team/EhPanda/issues) or [discussion](https://github.com/EhPanda-Team/EhPanda/discussions).
+      required: true
+- type: textarea
+  attributes:
+    label: Expected behavior
+    description: Describe what you expected to happen.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Actual behavior
+    description: Describe or copy/paste the behavior you observe.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Reproduction steps
+    description: |
+      Provide a detailed explanation of how to reproduce the incorrect behavior.
+
+      Note that without steps that reproduce the problem we are likely to close this issue and convert it to a discussion until more details are provided.
+    placeholder: |
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: false
+- type: input
+  attributes:
+    label: EhPanda version information
+    description: The version of the EhPanda app used to reproduce this issue.
+    placeholder: "'2.0.0' for example, or a commit hash"
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Destination operating system
+    description: The OS running EhPanda.
+    placeholder: "'iPadOS 18' for example"
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Destination device
+    description: The device running EhPanda.
+    placeholder: "'iPad mini 7th gen' for example"
+  validations:
+    required: true
