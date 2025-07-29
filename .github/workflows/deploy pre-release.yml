@@ -5,11 +5,6 @@ on:
       - pre-release
     types: [closed]
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to run the workflow on'
-        required: true
-        default: 'pre-release'
 env:
   DEVELOPER_DIR: /Applications/Xcode_26_beta.app
   APP_VERSION: '2.8.0'
