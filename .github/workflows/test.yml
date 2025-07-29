@@ -2,7 +2,7 @@ name: Test
 on: [push, workflow_dispatch]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_16.2.app
+   DEVELOPER_DIR: /Applications/Xcode_26_beta.app
 jobs:
   Test:
     runs-on: macos-15
@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install iOS 26 Platform
+        run: xcodebuild -downloadPlatform iOS
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
