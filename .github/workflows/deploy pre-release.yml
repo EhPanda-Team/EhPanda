@@ -1,9 +1,15 @@
 name: Deploy Pre-release
 on:
-  pull_request:
+  push:
     branches:
       - pre-release
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'pre-release'
 env:
   DEVELOPER_DIR: /Applications/Xcode_26_beta.app
   APP_VERSION: '2.8.0'
@@ -21,9 +27,10 @@ jobs:
   Deploy:
     runs-on: macos-15
     if: |
-      github.event.pull_request.merged == true && (
-      github.event.pull_request.user.login == 'aalberrty' ||
-      github.event.pull_request.user.login == 'chihchy')
+      github.event_name == 'workflow_dispatch' || (
+        github.event.pull_request.merged == true &&
+        (github.event.pull_request.user.login == 'aalberrty' || github.event.pull_request.user.login == 'chihchy')
+      )
     steps:
       - name: Checkout
         uses: actions/checkout@v4
