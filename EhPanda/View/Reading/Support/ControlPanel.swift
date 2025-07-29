@@ -128,7 +128,7 @@ private struct UpperPanel: View {
                         .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
                 }
-                .glassEffect()
+                .glassEffect(.regular.interactive())
                 .padding(.leading, 20)
             } else {
                 Button(action: dismissAction) {
@@ -239,7 +239,7 @@ private struct UpperPanel: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .glassEffect()
+                .glassEffect(.regular.interactive())
                 .padding(.trailing, 20)
             } else {
                 HStack(spacing: 20) {
@@ -352,7 +352,7 @@ private struct LowerPanel<G: Gesture>: View {
                         .font(.title2)
                         .frame(width: 44, height: 44)
                 }
-                .glassEffect(in: RoundedRectangle(cornerRadius: 22))
+                .glassEffect(.regular.interactive())
                 .gesture(dismissGesture)
                 .opacity(showsSliderPreview ? 0 : 1)
             } else {
@@ -390,10 +390,10 @@ private struct LowerPanel<G: Gesture>: View {
                             Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
                                 .fontWeight(.medium).font(.caption).padding()
                         }
-                        .padding(.horizontal).padding(.bottom)
+                        .padding(.horizontal) //.padding(.bottom)
+                        .glassEffect()
                     }
                 }
-                .glassEffect()
             } else {
                 VStack(spacing: 0) {
                     SliderPreivew(
