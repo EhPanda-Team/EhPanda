@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord
+    url: https://discord.gg/BSBE9FCBTq
+    about: Community chat
+  - name: Telegram
+    url: https://t.me/ehpanda
+    about: Notification channel
