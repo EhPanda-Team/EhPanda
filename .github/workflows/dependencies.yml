@@ -19,7 +19,7 @@ jobs:
         with:
           forceResolution: true
           failWhenOutdated: false
-          xcodePath: '/Applications/Xcode_16.2.app'
+          xcodePath: '/Applications/Xcode_16.4.app'
       - name: Create Pull Request
         if: steps.resolution.outputs.dependenciesChanged == 'true'
         uses: peter-evans/create-pull-request@v7
