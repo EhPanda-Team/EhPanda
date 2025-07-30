@@ -229,9 +229,16 @@ final class GestureCoordinator: ObservableObject {
     }
     
     private func updateScaleAnchor(for point: CGPoint) {
-        let normalizedX = min(1, max(0, point.x / DeviceUtil.absWindowW))
-        let normalizedY = min(1, max(0, point.y / DeviceUtil.absWindowH))
-        scaleAnchor = UnitPoint(x: normalizedX, y: normalizedY)
+        if setting.readingDirection == .vertical {
+            // In vertical reading mode, always center the scale anchor on the page
+            // This ensures the boundaries are properly centered on the page content
+            scaleAnchor = .center
+        } else {
+            // For horizontal reading, use the touch point as the scale anchor
+            let normalizedX = min(1, max(0, point.x / DeviceUtil.absWindowW))
+            let normalizedY = min(1, max(0, point.y / DeviceUtil.absWindowH))
+            scaleAnchor = UnitPoint(x: normalizedX, y: normalizedY)
+        }
     }
     
     @discardableResult
@@ -242,10 +249,21 @@ final class GestureCoordinator: ObservableObject {
         let screenWidth = DeviceUtil.absWindowW
         let screenHeight = DeviceUtil.absWindowH
         
-        // When scaled, the image is larger than the screen, so we need to constrain
-        // the offset to keep the image content visible
-        let maxOffsetX = screenWidth * (scale - 1) / 2
-        let maxOffsetY = screenHeight * (scale - 1) / 2
+        // For vertical reading mode, we need to consider the actual image dimensions
+        // and ensure boundaries are centered on the page content, not just screen center
+        let maxOffsetX: CGFloat
+        let maxOffsetY: CGFloat
+        
+        if setting.readingDirection == .vertical {
+            // In vertical mode, use the same calculation as horizontal
+            // The key fix is in updateScaleAnchor which now centers the scale anchor
+            maxOffsetX = screenWidth * (scale - 1) / 2
+            maxOffsetY = screenHeight * (scale - 1) / 2
+        } else {
+            // For horizontal reading, use the original calculation
+            maxOffsetX = screenWidth * (scale - 1) / 2
+            maxOffsetY = screenHeight * (scale - 1) / 2
+        }
         
         // Apply constraints to keep the image within bounds
         let constrainedWidth = min(max(targetOffset.width, -maxOffsetX), maxOffsetX)

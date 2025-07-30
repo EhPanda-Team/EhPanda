@@ -35,13 +35,6 @@ struct ReadingReducer {
         }
     }
     
-    // MARK: - Image Action
-    enum ImageAction {
-        case copy(Bool)
-        case save(Bool)
-        case share(Bool)
-    }
-    
     // MARK: - Cancel IDs
     private enum CancelID: CaseIterable {
         case fetchImage
@@ -115,43 +108,45 @@ struct ReadingReducer {
         case saveImage(URL)
         case saveImageDone(Bool)
         case shareImage(URL)
-        case fetchImage(ImageAction, URL)
-        case fetchImageDone(ImageAction, Result<UIImage, Error>)
+        case fetchImage(URL, ImageOperation)
+        case fetchImageDone(ImageOperation, Result<UIImage, Error>)
         
         // MARK: - Data Synchronization
         case syncReadingProgress(Int)
-        case syncPreviewURLs([Int: URL])
-        case syncThumbnailURLs([Int: URL])
+        case syncURLs(URLType, [Int: URL])
         case syncImageURLs([Int: URL], [Int: URL])
         
         // MARK: - Database Operations
         case fetchDatabaseInfos(String)
         case fetchDatabaseInfosDone(GalleryState)
         
-        // MARK: - Preview Operations
-        case fetchPreviewURLs(Int)
-        case fetchPreviewURLsDone(Int, Result<[Int: URL], AppError>)
-        
-        // MARK: - Image URL Operations
-        case fetchImageURLs(Int)
-        case refetchImageURLs(Int)
-        case prefetchImages(Int, Int)
-        
-        // MARK: - Thumbnail Operations
-        case fetchThumbnailURLs(Int)
-        case fetchThumbnailURLsDone(Int, Result<[Int: URL], AppError>)
-        
-        // MARK: - Normal Image Operations
+        // MARK: - URL Fetch Operations
+        case fetchURLs(URLType, Int)
+        case fetchURLsDone(URLType, Int, Result<[Int: URL], AppError>)
         case fetchNormalImageURLs(Int, [Int: URL])
         case fetchNormalImageURLsDone(Int, Result<([Int: URL], [Int: URL]), AppError>)
-        case refetchNormalImageURLs(Int)
-        case refetchNormalImageURLsDone(Int, Result<([Int: URL], HTTPURLResponse?), AppError>)
+        case refetchImageURLs(Int)
+        case refetchImageURLsDone(Int, Result<([Int: URL], HTTPURLResponse?), AppError>)
+        case prefetchImages(Int, Int)
         
         // MARK: - MPV Operations
         case fetchMPVKeys(Int, URL)
         case fetchMPVKeysDone(Int, Result<(String, [Int: String]), AppError>)
         case fetchMPVImageURL(Int, Bool)
         case fetchMPVImageURLDone(Int, Result<(URL, URL?, String), AppError>)
+    }
+    
+    // MARK: - Supporting Types
+    enum ImageOperation: Equatable {
+        case copy
+        case save
+        case share
+    }
+    
+    enum URLType: Equatable {
+        case preview
+        case thumbnail
+        case normal
     }
     
     // MARK: - Dependencies
@@ -182,123 +177,220 @@ struct ReadingReducer {
                 return .none
                 
             case .setNavigation(let route):
-                return handleSetNavigation(&state, route: route)
+                state.route = route
+                return .none
                 
             case .toggleShowsPanel:
-                return handleToggleShowsPanel(&state)
+                state.showsPanel.toggle()
+                return .none
                 
             case .onPerformDismiss:
-                return handlePerformDismiss()
+                return .run(operation: { _ in 
+                    hapticsClient.generateFeedback(.light) 
+                })
                 
             case .onAppear(let gid, let enablesLandscape):
-                return handleOnAppear(&state, gid: gid, enablesLandscape: enablesLandscape)
+                var effects: [Effect<Action>] = [
+                    .send(.fetchDatabaseInfos(gid))
+                ]
+                if enablesLandscape {
+                    effects.append(.send(.setOrientationPortrait(false)))
+                }
+                return .merge(effects)
                 
             case .teardown:
-                return handleTeardown(&state)
+                var effects: [Effect<Action>] = [
+                    .merge(CancelID.allCases.map(Effect.cancel(id:)))
+                ]
+                if !deviceClient.isPad() {
+                    effects.append(.send(.setOrientationPortrait(true)))
+                }
+                return .merge(effects)
                 
             // MARK: - Orientation Actions
             case .setOrientationPortrait(let isPortrait):
-                return handleSetOrientationPortrait(isPortrait: isPortrait)
+                var effects = [Effect<Action>]()
+                if isPortrait {
+                    effects.append(.run(operation: { _ in 
+                        appDelegateClient.setPortraitOrientationMask() 
+                    }))
+                    effects.append(.run(operation: { _ in 
+                        await appDelegateClient.setPortraitOrientation() 
+                    }))
+                } else {
+                    effects.append(.run(operation: { _ in 
+                        appDelegateClient.setAllOrientationMask() 
+                    }))
+                }
+                return .merge(effects)
                 
             // MARK: - Web Image Actions
             case .onWebImageRetry(let index):
-                return handleWebImageRetry(&state, index: index)
+                state.imageURLLoadingStates[index] = .idle
+                return .none
                 
             case .onWebImageSucceeded(let index):
-                return handleWebImageSucceeded(&state, index: index)
+                state.imageURLLoadingStates[index] = .idle
+                state.webImageLoadSuccessIndices.insert(index)
+                return .none
                 
             case .onWebImageFailed(let index):
-                return handleWebImageFailed(&state, index: index)
+                state.imageURLLoadingStates[index] = .failed(.webImageFailed)
+                return .none
                 
             case .reloadAllWebImages:
-                return handleReloadAllWebImages(&state)
+                state.previewURLs = .init()
+                state.thumbnailURLs = .init()
+                state.imageURLs = .init()
+                state.originalImageURLs = .init()
+                state.mpvKey = nil
+                state.mpvImageKeys = .init()
+                state.mpvSkipServerIdentifiers = .init()
+                state.forceRefreshID = .init()
+                
+                return .run { [galleryId = state.gallery.id] _ in
+                    await databaseClient.removeImageURLs(gid: galleryId)
+                }
                 
             case .retryAllFailedWebImages:
-                return handleRetryAllFailedWebImages(&state)
+                state.imageURLLoadingStates.forEach { (index, loadingState) in
+                    if case .failed = loadingState {
+                        state.imageURLLoadingStates[index] = .idle
+                    }
+                }
+                state.previewLoadingStates.forEach { (index, loadingState) in
+                    if case .failed = loadingState {
+                        state.previewLoadingStates[index] = .idle
+                    }
+                }
+                return .none
                 
             // MARK: - Image Actions
             case .copyImage(let imageURL):
-                return handleCopyImage(imageURL: imageURL)
+                return .send(.fetchImage(imageURL, .copy))
                 
             case .saveImage(let imageURL):
-                return handleSaveImage(imageURL: imageURL)
-                
-            case .saveImageDone(let isSucceeded):
-                return handleSaveImageDone(&state, isSucceeded: isSucceeded)
+                return .send(.fetchImage(imageURL, .save))
                 
             case .shareImage(let imageURL):
-                return handleShareImage(imageURL: imageURL)
+                return .send(.fetchImage(imageURL, .share))
                 
-            case .fetchImage(let action, let imageURL):
-                return handleFetchImage(action: action, imageURL: imageURL)
+            case .saveImageDone(let isSucceeded):
+                state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
+                return .send(.setNavigation(.hud))
                 
-            case .fetchImageDone(let action, let result):
-                return handleFetchImageDone(&state, action: action, result: result)
+            case .fetchImage(let imageURL, let operation):
+                return .run { send in
+                    let result = await imageClient.fetchImage(url: imageURL)
+                    await send(.fetchImageDone(operation, result))
+                }
+                .cancellable(id: CancelID.fetchImage)
+                
+            case .fetchImageDone(let operation, let result):
+                switch result {
+                case .success(let image):
+                    return handleSuccessfulImageFetch(state: &state, operation: operation, image: image)
+                case .failure:
+                    state.hudConfig = .error
+                    return .send(.setNavigation(.hud))
+                }
                 
             // MARK: - Synchronization Actions
             case .syncReadingProgress(let progress):
-                return handleSyncReadingProgress(state: state, progress: progress)
+                return .run { [galleryId = state.gallery.id] _ in
+                    await databaseClient.updateReadingProgress(
+                        gid: galleryId, 
+                        progress: progress
+                    )
+                }
                 
-            case .syncPreviewURLs(let previewURLs):
-                return handleSyncPreviewURLs(state: state, previewURLs: previewURLs)
-                
-            case .syncThumbnailURLs(let thumbnailURLs):
-                return handleSyncThumbnailURLs(state: state, thumbnailURLs: thumbnailURLs)
+            case .syncURLs(let urlType, let urls):
+                return .run { [galleryId = state.gallery.id] _ in
+                    switch urlType {
+                    case .preview:
+                        await databaseClient.updatePreviewURLs(gid: galleryId, previewURLs: urls)
+                    case .thumbnail:
+                        await databaseClient.updateThumbnailURLs(gid: galleryId, thumbnailURLs: urls)
+                    case .normal:
+                        break // Handled by syncImageURLs
+                    }
+                }
                 
             case .syncImageURLs(let imageURLs, let originalImageURLs):
-                return handleSyncImageURLs(
-                    state: state, 
-                    imageURLs: imageURLs, 
-                    originalImageURLs: originalImageURLs
-                )
+                return .run { [galleryId = state.gallery.id] _ in
+                    await databaseClient.updateImageURLs(
+                        gid: galleryId,
+                        imageURLs: imageURLs,
+                        originalImageURLs: originalImageURLs
+                    )
+                }
                 
             // MARK: - Database Actions
             case .fetchDatabaseInfos(let gid):
-                return handleFetchDatabaseInfos(&state, gid: gid)
+                guard let gallery = databaseClient.fetchGallery(gid: gid) else { 
+                    return .none 
+                }
+                
+                state.gallery = gallery
+                state.galleryDetail = databaseClient.fetchGalleryDetail(gid: state.gallery.id)
+                
+                return .run { [galleryId = state.gallery.id] send in
+                    guard let dbState = await databaseClient.fetchGalleryState(gid: galleryId) else { 
+                        return 
+                    }
+                    await send(.fetchDatabaseInfosDone(dbState))
+                }
+                .cancellable(id: CancelID.fetchDatabaseInfos)
                 
             case .fetchDatabaseInfosDone(let galleryState):
-                return handleFetchDatabaseInfosDone(&state, galleryState: galleryState)
+                if let previewConfig = galleryState.previewConfig {
+                    state.previewConfig = previewConfig
+                }
+                state.previewURLs = galleryState.previewURLs
+                state.imageURLs = galleryState.imageURLs
+                state.thumbnailURLs = galleryState.thumbnailURLs
+                state.originalImageURLs = galleryState.originalImageURLs
+                state.readingProgress = galleryState.readingProgress
+                state.databaseLoadingState = .idle
+                return .none
                 
-            // MARK: - Preview Actions
-            case .fetchPreviewURLs(let index):
-                return handleFetchPreviewURLs(&state, index: index)
+            // MARK: - URL Fetch Actions
+            case .fetchURLs(let urlType, let index):
+                return handleFetchURLs(&state, urlType: urlType, index: index)
                 
-            case .fetchPreviewURLsDone(let index, let result):
-                return handleFetchPreviewURLsDone(&state, index: index, result: result)
-                
-            // MARK: - Image URL Actions
-            case .fetchImageURLs(let index):
-                return handleFetchImageURLs(&state, index: index)
+            case .fetchURLsDone(let urlType, let index, let result):
+                return handleFetchURLsDone(&state, urlType: urlType, index: index, result: result)
                 
             case .refetchImageURLs(let index):
-                return handleRefetchImageURLs(&state, index: index)
+                if state.mpvKey != nil {
+                    return .send(.fetchMPVImageURL(index, true))
+                } else {
+                    return handleRefetchNormalImageURLs(&state, index: index)
+                }
                 
-            case .prefetchImages(let index, let prefetchLimit):
-                return handlePrefetchImages(&state, index: index, prefetchLimit: prefetchLimit)
+            case .refetchImageURLsDone(let index, let result):
+                return handleRefetchImageURLsDone(&state, index: index, result: result)
                 
-            // MARK: - Thumbnail Actions
-            case .fetchThumbnailURLs(let index):
-                return handleFetchThumbnailURLs(&state, index: index)
-                
-            case .fetchThumbnailURLsDone(let index, let result):
-                return handleFetchThumbnailURLsDone(&state, index: index, result: result)
-                
-            // MARK: - Normal Image Actions
             case .fetchNormalImageURLs(let index, let thumbnailURLs):
-                return handleFetchNormalImageURLs(index: index, thumbnailURLs: thumbnailURLs)
+                return fetchNormalImageURLs(index: index, thumbnailURLs: thumbnailURLs)
                 
             case .fetchNormalImageURLsDone(let index, let result):
                 return handleFetchNormalImageURLsDone(&state, index: index, result: result)
                 
-            case .refetchNormalImageURLs(let index):
-                return handleRefetchNormalImageURLs(&state, index: index)
-                
-            case .refetchNormalImageURLsDone(let index, let result):
-                return handleRefetchNormalImageURLsDone(&state, index: index, result: result)
+            case .prefetchImages(let index, let prefetchLimit):
+                 let prefetchHelper = PrefetchHelper(state: state, imageClient: imageClient)
+                 return prefetchHelper.createPrefetchEffects(
+                     currentIndex: index, 
+                     prefetchLimit: prefetchLimit
+                 )
                 
             // MARK: - MPV Actions
             case .fetchMPVKeys(let index, let mpvURL):
-                return handleFetchMPVKeys(index: index, mpvURL: mpvURL)
+                return .run { send in
+                    let response = await MPVKeysRequest(mpvURL: mpvURL).response()
+                    await send(.fetchMPVKeysDone(index, response))
+                }
+                .cancellable(id: CancelID.fetchMPVKeys)
                 
             case .fetchMPVKeysDone(let index, let result):
                 return handleFetchMPVKeysDone(&state, index: index, result: result)
@@ -316,168 +408,27 @@ struct ReadingReducer {
     
     // MARK: - Handler Methods
     
-    /// Basic Action Handlers
-    func handleSetNavigation(_ state: inout State, route: Route?) -> Effect<Action> {
-        state.route = route
-        return .none
-    }
-    
-    func handleToggleShowsPanel(_ state: inout State) -> Effect<Action> {
-        state.showsPanel.toggle()
-        return .none
-    }
-    
-    func handlePerformDismiss() -> Effect<Action> {
-        return .run(operation: { _ in 
-            hapticsClient.generateFeedback(.light) 
-        })
-    }
-    
-    func handleOnAppear(_ state: inout State, gid: String, enablesLandscape: Bool) -> Effect<Action> {
-        var effects: [Effect<Action>] = [
-            .send(.fetchDatabaseInfos(gid))
-        ]
-        if enablesLandscape {
-            effects.append(.send(.setOrientationPortrait(false)))
-        }
-        return .merge(effects)
-    }
-    
-    func handleTeardown(_ state: inout State) -> Effect<Action> {
-        var effects: [Effect<Action>] = [
-            .merge(CancelID.allCases.map(Effect.cancel(id:)))
-        ]
-        if !deviceClient.isPad() {
-            effects.append(.send(.setOrientationPortrait(true)))
-        }
-        return .merge(effects)
-    }
-    
-    /// Orientation Handlers
-    func handleSetOrientationPortrait(isPortrait: Bool) -> Effect<Action> {
-        var effects = [Effect<Action>]()
-        if isPortrait {
-            effects.append(.run(operation: { _ in 
-                appDelegateClient.setPortraitOrientationMask() 
-            }))
-            effects.append(.run(operation: { _ in 
-                await appDelegateClient.setPortraitOrientation() 
-            }))
-        } else {
-            effects.append(.run(operation: { _ in 
-                appDelegateClient.setAllOrientationMask() 
-            }))
-        }
-        return .merge(effects)
-    }
-    
-    /// Web Image Handlers
-    func handleWebImageRetry(_ state: inout State, index: Int) -> Effect<Action> {
-        state.imageURLLoadingStates[index] = .idle
-        return .none
-    }
-    
-    func handleWebImageSucceeded(_ state: inout State, index: Int) -> Effect<Action> {
-        state.imageURLLoadingStates[index] = .idle
-        state.webImageLoadSuccessIndices.insert(index)
-        return .none
-    }
-    
-    func handleWebImageFailed(_ state: inout State, index: Int) -> Effect<Action> {
-        state.imageURLLoadingStates[index] = .failed(.webImageFailed)
-        return .none
-    }
-    
-    func handleReloadAllWebImages(_ state: inout State) -> Effect<Action> {
-        state.previewURLs = .init()
-        state.thumbnailURLs = .init()
-        state.imageURLs = .init()
-        state.originalImageURLs = .init()
-        state.mpvKey = nil
-        state.mpvImageKeys = .init()
-        state.mpvSkipServerIdentifiers = .init()
-        state.forceRefreshID = .init()
-        
-        return .run { [galleryId = state.gallery.id] _ in
-            await databaseClient.removeImageURLs(gid: galleryId)
-        }
-    }
-    
-    func handleRetryAllFailedWebImages(_ state: inout State) -> Effect<Action> {
-        state.imageURLLoadingStates.forEach { (index, loadingState) in
-            if case .failed = loadingState {
-                state.imageURLLoadingStates[index] = .idle
-            }
-        }
-        state.previewLoadingStates.forEach { (index, loadingState) in
-            if case .failed = loadingState {
-                state.previewLoadingStates[index] = .idle
-            }
-        }
-        return .none
-    }
-    
-    /// Image Action Handlers
-    func handleCopyImage(imageURL: URL) -> Effect<Action> {
-        return .send(.fetchImage(.copy(imageURL.isGIF), imageURL))
-    }
-    
-    func handleSaveImage(imageURL: URL) -> Effect<Action> {
-        return .send(.fetchImage(.save(imageURL.isGIF), imageURL))
-    }
-    
-    func handleSaveImageDone(_ state: inout State, isSucceeded: Bool) -> Effect<Action> {
-        state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
-        return .send(.setNavigation(.hud))
-    }
-    
-    func handleShareImage(imageURL: URL) -> Effect<Action> {
-        return .send(.fetchImage(.share(imageURL.isGIF), imageURL))
-    }
-    
-    func handleFetchImage(action: ImageAction, imageURL: URL) -> Effect<Action> {
-        return .run { send in
-            let result = await imageClient.fetchImage(url: imageURL)
-            await send(.fetchImageDone(action, result))
-        }
-        .cancellable(id: CancelID.fetchImage)
-    }
-    
-    func handleFetchImageDone(
-        _ state: inout State, 
-        action: ImageAction, 
-        result: Result<UIImage, Error>
-    ) -> Effect<Action> {
-        switch result {
-        case .success(let image):
-            return handleSuccessfulImageFetch(state: &state, action: action, image: image)
-        case .failure:
-            state.hudConfig = .error
-            return .send(.setNavigation(.hud))
-        }
-    }
-    
     private func handleSuccessfulImageFetch(
         state: inout State, 
-        action: ImageAction, 
+        operation: ImageOperation, 
         image: UIImage
     ) -> Effect<Action> {
-        switch action {
-        case .copy(let isAnimated):
+        switch operation {
+        case .copy:
             state.hudConfig = .copiedToClipboardSucceeded
             return .merge(
                 .send(.setNavigation(.hud)),
                 .run(operation: { _ in 
-                    clipboardClient.saveImage(image, isAnimated) 
+                    clipboardClient.saveImage(image, image.kf.data(format: .GIF) != nil) 
                 })
             )
-        case .save(let isAnimated):
+        case .save:
             return .run { send in
-                let success = await imageClient.saveImageToPhotoLibrary(image, isAnimated)
+                let success = await imageClient.saveImageToPhotoLibrary(image, image.kf.data(format: .GIF) != nil)
                 await send(.saveImageDone(success))
             }
-        case .share(let isAnimated):
-            if isAnimated, let data = image.kf.data(format: .GIF) {
+        case .share:
+            if let data = image.kf.data(format: .GIF) {
                 return .send(.setNavigation(.share(.init(value: .data(data)))))
             } else {
                 return .send(.setNavigation(.share(.init(value: .image(image)))))
@@ -485,214 +436,116 @@ struct ReadingReducer {
         }
     }
     
-    /// Synchronization Handlers
-    func handleSyncReadingProgress(state: State, progress: Int) -> Effect<Action> {
-        return .run { _ in
-            await databaseClient.updateReadingProgress(
-                gid: state.gallery.id, 
-                progress: progress
-            )
-        }
-    }
-    
-    func handleSyncPreviewURLs(state: State, previewURLs: [Int: URL]) -> Effect<Action> {
-        return .run { _ in
-            await databaseClient.updatePreviewURLs(
-                gid: state.gallery.id, 
-                previewURLs: previewURLs
-            )
-        }
-    }
-    
-    func handleSyncThumbnailURLs(state: State, thumbnailURLs: [Int: URL]) -> Effect<Action> {
-        return .run { _ in
-            await databaseClient.updateThumbnailURLs(
-                gid: state.gallery.id, 
-                thumbnailURLs: thumbnailURLs
-            )
-        }
-    }
-    
-    func handleSyncImageURLs(
-        state: State, 
-        imageURLs: [Int: URL], 
-        originalImageURLs: [Int: URL]
-    ) -> Effect<Action> {
-        return .run { _ in
-            await databaseClient.updateImageURLs(
-                gid: state.gallery.id,
-                imageURLs: imageURLs,
-                originalImageURLs: originalImageURLs
-            )
-        }
-    }
-    
-    /// Database Handlers
-    func handleFetchDatabaseInfos(_ state: inout State, gid: String) -> Effect<Action> {
-        guard let gallery = databaseClient.fetchGallery(gid: gid) else { 
-            return .none 
-        }
-        
-        state.gallery = gallery
-        state.galleryDetail = databaseClient.fetchGalleryDetail(gid: state.gallery.id)
-        
-        return .run { [galleryId = state.gallery.id] send in
-            guard let dbState = await databaseClient.fetchGalleryState(gid: galleryId) else { 
-                return 
+    private func handleFetchURLs(_ state: inout State, urlType: URLType, index: Int) -> Effect<Action> {
+        switch urlType {
+        case .preview:
+            guard state.previewLoadingStates[index] != .loading,
+                  let galleryURL = state.gallery.galleryURL
+            else { return .none }
+            
+            state.previewLoadingStates[index] = .loading
+            let pageNum = state.previewConfig.pageNumber(index: index)
+            
+            return .run { send in
+                let response = await GalleryPreviewURLsRequest(
+                    galleryURL: galleryURL, 
+                    pageNum: pageNum
+                ).response()
+                await send(.fetchURLsDone(.preview, index, response))
             }
-            await send(.fetchDatabaseInfosDone(dbState))
+            .cancellable(id: CancelID.fetchPreviewURLs)
+            
+        case .thumbnail:
+            guard state.imageURLLoadingStates[index] != .loading,
+                  let galleryURL = state.gallery.galleryURL
+            else { return .none }
+            
+            state.previewConfig.batchRange(index: index).forEach {
+                state.imageURLLoadingStates[$0] = .loading
+            }
+            
+            let pageNum = state.previewConfig.pageNumber(index: index)
+            
+            return .run { send in
+                let response = await ThumbnailURLsRequest(
+                    galleryURL: galleryURL, 
+                    pageNum: pageNum
+                ).response()
+                await send(.fetchURLsDone(.thumbnail, index, response))
+            }
+            .cancellable(id: CancelID.fetchThumbnailURLs)
+            
+        case .normal:
+            if state.mpvKey != nil {
+                return .send(.fetchMPVImageURL(index, false))
+            } else {
+                return .send(.fetchURLs(.thumbnail, index))
+            }
         }
-        .cancellable(id: CancelID.fetchDatabaseInfos)
     }
     
-    func handleFetchDatabaseInfosDone(
+    private func handleFetchURLsDone(
         _ state: inout State, 
-        galleryState: GalleryState
-    ) -> Effect<Action> {
-        if let previewConfig = galleryState.previewConfig {
-            state.previewConfig = previewConfig
-        }
-        state.previewURLs = galleryState.previewURLs
-        state.imageURLs = galleryState.imageURLs
-        state.thumbnailURLs = galleryState.thumbnailURLs
-        state.originalImageURLs = galleryState.originalImageURLs
-        state.readingProgress = galleryState.readingProgress
-        state.databaseLoadingState = .idle
-        return .none
-    }
-    
-    /// Preview Handlers
-    func handleFetchPreviewURLs(_ state: inout State, index: Int) -> Effect<Action> {
-        guard state.previewLoadingStates[index] != .loading,
-              let galleryURL = state.gallery.galleryURL
-        else { 
-            return .none 
-        }
-        
-        state.previewLoadingStates[index] = .loading
-        let pageNum = state.previewConfig.pageNumber(index: index)
-        
-        return .run { send in
-            let response = await GalleryPreviewURLsRequest(
-                galleryURL: galleryURL, 
-                pageNum: pageNum
-            ).response()
-            await send(.fetchPreviewURLsDone(index, response))
-        }
-        .cancellable(id: CancelID.fetchPreviewURLs)
-    }
-    
-    func handleFetchPreviewURLsDone(
-        _ state: inout State, 
+        urlType: URLType, 
         index: Int, 
         result: Result<[Int: URL], AppError>
     ) -> Effect<Action> {
         switch result {
-        case .success(let previewURLs):
-            guard !previewURLs.isEmpty else {
-                state.previewLoadingStates[index] = .failed(.notFound)
-                return .none
-            }
-            state.previewLoadingStates[index] = .idle
-            state.updatePreviewURLs(previewURLs)
-            return .send(.syncPreviewURLs(previewURLs))
-        case .failure(let error):
-            state.previewLoadingStates[index] = .failed(error)
-            return .none
-        }
-    }
-    
-    /// Image URL Handlers
-    func handleFetchImageURLs(_ state: inout State, index: Int) -> Effect<Action> {
-        if state.mpvKey != nil {
-            return .send(.fetchMPVImageURL(index, false))
-        } else {
-            return .send(.fetchThumbnailURLs(index))
-        }
-    }
-    
-    func handleRefetchImageURLs(_ state: inout State, index: Int) -> Effect<Action> {
-        if state.mpvKey != nil {
-            return .send(.fetchMPVImageURL(index, true))
-        } else {
-            return .send(.refetchNormalImageURLs(index))
-        }
-    }
-    
-    func handlePrefetchImages(
-        _ state: inout State, 
-        index: Int, 
-        prefetchLimit: Int
-    ) -> Effect<Action> {
-        let prefetchHelper = PrefetchHelper(state: state, imageClient: imageClient)
-        return prefetchHelper.createPrefetchEffects(
-            currentIndex: index, 
-            prefetchLimit: prefetchLimit
-        )
-    }
-    
-    /// Thumbnail Handlers
-    func handleFetchThumbnailURLs(_ state: inout State, index: Int) -> Effect<Action> {
-        guard state.imageURLLoadingStates[index] != .loading,
-              let galleryURL = state.gallery.galleryURL
-        else { 
-            return .none 
-        }
-        
-        state.previewConfig.batchRange(index: index).forEach {
-            state.imageURLLoadingStates[$0] = .loading
-        }
-        
-        let pageNum = state.previewConfig.pageNumber(index: index)
-        
-        return .run { send in
-            let response = await ThumbnailURLsRequest(
-                galleryURL: galleryURL, 
-                pageNum: pageNum
-            ).response()
-            await send(.fetchThumbnailURLsDone(index, response))
-        }
-        .cancellable(id: CancelID.fetchThumbnailURLs)
-    }
-    
-    func handleFetchThumbnailURLsDone(
-        _ state: inout State, 
-        index: Int, 
-        result: Result<[Int: URL], AppError>
-    ) -> Effect<Action> {
-        let batchRange = state.previewConfig.batchRange(index: index)
-        
-        switch result {
-        case .success(let thumbnailURLs):
-            guard !thumbnailURLs.isEmpty else {
-                batchRange.forEach {
-                    state.imageURLLoadingStates[$0] = .failed(.notFound)
+        case .success(let urls):
+            guard !urls.isEmpty else {
+                switch urlType {
+                case .preview:
+                    state.previewLoadingStates[index] = .failed(.notFound)
+                case .thumbnail, .normal:
+                    let batchRange = state.previewConfig.batchRange(index: index)
+                    batchRange.forEach {
+                        state.imageURLLoadingStates[$0] = .failed(.notFound)
+                    }
                 }
                 return .none
             }
             
-            if let url = thumbnailURLs[index], urlClient.checkIfMPVURL(url) {
-                return .send(.fetchMPVKeys(index, url))
-            } else {
-                state.updateThumbnailURLs(thumbnailURLs)
-                return .merge(
-                    .send(.syncThumbnailURLs(thumbnailURLs)),
-                    .send(.fetchNormalImageURLs(index, thumbnailURLs))
-                )
+            switch urlType {
+            case .preview:
+                state.previewLoadingStates[index] = .idle
+                state.updatePreviewURLs(urls)
+                return .send(.syncURLs(.preview, urls))
+                
+            case .thumbnail:
+                let batchRange = state.previewConfig.batchRange(index: index)
+                batchRange.forEach {
+                    state.imageURLLoadingStates[$0] = .idle
+                }
+                state.updateThumbnailURLs(urls)
+                
+                if let url = urls[index], urlClient.checkIfMPVURL(url) {
+                    return .send(.fetchMPVKeys(index, url))
+                } else {
+                    return .merge(
+                        .send(.syncURLs(.thumbnail, urls)),
+                        .send(.fetchNormalImageURLs(index, urls))
+                    )
+                }
+                
+            case .normal:
+                return .none // Handled by specific normal image handlers
             }
+            
         case .failure(let error):
-            batchRange.forEach {
-                state.imageURLLoadingStates[$0] = .failed(error)
+            switch urlType {
+            case .preview:
+                state.previewLoadingStates[index] = .failed(error)
+            case .thumbnail, .normal:
+                let batchRange = state.previewConfig.batchRange(index: index)
+                batchRange.forEach {
+                    state.imageURLLoadingStates[$0] = .failed(error)
+                }
             }
             return .none
         }
     }
     
-    /// Normal Image Handlers
-    func handleFetchNormalImageURLs(
-        index: Int, 
-        thumbnailURLs: [Int: URL]
-    ) -> Effect<Action> {
+    private func fetchNormalImageURLs(index: Int, thumbnailURLs: [Int: URL]) -> Effect<Action> {
         return .run { send in
             let response = await GalleryNormalImageURLsRequest(
                 thumbnailURLs: thumbnailURLs
@@ -702,7 +555,7 @@ struct ReadingReducer {
         .cancellable(id: CancelID.fetchNormalImageURLs)
     }
     
-    func handleFetchNormalImageURLsDone(
+    private func handleFetchNormalImageURLsDone(
         _ state: inout State, 
         index: Int, 
         result: Result<([Int: URL], [Int: URL]), AppError>
@@ -732,13 +585,11 @@ struct ReadingReducer {
         }
     }
     
-    func handleRefetchNormalImageURLs(_ state: inout State, index: Int) -> Effect<Action> {
+    private func handleRefetchNormalImageURLs(_ state: inout State, index: Int) -> Effect<Action> {
         guard state.imageURLLoadingStates[index] != .loading,
               let galleryURL = state.gallery.galleryURL,
               let imageURL = state.imageURLs[index]
-        else { 
-            return .none 
-        }
+        else { return .none }
         
         state.imageURLLoadingStates[index] = .loading
         let pageNum = state.previewConfig.pageNumber(index: index)
@@ -751,12 +602,12 @@ struct ReadingReducer {
                 thumbnailURL: thumbnailURL,
                 storedImageURL: imageURL
             ).response()
-            await send(.refetchNormalImageURLsDone(index, response))
+            await send(.refetchImageURLsDone(index, response))
         }
         .cancellable(id: CancelID.refetchNormalImageURLs)
     }
     
-    func handleRefetchNormalImageURLsDone(
+    private func handleRefetchImageURLsDone(
         _ state: inout State, 
         index: Int, 
         result: Result<([Int: URL], HTTPURLResponse?), AppError>
@@ -787,16 +638,7 @@ struct ReadingReducer {
         }
     }
     
-    /// MPV Handlers
-    func handleFetchMPVKeys(index: Int, mpvURL: URL) -> Effect<Action> {
-        return .run { send in
-            let response = await MPVKeysRequest(mpvURL: mpvURL).response()
-            await send(.fetchMPVKeysDone(index, response))
-        }
-        .cancellable(id: CancelID.fetchMPVKeys)
-    }
-    
-    func handleFetchMPVKeysDone(
+    private func handleFetchMPVKeysDone(
         _ state: inout State, 
         index: Int, 
         result: Result<(String, [Int: String]), AppError>
@@ -833,7 +675,7 @@ struct ReadingReducer {
         }
     }
     
-    func handleFetchMPVImageURL(
+    private func handleFetchMPVImageURL(
         _ state: inout State, 
         index: Int, 
         isRefresh: Bool
@@ -842,9 +684,7 @@ struct ReadingReducer {
               let mpvKey = state.mpvKey,
               let mpvImageKey = state.mpvImageKeys[index],
               state.imageURLLoadingStates[index] != .loading
-        else { 
-            return .none 
-        }
+        else { return .none }
         
         state.imageURLLoadingStates[index] = .loading
         let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[index] : nil
@@ -862,7 +702,7 @@ struct ReadingReducer {
         .cancellable(id: CancelID.fetchMPVImageURL)
     }
     
-    func handleFetchMPVImageURLDone(
+    private func handleFetchMPVImageURLDone(
         _ state: inout State, 
         index: Int, 
         result: Result<(URL, URL?, String), AppError>
@@ -968,6 +808,11 @@ private struct PrefetchHelper {
     let state: ReadingReducer.State
     let imageClient: ImageClient
     
+    init(state: ReadingReducer.State, imageClient: ImageClient) {
+        self.state = state
+        self.imageClient = imageClient
+    }
+    
     func createPrefetchEffects(currentIndex: Int, prefetchLimit: Int) -> Effect<ReadingReducer.Action> {
         let (prefetchURLs, fetchIndices) = calculatePrefetchData(
             currentIndex: currentIndex, 
@@ -975,7 +820,7 @@ private struct PrefetchHelper {
         )
         
         var effects = fetchIndices.map { index in
-            Effect<ReadingReducer.Action>.send(.fetchImageURLs(index))
+            Effect<ReadingReducer.Action>.send(.fetchURLs(.thumbnail, index))
         }
         
         effects.append(

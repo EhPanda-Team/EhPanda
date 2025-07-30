@@ -446,7 +446,7 @@ private struct ReadingControlsOverlay: View {
             navigateSettingAction: { store.send(.setNavigation(.readingSetting())) },
             reloadAllImagesAction: { store.send(.reloadAllWebImages) },
             retryAllFailedImagesAction: { store.send(.retryAllFailedWebImages) },
-            fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
+            fetchPreviewURLsAction: { store.send(.fetchURLs(.preview, $0)) }
         )
     }
     

@@ -281,7 +281,7 @@ private struct ImageContainerView: View {
         
         if !isDatabaseLoading {
             if imageURL == nil {
-                store.send(.fetchImageURLs(index))
+                store.send(.fetchURLs(.thumbnail, index))
             }
             store.send(.prefetchImages(index, setting.prefetchLimit))
         }
