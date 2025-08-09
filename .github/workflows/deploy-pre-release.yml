@@ -1,0 +1,93 @@
+name: Deploy Pre-release
+on:
+  workflow_dispatch:
+    inputs:
+      versionTag:
+        description: 'Version tag'
+        required: true
+        type: string
+      releaseTitle:
+        description: 'Release title'
+        required: true
+        type: string
+      releaseDescription:
+        description: 'Release description'
+        required: true
+        type: string
+env:
+  DEVELOPER_DIR: /Applications/Xcode_26_beta.app
+  SCHEME_NAME: 'EhPanda'
+  ALTSTORE_JSON_PATH: './AltStore.json'
+  BUILDS_PATH: '/tmp/action-builds'
+  PAYLOAD_PATH: '/tmp/action-builds/Payload'
+  THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
+  ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
+  IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
+
+jobs:
+  Deploy:
+    runs-on: macos-15
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Modify git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Install iOS 26 Platform
+        run: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run tests
+        run: xcodebuild clean test
+          -skipMacroValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+      - name: Bump version
+        id: bump-version
+        uses: yanamura/ios-bump-version@v1
+        with:
+          version: ${{ inputs.versionTag }}
+      - name: Xcode archive
+        run: xcodebuild archive
+          -skipMacroValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'generic/platform=iOS'
+          -archivePath ${{ env.ARCHIVE_PATH }}
+          CODE_SIGN_IDENTITY=
+          CODE_SIGN_ENTITLEMENTS=
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          GCC_OPTIMIZATION_LEVEL=s
+          SWIFT_OPTIMIZATION_LEVEL=-O
+      - name: Export .ipa file
+        run: |
+          mkdir -p ${{ env.PAYLOAD_PATH }}
+          mv ${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          sh ${{ env.THIN_PAYLOAD_SCRIPT_PATH }} ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          pushd ${{ env.BUILDS_PATH }}
+          zip -r ${{ env.IPA_OUTPUT_PATH }} ./Payload
+          popd
+      - name: Retrieve data
+        id: retrieve-data
+        run: |
+          echo "size=$(stat -f%z $IPA_OUTPUT_PATH)" >> $GITHUB_OUTPUT
+          echo "version_date=$(date -u +"%Y-%m-%dT%T")" >> $GITHUB_OUTPUT
+      - name: Validate data
+        run: |
+          [[ ! -z "${{ inputs.releaseTitle }}" ]] || exit 1
+          [[ ! -z "${{ inputs.releaseDescription }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
+          [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+         prerelease: true
+         fail_on_unmatched_files: true
+         files: ${{ env.IPA_OUTPUT_PATH }}
+         token: ${{ secrets.GITHUB_TOKEN }}
+         name: ${{ inputs.releaseTitle }}
+         body: ${{ inputs.releaseDescription }}
+         tag_name: 'v${{ steps.bump-version.outputs.version }}'
