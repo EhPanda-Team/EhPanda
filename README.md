@@ -46,3 +46,4 @@ https://ehpanda.app
 
 ## App Icon
 Copyright © 2025 荒木辰造. All rights reserved.
+
