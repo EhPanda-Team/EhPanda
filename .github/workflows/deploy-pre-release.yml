@@ -1,19 +1,25 @@
 name: Deploy Pre-release
 on:
-  push:
-    branches:
-      - pre-release
-    types: [closed]
   workflow_dispatch:
+    inputs:
+      versionTag:
+        description: 'Version tag'
+        required: true
+        type: string
+      releaseTitle:
+        description: 'Release title'
+        required: true
+        type: string
+      releaseDescription:
+        description: 'Release description'
+        required: true
+        type: string
 env:
   DEVELOPER_DIR: /Applications/Xcode_26_beta.app
-  APP_VERSION: '2.8.0'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
-  FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
-  FILTER_PATH: './actions-tool/ReleaseNotesFilter'
   THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
@@ -21,11 +27,7 @@ env:
 jobs:
   Deploy:
     runs-on: macos-15
-    if: |
-      github.event_name == 'workflow_dispatch' || (
-        github.event.pull_request.merged == true &&
-        (github.event.pull_request.user.login == 'aalberrty' || github.event.pull_request.user.login == 'chihchy')
-      )
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +48,7 @@ jobs:
         id: bump-version
         uses: yanamura/ios-bump-version@v1
         with:
-          version: ${{ env.APP_VERSION }}
+          version: ${{ inputs.versionTag }}
       - name: Xcode archive
         run: xcodebuild archive
           -skipMacroValidation
@@ -70,17 +72,13 @@ jobs:
       - name: Retrieve data
         id: retrieve-data
         run: |
-          swiftc -o $FILTER_PATH $FILTER_SWIFT_PATH
-          sudo chmod 777 $FILTER_PATH
           echo "size=$(stat -f%z $IPA_OUTPUT_PATH)" >> $GITHUB_OUTPUT
           echo "version_date=$(date -u +"%Y-%m-%dT%T")" >> $GITHUB_OUTPUT
-          echo "notes=$($FILTER_PATH "${{ github.event.pull_request.body }}")" >> $GITHUB_OUTPUT
       - name: Validate data
         run: |
-          [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1
-          [[ ! -z "${{ github.event.pull_request.title }}" ]] || exit 1
+          [[ ! -z "${{ inputs.releaseTitle }}" ]] || exit 1
+          [[ ! -z "${{ inputs.releaseDescription }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
-          [[ ! -z "${{ steps.retrieve-data.outputs.notes }}" ]] || exit 1
           [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
       - name: Release to GitHub
@@ -90,20 +88,6 @@ jobs:
          fail_on_unmatched_files: true
          files: ${{ env.IPA_OUTPUT_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
-         body: ${{ github.event.pull_request.body }}
-         name: ${{ github.event.pull_request.title }}
+         name: ${{ inputs.releaseTitle }}
+         body: ${{ inputs.releaseDescription }}
          tag_name: 'v${{ steps.bump-version.outputs.version }}'
-      - name: Commit bump version
-        run: |
-          git add .
-          git commit -m "Bump version"
-          git push origin HEAD
-          
-      #- name: Post pre-release notes
-        #run: |
-         #curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-         #-d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         #-d text='*v${{ steps.bump-version.outputs.version }} Pre-release Notes:*%0A${{ github.event.pull_request.body }}'
-
-         #curl ${{ secrets.DISCORD_WEBHOOK }} \
-         #-F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }} Pre-release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
