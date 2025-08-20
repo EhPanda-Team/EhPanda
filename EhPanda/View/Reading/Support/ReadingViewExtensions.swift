@@ -2,8 +2,6 @@
 //  ReadingViewExtensions.swift
 //  EhPanda
 //
-//  Created by zackie on 2025-07-28 for improved Reading view architecture
-//
 
 import SwiftUI
 import SwiftUIPager

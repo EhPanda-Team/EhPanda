@@ -2,7 +2,6 @@
 //  ColorCodable.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/02/03.
 //  Copied from https://brunowernimont.me/howtos/make-swiftui-color-codable
 //
 

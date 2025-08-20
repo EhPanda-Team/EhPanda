@@ -2,8 +2,6 @@
 //  UIApplicationClient.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/01/02.
-//
 
 import SwiftUI
 import Combine

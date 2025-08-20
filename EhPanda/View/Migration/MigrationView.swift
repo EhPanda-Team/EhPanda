@@ -2,8 +2,6 @@
 //  MigrationView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/02/03.
-//
 
 import SwiftUI
 import ComposableArchitecture

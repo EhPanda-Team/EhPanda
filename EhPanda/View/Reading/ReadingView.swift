@@ -2,9 +2,6 @@
 //  ReadingView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/01/22.
-//  Refactored for improved maintainability by zackie on 2025-07-28.
-//
 
 import SwiftUI
 import Kingfisher

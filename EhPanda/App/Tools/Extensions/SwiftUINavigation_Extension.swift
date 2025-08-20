@@ -2,8 +2,6 @@
 //  SwiftUINavigation_Extension.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/01/13.
-//
 
 import SwiftUI
 import TTProgressHUD

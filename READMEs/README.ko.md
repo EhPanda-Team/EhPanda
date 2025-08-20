@@ -43,6 +43,3 @@ iOS / iPadOS 버전이 17.0 이상인지 확인해주세요.
 
 ## 화면캡쳐
 https://ehpanda.app
-
-## 앱 아이콘
-Copyright © 2025 荒木辰造. All rights reserved.

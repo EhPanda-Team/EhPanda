@@ -2,8 +2,6 @@
 //  TagSuggestion.swift
 //  EhPanda
 //
-//  Created by xioxin on 2022/2/15.
-//
 
 import SwiftUI
 

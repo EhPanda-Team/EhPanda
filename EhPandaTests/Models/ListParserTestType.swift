@@ -2,8 +2,6 @@
 //  ListParserTestType.swift
 //  EhPandaTests
 //
-//  Created by 荒木辰造 on R 4/02/11.
-//
 
 enum ListParserTestType: CaseIterable {
     // FrontPage

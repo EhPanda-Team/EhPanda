@@ -2,9 +2,6 @@
 //  AdvancedList.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/07/30.
-//  Improved architecture by zackie on 2025-07-28.
-//
 
 import SwiftUI
 import SwiftUIPager

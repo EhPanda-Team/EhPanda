@@ -2,8 +2,6 @@
 //  Heap.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/02/06.
-//
 
 private final class Reference<T: Equatable>: Equatable {
     var value: T

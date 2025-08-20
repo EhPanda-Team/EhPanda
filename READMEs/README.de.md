@@ -43,6 +43,3 @@ Der Inhalt der von dieser App verwaltet wird, wird von E-Hentai geladen. Hierbei
 
 ## Screenshots
 https://ehpanda.app
-
-## App Icon
-Copyright © 2025 荒木辰造. All rights reserved.

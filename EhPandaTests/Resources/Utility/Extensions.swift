@@ -2,8 +2,6 @@
 //  Extensions.swift
 //  EhPandaTests
 //
-//  Created by 荒木辰造 on R 4/03/26.
-//
 
 import XCTest
 

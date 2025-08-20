@@ -2,8 +2,6 @@
 //  RatingView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 2/11/29.
-//
 
 import SwiftUI
 

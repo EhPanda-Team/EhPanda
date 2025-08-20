@@ -1,9 +1,6 @@
 /*
   InfoPlist.strings
   EhPanda
-
-  Created by Hokyee Jau on R 3/07/11.
-
 */
 
 "NSFaceIDUsageDescription" = "이 권한을 허용해야 앱 잠금 해제할때 Face ID 옵션을 제공합니다.";

@@ -2,8 +2,6 @@
 //  AboutView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/01/18.
-//
 
 import SwiftUI
 
@@ -103,10 +101,6 @@ struct AboutView: View {
     // MARK: Code level contributors
     private let codeLevelContributors: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.tatsuz0u,
-            text: L10n.Constant.App.CodeLevelContributor.Text.tatsuz0u
-        ),
-        .init(
             urlString: L10n.Constant.App.CodeLevelContributor.Link.chihchy,
             text: L10n.Constant.App.CodeLevelContributor.Text.chihchy
         ),
@@ -126,10 +120,6 @@ struct AboutView: View {
 
     // MARK: Translation contributors
     private let translationContributors: [Info] = {[
-        .init(
-            urlString: L10n.Constant.App.TranslationContributor.Link.tatsuz0u,
-            text: L10n.Constant.App.TranslationContributor.Text.tatsuz0u
-        ),
         .init(
             urlString: L10n.Constant.App.TranslationContributor.Link.nebulosaCat,
             text: L10n.Constant.App.TranslationContributor.Text.nebulosaCat

@@ -2,8 +2,6 @@
 //  EquatableVoid.swift
 //  EhPanda
 //
-//  Created by Chihchy on 2024/10/27.
-//
 
 import Foundation
 

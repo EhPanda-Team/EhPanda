@@ -2,8 +2,6 @@
 //  PostCommentView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/01/03.
-//
 
 import SwiftUI
 
