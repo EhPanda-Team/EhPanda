@@ -43,6 +43,3 @@ https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/b
 
 ## 螢幕截圖
 https://ehpanda.app
-
-## 應用程式圖示
-Copyright © 2025 荒木辰造. All rights reserved.

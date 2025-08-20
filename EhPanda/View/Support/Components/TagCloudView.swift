@@ -2,7 +2,6 @@
 //  TagCloudView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/01/14.
 //  Copied from https://stackoverflow.com/questions/62102647/
 //
 

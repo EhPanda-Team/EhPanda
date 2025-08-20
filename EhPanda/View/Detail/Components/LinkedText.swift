@@ -2,7 +2,6 @@
 //  LinkedText.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/02/10.
 //  Copied from https://gist.github.com/mjm/0581781f85db45b05e8e2c5c33696f88
 //
 

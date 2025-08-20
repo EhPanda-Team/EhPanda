@@ -2,8 +2,6 @@
 //  LaboratorySettingView.swift
 //  LabSettingView
 //
-//  Created by 荒木辰造 on R 3/07/16.
-//
 
 import SwiftUI
 import SFSafeSymbols

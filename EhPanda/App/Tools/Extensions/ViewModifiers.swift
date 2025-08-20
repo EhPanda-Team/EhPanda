@@ -2,8 +2,6 @@
 //  ViewModifiers.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 2/12/06.
-//
 
 import SwiftUI
 import Kingfisher

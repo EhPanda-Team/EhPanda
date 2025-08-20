@@ -43,6 +43,3 @@ The content in this application is derived from E-Hentai, which is user-generate
 
 ## Screenshots
 https://ehpanda.app
-
-## App Icon
-Copyright © 2025 荒木辰造. All rights reserved.

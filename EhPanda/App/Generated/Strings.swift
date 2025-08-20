@@ -94,8 +94,6 @@ internal enum L10n {
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.link.chihchy", fallback: "https://github.com/chihchy")
           /// https://github.com/Jimmy-Prime
           internal static let jimmyPrime = L10n.tr("Constant", "app.code_level_contributor.link.Jimmy-Prime", fallback: "https://github.com/Jimmy-Prime")
-          /// https://github.com/tatsuz0u
-          internal static let tatsuz0u = L10n.tr("Constant", "app.code_level_contributor.link.tatsuz0u", fallback: "https://github.com/tatsuz0u")
           /// https://github.com/vvbbnn00
           internal static let vvbbnn00 = L10n.tr("Constant", "app.code_level_contributor.link.vvbbnn00", fallback: "https://github.com/vvbbnn00")
           /// https://github.com/xioxin
@@ -106,8 +104,6 @@ internal enum L10n {
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.text.chihchy", fallback: "Chihchy")
           /// Jimmy Prime
           internal static let jimmyPrime = L10n.tr("Constant", "app.code_level_contributor.text.Jimmy-Prime", fallback: "Jimmy Prime")
-          /// Tatsuzo Araki
-          internal static let tatsuz0u = L10n.tr("Constant", "app.code_level_contributor.text.tatsuz0u", fallback: "Tatsuzo Araki")
           /// vvbbnn00
           internal static let vvbbnn00 = L10n.tr("Constant", "app.code_level_contributor.text.vvbbnn00", fallback: "vvbbnn00")
           /// xioxin
@@ -168,8 +164,6 @@ internal enum L10n {
           internal static let neKoOuO = L10n.tr("Constant", "app.translation_contributor.link.NeKoOuO", fallback: "https://github.com/NeKoOuO")
           /// https://github.com/PaulHaeussler
           internal static let paulHaeussler = L10n.tr("Constant", "app.translation_contributor.link.paulHaeussler", fallback: "https://github.com/PaulHaeussler")
-          /// https://github.com/tatsuz0u
-          internal static let tatsuz0u = L10n.tr("Constant", "app.translation_contributor.link.tatsuz0u", fallback: "https://github.com/tatsuz0u")
         }
         internal enum Text {
           /// caxerx
@@ -180,8 +174,6 @@ internal enum L10n {
           internal static let neKoOuO = L10n.tr("Constant", "app.translation_contributor.text.NeKoOuO", fallback: "ɴᴇᴋᴏ")
           /// PaulHaeussler
           internal static let paulHaeussler = L10n.tr("Constant", "app.translation_contributor.text.paulHaeussler", fallback: "PaulHaeussler")
-          /// Tatsuzo Araki
-          internal static let tatsuz0u = L10n.tr("Constant", "app.translation_contributor.text.tatsuz0u", fallback: "Tatsuzo Araki")
         }
       }
     }
@@ -191,8 +183,6 @@ internal enum L10n {
         internal static let galleryUnavailable = L10n.tr("Constant", "website.response.gallery_unavailable", fallback: "This gallery has been removed or is unavailable.")
         /// Constant.strings
         ///   EhPanda
-        /// 
-        ///   Created by 荒木辰造 on R 4/02/04.
         internal static let hathClientNotFound = L10n.tr("Constant", "website.response.hath_client_not_found", fallback: "You must have a H@H client assigned to your account to use this feature.")
         /// Your H@H client appears to be offline. Turn it on, then try again.
         internal static let hathClientNotOnline = L10n.tr("Constant", "website.response.hath_client_not_online", fallback: "Your H@H client appears to be offline. Turn it on, then try again.")
@@ -204,8 +194,6 @@ internal enum L10n {
   internal enum InfoPlist {
     /// InfoPlist.strings
     ///   EhPanda
-    /// 
-    ///   Created by 荒木辰造 on R 3/02/09.
     internal static let nsFaceIDUsageDescription = L10n.tr("InfoPlist", "NSFaceIDUsageDescription", fallback: "We need this permission to provide Face ID option while unlocking the App.")
     /// We need this permission to save images to your photo library.
     internal static let nsPhotoLibraryAddUsageDescription = L10n.tr("InfoPlist", "NSPhotoLibraryAddUsageDescription", fallback: "We need this permission to save images to your photo library.")
@@ -705,8 +693,6 @@ internal enum L10n {
         internal enum Description {
           /// Localizable.strings
           ///   EhPanda
-          /// 
-          ///   Created by 荒木辰造 on R 2/12/25.
           internal static let and = L10n.tr("Localizable", "enum.ban_interval.description.and", fallback: "and")
         }
       }

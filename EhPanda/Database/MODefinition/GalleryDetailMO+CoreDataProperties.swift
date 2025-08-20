@@ -2,8 +2,6 @@
 //  GalleryDetailMO+CoreDataProperties.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/06/29.
-//
 
 import CoreData
 

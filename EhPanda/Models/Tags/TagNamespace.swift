@@ -2,8 +2,6 @@
 //  TagCategory.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/02/01.
-//
 
 enum TagNamespace: String, Codable, CaseIterable {
     case reclass

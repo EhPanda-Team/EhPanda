@@ -2,7 +2,6 @@
 //  WaveForm.swift
 //  WaveForm
 //
-//  Created by 荒木辰造 on R 3/08/12.
 //  Copied from Kavsoft
 //
 

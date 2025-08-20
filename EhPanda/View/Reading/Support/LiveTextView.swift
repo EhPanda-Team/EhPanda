@@ -2,8 +2,6 @@
 //  LiveTextView.swift
 //  EhPanda
 //
-//  Created by xioxin on 2022/2/12.
-//
 
 import SwiftUI
 

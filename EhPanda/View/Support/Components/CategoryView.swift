@@ -2,8 +2,6 @@
 //  CategoryView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/08/02.
-//
 
 import SwiftUI
 

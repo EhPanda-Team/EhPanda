@@ -1,9 +1,6 @@
 /* 
   InfoPlist.strings
   EhPanda
-
-  Created by 荒木辰造 on R 3/02/09.
-  
 */
 
 "NSFaceIDUsageDescription" = "我們需要您提供 Face ID 權限來使用 Face ID 解鎖";

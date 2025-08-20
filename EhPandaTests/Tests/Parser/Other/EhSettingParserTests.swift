@@ -2,8 +2,6 @@
 //  EhSettingParserTests.swift
 //  EhPandaTests
 //
-//  Created by 荒木辰造 on R 4/02/15.
-//
 
 import Kanna
 import XCTest

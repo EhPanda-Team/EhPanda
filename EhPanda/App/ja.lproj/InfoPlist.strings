@@ -1,9 +1,6 @@
 /* 
   InfoPlist.strings
   EhPanda
-
-  Created by 荒木辰造 on R 3/02/09.
-  
 */
 
 "NSFaceIDUsageDescription" = "アプリアンロック認証時に Face ID オプションを提供するにはこの権限が必要です";

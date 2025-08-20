@@ -43,6 +43,3 @@ iOS・iPadOS 17.0 以上が必要です。
 
 ## スクリーンショット
 https://ehpanda.app
-
-## アプリアイコン
-Copyright © 2025 荒木辰造. All rights reserved.

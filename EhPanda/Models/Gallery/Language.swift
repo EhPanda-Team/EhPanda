@@ -2,8 +2,6 @@
 //  Language.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/01/30.
-//
 
 enum Language: String, Codable {
     static let allExcludedCases: [Self] = [

@@ -2,8 +2,6 @@
 //  EhSetting.swift
 //  EhSetting
 //
-//  Created by 荒木辰造 on R 3/08/08.
-//
 
 // MARK: EhSetting
 struct EhSetting: Equatable {
