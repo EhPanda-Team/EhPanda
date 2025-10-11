@@ -65,6 +65,21 @@ struct Defaults {
     struct Regex {
         static let tagSuggestion: NSRegularExpression? = try? .init(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")
     }
+    struct Network {
+        /// 普通请求超时时间（秒）
+        static let normalRequestTimeout: TimeInterval = 30.0
+        /// 普通请求资源超时时间（秒）
+        static let normalResourceTimeout: TimeInterval = 60.0
+        
+        /// 图片请求超时时间（秒）
+        static let imageRequestTimeout: TimeInterval = 60.0
+        /// 图片请求资源超时时间（秒）
+        static let imageResourceTimeout: TimeInterval = 120.0
+        
+        /// 重试次数
+        static let retryCount: Int = 3
+    }
+    
     struct URL {
         static var host: Foundation.URL { AppUtil.galleryHost == .exhentai ? exhentai : ehentai }
         static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped
