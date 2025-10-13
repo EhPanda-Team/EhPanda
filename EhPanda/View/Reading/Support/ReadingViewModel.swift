@@ -15,32 +15,32 @@ final class ReadingViewModel: ObservableObject {
     @Published var focusedLiveTextGroup: LiveTextGroup?
     @Published var autoPlayPolicy: AutoPlayPolicy = .off
     @Published var webImageLoadSuccessIndices = Set<Int>()
-    
+
     // MARK: - Private Properties
     private var autoPlayTimer: Timer?
     private var liveTextRequests = [VNRequest]()
     private var cancellables = Set<AnyCancellable>()
-    
+
     // MARK: - Initialization
     init() {
         setupObservers()
     }
-    
+
     deinit {
         cleanup()
     }
-    
+
     // MARK: - Setup Methods
     func setup(with state: ReadingReducer.State, setting: Setting) {
         // Initialize with current state
         webImageLoadSuccessIndices = state.webImageLoadSuccessIndices
-        
+
         // Setup live text if needed
         if enablesLiveText {
             analyzeExistingImages(indices: Array(webImageLoadSuccessIndices))
         }
     }
-    
+
     private func setupObservers() {
         // Observe live text state changes
         $enablesLiveText
@@ -53,39 +53,39 @@ final class ReadingViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
+
     // MARK: - Auto Play Management
     func setAutoPlayPolicy(_ policy: AutoPlayPolicy, pageUpdater: @escaping () -> Void) {
         Logger.info("Setting auto play policy", context: ["policy": policy])
-        
+
         autoPlayPolicy = policy
         autoPlayTimer?.invalidate()
-        
+
         if policy.isEnabled {
             autoPlayTimer = Timer.scheduledTimer(withTimeInterval: policy.timeInterval, repeats: true) { _ in
                 pageUpdater()
             }
         }
     }
-    
+
     func stopAutoPlay() {
         autoPlayTimer?.invalidate()
         autoPlayPolicy = .off
     }
-    
+
     // MARK: - Live Text Management
     func setFocusedLiveTextGroup(_ group: LiveTextGroup) {
         Logger.info("Setting focused live text group", context: ["group": group])
         focusedLiveTextGroup = group
     }
-    
+
     func analyzeImageForLiveText(
         index: Int,
         imageURL: URL?,
         recognitionLanguages: [String]?
     ) {
         Logger.info("Analyzing image for live text", context: ["index": index])
-        
+
         guard enablesLiveText,
               liveTextGroups[index] == nil,
               let imageURL = imageURL,
@@ -98,7 +98,7 @@ final class ReadingViewModel: ObservableObject {
             ])
             return
         }
-        
+
         KingfisherManager.shared.cache.retrieveImage(forKey: key) { [weak self] result in
             switch result {
             case .success(let result):
@@ -120,14 +120,14 @@ final class ReadingViewModel: ObservableObject {
             }
         }
     }
-    
+
     private func analyzeExistingImages(indices: [Int]) {
-        indices.forEach { index in
+        indices.forEach { _ in
             // This would be called with proper parameters from the main view
             // analyzeImageForLiveText(index: index, imageURL: nil, recognitionLanguages: nil)
         }
     }
-    
+
     private func performLiveTextAnalysis(
         cgImage: CGImage,
         size: CGSize,
@@ -143,16 +143,16 @@ final class ReadingViewModel: ObservableObject {
                 index: index
             )
         }
-        
+
         textRecognitionRequest.usesLanguageCorrection = true
         textRecognitionRequest.preferBackgroundProcessing = true
-        
+
         if let languages = recognitionLanguages {
             textRecognitionRequest.recognitionLanguages = languages
         }
-        
+
         liveTextRequests.append(textRecognitionRequest)
-        
+
         DispatchQueue.global(qos: .utility).async { [weak self] in
             do {
                 try requestHandler.perform([textRecognitionRequest])
@@ -162,7 +162,7 @@ final class ReadingViewModel: ObservableObject {
             }
         }
     }
-    
+
     private func handleLiveTextRecognition(
         request: VNRequest,
         error: Error?,
@@ -170,27 +170,27 @@ final class ReadingViewModel: ObservableObject {
         index: Int
     ) {
         removeLiveTextRequest(request)
-        
+
         guard let observations = request.results as? [VNRecognizedTextObservation] else {
             return
         }
-        
+
         DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             let blocks = self?.processLiveTextObservations(observations) ?? []
             let groups = self?.groupLiveTextBlocks(blocks, size: size) ?? []
-            
+
             DispatchQueue.main.async {
                 self?.liveTextGroups[index] = groups
             }
         }
     }
-    
+
     private func processLiveTextObservations(_ observations: [VNRecognizedTextObservation]) -> [LiveTextBlock] {
         return observations.compactMap { observation in
             guard let recognizedText = observation.topCandidates(1).first?.string else {
                 return nil
             }
-            
+
             return LiveTextBlock(
                 text: recognizedText,
                 bounds: LiveTextBounds(
@@ -202,10 +202,10 @@ final class ReadingViewModel: ObservableObject {
             )
         }
     }
-    
+
     private func groupLiveTextBlocks(_ blocks: [LiveTextBlock], size: CGSize) -> [LiveTextGroup] {
         var groupData = [[LiveTextBlock]]()
-        
+
         blocks.forEach { newBlock in
             if let groupIndex = findMatchingGroup(for: newBlock, in: groupData, size: size) {
                 groupData[groupIndex].append(newBlock)
@@ -213,10 +213,10 @@ final class ReadingViewModel: ObservableObject {
                 groupData.append([newBlock])
             }
         }
-        
+
         return groupData.compactMap(LiveTextGroup.init)
     }
-    
+
     private func findMatchingGroup(
         for newBlock: LiveTextBlock,
         in groupData: [[LiveTextBlock]],
@@ -228,7 +228,7 @@ final class ReadingViewModel: ObservableObject {
             }
         }
     }
-    
+
     private func areLiveTextBlocksCompatible(
         _ block1: LiveTextBlock,
         _ block2: LiveTextBlock,
@@ -238,33 +238,33 @@ final class ReadingViewModel: ObservableObject {
         let angle2 = block2.bounds.getAngle(size)
         let angleDiff = abs(angle1 - angle2).truncatingRemainder(dividingBy: 360.0)
         let isAngleValid = angleDiff < 5 || angleDiff > (360 - 5)
-        
+
         let height1 = block1.bounds.getHeight(size)
         let height2 = block2.bounds.getHeight(size)
         let isHeightValid = abs(height1 - height2) < (min(height1, height2) / 2)
-        
+
         guard isAngleValid && isHeightValid else { return false }
-        
+
         return arePolygonsIntersecting(
             lhs: block1.bounds.expandingHalfHeight(size).edges,
             rhs: block2.bounds.expandingHalfHeight(size).edges
         )
     }
-    
+
     private func arePolygonsIntersecting(lhs: [CGPoint], rhs: [CGPoint]) -> Bool {
         guard !lhs.isEmpty, !rhs.isEmpty, lhs.count == rhs.count else { return false }
-        
+
         for points in [lhs, rhs] {
             for index1 in 0..<points.count {
                 let index2 = (index1 + 1) % points.count
                 let point1 = points[index1]
                 let point2 = points[index2]
-                
+
                 let basis = CGPoint(x: point2.y - point1.y, y: point1.x - point2.x)
-                
+
                 let (minA, maxA) = getProjectionRange(points: lhs, basis: basis)
                 let (minB, maxB) = getProjectionRange(points: rhs, basis: basis)
-                
+
                 if maxA < minB || maxB < minA {
                     return false
                 }
@@ -272,26 +272,26 @@ final class ReadingViewModel: ObservableObject {
         }
         return true
     }
-    
+
     private func getProjectionRange(points: [CGPoint], basis: CGPoint) -> (min: Double, max: Double) {
         let projections = points.map { point in
             basis.x * point.x + basis.y * point.y
         }
         return (projections.min() ?? 0, projections.max() ?? 0)
     }
-    
+
     private func clearLiveText() {
         liveTextGroups.removeAll()
         focusedLiveTextGroup = nil
         cancelLiveTextRequests()
     }
-    
+
     private func removeLiveTextRequest(_ request: VNRequest) {
         if let index = liveTextRequests.firstIndex(of: request) {
             liveTextRequests.remove(at: index)
         }
     }
-    
+
     private func cancelLiveTextRequests() {
         Logger.info("Canceling live text requests", context: [
             "count": liveTextRequests.count
@@ -299,7 +299,7 @@ final class ReadingViewModel: ObservableObject {
         liveTextRequests.forEach { $0.cancel() }
         liveTextRequests.removeAll()
     }
-    
+
     // MARK: - Cleanup
     func cleanup() {
         autoPlayTimer?.invalidate()
@@ -316,4 +316,4 @@ private extension CGPoint {
 }
 
 // MARK: - Import Vision Framework
-import Vision 
+import Vision

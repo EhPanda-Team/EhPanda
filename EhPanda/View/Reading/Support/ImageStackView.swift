@@ -15,18 +15,18 @@ struct ImageStackView: View {
     @Binding private var setting: Setting
     @ObservedObject private var viewModel: ReadingViewModel
     @ObservedObject private var gestureCoordinator: GestureCoordinator
-    
+
     // MARK: - Computed Properties
     private var isDualPage: Bool {
-        setting.enablesDualPageMode && 
-        setting.readingDirection != .vertical && 
+        setting.enablesDualPageMode &&
+        setting.readingDirection != .vertical &&
         DeviceUtil.isLandscape
     }
-    
+
     private var backgroundColor: Color {
         Color(.systemGray4) // This should match the main view's background
     }
-    
+
     private var imageStackConfig: ImageStackConfig {
         let dualPageConfig = pageCoordinator.getDualPageConfiguration(
             for: index,
@@ -34,7 +34,7 @@ struct ImageStackView: View {
         )
         return ImageStackConfig(from: dualPageConfig)
     }
-    
+
     // MARK: - Dependencies
     private var pageCoordinator: PageCoordinator {
         // This would ideally be injected, but for now we create a temporary one
@@ -42,7 +42,7 @@ struct ImageStackView: View {
         coordinator.setup(pageCount: store.gallery.pageCount, setting: setting)
         return coordinator
     }
-    
+
     // MARK: - Initialization
     init(
         index: Int,
@@ -57,7 +57,7 @@ struct ImageStackView: View {
         self.viewModel = viewModel
         self.gestureCoordinator = gestureCoordinator
     }
-    
+
     // MARK: - Body
     var body: some View {
         HStack(spacing: 0) {
@@ -71,7 +71,7 @@ struct ImageStackView: View {
                     backgroundColor: backgroundColor
                 )
             }
-            
+
             if imageStackConfig.isSecondAvailable {
                 ImageContainerView(
                     index: imageStackConfig.secondIndex,
@@ -95,30 +95,30 @@ private struct ImageContainerView: View {
     @ObservedObject private var viewModel: ReadingViewModel
     private let isDualPage: Bool
     private let backgroundColor: Color
-    
+
     // MARK: - Computed Properties
     private var imageURL: URL? {
         store.imageURLs[index]
     }
-    
+
     private var originalImageURL: URL? {
         store.originalImageURLs[index]
     }
-    
+
     private var loadingState: LoadingState {
         store.imageURLLoadingStates[index] ?? .idle
     }
-    
+
     private var liveTextGroups: [LiveTextGroup] {
         viewModel.liveTextGroups[index] ?? []
     }
-    
+
     private var containerSize: CGSize {
         let width = DeviceUtil.windowW / (isDualPage ? 2 : 1)
         let height = width / Defaults.ImageSize.contentAspect
         return CGSize(width: width, height: height)
     }
-    
+
     // MARK: - Initialization
     init(
         index: Int,
@@ -135,7 +135,7 @@ private struct ImageContainerView: View {
         self.isDualPage = isDualPage
         self.backgroundColor = backgroundColor
     }
-    
+
     // MARK: - Body
     var body: some View {
         Group {
@@ -152,7 +152,7 @@ private struct ImageContainerView: View {
             contextMenuItems
         }
     }
-    
+
     // MARK: - Success View
     private var successView: some View {
         ZStack {
@@ -168,7 +168,7 @@ private struct ImageContainerView: View {
                 )
         }
     }
-    
+
     // MARK: - Image View
     @ViewBuilder
     private var imageView: some View {
@@ -190,7 +190,7 @@ private struct ImageContainerView: View {
             placeholderView(Progress())
         }
     }
-    
+
     // MARK: - Placeholder View
     private func placeholderView(_ progress: Progress = Progress()) -> some View {
         Placeholder(
@@ -203,17 +203,17 @@ private struct ImageContainerView: View {
         )
         .frame(width: containerSize.width, height: containerSize.height)
     }
-    
+
     // MARK: - Loading/Error View
     private var loadingOrErrorView: some View {
         ZStack {
             backgroundColor
-            
+
             VStack(spacing: 30) {
                 Text("\(index)")
                     .font(.largeTitle.bold())
                     .foregroundColor(.gray)
-                
+
                 ZStack {
                     if loadingState == .loading {
                         ProgressView()
@@ -229,7 +229,7 @@ private struct ImageContainerView: View {
         }
         .frame(width: containerSize.width, height: containerSize.height)
     }
-    
+
     // MARK: - Context Menu
     @ViewBuilder
     private var contextMenuItems: some View {
@@ -239,32 +239,40 @@ private struct ImageContainerView: View {
                 systemSymbol: .arrowCounterclockwise
             )
         }
-        
+
         if let imageURL = imageURL {
-            Button(action: { handleCopyImage(imageURL) }) {
+            Button {
+                handleCopyImage(imageURL)
+            } label: {
                 Label(
                     L10n.Localizable.ReadingView.ContextMenu.Button.copy,
                     systemSymbol: .plusSquareOnSquare
                 )
             }
-            
-            Button(action: { handleSaveImage(imageURL) }) {
+
+            Button {
+                handleSaveImage(imageURL)
+            } label: {
                 Label(
                     L10n.Localizable.ReadingView.ContextMenu.Button.save,
                     systemSymbol: .squareAndArrowDown
                 )
             }
-            
+
             if let originalImageURL = originalImageURL {
-                Button(action: { handleSaveImage(originalImageURL) }) {
+                Button {
+                    handleSaveImage(originalImageURL)
+                } label: {
                     Label(
                         L10n.Localizable.ReadingView.ContextMenu.Button.saveOriginal,
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }
             }
-            
-            Button(action: { handleShareImage(imageURL) }) {
+
+            Button {
+                handleShareImage(imageURL)
+            } label: {
                 Label(
                     L10n.Localizable.ReadingView.ContextMenu.Button.share,
                     systemSymbol: .squareAndArrowUp
@@ -272,11 +280,11 @@ private struct ImageContainerView: View {
             }
         }
     }
-    
+
     // MARK: - Event Handlers
     private func handleAppear() {
         let isDatabaseLoading = store.databaseLoadingState != .idle
-        
+
         if !isDatabaseLoading {
             if imageURL == nil {
                 store.send(.fetchImageURLs(index))
@@ -284,10 +292,10 @@ private struct ImageContainerView: View {
             store.send(.prefetchImages(index, setting.prefetchLimit))
         }
     }
-    
+
     private func handleImageSuccess() {
         store.send(.onWebImageSucceeded(index))
-        
+
         if viewModel.enablesLiveText {
             viewModel.analyzeImageForLiveText(
                 index: index,
@@ -296,11 +304,11 @@ private struct ImageContainerView: View {
             )
         }
     }
-    
+
     private func handleImageFailure() {
         store.send(.onWebImageFailed(index))
     }
-    
+
     private func handleReloadTap() {
         if case .failed(let error) = loadingState {
             if case .webImageFailed = error {
@@ -310,19 +318,19 @@ private struct ImageContainerView: View {
             }
         }
     }
-    
+
     private func handleRefetch() {
         store.send(.refetchImageURLs(index))
     }
-    
+
     private func handleCopyImage(_ url: URL) {
         store.send(.copyImage(url))
     }
-    
+
     private func handleSaveImage(_ url: URL) {
         store.send(.saveImage(url))
     }
-    
+
     private func handleShareImage(_ url: URL) {
         store.send(.shareImage(url))
     }
@@ -344,4 +352,4 @@ struct ImageStackView_Previews: PreviewProvider {
         .previewLayout(.sizeThatFits)
         .padding()
     }
-} 
+}

@@ -9,11 +9,11 @@ import SwiftUIPager
 /// Improved vertical list for reading view with iOS 26 scrolling fix
 struct AdvancedList<Element, ID, PageView, G>: View
 where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
-    
+
     // MARK: - State
     @State private var performingChanges = false
     @State private var scrollTarget: Element?
-    
+
     // MARK: - Properties
     private let pagerModel: Page
     private let data: [Element]
@@ -21,13 +21,13 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     private let spacing: CGFloat
     private let gesture: G
     private let content: (Element) -> PageView
-    
+
     // MARK: - Initialization
     init<Data: RandomAccessCollection>(
-        page: Page, 
+        page: Page,
         data: Data,
-        id: KeyPath<Element, ID>, 
-        spacing: CGFloat, 
+        id: KeyPath<Element, ID>,
+        spacing: CGFloat,
         gesture: G,
         @ViewBuilder content: @escaping (Element) -> PageView
     ) where Data.Index == Int, Data.Element == Element {
@@ -38,7 +38,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
         self.gesture = gesture
         self.content = content
     }
-    
+
     // MARK: - Body
     var body: some View {
         ScrollViewReader { proxy in
@@ -65,17 +65,17 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
             }
         }
     }
-    
+
     // MARK: - Content with Gestures
     @ViewBuilder
     private func contentWithGestures(for element: Element) -> some View {
         let longPress = createLongPressGesture(for: element)
         let combinedGestures = longPress.simultaneously(with: gesture)
-        
+
         content(element)
             .gesture(combinedGestures)
     }
-    
+
     // MARK: - Gesture Creation
     private func createLongPressGesture(for element: Element) -> some Gesture {
         LongPressGesture(minimumDuration: 0, maximumDistance: .infinity)
@@ -83,62 +83,62 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
                 handleLongPress(for: element)
             }
     }
-    
+
     // MARK: - Event Handlers
     private func handleLongPress(for element: Element) {
         guard let index = element as? Int else { return }
-        
+
         Logger.info("Long press detected", context: ["element": index])
-        
+
         performingChanges = true
         pagerModel.update(.new(index: index - 1))
-        
+
         // Reset performing changes after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             performingChanges = false
         }
     }
-    
+
     private func initialScrollToPage(proxy: ScrollViewProxy) {
         guard !data.isEmpty else { return }
-        
+
         let targetElement = getElementForPageIndex(pagerModel.index)
         scrollToElementSafely(targetElement, proxy: proxy, animated: false)
     }
-    
+
     private func handlePageChange(newValue: Int, proxy: ScrollViewProxy) {
         guard !performingChanges else { return }
-        
+
         Logger.info("Page changed in AdvancedList", context: [
             "newPageIndex": newValue,
             "dataCount": data.count
         ])
-        
+
         let targetElement = getElementForPageIndex(newValue)
         scrollToElementSafely(targetElement, proxy: proxy, animated: true)
     }
-    
+
     private func scrollToTarget(_ target: Element, proxy: ScrollViewProxy) {
         scrollToElementSafely(target, proxy: proxy, animated: true)
         scrollTarget = nil
     }
-    
+
     // MARK: - Helper Methods
     private func getElementForPageIndex(_ pageIndex: Int) -> Element? {
         let safeIndex = max(0, min(pageIndex, data.count - 1))
         guard safeIndex < data.count else { return nil }
         return data[safeIndex]
     }
-    
+
     private func scrollToElementSafely(
-        _ element: Element?, 
-        proxy: ScrollViewProxy, 
+        _ element: Element?,
+        proxy: ScrollViewProxy,
         animated: Bool
     ) {
         guard let element = element else { return }
-        
+
         let elementId = element[keyPath: id]
-        
+
         if animated {
             withAnimation(.easeInOut(duration: 0.3)) {
                 proxy.scrollTo(elementId, anchor: .center)
@@ -149,7 +149,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
                 proxy.scrollTo(elementId, anchor: .center)
             }
         }
-        
+
         Logger.info("Scrolled to element", context: [
             "elementId": "\(elementId)",
             "animated": animated
@@ -166,7 +166,7 @@ extension AdvancedList {
             .scrollContentBackground(.hidden)
             .scrollIndicators(.hidden)
     }
-    
+
     /// Handles scroll position restoration for iOS 26
     func withScrollRestoration() -> some View {
         self
@@ -186,7 +186,7 @@ struct AdvancedList_Previews: PreviewProvider {
     static var previews: some View {
         let page = Page.first()
         let sampleData = Array(1...10)
-        
+
         AdvancedList(
             page: page,
             data: sampleData,
@@ -206,4 +206,3 @@ struct AdvancedList_Previews: PreviewProvider {
         .previewLayout(.sizeThatFits)
     }
 }
-

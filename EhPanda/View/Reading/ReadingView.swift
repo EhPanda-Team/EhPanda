@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Bindable var store: StoreOf<ReadingReducer>
-    
+
     // MARK: - Configuration
     private let gid: String
     @Binding private var setting: Setting
@@ -35,13 +35,13 @@ struct ReadingView: View {
         self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
-        
+
         // Initialize view models with dependencies
         _viewModel = StateObject(wrappedValue: ReadingViewModel())
         _gestureCoordinator = StateObject(wrappedValue: GestureCoordinator())
         _pageCoordinator = StateObject(wrappedValue: PageCoordinator())
     }
-    
+
     // MARK: - Body
     var body: some View {
         ZStack {
@@ -55,7 +55,7 @@ struct ReadingView: View {
                 pageCoordinator: pageCoordinator,
                 page: page
             )
-            
+
             ReadingControlsOverlay(
                 store: store,
                 setting: $setting,
@@ -85,17 +85,17 @@ struct ReadingView: View {
             page: page
         )
     }
-    
+
     // MARK: - Computed Properties
     private var backgroundColor: Color {
         colorScheme == .light ? Color(.systemGray4) : Color(.systemGray6)
     }
-    
+
     // MARK: - Helper Methods
     private func setupViewModels() {
         viewModel.setup(with: store.state, setting: setting)
         gestureCoordinator.setup(setting: setting)
-        
+
         // Setup page coordinator with initial reading progress if available
         if store.readingProgress > 0 {
             pageCoordinator.setup(
@@ -103,7 +103,7 @@ struct ReadingView: View {
                 setting: setting,
                 initialPage: store.readingProgress
             )
-            
+
             // Also update the pager to the correct initial position
             let pagerIndex = pageCoordinator.mapToPager(index: store.readingProgress, setting: setting)
             page.update(.new(index: pagerIndex))
@@ -114,7 +114,7 @@ struct ReadingView: View {
             )
         }
     }
-    
+
     private func cleanup() {
         viewModel.cleanup()
         gestureCoordinator.cleanup()
@@ -130,7 +130,7 @@ private struct ReadingContentView: View {
     @ObservedObject var gestureCoordinator: GestureCoordinator
     @ObservedObject var pageCoordinator: PageCoordinator
     let page: Page
-    
+
     var body: some View {
         Group {
             if setting.readingDirection == .vertical {
@@ -170,7 +170,7 @@ private struct VerticalReadingView: View {
     @ObservedObject var gestureCoordinator: GestureCoordinator
     @ObservedObject var pageCoordinator: PageCoordinator
     let page: Page
-    
+
     var body: some View {
         // Fixed vertical scroll implementation for iOS 26 compatibility
         ImprovedScrollView(
@@ -181,16 +181,17 @@ private struct VerticalReadingView: View {
             gestureCoordinator: gestureCoordinator,
             pageCoordinator: pageCoordinator,
             setting: setting,
-            onTogglePanel: { store.send(.toggleShowsPanel) }
-        ) { index in
-            ImageStackView(
-                index: index,
-                store: store,
-                setting: $setting,
-                viewModel: viewModel,
-                gestureCoordinator: gestureCoordinator
-            )
-        }
+            onTogglePanel: { store.send(.toggleShowsPanel) },
+            content: { index in
+                ImageStackView(
+                    index: index,
+                    store: store,
+                    setting: $setting,
+                    viewModel: viewModel,
+                    gestureCoordinator: gestureCoordinator
+                )
+            }
+        )
     }
 }
 
@@ -242,7 +243,7 @@ private struct ImprovedScrollView<Content: View>: View {
     let setting: Setting
     let onTogglePanel: () -> Void
     let content: (Int) -> Content
-    
+
     @State private var performingChanges = false
     @State private var scrollTarget: Int?
     @State private var currentVisibleIndex: Int = 0
@@ -323,26 +324,26 @@ private struct ImprovedScrollView<Content: View>: View {
             }
         }
     }
-    
+
     private func updateCurrentVisibleIndex(from preferences: [Int: ScrollOffsetData]) {
         guard !performingChanges else { return }
-        
+
         // Find the most visible item (closest to center of screen)
         let screenCenter = UIScreen.main.bounds.height / 2
         var mostVisibleIndex = 0
         var maxVisibility: CGFloat = 0
-        
+
         for (_, item) in preferences {
             let itemCenter = item.frame.midY
             let distanceFromCenter = abs(itemCenter - screenCenter)
             let visibility = max(0, 1 - distanceFromCenter / screenCenter)
-            
+
             if visibility > maxVisibility {
                 maxVisibility = visibility
                 mostVisibleIndex = item.index
             }
         }
-        
+
         // Update page index if it changed significantly
         if mostVisibleIndex != currentVisibleIndex && maxVisibility > 0.5 {
             currentVisibleIndex = mostVisibleIndex
@@ -350,12 +351,12 @@ private struct ImprovedScrollView<Content: View>: View {
             if page.index != newPageIndex {
                 performingChanges = true
                 page.update(.new(index: newPageIndex))
-                
+
                 // Reset performing changes after a delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     performingChanges = false
                 }
-                
+
                 Logger.info("Updated page index from scroll", context: [
                     "newPageIndex": newPageIndex,
                     "visibility": maxVisibility
@@ -363,7 +364,7 @@ private struct ImprovedScrollView<Content: View>: View {
             }
         }
     }
-    
+
     private func handleTap(index: Int) {
         performingChanges = true
         page.update(.new(index: index - 1))
@@ -371,17 +372,17 @@ private struct ImprovedScrollView<Content: View>: View {
             performingChanges = false
         }
     }
-    
+
     private func scrollToCurrentPage(proxy: ScrollViewProxy) {
         let targetId = page.index + 1
         DispatchQueue.main.async {
             proxy.scrollTo(targetId, anchor: .center)
         }
     }
-    
+
     private func scrollToPage(_ pageIndex: Int, proxy: ScrollViewProxy) {
         guard !performingChanges else { return }
-        
+
         let targetId = pageIndex + 1
         if isScrollEnabled {
             withAnimation(.easeInOut(duration: 0.3)) {
@@ -402,7 +403,7 @@ private struct ScrollOffsetData: Equatable {
 
 private struct ScrollOffsetPreferenceKey: PreferenceKey {
     static var defaultValue: [Int: ScrollOffsetData] = [:]
-    
+
     static func reduce(value: inout [Int: ScrollOffsetData], nextValue: () -> [Int: ScrollOffsetData]) {
         value.merge(nextValue()) { _, new in new }
     }
@@ -416,7 +417,7 @@ private struct ReadingControlsOverlay: View {
     @ObservedObject var pageCoordinator: PageCoordinator
     @ObservedObject var gestureCoordinator: GestureCoordinator
     let page: Page
-    
+
     var body: some View {
         ReadingControlPanel(
             showsPanel: Binding(
@@ -446,7 +447,7 @@ private struct ReadingControlsOverlay: View {
             fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
         )
     }
-    
+
     private func createDismissGesture() -> some Gesture {
         DragGesture()
             .onEnded { value in

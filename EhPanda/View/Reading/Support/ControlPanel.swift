@@ -139,9 +139,9 @@ private struct UpperPanel: View {
                 }
                 .padding(.leading, 20)
             }
-            
+
             Spacer()
-            
+
             // Page Number Display in Liquid Glass Bubble
             if #available(iOS 26.0, *) {
                 Text(title)
@@ -159,9 +159,9 @@ private struct UpperPanel: View {
                     .background(Material.thinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
             }
-            
+
             Spacer()
-            
+
             // Toolbar Grouped in Liquid Glass Container
             if #available(iOS 26.0, *) {
                 HStack(spacing: 16) {
@@ -173,7 +173,7 @@ private struct UpperPanel: View {
                             .symbolVariant(enablesLiveText ? .fill : .none)
                             .font(.title2)
                     }
-                    
+
                     if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
                         Menu {
                             Button {
@@ -199,7 +199,7 @@ private struct UpperPanel: View {
                                 .font(.title2)
                         }
                     }
-                    
+
                     Menu {
                         Text(L10n.Localizable.ReadingView.ToolbarItem.Title.autoPlay).foregroundColor(.secondary)
                         ForEach(AutoPlayPolicy.allCases) { policy in
@@ -217,7 +217,7 @@ private struct UpperPanel: View {
                             .font(.title2)
                     }
                     .menuStyle(BorderlessButtonMenuStyle())
-                    
+
                     ToolbarFeaturesMenu {
                         Button(action: retryAllFailedImagesAction) {
                             Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
@@ -365,7 +365,7 @@ private struct LowerPanel<G: Gesture>: View {
                 .gesture(dismissGesture)
                 .opacity(showsSliderPreview ? 0 : 1)
             }
-            
+
             // Slider in Liquid Glass Bubble
             if #available(iOS 26.0, *) {
                 VStack(spacing: 0) {
@@ -388,7 +388,7 @@ private struct LowerPanel<G: Gesture>: View {
                             Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
                                 .fontWeight(.medium).font(.caption).padding()
                         }
-                        .padding(.horizontal) //.padding(.bottom)
+                        .padding(.horizontal)
                         .glassEffect()
                     }
                 }

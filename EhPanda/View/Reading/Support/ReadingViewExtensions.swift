@@ -10,7 +10,7 @@ import ComposableArchitecture
 // MARK: - Auto Play Policy
 enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
     var id: Int { rawValue }
-    
+
     case off = -1
     case sec1 = 1
     case sec2 = 2
@@ -29,12 +29,12 @@ extension AutoPlayPolicy {
             return L10n.Localizable.Common.Value.seconds("\(rawValue)")
         }
     }
-    
+
     /// Time interval for the timer (0 means disabled)
     var timeInterval: TimeInterval {
         return rawValue > 0 ? TimeInterval(rawValue) : 0
     }
-    
+
     /// Whether auto play is enabled
     var isEnabled: Bool {
         return self != .off
@@ -56,7 +56,7 @@ extension View {
             .readingAnimations()
             .readingStatusBar(store: store)
     }
-    
+
     /// Applies reading-specific sheet presentations
     private func readingSheets(
         store: StoreOf<ReadingReducer>,
@@ -95,7 +95,7 @@ extension View {
                     .autoBlur(radius: blurRadius)
             }
     }
-    
+
     /// Applies progress HUD for reading operations
     private func readingProgressHUD(store: StoreOf<ReadingReducer>) -> some View {
         self.progressHUD(
@@ -107,14 +107,14 @@ extension View {
             case: \.hud
         )
     }
-    
+
     /// Applies reading-specific animations
     private func readingAnimations() -> some View {
         self
             .animation(.linear(duration: 0.1), value: UUID()) // Placeholder for gesture animations
             .animation(.default, value: UUID()) // Placeholder for other animations
     }
-    
+
     /// Configures status bar visibility
     private func readingStatusBar(store: StoreOf<ReadingReducer>) -> some View {
         self.statusBar(hidden: !store.showsPanel)
@@ -205,7 +205,7 @@ extension View {
                 handleLandscapeSettingChange(newValue: newValue, store: store)
             }
     }
-    
+
     private func handlePageIndexChange(
         newValue: Int,
         store: StoreOf<ReadingReducer>,
@@ -213,20 +213,21 @@ extension View {
         pageCoordinator: PageCoordinator
     ) {
         Logger.info("Page index changed", context: ["pageIndex": newValue])
-        
+
         let mappedValue = pageCoordinator.mapFromPager(
             index: newValue,
             pageCount: store.gallery.pageCount,
             setting: setting
         )
-        
+
         pageCoordinator.sliderValue = Float(mappedValue)
-        
+
         if store.databaseLoadingState == .idle {
             store.send(.syncReadingProgress(mappedValue))
         }
     }
-    
+
+    // swiftlint:disable:next function_parameter_count
     private func handleSliderValueChange(
         newValue: Float,
         store: StoreOf<ReadingReducer>,
@@ -236,7 +237,7 @@ extension View {
         setting: Setting
     ) {
         Logger.info("Slider value changed", context: ["sliderValue": newValue])
-        
+
         if !showsSliderPreview {
             let pagerIndex = pageCoordinator.mapToPager(index: Int(newValue), setting: setting)
             if page.index != pagerIndex {
@@ -245,7 +246,7 @@ extension View {
             }
         }
     }
-    
+
     private func handleSliderPreviewChange(
         newValue: Bool,
         pageCoordinator: PageCoordinator,
@@ -254,7 +255,7 @@ extension View {
         setting: Setting
     ) {
         Logger.info("Slider preview changed", context: ["isShown": newValue])
-        
+
         if !newValue {
             let pagerIndex = pageCoordinator.mapToPager(
                 index: Int(pageCoordinator.sliderValue),
@@ -264,10 +265,10 @@ extension View {
                 page.update(.new(index: pagerIndex))
             }
         }
-        
+
         viewModel.stopAutoPlay()
     }
-    
+
     private func handleReadingProgressChange(
         newValue: Int,
         pageCoordinator: PageCoordinator,
@@ -275,13 +276,13 @@ extension View {
         setting: Setting
     ) {
         Logger.info("Reading progress changed", context: ["readingProgress": newValue])
-        
+
         // Ensure valid reading progress (at least page 1)
         let validProgress = max(1, newValue)
-        
+
         // Update slider value
         pageCoordinator.sliderValue = Float(validProgress)
-        
+
         // Update pager position to match the reading progress
         let pagerIndex = pageCoordinator.mapToPager(index: validProgress, setting: setting)
         if page.index != pagerIndex {
@@ -292,22 +293,22 @@ extension View {
             ])
         }
     }
-    
+
     private func handleRouteChange(newValue: ReadingReducer.Route?, viewModel: ReadingViewModel) {
         Logger.info("Route changed", context: ["route": newValue as Any])
-        
+
         if let route = newValue, ![ReadingReducer.Route.hud, nil].contains(where: { $0 == route }) {
             viewModel.stopAutoPlay()
         }
     }
-    
+
     private func handleLiveTextToggle(
         newValue: Bool,
         store: StoreOf<ReadingReducer>,
         viewModel: ReadingViewModel
     ) {
         Logger.info("Live text toggled", context: ["isEnabled": newValue])
-        
+
         if newValue {
             store.webImageLoadSuccessIndices.forEach { index in
                 viewModel.analyzeImageForLiveText(
@@ -318,7 +319,7 @@ extension View {
             }
         }
     }
-    
+
     private func handleImageLoadSuccess(
         newValue: Set<Int>,
         viewModel: ReadingViewModel,
@@ -327,7 +328,7 @@ extension View {
         Logger.info("Image load success indices changed", context: [
             "count": newValue.count
         ])
-        
+
         if viewModel.enablesLiveText {
             newValue.forEach { index in
                 viewModel.analyzeImageForLiveText(
@@ -338,7 +339,7 @@ extension View {
             }
         }
     }
-    
+
     private func handleLandscapeSettingChange(newValue: Bool, store: StoreOf<ReadingReducer>) {
         Logger.info("Landscape setting changed", context: ["newValue": newValue])
         store.send(.setOrientationPortrait(!newValue))
@@ -355,7 +356,7 @@ struct ReadingControlPanel<G: Gesture>: View {
     @Binding private var setting: Setting
     @Binding private var enablesLiveText: Bool
     @Binding private var autoPlayPolicy: AutoPlayPolicy
-    
+
     private let range: ClosedRange<Float>
     private let previewURLs: [Int: URL]
     private let dismissGesture: G
@@ -364,7 +365,7 @@ struct ReadingControlPanel<G: Gesture>: View {
     private let reloadAllImagesAction: () -> Void
     private let retryAllFailedImagesAction: () -> Void
     private let fetchPreviewURLsAction: (Int) -> Void
-    
+
     init(
         showsPanel: Binding<Bool>,
         showsSliderPreview: Binding<Bool>,
@@ -396,7 +397,7 @@ struct ReadingControlPanel<G: Gesture>: View {
         self.retryAllFailedImagesAction = retryAllFailedImagesAction
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
-    
+
     var body: some View {
         ControlPanel(
             showsPanel: $showsPanel,
@@ -426,18 +427,18 @@ extension ReadingReducer.Route {
         }
         return nil
     }
-    
+
     var share: IdentifiableBox<ReadingReducer.ShareItem>? {
         if case .share(let shareItem) = self {
             return shareItem
         }
         return nil
     }
-    
+
     var hud: Void? {
         if case .hud = self {
             return ()
         }
         return nil
     }
-} 
+}
