@@ -5,7 +5,7 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26_beta.app
+  DEVELOPER_DIR: /Applications/Xcode_26.0.1.app
   APP_VERSION: '2.8.0'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
@@ -19,7 +19,7 @@ env:
 
 jobs:
   Deploy:
-    runs-on: macos-15
+    runs-on: macos-26
     if: |
       github.event.pull_request.merged == true && (
       github.event.pull_request.user.login == 'aalberrty' ||
@@ -39,7 +39,7 @@ jobs:
         run: xcodebuild clean test
           -skipMacroValidation
           -scheme ${{ env.SCHEME_NAME }}
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+          -destination 'platform=iOS Simulator,name=iPhone Air'
       - name: Bump version
         id: bump-version
         uses: yanamura/ios-bump-version@v1
