@@ -15,15 +15,6 @@ struct AboutView: View {
     }
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(L10n.Constant.App.copyright)
-                Text(version)
-            }
-            .foregroundStyle(.gray).font(.caption2.bold())
-            Spacer()
-        }
-        .padding(.horizontal)
         Form {
             Section {
                 ForEach(contacts) { contact in
@@ -52,6 +43,18 @@ struct AboutView: View {
             }
         }
         .navigationTitle(L10n.Localizable.AboutView.Title.ehPanda)
+        .toolbar {
+            ToolbarItem(placement: .largeSubtitle) {
+                VStack(alignment: .leading) {
+                    Text(L10n.Constant.App.copyright)
+                    Text(version)
+                }
+                .foregroundStyle(.gray)
+                .font(.caption2.bold())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+            }
+        }
     }
 
     // MARK: Contacts
