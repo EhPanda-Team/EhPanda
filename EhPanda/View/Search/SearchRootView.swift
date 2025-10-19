@@ -92,7 +92,13 @@ struct SearchRootView: View {
                         .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
                     }
             } else {
-                content
+                // Workaround: Prevent the title disappearing issue.
+                if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
+                    content
+                        .navigationSubtitle(Text(" "))
+                } else {
+                    content
+                }
             }
         }
     }

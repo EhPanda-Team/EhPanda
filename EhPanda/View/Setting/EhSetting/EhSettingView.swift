@@ -23,7 +23,7 @@ struct EhSettingView: View {
     // MARK: EhSettingView
     var body: some View {
         ZStack {
-            // workaround: Stay if-else approach
+            // Workaround: Stay if-else approach
             if store.loadingState == .loading || store.submittingState == .loading {
                 LoadingView()
                     .tint(nil)
