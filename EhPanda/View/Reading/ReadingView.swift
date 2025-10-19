@@ -141,8 +141,8 @@ private struct ReadingContentView: View {
                     gestureCoordinator: gestureCoordinator,
                     pageCoordinator: pageCoordinator,
                     page: page
-                    )
-                } else {
+                )
+            } else {
                 HorizontalReadingView(
                     store: store,
                     setting: $setting,
@@ -291,7 +291,7 @@ private struct ImprovedScrollView<Content: View>: View {
                             )
                     }
                 }
-        .onAppear {
+                .onAppear {
                     scrollToCurrentPage(proxy: proxy)
                 }
             }
