@@ -126,8 +126,8 @@ extension View {
 extension View {
     func readingSettingToolbar(dismissAction: @escaping () -> Void) -> some View {
         self.toolbar {
-            CustomToolbarItem(placement: .cancellationAction) {
-                if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+            if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                CustomToolbarItem(placement: .cancellationAction) {
                     Button(action: dismissAction) {
                         Image(systemSymbol: .chevronDown)
                     }
