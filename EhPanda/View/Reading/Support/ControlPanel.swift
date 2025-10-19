@@ -264,27 +264,37 @@ private struct LowerPanel<G: Gesture>: View {
             VStack(spacing: 0) {
                 SliderPreivew(
                     showsSliderPreview: $showsSliderPreview,
-                    sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
-                    isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
+                    sliderValue: $sliderValue,
+                    previewURLs: previewURLs,
+                    range: range,
+                    isReversed: isReversed,
+                    fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
-                VStack {
-                    HStack {
-                        Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
-                            .fontWeight(.medium).font(.caption).padding()
-                        Slider(
-                            value: $sliderValue, in: range, step: 1,
-                            onEditingChanged: { showsSliderPreview = $0 }
-                        )
-                        // wtaf is happening here?
-                        .frame(width: DeviceUtil.windowW * 0.6)
-                        .rotationEffect(.init(degrees: isReversed ? 180 : 0))
-                        Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
-                            .fontWeight(.medium).font(.caption).padding()
-                    }
-                    .padding(.horizontal)
-                    .glassEffect()
+
+                HStack {
+                    Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
+                        .fontWeight(.medium)
+                        .font(.caption)
+                        .padding()
+
+                    Slider(
+                        value: $sliderValue,
+                        in: range,
+                        step: 1,
+                        onEditingChanged: { showsSliderPreview = $0 }
+                    )
+                    // wtaf is happening here?
+                    .frame(width: DeviceUtil.windowW * 0.6)
+                    .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+
+                    Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
+                        .fontWeight(.medium)
+                        .font(.caption)
+                        .padding()
                 }
             }
+            .glassEffect(in: .rect(cornerRadius: 16))
+            .padding(.horizontal, SliderPreivew.outerPadding)
         }
     }
 }
@@ -298,10 +308,15 @@ private struct SliderPreivew: View {
     private let isReversed: Bool
     private let fetchPreviewURLsAction: (Int) -> Void
 
+    static let outerPadding: CGFloat = 8
+
     init(
-        showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        previewURLs: [Int: URL], range: ClosedRange<Float>,
-        isReversed: Bool, fetchPreviewURLsAction: @escaping (Int) -> Void
+        showsSliderPreview: Binding<Bool>,
+        sliderValue: Binding<Float>,
+        previewURLs: [Int: URL],
+        range: ClosedRange<Float>,
+        isReversed: Bool,
+        fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
@@ -317,15 +332,15 @@ private struct SliderPreivew: View {
                 let (url, modifier) = PreviewResolver.getPreviewConfigs(originalURL: previewURLs[index])
                 VStack {
                     KFImage.url(url, cacheKey: previewURLs[index]?.absoluteString)
-                        .placeholder {
-                            Placeholder(style: .activity(
-                                ratio: Defaults.ImageSize.previewAspect
-                            ))
-                        }
+                        .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) })
                         .fade(duration: 0.25)
-                        .imageModifier(modifier).resizable().scaledToFit()
+                        .imageModifier(modifier)
+                        .resizable()
+                        .scaledToFit()
                         .frame(width: previewWidth, height: showsSliderPreview ? previewHeight : 0)
-                    Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption)
+
+                    Text("\(index)")
+                        .font(DeviceUtil.isPadWidth ? .callout : .caption)
                         .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
                 .onAppear {
@@ -336,7 +351,9 @@ private struct SliderPreivew: View {
                 .opacity(checkIndex(index) ? 1 : 0)
             }
         }
-        .opacity(showsSliderPreview ? 1 : 0).padding(.vertical, verticalPadding)
+        .opacity(showsSliderPreview ? 1 : 0)
+        .padding(.vertical, verticalPadding)
+        .padding(.horizontal, horizontalPadding)
         .frame(height: showsSliderPreview ? previewHeight + verticalPadding * 2 : 0)
     }
 }
@@ -345,6 +362,7 @@ private extension SliderPreivew {
     var verticalPadding: CGFloat {
         DeviceUtil.isPadWidth ? 30 : 20
     }
+    var horizontalPadding: CGFloat { verticalPadding * 0.5 }
     var previewsCount: Int {
         DeviceUtil.isPadWidth ? DeviceUtil.isLandscape ? 7 : 5 : 3
     }
@@ -365,7 +383,7 @@ private extension SliderPreivew {
     var previewWidth: CGFloat {
         guard previewsCount > 0 else { return 0 }
         let count = CGFloat(previewsCount)
-        let spacing = (count + 1) * previewSpacing
+        let spacing = (count + 1) * previewSpacing + horizontalPadding * 2 + Self.outerPadding * 2
         return (DeviceUtil.windowW - spacing) / count
     }
     func checkIndex(_ index: Int) -> Bool {
