@@ -874,14 +874,17 @@ private struct ValuePicker: View {
         Slider(
             value: $value,
             in: range,
-            step: 1,
-            minimumValueLabel: Text(String(Int(range.lowerBound)) + unit)
-                .fontWeight(.medium)
-                .font(.callout),
-            maximumValueLabel: Text(String(Int(range.upperBound)) + unit)
-                .fontWeight(.medium)
-                .font(.callout),
-            label: EmptyView.init
+            label: EmptyView.init,
+            minimumValueLabel: {
+                Text(String(Int(range.lowerBound)) + unit)
+                    .fontWeight(.medium)
+                    .font(.callout)
+            },
+            maximumValueLabel: {
+                Text(String(Int(range.upperBound)) + unit)
+                    .fontWeight(.medium)
+                    .font(.callout)
+            }
         )
     }
 }
