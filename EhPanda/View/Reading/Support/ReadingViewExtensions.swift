@@ -236,7 +236,7 @@ extension View {
         pageCoordinator: PageCoordinator,
         setting: Setting
     ) {
-        Logger.info("Slider value changed", context: ["sliderValue": newValue])
+        Logger.debug("Slider value changed", context: ["sliderValue": newValue])
 
         if !showsSliderPreview {
             let pagerIndex = pageCoordinator.mapToPager(index: Int(newValue), setting: setting)

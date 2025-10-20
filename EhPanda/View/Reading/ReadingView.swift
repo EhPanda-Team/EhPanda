@@ -385,9 +385,9 @@ private struct ImprovedScrollView<Content: View>: View {
 
         let targetId = pageIndex + 1
         if isScrollEnabled {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                proxy.scrollTo(targetId, anchor: .center)
-            }
+            // Do not apply animation here unless you can let the method
+            // `updateCurrentVisibleIndex` stop screwing up the slider value.
+            proxy.scrollTo(targetId, anchor: .center)
         } else {
             // Store target for when scrolling is re-enabled
             scrollTarget = targetId
@@ -433,9 +433,7 @@ private struct ReadingControlsOverlay: View {
             enablesLiveText: $viewModel.enablesLiveText,
             autoPlayPolicy: .init(
                 get: { viewModel.autoPlayPolicy },
-                set: { viewModel.setAutoPlayPolicy($0, pageUpdater: {
-                    page.update(.next)
-                }) }
+                set: { viewModel.setAutoPlayPolicy($0, pageUpdater: { page.update(.next) }) }
             ),
             range: 1...Float(store.gallery.pageCount),
             previewURLs: store.previewURLs,

@@ -209,7 +209,7 @@ final class PageCoordinator: ObservableObject {
     // MARK: - Private Methods
 
     private func handleSliderValueChange(_ newValue: Float) {
-        Logger.info("Handle slider value change", context: [
+        Logger.debug("Handle slider value change", context: [
             "newValue": newValue,
             "pageCount": pageCount
         ])
