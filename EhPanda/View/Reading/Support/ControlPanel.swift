@@ -25,9 +25,15 @@ struct ControlPanel<G: Gesture>: View {
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
-        showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        setting: Binding<Setting>, enablesLiveText: Binding<Bool>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
+        showsPanel: Binding<Bool>,
+        showsSliderPreview: Binding<Bool>,
+        sliderValue: Binding<Float>,
+        setting: Binding<Setting>,
+        enablesLiveText: Binding<Bool>,
+        autoPlayPolicy: Binding<AutoPlayPolicy>,
+        range: ClosedRange<Float>,
+        previewURLs: [Int: URL],
+        dismissGesture: G,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         reloadAllImagesAction: @escaping () -> Void,
@@ -73,9 +79,12 @@ struct ControlPanel<G: Gesture>: View {
             if range.upperBound > range.lowerBound {
                 LowerPanel(
                     showsSliderPreview: $showsSliderPreview,
-                    sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
+                    sliderValue: $sliderValue,
+                    previewURLs: previewURLs,
+                    range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
-                    dismissGesture: dismissGesture, dismissAction: dismissAction,
+                    dismissGesture: dismissGesture,
+                    dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
                 .animation(.default, value: showsSliderPreview)
@@ -280,12 +289,15 @@ private struct LowerPanel<G: Gesture>: View {
                     Slider(
                         value: $sliderValue,
                         in: range,
-                        step: 1,
-                        onEditingChanged: { showsSliderPreview = $0 }
+                        onEditingChanged: { if !$0 { showsSliderPreview = false } }
                     )
                     // wtaf is happening here?
                     .frame(width: DeviceUtil.windowW * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                    .simultaneousGesture(
+                        LongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity)
+                            .onChanged({ if $0 { showsSliderPreview = true } })
+                    )
 
                     Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
                         .fontWeight(.medium)
