@@ -11,7 +11,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install iOS 26 Platform
-        run: xcodebuild -downloadPlatform iOS
+        uses: nick-fields/retry@v3
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
