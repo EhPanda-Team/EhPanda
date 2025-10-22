@@ -90,6 +90,8 @@ internal enum L10n {
       }
       internal enum CodeLevelContributor {
         internal enum Link {
+          /// https://github.com/aalberrty
+          internal static let aalberrty = L10n.tr("Constant", "app.code_level_contributor.link.aalberrty", fallback: "https://github.com/aalberrty")
           /// https://github.com/chihchy
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.link.chihchy", fallback: "https://github.com/chihchy")
           /// https://github.com/Jimmy-Prime
@@ -100,6 +102,8 @@ internal enum L10n {
           internal static let xioxin = L10n.tr("Constant", "app.code_level_contributor.link.xioxin", fallback: "https://github.com/xioxin")
         }
         internal enum Text {
+          /// Zack Asahina
+          internal static let aalberrty = L10n.tr("Constant", "app.code_level_contributor.text.aalberrty", fallback: "Zack Asahina")
           /// Chihchy
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.text.chihchy", fallback: "Chihchy")
           /// Jimmy Prime

@@ -34,10 +34,12 @@
 
 // Code level contributor
 "app.code_level_contributor.link.chihchy" = "https://github.com/chihchy";
+"app.code_level_contributor.link.aalberrty" = "https://github.com/aalberrty";
 "app.code_level_contributor.link.Jimmy-Prime" = "https://github.com/Jimmy-Prime";
 "app.code_level_contributor.link.xioxin" = "https://github.com/xioxin";
 "app.code_level_contributor.link.vvbbnn00" = "https://github.com/vvbbnn00";
 "app.code_level_contributor.text.chihchy" = "Chihchy";
+"app.code_level_contributor.text.aalberrty" = "Zack Asahina";
 "app.code_level_contributor.text.Jimmy-Prime" = "Jimmy Prime";
 "app.code_level_contributor.text.xioxin" = "xioxin";
 "app.code_level_contributor.text.vvbbnn00" = "vvbbnn00";

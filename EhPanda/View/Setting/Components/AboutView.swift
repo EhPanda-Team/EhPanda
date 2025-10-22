@@ -108,6 +108,10 @@ struct AboutView: View {
             text: L10n.Constant.App.CodeLevelContributor.Text.chihchy
         ),
         .init(
+            urlString: L10n.Constant.App.CodeLevelContributor.Link.aalberrty,
+            text: L10n.Constant.App.CodeLevelContributor.Text.aalberrty
+        ),
+        .init(
             urlString: L10n.Constant.App.CodeLevelContributor.Link.jimmyPrime,
             text: L10n.Constant.App.CodeLevelContributor.Text.jimmyPrime
         ),
