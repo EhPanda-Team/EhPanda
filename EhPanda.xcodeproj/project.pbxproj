@@ -7,11 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		145E7E3E2E36DE6D00822CB0 /* ReadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E3D2E36DE6D00822CB0 /* ReadingViewModel.swift */; };
-		145E7E3F2E36DE6D00822CB0 /* GestureCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E382E36DE6D00822CB0 /* GestureCoordinator.swift */; };
-		145E7E412E36DE6D00822CB0 /* PageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E3A2E36DE6D00822CB0 /* PageCoordinator.swift */; };
-		145E7E422E36DE6D00822CB0 /* ReadingViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E3C2E36DE6D00822CB0 /* ReadingViewExtensions.swift */; };
-		145E7E432E36DE6D00822CB0 /* ImageStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 145E7E392E36DE6D00822CB0 /* ImageStackView.swift */; };
 		AB0929B6277F043D00F107CA /* AccountSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingReducer.swift */; };
 		AB0929C027805A8200F107CA /* LoginReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginReducer.swift */; };
@@ -281,6 +276,10 @@
 		EA0C925E2C3EB49500D211F6 /* README.jpn.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92582C3EB49500D211F6 /* README.jpn.md */; };
 		EA2E2E7F2A1F7E500038A261 /* SettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */; };
 		EA2E2E822A1FA1060038A261 /* SearchReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2E2E812A1FA1050038A261 /* SearchReducer.swift */; };
+		EA5AA4A72EA9149E00BC2B5C /* PageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5AA4A62EA9149E00BC2B5C /* PageHandler.swift */; };
+		EA5AA4A82EA9149E00BC2B5C /* LiveTextHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5AA4A52EA9149E00BC2B5C /* LiveTextHandler.swift */; };
+		EA5AA4A92EA9149E00BC2B5C /* GestureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5AA4A42EA9149E00BC2B5C /* GestureHandler.swift */; };
+		EA5AA4AA2EA9149E00BC2B5C /* AutoPlayHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5AA4A32EA9149E00BC2B5C /* AutoPlayHandler.swift */; };
 		EA698C032CCDD2FB0058BC19 /* EquatableVoid.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */; };
 		EA698C092CCDE7090058BC19 /* IdentifiableBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */; };
 		EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = EAE63E2029E2A6330048C601 /* SwiftyBeaver */; };
@@ -318,11 +317,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		145E7E382E36DE6D00822CB0 /* GestureCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureCoordinator.swift; sourceTree = "<group>"; };
-		145E7E392E36DE6D00822CB0 /* ImageStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStackView.swift; sourceTree = "<group>"; };
-		145E7E3A2E36DE6D00822CB0 /* PageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageCoordinator.swift; sourceTree = "<group>"; };
-		145E7E3C2E36DE6D00822CB0 /* ReadingViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewExtensions.swift; sourceTree = "<group>"; };
-		145E7E3D2E36DE6D00822CB0 /* ReadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewModel.swift; sourceTree = "<group>"; };
 		AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingReducer.swift; sourceTree = "<group>"; };
 		AB0929BD2780032400F107CA /* EhSettingReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingReducer.swift; sourceTree = "<group>"; };
 		AB0929BF27805A8200F107CA /* LoginReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginReducer.swift; sourceTree = "<group>"; };
@@ -608,6 +602,10 @@
 		EA0C92582C3EB49500D211F6 /* README.jpn.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.jpn.md; path = READMEs/README.jpn.md; sourceTree = "<group>"; };
 		EA2E2E7E2A1F7E500038A261 /* SettingReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingReducer.swift; sourceTree = "<group>"; };
 		EA2E2E812A1FA1050038A261 /* SearchReducer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchReducer.swift; sourceTree = "<group>"; };
+		EA5AA4A32EA9149E00BC2B5C /* AutoPlayHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoPlayHandler.swift; sourceTree = "<group>"; };
+		EA5AA4A42EA9149E00BC2B5C /* GestureHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHandler.swift; sourceTree = "<group>"; };
+		EA5AA4A52EA9149E00BC2B5C /* LiveTextHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTextHandler.swift; sourceTree = "<group>"; };
+		EA5AA4A62EA9149E00BC2B5C /* PageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageHandler.swift; sourceTree = "<group>"; };
 		EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquatableVoid.swift; sourceTree = "<group>"; };
 		EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableBox.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -712,11 +710,10 @@
 		AB24C561276757A30085C33A /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				145E7E382E36DE6D00822CB0 /* GestureCoordinator.swift */,
-				145E7E392E36DE6D00822CB0 /* ImageStackView.swift */,
-				145E7E3A2E36DE6D00822CB0 /* PageCoordinator.swift */,
-				145E7E3C2E36DE6D00822CB0 /* ReadingViewExtensions.swift */,
-				145E7E3D2E36DE6D00822CB0 /* ReadingViewModel.swift */,
+				EA5AA4A32EA9149E00BC2B5C /* AutoPlayHandler.swift */,
+				EA5AA4A42EA9149E00BC2B5C /* GestureHandler.swift */,
+				EA5AA4A52EA9149E00BC2B5C /* LiveTextHandler.swift */,
+				EA5AA4A62EA9149E00BC2B5C /* PageHandler.swift */,
 				ABC732C627B90F0900D47DA9 /* LiveTextView.swift */,
 				AB69CB8126B3DAF400699359 /* ControlPanel.swift */,
 				AB69CB7F26B3DABC00699359 /* AdvancedList.swift */,
@@ -1911,11 +1908,6 @@
 				AB706F862789AD490025A48A /* ToplistsReducer.swift in Sources */,
 				AB7BF2CC27A96A3C001865A3 /* GalleryTorrent.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
-				145E7E3E2E36DE6D00822CB0 /* ReadingViewModel.swift in Sources */,
-				145E7E3F2E36DE6D00822CB0 /* GestureCoordinator.swift in Sources */,
-				145E7E412E36DE6D00822CB0 /* PageCoordinator.swift in Sources */,
-				145E7E422E36DE6D00822CB0 /* ReadingViewExtensions.swift in Sources */,
-				145E7E432E36DE6D00822CB0 /* ImageStackView.swift in Sources */,
 				ABD4032826B7967F00001B8C /* CategoryView.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,
 				ABBB266627977C2A007B6149 /* ArchivesReducer.swift in Sources */,
@@ -2004,6 +1996,10 @@
 				ABBB2638278FBD2F007B6149 /* SwiftUINavigation_Extension.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */,
 				AB26F59627ACCA1800AB3468 /* AppEnv.swift in Sources */,
+				EA5AA4A72EA9149E00BC2B5C /* PageHandler.swift in Sources */,
+				EA5AA4A82EA9149E00BC2B5C /* LiveTextHandler.swift in Sources */,
+				EA5AA4A92EA9149E00BC2B5C /* GestureHandler.swift in Sources */,
+				EA5AA4AA2EA9149E00BC2B5C /* AutoPlayHandler.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* PostCommentView.swift in Sources */,
 				AB358313269D7E89009466A5 /* DFRequest.swift in Sources */,
 				AB706F90278A5F680025A48A /* AppDelegateClient.swift in Sources */,

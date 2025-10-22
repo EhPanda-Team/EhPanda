@@ -25,15 +25,9 @@ struct ControlPanel<G: Gesture>: View {
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
-        showsPanel: Binding<Bool>,
-        showsSliderPreview: Binding<Bool>,
-        sliderValue: Binding<Float>,
-        setting: Binding<Setting>,
-        enablesLiveText: Binding<Bool>,
-        autoPlayPolicy: Binding<AutoPlayPolicy>,
-        range: ClosedRange<Float>,
-        previewURLs: [Int: URL],
-        dismissGesture: G,
+        showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
+        setting: Binding<Setting>, enablesLiveText: Binding<Bool>, autoPlayPolicy: Binding<AutoPlayPolicy>,
+        range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         reloadAllImagesAction: @escaping () -> Void,
@@ -73,18 +67,13 @@ struct ControlPanel<G: Gesture>: View {
                 retryAllFailedImagesAction: retryAllFailedImagesAction
             )
             .offset(y: showsPanel ? 0 : -50)
-
             Spacer()
-
             if range.upperBound > range.lowerBound {
                 LowerPanel(
                     showsSliderPreview: $showsSliderPreview,
-                    sliderValue: $sliderValue,
-                    previewURLs: previewURLs,
-                    range: range,
+                    sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
-                    dismissGesture: dismissGesture,
-                    dismissAction: dismissAction,
+                    dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
                 .animation(.default, value: showsSliderPreview)
@@ -129,29 +118,27 @@ private struct UpperPanel: View {
 
     var body: some View {
         HStack {
-            // Liquid Glass Dismiss Button
-            Button(action: dismissAction) {
-                Image(systemSymbol: .xmark)
-                    .font(.title2)
-                    .foregroundColor(.primary)
-                    .frame(width: 44, height: 44)
-            }
-            .glassEffect(.regular.interactive())
-
-            Spacer()
-
-            // Page Number Display in Liquid Glass Bubble
-            Text(title)
-                .bold()
-                .lineLimit(1)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .glassEffect()
-
-            Spacer()
-
-            // Toolbar Grouped in Liquid Glass Container
             HStack(spacing: 16) {
+                Button(action: dismissAction) {
+                    Image(systemSymbol: .xmark)
+                        .font(.title2)
+                        .frame(width: 44, height: 44)
+                }
+                .glassEffect(.regular.interactive())
+
+                Text(title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .glassEffect(.regular.interactive())
+            }
+
+            Spacer()
+
+            HStack(spacing: 20) {
                 Button {
                     enablesLiveText.toggle()
                 } label: {
@@ -221,10 +208,11 @@ private struct UpperPanel: View {
                 .buttonStyle(.borderless)
                 .font(.title2)
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
             .glassEffect(.regular.interactive())
         }
+        .foregroundStyle(.primary)
         .padding(.horizontal, 20)
     }
 }
@@ -258,7 +246,6 @@ private struct LowerPanel<G: Gesture>: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            // Dismiss Button
             Button(action: dismissAction) {
                 Image(systemSymbol: .xmark)
                     .foregroundColor(.primary)
@@ -269,7 +256,6 @@ private struct LowerPanel<G: Gesture>: View {
             .gesture(dismissGesture)
             .opacity(showsSliderPreview ? 0 : 1)
 
-            // Slider in Liquid Glass Bubble
             VStack(spacing: 0) {
                 SliderPreivew(
                     showsSliderPreview: $showsSliderPreview,
@@ -291,7 +277,6 @@ private struct LowerPanel<G: Gesture>: View {
                         in: range,
                         onEditingChanged: { if !$0 { showsSliderPreview = false } }
                     )
-                    // wtaf is happening here?
                     .frame(width: DeviceUtil.windowW * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     .simultaneousGesture(
