@@ -147,7 +147,6 @@
 "quick_search_view.title.content" = "内容";
 "quick_search_view.title.name" = "名称";
 "quick_search_view.placeholder.optional" = "可选";
-"quick_search_view.toolbar_item.button.confirm" = "确认";
 
 // MARK: SettingView
 "setting_view.title.setting" = "设置";
@@ -338,8 +337,6 @@
 // MARK: PostCommentView
 "post_comment_view.title.post_comment" = "发布评论";
 "post_comment_view.title.edit_comment" = "编辑评论";
-"post_comment_view.button.cancel" = "取消";
-"post_comment_view.button.post" = "发布";
 
 // MARK: PreviewsView
 "previews_view.title.previews" = "预览";

@@ -53,18 +53,23 @@ struct LaboratoryCell: View {
 
     var body: some View {
         HStack {
-            Spacer()
-            Group {
-                Image(systemSymbol: symbol)
-                Text(title).bold()
-            }
-            .foregroundColor(contentColor).font(.title2)
-            Spacer()
+            Image(systemSymbol: symbol)
+
+            Text(title)
+                .bold()
         }
-        .contentShape(Rectangle()).onTapGesture { isOn.toggle() }
-        .minimumScaleFactor(0.75).padding(.vertical, 20)
-        .background(bgColor).cornerRadius(15).lineLimit(1)
+        .foregroundStyle(contentColor)
+        .font(.title2)
+        .frame(maxWidth: .infinity)
+        .contentShape(.rect)
+        .onTapGesture(perform: { isOn.toggle() })
+        .minimumScaleFactor(0.75)
+        .padding(.vertical, 20)
+        .background(bgColor)
+        .cornerRadius(15)
+        .lineLimit(1)
         .animation(.default, value: isOn)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
     }
 }
 

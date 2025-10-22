@@ -147,7 +147,6 @@
 "quick_search_view.title.content" = "Content";
 "quick_search_view.title.name" = "Name";
 "quick_search_view.placeholder.optional" = "Optional";
-"quick_search_view.toolbar_item.button.confirm" = "확인";
 
 // MARK: SettingView
 "setting_view.title.setting" = "설정";
@@ -338,8 +337,6 @@
 // MARK: PostCommentView
 "post_comment_view.title.post_comment" = "평가 남기기";
 "post_comment_view.title.edit_comment" = "평가 수정";
-"post_comment_view.button.cancel" = "취소";
-"post_comment_view.button.post" = "등록";
 
 // MARK: PreviewsView
 "previews_view.title.previews" = "미리보기";

@@ -147,7 +147,6 @@
 "quick_search_view.title.content" = "搜尋內容";
 "quick_search_view.title.name" = "名稱";
 "quick_search_view.placeholder.optional" = "(可選)";
-"quick_search_view.toolbar_item.button.confirm" = "確定";
 
 // MARK: SettingView
 "setting_view.title.setting" = "設定";
@@ -338,9 +337,6 @@
 // MARK: PostCommentView
 "post_comment_view.title.post_comment" = "發表留言";
 "post_comment_view.title.edit_comment" = "編輯留言";
-"post_comment_view.button.cancel" = "取消";
-"post_comment_view.button.post" = "發表";
-
 // MARK: PreviewsView
 "previews_view.title.previews" = "預覽";
 

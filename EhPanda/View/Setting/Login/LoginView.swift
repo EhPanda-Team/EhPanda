@@ -27,16 +27,22 @@ struct LoginView: View {
                     WaveForm(color: Color(.systemGray2).opacity(0.2), amplify: 100, isReversed: true)
                     WaveForm(color: Color(.systemGray).opacity(0.2), amplify: 120, isReversed: false)
                 }
-                .offset(y: proxy.size.height * 0.3).drawingGroup()
+                .offset(y: proxy.size.height * 0.3)
+                .drawingGroup()
+
                 VStack(spacing: 15) {
                     Group {
                         LoginTextField(
-                            focusedField: $focusedField, text: $store.username,
-                            description: L10n.Localizable.LoginView.Title.username, isPassword: false
+                            focusedField: $focusedField,
+                            text: $store.username,
+                            description: L10n.Localizable.LoginView.Title.username,
+                            isPassword: false
                         )
                         LoginTextField(
-                            focusedField: $focusedField, text: $store.password,
-                            description: L10n.Localizable.LoginView.Title.password, isPassword: true
+                            focusedField: $focusedField,
+                            text: $store.password,
+                            description: L10n.Localizable.LoginView.Title.password,
+                            isPassword: true
                         )
                     }
                     .padding(.horizontal, proxy.size.width * 0.2)
@@ -44,17 +50,21 @@ struct LoginView: View {
                     Button {
                         store.send(.login)
                     } label: {
-                        Image(systemSymbol: .chevronForwardCircleFill)
+                        Image(systemSymbol: .chevronForward)
+                            .padding()
+                            .clipShape(.circle)
                     }
                     .overlay {
                         ProgressView()
                             .tint(nil)
                             .opacity(store.loginState == .loading ? 1 : 0)
                     }
-                    .imageScale(.large)
-                    .font(.largeTitle)
-                    .foregroundColor(store.loginButtonColor)
-                    .disabled(store.loginButtonDisabled).padding(.top, 30)
+                    .font(.title)
+                    .foregroundStyle(store.loginButtonColor)
+                    .disabled(store.loginButtonDisabled)
+                    .glassEffect(.regular.interactive(), in: .circle)
+                    .clipShape(.circle)
+                    .padding(.top, 30)
                 }
             }
         }
@@ -100,10 +110,6 @@ private struct LoginTextField: View {
     private let description: String
     private let isPassword: Bool
 
-    private var backgroundColor: Color {
-        colorScheme == .light ? Color(.systemGray6) : Color(.systemGray5)
-    }
-
     init(
         focusedField: FocusState<LoginReducer.FocusedField?>.Binding,
         text: Binding<String>, description: String, isPassword: Bool
@@ -116,7 +122,10 @@ private struct LoginTextField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(description).font(.caption).foregroundStyle(.secondary)
+            Text(description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
             Group {
                 if isPassword {
                     SecureField("", text: $text)
@@ -125,10 +134,13 @@ private struct LoginTextField: View {
                 }
             }
             .focused(focusedField.projectedValue, equals: isPassword ? .password : .username)
-            .textContentType(isPassword ? .password : .username).submitLabel(isPassword ? .done : .next)
-            .textInputAutocapitalization(.none).disableAutocorrection(true)
-            .keyboardType(isPassword ? .asciiCapable : .default).padding(10)
-            .background(backgroundColor.opacity(0.75).cornerRadius(8))
+            .textContentType(isPassword ? .password : .username)
+            .submitLabel(isPassword ? .done : .next)
+            .textInputAutocapitalization(.none)
+            .disableAutocorrection(true)
+            .keyboardType(isPassword ? .asciiCapable : .default)
+            .padding(10)
+            .glassEffect(.regular.tint(Color(.systemGray5)), in: .rect(cornerRadius: 8))
         }
     }
 }

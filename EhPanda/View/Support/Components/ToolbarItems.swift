@@ -23,10 +23,11 @@ struct CustomToolbarItem<Content: View>: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItem(placement: placement) {
-            HStack {
+            HStack(spacing: 14) {
                 content
             }
-            .foregroundColor(tint).disabled(disabled)
+            .foregroundColor(tint)
+            .disabled(disabled)
         }
     }
 }

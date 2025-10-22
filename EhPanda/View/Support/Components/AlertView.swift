@@ -121,9 +121,12 @@ struct AlertViewButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
+            Text(title)
+                .foregroundColor(.primary.opacity(0.7))
+                .textCase(.uppercase)
         }
-        .buttonStyle(.bordered).buttonBorderShape(.capsule)
+        .buttonBorderShape(.capsule)
+        .buttonStyle(.glass)
     }
 }
 
