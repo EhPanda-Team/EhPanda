@@ -32,11 +32,11 @@
       ],
       "versions": [
         {
-          "version": "2.7.10",
-          "date": "2024-12-21T03:22:52",
-          "localizedDescription": "1. Fixed reading page scroll functionality.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.7.10/EhPanda.ipa",
-          "size": 7231227,
+          "version": "2.8.0",
+          "date": "2025-10-23T04:23:41",
+          "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\n3. fix: Gesture issue in the reading page.\n4. fix: Crash issue in eh setting page.\n5. fix: A minor issue in search page.",
+          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.0/EhPanda.ipa",
+          "size": 7224545,
           "minOSVersion": "16.0"
         }
       ],
