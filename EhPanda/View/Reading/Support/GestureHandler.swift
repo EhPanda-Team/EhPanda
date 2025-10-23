@@ -2,8 +2,6 @@
 //  GestureHandler.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/02/09.
-//
 
 import SwiftUI
 

@@ -90,6 +90,8 @@ internal enum L10n {
       }
       internal enum CodeLevelContributor {
         internal enum Link {
+          /// https://github.com/aalberrty
+          internal static let aalberrty = L10n.tr("Constant", "app.code_level_contributor.link.aalberrty", fallback: "https://github.com/aalberrty")
           /// https://github.com/chihchy
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.link.chihchy", fallback: "https://github.com/chihchy")
           /// https://github.com/Jimmy-Prime
@@ -100,6 +102,8 @@ internal enum L10n {
           internal static let xioxin = L10n.tr("Constant", "app.code_level_contributor.link.xioxin", fallback: "https://github.com/xioxin")
         }
         internal enum Text {
+          /// Zack Asahina
+          internal static let aalberrty = L10n.tr("Constant", "app.code_level_contributor.text.aalberrty", fallback: "Zack Asahina")
           /// Chihchy
           internal static let chihchy = L10n.tr("Constant", "app.code_level_contributor.text.chihchy", fallback: "Chihchy")
           /// Jimmy Prime
@@ -1961,12 +1965,6 @@ internal enum L10n {
       }
     }
     internal enum PostCommentView {
-      internal enum Button {
-        /// Cancel
-        internal static let cancel = L10n.tr("Localizable", "post_comment_view.button.cancel", fallback: "Cancel")
-        /// Post
-        internal static let post = L10n.tr("Localizable", "post_comment_view.button.post", fallback: "Post")
-      }
       internal enum Title {
         /// Edit comment
         internal static let editComment = L10n.tr("Localizable", "post_comment_view.title.edit_comment", fallback: "Edit comment")
@@ -1996,12 +1994,6 @@ internal enum L10n {
         internal static let newWord = L10n.tr("Localizable", "quick_search_view.title.new_word", fallback: "New word")
         /// Quick search
         internal static let quickSearch = L10n.tr("Localizable", "quick_search_view.title.quick_search", fallback: "Quick search")
-      }
-      internal enum ToolbarItem {
-        internal enum Button {
-          /// Confirm
-          internal static let confirm = L10n.tr("Localizable", "quick_search_view.toolbar_item.button.confirm", fallback: "Confirm")
-        }
       }
     }
     internal enum ReadingSettingView {

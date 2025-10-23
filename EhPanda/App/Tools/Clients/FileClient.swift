@@ -32,7 +32,7 @@ extension FileClient {
 
                 let logs: [Log] = fileNames.compactMap { name in
                     guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name),
-                          let content = try? String(contentsOf: fileURL)
+                          let content = try? String(contentsOf: fileURL, encoding: .utf8)
                     else { return nil }
 
                     return Log(

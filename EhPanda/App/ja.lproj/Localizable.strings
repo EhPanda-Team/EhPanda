@@ -147,7 +147,6 @@
 "quick_search_view.title.content" = "内容";
 "quick_search_view.title.name" = "名前";
 "quick_search_view.placeholder.optional" = "任意";
-"quick_search_view.toolbar_item.button.confirm" = "確認";
 
 // MARK: SettingView
 "setting_view.title.setting" = "設定";
@@ -338,8 +337,6 @@
 // MARK: PostCommentView
 "post_comment_view.title.post_comment" = "コメントを書く";
 "post_comment_view.title.edit_comment" = "コメントを編集";
-"post_comment_view.button.cancel" = "キャンセル";
-"post_comment_view.button.post" = "投稿";
 
 // MARK: PreviewsView
 "previews_view.title.previews" = "プレビュー";

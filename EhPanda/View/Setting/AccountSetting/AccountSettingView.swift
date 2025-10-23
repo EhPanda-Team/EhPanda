@@ -63,6 +63,7 @@ struct AccountSettingView: View {
         )
         .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
             WebView(url: url)
+                .ignoresSafeArea(edges: .bottom)
                 .autoBlur(radius: blurRadius)
         }
         .onAppear { store.send(.loadCookies) }

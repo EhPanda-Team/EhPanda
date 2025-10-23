@@ -68,16 +68,23 @@ struct GeneralSettingView: View {
             Section(L10n.Localizable.GeneralSettingView.Section.Title.tags) {
                 HStack {
                     Text(L10n.Localizable.GeneralSettingView.Title.enablesTagsExtension)
-                    Spacer()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                     ZStack {
-                        Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
+                        Image(systemSymbol: .exclamationmarkTriangleFill)
+                            .foregroundStyle(.yellow)
                             .opacity(
                                 translatesTags && tagTranslatorEmpty
                                 && tagTranslatorLoadingState != .loading ? 1 : 0
                             )
-                        ProgressView().tint(nil).opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
+                        ProgressView()
+                            .tint(nil)
+                            .opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
                     }
-                    Toggle("", isOn: $enablesTagsExtension).frame(width: 50)
+
+                    Toggle("", isOn: $enablesTagsExtension)
+                        .frame(width: 50)
+                        .padding(.leading, 20)
                 }
                 if enablesTagsExtension && !tagTranslatorEmpty {
                     Toggle(L10n.Localizable.GeneralSettingView.Title.translatesTags, isOn: $translatesTags)

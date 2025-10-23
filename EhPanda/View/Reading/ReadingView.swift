@@ -49,8 +49,8 @@ struct ReadingView: View {
                         doubleTapScaleFactor: $setting.doubleTapScaleFactor
                     )
                     .toolbar {
-                        CustomToolbarItem(placement: .cancellationAction) {
-                            if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                        if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                            CustomToolbarItem(placement: .cancellationAction) {
                                 Button {
                                     store.send(.setNavigation(nil))
                                 } label: {

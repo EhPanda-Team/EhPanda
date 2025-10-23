@@ -92,7 +92,13 @@ struct SearchRootView: View {
                         .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
                     }
             } else {
-                content
+                // Workaround: Prevent the title disappearing issue.
+                if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
+                    content
+                        .navigationSubtitle(Text(" "))
+                } else {
+                    content
+                }
             }
         }
     }
@@ -214,10 +220,9 @@ private struct QuickSearchWordsSection: View {
     }
 
     private var keywords: [WrappedKeyword] {
-        quickSearchWords.map { word in
-            .init(keyword: word.content, displayText: word.name)
-        }
-        .removeDuplicates()
+        quickSearchWords
+            .map({ .init(keyword: $0.content, displayText: $0.name) })
+            .removeDuplicates()
     }
 
     var body: some View {
@@ -245,7 +250,7 @@ private struct HistoryKeywordsSection: View {
     var body: some View {
         SubSection(title: L10n.Localizable.SearchView.Section.Title.recentlySearched, showAll: false) {
             DoubleVerticalKeywordsStack(
-                keywords: keywords.map({ WrappedKeyword(keyword: $0) }),
+                keywords: keywords.map(WrappedKeyword.init),
                 searchAction: searchAction,
                 removeAction: removeAction
             )
@@ -345,16 +350,23 @@ private struct KeywordCell: View {
         self.removeAction = removeAction
     }
 
+    var title: String {
+        wrappedKeyword.displayText.isEmpty ? wrappedKeyword.keyword : wrappedKeyword.displayText
+    }
+
     var body: some View {
         HStack(spacing: 20) {
             Button {
                 searchAction(wrappedKeyword.keyword)
             } label: {
                 Image(systemSymbol: .magnifyingglass)
-                Text(wrappedKeyword.displayText ?? wrappedKeyword.keyword).lineLimit(1)
-                Spacer()
+
+                Text(title)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(1)
             }
             .tint(.primary)
+
             if removeAction != nil {
                 Button {
                     removeAction?(wrappedKeyword.keyword)
@@ -400,7 +412,16 @@ private struct HistoryGalleriesSection: View {
 // MARK: Definition
 private struct WrappedKeyword: Hashable {
     let keyword: String
-    var displayText: String?
+    let displayText: String
+
+    init(keyword: String, displayText: String) {
+        self.keyword = keyword
+        self.displayText = displayText
+    }
+
+    init(keyword: String) {
+        self.init(keyword: keyword, displayText: .init())
+    }
 }
 
 struct SearchRootView_Previews: PreviewProvider {

@@ -2,8 +2,6 @@
 //  LiveTextHandler.swift
 //  EhPanda
 //
-//  Created by xioxin on 2022/2/12.
-//
 //  swiftlint:disable line_length
 //  Refercence
 //  https://www.codeproject.com/Articles/15573/2D-Polygon-Collision-Detection

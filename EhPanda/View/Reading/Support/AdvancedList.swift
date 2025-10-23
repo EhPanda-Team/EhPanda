@@ -9,6 +9,7 @@ import SwiftUIPager
 struct AdvancedList<Element, ID, PageView, G>: View
 where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     @State var performingChanges = false
+    @State var scrollPositionID: Int?
 
     private let pagerModel: Page
     private let data: [Element]
@@ -35,23 +36,16 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: spacing) {
                     ForEach(data, id: id) { index in
-                        let longPress = longPressGesture(index: index)
-                        let gestures = longPress.simultaneously(with: gesture)
-                        content(index).gesture(gestures)
+                        content(index)
+                            .gesture(gesture)
                     }
                 }
-                .onAppear { tryScrollTo(id: pagerModel.index + 1, proxy: proxy) }
+                .scrollTargetLayout()
+                .onAppear(perform: { tryScrollTo(id: pagerModel.index + 1, proxy: proxy) })
             }
-            .onChange(of: pagerModel.index) { _, newValue in
-                tryScrollTo(id: newValue + 1, proxy: proxy)
-            }
-        }
-    }
-
-    private func longPressGesture(index: Element) -> some Gesture {
-        LongPressGesture(minimumDuration: 0, maximumDistance: .infinity)
-            .onEnded { _ in
-                if let index = index as? Int {
+            .scrollPosition(id: $scrollPositionID, anchor: .center)
+            .onScrollPhaseChange { _, newValue in
+                if newValue == .idle, let index = scrollPositionID {
                     performingChanges = true
                     pagerModel.update(.new(index: index - 1))
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -59,13 +53,15 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
                     }
                 }
             }
+            .onChange(of: pagerModel.index) { _, newValue in
+                tryScrollTo(id: newValue + 1, proxy: proxy)
+            }
+        }
     }
 
     private func tryScrollTo(id: Int, proxy: ScrollViewProxy) {
         if !performingChanges {
-            AppUtil.dispatchMainSync {
-                proxy.scrollTo(id, anchor: .center)
-            }
+            scrollPositionID = id
         }
     }
 }

@@ -29,7 +29,7 @@ https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/b
 2. [AltStore](https://altstore.io) とかで ipa ファイルをデバイスにインストール。
 
 ## 必要システム構成
-iOS・iPadOS 17.0 以上が必要です。
+iOS・iPadOS 26.0 以上が必要です。
 
 ## コンテンツとその著作権
 本アプリの内容はすべて E-Hentai 由来のもので、E-Hentai の内容もまたすべてユーザー生成コンテンツです。

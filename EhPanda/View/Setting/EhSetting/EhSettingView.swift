@@ -23,7 +23,7 @@ struct EhSettingView: View {
     // MARK: EhSettingView
     var body: some View {
         ZStack {
-            // workaround: Stay if-else approach
+            // Workaround: Stay if-else approach
             if store.loadingState == .loading || store.submittingState == .loading {
                 LoadingView()
                     .tint(nil)
@@ -51,6 +51,7 @@ struct EhSettingView: View {
         }
         .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
             WebView(url: url)
+                .ignoresSafeArea(edges: .bottom)
                 .autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar)
@@ -197,7 +198,6 @@ private struct EhProfileSection: View {
         .onChange(of: ehProfile) { _, newValue in
             performEhProfileAction(nil, nil, newValue.value)
         }
-        .textCase(nil)
 
         Section {
             SettingTextField(text: $editingProfileName, width: nil, alignment: .leading, background: .clear)
@@ -243,7 +243,6 @@ private struct ImageLoadSettingsSection: View {
         } footer: {
             Text(ehSetting.loadThroughHathSetting.description)
         }
-        .textCase(nil)
 
         Section(
             L10n.Localizable.EhSettingView.Description.browsingCountry(
@@ -259,7 +258,6 @@ private struct ImageLoadSettingsSection: View {
                 }
             }
         }
-        .textCase(nil)
     }
 }
 
@@ -285,7 +283,6 @@ private struct ImageSizeSettingsSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.imageResolution)
         }
-        .textCase(nil)
 
         if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
             Section(L10n.Localizable.EhSettingView.Section.Title.originalImages) {
@@ -294,7 +291,6 @@ private struct ImageSizeSettingsSection: View {
                     isOn: useOriginalImagesBinding
                 )
             }
-            .textCase(nil)
         }
 
         Section(L10n.Localizable.EhSettingView.Description.imageSize) {
@@ -310,7 +306,6 @@ private struct ImageSizeSettingsSection: View {
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
         }
-        .textCase(nil)
     }
 }
 
@@ -336,7 +331,6 @@ private struct GalleryNameDisplaySection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.galleryName)
         }
-        .textCase(nil)
     }
 }
 
@@ -362,7 +356,6 @@ private struct ArchiverSettingsSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.archiverBehavior)
         }
-        .textCase(nil)
     }
 }
 
@@ -386,7 +379,6 @@ private struct FrontPageSettingsSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.galleryCategory)
         }
-        .textCase(nil)
 
         Section(L10n.Localizable.EhSettingView.Description.displayMode) {
             Picker(L10n.Localizable.EhSettingView.Title.displayMode, selection: $ehSetting.displayMode) {
@@ -397,7 +389,6 @@ private struct FrontPageSettingsSection: View {
             }
             .pickerStyle(.menu)
         }
-        .textCase(nil)
 
         Section(L10n.Localizable.EhSettingView.Section.Title.showSearchRangeIndicator) {
             Toggle(
@@ -405,7 +396,6 @@ private struct FrontPageSettingsSection: View {
                 isOn: $ehSetting.showSearchRangeIndicator
             )
         }
-        .textCase(nil)
     }
 }
 
@@ -428,7 +418,6 @@ private struct OptionalUIElementsSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.optionalUIElements)
         }
-        .textCase(nil)
     }
 }
 
@@ -465,7 +454,6 @@ private struct FavoritesSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.favoriteCategories)
         }
-        .textCase(nil)
 
         Section(L10n.Localizable.EhSettingView.Description.favoritesSortOrder) {
             Picker(
@@ -479,7 +467,6 @@ private struct FavoritesSection: View {
             }
             .pickerStyle(.menu)
         }
-        .textCase(nil)
     }
 }
 
@@ -507,7 +494,6 @@ private struct RatingsSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.ratingsColor)
         }
-        .textCase(nil)
     }
 }
 
@@ -530,7 +516,6 @@ private struct TagFilteringThresholdSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.tagFilteringThreshold)
         }
-        .textCase(nil)
     }
 }
 
@@ -553,7 +538,6 @@ private struct TagWatchingThresholdSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.tagWatchingThreshold)
         }
-        .textCase(nil)
     }
 }
 
@@ -575,7 +559,6 @@ private struct FilteredRemovalCountSection: View {
             Text(L10n.Localizable.EhSettingView.Section.Title.filteredRemovalCount).newlineBold()
             + Text(L10n.Localizable.EhSettingView.Description.filteredRemovalCount)
         }
-        .textCase(nil)
     }
 }
 
@@ -631,7 +614,6 @@ private struct ExcludedLanguagesSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.excludedLanguages)
         }
-        .textCase(nil)
     }
 }
 
@@ -712,7 +694,6 @@ private struct ExcludedUploadersSection: View {
                 .localizedKey
             )
         }
-        .textCase(nil)
     }
 }
 
@@ -738,7 +719,6 @@ private struct SearchResultCountSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.resultCount)
         }
-        .textCase(nil)
     }
 }
 
@@ -769,7 +749,6 @@ private struct ThumbnailSettingsSection: View {
         } footer: {
             Text(ehSetting.thumbnailLoadTiming.description)
         }
-        .textCase(nil)
 
         Section(L10n.Localizable.EhSettingView.Description.thumbnailConfiguration) {
             LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailSize) {
@@ -798,7 +777,6 @@ private struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
         }
-        .textCase(nil)
     }
 }
 
@@ -823,7 +801,6 @@ private struct CoverScalingSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.coverScaleFactor)
         }
-        .textCase(nil)
     }
 }
 
@@ -848,7 +825,6 @@ private struct ViewportOverrideSection: View {
                 .newlineBold()
                 .appending(L10n.Localizable.EhSettingView.Description.virtualWidth)
         }
-        .textCase(nil)
     }
 }
 
@@ -874,14 +850,17 @@ private struct ValuePicker: View {
         Slider(
             value: $value,
             in: range,
-            step: 1,
-            minimumValueLabel: Text(String(Int(range.lowerBound)) + unit)
-                .fontWeight(.medium)
-                .font(.callout),
-            maximumValueLabel: Text(String(Int(range.upperBound)) + unit)
-                .fontWeight(.medium)
-                .font(.callout),
-            label: EmptyView.init
+            label: EmptyView.init,
+            minimumValueLabel: {
+                Text(String(Int(range.lowerBound)) + unit)
+                    .fontWeight(.medium)
+                    .font(.callout)
+            },
+            maximumValueLabel: {
+                Text(String(Int(range.upperBound)) + unit)
+                    .fontWeight(.medium)
+                    .font(.callout)
+            }
         )
     }
 }
@@ -918,7 +897,6 @@ private struct GalleryCommentsSection: View {
             }
             .pickerStyle(.menu)
         }
-        .textCase(nil)
     }
 }
 
@@ -940,7 +918,6 @@ private struct GalleryTagsSection: View {
             }
             .pickerStyle(.menu)
         }
-        .textCase(nil)
     }
 }
 
@@ -965,7 +942,6 @@ private struct GalleryPageThumbnailLabelingSection: View {
             }
             .pickerStyle(.menu)
         }
-        .textCase(nil)
     }
 }
 
@@ -1004,7 +980,6 @@ private struct MultiplePageViewerSection: View {
                     isOn: multiplePageViewerShowPaneBinding
                 )
             }
-            .textCase(nil)
         }
     }
 }

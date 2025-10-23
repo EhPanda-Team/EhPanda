@@ -164,19 +164,28 @@ private struct HathArchiveGrid: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.value).font(.title3.bold())
+            Text(archive.resolution.value)
+                .font(.title3.bold())
+
             VStack {
-                Text(archive.fileSize).fontWeight(.medium).font(.caption)
-                Text(archive.price).foregroundColor(fileSizeColor).font(.caption2)
+                Text(archive.fileSize)
+                    .fontWeight(.medium)
+                    .font(.caption)
+
+                Text(archive.price)
+                    .foregroundColor(fileSizeColor)
+                    .font(.caption2)
             }
             .lineLimit(1)
         }
         .foregroundColor(foregroundColor)
         .frame(width: width, height: height)
-        .contentShape(Rectangle()).overlay(
+        .contentShape(.rect)
+        .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(borderColor, lineWidth: 1)
         )
+        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 10))
     }
 }
 
@@ -205,19 +214,23 @@ private struct DownloadButton: View {
     }
 
     var body: some View {
-        HStack {
-            Spacer()
-            Text(L10n.Localizable.ArchivesView.Button.downloadToHathClient)
-                .font(.headline).foregroundColor(textColor)
-            Spacer()
-        }
-        .frame(height: 50).background(backgroundColor)
-        .cornerRadius(30).padding(paddingInsets)
-        .onTapGesture { if !isDisabled { action() }}
-        .onLongPressGesture(
-            minimumDuration: 0, maximumDistance: 50,
-            pressing: { isPressing = $0 }, perform: {}
-        )
+        Text(L10n.Localizable.ArchivesView.Button.downloadToHathClient)
+            .font(.headline)
+            .foregroundStyle(textColor)
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(backgroundColor)
+            .animation(.default, value: backgroundColor)
+            .clipShape(.rect(cornerRadius: 30))
+            .glassEffect(.regular.interactive())
+            .padding(paddingInsets)
+            .onTapGesture(perform: { if !isDisabled { action() }})
+            .onLongPressGesture(
+                minimumDuration: 0,
+                maximumDistance: 50,
+                pressing: { isPressing = $0 },
+                perform: {}
+            )
     }
 }
 

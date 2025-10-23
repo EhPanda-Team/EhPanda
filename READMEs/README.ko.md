@@ -29,7 +29,7 @@ https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/b
 2. [AltStore](https://altstore.io)를 사용해서 ipa 파일을 설치할 수 있습니다.
 
 ## 시스템 요구 사항
-iOS / iPadOS 버전이 17.0 이상인지 확인해주세요.
+iOS / iPadOS 버전이 26.0 이상인지 확인해주세요.
 
 ## 컨텐츠와 저작권
 이 앱의 내용은 E-Hentai을 통해 제공되고, E-Hentai의 모든 내용은 앱 이용자가 만듭니다.

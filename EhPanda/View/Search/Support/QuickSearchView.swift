@@ -187,9 +187,7 @@ extension QuickSearchView {
 
         private func toolbar() -> some ToolbarContent {
             CustomToolbarItem {
-                Button(action: confirmAction) {
-                    Text(L10n.Localizable.QuickSearchView.ToolbarItem.Button.confirm).bold()
-                }
+                Button(role: .confirm, action: confirmAction)
             }
         }
     }

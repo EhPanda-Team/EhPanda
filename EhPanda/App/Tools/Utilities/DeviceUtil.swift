@@ -36,12 +36,12 @@ struct DeviceUtil {
 
     static var isLandscape: Bool {
         [.landscapeLeft, .landscapeRight]
-            .contains(keyWindow?.windowScene?.interfaceOrientation)
+            .contains(keyWindow?.windowScene?.effectiveGeometry.interfaceOrientation)
     }
 
     static var isPortrait: Bool {
         [.portrait, .portraitUpsideDown]
-            .contains(keyWindow?.windowScene?.interfaceOrientation)
+            .contains(keyWindow?.windowScene?.effectiveGeometry.interfaceOrientation)
     }
 
     static var windowW: CGFloat {

@@ -34,19 +34,19 @@ struct PostCommentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                TextEditor(text: $content).focused($isTextEditorFocused).padding()
+                TextEditor(text: $content)
+                    .focused($isTextEditorFocused)
+                    .padding()
+
                 Spacer()
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Localizable.PostCommentView.Button.cancel, action: cancelAction)
+                    Button(role: .close, action: cancelAction)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(
-                        L10n.Localizable.PostCommentView.Button.post,
-                        action: postAction
-                    )
-                    .disabled(content.isEmpty)
+                    Button(role: .confirm, action: postAction)
+                        .disabled(content.isEmpty)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
