@@ -325,34 +325,48 @@ private struct HeaderSection: View {
     var body: some View {
         HStack {
             KFImage(gallery.coverURL)
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                .defaultModifier().scaledToFit()
+                .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) })
+                .defaultModifier()
+                .scaledToFit()
                 .frame(
                     width: Defaults.ImageSize.headerW,
                     height: Defaults.ImageSize.headerH
                 )
+
             VStack(alignment: .leading) {
                 Button(action: showFullTitleAction) {
                     Text(title)
-                        .font(.title3.bold()).multilineTextAlignment(.leading)
-                        .tint(.primary).lineLimit(showFullTitle ? nil : 3)
+                        .font(.title3.bold())
+                        .multilineTextAlignment(.leading)
+                        .tint(.primary)
+                        .lineLimit(showFullTitle ? nil : 3)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+
                 Button(gallery.uploader ?? "", action: navigateUploaderAction)
-                    .lineLimit(1).font(.callout).foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+
                 Spacer()
+
                 HStack {
                     CategoryLabel(
-                        text: gallery.category.value, color: gallery.color,
-                        font: .headline, insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
+                        text: gallery.category.value,
+                        color: gallery.color,
+                        font: .headline,
+                        insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                         cornerRadius: 3
                     )
+
                     Spacer()
+
                     ZStack {
                         Button(action: unfavorAction) {
                             Image(systemSymbol: .heartFill)
                         }
                         .opacity(galleryDetail.isFavorited ? 1 : 0)
+
                         Menu {
                             ForEach(0..<10) { index in
                                 Button(user.getFavoriteCategory(index: index)) {
@@ -364,15 +378,19 @@ private struct HeaderSection: View {
                         }
                         .opacity(galleryDetail.isFavorited ? 0 : 1)
                     }
-                    .imageScale(.large).foregroundStyle(.tint)
+                    .imageScale(.large)
+                    .foregroundStyle(.tint)
+                    .buttonStyle(.glass(.regular.interactive()))
                     .disabled(!CookieUtil.didLogin)
+
                     Button(action: navigateReadingAction) {
                         Text(L10n.Localizable.DetailView.Button.read)
                             .bold().textCase(.uppercase).font(.headline)
                             .foregroundColor(.white).padding(.vertical, -2)
                             .padding(.horizontal, 2).lineLimit(1)
                     }
-                    .buttonStyle(.borderedProminent).buttonBorderShape(.capsule)
+                    .buttonStyle(.glassProminent)
+                    .buttonBorderShape(.capsule)
                 }
                 .minimumScaleFactor(0.5)
             }
@@ -854,15 +872,21 @@ private struct CommentButton: View {
     }
 
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 15)
+
         Button(action: action) {
             HStack {
-                Spacer()
                 Image(systemSymbol: .squareAndPencil)
-                Text(L10n.Localizable.DetailView.Button.postComment).bold()
-                Spacer()
+
+                Text(L10n.Localizable.DetailView.Button.postComment)
+                    .bold()
             }
-            .padding().background(backgroundColor).cornerRadius(15)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(backgroundColor)
+            .clipShape(shape)
         }
+        .glassEffect(.clear.interactive(), in: shape)
     }
 }
 
