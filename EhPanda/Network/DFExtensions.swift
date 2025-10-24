@@ -62,6 +62,40 @@ extension URLSessionConfiguration {
         config.protocolClasses = [DFURLProtocol.self]
         return config
     }
+    
+    /// 为普通请求配置的URLSession
+    static var normalRequest: URLSessionConfiguration {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = Defaults.Network.normalRequestTimeout
+        config.timeoutIntervalForResource = Defaults.Network.normalResourceTimeout
+        return config
+    }
+    
+    /// 为图片请求配置的URLSession
+    static var imageRequest: URLSessionConfiguration {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = Defaults.Network.imageRequestTimeout
+        config.timeoutIntervalForResource = Defaults.Network.imageResourceTimeout
+        return config
+    }
+    
+    #if DEBUG
+    /// 验证网络配置的调试方法
+    static func validateNetworkConfiguration() {
+        print("=== 网络配置验证 ===")
+        
+        let normalConfig = URLSessionConfiguration.normalRequest
+        print("普通请求超时: \(normalConfig.timeoutIntervalForRequest)秒")
+        print("普通资源超时: \(normalConfig.timeoutIntervalForResource)秒")
+        
+        let imageConfig = URLSessionConfiguration.imageRequest
+        print("图片请求超时: \(imageConfig.timeoutIntervalForRequest)秒")
+        print("图片资源超时: \(imageConfig.timeoutIntervalForResource)秒")
+        
+        print("重试次数: \(Defaults.Network.retryCount)次")
+        print("=== 配置验证完成 ===")
+    }
+    #endif
 }
 
 // MARK: CFHTTPMessage

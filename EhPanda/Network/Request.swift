@@ -37,7 +37,7 @@ extension Request {
 
 private extension Publisher {
     func genericRetry() -> Publishers.Retry<Self> {
-        retry(3)
+        retry(Defaults.Network.retryCount)
     }
 
     func async() async -> Result<Output, Failure> where Failure == AppError {
@@ -408,7 +408,7 @@ struct GalleryReverseRequest: Request {
     func galleryURL(url: URL) -> AnyPublisher<URL, AppError> {
         switch isGalleryImageURL {
         case true:
-            return URLSession.shared.dataTaskPublisher(for: url)
+            return URLSession(configuration: .imageRequest).dataTaskPublisher(for: url)
                 .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                 .tryMap(Parser.parseGalleryURL)
                 .mapError(mapAppError)
@@ -422,7 +422,7 @@ struct GalleryReverseRequest: Request {
     }
 
     func gallery(url: URL) -> AnyPublisher<Gallery, AppError> {
-        URLSession.shared.dataTaskPublisher(for: url)
+        URLSession(configuration: .normalRequest).dataTaskPublisher(for: url)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap {
                 guard let (detail, _) = try? Parser.parseGalleryDetail(doc: $0, gid: url.pathComponents[2])
@@ -545,7 +545,7 @@ struct GalleryNormalImageURLsRequest: Request {
     var publisher: AnyPublisher<([Int: URL], [Int: URL]), AppError> {
         thumbnailURLs.publisher
             .flatMap { index, url in
-                URLSession.shared.dataTaskPublisher(for: url)
+                URLSession(configuration: .imageRequest).dataTaskPublisher(for: url)
                     .genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                     .tryMap { try Parser.parseGalleryNormalImageURL(doc: $0, index: index) }
@@ -589,7 +589,7 @@ struct GalleryNormalImageURLRefetchRequest: Request {
                 .setFailureType(to: AppError.self)
                 .eraseToAnyPublisher()
         } else {
-            return URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
+            return URLSession(configuration: .normalRequest).dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
                 .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                 .tryMap(Parser.parseThumbnailURLs)
                 .compactMap({ thumbnailURLs in thumbnailURLs[index] })
@@ -599,7 +599,7 @@ struct GalleryNormalImageURLRefetchRequest: Request {
     }
 
     func renewThumbnailURL(stored: URL) -> AnyPublisher<(URL, URL), AppError> {
-        URLSession.shared.dataTaskPublisher(for: stored)
+        URLSession(configuration: .imageRequest).dataTaskPublisher(for: stored)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap {
                 let identifier = try Parser.parseSkipServerIdentifier(doc: $0)
@@ -612,7 +612,7 @@ struct GalleryNormalImageURLRefetchRequest: Request {
 
     func imageURL(thumbnailURL: URL, anotherImageURL: URL)
     -> AnyPublisher<(URL, URL, HTTPURLResponse?), AppError> {
-        URLSession.shared.dataTaskPublisher(for: thumbnailURL)
+        URLSession(configuration: .imageRequest).dataTaskPublisher(for: thumbnailURL)
             .tryMap {
                 (try Kanna.HTML(html: $0.data, encoding: .utf8), $0.response as? HTTPURLResponse)
             }
@@ -687,7 +687,11 @@ struct DataRequest: Request {
     let url: URL
 
     var publisher: AnyPublisher<Data, AppError> {
-        URLSession.shared.dataTaskPublisher(for: url)
+        let urlString = url.absoluteString.lowercased()
+        let isImageURL = ["jpg", "jpeg", "png", "gif", "bmp", "webp"].contains { urlString.contains($0) }
+        let session = isImageURL ? URLSession(configuration: .imageRequest) : URLSession(configuration: .normalRequest)
+        
+        return session.dataTaskPublisher(for: url)
             .genericRetry()
             .map(\.data)
             .mapError(mapAppError)
