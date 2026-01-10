@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		82F69C912F12815E00A7F9E4 /* KingfisherWebP in Frameworks */ = {isa = PBXBuildFile; productRef = 82F69C902F12815E00A7F9E4 /* KingfisherWebP */; };
 		AB0929B6277F043D00F107CA /* AccountSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingReducer.swift */; };
 		AB0929C027805A8200F107CA /* LoginReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginReducer.swift */; };
@@ -635,6 +636,7 @@
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
 				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
+				82F69C912F12815E00A7F9E4 /* KingfisherWebP in Frameworks */,
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
 				AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
@@ -1590,6 +1592,7 @@
 				AB2EB9A1280251F600011A8A /* AlertKit */,
 				AB2EB9A42802521700011A8A /* DeprecatedAPI */,
 				EAE63E2029E2A6330048C601 /* SwiftyBeaver */,
+				82F69C902F12815E00A7F9E4 /* KingfisherWebP */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1668,6 +1671,7 @@
 				AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */,
 				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				8268CA182F127FF900AE0557 /* XCRemoteSwiftPackageReference "KingfisherWebP" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -2414,6 +2418,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8268CA182F127FF900AE0557 /* XCRemoteSwiftPackageReference "KingfisherWebP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yeatse/KingfisherWebP";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.2;
+			};
+		};
 		AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Co2333/Colorful";
@@ -2515,7 +2527,7 @@
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
+				minimumVersion = 8.0.0;
 			};
 		};
 		ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
@@ -2545,6 +2557,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		82F69C902F12815E00A7F9E4 /* KingfisherWebP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8268CA182F127FF900AE0557 /* XCRemoteSwiftPackageReference "KingfisherWebP" */;
+			productName = KingfisherWebP;
+		};
 		AB17573C27675B1E00FD64E2 /* Colorful */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */;
