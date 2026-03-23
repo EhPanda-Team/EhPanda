@@ -50,6 +50,14 @@ struct TabBarView: View {
                                 blurRadius: store.appLockState.blurRadius,
                                 tagTranslator: store.settingState.tagTranslator
                             )
+                        case .downloads:
+                            DownloadsView(
+                                store: store.scope(state: \.downloadsState, action: \.downloads),
+                                user: store.settingState.user,
+                                setting: $store.settingState.setting,
+                                blurRadius: store.appLockState.blurRadius,
+                                tagTranslator: store.settingState.tagTranslator
+                            )
                         case .setting:
                             SettingView(
                                 store: store.scope(state: \.settingState, action: \.setting),
@@ -116,6 +124,7 @@ enum TabBarItemType: Int, CaseIterable, Identifiable {
     case home
     case favorites
     case search
+    case downloads
     case setting
 }
 
@@ -128,6 +137,8 @@ extension TabBarItemType {
             return L10n.Localizable.TabItem.Title.favorites
         case .search:
             return L10n.Localizable.TabItem.Title.search
+        case .downloads:
+            return L10n.Localizable.TabItem.Title.downloads
         case .setting:
             return L10n.Localizable.TabItem.Title.setting
         }
@@ -140,6 +151,8 @@ extension TabBarItemType {
             return .heartCircle
         case .search:
             return .magnifyingglassCircle
+        case .downloads:
+            return .arrowDownCircle
         case .setting:
             return .gearshapeCircle
         }

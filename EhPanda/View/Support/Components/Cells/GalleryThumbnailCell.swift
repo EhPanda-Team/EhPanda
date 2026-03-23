@@ -8,15 +8,23 @@ import Kingfisher
 
 struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
     private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let downloadBadge: DownloadBadge
 
-    init(gallery: Gallery, setting: Setting, translateAction: ((String) -> (String, TagTranslation?))? = nil) {
+    init(
+        gallery: Gallery,
+        setting: Setting,
+        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        downloadBadge: DownloadBadge = .none
+    ) {
         self.gallery = gallery
         self.setting = setting
         self.translateAction = translateAction
+        self.downloadBadge = downloadBadge
     }
 
     private var backgroundColor: Color {
@@ -26,9 +34,13 @@ struct GalleryThumbnailCell: View {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
 
+    private var resolvedCoverURL: URL? {
+        downloadStore.resolvedCoverURL(for: gallery)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            KFImage(gallery.coverURL)
+            KFImage(resolvedCoverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
                 .imageModifier(WebtoonModifier(
                     minAspect: Defaults.ImageSize.webtoonMinAspect,
@@ -37,6 +49,7 @@ struct GalleryThumbnailCell: View {
                 .fade(duration: 0.25).resizable().scaledToFit().overlay {
                     VStack {
                         HStack {
+                            DownloadBadgeLabel(badge: downloadBadge, compact: true)
                             Spacer()
                             CategoryLabel(
                                 text: gallery.category.value, color: gallery.color,
@@ -46,9 +59,11 @@ struct GalleryThumbnailCell: View {
                         }
                         Spacer()
                     }
-                }
+            }
             VStack(alignment: .leading, spacing: 5) {
-                Text(gallery.title).font(.callout.bold()).lineLimit(3)
+                Text(gallery.title)
+                    .font(.callout.bold())
+                    .lineLimit(downloadBadge == .none ? 3 : 2)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in

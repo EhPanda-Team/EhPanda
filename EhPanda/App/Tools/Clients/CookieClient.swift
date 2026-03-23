@@ -30,8 +30,8 @@ extension CookieClient {
             guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return value }
 
             cookies.forEach { cookie in
-                guard let expiresDate = cookie.expiresDate, cookie.name == key && !cookie.value.isEmpty else { return }
-                guard expiresDate > .now else {
+                guard cookie.name == key && !cookie.value.isEmpty else { return }
+                guard cookie.expiresDate == nil || cookie.expiresDate! > .now else {
                     value = CookieValue(
                         rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.expired
                     )
@@ -79,16 +79,65 @@ extension CookieClient {
 
 // MARK: Foundation
 extension CookieClient {
+    func importAutomationCookies(memberID: String, passHash: String, igneous: String?) {
+        let urls = [Defaults.URL.ehentai, Defaults.URL.exhentai, Defaults.URL.sexhentai]
+        let authKeys = [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
+
+        urls.forEach { url in
+            authKeys.forEach { key in
+                removeCookie(url, key)
+            }
+        }
+        [Defaults.URL.exhentai, Defaults.URL.sexhentai].forEach { url in
+            removeCookie(url, Defaults.Cookie.igneous)
+        }
+
+        urls.forEach { url in
+            setCookie(
+                for: url,
+                key: Defaults.Cookie.ipbMemberId,
+                value: memberID,
+                sessionOnly: true
+            )
+            setCookie(
+                for: url,
+                key: Defaults.Cookie.ipbPassHash,
+                value: passHash,
+                sessionOnly: true
+            )
+        }
+
+        if let igneous, igneous.notEmpty {
+            [Defaults.URL.exhentai, Defaults.URL.sexhentai].forEach { url in
+                setCookie(
+                    for: url,
+                    key: Defaults.Cookie.igneous,
+                    value: igneous,
+                    sessionOnly: true
+                )
+            }
+        }
+
+        ignoreOffensive()
+        fulfillAnotherHostField()
+    }
+
     private func setCookie(
         for url: URL, key: String, value: String, path: String = "/",
-        expiresTime: TimeInterval = .oneYear
+        expiresTime: TimeInterval = .oneYear,
+        sessionOnly: Bool = false
     ) {
-        let expiredDate = Date(timeIntervalSinceNow: expiresTime)
         let properties: [HTTPCookiePropertyKey: Any] = [
             .path: path, .name: key, .value: value,
-            .originURL: url, .expires: expiredDate
+            .originURL: url
         ]
-        if let cookie = HTTPCookie(properties: properties) {
+        var mutableProperties = properties
+        if sessionOnly {
+            mutableProperties[.discard] = "TRUE"
+        } else {
+            mutableProperties[.expires] = Date(timeIntervalSinceNow: expiresTime)
+        }
+        if let cookie = HTTPCookie(properties: mutableProperties) {
             HTTPCookieStorage.shared.setCookie(cookie)
         }
     }

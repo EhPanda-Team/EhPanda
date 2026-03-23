@@ -221,7 +221,12 @@ private struct QuickSearchWordsSection: View {
 
     private var keywords: [WrappedKeyword] {
         quickSearchWords
-            .map({ .init(keyword: $0.content, displayText: $0.name) })
+            .map {
+                .init(
+                    keyword: $0.effectiveSearchText,
+                    displayText: $0.content.notEmpty ? $0.name : ""
+                )
+            }
             .removeDuplicates()
     }
 

@@ -16,6 +16,9 @@ enum AppError: Error, Identifiable, Equatable, Hashable {
     case networkingFailed
     case webImageFailed
     case parseFailed
+    case quotaExceeded
+    case authenticationRequired
+    case fileOperationFailed(String)
     case noUpdates
     case notFound
     case unknown
@@ -24,35 +27,42 @@ enum AppError: Error, Identifiable, Equatable, Hashable {
 extension AppError {
     var isRetryable: Bool {
         switch self {
-        case .databaseCorrupted, .ipBanned, .networkingFailed, .parseFailed,
-                .noUpdates, .notFound, .unknown, .webImageFailed:
+        case .databaseCorrupted, .networkingFailed, .parseFailed,
+                .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
             return true
-        case .copyrightClaim, .expunged:
+        case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
+                .ipBanned:
             return false
         }
     }
     var localizedDescription: String {
         switch self {
         case .databaseCorrupted:
-            return "Database Corrupted"
+            return L10n.Localizable.AppError.LocalizedDescription.databaseCorrupted
         case .copyrightClaim:
-            return "Copyright Claim"
+            return L10n.Localizable.AppError.LocalizedDescription.copyrightClaim
         case .ipBanned:
-            return "IP Banned"
+            return L10n.Localizable.AppError.LocalizedDescription.ipBanned
         case .expunged:
-            return "Gallery Expunged"
+            return L10n.Localizable.AppError.LocalizedDescription.galleryExpunged
         case .networkingFailed:
-            return "Network Error"
+            return L10n.Localizable.AppError.LocalizedDescription.networkError
         case .webImageFailed:
-            return "Web image loading error"
+            return L10n.Localizable.AppError.LocalizedDescription.webImageLoadingError
         case .parseFailed:
-            return "Parse Error"
+            return L10n.Localizable.AppError.LocalizedDescription.parseError
+        case .quotaExceeded:
+            return L10n.Localizable.AppError.LocalizedDescription.quotaExceeded
+        case .authenticationRequired:
+            return L10n.Localizable.AppError.LocalizedDescription.authenticationRequired
+        case .fileOperationFailed:
+            return L10n.Localizable.AppError.LocalizedDescription.fileOperationFailed
         case .noUpdates:
-            return "No updates available"
+            return L10n.Localizable.AppError.LocalizedDescription.noUpdatesAvailable
         case .notFound:
-            return "Not found"
+            return L10n.Localizable.AppError.LocalizedDescription.notFound
         case .unknown:
-            return "Unknown Error"
+            return L10n.Localizable.AppError.LocalizedDescription.unknownError
         }
     }
     var symbol: SFSymbol {
@@ -67,6 +77,12 @@ extension AppError {
             return .wifiExclamationmark
         case .parseFailed:
             return .rectangleAndTextMagnifyingglass
+        case .quotaExceeded:
+            return .speedometer
+        case .authenticationRequired:
+            return .lockCircleFill
+        case .fileOperationFailed:
+            return .folderFill
         case .notFound, .unknown, .noUpdates, .webImageFailed:
             return .questionmarkCircleFill
         }
@@ -95,6 +111,14 @@ extension AppError {
             return [L10n.Localizable.ErrorView.Title.network, tryLater].joined(separator: "\n")
         case .parseFailed:
             return [L10n.Localizable.ErrorView.Title.parsing, tryLater].joined(separator: "\n")
+        case .quotaExceeded:
+            return L10n.Localizable.AppError.Alert.quotaExceeded
+        case .authenticationRequired:
+            return L10n.Localizable.AppError.Alert.authenticationRequired
+        case .fileOperationFailed(let reason):
+            return [L10n.Localizable.AppError.Alert.localFileOperationFailed, reason]
+                .filter(\.notEmpty)
+                .joined(separator: "\n")
         case .noUpdates, .webImageFailed:
             return ""
         case .notFound:

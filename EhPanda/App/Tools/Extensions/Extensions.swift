@@ -60,9 +60,51 @@ extension Float {
 // MARK: URL
 extension URL {
     static let mock = Defaults.URL.ehentai
+    private static let ignoredStableCacheQueryNames: Set<String> = [
+        "dl", "download", "source", "from", "view"
+    ]
+    private static let preferredStableCacheQueryNames: Set<String> = [
+        "gid", "page", "imgkey", "fileindex", "xres", "p", "key"
+    ]
 
     var isGIF: Bool {
         pathExtension == "gif"
+    }
+
+    var stableImageCacheKey: String? {
+        let normalizedPath = pathComponents
+            .filter { $0 != "/" && $0.notEmpty }
+            .joined(separator: "/")
+        guard normalizedPath.notEmpty else { return nil }
+
+        let queryItems = normalizedStableCacheQueryItems
+        guard !queryItems.isEmpty else {
+            return "download::\(normalizedPath)"
+        }
+
+        let normalizedQuery = queryItems
+            .map { "\($0.name)=\($0.value ?? "")" }
+            .joined(separator: "&")
+        return "download::\(normalizedPath)?\(normalizedQuery)"
+    }
+
+    func imageCacheKeys(includeStableAlias: Bool) -> [String] {
+        var keys = [String]()
+        if includeStableAlias, let stableImageCacheKey {
+            keys.append(stableImageCacheKey)
+        }
+        keys.append(absoluteString)
+        return keys
+    }
+
+    func previewCacheCleanupURLs() -> [URL] {
+        guard let (plainURL, _, _) = Parser.parsePreviewConfigs(url: self),
+              plainURL != self
+        else {
+            return [self]
+        }
+
+        return [self, plainURL]
     }
 
     func appending(queryItems: [URLQueryItem]) -> URL {
@@ -97,6 +139,29 @@ extension URL {
     }
     mutating func append(queryItems: [Defaults.URL.Component.Key: String]) {
         self = appending(queryItems: queryItems)
+    }
+
+    private var normalizedStableCacheQueryItems: [URLQueryItem] {
+        guard let components = URLComponents(url: self, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems?
+                .filter({ ($0.value ?? "").notEmpty })
+        else {
+            return []
+        }
+
+        let preferredQueryItems = queryItems.filter {
+            Self.preferredStableCacheQueryNames.contains($0.name.lowercased())
+        }
+        let filteredQueryItems = preferredQueryItems.isEmpty
+            ? queryItems.filter { !Self.ignoredStableCacheQueryNames.contains($0.name.lowercased()) }
+            : preferredQueryItems
+
+        return filteredQueryItems.sorted { lhs, rhs in
+            if lhs.name == rhs.name {
+                return (lhs.value ?? "") < (rhs.value ?? "")
+            }
+            return lhs.name < rhs.name
+        }
     }
 }
 

@@ -39,7 +39,8 @@ struct SearchView: View {
             navigateAction: { store.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-            }
+            },
+            downloadBadges: store.downloadBadges
         )
         .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
             QuickSearchView(
@@ -66,6 +67,7 @@ struct SearchView: View {
             store.send(.fetchGalleries())
         }
         .onAppear {
+            store.send(.onAppear)
             if store.galleries.isEmpty {
                 DispatchQueue.main.async {
                     store.send(.fetchGalleries(keyword))

@@ -10,6 +10,10 @@ import ComposableArchitecture
 
 @Reducer
 struct HomeReducer {
+    private enum CancelID {
+        case observeDownloads
+    }
+
     @CasePathable
     enum Route: Equatable, Hashable {
         case detail(String)
@@ -34,6 +38,7 @@ struct HomeReducer {
         var frontpageLoadingState: LoadingState = .idle
         var toplistsGalleries = [Int: [Gallery]]()
         var toplistsLoadingState = [Int: LoadingState]()
+        var downloadBadges = [String: DownloadBadge]()
 
         var frontpageState = FrontpageReducer.State()
         var toplistsState = ToplistsReducer.State()
@@ -64,10 +69,20 @@ struct HomeReducer {
             frontpageGalleries = Array(galleries.prefix(min(galleries.count, 25)))
                 .removeDuplicates(by: \.trimmedTitle)
         }
+
+        var visibleGalleryIDs: Set<String> {
+            var gids = Set(popularGalleries.map(\.gid))
+            gids.formUnion(frontpageGalleries.map(\.gid))
+            toplistsGalleries.values.flatMap(\.self).forEach {
+                gids.insert($0.gid)
+            }
+            return gids
+        }
     }
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onAppear
         case setNavigation(Route?)
         case clearSubStates
         case setAllowsCardHitTesting(Bool)
@@ -82,6 +97,10 @@ struct HomeReducer {
         case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchToplistsGalleries(Int, Int? = nil)
         case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
+        case fetchDownloadBadges([String])
+        case fetchDownloadBadgesDone([String: DownloadBadge])
+        case observeDownloads
+        case observeDownloadsDone([DownloadedGallery])
 
         case frontpage(FrontpageReducer.Action)
         case toplists(ToplistsReducer.Action)
@@ -92,6 +111,7 @@ struct HomeReducer {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.libraryClient) private var libraryClient
 
     var body: some Reducer<State, Action> {
@@ -115,6 +135,9 @@ struct HomeReducer {
             switch action {
             case .binding:
                 return .none
+
+            case .onAppear:
+                return .send(.observeDownloads)
 
             case .setNavigation(let route):
                 state.route = route
@@ -172,7 +195,10 @@ struct HomeReducer {
                         return .none
                     }
                     state.setPopularGalleries(galleries)
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .merge(
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
+                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
+                    )
                 case .failure(let error):
                     state.popularLoadingState = .failed(error)
                 }
@@ -196,7 +222,10 @@ struct HomeReducer {
                         return .none
                     }
                     state.setFrontpageGalleries(galleries)
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .merge(
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
+                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
+                    )
                 case .failure(let error):
                     state.frontpageLoadingState = .failed(error)
                 }
@@ -219,7 +248,10 @@ struct HomeReducer {
                         return .none
                     }
                     state.toplistsGalleries[index] = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .merge(
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
+                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
+                    )
                 case .failure(let error):
                     state.toplistsLoadingState[index] = .failed(error)
                 }
@@ -240,6 +272,33 @@ struct HomeReducer {
                     ]
                     .map(Color.init)
                 }
+                return .none
+
+            case .fetchDownloadBadges(let gids):
+                return .run { send in
+                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
+                }
+
+            case .fetchDownloadBadgesDone(let badges):
+                state.downloadBadges.merge(badges, uniquingKeysWith: { _, new in new })
+                return .none
+
+            case .observeDownloads:
+                return .run { send in
+                    for await downloads in downloadClient.observeDownloads() {
+                        await send(.observeDownloadsDone(downloads))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
+
+            case .observeDownloadsDone(let downloads):
+                let visibleGIDs = state.visibleGalleryIDs
+                state.downloadBadges = Dictionary(
+                    uniqueKeysWithValues: downloads.compactMap { download in
+                        guard visibleGIDs.contains(download.gid) else { return nil }
+                        return (download.gid, download.badge)
+                    }
+                )
                 return .none
 
             case .frontpage:

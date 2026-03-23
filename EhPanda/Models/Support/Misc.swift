@@ -47,6 +47,10 @@ struct QuickSearchWord: Codable, Equatable, Identifiable {
     var id: UUID = .init()
     var name: String
     var content: String
+
+    var effectiveSearchText: String {
+        content.notEmpty ? content : name
+    }
 }
 
 @dynamicMemberLookup @CasePathable

@@ -25,7 +25,17 @@ struct DetailReducer {
     }
 
     private enum CancelID: CaseIterable {
-        case fetchDatabaseInfos, fetchGalleryDetail, rateGallery, favorGallery, unfavorGallery, postComment, voteTag
+        case fetchDatabaseInfos
+        case fetchGalleryDetail
+        case fetchVersionMetadata
+        case fetchDownloadBadge
+        case observeDownload
+        case loadLocalPreviewURLs
+        case rateGallery
+        case favorGallery
+        case unfavorGallery
+        case postComment
+        case voteTag
     }
 
     @ObservableState
@@ -40,12 +50,24 @@ struct DetailReducer {
         var userRating = 0
 
         var apiKey = ""
+        var gid = ""
         var loadingState: LoadingState = .idle
         var gallery: Gallery = .empty
         var galleryDetail: GalleryDetail?
+        var galleryVersionMetadata: DownloadVersionMetadata?
         var galleryTags = [GalleryTag]()
         var galleryPreviewURLs = [Int: URL]()
+        var localPreviewURLs = [Int: URL]()
         var galleryComments = [GalleryComment]()
+        var previewConfig: PreviewConfig = .normal(rows: 4)
+        var downloadBadge: DownloadBadge = .none
+        var isPreparingDownload = false
+        var hasLoadedDownloadBadge = false
+        var didRunLaunchAutomation = false
+        var isDownloadContext = false
+        var shouldCheckForRemoteUpdates = false
+        var didRequestVersionMetadata = false
+        var localPreviewRequestID = UUID()
 
         var readingState = ReadingReducer.State()
         var archivesState = ArchivesReducer.State()
@@ -58,6 +80,37 @@ struct DetailReducer {
         init() {
             commentsState = .init(nil)
             detailSearchState = .init(nil)
+        }
+
+        init(download: DownloadedGallery) {
+            self.init()
+            gid = download.gid
+            gallery = download.gallery
+            galleryDetail = GalleryDetail(
+                gid: download.gid,
+                title: download.title,
+                jpnTitle: download.jpnTitle,
+                isFavorited: false,
+                visibility: .yes,
+                rating: download.rating,
+                userRating: 0,
+                ratingCount: 0,
+                category: download.category,
+                language: .japanese,
+                uploader: download.uploader ?? "",
+                postedDate: download.postedDate,
+                coverURL: download.coverURL,
+                favoritedCount: 0,
+                pageCount: download.pageCount,
+                sizeCount: 0,
+                sizeType: "",
+                torrentCount: 0
+            )
+            downloadBadge = download.badge
+            hasLoadedDownloadBadge = download.badge != .none
+            isDownloadContext = true
+            shouldCheckForRemoteUpdates = true
+            didRequestVersionMetadata = false
         }
 
         mutating func updateRating(value: DragGesture.Value) {
@@ -89,12 +142,33 @@ struct DetailReducer {
         case syncPreviewConfig(PreviewConfig)
         case saveGalleryHistory
         case updateReadingProgress(Int)
+        case fetchDownloadBadge
+        case fetchDownloadBadgeDone(DownloadBadge)
+        case observeDownload
+        case observeDownloadDone(DownloadBadge)
+        case loadLocalPreviewURLs
+        case loadLocalPreviewURLsDone(UUID, [Int: URL])
+        case openReading
+        case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
+        case runLaunchAutomationIfNeeded(DownloadOptionsSnapshot)
+        case startDownload(DownloadOptionsSnapshot)
+        case startDownloadDone(Result<Void, AppError>)
+        case toggleDownloadPause
+        case toggleDownloadPauseDone(Result<Void, AppError>)
+        case retryDownload(DownloadStartMode)
+        case retryDownloadDone(Result<Void, AppError>)
+        case deleteDownload
+        case deleteDownloadDone(Result<Void, AppError>)
 
         case teardown
         case fetchDatabaseInfos(String)
         case fetchDatabaseInfosDone(GalleryState)
         case fetchGalleryDetail
-        case fetchGalleryDetailDone(Result<(GalleryDetail, GalleryState, String, Greeting?), AppError>)
+        case fetchGalleryDetailDone(
+            Result<(GalleryDetail, GalleryState, String, Greeting?), AppError>
+        )
+        case fetchVersionMetadataIfNeeded
+        case fetchVersionMetadataDone(Result<DownloadVersionMetadata?, AppError>)
 
         case rateGallery
         case favorGallery(Int)
@@ -113,6 +187,7 @@ struct DetailReducer {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
@@ -152,14 +227,24 @@ struct DetailReducer {
                 }
 
             case .onAppear(let gid, let showsNewDawnGreeting):
+                state.gid = gid
                 state.showsNewDawnGreeting = showsNewDawnGreeting
+                state.isPreparingDownload = false
+                state.hasLoadedDownloadBadge = false
+                state.didRunLaunchAutomation = false
+                state.localPreviewURLs = .init()
                 if state.detailSearchState.wrappedValue == nil {
                     state.detailSearchState.wrappedValue = .init()
                 }
                 if state.commentsState.wrappedValue == nil {
                     state.commentsState.wrappedValue = .init()
                 }
-                return .send(.fetchDatabaseInfos(gid))
+                return .merge(
+                    .send(.fetchDatabaseInfos(gid)),
+                    .send(.fetchDownloadBadge),
+                    .send(.observeDownload),
+                    .send(.loadLocalPreviewURLs)
+                )
 
             case .toggleShowFullTitle:
                 state.showsFullTitle.toggle()
@@ -234,16 +319,212 @@ struct DetailReducer {
                     await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
                 }
 
+            case .fetchDownloadBadge:
+                guard state.gid.isValidGID else { return .none }
+                return .run { [galleryID = state.gid] send in
+                    let badge = await downloadClient.badges([galleryID])[galleryID] ?? .none
+                    await send(.fetchDownloadBadgeDone(badge))
+                }
+                .cancellable(id: CancelID.fetchDownloadBadge, cancelInFlight: true)
+
+            case .fetchDownloadBadgeDone(let badge):
+                _ = applyDownloadBadge(badge, state: &state)
+
+                var effects: [Effect<Action>] = [
+                    .send(.loadLocalPreviewURLs)
+                ]
+                if shouldRequestVersionMetadata(state: state) {
+                    effects.append(.send(.fetchVersionMetadataIfNeeded))
+                }
+                return .merge(effects)
+
+            case .observeDownload:
+                guard state.gid.isValidGID else { return .none }
+                return .run { [galleryID = state.gid] send in
+                    for await downloads in downloadClient.observeDownloads() {
+                        let badge = downloads.first(where: { $0.gid == galleryID })?.badge ?? .none
+                        await send(.observeDownloadDone(badge))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownload, cancelInFlight: true)
+
+            case .observeDownloadDone(let badge):
+                let didChangeBadge = applyDownloadBadge(badge, state: &state)
+                guard didChangeBadge else { return .none }
+
+                var effects: [Effect<Action>] = [
+                    .send(.loadLocalPreviewURLs)
+                ]
+                if shouldRequestVersionMetadata(state: state) {
+                    effects.append(.send(.fetchVersionMetadataIfNeeded))
+                }
+                return .merge(effects)
+
+            case .loadLocalPreviewURLs:
+                guard state.gid.isValidGID else {
+                    state.localPreviewRequestID = UUID()
+                    state.localPreviewURLs = .init()
+                    return .none
+                }
+                let requestID = UUID()
+                state.localPreviewRequestID = requestID
+                return .run { [galleryID = state.gid] send in
+                    let localPreviewURLs: [Int: URL]
+                    switch await downloadClient.loadLocalPageURLs(galleryID) {
+                    case .success(let pageURLs):
+                        localPreviewURLs = pageURLs
+                    case .failure:
+                        localPreviewURLs = [:]
+                    }
+                    await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
+                }
+                .cancellable(id: CancelID.loadLocalPreviewURLs, cancelInFlight: true)
+
+            case .loadLocalPreviewURLsDone(let requestID, let localPreviewURLs):
+                guard state.localPreviewRequestID == requestID else { return .none }
+                guard state.localPreviewURLs != localPreviewURLs else { return .none }
+                state.localPreviewURLs = localPreviewURLs
+                return .none
+
+            case .openReading:
+                state.readingState = .init(contentSource: .remote)
+                return .run { [galleryID = state.gallery.id] send in
+                    guard galleryID.isValidGID else {
+                        await send(.openReadingDone(.failure(.notFound)))
+                        return
+                    }
+                    await send(.openReadingDone(await downloadClient.loadManifest(galleryID)))
+                }
+
+            case .openReadingDone(let result):
+                if case .success(let (download, manifest)) = result {
+                    state.readingState = .init(contentSource: .local(download, manifest))
+                } else {
+                    state.readingState.contentSource = .remote
+                    state.readingState.localPageURLs = state.localPreviewURLs
+                }
+                state.route = .reading()
+                return .none
+
+            case .runLaunchAutomationIfNeeded(let options):
+                guard !state.didRunLaunchAutomation,
+                      AppLaunchAutomation.current?.autoDownloadGID == state.gallery.id,
+                      state.galleryDetail != nil,
+                      state.hasLoadedDownloadBadge
+                else { return .none }
+
+                state.didRunLaunchAutomation = true
+                guard state.downloadBadge == .none else { return .none }
+                return .send(.startDownload(options))
+
+            case .startDownload(let options):
+                guard !state.isPreparingDownload else { return .none }
+                state.didRunLaunchAutomation = true
+                guard let detail = state.galleryDetail else { return .none }
+                state.isPreparingDownload = true
+                let payload = DownloadRequestPayload(
+                    gallery: state.gallery,
+                    galleryDetail: detail,
+                    previewURLs: state.galleryPreviewURLs,
+                    previewConfig: state.previewConfig,
+                    host: AppUtil.galleryHost,
+                    versionMetadata: state.galleryVersionMetadata,
+                    options: options,
+                    mode: .initial
+                )
+                return .run { send in
+                    await send(.startDownloadDone(await downloadClient.enqueue(payload)))
+                }
+
+            case .startDownloadDone(let result):
+                state.isPreparingDownload = false
+                if case .success = result {
+                    state.downloadBadge = .queued
+                    state.hasLoadedDownloadBadge = true
+                    return .merge(
+                        .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+
+            case .toggleDownloadPause:
+                guard !state.isPreparingDownload else { return .none }
+                state.isPreparingDownload = true
+                return .run { [galleryID = state.gallery.id] send in
+                    await send(.toggleDownloadPauseDone(await downloadClient.togglePause(galleryID)))
+                }
+
+            case .toggleDownloadPauseDone(let result):
+                state.isPreparingDownload = false
+                if case .success = result {
+                    switch state.downloadBadge {
+                    case .downloading(let completed, let total):
+                        state.downloadBadge = .paused(completed, total)
+                    case .paused:
+                        state.downloadBadge = .queued
+                    default:
+                        break
+                    }
+                    state.hasLoadedDownloadBadge = state.downloadBadge != .none
+                    return .merge(
+                        .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+
+            case .retryDownload(let mode):
+                guard !state.isPreparingDownload else { return .none }
+                state.isPreparingDownload = true
+                return .run { [galleryID = state.gallery.id] send in
+                    await send(.retryDownloadDone(await downloadClient.retry(galleryID, mode)))
+                }
+
+            case .retryDownloadDone(let result):
+                state.isPreparingDownload = false
+                if case .success = result {
+                    state.downloadBadge = .queued
+                    state.hasLoadedDownloadBadge = true
+                    return .merge(
+                        .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+
+            case .deleteDownload:
+                return .run { [galleryID = state.gallery.id] send in
+                    await send(.deleteDownloadDone(await downloadClient.delete(galleryID)))
+                }
+
+            case .deleteDownloadDone(let result):
+                if case .success = result {
+                    state.galleryVersionMetadata = nil
+                    state.didRequestVersionMetadata = false
+                    state.isDownloadContext = false
+                    state.shouldCheckForRemoteUpdates = false
+                    return .merge(
+                        .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                        .send(.fetchDownloadBadge)
+                    )
+                }
+                return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchDatabaseInfos(let gid):
-                guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
-                state.gallery = gallery
+                if let gallery = databaseClient.fetchGallery(gid: gid) {
+                    state.gallery = gallery
+                } else if state.gallery.id != gid {
+                    return .none
+                }
                 if let detail = databaseClient.fetchGalleryDetail(gid: gid) {
                     state.galleryDetail = detail
                 }
                 return .merge(
+                    .send(.fetchDownloadBadge),
                     .send(.saveGalleryHistory),
                     .run { [galleryID = state.gallery.id] send in
                         guard let dbState = await databaseClient.fetchGalleryState(gid: galleryID) else { return }
@@ -256,6 +537,9 @@ struct DetailReducer {
                 state.galleryTags = galleryState.tags
                 state.galleryPreviewURLs = galleryState.previewURLs
                 state.galleryComments = galleryState.comments
+                if let previewConfig = galleryState.previewConfig {
+                    state.previewConfig = previewConfig
+                }
                 return .send(.fetchGalleryDetail)
 
             case .fetchGalleryDetail:
@@ -263,6 +547,8 @@ struct DetailReducer {
                       let galleryURL = state.gallery.galleryURL
                 else { return .none }
                 state.loadingState = .loading
+                state.didRequestVersionMetadata = false
+                state.galleryVersionMetadata = nil
                 return .run { [galleryID = state.gallery.id] send in
                     let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).response()
                     await send(.fetchGalleryDetailDone(response))
@@ -277,14 +563,21 @@ struct DetailReducer {
                         .send(.syncGalleryTags),
                         .send(.syncGalleryDetail),
                         .send(.syncGalleryPreviewURLs),
-                        .send(.syncGalleryComments)
+                        .send(.syncGalleryComments),
+                        .send(.fetchDownloadBadge)
                     ]
                     state.apiKey = apiKey
                     state.galleryDetail = galleryDetail
                     state.galleryTags = galleryState.tags
                     state.galleryPreviewURLs = galleryState.previewURLs
                     state.galleryComments = galleryState.comments
+                    if let config = galleryState.previewConfig {
+                        state.previewConfig = config
+                    }
                     state.userRating = Int(galleryDetail.userRating) * 2
+                    if shouldRequestVersionMetadata(state: state) {
+                        effects.append(.send(.fetchVersionMetadataIfNeeded))
+                    }
                     if let greeting = greeting {
                         effects.append(.send(.syncGreeting(greeting)))
                         if !greeting.gainedNothing && state.showsNewDawnGreeting {
@@ -297,6 +590,47 @@ struct DetailReducer {
                     return .merge(effects)
                 case .failure(let error):
                     state.loadingState = .failed(error)
+                }
+                return .none
+
+            case .fetchVersionMetadataIfNeeded:
+                guard state.shouldCheckForRemoteUpdates,
+                      !state.didRequestVersionMetadata,
+                      let detail = state.galleryDetail
+                else {
+                    return .none
+                }
+                state.didRequestVersionMetadata = true
+                return .run { [gallery = state.gallery, previewURLs = state.galleryPreviewURLs, detail] send in
+                    let metadata: DownloadVersionMetadata?
+                    switch await GalleryVersionMetadataRequest(gid: gallery.gid, token: gallery.token).response() {
+                    case .success(let fetchedMetadata):
+                        metadata = fetchedMetadata
+                    case .failure:
+                        metadata = nil
+                    }
+
+                    await send(.fetchVersionMetadataDone(.success(metadata)))
+
+                    guard let metadata else { return }
+                    let latestSignature = DownloadSignatureBuilder.make(
+                        gallery: gallery,
+                        detail: detail,
+                        host: AppUtil.galleryHost,
+                        previewURLs: previewURLs,
+                        versionMetadata: metadata
+                    )
+                    let badge = await downloadClient.updateRemoteSignature(
+                        gallery.gid,
+                        latestSignature
+                    )
+                    await send(.fetchDownloadBadgeDone(badge))
+                }
+                .cancellable(id: CancelID.fetchVersionMetadata, cancelInFlight: true)
+
+            case .fetchVersionMetadataDone(let result):
+                if case .success(let metadata) = result {
+                    state.galleryVersionMetadata = metadata
                 }
                 return .none
 
@@ -482,5 +816,32 @@ struct DetailReducer {
             Scope(state: \.previewsState, action: \.previews, child: PreviewsReducer.init)
             Scope(state: \.galleryInfosState, action: \.galleryInfos, child: GalleryInfosReducer.init)
         }
+    }
+
+    private func applyDownloadBadge(
+        _ badge: DownloadBadge,
+        state: inout State
+    ) -> Bool {
+        let didChangeBadge = badge != state.downloadBadge || !state.hasLoadedDownloadBadge
+
+        state.downloadBadge = badge
+        if badge != .none {
+            state.isPreparingDownload = false
+        }
+        state.hasLoadedDownloadBadge = true
+        state.shouldCheckForRemoteUpdates = state.isDownloadContext || badge != .none
+
+        if badge == .none && !state.isDownloadContext {
+            state.galleryVersionMetadata = nil
+            state.didRequestVersionMetadata = false
+        }
+
+        return didChangeBadge
+    }
+
+    private func shouldRequestVersionMetadata(state: State) -> Bool {
+        state.galleryDetail != nil
+            && state.shouldCheckForRemoteUpdates
+            && !state.didRequestVersionMetadata
     }
 }

@@ -66,11 +66,22 @@ extension ImageClient {
     )
 
     func fetchImage(url: URL) async -> Result<UIImage, Error> {
-        if KingfisherManager.shared.cache.isCached(forKey: url.absoluteString) {
-            return await retrieveImage(url.absoluteString)
-        } else {
-            return await downloadImage(url)
+        if url.isFileURL {
+            if let image = UIImage(contentsOfFile: url.path) {
+                return .success(image)
+            }
+            if let data = try? Data(contentsOf: url),
+               let image = UIImage(data: data) {
+                return .success(image)
+            }
+            return .failure(AppError.notFound)
         }
+        for key in url.imageCacheKeys(includeStableAlias: true) {
+            if KingfisherManager.shared.cache.isCached(forKey: key) {
+                return await retrieveImage(key)
+            }
+        }
+        return await downloadImage(url)
     }
 }
 

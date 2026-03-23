@@ -61,6 +61,11 @@ struct Defaults {
     struct FilePath {
         static let logs = "logs"
         static let ehpandaLog = "EhPanda.log"
+        static let downloads = "Downloads"
+        static let downloadPages = "pages"
+        static let downloadManifest = "manifest.json"
+        static let downloadResumeState = ".resume.json"
+        static let downloadFailedPages = ".failed-pages.json"
     }
     struct Regex {
         static let tagSuggestion: NSRegularExpression? = try? .init(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")

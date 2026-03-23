@@ -14,7 +14,10 @@ struct PreviewsReducer {
     }
 
     private enum CancelID: CaseIterable {
-        case fetchDatabaseInfos, fetchPreviewURLs
+        case fetchDatabaseInfos
+        case observeDownloads
+        case loadLocalPreviewURLs
+        case fetchPreviewURLs
     }
 
     @ObservableState
@@ -26,7 +29,9 @@ struct PreviewsReducer {
         var databaseLoadingState: LoadingState = .loading
 
         var previewURLs = [Int: URL]()
+        var localPreviewURLs = [Int: URL]()
         var previewConfig: PreviewConfig = .normal(rows: 4)
+        var localPreviewRequestID = UUID()
 
         var readingState = ReadingReducer.State()
 
@@ -48,6 +53,12 @@ struct PreviewsReducer {
         case teardown
         case fetchDatabaseInfos(String)
         case fetchDatabaseInfosDone(GalleryState)
+        case observeDownloads(String)
+        case observeDownloadsDone([DownloadedGallery])
+        case loadLocalPreviewURLs(String)
+        case loadLocalPreviewURLsDone(UUID, [Int: URL])
+        case openReading(Int)
+        case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
         case fetchPreviewURLs(Int)
         case fetchPreviewURLsDone(Result<[Int: URL], AppError>)
 
@@ -55,6 +66,7 @@ struct PreviewsReducer {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some Reducer<State, Action> {
@@ -92,11 +104,17 @@ struct PreviewsReducer {
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
                 state.gallery = gallery
-                return .run { [state] send in
-                    guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
-                    await send(.fetchDatabaseInfosDone(dbState))
-                }
-                .cancellable(id: CancelID.fetchDatabaseInfos)
+                return .merge(
+                    .run { [state] send in
+                        guard let dbState = await databaseClient.fetchGalleryState(
+                            gid: state.gallery.id
+                        ) else { return }
+                        await send(.fetchDatabaseInfosDone(dbState))
+                    }
+                    .cancellable(id: CancelID.fetchDatabaseInfos),
+                    .send(.observeDownloads(gid)),
+                    .send(.loadLocalPreviewURLs(gid))
+                )
 
             case .fetchDatabaseInfosDone(let galleryState):
                 if let previewConfig = galleryState.previewConfig {
@@ -104,6 +122,75 @@ struct PreviewsReducer {
                 }
                 state.previewURLs = galleryState.previewURLs
                 state.databaseLoadingState = .idle
+                return .none
+
+            case .observeDownloads(let gid):
+                guard gid.isValidGID else { return .none }
+                return .run { send in
+                    var previousRelevantDownloads = [DownloadedGallery]()
+                    var hadRelevantDownloads = false
+                    for await downloads in downloadClient.observeDownloads() {
+                        let relevantDownloads = downloads.filter { $0.gid == gid }
+                        let hasRelevantDownloads = !relevantDownloads.isEmpty
+                        guard hasRelevantDownloads || hadRelevantDownloads else { continue }
+                        if relevantDownloads == previousRelevantDownloads {
+                            hadRelevantDownloads = hasRelevantDownloads
+                            continue
+                        }
+                        previousRelevantDownloads = relevantDownloads
+                        hadRelevantDownloads = hasRelevantDownloads
+                        await send(.observeDownloadsDone(relevantDownloads))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
+
+            case .observeDownloadsDone:
+                return .send(.loadLocalPreviewURLs(state.gallery.id))
+
+            case .loadLocalPreviewURLs(let gid):
+                guard gid.isValidGID else {
+                    state.localPreviewRequestID = UUID()
+                    state.localPreviewURLs = .init()
+                    return .none
+                }
+                let requestID = UUID()
+                state.localPreviewRequestID = requestID
+                return .run { send in
+                    let localPreviewURLs: [Int: URL]
+                    switch await downloadClient.loadLocalPageURLs(gid) {
+                    case .success(let pageURLs):
+                        localPreviewURLs = pageURLs
+                    case .failure:
+                        localPreviewURLs = [:]
+                    }
+                    await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
+                }
+                .cancellable(id: CancelID.loadLocalPreviewURLs, cancelInFlight: true)
+
+            case .loadLocalPreviewURLsDone(let requestID, let localPreviewURLs):
+                guard state.localPreviewRequestID == requestID else { return .none }
+                guard state.localPreviewURLs != localPreviewURLs else { return .none }
+                state.localPreviewURLs = localPreviewURLs
+                return .none
+
+            case .openReading:
+                state.readingState = .init(contentSource: .remote)
+                return .run { [galleryID = state.gallery.id] send in
+                    guard galleryID.isValidGID else {
+                        await send(.openReadingDone(.failure(.notFound)))
+                        return
+                    }
+                    await send(.openReadingDone(await downloadClient.loadManifest(galleryID)))
+                }
+
+            case .openReadingDone(let result):
+                if case .success(let (download, manifest)) = result {
+                    state.readingState = .init(contentSource: .local(download, manifest))
+                } else {
+                    state.readingState.contentSource = .remote
+                    state.readingState.localPageURLs = state.localPreviewURLs
+                }
+                state.route = .reading()
                 return .none
 
             case .fetchPreviewURLs(let index):

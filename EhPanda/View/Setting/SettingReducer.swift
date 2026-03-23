@@ -16,6 +16,7 @@ struct SettingReducer {
         case general
         case appearance
         case reading
+        case downloads
         case laboratory
         case about
     }
@@ -306,12 +307,13 @@ struct SettingReducer {
                 }
 
             case .fetchIgneousDone(let result):
-                var effects = [Effect<Action>]()
                 if case .success(let response) = result {
-                    effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
+                    return .concatenate(
+                        .run(operation: { _ in cookieClient.setCredentials(response: response) }),
+                        .send(.account(.loadCookies))
+                    )
                 }
-                effects.append(.send(.account(.loadCookies)))
-                return .merge(effects)
+                return .send(.account(.loadCookies))
 
             case .fetchUserInfo:
                 guard cookieClient.didLogin else { return .none }

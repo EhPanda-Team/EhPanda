@@ -8,15 +8,101 @@ import Kingfisher
 
 struct GalleryDetailCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
+    private let coverURLOverride: URL?
     private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let downloadBadge: DownloadBadge
 
-    init(gallery: Gallery, setting: Setting, translateAction: ((String) -> (String, TagTranslation?))? = nil) {
+    init(
+        gallery: Gallery,
+        coverURLOverride: URL? = nil,
+        setting: Setting,
+        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        downloadBadge: DownloadBadge = .none
+    ) {
         self.gallery = gallery
+        self.coverURLOverride = coverURLOverride
         self.setting = setting
         self.translateAction = translateAction
+        self.downloadBadge = downloadBadge
+    }
+
+    private var resolvedCoverURL: URL? {
+        coverURLOverride ?? downloadStore.resolvedCoverURL(for: gallery)
+    }
+
+    var body: some View {
+        GalleryDetailCellContent(
+            gallery: gallery,
+            resolvedCoverURL: resolvedCoverURL,
+            setting: setting,
+            colorScheme: colorScheme,
+            translateAction: translateAction,
+            downloadBadge: downloadBadge
+        )
+    }
+}
+
+struct StaticGalleryDetailCell: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    private let gallery: Gallery
+    private let resolvedCoverURL: URL?
+    private let setting: Setting
+    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let downloadBadge: DownloadBadge
+
+    init(
+        gallery: Gallery,
+        resolvedCoverURL: URL?,
+        setting: Setting,
+        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        downloadBadge: DownloadBadge = .none
+    ) {
+        self.gallery = gallery
+        self.resolvedCoverURL = resolvedCoverURL
+        self.setting = setting
+        self.translateAction = translateAction
+        self.downloadBadge = downloadBadge
+    }
+
+    var body: some View {
+        GalleryDetailCellContent(
+            gallery: gallery,
+            resolvedCoverURL: resolvedCoverURL,
+            setting: setting,
+            colorScheme: colorScheme,
+            translateAction: translateAction,
+            downloadBadge: downloadBadge
+        )
+    }
+}
+
+private struct GalleryDetailCellContent: View {
+    private let gallery: Gallery
+    private let resolvedCoverURL: URL?
+    private let setting: Setting
+    private let colorScheme: ColorScheme
+    private let translateAction: ((String) -> (String, TagTranslation?))?
+    private let downloadBadge: DownloadBadge
+
+    init(
+        gallery: Gallery,
+        resolvedCoverURL: URL?,
+        setting: Setting,
+        colorScheme: ColorScheme,
+        translateAction: ((String) -> (String, TagTranslation?))?,
+        downloadBadge: DownloadBadge
+    ) {
+        self.gallery = gallery
+        self.resolvedCoverURL = resolvedCoverURL
+        self.setting = setting
+        self.colorScheme = colorScheme
+        self.translateAction = translateAction
+        self.downloadBadge = downloadBadge
     }
 
     private var tagColor: Color {
@@ -25,12 +111,16 @@ struct GalleryDetailCell: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            KFImage(gallery.coverURL)
+            KFImage(resolvedCoverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
                 .defaultModifier().scaledToFit().frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
             VStack(alignment: .leading, spacing: 5) {
-                Text(gallery.title).lineLimit(3).font(.headline).foregroundStyle(.primary)
+                Text(gallery.title)
+                    .lineLimit(downloadBadge == .none ? 3 : 2)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
+                DownloadBadgeLabel(badge: downloadBadge)
                 Text(gallery.uploader ?? "").lineLimit(1).font(.subheadline).foregroundStyle(.secondary)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {

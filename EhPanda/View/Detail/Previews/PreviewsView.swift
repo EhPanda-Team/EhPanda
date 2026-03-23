@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import ComposableArchitecture
 
 struct PreviewsView: View {
@@ -34,23 +33,19 @@ struct PreviewsView: View {
     }
 
     var body: some View {
+        let displayPreviewURLs = store.localPreviewURLs.merging(
+            store.previewURLs,
+            uniquingKeysWith: { local, _ in local }
+        )
         ScrollView {
             LazyVGrid(columns: gridItems) {
                 ForEach(1..<store.gallery.pageCount + 1, id: \.self) { index in
                     VStack {
-                        let (url, modifier) = PreviewResolver.getPreviewConfigs(
-                            originalURL: store.previewURLs[index]
-                        )
                         Button {
                             store.send(.updateReadingProgress(index))
-                            store.send(.setNavigation(.reading()))
+                            store.send(.openReading(index))
                         } label: {
-                            KFImage.url(url, cacheKey: store.previewURLs[index]?.absoluteString)
-                                .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) })
-                                .imageModifier(modifier)
-                                .fade(duration: 0.25)
-                                .resizable()
-                                .scaledToFit()
+                            PreviewImageView(originalURL: displayPreviewURLs[index])
                         }
                         Text("\(index)")
                             .font(DeviceUtil.isPadWidth ? .callout : .caption)
@@ -58,7 +53,7 @@ struct PreviewsView: View {
                     }
                     .onAppear {
                         if store.databaseLoadingState != .loading
-                            && store.previewURLs[index] == nil && (index - 1) % 10 == 0
+                            && displayPreviewURLs[index] == nil && (index - 1) % 10 == 0
                         {
                             store.send(.fetchPreviewURLs(index))
                         }

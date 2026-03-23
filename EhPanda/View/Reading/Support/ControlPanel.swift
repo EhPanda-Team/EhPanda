@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 
 // MARK: ControlPanel
 struct ControlPanel<G: Gesture>: View {
@@ -326,14 +325,8 @@ private struct SliderPreivew: View {
     var body: some View {
         HStack(spacing: previewSpacing) {
             ForEach(previewsIndices, id: \.self) { index in
-                let (url, modifier) = PreviewResolver.getPreviewConfigs(originalURL: previewURLs[index])
                 VStack {
-                    KFImage.url(url, cacheKey: previewURLs[index]?.absoluteString)
-                        .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) })
-                        .fade(duration: 0.25)
-                        .imageModifier(modifier)
-                        .resizable()
-                        .scaledToFit()
+                    PreviewImageView(originalURL: previewURLs[index])
                         .frame(width: previewWidth, height: showsSliderPreview ? previewHeight : 0)
 
                     Text("\(index)")
