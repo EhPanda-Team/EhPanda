@@ -42,10 +42,14 @@
 "common.value.seconds" = "%@ seconds";
 "common.value.records" = "%@ records";
 
+// MARK: Common button
+"common.button.cancel" = "Cancel";
+
 // MARK: TabItem
 "tab_item.title.home" = "Home";
 "tab_item.title.favorites" = "Favorites";
 "tab_item.title.search" = "Search";
+"tab_item.title.downloads" = "Downloads";
 "tab_item.title.setting" = "Setting";
 
 // MARK: ToolbarItem
@@ -73,6 +77,24 @@
 "error_view.title.ip_banned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
 "error_view.title.copyright_claim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
 "error_view.title.gallery_unavailable" = "This gallery has been removed or is unavailable.";
+
+// MARK: AppError
+"app_error.localized_description.database_corrupted" = "Database Corrupted";
+"app_error.localized_description.copyright_claim" = "Copyright Claim";
+"app_error.localized_description.ip_banned" = "IP Banned";
+"app_error.localized_description.gallery_expunged" = "Gallery Expunged";
+"app_error.localized_description.network_error" = "Network Error";
+"app_error.localized_description.web_image_loading_error" = "Web image loading error";
+"app_error.localized_description.parse_error" = "Parse Error";
+"app_error.localized_description.quota_exceeded" = "Quota Exceeded";
+"app_error.localized_description.authentication_required" = "Authentication Required";
+"app_error.localized_description.file_operation_failed" = "File Operation Failed";
+"app_error.localized_description.no_updates_available" = "No updates available";
+"app_error.localized_description.not_found" = "Not found";
+"app_error.localized_description.unknown_error" = "Unknown Error";
+"app_error.alert.quota_exceeded" = "Image quota exceeded.\nPlease wait and try again later.";
+"app_error.alert.authentication_required" = "Login required to access this download.";
+"app_error.alert.local_file_operation_failed" = "Local file operation failed.";
 
 // MARK: ConfirmationDialog
 "confirmation_dialog.title.drop_database" = "You will lose all your data in this app.\nAre you sure to drop the database?";
@@ -155,6 +177,7 @@
 "enum.setting_state_route.value.general" = "General";
 "enum.setting_state_route.value.appearance" = "Appearance";
 "enum.setting_state_route.value.reading" = "Reading";
+"enum.setting_state_route.value.downloads" = "Downloads";
 "enum.setting_state_route.value.laboratory" = "Laboratory";
 "enum.setting_state_route.value.about" = "About EhPanda";
 
@@ -262,8 +285,27 @@
 "about_view.section.title.acknowledgements" = "Acknowledgements";
 
 // MARK: DetailView
+"detail_view.button.download_login" = "LOG IN";
+"detail_view.button.download_get" = "GET";
+"detail_view.button.download_wait" = "WAIT";
+"detail_view.button.download_done" = "DONE";
+"detail_view.button.download_update" = "UPDATE";
+"detail_view.button.download_retry" = "RETRY";
+"detail_view.button.download_repair" = "REPAIR";
 "detail_view.button.read" = "Read";
 "detail_view.button.post_comment" = "Post comment";
+"detail_view.accessibility.download_button.login" = "Log in to download";
+"detail_view.accessibility.download_button.download" = "Download";
+"detail_view.accessibility.download_button.queued" = "Queued";
+"detail_view.accessibility.download_button.downloading" = "Downloading %d of %d";
+"detail_view.accessibility.download_button.downloaded" = "Delete downloaded gallery";
+"detail_view.accessibility.download_button.update" = "Update download";
+"detail_view.accessibility.download_button.retry" = "Retry download";
+"detail_view.accessibility.download_button.repair" = "Repair download";
+"detail_view.accessibility.download_button.preparing" = "Preparing download";
+"detail_view.accessibility.download_button.pause_action" = "Pause download";
+"detail_view.accessibility.download_button.paused" = "Resume download. Paused at %d of %d";
+"detail_view.accessibility.download_button.partial" = "Retry download. %d of %d pages are already available.";
 "detail_view.toolbar_item.button.archives" = "Archives";
 "detail_view.toolbar_item.button.torrents" = "Torrents";
 "detail_view.toolbar_item.button.share" = "Share";
@@ -282,6 +324,19 @@
 "detail_view.action_section.button.similar_gallery" = "Similar Gallery";
 "detail_view.section.title.previews" = "Previews";
 "detail_view.section.title.comments" = "Comments";
+"detail_view.dialog.title.delete_download" = "Delete Download?";
+"detail_view.dialog.title.repair_download" = "Repair Download?";
+"detail_view.dialog.title.update_download" = "Update Download?";
+"detail_view.dialog.title.redownload_gallery" = "Redownload Gallery?";
+"detail_view.dialog.message.delete_active_download" = "This will stop the current download and remove the gallery from this device.";
+"detail_view.dialog.message.delete_downloaded_gallery" = "This will remove the downloaded gallery from this device.";
+"detail_view.dialog.message.repair_download" = "Repair the offline files for this gallery now?";
+"detail_view.dialog.message.update_download" = "Update this gallery to the newest online version now?";
+"detail_view.dialog.message.redownload_gallery" = "Start a fresh download for this gallery now?";
+"detail_view.dialog.button.repair" = "Repair";
+"detail_view.dialog.button.update" = "Update";
+"detail_view.dialog.button.redownload" = "Redownload";
+"detail_view.offline_notice.saved_details" = "Couldn't refresh online details. Showing saved details instead.";
 
 // MARK: ArchivesView
 "archives_view.title.archives" = "Archives";
@@ -331,6 +386,36 @@
 "tag_detail_view.section.title.images" = "Images";
 "tag_detail_view.section.title.links" = "Links";
 
+// MARK: DownloadsView
+"downloads_view.title.downloads" = "Downloads";
+"downloads_view.search.prompt.downloads" = "Search downloads";
+"downloads_view.dialog.title.delete_download" = "Delete Download?";
+"downloads_view.dialog.message.delete_active_download" = "This will cancel the current download and remove it from this device.";
+"downloads_view.dialog.message.delete_downloaded_gallery" = "This will remove the downloaded gallery from this device.";
+"downloads_view.swipe.button.pages" = "Pages";
+"downloads_view.swipe.button.update" = "Update";
+"downloads_view.swipe.button.resume" = "Resume";
+"downloads_view.swipe.button.pause" = "Pause";
+"downloads_view.empty_state.downloads" = "Downloaded galleries will appear here.";
+"downloads_view.empty_state.no_matching_filters" = "No downloads match the current filters.";
+"downloads_view.button.clear_filters" = "Clear Filters";
+"downloads_view.inspector.section.actions" = "Actions";
+"downloads_view.inspector.section.pages" = "Pages";
+"downloads_view.inspector.button.retry_failed_pages" = "Retry Failed Pages (%d)";
+"downloads_view.inspector.button.update_download" = "Update Download";
+"downloads_view.inspector.title.download_status" = "Download Status";
+"downloads_view.inspector.page.pending" = "Pending";
+"downloads_view.inspector.page.tap_to_retry" = "Tap to retry this page";
+"downloads_view.inspector.page.title" = "Page %d";
+
+// MARK: DownloadSettingView
+"download_setting_view.section.title.download_queue" = "Download Queue";
+"download_setting_view.section.title.network" = "Network";
+"download_setting_view.title.concurrent_image_downloads" = "Concurrent image downloads";
+"download_setting_view.title.retry_failed_pages_automatically" = "Retry failed pages automatically";
+"download_setting_view.title.allow_cellular_downloads" = "Allow cellular downloads";
+"download_setting_view.footer.network" = "Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.";
+
 // MARK: CommentsView
 "comments_view.title.comments" = "Comments";
 
@@ -355,6 +440,44 @@
 "reading_view.toolbar_item.button.reading_setting" = "Reading setting";
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "Off";
+
+// MARK: DownloadThreadMode
+"enum.download_thread_mode.value.single" = "1 image at a time";
+"enum.download_thread_mode.value.double" = "2 images at a time";
+"enum.download_thread_mode.value.triple" = "3 images at a time";
+"enum.download_thread_mode.value.quadruple" = "4 images at a time";
+"enum.download_thread_mode.value.quintuple" = "5 images at a time";
+
+// MARK: DownloadListFilter
+"enum.download_list_filter.title.all" = "All";
+"enum.download_list_filter.title.active" = "Active";
+"enum.download_list_filter.title.completed" = "Downloaded";
+"enum.download_list_filter.title.failed" = "Needs Attention";
+"enum.download_list_filter.title.update" = "Update Available";
+
+// MARK: DownloadBadge
+"struct.download_badge.text.queued" = "Queued";
+"struct.download_badge.text.downloading" = "Downloading %d/%d";
+"struct.download_badge.text.paused" = "Paused %d/%d";
+"struct.download_badge.text.needs_attention_progress" = "Needs Attention %d/%d";
+"struct.download_badge.text.downloaded" = "Downloaded";
+"struct.download_badge.text.needs_attention" = "Needs Attention";
+"struct.download_badge.text.update_available" = "Update Available";
+"struct.download_badge.text.needs_repair" = "Needs Repair";
+"struct.download_badge.compact.downloading" = "DL";
+"struct.download_badge.compact.paused" = "Pause";
+"struct.download_badge.compact.needs_attention" = "Needs Attention";
+"struct.download_badge.compact.done" = "Done";
+
+// MARK: DownloadFileStorage
+"download_file_storage.error.asset_unreadable" = "Asset file is unreadable: %@";
+"download_file_storage.validation.download_folder_unresolved" = "Download folder could not be resolved.";
+"download_file_storage.validation.download_folder_missing" = "Download folder is missing.";
+"download_file_storage.validation.manifest_missing" = "Manifest file is missing.";
+"download_file_storage.validation.manifest_corrupted" = "Manifest file is corrupted.";
+"download_file_storage.validation.downloaded_pages_incomplete" = "Downloaded pages are incomplete.";
+"download_file_storage.validation.cover_image_missing" = "Cover image is missing.";
+"download_file_storage.validation.page_missing" = "Page %d is missing.";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "Filters";

@@ -42,10 +42,14 @@
 "common.value.seconds" = "%@ 秒";
 "common.value.records" = "%@ 条记录";
 
+// MARK: Common button
+"common.button.cancel" = "取消";
+
 // MARK: TabItem
 "tab_item.title.home" = "主页";
 "tab_item.title.favorites" = "收藏";
 "tab_item.title.search" = "搜索";
+"tab_item.title.downloads" = "下载";
 "tab_item.title.setting" = "设置";
 
 // MARK: ToolbarItem
@@ -73,6 +77,24 @@
 "error_view.title.ip_banned" = "当前的 IP 地址发生了过量的页面加载，因有使用爬虫程序的嫌疑已被暂时封禁。封禁将在 %@后解除。";
 "error_view.title.copyright_claim" = "抱歉，该画廊因 %@ 的版权主张已无法访问。";
 "error_view.title.gallery_unavailable" = "该画廊已被移除或不可用。";
+
+// MARK: AppError
+"app_error.localized_description.database_corrupted" = "数据库损坏";
+"app_error.localized_description.copyright_claim" = "版权声明";
+"app_error.localized_description.ip_banned" = "IP 已封禁";
+"app_error.localized_description.gallery_expunged" = "画廊已删除";
+"app_error.localized_description.network_error" = "网络错误";
+"app_error.localized_description.web_image_loading_error" = "网页图片加载错误";
+"app_error.localized_description.parse_error" = "解析错误";
+"app_error.localized_description.quota_exceeded" = "流量额度已用尽";
+"app_error.localized_description.authentication_required" = "需要登录";
+"app_error.localized_description.file_operation_failed" = "文件操作失败";
+"app_error.localized_description.no_updates_available" = "没有可用更新";
+"app_error.localized_description.not_found" = "未找到";
+"app_error.localized_description.unknown_error" = "未知错误";
+"app_error.alert.quota_exceeded" = "图片流量额度已用尽。\n请稍后再试。";
+"app_error.alert.authentication_required" = "访问此下载内容需要登录。";
+"app_error.alert.local_file_operation_failed" = "本地文件操作失败。";
 
 // MARK: ConfirmationDialog
 "confirmation_dialog.title.drop_database" = "你将失去这个 App 中所有的数据。\n确定要丢弃数据库吗？";
@@ -155,6 +177,7 @@
 "enum.setting_state_route.value.general" = "一般";
 "enum.setting_state_route.value.appearance" = "外观";
 "enum.setting_state_route.value.reading" = "阅读";
+"enum.setting_state_route.value.downloads" = "下载";
 "enum.setting_state_route.value.laboratory" = "实验室";
 "enum.setting_state_route.value.about" = "关于 EhPanda";
 
@@ -262,8 +285,27 @@
 "about_view.section.title.acknowledgements" = "致谢";
 
 // MARK: DetailView
+"detail_view.button.download_login" = "登录";
+"detail_view.button.download_get" = "获取";
+"detail_view.button.download_wait" = "等待";
+"detail_view.button.download_done" = "完成";
+"detail_view.button.download_update" = "更新";
+"detail_view.button.download_retry" = "重试";
+"detail_view.button.download_repair" = "修复";
 "detail_view.button.read" = "阅读";
 "detail_view.button.post_comment" = "发布评论";
+"detail_view.accessibility.download_button.login" = "登录后即可下载";
+"detail_view.accessibility.download_button.download" = "下载";
+"detail_view.accessibility.download_button.queued" = "已加入下载队列";
+"detail_view.accessibility.download_button.downloading" = "正在下载第 %d / %d 页";
+"detail_view.accessibility.download_button.downloaded" = "删除已下载画廊";
+"detail_view.accessibility.download_button.update" = "更新下载内容";
+"detail_view.accessibility.download_button.retry" = "重新下载";
+"detail_view.accessibility.download_button.repair" = "修复下载文件";
+"detail_view.accessibility.download_button.preparing" = "正在获取下载信息";
+"detail_view.accessibility.download_button.pause_action" = "暂停下载";
+"detail_view.accessibility.download_button.paused" = "继续下载，当前暂停在第 %d / %d 页";
+"detail_view.accessibility.download_button.partial" = "重新下载，已有 %d / %d 页可用。";
 "detail_view.toolbar_item.button.archives" = "归档";
 "detail_view.toolbar_item.button.torrents" = "种子";
 "detail_view.toolbar_item.button.share" = "分享";
@@ -282,6 +324,19 @@
 "detail_view.action_section.button.similar_gallery" = "相似画廊";
 "detail_view.section.title.previews" = "预览";
 "detail_view.section.title.comments" = "评论";
+"detail_view.dialog.title.delete_download" = "删除下载？";
+"detail_view.dialog.title.repair_download" = "修复下载？";
+"detail_view.dialog.title.update_download" = "更新下载？";
+"detail_view.dialog.title.redownload_gallery" = "重新下载画廊？";
+"detail_view.dialog.message.delete_active_download" = "这将停止当前下载并从此设备移除该画廊。";
+"detail_view.dialog.message.delete_downloaded_gallery" = "这将从此设备移除已下载的画廊。";
+"detail_view.dialog.message.repair_download" = "现在修复此画廊的离线文件吗？";
+"detail_view.dialog.message.update_download" = "现在将此画廊更新到线上最新版本吗？";
+"detail_view.dialog.message.redownload_gallery" = "现在重新完整下载此画廊吗？";
+"detail_view.dialog.button.repair" = "修复";
+"detail_view.dialog.button.update" = "更新";
+"detail_view.dialog.button.redownload" = "重新下载";
+"detail_view.offline_notice.saved_details" = "无法刷新在线详情，现显示已保存的详情。";
 
 // MARK: ArchivesView
 "archives_view.title.archives" = "归档";
@@ -331,6 +386,36 @@
 "tag_detail_view.section.title.images" = "图片";
 "tag_detail_view.section.title.links" = "链接";
 
+// MARK: DownloadsView
+"downloads_view.title.downloads" = "下载";
+"downloads_view.search.prompt.downloads" = "搜索下载";
+"downloads_view.dialog.title.delete_download" = "删除下载？";
+"downloads_view.dialog.message.delete_active_download" = "这将取消当前下载并从此设备移除它。";
+"downloads_view.dialog.message.delete_downloaded_gallery" = "这将从此设备移除已下载的画廊。";
+"downloads_view.swipe.button.pages" = "页面";
+"downloads_view.swipe.button.update" = "更新";
+"downloads_view.swipe.button.resume" = "继续";
+"downloads_view.swipe.button.pause" = "暂停";
+"downloads_view.empty_state.downloads" = "已下载的画廊会显示在这里。";
+"downloads_view.empty_state.no_matching_filters" = "没有下载项符合当前筛选条件。";
+"downloads_view.button.clear_filters" = "清除筛选";
+"downloads_view.inspector.section.actions" = "操作";
+"downloads_view.inspector.section.pages" = "页面";
+"downloads_view.inspector.button.retry_failed_pages" = "重试失败页面（%d）";
+"downloads_view.inspector.button.update_download" = "更新下载";
+"downloads_view.inspector.title.download_status" = "下载状态";
+"downloads_view.inspector.page.pending" = "等待中";
+"downloads_view.inspector.page.tap_to_retry" = "点按以重试此页";
+"downloads_view.inspector.page.title" = "第 %d 页";
+
+// MARK: DownloadSettingView
+"download_setting_view.section.title.download_queue" = "下载队列";
+"download_setting_view.section.title.network" = "网络";
+"download_setting_view.title.concurrent_image_downloads" = "并发图片下载";
+"download_setting_view.title.retry_failed_pages_automatically" = "自动重试失败页面";
+"download_setting_view.title.allow_cellular_downloads" = "允许蜂窝网络下载";
+"download_setting_view.footer.network" = "每次只会下载一个画廊。这个设置用于控制单个画廊内页面的并行下载数量、是否允许蜂窝网络下载，以及文件在应用 Downloads 文件夹中的存储方式。";
+
 // MARK: CommentsView
 "comments_view.title.comments" = "评论";
 
@@ -355,6 +440,44 @@
 "reading_view.toolbar_item.button.reading_setting" = "阅读设置";
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "不启用";
+
+// MARK: DownloadThreadMode
+"enum.download_thread_mode.value.single" = "同时下载 1 张图片";
+"enum.download_thread_mode.value.double" = "同时下载 2 张图片";
+"enum.download_thread_mode.value.triple" = "同时下载 3 张图片";
+"enum.download_thread_mode.value.quadruple" = "同时下载 4 张图片";
+"enum.download_thread_mode.value.quintuple" = "同时下载 5 张图片";
+
+// MARK: DownloadListFilter
+"enum.download_list_filter.title.all" = "全部";
+"enum.download_list_filter.title.active" = "进行中";
+"enum.download_list_filter.title.completed" = "已下载";
+"enum.download_list_filter.title.failed" = "需处理";
+"enum.download_list_filter.title.update" = "有可更新";
+
+// MARK: DownloadBadge
+"struct.download_badge.text.queued" = "已排队";
+"struct.download_badge.text.downloading" = "下载中 %d/%d";
+"struct.download_badge.text.paused" = "已暂停 %d/%d";
+"struct.download_badge.text.needs_attention_progress" = "需处理 %d/%d";
+"struct.download_badge.text.downloaded" = "已下载";
+"struct.download_badge.text.needs_attention" = "需处理";
+"struct.download_badge.text.update_available" = "有可更新";
+"struct.download_badge.text.needs_repair" = "需修复";
+"struct.download_badge.compact.downloading" = "下载中";
+"struct.download_badge.compact.paused" = "暂停";
+"struct.download_badge.compact.needs_attention" = "需处理";
+"struct.download_badge.compact.done" = "完成";
+
+// MARK: DownloadFileStorage
+"download_file_storage.error.asset_unreadable" = "资源文件无法读取：%@";
+"download_file_storage.validation.download_folder_unresolved" = "无法解析下载文件夹。";
+"download_file_storage.validation.download_folder_missing" = "下载文件夹缺失。";
+"download_file_storage.validation.manifest_missing" = "Manifest 文件缺失。";
+"download_file_storage.validation.manifest_corrupted" = "Manifest 文件已损坏。";
+"download_file_storage.validation.downloaded_pages_incomplete" = "下载页面不完整。";
+"download_file_storage.validation.cover_image_missing" = "封面图片缺失。";
+"download_file_storage.validation.page_missing" = "第 %d 页缺失。";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "筛选";

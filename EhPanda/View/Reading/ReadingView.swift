@@ -36,6 +36,21 @@ struct ReadingView: View {
         colorScheme == .light ? Color(.systemGray4) : Color(.systemGray6)
     }
 
+    private var displayPreviewURLs: [Int: URL] {
+        store.localPageURLs.merging(store.previewURLs, uniquingKeysWith: { local, _ in local })
+    }
+
+    private var displayImageURLs: [Int: URL] {
+        store.localPageURLs.merging(store.imageURLs, uniquingKeysWith: { local, _ in local })
+    }
+
+    private var displayOriginalImageURLs: [Int: URL] {
+        if store.contentSource == .remote {
+            return store.originalImageURLs
+        }
+        return store.localPageURLs.merging(store.originalImageURLs, uniquingKeysWith: { local, _ in local })
+    }
+
     var body: some View {
         changeTriggers(content: { content })
             .sheet(item: $store.route.sending(\.setNavigation).readingSetting) { _ in
@@ -135,7 +150,7 @@ struct ReadingView: View {
                 enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
                 range: 1...Float(store.gallery.pageCount),
-                previewURLs: store.previewURLs,
+                previewURLs: displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { store.send(.onPerformDismiss) },
                 navigateSettingAction: { store.send(.setNavigation(.readingSetting())) },
@@ -214,8 +229,8 @@ struct ReadingView: View {
             isDatabaseLoading: store.databaseLoadingState != .idle,
             backgroundColor: backgroundColor,
             config: imageStackConfig,
-            imageURLs: store.imageURLs,
-            originalImageURLs: store.originalImageURLs,
+            imageURLs: displayImageURLs,
+            originalImageURLs: displayOriginalImageURLs,
             loadingStates: store.imageURLLoadingStates,
             enablesLiveText: liveTextHandler.enablesLiveText,
             liveTextGroups: liveTextHandler.liveTextGroups,
@@ -257,32 +272,60 @@ extension ReadingView {
             Logger.info("analyzeImageForLiveText duplicated", context: ["index": index])
             return
         }
-        guard let key = store.imageURLs[index]?.absoluteString else {
+        guard let imageURL = displayImageURLs[index] else {
             Logger.info("analyzeImageForLiveText URL not found", context: ["index": index])
             return
         }
-        KingfisherManager.shared.cache.retrieveImage(forKey: key) { result in
-            switch result {
-            case .success(let result):
-                if let image = result.image, let cgImage = image.cgImage {
-                    liveTextHandler.analyzeImage(
-                        cgImage, size: image.size, index: index, recognitionLanguages:
-                            store.galleryDetail?.language.codes
-                    )
-                } else {
-                    Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
-                }
-            case .failure(let error):
-                Logger.info(
-                    "analyzeImageForLiveText failed",
-                    context: [
-                        "index": index,
-                        "error": error
-                    ]
-                    as [String: Any]
+        if imageURL.isFileURL {
+            if let image = UIImage(contentsOfFile: imageURL.path)
+                ?? ((try? Data(contentsOf: imageURL)).flatMap(UIImage.init(data:))),
+               let cgImage = image.cgImage
+            {
+                liveTextHandler.analyzeImage(
+                    cgImage, size: image.size, index: index, recognitionLanguages:
+                        store.galleryDetail?.language.codes
                 )
+            } else {
+                Logger.info("analyzeImageForLiveText local image not found", context: ["index": index])
+            }
+            return
+        }
+        let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
+
+        func retrieveImage(cacheKeys: ArraySlice<String>) {
+            guard let cacheKey = cacheKeys.first else {
+                Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
+                return
+            }
+            KingfisherManager.shared.cache.retrieveImage(forKey: cacheKey) { result in
+                switch result {
+                case .success(let result):
+                    if let image = result.image, let cgImage = image.cgImage {
+                        liveTextHandler.analyzeImage(
+                            cgImage, size: image.size, index: index, recognitionLanguages:
+                                store.galleryDetail?.language.codes
+                        )
+                    } else {
+                        retrieveImage(cacheKeys: cacheKeys.dropFirst())
+                    }
+                case .failure(let error):
+                    if cacheKeys.count > 1 {
+                        retrieveImage(cacheKeys: cacheKeys.dropFirst())
+                    } else {
+                        Logger.info(
+                            "analyzeImageForLiveText failed",
+                            context: [
+                                "index": index,
+                                "error": error
+                            ]
+                            as [String: Any]
+                        )
+                    }
+                }
             }
         }
+
+        retrieveImage(cacheKeys: ArraySlice(cacheKeys))
     }
 }
 
@@ -529,8 +572,27 @@ private struct ImageContainer: View {
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
-        if url?.isGIF != true {
-            KFImage(url)
+        if let url, url.isFileURL {
+            if url.isGIF {
+                KFAnimatedImage(url)
+                    .cacheMemoryOnly()
+                    .placeholder(placeholder).fade(duration: 0.25)
+                    .onSuccess(onSuccess).onFailure(onFailure)
+            } else {
+                KFImage.url(
+                    url,
+                    cacheKey: localFileCacheKey(url)
+                )
+                .cacheMemoryOnly()
+                .placeholder(placeholder)
+                .defaultModifier(withRoundedCorners: false)
+                .onSuccess(onSuccess).onFailure(onFailure)
+            }
+        } else if url?.isGIF != true {
+            KFImage.url(
+                url,
+                cacheKey: url?.stableImageCacheKey ?? url?.absoluteString
+            )
                 .placeholder(placeholder)
                 .defaultModifier(withRoundedCorners: false)
                 .onSuccess(onSuccess).onFailure(onFailure)
@@ -587,6 +649,17 @@ private struct ImageContainer: View {
             loadFailedAction(index)
         }
     }
+
+    private func localFileCacheKey(_ url: URL) -> String {
+        let resourceValues = try? url.resourceValues(forKeys: [
+            .contentModificationDateKey,
+            .fileSizeKey
+        ])
+        let modificationStamp = resourceValues?.contentModificationDate?
+            .timeIntervalSinceReferenceDate ?? .zero
+        let fileSize = resourceValues?.fileSize ?? 0
+        return "local::\(url.path)#\(fileSize)#\(modificationStamp)"
+    }
 }
 
 // MARK: Definition
@@ -625,7 +698,7 @@ struct ReadingView_Previews: PreviewProvider {
             Text("")
                 .fullScreenCover(isPresented: .constant(true)) {
                     ReadingView(
-                        store: .init(initialState: .init(gallery: .empty), reducer: ReadingReducer.init),
+                        store: .init(initialState: .init(), reducer: ReadingReducer.init),
                         gid: .init(),
                         setting: .constant(.init()),
                         blurRadius: 0

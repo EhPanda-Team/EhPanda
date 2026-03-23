@@ -9,6 +9,10 @@ import ComposableArchitecture
 
 @Reducer
 struct FavoritesReducer {
+    private enum CancelID {
+        case observeDownloads
+    }
+
     @CasePathable
     enum Route: Equatable {
         case quickSearch(EquatableVoid = .init())
@@ -27,6 +31,7 @@ struct FavoritesReducer {
         var rawPageNumber = [Int: PageNumber]()
         var rawLoadingState = [Int: LoadingState]()
         var rawFooterLoadingState = [Int: LoadingState]()
+        var downloadBadges = [String: DownloadBadge]()
 
         var galleries: [Gallery]? {
             rawGalleries[index]
@@ -59,6 +64,7 @@ struct FavoritesReducer {
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onAppear
         case setNavigation(Route?)
         case setFavoritesIndex(Int)
         case clearSubStates
@@ -68,12 +74,17 @@ struct FavoritesReducer {
         case fetchGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
+        case fetchDownloadBadges([String])
+        case fetchDownloadBadgesDone([String: DownloadBadge])
+        case observeDownloads
+        case observeDownloadsDone([DownloadedGallery])
 
         case detail(DetailReducer.Action)
         case quickSearch(QuickSearchReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some Reducer<State, Action> {
@@ -86,6 +97,9 @@ struct FavoritesReducer {
             switch action {
             case .binding:
                 return .none
+
+            case .onAppear:
+                return .send(.observeDownloads)
 
             case .setNavigation(let route):
                 state.route = route
@@ -134,7 +148,10 @@ struct FavoritesReducer {
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = sortOrder
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .merge(
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
+                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
+                    )
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }
@@ -174,12 +191,40 @@ struct FavoritesReducer {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.rawLoadingState[targetFavIndex] = .idle
+                        effects.append(.send(.fetchDownloadBadges((state.galleries ?? []).map(\.gid))))
                     }
                     return .merge(effects)
 
                 case .failure(let error):
                     state.rawFooterLoadingState[targetFavIndex] = .failed(error)
                 }
+                return .none
+
+            case .fetchDownloadBadges(let gids):
+                return .run { send in
+                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
+                }
+
+            case .fetchDownloadBadgesDone(let badges):
+                state.downloadBadges.merge(badges, uniquingKeysWith: { _, new in new })
+                return .none
+
+            case .observeDownloads:
+                return .run { send in
+                    for await downloads in downloadClient.observeDownloads() {
+                        await send(.observeDownloadsDone(downloads))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
+
+            case .observeDownloadsDone(let downloads):
+                let visibleGIDs = Set((state.galleries ?? []).map(\.gid))
+                state.downloadBadges = Dictionary(
+                    uniqueKeysWithValues: downloads.compactMap { download in
+                        guard visibleGIDs.contains(download.gid) else { return nil }
+                        return (download.gid, download.badge)
+                    }
+                )
                 return .none
 
             case .detail:

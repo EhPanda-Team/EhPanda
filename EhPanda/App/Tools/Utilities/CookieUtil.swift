@@ -17,7 +17,8 @@ struct CookieUtil {
 
         var igneous, memberID, passHash: String?
         cookies.forEach { cookie in
-            guard let expiresDate = cookie.expiresDate, expiresDate > .now, !cookie.value.isEmpty else { return }
+            guard !cookie.value.isEmpty,
+                  cookie.expiresDate.map({ $0 > .now }) != false else { return }
             if cookie.name == Defaults.Cookie.igneous && cookie.value != Defaults.Cookie.mystery {
                 igneous = cookie.value
             }

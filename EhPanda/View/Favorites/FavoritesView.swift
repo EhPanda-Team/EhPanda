@@ -46,7 +46,8 @@ struct FavoritesView: View {
                         navigateAction: { store.send(.setNavigation(.detail($0))) },
                         translateAction: {
                             tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                        }
+                        },
+                        downloadBadges: store.downloadBadges
                     )
                 } else {
                     NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
@@ -73,6 +74,7 @@ struct FavoritesView: View {
                 store.send(.fetchGalleries())
             }
             .onAppear {
+                store.send(.onAppear)
                 if store.galleries?.isEmpty != false && CookieUtil.didLogin {
                     DispatchQueue.main.async {
                         store.send(.fetchGalleries())

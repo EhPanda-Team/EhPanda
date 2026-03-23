@@ -36,10 +36,12 @@ struct HistoryView: View {
             navigateAction: { store.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-            }
+            },
+            downloadBadges: store.downloadBadges
         )
         .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
+            store.send(.onAppear)
             if store.galleries.isEmpty {
                 DispatchQueue.main.async {
                     store.send(.fetchGalleries)

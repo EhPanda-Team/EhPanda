@@ -157,7 +157,7 @@ struct AppRouteReducer {
                 state.route = nil
                 switch result {
                 case .success(let gallery):
-                    return .merge(
+                    return .concatenate(
                         .run(operation: { _ in await databaseClient.cacheGalleries([gallery]) }),
                         .send(.handleGalleryLink(url))
                     )

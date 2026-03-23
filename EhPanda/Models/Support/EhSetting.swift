@@ -166,7 +166,7 @@ extension EhSetting.LoadThroughHathSetting {
 
 // MARK: ImageResolution
 extension EhSetting {
-    enum ImageResolution: Int, CaseIterable, Identifiable, Comparable {
+    enum ImageResolution: Int, CaseIterable, Identifiable, Comparable, Codable {
         case auto
         case x780
         /// Deprecated

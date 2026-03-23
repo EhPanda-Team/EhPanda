@@ -10,24 +10,28 @@ import UIImageColors
 
 struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
 
     private let currentID: String
     private let colors: [Color]
     private let webImageSuccessAction: (RetrieveImageResult) -> Void
 
     private let gallery: Gallery
+    private let downloadBadge: DownloadBadge
 
     private let animation: Animation =
         .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
 
     init(
         gallery: Gallery, currentID: String, colors: [Color],
-        webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
+        webImageSuccessAction: @escaping (RetrieveImageResult) -> Void,
+        downloadBadge: DownloadBadge = .none
     ) {
         self.gallery = gallery
         self.currentID = currentID
         self.colors = colors
         self.webImageSuccessAction = webImageSuccessAction
+        self.downloadBadge = downloadBadge
     }
 
     private var animated: Bool {
@@ -42,19 +46,26 @@ struct GalleryCardCell: View {
         return trimmedTitle
     }
 
+    private var resolvedCoverURL: URL? {
+        downloadStore.resolvedCoverURL(for: gallery)
+    }
+
     var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
             ColorfulView(animated: animated, animation: animation, colors: colors)
                 .id(currentID + animated.description)
             HStack {
-                KFImage(gallery.coverURL)
+                KFImage(resolvedCoverURL)
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                     .onSuccess(webImageSuccessAction).defaultModifier().scaledToFill()
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
-                    Text(title).font(.title3.bold()).lineLimit(4)
+                    Text(title)
+                        .font(.title3.bold())
+                        .lineLimit(downloadBadge == .none ? 4 : 2)
+                    DownloadBadgeLabel(badge: downloadBadge, compact: true)
                     Spacer()
                     RatingView(rating: gallery.rating).foregroundColor(.yellow)
                 }

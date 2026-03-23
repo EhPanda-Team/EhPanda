@@ -23,13 +23,16 @@ struct QuickSearchView: View {
                 List {
                     ForEach(store.quickSearchWords) { word in
                         Button {
-                            searchAction(word.content)
+                            searchAction(word.effectiveSearchText)
                         } label: {
                             VStack(alignment: .leading, spacing: 5) {
-                                if !word.name.isEmpty {
+                                if !word.name.isEmpty, word.content.notEmpty {
                                     Text(word.name).font(.subheadline).foregroundColor(.secondary).lineLimit(1)
                                 }
-                                Text(word.content).fontWeight(.medium).font(.title3).lineLimit(2)
+                                Text(word.effectiveSearchText)
+                                    .fontWeight(.medium)
+                                    .font(.title3)
+                                    .lineLimit(2)
                             }
                             .tint(.primary)
                         }

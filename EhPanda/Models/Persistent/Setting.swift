@@ -49,8 +49,23 @@ struct Setting: Codable, Equatable {
     var maximumScaleFactor: Double = 3
     var doubleTapScaleFactor: Double = 2
 
+    // Downloads
+    var downloadThreadMode: DownloadThreadMode = .single
+    var downloadAllowCellular = true
+    var downloadAutoRetryFailedPages = true
+
     // Laboratory
     var bypassesSNIFiltering = false
+}
+
+extension Setting {
+    var downloadOptionsSnapshot: DownloadOptionsSnapshot {
+        .init(
+            threadMode: downloadThreadMode,
+            allowCellular: downloadAllowCellular,
+            autoRetryFailedPages: downloadAutoRetryFailedPages
+        )
+    }
 }
 
 enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable {
@@ -215,6 +230,13 @@ extension Setting {
         contentDividerHeight = (try? container?.decodeIfPresent(Double.self, forKey: .contentDividerHeight)) ?? 0
         maximumScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .maximumScaleFactor)) ?? 3
         doubleTapScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .doubleTapScaleFactor)) ?? 2
+        // Downloads
+        downloadThreadMode = (try? container?.decodeIfPresent(DownloadThreadMode.self, forKey: .downloadThreadMode))
+        ?? .single
+        downloadAllowCellular = (try? container?.decodeIfPresent(Bool.self, forKey: .downloadAllowCellular)) ?? true
+        downloadAutoRetryFailedPages = (
+            try? container?.decodeIfPresent(Bool.self, forKey: .downloadAutoRetryFailedPages)
+        ) ?? true
         // Laboratory
         bypassesSNIFiltering = (try? container?.decodeIfPresent(Bool.self, forKey: .bypassesSNIFiltering)) ?? false
     }

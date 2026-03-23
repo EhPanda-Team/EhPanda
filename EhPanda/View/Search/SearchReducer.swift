@@ -15,7 +15,7 @@ struct SearchReducer {
     }
 
     private enum CancelID: CaseIterable {
-        case fetchGalleries, fetchMoreGalleries
+        case fetchGalleries, fetchMoreGalleries, observeDownloads
     }
 
     @ObservableState
@@ -28,6 +28,7 @@ struct SearchReducer {
         var pageNumber = PageNumber()
         var loadingState: LoadingState = .idle
         var footerLoadingState: LoadingState = .idle
+        var downloadBadges = [String: DownloadBadge]()
 
         var filtersState = FiltersReducer.State()
         var detailState: Heap<DetailReducer.State?>
@@ -48,6 +49,7 @@ struct SearchReducer {
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case onAppear
         case setNavigation(Route?)
         case clearSubStates
 
@@ -56,6 +58,10 @@ struct SearchReducer {
         case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
+        case fetchDownloadBadges([String])
+        case fetchDownloadBadgesDone([String: DownloadBadge])
+        case observeDownloads
+        case observeDownloadsDone([DownloadedGallery])
 
         case detail(DetailReducer.Action)
         case filters(FiltersReducer.Action)
@@ -63,6 +69,7 @@ struct SearchReducer {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     var body: some Reducer<State, Action> {
@@ -83,6 +90,9 @@ struct SearchReducer {
             switch action {
             case .binding:
                 return .none
+
+            case .onAppear:
+                return .send(.observeDownloads)
 
             case .setNavigation(let route):
                 state.route = route
@@ -126,7 +136,10 @@ struct SearchReducer {
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .merge(
+                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
+                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
+                    )
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
@@ -163,12 +176,40 @@ struct SearchReducer {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.loadingState = .idle
+                        effects.append(.send(.fetchDownloadBadges(state.galleries.map(\.gid))))
                     }
                     return .merge(effects)
 
                 case .failure(let error):
                     state.footerLoadingState = .failed(error)
                 }
+                return .none
+
+            case .fetchDownloadBadges(let gids):
+                return .run { send in
+                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
+                }
+
+            case .fetchDownloadBadgesDone(let badges):
+                state.downloadBadges.merge(badges, uniquingKeysWith: { _, new in new })
+                return .none
+
+            case .observeDownloads:
+                return .run { send in
+                    for await downloads in downloadClient.observeDownloads() {
+                        await send(.observeDownloadsDone(downloads))
+                    }
+                }
+                .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
+
+            case .observeDownloadsDone(let downloads):
+                let visibleGIDs = Set(state.galleries.map(\.gid))
+                state.downloadBadges = Dictionary(
+                    uniqueKeysWithValues: downloads.compactMap { download in
+                        guard visibleGIDs.contains(download.gid) else { return nil }
+                        return (download.gid, download.badge)
+                    }
+                )
                 return .none
 
             case .detail:

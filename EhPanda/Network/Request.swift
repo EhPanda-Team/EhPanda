@@ -77,6 +77,14 @@ private extension Dictionary where Key == String, Value == String {
     }
 }
 
+private extension URL {
+    var galleryToken: String? {
+        let filteredComponents = pathComponents.filter { $0 != "/" && $0.notEmpty }
+        guard filteredComponents.count >= 3 else { return nil }
+        return filteredComponents[2]
+    }
+}
+
 // MARK: Routine
 struct GreetingRequest: Request {
     var publisher: AnyPublisher<Greeting, AppError> {
@@ -350,24 +358,107 @@ struct GalleryDetailRequest: Request {
     var publisher: AnyPublisher<(GalleryDetail, GalleryState, String, Greeting?), AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.galleryDetail(url: galleryURL))
             .genericRetry()
-            .compactMap { resp -> HTMLDocument? in
-                var htmlDocument: HTMLDocument?
+            .tryMap { resp -> HTMLDocument in
                 do {
-                    htmlDocument = try Kanna.HTML(html: resp.data, encoding: .utf8)
+                    return try Kanna.HTML(html: resp.data, encoding: .utf8)
                 } catch {
                     guard let parseError = error as? ParseError, parseError == .EncodingMismatch
-                    else { return htmlDocument }
+                    else { throw error }
 
-                    htmlDocument = try? Kanna.HTML(html: resp.data.utf8InvalidCharactersRipped, encoding: .utf8)
+                    guard let htmlDocument = try? Kanna.HTML(
+                        html: resp.data.utf8InvalidCharactersRipped,
+                        encoding: .utf8
+                    ) else {
+                        throw error
+                    }
+                    return htmlDocument
                 }
-                return htmlDocument
             }
-            .tryMap {
-                let (detail, state) = try Parser.parseGalleryDetail(doc: $0, gid: gid)
-                return ($0, detail, state, try Parser.parseAPIKey(doc: $0))
+            .tryMap { doc in
+                let (detail, state) = try Parser.parseGalleryDetail(doc: doc, gid: gid)
+                return (doc, detail, state, try Parser.parseAPIKey(doc: doc))
             }
+            .mapError(mapAppError)
             .map { doc, detail, state, apiKey in
-                (detail, state, apiKey, try? Parser.parseGreeting(doc: doc))
+                (
+                    detail,
+                    state,
+                    apiKey,
+                    try? Parser.parseGreeting(doc: doc)
+                )
+            }
+            .eraseToAnyPublisher()
+    }
+}
+
+private struct GalleryVersionMetadataAPIResponse: Decodable {
+    struct GalleryMetadata: Decodable {
+        let gid: Int
+        let token: String
+        let currentGID: Int?
+        let currentKey: String?
+        let parentGID: Int?
+        let parentKey: String?
+        let firstGID: Int?
+        let firstKey: String?
+
+        enum CodingKeys: String, CodingKey {
+            case gid
+            case token
+            case currentGID = "current_gid"
+            case currentKey = "current_key"
+            case parentGID = "parent_gid"
+            case parentKey = "parent_key"
+            case firstGID = "first_gid"
+            case firstKey = "first_key"
+        }
+
+        var versionMetadata: DownloadVersionMetadata {
+            DownloadVersionMetadata(
+                gid: String(gid),
+                token: token,
+                currentGID: currentGID.map(String.init),
+                currentKey: currentKey,
+                parentGID: parentGID.map(String.init),
+                parentKey: parentKey,
+                firstGID: firstGID.map(String.init),
+                firstKey: firstKey
+            )
+        }
+    }
+
+    let gmetadata: [GalleryMetadata]
+}
+
+struct GalleryVersionMetadataRequest: Request {
+    let gid: String
+    let token: String
+
+    var publisher: AnyPublisher<DownloadVersionMetadata, AppError> {
+        guard let gid = Int(gid) else {
+            return Fail(error: AppError.notFound)
+                .eraseToAnyPublisher()
+        }
+
+        let params: [String: Any] = [
+            "method": "gdata",
+            "gidlist": [[gid, token]],
+            "namespace": 1
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .genericRetry()
+            .map(\.data)
+            .tryMap { data in
+                let response = try JSONDecoder().decode(GalleryVersionMetadataAPIResponse.self, from: data)
+                guard let metadata = response.gmetadata.first?.versionMetadata else {
+                    throw AppError.notFound
+                }
+                return metadata
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()

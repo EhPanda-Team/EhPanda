@@ -282,6 +282,26 @@
 		EA5AA4AA2EA9149E00BC2B5C /* AutoPlayHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA5AA4A32EA9149E00BC2B5C /* AutoPlayHandler.swift */; };
 		EA698C032CCDD2FB0058BC19 /* EquatableVoid.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */; };
 		EA698C092CCDE7090058BC19 /* IdentifiableBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */; };
+		EA8C4D262F0E100100000001 /* DownloadClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8C4D262F0E100100000011 /* DownloadClient.swift */; };
+		EA8C4D262F0E100100000002 /* DownloadFileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8C4D262F0E100100000012 /* DownloadFileStorage.swift */; };
+		EA8C4D262F0E100100000003 /* DownloadedGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8C4D262F0E100100000013 /* DownloadedGallery.swift */; };
+		EA8C4D262F0E100100000004 /* DownloadedGalleryMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8C4D262F0E100100000014 /* DownloadedGalleryMO+CoreDataClass.swift */; };
+		EA8C4D262F0E100100000005 /* DownloadedGalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8C4D262F0E100100000015 /* DownloadedGalleryMO+CoreDataProperties.swift */; };
+		EAA100012F1D000100000001 /* DownloadsReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D000100000011 /* DownloadsReducer.swift */; };
+		EAA100012F1D000100000002 /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D000100000012 /* DownloadsView.swift */; };
+		EAA100012F1D000100000005 /* DownloadSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D000100000015 /* DownloadSettingView.swift */; };
+		EAA100012F1D000100000006 /* DownloadBadgeLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D000100000016 /* DownloadBadgeLabel.swift */; };
+		EAA100012F1D000100000007 /* DownloadFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D000100000017 /* DownloadFiltersView.swift */; };
+		EAA100012F1D000100000008 /* DownloadBadgeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D000100000018 /* DownloadBadgeStore.swift */; };
+		EAA100012F1D000100000019 /* PreviewImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA100012F1D00010000001A /* PreviewImageView.swift */; };
+		EAB100012F1E000100000001 /* DownloadPageErrorParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000011 /* DownloadPageErrorParserTests.swift */; };
+		EAB100012F1E000100000002 /* SettingDownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000012 /* SettingDownloadTests.swift */; };
+		EAB100012F1E000100000003 /* DownloadFileStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000013 /* DownloadFileStorageTests.swift */; };
+		EAB100012F1E000100000004 /* DownloadFeatureReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000014 /* DownloadFeatureReducerTests.swift */; };
+		EAB100012F1E000100000005 /* BandwidthExceeded.html in Resources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000015 /* BandwidthExceeded.html */; };
+		EAB100012F1E000100000006 /* ExLoginRequired.html in Resources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000016 /* ExLoginRequired.html */; };
+		EAB100012F1E000100000007 /* DownloadSignatureBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000017 /* DownloadSignatureBuilderTests.swift */; };
+		EAB100012F1E000100000018 /* Kokomade.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EAB100012F1E000100000019 /* Kokomade.jpg */; };
 		EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = EAE63E2029E2A6330048C601 /* SwiftyBeaver */; };
 /* End PBXBuildFile section */
 
@@ -608,6 +628,27 @@
 		EA5AA4A62EA9149E00BC2B5C /* PageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageHandler.swift; sourceTree = "<group>"; };
 		EA698C022CCDD2FB0058BC19 /* EquatableVoid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquatableVoid.swift; sourceTree = "<group>"; };
 		EA698C082CCDE7050058BC19 /* IdentifiableBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableBox.swift; sourceTree = "<group>"; };
+		EA8C4D262F0E100100000011 /* DownloadClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadClient.swift; sourceTree = "<group>"; };
+		EA8C4D262F0E100100000012 /* DownloadFileStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFileStorage.swift; sourceTree = "<group>"; };
+		EA8C4D262F0E100100000013 /* DownloadedGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadedGallery.swift; sourceTree = "<group>"; };
+		EA8C4D262F0E100100000014 /* DownloadedGalleryMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedGalleryMO+CoreDataClass.swift"; sourceTree = "<group>"; };
+		EA8C4D262F0E100100000015 /* DownloadedGalleryMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DownloadedGalleryMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		EA8C4D262F0E100100000016 /* Model 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 8.xcdatamodel"; sourceTree = "<group>"; };
+		EAA100012F1D000100000011 /* DownloadsReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsReducer.swift; sourceTree = "<group>"; };
+		EAA100012F1D000100000012 /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
+		EAA100012F1D000100000015 /* DownloadSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadSettingView.swift; sourceTree = "<group>"; };
+		EAA100012F1D000100000016 /* DownloadBadgeLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadBadgeLabel.swift; sourceTree = "<group>"; };
+		EAA100012F1D000100000017 /* DownloadFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFiltersView.swift; sourceTree = "<group>"; };
+		EAA100012F1D000100000018 /* DownloadBadgeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadBadgeStore.swift; sourceTree = "<group>"; };
+		EAA100012F1D00010000001A /* PreviewImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImageView.swift; sourceTree = "<group>"; };
+		EAB100012F1E000100000011 /* DownloadPageErrorParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadPageErrorParserTests.swift; sourceTree = "<group>"; };
+		EAB100012F1E000100000012 /* SettingDownloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDownloadTests.swift; sourceTree = "<group>"; };
+		EAB100012F1E000100000013 /* DownloadFileStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFileStorageTests.swift; sourceTree = "<group>"; };
+		EAB100012F1E000100000014 /* DownloadFeatureReducerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadFeatureReducerTests.swift; sourceTree = "<group>"; };
+		EAB100012F1E000100000015 /* BandwidthExceeded.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = BandwidthExceeded.html; sourceTree = "<group>"; };
+		EAB100012F1E000100000016 /* ExLoginRequired.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ExLoginRequired.html; sourceTree = "<group>"; };
+		EAB100012F1E000100000017 /* DownloadSignatureBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadSignatureBuilderTests.swift; sourceTree = "<group>"; };
+		EAB100012F1E000100000019 /* Kokomade.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Kokomade.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -664,6 +705,7 @@
 				AB0929C5278160AE00F107CA /* LibraryClient.swift */,
 				AB0929C9278196ED00F107CA /* CookieClient.swift */,
 				AB0929CD2781AADA00F107CA /* DatabaseClient.swift */,
+				EA8C4D262F0E100100000011 /* DownloadClient.swift */,
 				ABBB266B2797E882007B6149 /* ClipboardClient.swift */,
 				AB706F8F278A5F680025A48A /* AppDelegateClient.swift */,
 				AB0929D32781EDDC00F107CA /* UserDefaultsClient.swift */,
@@ -787,6 +829,8 @@
 				ABD9771227B6612400983DE7 /* GreetingParserTests.swift */,
 				AB0CFB8127BBBFCE004BD372 /* EhSettingParserTests.swift */,
 				AB31CD3127B6671400F40E0A /* BanIntervalParserTests.swift */,
+				EAB100012F1E000100000011 /* DownloadPageErrorParserTests.swift */,
+				EAB100012F1E000100000012 /* SettingDownloadTests.swift */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -948,6 +992,8 @@
 				AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */,
 				AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */,
 				AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */,
+				EA8C4D262F0E100100000014 /* DownloadedGalleryMO+CoreDataClass.swift */,
+				EA8C4D262F0E100100000015 /* DownloadedGalleryMO+CoreDataProperties.swift */,
 			);
 			path = MODefinition;
 			sourceTree = "<group>";
@@ -986,6 +1032,7 @@
 				ABA732DE25A852D800B3D9AB /* Filter.swift */,
 				ABEA1FE525A9B40B002966B9 /* Setting.swift */,
 				AB26F59527ACCA1800AB3468 /* AppEnv.swift */,
+				EA8C4D262F0E100100000013 /* DownloadedGallery.swift */,
 				AB7BF2B627A9652F001865A3 /* Greeting.swift */,
 			);
 			path = Persistent;
@@ -1098,6 +1145,7 @@
 			isa = PBXGroup;
 			children = (
 				ABD9770C27B65A5300983DE7 /* Parser */,
+				EAB100012F1E000100000021 /* Download */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -1205,6 +1253,7 @@
 				ABD49D66277EAC90003D1A07 /* URLUtil.swift */,
 				AB7BF2CD27AA3E58001865A3 /* AppUtil.swift */,
 				AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */,
+				EA8C4D262F0E100100000012 /* DownloadFileStorage.swift */,
 				AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */,
 				AB7BF2D127AA3EDC001865A3 /* HapticsUtil.swift */,
 				AB7BF2D327AA3F12001865A3 /* CookieUtil.swift */,
@@ -1230,6 +1279,9 @@
 				AB0CFB7F27BBBFA0004BD372 /* EhSetting.html */,
 				ABC0A8D026F7037F008EC24C /* IPBanned.html */,
 				ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */,
+				EAB100012F1E000100000015 /* BandwidthExceeded.html */,
+				EAB100012F1E000100000016 /* ExLoginRequired.html */,
+				EAB100012F1E000100000019 /* Kokomade.jpg */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -1254,6 +1306,7 @@
 				ABF45AC025F3313D00ECB568 /* Home */,
 				AB24C55F276757240085C33A /* Favorites */,
 				AB86AC112783226100E61E6A /* Search */,
+				EAA100002F1D000100000001 /* Downloads */,
 				ABF45AD125F3313D00ECB568 /* Detail */,
 				ABF45ACF25F3313D00ECB568 /* Reading */,
 				ABF45AD725F3313D00ECB568 /* Setting */,
@@ -1280,6 +1333,9 @@
 			isa = PBXGroup;
 			children = (
 				AB24C564276758D00085C33A /* Cells */,
+				EAA100012F1D000100000016 /* DownloadBadgeLabel.swift */,
+				EAA100012F1D000100000018 /* DownloadBadgeStore.swift */,
+				EAA100012F1D00010000001A /* PreviewImageView.swift */,
 				AB7B29F526AC741600EE1F14 /* GenericList.swift */,
 				ABD4032726B7967F00001B8C /* CategoryView.swift */,
 				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
@@ -1420,6 +1476,7 @@
 		EA2E2E802A1F7F2A0038A261 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				EAA100012F1D000100000015 /* DownloadSettingView.swift */,
 				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
 				ABE1867726A1733000689FDC /* LaboratorySettingView.swift */,
 				AB86ABF82782EC0D00E61E6A /* AboutView.swift */,
@@ -1525,6 +1582,26 @@
 				AB706F96278A77E20025A48A /* HistoryReducer.swift */,
 			);
 			path = History;
+			sourceTree = "<group>";
+		};
+		EAA100002F1D000100000001 /* Downloads */ = {
+			isa = PBXGroup;
+			children = (
+				EAA100012F1D000100000012 /* DownloadsView.swift */,
+				EAA100012F1D000100000011 /* DownloadsReducer.swift */,
+				EAA100012F1D000100000017 /* DownloadFiltersView.swift */,
+			);
+			path = Downloads;
+			sourceTree = "<group>";
+		};
+		EAB100012F1E000100000021 /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				EAB100012F1E000100000013 /* DownloadFileStorageTests.swift */,
+				EAB100012F1E000100000014 /* DownloadFeatureReducerTests.swift */,
+				EAB100012F1E000100000017 /* DownloadSignatureBuilderTests.swift */,
+			);
+			path = Download;
 			sourceTree = "<group>";
 		};
 		EAEC870B2A1F74D500E1A97A /* EhSetting */ = {
@@ -1757,6 +1834,9 @@
 				AB41DB4B27B760D700DD3604 /* FrontPageThumbnailList.html in Resources */,
 				AB41DB4327B760D700DD3604 /* ToplistsCompactList.html in Resources */,
 				AB0CFB8027BBBFA0004BD372 /* EhSetting.html in Resources */,
+				EAB100012F1E000100000005 /* BandwidthExceeded.html in Resources */,
+				EAB100012F1E000100000006 /* ExLoginRequired.html in Resources */,
+				EAB100012F1E000100000018 /* Kokomade.jpg in Resources */,
 				AB41DB5127B760D700DD3604 /* PopularMinimalList.html in Resources */,
 				AB41DB4627B760D700DD3604 /* FrontPageCompactList.html in Resources */,
 				AB41DB4127B760D700DD3604 /* PopularExtendedList.html in Resources */,
@@ -1925,6 +2005,14 @@
 				AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */,
 				AB26F59427ACC6CD00AB3468 /* TagTranslator.swift in Sources */,
 				AB0929CE2781AADA00F107CA /* DatabaseClient.swift in Sources */,
+				EA8C4D262F0E100100000001 /* DownloadClient.swift in Sources */,
+				EAA100012F1D000100000001 /* DownloadsReducer.swift in Sources */,
+				EAA100012F1D000100000002 /* DownloadsView.swift in Sources */,
+				EAA100012F1D000100000005 /* DownloadSettingView.swift in Sources */,
+				EAA100012F1D000100000006 /* DownloadBadgeLabel.swift in Sources */,
+				EAA100012F1D000100000007 /* DownloadFiltersView.swift in Sources */,
+				EAA100012F1D000100000008 /* DownloadBadgeStore.swift in Sources */,
+				EAA100012F1D000100000019 /* PreviewImageView.swift in Sources */,
 				AB6DE897268822390087C579 /* LogsView.swift in Sources */,
 				AB7BF31D27ABE028001865A3 /* FileManager+ApplicationSupport.swift in Sources */,
 				AB706F7B278937500025A48A /* FrontpageReducer.swift in Sources */,
@@ -1932,6 +2020,8 @@
 				AB7B29F226AC471E00EE1F14 /* Model5toModel6MigrationPolicy.swift in Sources */,
 				AB706F7927890A6C0025A48A /* AppRouteReducer.swift in Sources */,
 				AB706F88278A4C8A0025A48A /* PopularView.swift in Sources */,
+				EA8C4D262F0E100100000005 /* DownloadedGalleryMO+CoreDataProperties.swift in Sources */,
+				EA8C4D262F0E100100000003 /* DownloadedGallery.swift in Sources */,
 				AB706FA1278BCEC60025A48A /* DetailView.swift in Sources */,
 				ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */,
 				AB706F9B278AC5A30025A48A /* SearchRootView.swift in Sources */,
@@ -1943,6 +2033,8 @@
 				ABBD2B602768D7AD0072AED2 /* GalleryRankingCell.swift in Sources */,
 				ABBB263A2792588F007B6149 /* TTProgressHUD_Extension.swift in Sources */,
 				AB7BF2D627AA3F4C001865A3 /* FileUtil.swift in Sources */,
+				EA8C4D262F0E100100000004 /* DownloadedGalleryMO+CoreDataClass.swift in Sources */,
+				EA8C4D262F0E100100000002 /* DownloadFileStorage.swift in Sources */,
 				AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */,
 				AB0929D62782A65F00F107CA /* GeneralSettingReducer.swift in Sources */,
 				AB706FA3278BCF2F0025A48A /* DetailReducer.swift in Sources */,
@@ -2012,6 +2104,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAB100012F1E000100000003 /* DownloadFileStorageTests.swift in Sources */,
+				EAB100012F1E000100000004 /* DownloadFeatureReducerTests.swift in Sources */,
+				EAB100012F1E000100000007 /* DownloadSignatureBuilderTests.swift in Sources */,
 				AB31CD3D27B66F7D00F40E0A /* GalleryImageURLParserTests.swift in Sources */,
 				AB0CFB8227BBBFCE004BD372 /* EhSettingParserTests.swift in Sources */,
 				AB31CD4327B676C300F40E0A /* GalleryMPVKeysParserTests.swift in Sources */,
@@ -2019,10 +2114,12 @@
 				ABD9771027B65E3400983DE7 /* GalleryDetailParserTests.swift in Sources */,
 				AB31CD3227B6671400F40E0A /* BanIntervalParserTests.swift in Sources */,
 				ABD9771327B6612400983DE7 /* GreetingParserTests.swift in Sources */,
+				EAB100012F1E000100000001 /* DownloadPageErrorParserTests.swift in Sources */,
 				AB31CD3727B6695800F40E0A /* HTMLFilename.swift in Sources */,
 				AB3E9E7426D210B1008FE518 /* TestHelper.swift in Sources */,
 				AB31CD3B27B66E0300F40E0A /* ListParserTestType.swift in Sources */,
 				ABD9770E27B65A7300983DE7 /* ListParserTests.swift in Sources */,
+				EAB100012F1E000100000002 /* SettingDownloadTests.swift in Sources */,
 				ABAB5B9527EF023300198597 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2088,10 +2185,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 157;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -2104,7 +2200,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShareExtension_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2116,10 +2212,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 157;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -2132,7 +2227,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShareExtension_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2267,11 +2362,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 157;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = EhPanda/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -2282,7 +2376,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = App_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2296,11 +2390,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 157;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = EhPanda/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -2311,7 +2404,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = App_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2323,9 +2416,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 157;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2337,7 +2430,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2350,9 +2442,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 158;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 157;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2364,7 +2456,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2631,6 +2722,7 @@
 		ABC681F126898D46007BBD69 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				EA8C4D262F0E100100000016 /* Model 8.xcdatamodel */,
 				AB41DB5227B7EC5500DD3604 /* Model 7.xcdatamodel */,
 				AB706F93278A6F2B0025A48A /* Model 6.xcdatamodel */,
 				ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */,
@@ -2639,7 +2731,7 @@
 				AB48BCF626D2539B0021A06C /* Model 2.xcdatamodel */,
 				ABC681F226898D46007BBD69 /* Model.xcdatamodel */,
 			);
-			currentVersion = AB41DB5227B7EC5500DD3604 /* Model 7.xcdatamodel */;
+			currentVersion = EA8C4D262F0E100100000016 /* Model 8.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

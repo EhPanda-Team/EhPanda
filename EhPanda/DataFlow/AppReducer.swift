@@ -17,12 +17,16 @@ struct AppReducer {
         var homeState = HomeReducer.State()
         var favoritesState = FavoritesReducer.State()
         var searchRootState = SearchRootReducer.State()
+        var downloadsState = DownloadsReducer.State()
         var settingState = SettingReducer.State()
+        var didRunLaunchAutomation = false
+        var isWaitingForIgneousBeforeLaunchAutomation = false
     }
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onScenePhaseChange(ScenePhase)
+        case runLaunchAutomation
 
         case appDelegate(AppDelegateReducer.Action)
         case appRoute(AppRouteReducer.Action)
@@ -33,12 +37,14 @@ struct AppReducer {
         case home(HomeReducer.Action)
         case favorites(FavoritesReducer.Action)
         case searchRoot(SearchRootReducer.Action)
+        case downloads(DownloadsReducer.Action)
         case setting(SettingReducer.Action)
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
+    @Dependency(\.urlClient) private var urlClient
 
     var body: some Reducer<State, Action> {
         LoggingReducer {
@@ -72,8 +78,32 @@ struct AppReducer {
                         return .none
                     }
 
+                case .runLaunchAutomation:
+                    guard !state.didRunLaunchAutomation,
+                          let automation = AppLaunchAutomation.current
+                    else { return .none }
+
+                    state.didRunLaunchAutomation = true
+                    return .run { send in
+                        if let galleryURL = automation.galleryURL,
+                           urlClient.checkIfHandleable(galleryURL) {
+                            await send(.appRoute(.handleDeepLink(galleryURL)))
+                        } else if let initialTab = automation.initialTab {
+                            await send(.tabBar(.setTabBarItemType(initialTab)))
+                        }
+                    }
+
                 case .appDelegate(.migration(.onDatabasePreparationSuccess)):
-                    return .merge(
+                    return .concatenate(
+                        .run { _ in
+                            if let loginCookies = AppLaunchAutomation.current?.loginCookies {
+                                cookieClient.importAutomationCookies(
+                                    memberID: loginCookies.memberID,
+                                    passHash: loginCookies.passHash,
+                                    igneous: loginCookies.igneous
+                                )
+                            }
+                        },
                         .send(.appDelegate(.removeExpiredImageURLs)),
                         .send(.setting(.loadUserSettings))
                     )
@@ -129,6 +159,13 @@ struct AppReducer {
                             } else {
                                 effects.append(.send(.searchRoot(.fetchDatabaseInfos)))
                             }
+                        case .downloads:
+                            if state.downloadsState.route != nil {
+                                effects.append(.send(.downloads(.setNavigation(nil))))
+                            } else {
+                                effects.append(.send(.downloads(.refreshDownloads)))
+                            }
+                            effects.append(hapticEffect)
                         case .setting:
                             if state.settingState.route != nil {
                                 effects.append(.send(.setting(.setNavigation(nil))))
@@ -173,6 +210,9 @@ struct AppReducer {
                 case .searchRoot:
                     return .none
 
+                case .downloads:
+                    return .none
+
                 case .setting(.loadUserSettingsDone):
                     var effects = [Effect<Action>]()
                     let threshold = state.settingState.setting.autoLockPolicy.rawValue
@@ -184,7 +224,20 @@ struct AppReducer {
                     if state.settingState.setting.detectsLinksFromClipboard {
                         effects.append(.send(.appRoute(.detectClipboardURL)))
                     }
+                    state.isWaitingForIgneousBeforeLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
+                        state: state
+                    )
+                    if !state.isWaitingForIgneousBeforeLaunchAutomation {
+                        effects.append(.send(.runLaunchAutomation))
+                    }
                     return effects.isEmpty ? .none : .merge(effects)
+
+                case .setting(.account(.loadCookies)):
+                    guard state.isWaitingForIgneousBeforeLaunchAutomation,
+                          !shouldDelayLaunchAutomationUntilIgneous(state: state)
+                    else { return .none }
+                    state.isWaitingForIgneousBeforeLaunchAutomation = false
+                    return .send(.runLaunchAutomation)
 
                 case .setting(.fetchGreetingDone(let result)):
                     return .send(.appRoute(.fetchGreetingDone(result)))
@@ -201,7 +254,26 @@ struct AppReducer {
             Scope(state: \.homeState, action: \.home, child: HomeReducer.init)
             Scope(state: \.favoritesState, action: \.favorites, child: FavoritesReducer.init)
             Scope(state: \.searchRootState, action: \.searchRoot, child: SearchRootReducer.init)
+            Scope(state: \.downloadsState, action: \.downloads, child: DownloadsReducer.init)
             Scope(state: \.settingState, action: \.setting, child: SettingReducer.init)
         }
+    }
+}
+
+private extension AppReducer {
+    func shouldDelayLaunchAutomationUntilIgneous(state: State) -> Bool {
+        guard !state.didRunLaunchAutomation,
+              cookieClient.shouldFetchIgneous,
+              let automation = AppLaunchAutomation.current
+        else { return false }
+
+        if let galleryURL = automation.galleryURL,
+           galleryURL.host?.contains("exhentai.org") == true
+        {
+            return true
+        }
+
+        return automation.autoDownloadGID != nil
+            && state.settingState.setting.galleryHost == .exhentai
     }
 }

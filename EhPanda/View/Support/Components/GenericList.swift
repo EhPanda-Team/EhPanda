@@ -10,6 +10,7 @@ import ComposableArchitecture
 struct GenericList: View {
     private let galleries: [Gallery]
     private let setting: Setting
+    private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let loadingState: LoadingState
     private let footerLoadingState: LoadingState
@@ -24,10 +25,12 @@ struct GenericList: View {
         fetchAction: (() -> Void)? = nil,
         fetchMoreAction: (() -> Void)? = nil,
         navigateAction: ((String) -> Void)? = nil,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil
+        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
         self.setting = setting
+        self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.loadingState = loadingState
         self.footerLoadingState = footerLoadingState
@@ -45,13 +48,15 @@ struct GenericList: View {
                     DetailList(
                         galleries: galleries, setting: setting, pageNumber: pageNumber,
                         footerLoadingState: footerLoadingState, fetchMoreAction: fetchMoreAction,
-                        navigateAction: navigateAction, translateAction: translateAction
+                        navigateAction: navigateAction, translateAction: translateAction,
+                        downloadBadges: downloadBadges
                     )
                 case .thumbnail:
                     WaterfallList(
                         galleries: galleries, setting: setting, pageNumber: pageNumber,
                         footerLoadingState: footerLoadingState, fetchMoreAction: fetchMoreAction,
-                        navigateAction: navigateAction, translateAction: translateAction
+                        navigateAction: navigateAction, translateAction: translateAction,
+                        downloadBadges: downloadBadges
                     )
                 }
             }
@@ -74,6 +79,7 @@ struct GenericList: View {
 private struct DetailList: View {
     private let galleries: [Gallery]
     private let setting: Setting
+    private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
     private let fetchMoreAction: (() -> Void)?
@@ -85,10 +91,12 @@ private struct DetailList: View {
         footerLoadingState: LoadingState,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((String) -> Void)? = nil,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil
+        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
         self.setting = setting
+        self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
         self.fetchMoreAction = fetchMoreAction
@@ -111,7 +119,12 @@ private struct DetailList: View {
             Button {
                 navigateAction?(gallery.id)
             } label: {
-                GalleryDetailCell(gallery: gallery, setting: setting, translateAction: translateAction)
+                GalleryDetailCell(
+                    gallery: gallery,
+                    setting: setting,
+                    translateAction: translateAction,
+                    downloadBadge: downloadBadges[gallery.gid] ?? .none
+                )
             }
             .foregroundColor(.primary)
             .onAppear {
@@ -130,6 +143,7 @@ private struct DetailList: View {
 private struct WaterfallList: View {
     private let galleries: [Gallery]
     private let setting: Setting
+    private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
     private let fetchMoreAction: (() -> Void)?
@@ -157,10 +171,12 @@ private struct WaterfallList: View {
         footerLoadingState: LoadingState,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((String) -> Void)? = nil,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil
+        translateAction: ((String) -> (String, TagTranslation?))? = nil,
+        downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
         self.setting = setting
+        self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
         self.fetchMoreAction = fetchMoreAction
@@ -174,7 +190,12 @@ private struct WaterfallList: View {
                 Button {
                     navigateAction?(gallery.id)
                 } label: {
-                    GalleryThumbnailCell(gallery: gallery, setting: setting, translateAction: translateAction)
+                    GalleryThumbnailCell(
+                        gallery: gallery,
+                        setting: setting,
+                        translateAction: translateAction,
+                        downloadBadge: downloadBadges[gallery.gid] ?? .none
+                    )
                         .tint(.primary).multilineTextAlignment(.leading)
                 }
                 .buttonStyle(.borderless)
