@@ -2794,14 +2794,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             cachedKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
         }
 
-        let seededCacheClock = ContinuousClock()
-        let seededCacheDeadline = seededCacheClock.now.advanced(by: .seconds(1))
-        while !cachedKeys.allSatisfy({ KingfisherManager.shared.cache.isCached(forKey: $0) }),
-              seededCacheClock.now < seededCacheDeadline
-        {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
-        XCTAssertTrue(cachedKeys.allSatisfy { KingfisherManager.shared.cache.isCached(forKey: $0) })
+        await waitUntilCacheReady(for: cachedKeys)
 
         let updatedPageCount = latestPayload.galleryDetail.pageCount
         let oldPageCount = updatedPageCount - 5
@@ -4741,6 +4734,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         defer {
             cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
         }
+        await waitUntilCacheReady(for: cacheKeys)
 
         let payload = DownloadRequestPayload(
             gallery: Gallery(
@@ -4819,6 +4813,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         defer {
             cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
         }
+        await waitUntilCacheReady(for: cacheKeys)
 
         let payload = DownloadRequestPayload(
             gallery: Gallery(
@@ -5522,6 +5517,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         defer {
             cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
         }
+        await waitUntilCacheReady(for: cacheKeys)
 
         let observationStream = await manager.observeDownloads()
         let emissionTask = Task<Int, Never> {
@@ -5589,6 +5585,27 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 }
 
 private extension DownloadFeatureReducerTests {
+    func waitUntilCacheReady<Keys: Sequence>(
+        for keys: Keys,
+        timeout: Duration = .seconds(1)
+    ) async where Keys.Element == String {
+        let cacheKeys = Array(keys)
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+
+        while !cacheKeys.allSatisfy({ KingfisherManager.shared.cache.isCached(forKey: $0) }),
+              clock.now < deadline
+        {
+            try? await clock.sleep(until: clock.now.advanced(by: .milliseconds(10)), tolerance: .zero)
+        }
+
+        let missingKeys = cacheKeys.filter { !KingfisherManager.shared.cache.isCached(forKey: $0) }
+        XCTAssertTrue(
+            missingKeys.isEmpty,
+            "Timed out waiting for Kingfisher cache visibility for keys: \(missingKeys)"
+        )
+    }
+
     @MainActor
     func drainDetailMetadataEffects(
         _ store: TestStoreOf<DetailReducer>,
