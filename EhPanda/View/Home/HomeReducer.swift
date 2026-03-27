@@ -293,12 +293,17 @@ struct HomeReducer {
 
             case .observeDownloadsDone(let downloads):
                 let visibleGIDs = state.visibleGalleryIDs
-                state.downloadBadges = Dictionary(
+                let downloadedGIDs = Set(downloads.map(\.gid))
+                let newBadges = [String: DownloadBadge](
                     uniqueKeysWithValues: downloads.compactMap { download in
                         guard visibleGIDs.contains(download.gid) else { return nil }
                         return (download.gid, download.badge)
                     }
                 )
+                state.downloadBadges.merge(newBadges, uniquingKeysWith: { _, new in new })
+                for gid in state.downloadBadges.keys where !downloadedGIDs.contains(gid) {
+                    state.downloadBadges.removeValue(forKey: gid)
+                }
                 return .none
 
             case .frontpage:
