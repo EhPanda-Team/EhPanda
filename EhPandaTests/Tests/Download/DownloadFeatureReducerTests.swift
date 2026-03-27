@@ -5383,7 +5383,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
         try insertPersistedDownload(
             in: container,
             gid: gid,
@@ -5465,7 +5469,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
 
         let restoredCount = try await manager.testingRestoreCachedPages(payload: payload)
-        let emissionCount = await emissionTask.value
+        let emissionCount = try await waitForTaskValue(
+            emissionTask,
+            timeout: .seconds(2),
+            description: "observer updates for cached page restore"
+        )
         let stored = await manager.testingFetchDownload(gid: gid)
 
         XCTAssertEqual(restoredCount, pageCount)
@@ -5495,6 +5503,31 @@ private extension DownloadFeatureReducerTests {
             missingKeys.isEmpty,
             "Timed out waiting for Kingfisher cache visibility for keys: \(missingKeys)"
         )
+    }
+
+    func waitForTaskValue<T>(
+        _ task: Task<T, Never>,
+        timeout: Duration = .seconds(1),
+        description: String
+    ) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask {
+                await task.value
+            }
+            group.addTask {
+                try await Task.sleep(for: timeout)
+                task.cancel()
+                throw NSError(
+                    domain: "DownloadFeatureReducerTests",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Timed out waiting for \(description)"]
+                )
+            }
+
+            let value = try await group.next()
+            group.cancelAll()
+            return try XCTUnwrap(value)
+        }
     }
 
     @MainActor
