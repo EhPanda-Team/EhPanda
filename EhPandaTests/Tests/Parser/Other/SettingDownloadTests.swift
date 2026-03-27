@@ -4,10 +4,11 @@
 //
 
 import SwiftUI
-import XCTest
+import Testing
 @testable import EhPanda
 
-final class SettingDownloadTests: XCTestCase {
+struct SettingDownloadTests {
+    @Test
     func testLegacySettingDecodesDownloadDefaults() throws {
         let data = """
         {
@@ -18,20 +19,20 @@ final class SettingDownloadTests: XCTestCase {
 
         let setting = try JSONDecoder().decode(Setting.self, from: data)
 
-        XCTAssertEqual(setting.downloadThreadMode, .single)
-        XCTAssertTrue(setting.downloadAllowCellular)
-        XCTAssertTrue(setting.downloadAutoRetryFailedPages)
+        #expect(setting.downloadThreadMode == .single)
+        #expect(setting.downloadAllowCellular)
+        #expect(setting.downloadAutoRetryFailedPages)
     }
 
+    @Test
     func testDownloadOptionsSnapshotMatchesSettingValues() {
         var setting = Setting()
         setting.downloadThreadMode = .quadruple
         setting.downloadAllowCellular = false
         setting.downloadAutoRetryFailedPages = false
 
-        XCTAssertEqual(
-            setting.downloadOptionsSnapshot,
-            DownloadOptionsSnapshot(
+        #expect(
+            setting.downloadOptionsSnapshot == DownloadOptionsSnapshot(
                 threadMode: .quadruple,
                 allowCellular: false,
                 autoRetryFailedPages: false
@@ -39,6 +40,7 @@ final class SettingDownloadTests: XCTestCase {
         )
     }
 
+    @Test
     func testLegacyDownloadOptionsSnapshotDecodesWithoutOriginalImageField() throws {
         let data = """
         {
@@ -51,9 +53,8 @@ final class SettingDownloadTests: XCTestCase {
 
         let snapshot = try JSONDecoder().decode(DownloadOptionsSnapshot.self, from: data)
 
-        XCTAssertEqual(
-            snapshot,
-            DownloadOptionsSnapshot(
+        #expect(
+            snapshot == DownloadOptionsSnapshot(
                 threadMode: .triple,
                 allowCellular: false,
                 autoRetryFailedPages: false
@@ -61,40 +62,37 @@ final class SettingDownloadTests: XCTestCase {
         )
     }
 
+    @Test
     func testImageCacheKeysPreferStablePathAlias() {
         let url = URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1")!
 
-        XCTAssertEqual(
-            url.imageCacheKeys(includeStableAlias: true),
-            [
+        #expect(
+            url.imageCacheKeys(includeStableAlias: true) == [
                 "download::h/123/456/image.webp",
                 "https://alpha.hath.network/h/123/456/image.webp?download=1"
             ]
         )
     }
 
+    @Test
     func testStableImageCacheKeyIgnoresHostRotationAndQuery() {
         let firstURL = URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1")!
         let secondURL = URL(string: "https://beta.hath.network/h/123/456/image.webp?source=viewer")!
 
-        XCTAssertEqual(firstURL.stableImageCacheKey, secondURL.stableImageCacheKey)
+        #expect(firstURL.stableImageCacheKey == secondURL.stableImageCacheKey)
     }
 
+    @Test
     func testStableImageCacheKeyKeepsIdentityQueryForFullImageScript() {
         let firstURL = URL(string: "https://e-hentai.org/fullimg.php?gid=42&page=7&key=alpha")!
         let secondURL = URL(string: "https://exhentai.org/fullimg.php?page=7&gid=42&key=beta")!
 
-        XCTAssertEqual(
-            firstURL.stableImageCacheKey,
-            "download::fullimg.php?gid=42&key=alpha&page=7"
-        )
-        XCTAssertEqual(
-            secondURL.stableImageCacheKey,
-            "download::fullimg.php?gid=42&key=beta&page=7"
-        )
-        XCTAssertNotEqual(firstURL.stableImageCacheKey, secondURL.stableImageCacheKey)
+        #expect(firstURL.stableImageCacheKey == "download::fullimg.php?gid=42&key=alpha&page=7")
+        #expect(secondURL.stableImageCacheKey == "download::fullimg.php?gid=42&key=beta&page=7")
+        #expect(firstURL.stableImageCacheKey != secondURL.stableImageCacheKey)
     }
 
+    @Test
     func testCombinedPreviewURLCleanupIncludesPlainPreviewURL() {
         let plainURL = URL(string: "https://ehgt.org/ab/cd/preview.webp")!
         let combinedURL = URLUtil.combinedPreviewURL(
@@ -104,10 +102,7 @@ final class SettingDownloadTests: XCTestCase {
             offset: "40"
         )
 
-        XCTAssertEqual(
-            combinedURL.previewCacheCleanupURLs(),
-            [combinedURL, plainURL]
-        )
-        XCTAssertEqual(plainURL.previewCacheCleanupURLs(), [plainURL])
+        #expect(combinedURL.previewCacheCleanupURLs() == [combinedURL, plainURL])
+        #expect(plainURL.previewCacheCleanupURLs() == [plainURL])
     }
 }

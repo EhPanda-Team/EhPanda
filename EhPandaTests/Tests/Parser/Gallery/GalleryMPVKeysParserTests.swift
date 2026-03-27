@@ -4,14 +4,15 @@
 //
 
 import Kanna
-import XCTest
+import Testing
 @testable import EhPanda
 
-class GalleryMPVKeysParserTests: XCTestCase, TestHelper {
+struct GalleryMPVKeysParserTests: TestHelper {
+    @Test
     func testExample() throws {
         let document = try htmlDocument(filename: .galleryMPVKeys)
         let (mpvKey, mpvImageKeys) = try Parser.parseMPVKeys(doc: document)
-        XCTAssertEqual(mpvKey, "00000000000")
-        XCTAssertEqual(mpvImageKeys.count, 194)
+        #expect(mpvKey == "00000000000")
+        #expect(mpvImageKeys.count == 194)
     }
 }

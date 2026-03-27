@@ -183,7 +183,6 @@
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABA9A6BC28EC786100EE28DE /* swiftgen.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABA9A6BB28EC786100EE28DE /* swiftgen.yml */; };
 		ABA9A6C228EC7BD000EE28DE /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA9A6C128EC7BD000EE28DE /* Strings.swift */; };
-		ABAB5B9527EF023300198597 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAB5B9427EF023300198597 /* Extensions.swift */; };
 		ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = ABAC82FD26BC4A96009F5026 /* OpenCC */; };
 		ABBB2631278E6EF3007B6149 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2630278E6EF3007B6149 /* SearchView.swift */; };
 		ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */ = {isa = PBXBuildFile; productRef = ABBB2635278FB888007B6149 /* SwiftUINavigation */; };
@@ -2120,7 +2119,6 @@
 				AB31CD3B27B66E0300F40E0A /* ListParserTestType.swift in Sources */,
 				ABD9770E27B65A7300983DE7 /* ListParserTests.swift in Sources */,
 				EAB100012F1E000100000002 /* SettingDownloadTests.swift in Sources */,
-				ABAB5B9527EF023300198597 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

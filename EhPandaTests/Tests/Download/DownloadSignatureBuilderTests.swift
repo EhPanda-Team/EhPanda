@@ -3,10 +3,12 @@
 //  EhPandaTests
 //
 
-import XCTest
+import Testing
+import Foundation
 @testable import EhPanda
 
-final class DownloadSignatureBuilderTests: XCTestCase {
+struct DownloadSignatureBuilderTests {
+    @Test
     func testVersionIdentifierPrefersGalleryChainMetadata() {
         let signature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -27,9 +29,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             )
         )
 
-        XCTAssertEqual(signature, "chain:2000000:new-chain-key")
+        #expect(signature == "chain:2000000:new-chain-key")
     }
 
+    @Test
     func testVersionIdentifierFallsBackToOriginalGalleryIdentityWhenCurrentChainFieldsAreMissing() {
         let signature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -48,9 +51,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             )
         )
 
-        XCTAssertEqual(signature, "chain:\(sampleGallery.gid):\(sampleGallery.token)")
+        #expect(signature == "chain:\(sampleGallery.gid):\(sampleGallery.token)")
     }
 
+    @Test
     func testMakeReturnsHashPrefixedFallbackSignature() {
         let signature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -59,72 +63,72 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             previewURLs: [:]
         )
 
-        XCTAssertTrue(signature.hasPrefix("hash:"))
+        #expect(signature.hasPrefix("hash:"))
     }
 
+    @Test
     func testHashAndChainSignaturesAreIncomparableForUpdateCheck() {
-        XCTAssertEqual(
+        #expect(
             DownloadSignatureBuilder.hasUpdateComparison(
                 remoteVersionSignature: "hash:abc",
                 latestRemoteVersionSignature: "chain:newgid:newtoken",
                 gid: sampleGallery.gid,
                 token: sampleGallery.token
-            ),
-            .incomparable
+            ) == .incomparable
         )
-        XCTAssertNil(
+        #expect(
             DownloadSignatureBuilder.canonicalizeStoredSignatureIfSafe(
                 remoteVersionSignature: "hash:abc",
                 latestRemoteVersionSignature: "chain:newgid:newtoken",
                 gid: sampleGallery.gid,
                 token: sampleGallery.token
-            )
+            ) == nil
         )
     }
 
+    @Test
     func testCanonicalizeHashToOriginalChainOnlyWhenLatestMatchesOriginalGalleryIdentity() {
         let latestSignature = "chain:\(sampleGallery.gid):\(sampleGallery.token)"
 
-        XCTAssertEqual(
+        #expect(
             DownloadSignatureBuilder.hasUpdateComparison(
                 remoteVersionSignature: "hash:abc",
                 latestRemoteVersionSignature: latestSignature,
                 gid: sampleGallery.gid,
                 token: sampleGallery.token
-            ),
-            .same
+            ) == .same
         )
-        XCTAssertEqual(
+        #expect(
             DownloadSignatureBuilder.canonicalizeStoredSignatureIfSafe(
                 remoteVersionSignature: "hash:abc",
                 latestRemoteVersionSignature: latestSignature,
                 gid: sampleGallery.gid,
                 token: sampleGallery.token
-            ),
-            latestSignature
+            ) == latestSignature
         )
     }
 
+    @Test
     func testDoNotCanonicalizeHashWhenLatestChainPointsToDifferentCurrentGallery() {
-        XCTAssertEqual(
+        #expect(
             DownloadSignatureBuilder.hasUpdateComparison(
                 remoteVersionSignature: "hash:abc",
                 latestRemoteVersionSignature: "chain:othergid:othertoken",
                 gid: sampleGallery.gid,
                 token: sampleGallery.token
-            ),
-            .incomparable
+            ) == .incomparable
         )
-        XCTAssertNil(
+        #expect(
             DownloadSignatureBuilder.canonicalizeStoredSignatureIfSafe(
                 remoteVersionSignature: "hash:abc",
                 latestRemoteVersionSignature: "chain:othergid:othertoken",
                 gid: sampleGallery.gid,
                 token: sampleGallery.token
-            )
+            ) == nil
         )
     }
 
+    @Test
     func testSignatureIgnoresPreviewHostRotationAndLayoutChanges() {
         let firstSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -146,9 +150,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             ]
         )
 
-        XCTAssertEqual(firstSignature, secondSignature)
+        #expect(firstSignature == secondSignature)
     }
 
+    @Test
     func testSignatureChangesWhenCombinedPreviewAtlasChanges() {
         let firstSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -168,9 +173,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             ]
         )
 
-        XCTAssertNotEqual(firstSignature, secondSignature)
+        #expect(firstSignature != secondSignature)
     }
 
+    @Test
     func testSignatureIgnoresCombinedPreviewTokenRotation() {
         let firstSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -190,9 +196,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             ]
         )
 
-        XCTAssertEqual(firstSignature, secondSignature)
+        #expect(firstSignature == secondSignature)
     }
 
+    @Test
     func testSignatureIgnoresHostRotationForStandalonePreviewURLs() {
         let firstSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -214,9 +221,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             ]
         )
 
-        XCTAssertEqual(firstSignature, secondSignature)
+        #expect(firstSignature == secondSignature)
     }
 
+    @Test
     func testSignatureIgnoresCoverHostAndQueryChanges() {
         let firstSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -232,9 +240,10 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             previewURLs: [:]
         )
 
-        XCTAssertEqual(firstSignature, secondSignature)
+        #expect(firstSignature == secondSignature)
     }
 
+    @Test
     func testSignatureIgnoresGalleryHostTransitions() {
         let ehSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,
@@ -254,7 +263,7 @@ final class DownloadSignatureBuilderTests: XCTestCase {
             ]
         )
 
-        XCTAssertEqual(ehSignature, exSignature)
+        #expect(ehSignature == exSignature)
     }
 }
 

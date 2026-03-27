@@ -4,13 +4,18 @@
 //
 
 import Kanna
-import XCTest
+import Testing
+import Foundation
 
 protocol TestHelper {}
 
-extension TestHelper where Self: XCTestCase {
+final class TestBundleLocator {}
+
+extension TestHelper {
     func htmlDocument(filename: HTMLFilename) throws -> HTMLDocument {
-        guard let url = Bundle(for: Self.self).url(forResource: filename.rawValue, withExtension: "html") else {
+        guard let url = Bundle(for: TestBundleLocator.self)
+            .url(forResource: filename.rawValue, withExtension: "html")
+        else {
             throw TestError.htmlDocumentNotFound(filename)
         }
         return try Kanna.HTML(url: url, encoding: .utf8)

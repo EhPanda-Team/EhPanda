@@ -7,16 +7,18 @@ import CoreData
 import ComposableArchitecture
 import Kingfisher
 import UIKit
-import XCTest
+import Testing
 @testable import EhPanda
 
-final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
+struct DownloadFeatureReducerTests: TestHelper {
+    @Test
     func testQuickSearchWordUsesNameWhenContentIsEmpty() {
         let word = QuickSearchWord(name: "artist:hossy", content: "")
 
-        XCTAssertEqual(word.effectiveSearchText, "artist:hossy")
+        #expect(word.effectiveSearchText == "artist:hossy")
     }
 
+    @Test
     func testPauseKeepsActiveDownloadPausedWhenDeferredSchedulingRuns() async throws {
         let container = makeInMemoryContainer()
 
@@ -51,18 +53,20 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let result = await manager.togglePause(gid: gid)
 
         guard case .success = result else {
-            return XCTFail("Pause should succeed, got \(result)")
+            Issue.record("Pause should succeed, got \(result)")
+            return
         }
 
         try await Task.sleep(for: .milliseconds(100))
 
         let stored = await manager.testingFetchDownload(gid: gid)
         let activeGalleryID = await manager.testingActiveGalleryID()
-        XCTAssertEqual(stored?.status, .paused)
-        XCTAssertEqual(stored?.badge, .paused(7, 26))
-        XCTAssertNil(activeGalleryID)
+        #expect(stored?.status == .paused)
+        #expect(stored?.badge == .paused(7, 26))
+        #expect(activeGalleryID == nil)
     }
 
+    @Test
     func testPauseUsesTemporaryWorkingSetProgressWhenCancelling() async throws {
         let container = makeInMemoryContainer()
 
@@ -113,15 +117,17 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let result = await manager.togglePause(gid: gid)
 
         guard case .success = result else {
-            return XCTFail("Pause should succeed, got \(result)")
+            Issue.record("Pause should succeed, got \(result)")
+            return
         }
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(stored?.status, .paused)
-        XCTAssertEqual(stored?.completedPageCount, 2)
-        XCTAssertEqual(stored?.badge, .paused(2, 2))
+        #expect(stored?.status == .paused)
+        #expect(stored?.completedPageCount == 2)
+        #expect(stored?.badge == .paused(2, 2))
     }
 
+    @Test
     func testReconcileDownloadsNormalizesLegacyFailedStatusToNeedsAttention() async throws {
         let container = makeInMemoryContainer()
 
@@ -148,10 +154,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await manager.reconcileDownloads()
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(stored?.status, .partial)
-        XCTAssertEqual(stored?.badge, .partial(0, 18))
+        #expect(stored?.status == .partial)
+        #expect(stored?.badge == .partial(0, 18))
     }
 
+    @Test
     func testReconcileDownloadsClearsCancellationLikeGalleryError() async throws {
         let container = makeInMemoryContainer()
 
@@ -182,10 +189,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await manager.reconcileDownloads()
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        XCTAssertNil(stored?.lastError)
-        XCTAssertEqual(stored?.status, .partial)
+        #expect(stored?.lastError == nil)
+        #expect(stored?.status == .partial)
     }
 
+    @Test
     func testLoadInspectionFiltersCancellationFailuresIntoPendingPages() async throws {
         let container = makeInMemoryContainer()
 
@@ -237,14 +245,16 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let result = await manager.loadInspection(gid: gid)
         guard case .success(let inspection) = result else {
-            return XCTFail("Expected inspection to load successfully, got \(result)")
+            Issue.record("Expected inspection to load successfully, got \(result)")
+            return
         }
 
-        XCTAssertEqual(inspection.pages[0].status, .downloaded)
-        XCTAssertEqual(inspection.pages[1].status, .pending)
-        XCTAssertTrue((try? storage.readFailedPages(folderURL: temporaryFolderURL).pages.isEmpty) ?? true)
+        #expect(inspection.pages[0].status == .downloaded)
+        #expect(inspection.pages[1].status == .pending)
+        #expect((try? storage.readFailedPages(folderURL: temporaryFolderURL).pages.isEmpty) ?? true)
     }
 
+    @Test
     func testDownloadsFilterMatchesKeywordAndStatus() {
         let activeDownload = sampleDownload(
             gid: "101",
@@ -263,9 +273,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         state.filter = .active
         state.keyword = "alpha"
 
-        XCTAssertEqual(state.filteredDownloads, [activeDownload])
+        #expect(state.filteredDownloads == [activeDownload])
     }
 
+    @Test
     func testQueuedRetryWorkAppearsAsActiveDownloadBadge() {
         let queuedRedownload = sampleDownload(
             gid: "303",
@@ -275,11 +286,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             pendingOperation: .redownload
         )
 
-        XCTAssertEqual(queuedRedownload.pendingOperation, .redownload)
-        XCTAssertEqual(queuedRedownload.badge, .queued)
-        XCTAssertTrue(queuedRedownload.matches(filter: .active))
+        #expect(queuedRedownload.pendingOperation == .redownload)
+        #expect(queuedRedownload.badge == .queued)
+        #expect(queuedRedownload.matches(filter: .active))
     }
 
+    @Test
     func testQueuedRepairWorkAppearsAsActiveDownloadBadge() {
         let queuedRepair = sampleDownload(
             gid: "404",
@@ -289,11 +301,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             pendingOperation: .repair
         )
 
-        XCTAssertEqual(queuedRepair.pendingOperation, .repair)
-        XCTAssertEqual(queuedRepair.badge, .queued)
-        XCTAssertTrue(queuedRepair.matches(filter: .active))
+        #expect(queuedRepair.pendingOperation == .repair)
+        #expect(queuedRepair.badge == .queued)
+        #expect(queuedRepair.matches(filter: .active))
     }
 
+    @Test
     func testQueuedUpdateWorkAppearsAsActiveDownloadBadge() {
         let queuedUpdate = sampleDownload(
             gid: "414",
@@ -304,12 +317,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             pendingOperation: .update
         )
 
-        XCTAssertEqual(queuedUpdate.pendingOperation, .update)
-        XCTAssertEqual(queuedUpdate.badge, .queued)
-        XCTAssertTrue(queuedUpdate.matches(filter: .active))
-        XCTAssertFalse(queuedUpdate.matches(filter: .update))
+        #expect(queuedUpdate.pendingOperation == .update)
+        #expect(queuedUpdate.badge == .queued)
+        #expect(queuedUpdate.matches(filter: .active))
+        #expect(queuedUpdate.matches(filter: .update) == false)
     }
 
+    @Test
     func testQueuedResumedUpdateDoesNotPretendToBeInitialWork() {
         let resumedUpdate = sampleDownload(
             gid: "415",
@@ -320,12 +334,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             latestRemoteVersionSignature: "hash:v2"
         )
 
-        XCTAssertNil(resumedUpdate.pendingOperation)
-        XCTAssertTrue(resumedUpdate.isQueuedWorkItem)
-        XCTAssertEqual(resumedUpdate.badge, .queued)
-        XCTAssertTrue(resumedUpdate.matches(filter: .active))
+        #expect(resumedUpdate.pendingOperation == nil)
+        #expect(resumedUpdate.isQueuedWorkItem)
+        #expect(resumedUpdate.badge == .queued)
+        #expect(resumedUpdate.matches(filter: .active))
     }
 
+    @Test
     func testPausedDownloadAppearsAsActiveBadge() {
         let pausedDownload = sampleDownload(
             gid: "455",
@@ -335,10 +350,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             completedPageCount: 4
         )
 
-        XCTAssertEqual(pausedDownload.badge, .paused(4, 12))
-        XCTAssertTrue(pausedDownload.matches(filter: .active))
+        #expect(pausedDownload.badge == .paused(4, 12))
+        #expect(pausedDownload.matches(filter: .active))
     }
 
+    @Test
     func testActiveDownloadsDoNotExposeUpdateActions() {
         let downloadingUpdate = sampleDownload(
             gid: "456",
@@ -361,11 +377,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             latestRemoteVersionSignature: "hash:v2"
         )
 
-        XCTAssertFalse(downloadingUpdate.canTriggerUpdate)
-        XCTAssertFalse(pausedUpdate.canTriggerUpdate)
-        XCTAssertTrue(completedUpdate.canTriggerUpdate)
+        #expect(downloadingUpdate.canTriggerUpdate == false)
+        #expect(pausedUpdate.canTriggerUpdate == false)
+        #expect(completedUpdate.canTriggerUpdate)
     }
 
+    @Test
     func testDownloadsFilterMatchesGalleryFilterCriteria() {
         let qualifyingDownload = sampleDownload(
             gid: "466",
@@ -391,9 +408,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         state.galleryFilter.pageLowerBound = "20"
         state.galleryFilter.pageUpperBound = "40"
 
-        XCTAssertEqual(state.filteredDownloads, [qualifyingDownload])
+        #expect(state.filteredDownloads == [qualifyingDownload])
     }
 
+    @Test
     func testDownloadsFilterExcludesSelectedCategoriesLikeSearchFilter() {
         let nonHDownload = sampleDownload(
             gid: "478",
@@ -412,9 +430,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         state.downloads = [nonHDownload, mangaDownload]
         state.galleryFilter.excludedCategories = [.nonH]
 
-        XCTAssertEqual(state.filteredDownloads, [mangaDownload])
+        #expect(state.filteredDownloads == [mangaDownload])
     }
 
+    @Test
     func testPartialDownloadBadgeUsesNeedsAttentionCopy() {
         let partialDownload = sampleDownload(
             gid: "480",
@@ -424,10 +443,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             completedPageCount: 5
         )
 
-        XCTAssertEqual(partialDownload.badge.text, "Needs Attention 5/12")
-        XCTAssertEqual(DownloadListFilter.failed.title, "Needs Attention")
+        #expect(partialDownload.badge.text == "Needs Attention 5/12")
+        #expect(DownloadListFilter.failed.title == "Needs Attention")
     }
 
+    @Test
     func testQueuedRedownloadDoesNotLeakIntoCompletedFilter() {
         let queuedRedownload = sampleDownload(
             gid: "505",
@@ -437,10 +457,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             pendingOperation: .redownload
         )
 
-        XCTAssertFalse(queuedRedownload.matches(filter: .completed))
-        XCTAssertFalse(queuedRedownload.matches(filter: .update))
+        #expect(queuedRedownload.matches(filter: .completed) == false)
+        #expect(queuedRedownload.matches(filter: .update) == false)
     }
 
+    @Test
     func testQueuedRepairDoesNotLeakIntoFailedFilter() {
         let queuedRepair = sampleDownload(
             gid: "606",
@@ -457,12 +478,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             completedPageCount: 0
         )
 
-        XCTAssertFalse(queuedRepair.matches(filter: .failed))
-        XCTAssertFalse(queuedRepair.matches(filter: .update))
-        XCTAssertEqual(missingFilesWithoutQueuedWork.badge, .missingFiles)
-        XCTAssertTrue(missingFilesWithoutQueuedWork.matches(filter: .failed))
+        #expect(queuedRepair.matches(filter: .failed) == false)
+        #expect(queuedRepair.matches(filter: .update) == false)
+        #expect(missingFilesWithoutQueuedWork.badge == .missingFiles)
+        #expect(missingFilesWithoutQueuedWork.matches(filter: .failed))
     }
 
+    @Test
     func testQueuedRedownloadKeepsQueuedSortPriority() {
         let completedDownload = sampleDownload(
             gid: "707",
@@ -487,11 +509,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             return (lhs.lastDownloadedAt ?? .distantPast) > (rhs.lastDownloadedAt ?? .distantPast)
         }
 
-        XCTAssertEqual(queuedRedownload.sortPriority, 1)
-        XCTAssertEqual(completedDownload.sortPriority, 7)
-        XCTAssertEqual(sortedDownloads.map(\.gid), [queuedRedownload.gid, completedDownload.gid])
+        #expect(queuedRedownload.sortPriority == 1)
+        #expect(completedDownload.sortPriority == 7)
+        #expect(sortedDownloads.map(\.gid) == [queuedRedownload.gid, completedDownload.gid])
     }
 
+    @Test
     func testInProgressDownloadPrefersTemporaryCoverURL() throws {
         let gid = "811"
         let download = sampleDownload(
@@ -501,9 +524,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             completedPageCount: 3
         )
 
-        guard let rootURL = FileUtil.downloadsDirectoryURL else {
-            throw XCTSkip("Downloads directory is unavailable in the test environment.")
-        }
+        let rootURL = try #require(
+            FileUtil.downloadsDirectoryURL,
+            "Downloads directory is unavailable in the test environment."
+        )
 
         let temporaryFolderURL = rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
         try? FileManager.default.removeItem(at: temporaryFolderURL)
@@ -516,9 +540,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let temporaryCoverURL = temporaryFolderURL.appendingPathComponent("cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: temporaryCoverURL, options: .atomic)
 
-        XCTAssertEqual(download.resolvedCoverURL(rootURL: rootURL), temporaryCoverURL)
+        #expect(download.resolvedCoverURL(rootURL: rootURL) == temporaryCoverURL)
     }
 
+    @Test
     func testQueuedDownloadPreservesTemporaryWorkingSet() {
         let queuedDownload = sampleDownload(
             gid: "809",
@@ -527,9 +552,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             completedPageCount: 3
         )
 
-        XCTAssertTrue(queuedDownload.shouldPreserveTemporaryWorkingSet)
+        #expect(queuedDownload.shouldPreserveTemporaryWorkingSet)
     }
 
+    @Test
     func testActiveDownloadDoesNotNormalizeWhileTaskIsStillRunning() {
         let activeDownload = sampleDownload(
             gid: "810",
@@ -538,19 +564,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             completedPageCount: 3
         )
 
-        XCTAssertFalse(
+        #expect(
             activeDownload.needsInterruptedDownloadNormalization(
                 activeGalleryID: activeDownload.gid,
                 hasActiveTask: true
-            )
+            ) == false
         )
-        XCTAssertTrue(
+        #expect(
             activeDownload.needsInterruptedDownloadNormalization(
                 activeGalleryID: nil,
                 hasActiveTask: false
             )
         )
-        XCTAssertTrue(
+        #expect(
             activeDownload.needsInterruptedDownloadNormalization(
                 activeGalleryID: "another-gid",
                 hasActiveTask: true
@@ -558,6 +584,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
     }
 
+    @Test
     func testAppLaunchAutomationResolveParsesGalleryURLAndCookies() {
         let automation = AppLaunchAutomation.resolve(environment: [
             "EHPANDA_AUTOMATION_TAB": "downloads",
@@ -568,17 +595,17 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             "EHPANDA_AUTOMATION_IGNEOUS": "igneous-value"
         ])
 
-        XCTAssertEqual(automation?.initialTab, .downloads)
-        XCTAssertEqual(automation?.autoDownloadGID, "1394965")
-        XCTAssertEqual(
-            automation?.galleryURL,
-            URL(string: "https://e-hentai.org/g/1394965/56c35114b6/")
+        #expect(automation?.initialTab == .downloads)
+        #expect(automation?.autoDownloadGID == "1394965")
+        #expect(
+            automation?.galleryURL == URL(string: "https://e-hentai.org/g/1394965/56c35114b6/")
         )
-        XCTAssertEqual(automation?.loginCookies?.memberID, "4172984")
-        XCTAssertEqual(automation?.loginCookies?.passHash, "pass-hash")
-        XCTAssertEqual(automation?.loginCookies?.igneous, "igneous-value")
+        #expect(automation?.loginCookies?.memberID == "4172984")
+        #expect(automation?.loginCookies?.passHash == "pass-hash")
+        #expect(automation?.loginCookies?.igneous == "igneous-value")
     }
 
+    @Test
     func testImportAutomationCookiesClearsStaleIgneousAndUsesSessionCookies() {
         let cookieClient = CookieClient.live
         cookieClient.clearAll()
@@ -601,16 +628,17 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let passHashCookie = exCookies.first { $0.name == Defaults.Cookie.ipbPassHash }
         let igneousCookie = exCookies.first { $0.name == Defaults.Cookie.igneous }
 
-        XCTAssertEqual(memberCookie?.value, "4172984")
-        XCTAssertEqual(passHashCookie?.value, "pass-hash")
-        XCTAssertTrue(memberCookie?.isSessionOnly == true)
-        XCTAssertTrue(passHashCookie?.isSessionOnly == true)
-        XCTAssertNil(igneousCookie)
-        XCTAssertTrue(cookieClient.didLogin)
-        XCTAssertTrue(cookieClient.shouldFetchIgneous)
+        #expect(memberCookie?.value == "4172984")
+        #expect(passHashCookie?.value == "pass-hash")
+        #expect(memberCookie?.isSessionOnly == true)
+        #expect(passHashCookie?.isSessionOnly == true)
+        #expect(igneousCookie == nil)
+        #expect(cookieClient.didLogin)
+        #expect(cookieClient.shouldFetchIgneous)
     }
 
     @MainActor
+    @Test
     func testRunLaunchAutomationFallsBackToInitialTabWhenGalleryURLIsUnhandleable() async {
         setenv("EHPANDA_AUTOMATION_TAB", "downloads", 1)
         setenv("EHPANDA_AUTOMATION_GALLERY_URL", "https://example.com/not-a-gallery", 1)
@@ -641,6 +669,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDatabasePreparationImportsAutomationCookiesBeforeLoadingSettings() async {
         let cookieClient = CookieClient.live
         cookieClient.clearAll()
@@ -672,11 +701,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         await store.send(.appDelegate(.migration(.onDatabasePreparationSuccess)))
         await store.receive(\.appDelegate.removeExpiredImageURLs)
-        XCTAssertTrue(cookieClient.didLogin)
+        #expect(cookieClient.didLogin)
         await store.receive(\.setting.loadUserSettings)
     }
 
     @MainActor
+    @Test
     func testLoadUserSettingsDefersExLaunchAutomationUntilIgneousArrives() async {
         let cookieClient = CookieClient.live
         cookieClient.clearAll()
@@ -714,8 +744,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         store.exhaustivity = .off
 
         await store.send(.setting(.loadUserSettingsDone))
-        XCTAssertFalse(store.state.didRunLaunchAutomation)
-        XCTAssertTrue(store.state.isWaitingForIgneousBeforeLaunchAutomation)
+        #expect(store.state.didRunLaunchAutomation == false)
+        #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
 
         let response: HTTPURLResponse = HTTPURLResponse(
             url: Defaults.URL.exhentai,
@@ -733,6 +763,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testLoadUserSettingsKeepsExLaunchAutomationDeferredWhenIgneousFetchFails() async {
         let cookieClient = CookieClient.live
         cookieClient.clearAll()
@@ -770,16 +801,17 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         store.exhaustivity = .off
 
         await store.send(.setting(.loadUserSettingsDone))
-        XCTAssertFalse(store.state.didRunLaunchAutomation)
-        XCTAssertTrue(store.state.isWaitingForIgneousBeforeLaunchAutomation)
+        #expect(store.state.didRunLaunchAutomation == false)
+        #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
 
         await store.send(.setting(.fetchIgneousDone(.failure(.networkingFailed))))
         await store.receive(\.setting.account.loadCookies)
-        XCTAssertFalse(store.state.didRunLaunchAutomation)
-        XCTAssertTrue(store.state.isWaitingForIgneousBeforeLaunchAutomation)
+        #expect(store.state.didRunLaunchAutomation == false)
+        #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerKeepsIdleStateForEmptyLibrary() async {
         let store = TestStore(initialState: DownloadsReducer.State()) {
             DownloadsReducer()
@@ -789,10 +821,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             $0.loadingState = .idle
         }
 
-        XCTAssertEqual(store.state.downloads, [])
+        #expect(store.state.downloads == [])
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerSeedsOnlineDetailStateFromDownload() async {
         let download = sampleDownload(
             gid: "123456",
@@ -809,14 +842,15 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         await store.send(.setNavigation(.detail(download.gid)))
 
-        XCTAssertEqual(store.state.route, .detail(download.gid))
-        XCTAssertEqual(store.state.detailState.wrappedValue?.gid, download.gid)
-        XCTAssertEqual(store.state.detailState.wrappedValue?.gallery.id, download.gid)
-        XCTAssertEqual(store.state.detailState.wrappedValue?.downloadBadge, .downloaded)
-        XCTAssertTrue(store.state.detailState.wrappedValue?.shouldCheckForRemoteUpdates == true)
+        #expect(store.state.route == .detail(download.gid))
+        #expect(store.state.detailState.wrappedValue?.gid == download.gid)
+        #expect(store.state.detailState.wrappedValue?.gallery.id == download.gid)
+        #expect(store.state.detailState.wrappedValue?.downloadBadge == .downloaded)
+        #expect(store.state.detailState.wrappedValue?.shouldCheckForRemoteUpdates == true)
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerUpdateActionUsesDownloadClientRetry() async {
         let retried = UncheckedBox<[String]>([])
         let download = sampleDownload(
@@ -860,10 +894,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.updateDownload(download.gid))
         await store.receive(\.updateDownloadDone)
 
-        XCTAssertEqual(retried.value, [download.gid])
+        #expect(retried.value == [download.gid])
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerDeleteActionUsesDownloadClientDelete() async {
         let deleted = UncheckedBox<[String]>([])
         let download = sampleDownload(
@@ -904,10 +939,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.deleteDownload(download.gid))
         await store.receive(\.deleteDownloadDone)
 
-        XCTAssertEqual(deleted.value, [download.gid])
+        #expect(deleted.value == [download.gid])
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerTogglePauseActionUsesDownloadClientPause() async {
         let toggled = UncheckedBox<[String]>([])
         let download = sampleDownload(
@@ -949,10 +985,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.toggleDownloadPause(download.gid))
         await store.receive(\.toggleDownloadPauseDone)
 
-        XCTAssertEqual(toggled.value, [download.gid])
+        #expect(toggled.value == [download.gid])
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorReducerLoadsInspection() async {
         let download = sampleDownload(
             gid: "246810",
@@ -997,55 +1034,57 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorReducerRetryPageUsesDownloadClientRetryPages() async {
-        let retried = UncheckedBox<[Int]>([])
-        let retryExpectation = XCTestExpectation(description: "Retry page")
-        let download = sampleDownload(
-            gid: "112233",
-            title: "Retry Page Gallery",
-            status: .failed,
-            completedPageCount: 1
-        )
-        var initialState = DownloadInspectorReducer.State(gid: download.gid)
-        initialState.inspection = sampleInspection(download: download)
-        initialState.loadingState = .idle
-
-        let store = TestStore(initialState: initialState) {
-            DownloadInspectorReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                retryPages: { _, pageIndices in
-                    retried.value = pageIndices
-                    retryExpectation.fulfill()
-                    return .success(())
-                },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadInspection: { _ in .success(initialState.inspection!) }
+        await confirmation(expectedCount: 1) { confirm in
+            let retried = UncheckedBox<[Int]>([])
+            let download = sampleDownload(
+                gid: "112233",
+                title: "Retry Page Gallery",
+                status: .failed,
+                completedPageCount: 1
             )
-        }
-        store.exhaustivity = .off
+            var initialState = DownloadInspectorReducer.State(gid: download.gid)
+            initialState.inspection = sampleInspection(download: download)
+            initialState.loadingState = .idle
 
-        await store.send(.retryPage(2))
-        await fulfillment(of: [retryExpectation], timeout: 1)
-        XCTAssertEqual(retried.value, [2])
+            let store = TestStore(initialState: initialState) {
+                DownloadInspectorReducer()
+            } withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    updateRemoteSignature: { _, _ in .none },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    retryPages: { _, pageIndices in
+                        retried.value = pageIndices
+                        confirm()
+                        return .success(())
+                    },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadInspection: { _ in .success(initialState.inspection!) }
+                )
+            }
+            store.exhaustivity = .off
+
+            await store.send(.retryPage(2))
+            #expect(retried.value == [2])
+        }
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorReducerRetryFailedPagesMarksFailedPagesPending() async {
         let retried = UncheckedBox<[Int]>([])
         let download = sampleDownload(
@@ -1111,10 +1150,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             )
         }
 
-        XCTAssertEqual(retried.value, [2])
+        #expect(retried.value == [2])
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorKeepsRetriedPagesPendingWhileRetryWorkRemainsActive() async {
         let download = sampleDownload(
             gid: "112236",
@@ -1179,6 +1219,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorClearsRetryingPagesAfterRetrySettlesWithFailure() async {
         let initialDownload = sampleDownload(
             gid: "112237",
@@ -1238,6 +1279,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorRestoresStableInspectionWhenRetryReloadFails() async {
         let download = sampleDownload(
             gid: "112238",
@@ -1301,6 +1343,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorSkipsReloadWhenObservedDownloadDidNotChange() async {
         let download = sampleDownload(
             gid: "112244",
@@ -1345,10 +1388,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         store.exhaustivity = .off
 
         await store.send(.observeDownloadsDone([download]))
-        XCTAssertEqual(loadInspectionCount.value, 0)
+        #expect(loadInspectionCount.value == 0)
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorIgnoresStaleInspectionResponses() async {
         let originalDownload = sampleDownload(
             gid: "112245",
@@ -1377,7 +1421,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         store.exhaustivity = .off
 
         await store.send(.loadInspectionDone(firstRequestID, .success(staleInspection)))
-        XCTAssertNil(store.state.inspection)
+        #expect(store.state.inspection == nil)
 
         await store.send(.loadInspectionDone(secondRequestID, .success(refreshedInspection))) {
             $0.inspection = refreshedInspection
@@ -1386,6 +1430,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
     }
 
+    @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
         let container = makeInMemoryContainer()
 
@@ -1435,11 +1480,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let result = await manager.loadInspection(gid: gid)
         let inspection = try result.get()
 
-        XCTAssertEqual(inspection.pages[0].status, .downloaded)
-        XCTAssertEqual(inspection.pages[1].status, .failed)
-        XCTAssertEqual(inspection.pages[1].failure?.code, .networkingFailed)
+        #expect(inspection.pages[0].status == .downloaded)
+        #expect(inspection.pages[1].status == .failed)
+        #expect(inspection.pages[1].failure?.code == .networkingFailed)
     }
 
+    @Test
     func testDownloadManagerLoadLocalPageURLsPrefersCompletedFolderForCompletedDownload() async throws {
         let container = makeInMemoryContainer()
 
@@ -1493,11 +1539,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        XCTAssertEqual(pageURLs[1], completedPageURL)
-        XCTAssertNotEqual(pageURLs[1], temporaryPageURL)
-        XCTAssertNil(pageURLs[3])
+        #expect(pageURLs[1] == completedPageURL)
+        #expect(pageURLs[1] != temporaryPageURL)
+        #expect(pageURLs[3] == nil)
     }
 
+    @Test
     func testDownloadManagerLoadLocalPageURLsMergesReadableCompletedPagesWithTemporaryPages() async throws {
         let container = makeInMemoryContainer()
 
@@ -1553,10 +1600,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        XCTAssertEqual(pageURLs[1], completedFolderURL.appendingPathComponent("pages/0001.jpg"))
-        XCTAssertEqual(pageURLs[2], temporaryPageURL)
+        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
+        #expect(pageURLs[2] == temporaryPageURL)
     }
 
+    @Test
     func testRepairSeedRejectsOldCompletedVersionWhenGalleryUpdatedButPageCountMatches() async throws {
         let gid = "repair-seed-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
@@ -1654,21 +1702,22 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             versionSignature: "hash:v2"
         )
 
-        XCTAssertNil(workingSeed.manifest)
-        XCTAssertTrue(workingSeed.existingPages.isEmpty)
-        XCTAssertNil(workingSeed.coverRelativePath)
-        XCTAssertFalse(
+        #expect(workingSeed.manifest == nil)
+        #expect(workingSeed.existingPages.isEmpty)
+        #expect(workingSeed.coverRelativePath == nil)
+        #expect(
             FileManager.default.fileExists(
                 atPath: workingSeed.folderURL.appendingPathComponent("pages/0001.jpg").path
-            )
+            ) == false
         )
-        XCTAssertFalse(
+        #expect(
             FileManager.default.fileExists(
                 atPath: workingSeed.folderURL.appendingPathComponent("pages/0002.jpg").path
-            )
+            ) == false
         )
     }
 
+    @Test
     func testDownloadManagerLoadLocalPageURLsMarksCompletedDownloadMissingFilesWhenZeroBytePageIsFound() async throws {
         let container = makeInMemoryContainer()
 
@@ -1713,24 +1762,25 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
         let stored = await manager.testingFetchDownload(gid: gid)
 
-        XCTAssertNil(pageURLs[1])
-        XCTAssertEqual(pageURLs[2], goodPageURL)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: emptyPageURL.path))
-        XCTAssertEqual(stored?.status, .missingFiles)
-        XCTAssertEqual(stored?.completedPageCount, 1)
+        #expect(pageURLs[1] == nil)
+        #expect(pageURLs[2] == goodPageURL)
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+        #expect(stored?.status == .missingFiles)
+        #expect(stored?.completedPageCount == 1)
     }
 
     @MainActor
+    @Test
     func testImageClientFetchImageUsesStableAliasCacheKey() async throws {
-        let url = try XCTUnwrap(
+        let url = try #require(
             URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
         )
-        let stableCacheKey = try XCTUnwrap(url.stableImageCacheKey)
+        let stableCacheKey = try #require(url.stableImageCacheKey)
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemRed.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
-        let imageData = try XCTUnwrap(image.pngData())
+        let imageData = try #require(image.pngData())
 
         KingfisherManager.shared.cache.store(image, original: imageData, forKey: stableCacheKey)
         defer {
@@ -1741,9 +1791,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let result = await ImageClient.live.fetchImage(url: url)
         let fetchedImage = try result.get()
 
-        XCTAssertEqual(fetchedImage.size, image.size)
+        #expect(fetchedImage.size == image.size)
     }
 
+    @Test
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {
         let container = makeInMemoryContainer()
 
@@ -1793,24 +1844,26 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let result = await manager.retryPages(gid: gid, pageIndices: [2])
 
         guard case .success = result else {
-            return XCTFail("Retry pages should succeed, got \(result)")
+            Issue.record("Retry pages should succeed, got \(result)")
+            return
         }
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(stored?.status, .queued)
-        XCTAssertEqual(stored?.badge, .queued)
-        XCTAssertNil(stored?.pendingOperation)
-        XCTAssertNil(stored?.lastError)
+        #expect(stored?.status == .queued)
+        #expect(stored?.badge == .queued)
+        #expect(stored?.pendingOperation == nil)
+        #expect(stored?.lastError == nil)
 
         let resumeState = try storage.readResumeState(folderURL: temporaryFolderURL)
-        XCTAssertEqual(resumeState.pageSelection, [2])
-        XCTAssertFalse(FileManager.default.fileExists(
+        #expect(resumeState.pageSelection == [2])
+        #expect(FileManager.default.fileExists(
             atPath: temporaryFolderURL
                 .appendingPathComponent(Defaults.FilePath.downloadFailedPages)
                 .path
-        ))
+        ) == false)
     }
 
+    @Test
     func testCancelQueuedRepairRestoresReadableCountAndClearsPendingOperation() async throws {
         let container = makeInMemoryContainer()
 
@@ -1857,15 +1910,17 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let result = await manager.togglePause(gid: gid)
         guard case .success = result else {
-            return XCTFail("Cancelling queued repair should succeed, got \(result)")
+            Issue.record("Cancelling queued repair should succeed, got \(result)")
+            return
         }
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(stored?.status, .missingFiles)
-        XCTAssertEqual(stored?.completedPageCount, 1)
-        XCTAssertNil(stored?.pendingOperation)
+        #expect(stored?.status == .missingFiles)
+        #expect(stored?.completedPageCount == 1)
+        #expect(stored?.pendingOperation == nil)
     }
 
+    @Test
     func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {
         let container = makeInMemoryContainer()
         let sessionID = UUID().uuidString
@@ -2074,7 +2129,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await manager.testingProcessDownload(gid: gid)
 
         let firstRunSnapshot = recorder.snapshot()
-        XCTAssertEqual(firstRunSnapshot.previewPageNumbers, [1])
+        #expect(firstRunSnapshot.previewPageNumbers == [1])
 
         recorder.reset()
         try clearPersistedDownloads(in: container)
@@ -2092,18 +2147,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await manager.testingProcessDownload(gid: gid)
 
         let secondRunSnapshot = recorder.snapshot()
-        XCTAssertTrue(secondRunSnapshot.previewPageNumbers.isEmpty)
-        XCTAssertEqual(secondRunSnapshot.mpvRequests, 0)
-        XCTAssertEqual(secondRunSnapshot.imageDispatchRequests, 0)
+        #expect(secondRunSnapshot.previewPageNumbers.isEmpty)
+        #expect(secondRunSnapshot.mpvRequests == 0)
+        #expect(secondRunSnapshot.imageDispatchRequests == 0)
     }
 
+    @Test
     func testRetryPagesFallsBackToFullUpdateWhenGalleryHasUpdate() async throws {
         let container = makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
-        let oldVersionSignature = try XCTUnwrap(
+        let oldVersionSignature = try #require(
             DownloadSignatureBuilder.chainVersionIdentifier(gid: gid, token: "token")
         )
         let rootURL = FileManager.default.temporaryDirectory
@@ -2230,10 +2286,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
 
         let pageCount = payload.galleryDetail.pageCount
-        XCTAssertGreaterThan(pageCount, pageIndex)
-        XCTAssertGreaterThan(pageCount, 5)
+        #expect(pageCount > pageIndex)
+        #expect(pageCount > 5)
         let oldCount = pageCount - 5
-        XCTAssertNotEqual(oldCount, pageCount)
+        #expect(oldCount != pageCount)
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
 
         // Queued update path: retryPages should queue a full update and keep no page-selection state.
@@ -2248,7 +2304,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
 
         let queuedCandidate = await queueingManager.testingFetchDownload(gid: gid)
-        XCTAssertTrue(queuedCandidate?.hasUpdate == true)
+        #expect(queuedCandidate?.hasUpdate == true)
 
         let blockerTask = Task<Void, Never> {
             try? await Task.sleep(nanoseconds: 5_000_000_000)
@@ -2258,18 +2314,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let retryResult = await queueingManager.retryPages(gid: gid, pageIndices: [pageIndex])
         guard case .success = retryResult else {
-            return XCTFail("retryPages should succeed, got \(retryResult)")
+            Issue.record("retryPages should succeed, got \(retryResult)")
+            return
         }
 
         let queued = await queueingManager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(queued?.status, .partial)
-        XCTAssertEqual(queued?.pendingOperation, .update)
-        XCTAssertNil(queued?.lastError)
+        #expect(queued?.status == .partial)
+        #expect(queued?.pendingOperation == .update)
+        #expect(queued?.lastError == nil)
         if FileManager.default.fileExists(atPath: temporaryFolderURL.path) {
             let queuedResumeState = try storage.readResumeState(folderURL: temporaryFolderURL)
-            XCTAssertEqual(queuedResumeState.mode, .update)
-            XCTAssertNil(queuedResumeState.pageSelection)
-            XCTAssertNotEqual(queuedResumeState.pageSelection, [pageIndex])
+            #expect(queuedResumeState.mode == .update)
+            #expect(queuedResumeState.pageSelection == nil)
+            #expect(queuedResumeState.pageSelection != [pageIndex])
         }
 
         try clearPersistedDownloads(in: container)
@@ -2330,28 +2387,30 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let immediateRetryResult = await immediateManager.retryPages(gid: gid, pageIndices: [pageIndex])
         guard case .success = immediateRetryResult else {
-            return XCTFail("Immediate retryPages should succeed, got \(immediateRetryResult)")
+            Issue.record("Immediate retryPages should succeed, got \(immediateRetryResult)")
+            return
         }
 
         let resumedState = try storage.readResumeState(folderURL: temporaryFolderURL)
-        XCTAssertEqual(resumedState.mode, .update)
-        XCTAssertEqual(resumedState.versionSignature, updatedVersionSignature)
-        XCTAssertEqual(resumedState.pageCount, pageCount)
-        XCTAssertNil(resumedState.pageSelection)
-        XCTAssertNotEqual(resumedState.pageSelection, [pageIndex])
+        #expect(resumedState.mode == .update)
+        #expect(resumedState.versionSignature == updatedVersionSignature)
+        #expect(resumedState.pageCount == pageCount)
+        #expect(resumedState.pageSelection == nil)
+        #expect(resumedState.pageSelection != [pageIndex])
         let resumedDownload = await immediateManager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(resumedDownload?.status, .downloading)
-        XCTAssertNil(resumedDownload?.pendingOperation)
-        XCTAssertNil(resumedDownload?.lastError)
+        #expect(resumedDownload?.status == .downloading)
+        #expect(resumedDownload?.pendingOperation == nil)
+        #expect(resumedDownload?.lastError == nil)
     }
 
+    @Test
     func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
         let container = makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
         let pageIndex = 42
-        let oldVersionSignature = try XCTUnwrap(
+        let oldVersionSignature = try #require(
             DownloadSignatureBuilder.chainVersionIdentifier(gid: gid, token: "token")
         )
         let rootURL = FileManager.default.temporaryDirectory
@@ -2479,10 +2538,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
 
         let updatedPageCount = latestPayload.galleryDetail.pageCount
-        XCTAssertGreaterThan(updatedPageCount, pageIndex)
-        XCTAssertGreaterThan(updatedPageCount, 5)
+        #expect(updatedPageCount > pageIndex)
+        #expect(updatedPageCount > 5)
         let oldPageCount = updatedPageCount - 5
-        XCTAssertNotEqual(oldPageCount, updatedPageCount)
+        #expect(oldPageCount != updatedPageCount)
 
         try insertPersistedDownload(
             in: container,
@@ -2495,7 +2554,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
 
         let beforeProcess = await manager.testingFetchDownload(gid: gid)
-        XCTAssertFalse(beforeProcess?.hasUpdate ?? true)
+        #expect(beforeProcess?.hasUpdate ?? true == false)
 
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
         try FileManager.default.createDirectory(
@@ -2536,38 +2595,41 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await manager.testingProcessDownload(gid: gid)
 
         let completedDownload = await manager.testingFetchDownload(gid: gid)
-        let unwrappedCompletedDownload = try XCTUnwrap(completedDownload)
-        XCTAssertEqual(unwrappedCompletedDownload.status, .completed)
-        XCTAssertEqual(unwrappedCompletedDownload.pageCount, updatedPageCount)
-        XCTAssertEqual(unwrappedCompletedDownload.completedPageCount, updatedPageCount)
-        XCTAssertEqual(unwrappedCompletedDownload.remoteVersionSignature, updatedVersionSignature)
-        XCTAssertEqual(unwrappedCompletedDownload.latestRemoteVersionSignature, updatedVersionSignature)
+        let unwrappedCompletedDownload = try #require(completedDownload)
+        #expect(unwrappedCompletedDownload.status == .completed)
+        #expect(unwrappedCompletedDownload.pageCount == updatedPageCount)
+        #expect(unwrappedCompletedDownload.completedPageCount == updatedPageCount)
+        #expect(unwrappedCompletedDownload.remoteVersionSignature == updatedVersionSignature)
+        #expect(unwrappedCompletedDownload.latestRemoteVersionSignature == updatedVersionSignature)
 
         let completedFolderURL = storage.folderURL(relativePath: unwrappedCompletedDownload.folderRelativePath)
         let completedManifest = try storage.readManifest(folderURL: completedFolderURL)
-        XCTAssertEqual(completedManifest.versionSignature, updatedVersionSignature)
-        XCTAssertEqual(completedManifest.pageCount, updatedPageCount)
-        XCTAssertEqual(completedManifest.pages.count, updatedPageCount)
-        XCTAssertTrue(FileManager.default.fileExists(
-            atPath: completedFolderURL.appendingPathComponent("pages/0001.jpg").path
-        ))
+        #expect(completedManifest.versionSignature == updatedVersionSignature)
+        #expect(completedManifest.pageCount == updatedPageCount)
+        #expect(completedManifest.pages.count == updatedPageCount)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: completedFolderURL.appendingPathComponent("pages/0001.jpg").path
+            )
+        )
 
         let completedResumeState = try storage.readResumeState(folderURL: completedFolderURL)
-        XCTAssertEqual(completedResumeState.mode, .redownload)
-        XCTAssertEqual(completedResumeState.versionSignature, updatedVersionSignature)
-        XCTAssertEqual(completedResumeState.pageCount, updatedPageCount)
-        XCTAssertNil(completedResumeState.pageSelection)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
+        #expect(completedResumeState.mode == .redownload)
+        #expect(completedResumeState.versionSignature == updatedVersionSignature)
+        #expect(completedResumeState.pageCount == updatedPageCount)
+        #expect(completedResumeState.pageSelection == nil)
+        #expect(FileManager.default.fileExists(atPath: temporaryFolderURL.path) == false)
     }
 
     @MainActor
+    @Test
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {
         let container = makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 402)
         let pageIndex = 42
-        let oldVersionSignature = try XCTUnwrap(
+        let oldVersionSignature = try #require(
             DownloadSignatureBuilder.chainVersionIdentifier(gid: gid, token: "token")
         )
         let rootURL = FileManager.default.temporaryDirectory
@@ -2584,13 +2646,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
         let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
         let mpvHTML = try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html")
-        let currentPageImageURL = try XCTUnwrap(
+        let currentPageImageURL = try #require(
             URL(string: "https://example.com/image-\(pageIndex).jpg")
         )
-        let staleStoredPageURL = try XCTUnwrap(
+        let staleStoredPageURL = try #require(
             URL(string: "https://example.com/stale-image-\(gid)-1.jpg")
         )
-        let plainPreviewURL = try XCTUnwrap(
+        let plainPreviewURL = try #require(
             URL(string: "https://ehgt.org/preview/\(gid)/1.webp")
         )
         let combinedPreviewURL = URLUtil.combinedPreviewURL(
@@ -2705,14 +2767,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             mode: .redownload,
             pageSelection: [pageIndex]
         )
-        let coverURL = try XCTUnwrap(latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL)
+        let coverURL = try #require(latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL)
         allowedImageURLs.insert(coverURL.absoluteString)
 
         let cachedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemTeal.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
-        let cachedImageData = try XCTUnwrap(cachedImage.jpegData(compressionQuality: 1))
+        let cachedImageData = try #require(cachedImage.jpegData(compressionQuality: 1))
 
         let cachedURLs = combinedPreviewURL.previewCacheCleanupURLs()
             + [currentPageImageURL, staleStoredPageURL, coverURL]
@@ -2728,8 +2790,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let updatedPageCount = latestPayload.galleryDetail.pageCount
         let oldPageCount = updatedPageCount - 5
-        XCTAssertGreaterThan(updatedPageCount, pageIndex)
-        XCTAssertGreaterThan(oldPageCount, 0)
+        #expect(updatedPageCount > pageIndex)
+        #expect(oldPageCount > 0)
 
         try insertPersistedDownload(
             in: container,
@@ -2786,7 +2848,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await manager.testingProcessDownload(gid: gid)
 
         let completedDownload = await manager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(completedDownload?.status, .completed)
+        #expect(completedDownload?.status == .completed)
 
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: .seconds(1))
@@ -2797,14 +2859,15 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
 
         for cacheKey in cachedKeys {
-            XCTAssertFalse(
-                KingfisherManager.shared.cache.isCached(forKey: cacheKey),
+            #expect(
+                KingfisherManager.shared.cache.isCached(forKey: cacheKey) == false,
                 "Expected cache key to be removed after successful download: \(cacheKey)"
             )
         }
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerRefreshesWithoutResumingQueueAfterPauseFailure() async {
         let download = sampleDownload(
             gid: "987655",
@@ -2846,10 +2909,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.receive(\.toggleDownloadPauseDone)
         await store.finish()
 
-        XCTAssertEqual(reconcileCount.value, 1)
+        #expect(reconcileCount.value == 1)
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerRefreshDownloadsUsesClientRefresh() async {
         let refreshCount = UncheckedBox(0)
         let reconcileCount = UncheckedBox(0)
@@ -2885,11 +2949,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.refreshDownloads)
         await store.receive(\.refreshDownloadsDone)
 
-        XCTAssertEqual(refreshCount.value, 1)
-        XCTAssertEqual(reconcileCount.value, 0)
+        #expect(refreshCount.value == 1)
+        #expect(reconcileCount.value == 0)
     }
 
     @MainActor
+    @Test
     func testDownloadsReducerBootstrapUsesClientRefresh() async {
         let refreshCount = UncheckedBox(0)
         let reconcileCount = UncheckedBox(0)
@@ -2925,11 +2990,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.bootstrapDownloads)
         await store.receive(\.refreshDownloadsDone)
 
-        XCTAssertEqual(refreshCount.value, 1)
-        XCTAssertEqual(reconcileCount.value, 0)
+        #expect(refreshCount.value == 1)
+        #expect(reconcileCount.value == 0)
     }
 
     @MainActor
+    @Test
     func testDetailReducerStartDownloadEnqueuesGalleryWithSnapshotOptions() async {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
@@ -2983,15 +3049,16 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.startDownload(options))
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertEqual(capturedPayload.value?.gallery.gid, gallery.gid)
-        XCTAssertEqual(capturedPayload.value?.galleryDetail, detail)
-        XCTAssertEqual(capturedPayload.value?.previewConfig, .large(rows: 2))
-        XCTAssertEqual(capturedPayload.value?.options, options)
-        XCTAssertEqual(capturedPayload.value?.mode, .initial)
-        XCTAssertEqual(store.state.downloadBadge, .queued)
+        #expect(capturedPayload.value?.gallery.gid == gallery.gid)
+        #expect(capturedPayload.value?.galleryDetail == detail)
+        #expect(capturedPayload.value?.previewConfig == .large(rows: 2))
+        #expect(capturedPayload.value?.options == options)
+        #expect(capturedPayload.value?.mode == .initial)
+        #expect(store.state.downloadBadge == .queued)
     }
 
     @MainActor
+    @Test
     func testDetailReducerStartDownloadUnlocksActionsAfterQueueing() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3050,6 +3117,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
@@ -3098,8 +3166,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         store.exhaustivity = .off
 
         await store.send(.runLaunchAutomationIfNeeded(options))
-        XCTAssertNil(capturedPayload.value)
-        XCTAssertFalse(store.state.didRunLaunchAutomation)
+        #expect(capturedPayload.value == nil)
+        #expect(store.state.didRunLaunchAutomation == false)
 
         await store.send(.fetchDownloadBadgeDone(.none)) {
             $0.hasLoadedDownloadBadge = true
@@ -3110,10 +3178,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.receive(\.startDownload, options)
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertEqual(capturedPayload.value?.gallery.gid, gallery.gid)
+        #expect(capturedPayload.value?.gallery.gid == gallery.gid)
     }
 
     @MainActor
+    @Test
     func testDetailReducerLaunchAutomationDoesNotRedownloadWhenBadgeIsResolved() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3145,6 +3214,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDetailReducerIgnoresStartDownloadWhilePreparing() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3188,12 +3258,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         await store.send(.startDownload(options))
 
-        XCTAssertEqual(enqueueCount.value, 0)
-        XCTAssertTrue(store.state.isPreparingDownload)
-        XCTAssertEqual(store.state.downloadBadge, .none)
+        #expect(enqueueCount.value == 0)
+        #expect(store.state.isPreparingDownload)
+        #expect(store.state.downloadBadge == .none)
     }
 
     @MainActor
+    @Test
     func testDetailReducerTogglesPauseForActiveDownload() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3251,12 +3322,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             $0.hasLoadedDownloadBadge = true
         }
 
-        XCTAssertEqual(togglePauseCount.value, 1)
-        XCTAssertEqual(store.state.downloadBadge, .paused(7, 26))
-        XCTAssertFalse(store.state.isPreparingDownload)
+        #expect(togglePauseCount.value == 1)
+        #expect(store.state.downloadBadge == .paused(7, 26))
+        #expect(store.state.isPreparingDownload == false)
     }
 
     @MainActor
+    @Test
     func testDetailReducerObservesDownloadBadgeTransitions() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3342,6 +3414,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDetailReducerOpenReadingUsesLocalManifestWhenAvailable() async {
         let download = sampleDownload(
             gid: "888",
@@ -3389,14 +3462,15 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.openReading)
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertEqual(store.state.readingState.contentSource, .local(download, manifest))
+        #expect(store.state.readingState.contentSource == .local(download, manifest))
         if case .reading = store.state.route {
         } else {
-            XCTFail("Expected reading route to be active.")
+            Issue.record("Expected reading route to be active.")
         }
     }
 
     @MainActor
+    @Test
     func testDetailReducerOpenReadingFallsBackToRemoteWhenManifestUnavailable() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3435,14 +3509,15 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.openReading)
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertEqual(store.state.readingState.contentSource, .remote)
+        #expect(store.state.readingState.contentSource == .remote)
         if case .reading = store.state.route {
         } else {
-            XCTFail("Expected reading route to be active.")
+            Issue.record("Expected reading route to be active.")
         }
     }
 
     @MainActor
+    @Test
     func testPreviewsReducerOpenReadingUsesLocalManifestWhenAvailable() async {
         let download = sampleDownload(
             gid: "991",
@@ -3489,18 +3564,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.skipReceivedActions(strict: false)
 
         if case .local(let actualDownload, let actualManifest) = store.state.readingState.contentSource {
-            XCTAssertEqual(actualDownload, download)
-            XCTAssertEqual(actualManifest, manifest)
+            #expect(actualDownload == download)
+            #expect(actualManifest == manifest)
         } else {
-            XCTFail("Expected previews to open local reading content.")
+            Issue.record("Expected previews to open local reading content.")
         }
         if case .reading = store.state.route {
         } else {
-            XCTFail("Expected reading route to be active.")
+            Issue.record("Expected reading route to be active.")
         }
     }
 
     @MainActor
+    @Test
     func testPreviewsReducerClearsLocalPreviewURLsWhenObservedDownloadDisappears() async {
         let gallery = sampleGallery()
         let localURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
@@ -3541,10 +3617,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.receive(\.loadLocalPreviewURLsDone) {
             $0.localPreviewURLs = [:]
         }
-        XCTAssertEqual(store.state.localPreviewRequestID, requestID)
+        #expect(store.state.localPreviewRequestID == requestID)
     }
 
     @MainActor
+    @Test
     func testPreviewsReducerRemoteFallbackKeepsExistingLocalPreviewPages() async {
         let gallery = sampleGallery()
         let localURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
@@ -3581,14 +3658,15 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.send(.openReading(1))
         await store.receive(\.openReadingDone)
         guard case .reading = store.state.route else {
-            XCTFail("Expected previews route to enter reading")
+            Issue.record("Expected previews route to enter reading")
             return
         }
-        XCTAssertEqual(store.state.readingState.contentSource, .remote)
-        XCTAssertEqual(store.state.readingState.localPageURLs, [1: localURL])
+        #expect(store.state.readingState.contentSource == .remote)
+        #expect(store.state.readingState.localPageURLs == [1: localURL])
     }
 
     @MainActor
+    @Test
     func testDetailReducerDownloadedContextStoresVersionMetadataResult() async {
         let download = sampleDownload(
             gid: "889",
@@ -3622,6 +3700,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testReadingReducerRemoteSourceLoadsLocalPagesAndSkipsRemoteFetchForDownloadedPage() async throws {
         let gallery = sampleGallery()
         let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
@@ -3673,9 +3752,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.receive(\.loadLocalPageURLsDone) {
             $0.localPageURLs = [1: localPageURL]
         }
-        XCTAssertEqual(store.state.localPageRequestID, requestID)
+        #expect(store.state.localPageRequestID == requestID)
 
-        XCTAssertEqual(store.state.localPageURLs[1], localPageURL)
+        #expect(store.state.localPageURLs[1] == localPageURL)
 
         await store.send(.fetchImageURLs(1)) {
             $0.imageURLLoadingStates[1] = .idle
@@ -3683,6 +3762,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testReadingReducerOnWebImageSucceededCapturesCachedPageIntoDownloadProgress() async {
         let capturedCalls = UncheckedBox([(String, Int, URL?)]())
         let gallery = sampleGallery()
@@ -3732,13 +3812,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         await store.receive(\.captureCachedPage)
 
-        XCTAssertEqual(capturedCalls.value.count, 1)
-        XCTAssertEqual(capturedCalls.value.first?.0, gallery.gid)
-        XCTAssertEqual(capturedCalls.value.first?.1, 1)
-        XCTAssertEqual(capturedCalls.value.first?.2, remotePageURL)
+        #expect(capturedCalls.value.count == 1)
+        #expect(capturedCalls.value.first?.0 == gallery.gid)
+        #expect(capturedCalls.value.first?.1 == 1)
+        #expect(capturedCalls.value.first?.2 == remotePageURL)
     }
 
     @MainActor
+    @Test
     func testReadingReducerOnWebImageSucceededDoesNotCaptureAlreadyLocalPage() async {
         let capturedCalls = UncheckedBox([(String, Int, URL?)]())
         let gallery = sampleGallery()
@@ -3790,10 +3871,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         await store.finish()
 
-        XCTAssertTrue(capturedCalls.value.isEmpty)
+        #expect(capturedCalls.value.isEmpty)
     }
 
     @MainActor
+    @Test
     func testReadingReducerLocalSourceLoadsOfflineImagesWithoutNetwork() async throws {
         let download = sampleDownload(
             gid: "777",
@@ -3822,20 +3904,21 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         store.exhaustivity = .off
 
         await store.send(.fetchDatabaseInfos(download.gid))
-        XCTAssertEqual(store.state.gallery.id, download.gid)
-        XCTAssertEqual(store.state.imageURLs[1], folderURL.appendingPathComponent("pages/0001.jpg"))
-        XCTAssertEqual(store.state.imageURLs[2], folderURL.appendingPathComponent("pages/0002.jpg"))
+        #expect(store.state.gallery.id == download.gid)
+        #expect(store.state.imageURLs[1] == folderURL.appendingPathComponent("pages/0001.jpg"))
+        #expect(store.state.imageURLs[2] == folderURL.appendingPathComponent("pages/0002.jpg"))
 
         await store.send(.fetchImageURLs(1)) {
             $0.imageURLLoadingStates[1] = .idle
         }
         await store.send(.reloadAllWebImages)
 
-        XCTAssertEqual(store.state.imageURLs[1], folderURL.appendingPathComponent("pages/0001.jpg"))
-        XCTAssertEqual(store.state.imageURLs[2], folderURL.appendingPathComponent("pages/0002.jpg"))
+        #expect(store.state.imageURLs[1] == folderURL.appendingPathComponent("pages/0001.jpg"))
+        #expect(store.state.imageURLs[2] == folderURL.appendingPathComponent("pages/0002.jpg"))
     }
 
     @MainActor
+    @Test
     func testDownloadManagerCaptureCachedPageRestoresTemporaryPageAndUpdatesCompletedCount() async throws {
         let container = makeInMemoryContainer()
 
@@ -3863,13 +3946,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             withIntermediateDirectories: true
         )
 
-        let imageURL = try XCTUnwrap(URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg"))
+        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemBlue.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
-        let imageData = try XCTUnwrap(image.jpegData(compressionQuality: 1))
-        let cacheKey = try XCTUnwrap(imageURL.stableImageCacheKey)
+        let imageData = try #require(image.jpegData(compressionQuality: 1))
+        let cacheKey = try #require(imageURL.stableImageCacheKey)
         KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
@@ -3883,16 +3966,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        XCTAssertEqual(stored?.completedPageCount, 1)
+        #expect(stored?.completedPageCount == 1)
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        XCTAssertEqual(
-            pageURLs[1],
-            temporaryFolderURL.appendingPathComponent("pages/0001.jpg")
-        )
+        #expect(pageURLs[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
     }
 
     @MainActor
+    @Test
     func testDownloadManagerCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
         let container = makeInMemoryContainer()
 
@@ -3934,13 +4015,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             options: .atomic
         )
 
-        let imageURL = try XCTUnwrap(URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg"))
+        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemOrange.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
-        let imageData = try XCTUnwrap(image.jpegData(compressionQuality: 1))
-        let cacheKey = try XCTUnwrap(imageURL.stableImageCacheKey)
+        let imageData = try #require(image.jpegData(compressionQuality: 1))
+        let cacheKey = try #require(imageURL.stableImageCacheKey)
         KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
@@ -3956,16 +4037,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let stored = await manager.testingFetchDownload(gid: gid)
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        XCTAssertEqual(stored?.status, .completed)
-        XCTAssertEqual(stored?.completedPageCount, 2)
-        XCTAssertNil(stored?.lastError)
-        XCTAssertEqual(
-            pageURLs[1],
-            completedFolderURL.appendingPathComponent("pages/0001.jpg")
-        )
+        #expect(stored?.status == .completed)
+        #expect(stored?.completedPageCount == 2)
+        #expect(stored?.lastError == nil)
+        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
     }
 
     @MainActor
+    @Test
     func testDownloadManagerReconcileNormalizesFailedDownloadBeforeTempCleanup() async throws {
         let container = makeInMemoryContainer()
 
@@ -4000,16 +4079,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let stored = await manager.testingFetchDownload(gid: gid)
         let localPages = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        XCTAssertEqual(stored?.status, .partial)
-        XCTAssertEqual(stored?.completedPageCount, 1)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
-        XCTAssertEqual(
-            localPages[1],
-            temporaryFolderURL.appendingPathComponent("pages/0001.jpg")
-        )
+        #expect(stored?.status == .partial)
+        #expect(stored?.completedPageCount == 1)
+        #expect(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
+        #expect(localPages[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
     }
 
     @MainActor
+    @Test
     func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredChainAndLatestHashAreDifferentKinds() async throws {
         let container = makeInMemoryContainer()
 
@@ -4034,13 +4111,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let badge = await manager.updateRemoteSignature(gid: gid, latestSignature: "hash:new")
         let stored = await manager.testingFetchDownload(gid: gid)
 
-        XCTAssertEqual(badge, .downloaded)
-        XCTAssertEqual(stored?.status, .completed)
-        XCTAssertEqual(stored?.remoteVersionSignature, "chain:\(gid):token")
-        XCTAssertEqual(stored?.latestRemoteVersionSignature, "hash:new")
+        #expect(badge == .downloaded)
+        #expect(stored?.status == .completed)
+        #expect(stored?.remoteVersionSignature == "chain:\(gid):token")
+        #expect(stored?.latestRemoteVersionSignature == "hash:new")
     }
 
     @MainActor
+    @Test
     func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredHashAndLatestNonOriginalChainAreDifferentKinds() async throws {
         let container = makeInMemoryContainer()
 
@@ -4068,13 +4146,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
         let stored = await manager.testingFetchDownload(gid: gid)
 
-        XCTAssertEqual(badge, .downloaded)
-        XCTAssertEqual(stored?.status, .completed)
-        XCTAssertEqual(stored?.remoteVersionSignature, "hash:old")
-        XCTAssertEqual(stored?.latestRemoteVersionSignature, "chain:othergid:othertoken")
+        #expect(badge == .downloaded)
+        #expect(stored?.status == .completed)
+        #expect(stored?.remoteVersionSignature == "hash:old")
+        #expect(stored?.latestRemoteVersionSignature == "chain:othergid:othertoken")
     }
 
     @MainActor
+    @Test
     func testUpdateRemoteSignatureCanonicalizesStoredHashToOriginalChainWithoutMarkingUpdate() async throws {
         let container = makeInMemoryContainer()
 
@@ -4102,13 +4181,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
         let stored = await manager.testingFetchDownload(gid: gid)
 
-        XCTAssertEqual(badge, .downloaded)
-        XCTAssertEqual(stored?.status, .completed)
-        XCTAssertEqual(stored?.remoteVersionSignature, "chain:\(gid):token")
-        XCTAssertEqual(stored?.latestRemoteVersionSignature, "chain:\(gid):token")
+        #expect(badge == .downloaded)
+        #expect(stored?.status == .completed)
+        #expect(stored?.remoteVersionSignature == "chain:\(gid):token")
+        #expect(stored?.latestRemoteVersionSignature == "chain:\(gid):token")
     }
 
     @MainActor
+    @Test
     func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
@@ -4160,12 +4240,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertEqual(updateCheckCount.value, 0)
-        XCTAssertNil(store.state.galleryVersionMetadata)
-        XCTAssertFalse(store.state.shouldCheckForRemoteUpdates)
+        #expect(updateCheckCount.value == 0)
+        #expect(store.state.galleryVersionMetadata == nil)
+        #expect(store.state.shouldCheckForRemoteUpdates == false)
     }
 
     @MainActor
+    @Test
     func testDetailReducerRequestsVersionMetadataWhenBadgeArrivesAfterDetail() async throws {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
@@ -4214,7 +4295,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         await store.send(.fetchGalleryDetailDone(.success((detail, galleryState, "", nil))))
         await store.skipReceivedActions(strict: false)
-        XCTAssertEqual(updateCheckCount.value, 0)
+        #expect(updateCheckCount.value == 0)
 
         await store.send(.fetchDownloadBadgeDone(.downloaded))
         await drainDetailMetadataEffects(
@@ -4224,13 +4305,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             }
         )
 
-        XCTAssertEqual(updateCheckCount.value, 1)
-        XCTAssertTrue(store.state.shouldCheckForRemoteUpdates)
-        XCTAssertTrue(store.state.didRequestVersionMetadata)
-        XCTAssertNotNil(store.state.galleryVersionMetadata)
+        #expect(updateCheckCount.value == 1)
+        #expect(store.state.shouldCheckForRemoteUpdates)
+        #expect(store.state.didRequestVersionMetadata)
+        #expect(store.state.galleryVersionMetadata != nil)
     }
 
     @MainActor
+    @Test
     func testDetailReducerRequestsVersionMetadataWhenBadgeArrivesBeforeDetail() async throws {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
@@ -4279,7 +4361,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         await store.send(.fetchDownloadBadgeDone(.downloaded))
         await store.skipReceivedActions(strict: false)
-        XCTAssertEqual(updateCheckCount.value, 0)
+        #expect(updateCheckCount.value == 0)
 
         await store.send(.fetchGalleryDetailDone(.success((detail, galleryState, "", nil))))
         await drainDetailMetadataEffects(
@@ -4289,13 +4371,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             }
         )
 
-        XCTAssertEqual(updateCheckCount.value, 1)
-        XCTAssertTrue(store.state.shouldCheckForRemoteUpdates)
-        XCTAssertTrue(store.state.didRequestVersionMetadata)
-        XCTAssertNotNil(store.state.galleryVersionMetadata)
+        #expect(updateCheckCount.value == 1)
+        #expect(store.state.shouldCheckForRemoteUpdates)
+        #expect(store.state.didRequestVersionMetadata)
+        #expect(store.state.galleryVersionMetadata != nil)
     }
 
     @MainActor
+    @Test
     func testDetailReducerObserveDownloadDoneAlsoTriggersMetadataCheckWithoutDuplicateRequests() async throws {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
@@ -4345,14 +4428,15 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             store,
             condition: { updateCheckCount.value == 1 }
         )
-        XCTAssertEqual(updateCheckCount.value, 1)
+        #expect(updateCheckCount.value == 1)
 
         await store.send(.observeDownloadDone(.downloaded))
         await store.skipReceivedActions(strict: false)
-        XCTAssertEqual(updateCheckCount.value, 1)
+        #expect(updateCheckCount.value == 1)
     }
 
     @MainActor
+    @Test
     func testDetailReducerRemoteUpdateFlagDoesNotStayStickyWhenBadgeReturnsToNone() async throws {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
@@ -4404,9 +4488,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
                 updateCheckCount.value == 1 && store.state.galleryVersionMetadata != nil
             }
         )
-        XCTAssertEqual(updateCheckCount.value, 1)
-        XCTAssertTrue(store.state.shouldCheckForRemoteUpdates)
-        XCTAssertTrue(store.state.didRequestVersionMetadata)
+        #expect(updateCheckCount.value == 1)
+        #expect(store.state.shouldCheckForRemoteUpdates)
+        #expect(store.state.didRequestVersionMetadata)
 
         await store.send(.fetchDownloadBadgeDone(.none)) {
             $0.downloadBadge = .none
@@ -4417,12 +4501,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertFalse(store.state.shouldCheckForRemoteUpdates)
-        XCTAssertFalse(store.state.didRequestVersionMetadata)
-        XCTAssertNil(store.state.galleryVersionMetadata)
+        #expect(store.state.shouldCheckForRemoteUpdates == false)
+        #expect(store.state.didRequestVersionMetadata == false)
+        #expect(store.state.galleryVersionMetadata == nil)
     }
 
     @MainActor
+    @Test
     func testDetailReducerDeleteDownloadResetsDownloadContext() async {
         let download = sampleDownload(
             gid: "7733",
@@ -4474,12 +4559,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         await store.skipReceivedActions(strict: false)
 
-        XCTAssertFalse(store.state.isDownloadContext)
-        XCTAssertFalse(store.state.shouldCheckForRemoteUpdates)
-        XCTAssertFalse(store.state.didRequestVersionMetadata)
-        XCTAssertNil(store.state.galleryVersionMetadata)
+        #expect(store.state.isDownloadContext == false)
+        #expect(store.state.shouldCheckForRemoteUpdates == false)
+        #expect(store.state.didRequestVersionMetadata == false)
+        #expect(store.state.galleryVersionMetadata == nil)
     }
 
+    @Test
     func testFileBasedQuotaImageMapsToQuotaExceeded() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }
@@ -4496,9 +4582,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://ehgt.org/g/509.gif")
         )
 
-        XCTAssertEqual(error, .quotaExceeded)
+        #expect(error == .quotaExceeded)
     }
 
+    @Test
     func testFileBasedQuotaImageRequiresKnown509Signature() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }
@@ -4518,16 +4605,17 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://ehgt.org/g/509.gif")
         )
 
-        XCTAssertNil(error)
+        #expect(error == nil)
     }
 
+    @Test
     func testFileBasedBinaryKokomadeImageMapsToAuthenticationRequired() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("gif")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let imageData = try XCTUnwrap(Data(base64Encoded: "R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs="))
+        let imageData = try #require(Data(base64Encoded: "R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs="))
         try imageData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
@@ -4542,15 +4630,16 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1")
         )
 
-        XCTAssertEqual(error, .authenticationRequired)
+        #expect(error == .authenticationRequired)
     }
 
+    @Test
     func testFileBasedQuotaImageFingerprintMapsToQuotaExceededEvenWhenURLLooksNormal() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
         let manager = makeTestingDownloadManager()
-        let normalImageURL = try XCTUnwrap(URL(string: "https://ehgt.org/h/normal-image-cache-key/1"))
+        let normalImageURL = try #require(URL(string: "https://ehgt.org/h/normal-image-cache-key/1"))
         let response = makeResponse(
             url: normalImageURL,
             contentType: "image/gif",
@@ -4562,15 +4651,16 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: normalImageURL
         )
 
-        XCTAssertEqual(error, .quotaExceeded)
+        #expect(error == .quotaExceeded)
     }
 
+    @Test
     func testFileBasedKokomadeImageFingerprintMapsToAuthenticationRequiredEvenWhenURLLooksNormal() async throws {
         let fileURL = try writeFixtureToTemporaryFile(resource: "Kokomade", pathExtension: "jpg")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
         let manager = makeTestingDownloadManager()
-        let normalImageURL = try XCTUnwrap(URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key"))
+        let normalImageURL = try #require(URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key"))
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: makeResponse(
@@ -4581,9 +4671,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: normalImageURL
         )
 
-        XCTAssertEqual(error, .authenticationRequired)
+        #expect(error == .authenticationRequired)
     }
 
+    @Test
     func testFileBasedTextImageLimitMapsToQuotaExceeded() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -4605,10 +4696,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://e-hentai.org/s/1/1-1")
         )
 
-        XCTAssertEqual(error, .quotaExceeded)
+        #expect(error == .quotaExceeded)
     }
 
     @MainActor
+    @Test
     func testCachedQuotaPlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
         let container = makeInMemoryContainer()
 
@@ -4619,7 +4711,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        let normalImageURL = try XCTUnwrap(
+        let normalImageURL = try #require(
             URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(gid)/1")
         )
         try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
@@ -4681,11 +4773,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let restoredPageURL = storage.temporaryFolderURL(gid: gid)
             .appendingPathComponent("pages/0001.gif")
 
-        XCTAssertEqual(restoredCount, 0)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: restoredPageURL.path))
+        #expect(restoredCount == 0)
+        #expect(FileManager.default.fileExists(atPath: restoredPageURL.path) == false)
     }
 
     @MainActor
+    @Test
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
         let container = makeInMemoryContainer()
 
@@ -4696,7 +4789,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        let normalImageURL = try XCTUnwrap(URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key"))
+        let normalImageURL = try #require(URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key"))
         try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
 
         let imageData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
@@ -4754,10 +4847,11 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let restoredPageURL = storage.temporaryFolderURL(gid: gid)
             .appendingPathComponent("pages/0001.jpg")
 
-        XCTAssertEqual(restoredCount, 0)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: restoredPageURL.path))
+        #expect(restoredCount == 0)
+        #expect(FileManager.default.fileExists(atPath: restoredPageURL.path) == false)
     }
 
+    @Test
     func testFileBasedEmptyExResponseMapsToAuthenticationRequired() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .exLoginRequired)
         defer { try? FileManager.default.removeItem(at: fileURL) }
@@ -4782,9 +4876,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://exhentai.org/g/1/1/")
         )
 
-        XCTAssertEqual(error, .authenticationRequired)
+        #expect(error == .authenticationRequired)
     }
 
+    @Test
     func testFileBasedAuthHTMLMarkersMapToAuthenticationRequired() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -4812,9 +4907,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://exhentai.org/g/1/1/")
         )
 
-        XCTAssertEqual(error, .authenticationRequired)
+        #expect(error == .authenticationRequired)
     }
 
+    @Test
     func testFileBasedInvalidPageMapsToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -4836,9 +4932,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://e-hentai.org/g/1/1/")
         )
 
-        XCTAssertEqual(error, .notFound)
+        #expect(error == .notFound)
     }
 
+    @Test
     func testFileBasedKeepTryingMapsToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -4860,9 +4957,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://e-hentai.org/s/1/1-1")
         )
 
-        XCTAssertEqual(error, .notFound)
+        #expect(error == .notFound)
     }
 
+    @Test
     func testFileBasedHTTP404MapsToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -4883,9 +4981,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://e-hentai.org/g/1/1/")
         )
 
-        XCTAssertEqual(error, .notFound)
+        #expect(error == .notFound)
     }
 
+    @Test
     func testFileBased404GalleryNotAvailableFallsBackToNotFound() async throws {
         let fileURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
@@ -4911,9 +5010,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://e-hentai.org/g/1/1/")
         )
 
-        XCTAssertEqual(error, .notFound)
+        #expect(error == .notFound)
     }
 
+    @Test
     func testFileBasedHTMLBanPageStillParsesThroughParserInsteadOfParseFailed() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .ipBanned)
         defer { try? FileManager.default.removeItem(at: fileURL) }
@@ -4929,12 +5029,14 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             requestURL: URL(string: "https://example.com/banned")
         )
 
-        XCTAssertNotEqual(error, .parseFailed)
+        #expect(error != .parseFailed)
         guard case .ipBanned = error else {
-            return XCTFail("Expected ipBanned, got \(String(describing: error))")
+            Issue.record("Expected ipBanned, got \(String(describing: error))")
+            return
         }
     }
 
+    @Test
     func testIpBannedDoesNotRetryImmediately() async throws {
         let sessionID = UUID().uuidString
         let configuration = URLSessionConfiguration.ephemeral
@@ -4977,17 +5079,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
                 for: download,
                 mode: .redownload
             )
-            XCTFail("Expected ipBanned error")
+            Issue.record("Expected ipBanned error")
         } catch let error as AppError {
             guard case .ipBanned = error else {
-                return XCTFail("Expected ipBanned, got \(error)")
+                Issue.record("Expected ipBanned, got \(error)")
+                return
             }
         }
 
-        XCTAssertEqual(recorder.snapshot().detailRequests, 1)
+        #expect(recorder.snapshot().detailRequests == 1)
     }
 
     @MainActor
+    @Test
     func testReadingReducerLocalSourceWithoutGalleryStateDoesNotStayLoading() async {
         let download = sampleDownload(
             gid: "700001",
@@ -5051,11 +5155,12 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         await store.finish()
 
-        XCTAssertEqual(store.state.databaseLoadingState, .idle)
-        XCTAssertEqual(store.state.readingProgress, 0)
+        #expect(store.state.databaseLoadingState == .idle)
+        #expect(store.state.readingProgress == 0)
     }
 
     @MainActor
+    @Test
     func testReadingReducerDoesNotReloadLocalPagesWhenOnlyOtherGalleryChanges() async {
         let gallery = sampleGallery()
         let relevantDownload = sampleDownload(
@@ -5106,7 +5211,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
                 delete: { _ in .success(()) },
                 loadManifest: { _ in .failure(.notFound) },
                 loadLocalPageURLs: { gid in
-                    XCTAssertEqual(gid, gallery.gid)
+                    #expect(gid == gallery.gid)
                     loadCount.value += 1
                     return .success([:])
                 }
@@ -5123,18 +5228,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.receive(\.observeDownloadsDone, [relevantDownload])
         await store.receive(\.loadLocalPageURLs, gallery.gid)
         await store.receive(\.loadLocalPageURLsDone)
-        XCTAssertEqual(loadCount.value, 1)
+        #expect(loadCount.value == 1)
 
         continuationBox.value?.yield([relevantDownload, updatedOtherDownload])
         try? await Task.sleep(for: .milliseconds(50))
 
-        XCTAssertEqual(loadCount.value, 1)
+        #expect(loadCount.value == 1)
 
         continuationBox.value?.finish()
         await store.finish()
     }
 
     @MainActor
+    @Test
     func testPreviewsReducerDoesNotReloadLocalPreviewsWhenOnlyOtherGalleryChanges() async {
         let gallery = sampleGallery()
         let relevantDownload = sampleDownload(
@@ -5180,7 +5286,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
                 delete: { _ in .success(()) },
                 loadManifest: { _ in .failure(.notFound) },
                 loadLocalPageURLs: { gid in
-                    XCTAssertEqual(gid, gallery.gid)
+                    #expect(gid == gallery.gid)
                     loadCount.value += 1
                     return .success([:])
                 }
@@ -5196,18 +5302,19 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await store.receive(\.observeDownloadsDone, [relevantDownload])
         await store.receive(\.loadLocalPreviewURLs, gallery.gid)
         await store.receive(\.loadLocalPreviewURLsDone)
-        XCTAssertEqual(loadCount.value, 1)
+        #expect(loadCount.value == 1)
 
         continuationBox.value?.yield([relevantDownload, updatedOtherDownload])
         try? await Task.sleep(for: .milliseconds(50))
 
-        XCTAssertEqual(loadCount.value, 1)
+        #expect(loadCount.value == 1)
 
         continuationBox.value?.finish()
         await store.finish()
     }
 
     @MainActor
+    @Test
     func testReadingAndPreviewsStillEmitOneFinalRefreshWhenRelevantDownloadDisappears() async {
         let gallery = sampleGallery()
         let relevantDownload = sampleDownload(
@@ -5267,7 +5374,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await readingStore.receive(\.loadLocalPageURLs, gallery.gid)
         await readingStore.receive(\.loadLocalPageURLsDone)
 
-        XCTAssertEqual(readingLoadCount.value, 2)
+        #expect(readingLoadCount.value == 2)
         readingContinuationBox.value?.finish()
         await readingStore.finish()
 
@@ -5316,12 +5423,13 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         await previewsStore.receive(\.loadLocalPreviewURLs, gallery.gid)
         await previewsStore.receive(\.loadLocalPreviewURLsDone)
 
-        XCTAssertEqual(previewsLoadCount.value, 2)
+        #expect(previewsLoadCount.value == 2)
         previewsContinuationBox.value?.finish()
         await previewsStore.finish()
     }
 
     @MainActor
+    @Test
     func testDownloadInspectorClearsInspectionWhenObservedDownloadDisappears() async {
         let download = sampleDownload(
             gid: "9988",
@@ -5373,6 +5481,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     @MainActor
+    @Test
     func testDownloadManagerBatchesObserverUpdatesDuringCachedPageRestore() async throws {
         let container = makeInMemoryContainer()
 
@@ -5400,7 +5509,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             UIColor.systemTeal.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
-        let imageData = try XCTUnwrap(cachedImage.jpegData(compressionQuality: 1))
+        let imageData = try #require(cachedImage.jpegData(compressionQuality: 1))
         let imageURLs = Dictionary(uniqueKeysWithValues: (1...pageCount).map { index in
             (index, URL(string: "https://example.com/pages/\(gid)-\(index).jpg")!)
         })
@@ -5476,10 +5585,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
         let stored = await manager.testingFetchDownload(gid: gid)
 
-        XCTAssertEqual(restoredCount, pageCount)
-        XCTAssertEqual(stored?.completedPageCount, pageCount)
-        XCTAssertLessThan(emissionCount, pageCount)
-        XCTAssertLessThanOrEqual(emissionCount, 1 + Int(ceil(Double(pageCount) / 8.0)))
+        #expect(restoredCount == pageCount)
+        #expect(stored?.completedPageCount == pageCount)
+        #expect(emissionCount < pageCount)
+        #expect(emissionCount <= 1 + Int(ceil(Double(pageCount) / 8.0)))
     }
 }
 
@@ -5499,7 +5608,7 @@ private extension DownloadFeatureReducerTests {
         }
 
         let missingKeys = cacheKeys.filter { !KingfisherManager.shared.cache.isCached(forKey: $0) }
-        XCTAssertTrue(
+        #expect(
             missingKeys.isEmpty,
             "Timed out waiting for Kingfisher cache visibility for keys: \(missingKeys)"
         )
@@ -5526,7 +5635,7 @@ private extension DownloadFeatureReducerTests {
 
             let value = try await group.next()
             group.cancelAll()
-            return try XCTUnwrap(value)
+            return try #require(value, "Expected one task group result for \(description).")
         }
     }
 
@@ -5608,14 +5717,14 @@ private extension DownloadFeatureReducerTests {
     }
 
     func fixtureData(resource: String, pathExtension: String) throws -> Data {
-        let fixtureURL = try XCTUnwrap(
-            Bundle(for: Self.self).url(forResource: resource, withExtension: pathExtension)
+        let fixtureURL = try #require(
+            Bundle(for: TestBundleLocator.self).url(forResource: resource, withExtension: pathExtension)
         )
         return try Data(contentsOf: fixtureURL)
     }
 
     func installGalleryVersionMetadataStub(for gallery: Gallery, sessionID: String) throws {
-        let gid = try XCTUnwrap(Int(gallery.gid))
+        let gid = try #require(Int(gallery.gid))
         let payload: [String: Any] = [
             "gmetadata": [[
                 "gid": gid,
@@ -5781,7 +5890,11 @@ private extension DownloadFeatureReducerTests {
         manifest: DownloadManifest
     ) throws -> URL {
         guard let folderURL = download.folderURL else {
-            throw XCTSkip("Downloads directory is unavailable in the test environment.")
+            throw NSError(
+                domain: "DownloadFeatureReducerTests",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Downloads directory is unavailable in the test environment."]
+            )
         }
         try? FileManager.default.removeItem(at: folderURL)
         try FileManager.default.createDirectory(
@@ -5804,19 +5917,26 @@ private extension DownloadFeatureReducerTests {
     }
 
     func makeInMemoryContainer() -> NSPersistentContainer {
-        let modelURL = Bundle(for: Self.self).url(forResource: "Model", withExtension: "momd")
+        let modelURL = Bundle(for: TestBundleLocator.self).url(forResource: "Model", withExtension: "momd")
             ?? Bundle.main.url(forResource: "Model", withExtension: "momd")!
         let model = NSManagedObjectModel(contentsOf: modelURL)!
         let container = NSPersistentContainer(name: UUID().uuidString, managedObjectModel: model)
         let description = NSPersistentStoreDescription()
         description.type = NSInMemoryStoreType
         container.persistentStoreDescriptions = [description]
-        let expectation = XCTestExpectation(description: "Load in-memory store")
+        let semaphore = DispatchSemaphore(value: 0)
+        var loadError: Error?
         container.loadPersistentStores { _, error in
-            XCTAssertNil(error)
-            expectation.fulfill()
+            loadError = error
+            semaphore.signal()
         }
-        _ = XCTWaiter.wait(for: [expectation], timeout: 5)
+        let waitResult = semaphore.wait(timeout: .now() + 5)
+        if waitResult == .timedOut {
+            Issue.record("Timed out loading in-memory persistent store.")
+        }
+        if let loadError {
+            Issue.record("Failed to load in-memory persistent store: \(loadError)")
+        }
         return container
     }
 

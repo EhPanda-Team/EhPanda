@@ -4,13 +4,14 @@
 //
 
 import Kanna
-import XCTest
+import Testing
 @testable import EhPanda
 
-class BanIntervalParserTests: XCTestCase, TestHelper {
+struct BanIntervalParserTests: TestHelper {
+    @Test
     func testExample() throws {
         let document = try htmlDocument(filename: .ipBanned)
         let banInterval = Parser.parseBanInterval(doc: document)
-        XCTAssertEqual(banInterval, .minutes(59, seconds: 48))
+        #expect(banInterval == .minutes(59, seconds: 48))
     }
 }
