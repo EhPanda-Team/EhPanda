@@ -30,7 +30,7 @@ extension Data {
         var data = self
         data.append(0)
 
-        let str = Array(self).withUnsafeBufferPointer { ptr -> String? in
+        let str = Array(data).withUnsafeBufferPointer { ptr -> String? in
             guard let address = ptr.baseAddress else { return nil }
             return String(cString: address)
         }

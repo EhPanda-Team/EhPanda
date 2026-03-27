@@ -76,6 +76,18 @@ struct DownloadFileStorage {
         rootURL.appendingPathComponent(relativePath, isDirectory: true)
     }
 
+    private func validatedChildURL(
+        root: URL, relativePath: String
+    ) -> URL? {
+        let resolved = root
+            .appendingPathComponent(relativePath)
+            .standardizedFileURL
+        guard resolved.path.hasPrefix(root.standardizedFileURL.path + "/") else {
+            return nil
+        }
+        return resolved
+    }
+
     func manifestURL(relativePath: String) -> URL {
         folderURL(relativePath: relativePath)
             .appendingPathComponent(Defaults.FilePath.downloadManifest)
@@ -283,24 +295,21 @@ struct DownloadFileStorage {
         )
 
         if let coverRelativePath = manifest.coverRelativePath,
-           coverRelativePath.notEmpty
+           coverRelativePath.notEmpty,
+           let sourceCoverURL = validatedChildURL(root: sourceFolderURL, relativePath: coverRelativePath),
+           let destCoverURL = validatedChildURL(root: temporaryFolderURL, relativePath: coverRelativePath)
         {
-            let sourceCoverURL = sourceFolderURL.appendingPathComponent(coverRelativePath)
             if sanitizeAssetFileIfNeeded(at: sourceCoverURL) {
-                try linkOrCopyReadableAsset(
-                    at: sourceCoverURL,
-                    to: temporaryFolderURL.appendingPathComponent(coverRelativePath)
-                )
+                try linkOrCopyReadableAsset(at: sourceCoverURL, to: destCoverURL)
             }
         }
 
         for page in manifest.pages {
-            let sourcePageURL = sourceFolderURL.appendingPathComponent(page.relativePath)
+            guard let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: page.relativePath),
+                  let destPageURL = validatedChildURL(root: temporaryFolderURL, relativePath: page.relativePath)
+            else { continue }
             guard sanitizeAssetFileIfNeeded(at: sourcePageURL) else { continue }
-            try linkOrCopyReadableAsset(
-                at: sourcePageURL,
-                to: temporaryFolderURL.appendingPathComponent(page.relativePath)
-            )
+            try linkOrCopyReadableAsset(at: sourcePageURL, to: destPageURL)
         }
     }
 
@@ -346,14 +355,16 @@ struct DownloadFileStorage {
         if let coverRelativePath = manifest.coverRelativePath,
            !coverRelativePath.isEmpty
         {
-            let coverURL = folderURL.appendingPathComponent(coverRelativePath)
-            guard sanitizeAssetFileIfNeeded(at: coverURL) else {
+            guard let coverURL = validatedChildURL(root: folderURL, relativePath: coverRelativePath),
+                  sanitizeAssetFileIfNeeded(at: coverURL)
+            else {
                 return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing)
             }
         }
         for page in manifest.pages {
-            let pageURL = folderURL.appendingPathComponent(page.relativePath)
-            guard sanitizeAssetFileIfNeeded(at: pageURL) else {
+            guard let pageURL = validatedChildURL(root: folderURL, relativePath: page.relativePath),
+                  sanitizeAssetFileIfNeeded(at: pageURL)
+            else {
                 return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index))
             }
         }
@@ -362,7 +373,7 @@ struct DownloadFileStorage {
 
     func validPageCount(folderURL: URL, manifest: DownloadManifest) -> Int {
         manifest.pages.reduce(into: 0) { count, page in
-            let pageURL = folderURL.appendingPathComponent(page.relativePath)
+            guard let pageURL = validatedChildURL(root: folderURL, relativePath: page.relativePath) else { return }
             if sanitizeAssetFileIfNeeded(at: pageURL) {
                 count += 1
             }
@@ -381,7 +392,7 @@ struct DownloadFileStorage {
         do {
             attributes = try fileManager.attributesOfItem(atPath: url.path)
         } catch {
-            return true
+            return false
         }
 
         let isRegularFile = (attributes[.type] as? FileAttributeType).map { $0 == .typeRegular } ?? true
@@ -389,7 +400,7 @@ struct DownloadFileStorage {
             try? fileManager.removeItem(at: url)
             return false
         }
-        guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return true }
+        guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return false }
         guard fileSize > 0 else {
             try? fileManager.removeItem(at: url)
             return false

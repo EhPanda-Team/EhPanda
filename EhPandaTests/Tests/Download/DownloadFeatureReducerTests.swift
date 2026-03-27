@@ -18,13 +18,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testPauseKeepsActiveDownloadPausedWhenDeferredSchedulingRuns() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
@@ -38,7 +32,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: URLSession(configuration: configuration)
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .downloading,
             completedPageCount: 7
@@ -69,13 +64,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testPauseUsesTemporaryWorkingSetProgressWhenCancelling() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 1)
         let rootURL = FileManager.default.temporaryDirectory
@@ -90,7 +79,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: URLSession(configuration: configuration)
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .downloading,
             completedPageCount: 1,
@@ -133,13 +123,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testReconcileDownloadsNormalizesLegacyFailedStatusToNeedsAttention() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
@@ -153,7 +137,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: URLSession(configuration: configuration)
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .failed,
             completedPageCount: 0,
@@ -168,13 +153,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testReconcileDownloadsClearsCancellationLikeGalleryError() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 3)
         let rootURL = FileManager.default.temporaryDirectory
@@ -188,7 +167,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: URLSession(configuration: configuration)
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: 4,
@@ -207,13 +187,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testLoadInspectionFiltersCancellationFailuresIntoPendingPages() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 4)
         let rootURL = FileManager.default.temporaryDirectory
@@ -228,7 +202,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: URLSession(configuration: configuration)
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: 1,
@@ -1412,13 +1387,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
@@ -1430,7 +1399,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: .shared
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .failed,
             completedPageCount: 1,
@@ -1471,13 +1441,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testDownloadManagerLoadLocalPageURLsPrefersCompletedFolderForCompletedDownload() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 11)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1490,7 +1454,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: .shared
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .completed,
             completedPageCount: 2,
@@ -1534,13 +1499,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testDownloadManagerLoadLocalPageURLsMergesReadableCompletedPagesWithTemporaryPages() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 12)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1553,7 +1512,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: .shared
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .downloading,
             completedPageCount: 2,
@@ -1710,13 +1670,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testDownloadManagerLoadLocalPageURLsMarksCompletedDownloadMissingFilesWhenZeroBytePageIsFound() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1729,7 +1683,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: .shared
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .completed,
             completedPageCount: 2,
@@ -1790,13 +1745,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1809,7 +1758,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: .shared
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: 1,
@@ -1862,13 +1812,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testCancelQueuedRepairRestoresReadableCountAndClearsPendingOperation() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = "cancel-repair-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
@@ -1881,7 +1825,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             urlSession: .shared
         )
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .missingFiles,
             completedPageCount: 0,
@@ -1922,13 +1867,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
+        let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 200)
         let pageIndex = 42
@@ -1938,6 +1878,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
@@ -1959,7 +1900,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             ]]
         ])
 
-        SharedSessionStubURLProtocol.requestHandler = { request in
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else {
                 throw URLError(.badURL)
             }
@@ -2060,8 +2001,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
         defer {
-            SharedSessionStubURLProtocol.requestHandler = nil
-            URLProtocol.unregisterClass(SharedSessionStubURLProtocol.self)
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
         }
 
         let scaffoldDownload = sampleDownload(
@@ -2120,7 +2060,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             )
         }
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: pageCount - 1,
@@ -2136,8 +2077,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         XCTAssertEqual(firstRunSnapshot.previewPageNumbers, [1])
 
         recorder.reset()
-        try await clearPersistedDownloads()
-        try await insertPersistedDownload(
+        try clearPersistedDownloads(in: container)
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: pageCount,
@@ -2156,13 +2098,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testRetryPagesFallsBackToFullUpdateWhenGalleryHasUpdate() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
+        let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
@@ -2175,6 +2112,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let queueingManager = DownloadManager(
             storage: storage,
@@ -2199,7 +2137,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             ]]
         ])
 
-        SharedSessionStubURLProtocol.requestHandler = { request in
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else {
                 throw URLError(.badURL)
             }
@@ -2274,8 +2212,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
         defer {
-            SharedSessionStubURLProtocol.requestHandler = nil
-            URLProtocol.unregisterClass(SharedSessionStubURLProtocol.self)
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
         }
 
         let scaffoldDownload = sampleDownload(
@@ -2300,7 +2237,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
 
         // Queued update path: retryPages should queue a full update and keep no page-selection state.
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: oldCount - 1,
@@ -2334,7 +2272,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             XCTAssertNotEqual(queuedResumeState.pageSelection, [pageIndex])
         }
 
-        try await clearPersistedDownloads()
+        try clearPersistedDownloads(in: container)
         try? storage.removeTemporaryFolder(gid: gid)
 
         // Immediate update path: retryPages should normalize the working set to full-update semantics.
@@ -2374,7 +2312,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             ),
             folderURL: temporaryFolderURL
         )
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: oldCount - 1,
@@ -2407,13 +2346,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
+        let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
         let pageIndex = 42
@@ -2426,6 +2360,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
@@ -2447,7 +2382,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             ]]
         ])
 
-        SharedSessionStubURLProtocol.requestHandler = { request in
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else {
                 throw URLError(.badURL)
             }
@@ -2522,8 +2457,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
         defer {
-            SharedSessionStubURLProtocol.requestHandler = nil
-            URLProtocol.unregisterClass(SharedSessionStubURLProtocol.self)
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
         }
 
         let scaffoldDownload = sampleDownload(
@@ -2550,7 +2484,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let oldPageCount = updatedPageCount - 5
         XCTAssertNotEqual(oldPageCount, updatedPageCount)
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: oldPageCount - 1,
@@ -2627,13 +2562,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
+        let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 402)
         let pageIndex = 42
@@ -2646,6 +2576,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
@@ -2682,7 +2613,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             ]]
         ])
 
-        SharedSessionStubURLProtocol.requestHandler = { request in
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else {
                 throw URLError(.badURL)
             }
@@ -2757,8 +2688,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         }
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
         defer {
-            SharedSessionStubURLProtocol.requestHandler = nil
-            URLProtocol.unregisterClass(SharedSessionStubURLProtocol.self)
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
         }
 
         let scaffoldDownload = sampleDownload(
@@ -2801,7 +2731,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         XCTAssertGreaterThan(updatedPageCount, pageIndex)
         XCTAssertGreaterThan(oldPageCount, 0)
 
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .partial,
             completedPageCount: oldPageCount - 1,
@@ -2809,7 +2740,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             remoteVersionSignature: oldVersionSignature,
             latestRemoteVersionSignature: oldVersionSignature
         )
-        try await insertPersistedGalleryState(
+        try insertPersistedGalleryState(
+            in: container,
             gid: gid,
             previewURLs: [1: combinedPreviewURL],
             imageURLs: [1: staleStoredPageURL]
@@ -3905,13 +3837,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testDownloadManagerCaptureCachedPageRestoresTemporaryPageAndUpdatesCompletedCount() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
@@ -3923,7 +3849,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             storage: storage,
             urlSession: .shared
         )
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .downloading,
             completedPageCount: 0,
@@ -3967,13 +3894,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testDownloadManagerCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
         let rootURL = FileManager.default.temporaryDirectory
@@ -3985,7 +3906,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             storage: storage,
             urlSession: .shared
         )
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .missingFiles,
             completedPageCount: 1,
@@ -4045,13 +3967,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testDownloadManagerReconcileNormalizesFailedDownloadBeforeTempCleanup() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 31)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4060,7 +3976,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .failed,
             completedPageCount: 0,
@@ -4094,13 +4011,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredChainAndLatestHashAreDifferentKinds() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 101)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4111,7 +4022,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
             urlSession: .shared
         )
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .completed,
             completedPageCount: 26,
@@ -4130,13 +4042,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredHashAndLatestNonOriginalChainAreDifferentKinds() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 102)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4147,7 +4053,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
             urlSession: .shared
         )
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .completed,
             completedPageCount: 26,
@@ -4169,13 +4076,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testUpdateRemoteSignatureCanonicalizesStoredHashToOriginalChainWithoutMarkingUpdate() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 103)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4186,7 +4087,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
             urlSession: .shared
         )
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .completed,
             completedPageCount: 26,
@@ -4269,8 +4171,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = sampleGalleryState(gid: gallery.gid)
-        try installGalleryVersionMetadataStub(for: gallery)
-        defer { uninstallSharedSessionStub() }
+        let sessionID = UUID().uuidString
+        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
+        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
@@ -4333,8 +4236,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = sampleGalleryState(gid: gallery.gid)
-        try installGalleryVersionMetadataStub(for: gallery)
-        defer { uninstallSharedSessionStub() }
+        let sessionID = UUID().uuidString
+        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
+        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
@@ -4396,8 +4300,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        try installGalleryVersionMetadataStub(for: gallery)
-        defer { uninstallSharedSessionStub() }
+        let sessionID = UUID().uuidString
+        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
+        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
@@ -4452,8 +4357,9 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        try installGalleryVersionMetadataStub(for: gallery)
-        defer { uninstallSharedSessionStub() }
+        let sessionID = UUID().uuidString
+        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
+        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
@@ -4704,13 +4610,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testCachedQuotaPlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 32)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4722,7 +4622,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let normalImageURL = try XCTUnwrap(
             URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(gid)/1")
         )
-        try await insertPersistedGalleryState(gid: gid, imageURLs: [1: normalImageURL])
+        try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
 
         let placeholderURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: placeholderURL) }
@@ -4787,13 +4687,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 33)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4803,7 +4697,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         let normalImageURL = try XCTUnwrap(URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key"))
-        try await insertPersistedGalleryState(gid: gid, imageURLs: [1: normalImageURL])
+        try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
 
         let imageData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
         let cacheKeys = normalImageURL.imageCacheKeys(includeStableAlias: true)
@@ -5042,8 +4936,10 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
     }
 
     func testIpBannedDoesNotRetryImmediately() async throws {
+        let sessionID = UUID().uuidString
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let manager = DownloadManager(
             storage: DownloadFileStorage(
                 rootURL: FileManager.default.temporaryDirectory
@@ -5054,7 +4950,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         )
         let recorder = RequestRecorder()
         let ipBannedHTML = try fixtureData(resource: HTMLFilename.ipBanned.rawValue, pathExtension: "html")
-        SharedSessionStubURLProtocol.requestHandler = { request in
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             recorder.recordDetail()
             return (
                 HTTPURLResponse(
@@ -5067,7 +4963,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
             )
         }
         defer {
-            SharedSessionStubURLProtocol.requestHandler = nil
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
         }
 
         let download = sampleDownload(
@@ -5478,13 +5374,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
     @MainActor
     func testDownloadManagerBatchesObserverUpdatesDuringCachedPageRestore() async throws {
-        try await preparePersistenceStore()
-        try await clearPersistedDownloads()
-        defer {
-            Task {
-                try? await self.clearPersistedDownloads()
-            }
-        }
+        let container = makeInMemoryContainer()
 
         let pageCount = 20
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
@@ -5494,7 +5384,8 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        try await insertPersistedDownload(
+        try insertPersistedDownload(
+            in: container,
             gid: gid,
             status: .downloading,
             completedPageCount: 0,
@@ -5509,7 +5400,7 @@ final class DownloadFeatureReducerTests: XCTestCase, TestHelper {
         let imageURLs = Dictionary(uniqueKeysWithValues: (1...pageCount).map { index in
             (index, URL(string: "https://example.com/pages/\(gid)-\(index).jpg")!)
         })
-        try await insertPersistedGalleryState(gid: gid, imageURLs: imageURLs)
+        try insertPersistedGalleryState(in: container, gid: gid, imageURLs: imageURLs)
         let cacheKeys = Set(imageURLs.values.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
         for cacheKey in cacheKeys {
             KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
@@ -5690,7 +5581,7 @@ private extension DownloadFeatureReducerTests {
         return try Data(contentsOf: fixtureURL)
     }
 
-    func installGalleryVersionMetadataStub(for gallery: Gallery) throws {
+    func installGalleryVersionMetadataStub(for gallery: Gallery, sessionID: String) throws {
         let gid = try XCTUnwrap(Int(gallery.gid))
         let payload: [String: Any] = [
             "gmetadata": [[
@@ -5705,7 +5596,7 @@ private extension DownloadFeatureReducerTests {
             ]]
         ]
         let responseData = try JSONSerialization.data(withJSONObject: payload, options: [])
-        SharedSessionStubURLProtocol.requestHandler = { request in
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             let response = HTTPURLResponse(
                 url: request.url ?? Defaults.URL.api,
                 statusCode: 200,
@@ -5717,9 +5608,8 @@ private extension DownloadFeatureReducerTests {
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
     }
 
-    func uninstallSharedSessionStub() {
-        SharedSessionStubURLProtocol.requestHandler = nil
-        URLProtocol.unregisterClass(SharedSessionStubURLProtocol.self)
+    func uninstallSharedSessionStub(sessionID: String) {
+        SharedSessionStubURLProtocol.removeHandler(for: sessionID)
     }
 
     func sampleGallery() -> Gallery {
@@ -5880,22 +5770,25 @@ private extension DownloadFeatureReducerTests {
         return folderURL
     }
 
-    func preparePersistenceStore() async throws {
-        if !PersistenceController.shared.container.persistentStoreCoordinator.persistentStores.isEmpty {
-            return
+    func makeInMemoryContainer() -> NSPersistentContainer {
+        let modelURL = Bundle(for: Self.self).url(forResource: "Model", withExtension: "momd")
+            ?? Bundle.main.url(forResource: "Model", withExtension: "momd")!
+        let model = NSManagedObjectModel(contentsOf: modelURL)!
+        let container = NSPersistentContainer(name: UUID().uuidString, managedObjectModel: model)
+        let description = NSPersistentStoreDescription()
+        description.type = NSInMemoryStoreType
+        container.persistentStoreDescriptions = [description]
+        let expectation = XCTestExpectation(description: "Load in-memory store")
+        container.loadPersistentStores { _, error in
+            XCTAssertNil(error)
+            expectation.fulfill()
         }
-
-        let result: Result<Void, AppError> = await withCheckedContinuation { continuation in
-            PersistenceController.shared.prepare { result in
-                continuation.resume(returning: result)
-            }
-        }
-        try result.get()
+        _ = XCTWaiter.wait(for: [expectation], timeout: 5)
+        return container
     }
 
-    @MainActor
-    func clearPersistedDownloads() throws {
-        let context = PersistenceController.shared.container.viewContext
+    func clearPersistedDownloads(in container: NSPersistentContainer) throws {
+        let context = container.viewContext
         let downloadRequest = NSFetchRequest<DownloadedGalleryMO>(entityName: "DownloadedGalleryMO")
         let downloads = try context.fetch(downloadRequest)
         for object in downloads {
@@ -5910,8 +5803,8 @@ private extension DownloadFeatureReducerTests {
         try context.save()
     }
 
-    @MainActor
     func insertPersistedDownload(
+        in container: NSPersistentContainer,
         gid: String,
         status: DownloadStatus,
         completedPageCount: Int,
@@ -5922,7 +5815,7 @@ private extension DownloadFeatureReducerTests {
         lastError: DownloadFailure? = nil,
         pendingOperation: DownloadStartMode? = nil
     ) throws {
-        let context = PersistenceController.shared.container.viewContext
+        let context = container.viewContext
         let object = DownloadedGalleryMO(context: context)
         object.gid = gid
         object.host = GalleryHost.ehentai.rawValue
@@ -5949,14 +5842,14 @@ private extension DownloadFeatureReducerTests {
         try context.save()
     }
 
-    @MainActor
     func insertPersistedGalleryState(
+        in container: NSPersistentContainer,
         gid: String,
         previewURLs: [Int: URL] = [:],
         imageURLs: [Int: URL],
         originalImageURLs: [Int: URL] = [:]
     ) throws {
-        let context = PersistenceController.shared.container.viewContext
+        let context = container.viewContext
         let object = GalleryStateMO(context: context)
         object.gid = gid
         object.previewURLs = previewURLs.toData()
@@ -6076,10 +5969,39 @@ private final class FailFastURLProtocol: URLProtocol {
 }
 
 private final class SharedSessionStubURLProtocol: URLProtocol {
-    static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
+    static let headerKey = "X-TestSession-ID"
+
+    private static let lock = NSLock()
+    private static var handlers: [String: (URLRequest) throws -> (HTTPURLResponse, Data)] = [:]
+
+    static func setHandler(
+        for sessionID: String,
+        handler: @escaping (URLRequest) throws -> (HTTPURLResponse, Data)
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+        handlers[sessionID] = handler
+    }
+
+    static func removeHandler(for sessionID: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        handlers[sessionID] = nil
+    }
+
+    private static func handler(
+        for request: URLRequest
+    ) -> ((URLRequest) throws -> (HTTPURLResponse, Data))? {
+        guard let sessionID = request.value(forHTTPHeaderField: headerKey) else {
+            return nil
+        }
+        lock.lock()
+        defer { lock.unlock() }
+        return handlers[sessionID]
+    }
 
     override class func canInit(with request: URLRequest) -> Bool {
-        requestHandler != nil
+        handler(for: request) != nil
     }
 
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
@@ -6087,7 +6009,7 @@ private final class SharedSessionStubURLProtocol: URLProtocol {
     }
 
     override func startLoading() {
-        guard let handler = Self.requestHandler else {
+        guard let handler = Self.handler(for: request) else {
             client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
             return
         }

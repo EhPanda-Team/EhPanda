@@ -435,6 +435,8 @@ private struct DownloadListRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .onTapGesture(perform: openAction)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(download.title)
     }
 }
 

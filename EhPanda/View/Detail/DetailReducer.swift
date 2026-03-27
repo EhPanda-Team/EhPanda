@@ -96,7 +96,7 @@ struct DetailReducer {
                 userRating: 0,
                 ratingCount: 0,
                 category: download.category,
-                language: .japanese,
+                language: .other,
                 uploader: download.uploader ?? "",
                 postedDate: download.postedDate,
                 coverURL: download.coverURL,

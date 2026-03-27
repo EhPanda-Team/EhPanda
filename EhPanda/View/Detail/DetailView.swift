@@ -321,9 +321,7 @@ struct DetailView: View {
         switch store.downloadBadge {
         case .none:
             store.send(.startDownload(options))
-        case .queued:
-            break
-        case .downloading, .paused:
+        case .queued, .downloading, .paused:
             store.send(.toggleDownloadPause)
         case .downloaded:
             downloadDialog = .delete(isActiveDownload: false)
