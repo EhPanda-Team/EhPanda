@@ -249,6 +249,45 @@ internal enum L10n {
         internal static let showsNewDawnGreeting = L10n.tr("Localizable", "account_setting_view.title.shows_new_dawn_greeting", fallback: "Shows new dawn greeting")
       }
     }
+    internal enum AppError {
+      internal enum Alert {
+        /// Login required to access this download.
+        internal static let authenticationRequired = L10n.tr("Localizable", "app_error.alert.authentication_required", fallback: "Login required to access this download.")
+        /// Local file operation failed.
+        internal static let localFileOperationFailed = L10n.tr("Localizable", "app_error.alert.local_file_operation_failed", fallback: "Local file operation failed.")
+        /// Image quota exceeded.
+        /// Please wait and try again later.
+        internal static let quotaExceeded = L10n.tr("Localizable", "app_error.alert.quota_exceeded", fallback: "Image quota exceeded.\nPlease wait and try again later.")
+      }
+      internal enum LocalizedDescription {
+        /// Authentication Required
+        internal static let authenticationRequired = L10n.tr("Localizable", "app_error.localized_description.authentication_required", fallback: "Authentication Required")
+        /// Copyright Claim
+        internal static let copyrightClaim = L10n.tr("Localizable", "app_error.localized_description.copyright_claim", fallback: "Copyright Claim")
+        /// Database Corrupted
+        internal static let databaseCorrupted = L10n.tr("Localizable", "app_error.localized_description.database_corrupted", fallback: "Database Corrupted")
+        /// File Operation Failed
+        internal static let fileOperationFailed = L10n.tr("Localizable", "app_error.localized_description.file_operation_failed", fallback: "File Operation Failed")
+        /// Gallery Expunged
+        internal static let galleryExpunged = L10n.tr("Localizable", "app_error.localized_description.gallery_expunged", fallback: "Gallery Expunged")
+        /// IP Banned
+        internal static let ipBanned = L10n.tr("Localizable", "app_error.localized_description.ip_banned", fallback: "IP Banned")
+        /// Network Error
+        internal static let networkError = L10n.tr("Localizable", "app_error.localized_description.network_error", fallback: "Network Error")
+        /// No updates available
+        internal static let noUpdatesAvailable = L10n.tr("Localizable", "app_error.localized_description.no_updates_available", fallback: "No updates available")
+        /// Not found
+        internal static let notFound = L10n.tr("Localizable", "app_error.localized_description.not_found", fallback: "Not found")
+        /// Parse Error
+        internal static let parseError = L10n.tr("Localizable", "app_error.localized_description.parse_error", fallback: "Parse Error")
+        /// Quota Exceeded
+        internal static let quotaExceeded = L10n.tr("Localizable", "app_error.localized_description.quota_exceeded", fallback: "Quota Exceeded")
+        /// Unknown Error
+        internal static let unknownError = L10n.tr("Localizable", "app_error.localized_description.unknown_error", fallback: "Unknown Error")
+        /// Web image loading error
+        internal static let webImageLoadingError = L10n.tr("Localizable", "app_error.localized_description.web_image_loading_error", fallback: "Web image loading error")
+      }
+    }
     internal enum AppIconView {
       internal enum Title {
         /// App icon
@@ -299,45 +338,6 @@ internal enum L10n {
       internal enum Title {
         /// Archives
         internal static let archives = L10n.tr("Localizable", "archives_view.title.archives", fallback: "Archives")
-      }
-    }
-    internal enum AppError {
-      internal enum Alert {
-        /// Login required to access this download.
-        internal static let authenticationRequired = L10n.tr("Localizable", "app_error.alert.authentication_required", fallback: "Login required to access this download.")
-        /// Local file operation failed.
-        internal static let localFileOperationFailed = L10n.tr("Localizable", "app_error.alert.local_file_operation_failed", fallback: "Local file operation failed.")
-        /// Image quota exceeded.
-        /// Please wait and try again later.
-        internal static let quotaExceeded = L10n.tr("Localizable", "app_error.alert.quota_exceeded", fallback: "Image quota exceeded.\nPlease wait and try again later.")
-      }
-      internal enum LocalizedDescription {
-        /// Authentication Required
-        internal static let authenticationRequired = L10n.tr("Localizable", "app_error.localized_description.authentication_required", fallback: "Authentication Required")
-        /// Copyright Claim
-        internal static let copyrightClaim = L10n.tr("Localizable", "app_error.localized_description.copyright_claim", fallback: "Copyright Claim")
-        /// Database Corrupted
-        internal static let databaseCorrupted = L10n.tr("Localizable", "app_error.localized_description.database_corrupted", fallback: "Database Corrupted")
-        /// File Operation Failed
-        internal static let fileOperationFailed = L10n.tr("Localizable", "app_error.localized_description.file_operation_failed", fallback: "File Operation Failed")
-        /// Gallery Expunged
-        internal static let galleryExpunged = L10n.tr("Localizable", "app_error.localized_description.gallery_expunged", fallback: "Gallery Expunged")
-        /// IP Banned
-        internal static let ipBanned = L10n.tr("Localizable", "app_error.localized_description.ip_banned", fallback: "IP Banned")
-        /// Network Error
-        internal static let networkError = L10n.tr("Localizable", "app_error.localized_description.network_error", fallback: "Network Error")
-        /// No updates available
-        internal static let noUpdatesAvailable = L10n.tr("Localizable", "app_error.localized_description.no_updates_available", fallback: "No updates available")
-        /// Not found
-        internal static let notFound = L10n.tr("Localizable", "app_error.localized_description.not_found", fallback: "Not found")
-        /// Parse Error
-        internal static let parseError = L10n.tr("Localizable", "app_error.localized_description.parse_error", fallback: "Parse Error")
-        /// Quota Exceeded
-        internal static let quotaExceeded = L10n.tr("Localizable", "app_error.localized_description.quota_exceeded", fallback: "Quota Exceeded")
-        /// Unknown Error
-        internal static let unknownError = L10n.tr("Localizable", "app_error.localized_description.unknown_error", fallback: "Unknown Error")
-        /// Web image loading error
-        internal static let webImageLoadingError = L10n.tr("Localizable", "app_error.localized_description.web_image_loading_error", fallback: "Web image loading error")
       }
     }
     internal enum CommentsView {
@@ -434,6 +434,40 @@ internal enum L10n {
       }
     }
     internal enum DetailView {
+      internal enum Accessibility {
+        internal enum DownloadButton {
+          /// Download
+          internal static let download = L10n.tr("Localizable", "detail_view.accessibility.download_button.download", fallback: "Download")
+          /// Delete downloaded gallery
+          internal static let downloaded = L10n.tr("Localizable", "detail_view.accessibility.download_button.downloaded", fallback: "Delete downloaded gallery")
+          /// Downloading %d of %d
+          internal static func downloading(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Localizable", "detail_view.accessibility.download_button.downloading", p1, p2, fallback: "Downloading %d of %d")
+          }
+          /// Log in to download
+          internal static let login = L10n.tr("Localizable", "detail_view.accessibility.download_button.login", fallback: "Log in to download")
+          /// Retry download. %d of %d pages are already available.
+          internal static func partial(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Localizable", "detail_view.accessibility.download_button.partial", p1, p2, fallback: "Retry download. %d of %d pages are already available.")
+          }
+          /// Pause download
+          internal static let pauseAction = L10n.tr("Localizable", "detail_view.accessibility.download_button.pause_action", fallback: "Pause download")
+          /// Resume download. Paused at %d of %d
+          internal static func paused(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Localizable", "detail_view.accessibility.download_button.paused", p1, p2, fallback: "Resume download. Paused at %d of %d")
+          }
+          /// Preparing download
+          internal static let preparing = L10n.tr("Localizable", "detail_view.accessibility.download_button.preparing", fallback: "Preparing download")
+          /// Queued
+          internal static let queued = L10n.tr("Localizable", "detail_view.accessibility.download_button.queued", fallback: "Queued")
+          /// Repair download
+          internal static let repair = L10n.tr("Localizable", "detail_view.accessibility.download_button.repair", fallback: "Repair download")
+          /// Retry download
+          internal static let retry = L10n.tr("Localizable", "detail_view.accessibility.download_button.retry", fallback: "Retry download")
+          /// Update download
+          internal static let update = L10n.tr("Localizable", "detail_view.accessibility.download_button.update", fallback: "Update download")
+        }
+      }
       internal enum ActionSection {
         internal enum Button {
           /// Give a Rating
@@ -461,74 +495,6 @@ internal enum L10n {
         internal static let postComment = L10n.tr("Localizable", "detail_view.button.post_comment", fallback: "Post comment")
         /// Read
         internal static let read = L10n.tr("Localizable", "detail_view.button.read", fallback: "Read")
-      }
-      internal enum Accessibility {
-        /// Download
-        internal static let downloadButtonDownload = L10n.tr("Localizable", "detail_view.accessibility.download_button.download", fallback: "Download")
-        /// Delete downloaded gallery
-        internal static let downloadButtonDownloaded = L10n.tr("Localizable", "detail_view.accessibility.download_button.downloaded", fallback: "Delete downloaded gallery")
-        /// Downloading %d of %d
-        internal static func downloadButtonDownloading(_ p1: Int, _ p2: Int) -> String {
-          L10n.tr("Localizable", "detail_view.accessibility.download_button.downloading", p1, p2, fallback: "Downloading %d of %d")
-        }
-        /// Log in to download
-        internal static let downloadButtonLogin = L10n.tr("Localizable", "detail_view.accessibility.download_button.login", fallback: "Log in to download")
-        /// Preparing download
-        internal static let downloadButtonPreparing = L10n.tr("Localizable", "detail_view.accessibility.download_button.preparing", fallback: "Preparing download")
-        /// Queued
-        internal static let downloadButtonQueued = L10n.tr("Localizable", "detail_view.accessibility.download_button.queued", fallback: "Queued")
-        /// Retry download. %d of %d pages are already available.
-        internal static func downloadButtonPartial(_ p1: Int, _ p2: Int) -> String {
-          L10n.tr("Localizable", "detail_view.accessibility.download_button.partial", p1, p2, fallback: "Retry download. %d of %d pages are already available.")
-        }
-        /// Pause download
-        internal static let downloadButtonPauseAction = L10n.tr("Localizable", "detail_view.accessibility.download_button.pause_action", fallback: "Pause download")
-        /// Resume download. Paused at %d of %d
-        internal static func downloadButtonPaused(_ p1: Int, _ p2: Int) -> String {
-          L10n.tr("Localizable", "detail_view.accessibility.download_button.paused", p1, p2, fallback: "Resume download. Paused at %d of %d")
-        }
-        /// Repair download
-        internal static let downloadButtonRepair = L10n.tr("Localizable", "detail_view.accessibility.download_button.repair", fallback: "Repair download")
-        /// Retry download
-        internal static let downloadButtonRetry = L10n.tr("Localizable", "detail_view.accessibility.download_button.retry", fallback: "Retry download")
-        /// Update download
-        internal static let downloadButtonUpdate = L10n.tr("Localizable", "detail_view.accessibility.download_button.update", fallback: "Update download")
-      }
-      internal enum Dialog {
-        internal enum Button {
-          /// Redownload
-          internal static let redownload = L10n.tr("Localizable", "detail_view.dialog.button.redownload", fallback: "Redownload")
-          /// Repair
-          internal static let repair = L10n.tr("Localizable", "detail_view.dialog.button.repair", fallback: "Repair")
-          /// Update
-          internal static let update = L10n.tr("Localizable", "detail_view.dialog.button.update", fallback: "Update")
-        }
-        internal enum Message {
-          /// This will stop the current download and remove the gallery from this device.
-          internal static let deleteActiveDownload = L10n.tr("Localizable", "detail_view.dialog.message.delete_active_download", fallback: "This will stop the current download and remove the gallery from this device.")
-          /// This will remove the downloaded gallery from this device.
-          internal static let deleteDownloadedGallery = L10n.tr("Localizable", "detail_view.dialog.message.delete_downloaded_gallery", fallback: "This will remove the downloaded gallery from this device.")
-          /// Repair the offline files for this gallery now?
-          internal static let repairDownload = L10n.tr("Localizable", "detail_view.dialog.message.repair_download", fallback: "Repair the offline files for this gallery now?")
-          /// Start a fresh download for this gallery now?
-          internal static let redownloadGallery = L10n.tr("Localizable", "detail_view.dialog.message.redownload_gallery", fallback: "Start a fresh download for this gallery now?")
-          /// Update this gallery to the newest online version now?
-          internal static let updateDownload = L10n.tr("Localizable", "detail_view.dialog.message.update_download", fallback: "Update this gallery to the newest online version now?")
-        }
-        internal enum Title {
-          /// Delete Download?
-          internal static let deleteDownload = L10n.tr("Localizable", "detail_view.dialog.title.delete_download", fallback: "Delete Download?")
-          /// Repair Download?
-          internal static let repairDownload = L10n.tr("Localizable", "detail_view.dialog.title.repair_download", fallback: "Repair Download?")
-          /// Redownload Gallery?
-          internal static let redownloadGallery = L10n.tr("Localizable", "detail_view.dialog.title.redownload_gallery", fallback: "Redownload Gallery?")
-          /// Update Download?
-          internal static let updateDownload = L10n.tr("Localizable", "detail_view.dialog.title.update_download", fallback: "Update Download?")
-        }
-      }
-      internal enum OfflineNotice {
-        /// Couldn't refresh online details. Showing saved details instead.
-        internal static let savedDetails = L10n.tr("Localizable", "detail_view.offline_notice.saved_details", fallback: "Couldn't refresh online details. Showing saved details instead.")
       }
       internal enum ContextMenu {
         internal enum Button {
@@ -563,6 +529,42 @@ internal enum L10n {
             return L10n.tr("Localizable", "detail_view.description_section.title.ratings", String(describing: p1), fallback: "%@ Ratings")
           }
         }
+      }
+      internal enum Dialog {
+        internal enum Button {
+          /// Redownload
+          internal static let redownload = L10n.tr("Localizable", "detail_view.dialog.button.redownload", fallback: "Redownload")
+          /// Repair
+          internal static let repair = L10n.tr("Localizable", "detail_view.dialog.button.repair", fallback: "Repair")
+          /// Update
+          internal static let update = L10n.tr("Localizable", "detail_view.dialog.button.update", fallback: "Update")
+        }
+        internal enum Message {
+          /// This will stop the current download and remove the gallery from this device.
+          internal static let deleteActiveDownload = L10n.tr("Localizable", "detail_view.dialog.message.delete_active_download", fallback: "This will stop the current download and remove the gallery from this device.")
+          /// This will remove the downloaded gallery from this device.
+          internal static let deleteDownloadedGallery = L10n.tr("Localizable", "detail_view.dialog.message.delete_downloaded_gallery", fallback: "This will remove the downloaded gallery from this device.")
+          /// Start a fresh download for this gallery now?
+          internal static let redownloadGallery = L10n.tr("Localizable", "detail_view.dialog.message.redownload_gallery", fallback: "Start a fresh download for this gallery now?")
+          /// Repair the offline files for this gallery now?
+          internal static let repairDownload = L10n.tr("Localizable", "detail_view.dialog.message.repair_download", fallback: "Repair the offline files for this gallery now?")
+          /// Update this gallery to the newest online version now?
+          internal static let updateDownload = L10n.tr("Localizable", "detail_view.dialog.message.update_download", fallback: "Update this gallery to the newest online version now?")
+        }
+        internal enum Title {
+          /// Delete Download?
+          internal static let deleteDownload = L10n.tr("Localizable", "detail_view.dialog.title.delete_download", fallback: "Delete Download?")
+          /// Redownload Gallery?
+          internal static let redownloadGallery = L10n.tr("Localizable", "detail_view.dialog.title.redownload_gallery", fallback: "Redownload Gallery?")
+          /// Repair Download?
+          internal static let repairDownload = L10n.tr("Localizable", "detail_view.dialog.title.repair_download", fallback: "Repair Download?")
+          /// Update Download?
+          internal static let updateDownload = L10n.tr("Localizable", "detail_view.dialog.title.update_download", fallback: "Update Download?")
+        }
+      }
+      internal enum OfflineNotice {
+        /// Couldn't refresh online details. Showing saved details instead.
+        internal static let savedDetails = L10n.tr("Localizable", "detail_view.offline_notice.saved_details", fallback: "Couldn't refresh online details. Showing saved details instead.")
       }
       internal enum Section {
         internal enum Title {
@@ -605,7 +607,7 @@ internal enum L10n {
         internal static let manifestMissing = L10n.tr("Localizable", "download_file_storage.validation.manifest_missing", fallback: "Manifest file is missing.")
         /// Page %d is missing.
         internal static func pageMissing(_ p1: Int) -> String {
-          L10n.tr("Localizable", "download_file_storage.validation.page_missing", p1, fallback: "Page %d is missing.")
+          return L10n.tr("Localizable", "download_file_storage.validation.page_missing", p1, fallback: "Page %d is missing.")
         }
       }
     }
@@ -658,7 +660,7 @@ internal enum L10n {
         internal enum Button {
           /// Retry Failed Pages (%d)
           internal static func retryFailedPages(_ p1: Int) -> String {
-            L10n.tr("Localizable", "downloads_view.inspector.button.retry_failed_pages", p1, fallback: "Retry Failed Pages (%d)")
+            return L10n.tr("Localizable", "downloads_view.inspector.button.retry_failed_pages", p1, fallback: "Retry Failed Pages (%d)")
           }
           /// Update Download
           internal static let updateDownload = L10n.tr("Localizable", "downloads_view.inspector.button.update_download", fallback: "Update Download")
@@ -670,7 +672,7 @@ internal enum L10n {
           internal static let tapToRetry = L10n.tr("Localizable", "downloads_view.inspector.page.tap_to_retry", fallback: "Tap to retry this page")
           /// Page %d
           internal static func title(_ p1: Int) -> String {
-            L10n.tr("Localizable", "downloads_view.inspector.page.title", p1, fallback: "Page %d")
+            return L10n.tr("Localizable", "downloads_view.inspector.page.title", p1, fallback: "Page %d")
           }
         }
         internal enum Section {
@@ -940,34 +942,6 @@ internal enum L10n {
         internal enum Value {
           /// Off
           internal static let off = L10n.tr("Localizable", "enum.auto_play_policy.value.off", fallback: "Off")
-        }
-      }
-      internal enum DownloadListFilter {
-        internal enum Title {
-          /// Active
-          internal static let active = L10n.tr("Localizable", "enum.download_list_filter.title.active", fallback: "Active")
-          /// All
-          internal static let all = L10n.tr("Localizable", "enum.download_list_filter.title.all", fallback: "All")
-          /// Downloaded
-          internal static let completed = L10n.tr("Localizable", "enum.download_list_filter.title.completed", fallback: "Downloaded")
-          /// Needs Attention
-          internal static let failed = L10n.tr("Localizable", "enum.download_list_filter.title.failed", fallback: "Needs Attention")
-          /// Update Available
-          internal static let update = L10n.tr("Localizable", "enum.download_list_filter.title.update", fallback: "Update Available")
-        }
-      }
-      internal enum DownloadThreadMode {
-        internal enum Value {
-          /// 2 images at a time
-          internal static let double = L10n.tr("Localizable", "enum.download_thread_mode.value.double", fallback: "2 images at a time")
-          /// 4 images at a time
-          internal static let quadruple = L10n.tr("Localizable", "enum.download_thread_mode.value.quadruple", fallback: "4 images at a time")
-          /// 5 images at a time
-          internal static let quintuple = L10n.tr("Localizable", "enum.download_thread_mode.value.quintuple", fallback: "5 images at a time")
-          /// 1 image at a time
-          internal static let single = L10n.tr("Localizable", "enum.download_thread_mode.value.single", fallback: "1 image at a time")
-          /// 3 images at a time
-          internal static let triple = L10n.tr("Localizable", "enum.download_thread_mode.value.triple", fallback: "3 images at a time")
         }
       }
       internal enum BanInterval {
@@ -1511,6 +1485,34 @@ internal enum L10n {
           internal static let western = L10n.tr("Localizable", "enum.category.value.western", fallback: "Western")
         }
       }
+      internal enum DownloadListFilter {
+        internal enum Title {
+          /// Active
+          internal static let active = L10n.tr("Localizable", "enum.download_list_filter.title.active", fallback: "Active")
+          /// All
+          internal static let all = L10n.tr("Localizable", "enum.download_list_filter.title.all", fallback: "All")
+          /// Downloaded
+          internal static let completed = L10n.tr("Localizable", "enum.download_list_filter.title.completed", fallback: "Downloaded")
+          /// Needs Attention
+          internal static let failed = L10n.tr("Localizable", "enum.download_list_filter.title.failed", fallback: "Needs Attention")
+          /// Update Available
+          internal static let update = L10n.tr("Localizable", "enum.download_list_filter.title.update", fallback: "Update Available")
+        }
+      }
+      internal enum DownloadThreadMode {
+        internal enum Value {
+          /// 2 images at a time
+          internal static let double = L10n.tr("Localizable", "enum.download_thread_mode.value.double", fallback: "2 images at a time")
+          /// 4 images at a time
+          internal static let quadruple = L10n.tr("Localizable", "enum.download_thread_mode.value.quadruple", fallback: "4 images at a time")
+          /// 5 images at a time
+          internal static let quintuple = L10n.tr("Localizable", "enum.download_thread_mode.value.quintuple", fallback: "5 images at a time")
+          /// 1 image at a time
+          internal static let single = L10n.tr("Localizable", "enum.download_thread_mode.value.single", fallback: "1 image at a time")
+          /// 3 images at a time
+          internal static let triple = L10n.tr("Localizable", "enum.download_thread_mode.value.triple", fallback: "3 images at a time")
+        }
+      }
       internal enum EhSetting {
         internal enum ArchiverBehavior {
           internal enum Value {
@@ -1877,10 +1879,10 @@ internal enum L10n {
           internal static let account = L10n.tr("Localizable", "enum.setting_state_route.value.account", fallback: "Account")
           /// Appearance
           internal static let appearance = L10n.tr("Localizable", "enum.setting_state_route.value.appearance", fallback: "Appearance")
-          /// General
-          internal static let general = L10n.tr("Localizable", "enum.setting_state_route.value.general", fallback: "General")
           /// Downloads
           internal static let downloads = L10n.tr("Localizable", "enum.setting_state_route.value.downloads", fallback: "Downloads")
+          /// General
+          internal static let general = L10n.tr("Localizable", "enum.setting_state_route.value.general", fallback: "General")
           /// Laboratory
           internal static let laboratory = L10n.tr("Localizable", "enum.setting_state_route.value.laboratory", fallback: "Laboratory")
           /// Reading
@@ -2378,6 +2380,42 @@ internal enum L10n {
           internal static let `none` = L10n.tr("Localizable", "struct.cookie_value.localized_string.none", fallback: "None")
         }
       }
+      internal enum DownloadBadge {
+        internal enum Compact {
+          /// Done
+          internal static let done = L10n.tr("Localizable", "struct.download_badge.compact.done", fallback: "Done")
+          /// DL
+          internal static let downloading = L10n.tr("Localizable", "struct.download_badge.compact.downloading", fallback: "DL")
+          /// Needs Attention
+          internal static let needsAttention = L10n.tr("Localizable", "struct.download_badge.compact.needs_attention", fallback: "Needs Attention")
+          /// Pause
+          internal static let paused = L10n.tr("Localizable", "struct.download_badge.compact.paused", fallback: "Pause")
+        }
+        internal enum Text {
+          /// Downloaded
+          internal static let downloaded = L10n.tr("Localizable", "struct.download_badge.text.downloaded", fallback: "Downloaded")
+          /// Downloading %d/%d
+          internal static func downloading(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Localizable", "struct.download_badge.text.downloading", p1, p2, fallback: "Downloading %d/%d")
+          }
+          /// Needs Attention
+          internal static let needsAttention = L10n.tr("Localizable", "struct.download_badge.text.needs_attention", fallback: "Needs Attention")
+          /// Needs Attention %d/%d
+          internal static func needsAttentionProgress(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Localizable", "struct.download_badge.text.needs_attention_progress", p1, p2, fallback: "Needs Attention %d/%d")
+          }
+          /// Needs Repair
+          internal static let needsRepair = L10n.tr("Localizable", "struct.download_badge.text.needs_repair", fallback: "Needs Repair")
+          /// Paused %d/%d
+          internal static func paused(_ p1: Int, _ p2: Int) -> String {
+            return L10n.tr("Localizable", "struct.download_badge.text.paused", p1, p2, fallback: "Paused %d/%d")
+          }
+          /// Queued
+          internal static let queued = L10n.tr("Localizable", "struct.download_badge.text.queued", fallback: "Queued")
+          /// Update Available
+          internal static let updateAvailable = L10n.tr("Localizable", "struct.download_badge.text.update_available", fallback: "Update Available")
+        }
+      }
       internal enum Greeting {
         internal enum Mark {
           ///  and 
@@ -2396,42 +2434,6 @@ internal enum L10n {
           internal static let free = L10n.tr("Localizable", "struct.hath_archive.price.free", fallback: "Free")
           /// N/A
           internal static let notAvailable = L10n.tr("Localizable", "struct.hath_archive.price.not_available", fallback: "N/A")
-        }
-      }
-      internal enum DownloadBadge {
-        internal enum Compact {
-          /// DL
-          internal static let downloading = L10n.tr("Localizable", "struct.download_badge.compact.downloading", fallback: "DL")
-          /// Done
-          internal static let done = L10n.tr("Localizable", "struct.download_badge.compact.done", fallback: "Done")
-          /// Needs Attention
-          internal static let needsAttention = L10n.tr("Localizable", "struct.download_badge.compact.needs_attention", fallback: "Needs Attention")
-          /// Pause
-          internal static let paused = L10n.tr("Localizable", "struct.download_badge.compact.paused", fallback: "Pause")
-        }
-        internal enum Text {
-          /// Downloaded
-          internal static let downloaded = L10n.tr("Localizable", "struct.download_badge.text.downloaded", fallback: "Downloaded")
-          /// Downloading %d/%d
-          internal static func downloading(_ p1: Int, _ p2: Int) -> String {
-            L10n.tr("Localizable", "struct.download_badge.text.downloading", p1, p2, fallback: "Downloading %d/%d")
-          }
-          /// Needs Attention
-          internal static let needsAttention = L10n.tr("Localizable", "struct.download_badge.text.needs_attention", fallback: "Needs Attention")
-          /// Needs Attention %d/%d
-          internal static func needsAttentionProgress(_ p1: Int, _ p2: Int) -> String {
-            L10n.tr("Localizable", "struct.download_badge.text.needs_attention_progress", p1, p2, fallback: "Needs Attention %d/%d")
-          }
-          /// Needs Repair
-          internal static let needsRepair = L10n.tr("Localizable", "struct.download_badge.text.needs_repair", fallback: "Needs Repair")
-          /// Paused %d/%d
-          internal static func paused(_ p1: Int, _ p2: Int) -> String {
-            L10n.tr("Localizable", "struct.download_badge.text.paused", p1, p2, fallback: "Paused %d/%d")
-          }
-          /// Queued
-          internal static let queued = L10n.tr("Localizable", "struct.download_badge.text.queued", fallback: "Queued")
-          /// Update Available
-          internal static let updateAvailable = L10n.tr("Localizable", "struct.download_badge.text.update_available", fallback: "Update Available")
         }
       }
       internal enum User {

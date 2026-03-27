@@ -504,40 +504,40 @@ private struct HeaderSection: View {
         }
     }
     private var downloadButtonAccessibilityLabel: String {
-        guard canDownload else { return L10n.Localizable.DetailView.Accessibility.downloadButtonLogin }
+        guard canDownload else { return L10n.Localizable.DetailView.Accessibility.DownloadButton.login }
         guard !showsMetadataPreparation else {
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonPreparing
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.preparing
         }
         switch downloadBadge {
         case .none:
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonDownload
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.download
         case .queued:
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonQueued
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.queued
         case .downloading(let completed, let total):
-            let progress = L10n.Localizable.DetailView.Accessibility.downloadButtonDownloading(
+            let progress = L10n.Localizable.DetailView.Accessibility.DownloadButton.downloading(
                 completed,
                 max(total, 1)
             )
-            return [progress, L10n.Localizable.DetailView.Accessibility.downloadButtonPauseAction]
+            return [progress, L10n.Localizable.DetailView.Accessibility.DownloadButton.pauseAction]
                 .joined(separator: ". ")
         case .paused(let completed, let total):
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonPaused(
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.paused(
                 completed,
                 max(total, 1)
             )
         case .downloaded:
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonDownloaded
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.downloaded
         case .updateAvailable:
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonUpdate
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.update
         case .partial(let completed, let total):
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonPartial(
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.partial(
                 completed,
                 max(total, 1)
             )
         case .failed:
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonRetry
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.retry
         case .missingFiles:
-            return L10n.Localizable.DetailView.Accessibility.downloadButtonRepair
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.repair
         }
     }
     private var showsMetadataPreparation: Bool {
