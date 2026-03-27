@@ -4,10 +4,11 @@
 //
 
 import Foundation
-import XCTest
+import Testing
 @testable import EhPanda
 
-final class DownloadFileStorageTests: XCTestCase {
+struct DownloadFileStorageTests {
+    @Test
     func testWriteReadAndValidateManifest() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -38,10 +39,11 @@ final class DownloadFileStorageTests: XCTestCase {
 
         let loadedManifest = try storage.readManifest(folderURL: folderURL)
 
-        XCTAssertEqual(loadedManifest, manifest)
-        XCTAssertEqual(storage.validate(download: download), .valid)
+        #expect(loadedManifest == manifest)
+        #expect(storage.validate(download: download) == .valid)
     }
 
+    @Test
     func testEnsureRootDirectoryMarksDownloadsFolderExcludedFromBackup() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -49,9 +51,10 @@ final class DownloadFileStorageTests: XCTestCase {
         try storage.ensureRootDirectory()
 
         let resourceValues = try rootURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
-        XCTAssertEqual(resourceValues.isExcludedFromBackup, true)
+        #expect(resourceValues.isExcludedFromBackup == true)
     }
 
+    @Test
     func testValidateReportsMissingPageFiles() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -74,12 +77,12 @@ final class DownloadFileStorageTests: XCTestCase {
             options: .atomic
         )
 
-        XCTAssertEqual(
-            storage.validate(download: download),
-            .missingFiles("Page 2 is missing.")
+        #expect(
+            storage.validate(download: download) == .missingFiles("Page 2 is missing.")
         )
     }
 
+    @Test
     func testValidateRemovesZeroBytePageFilesAndRequiresRepair() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -106,17 +109,17 @@ final class DownloadFileStorageTests: XCTestCase {
             options: .atomic
         )
 
-        XCTAssertEqual(
-            storage.validate(download: download),
-            .missingFiles("Page 1 is missing.")
+        #expect(
+            storage.validate(download: download) == .missingFiles("Page 1 is missing.")
         )
-        XCTAssertFalse(
+        #expect(
             FileManager.default.fileExists(
                 atPath: folderURL.appendingPathComponent("pages/0001.jpg").path
-            )
+            ) == false
         )
     }
 
+    @Test
     func testCleanupTemporaryFoldersRemovesOnlyTemporaryArtifacts() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -129,10 +132,11 @@ final class DownloadFileStorageTests: XCTestCase {
 
         try storage.cleanupTemporaryFolders()
 
-        XCTAssertFalse(FileManager.default.fileExists(atPath: temporaryURL.path))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: regularURL.path))
+        #expect(FileManager.default.fileExists(atPath: temporaryURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: regularURL.path))
     }
 
+    @Test
     func testCleanupTemporaryFoldersPreservesSpecifiedGalleryFolders() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -145,10 +149,11 @@ final class DownloadFileStorageTests: XCTestCase {
 
         try storage.cleanupTemporaryFolders(preservingGIDs: ["123"])
 
-        XCTAssertTrue(FileManager.default.fileExists(atPath: preservedURL.path))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: removedURL.path))
+        #expect(FileManager.default.fileExists(atPath: preservedURL.path))
+        #expect(FileManager.default.fileExists(atPath: removedURL.path) == false)
     }
 
+    @Test
     func testExistingPageRelativePathsDetectsCompletedPages() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -165,15 +170,15 @@ final class DownloadFileStorageTests: XCTestCase {
         try Data([0x03]).write(to: pagesURL.appendingPathComponent("0027.jpg"), options: .atomic)
         try Data([0x04]).write(to: pagesURL.appendingPathComponent("invalid.jpg"), options: .atomic)
 
-        XCTAssertEqual(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2),
-            [
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
                 1: "pages/0001.jpg",
                 2: "pages/0002.png"
             ]
         )
     }
 
+    @Test
     func testExistingPageRelativePathsRemovesZeroByteFiles() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -189,15 +194,15 @@ final class DownloadFileStorageTests: XCTestCase {
         try Data().write(to: emptyPageURL, options: .atomic)
         try Data([0x02]).write(to: pagesURL.appendingPathComponent("0002.png"), options: .atomic)
 
-        XCTAssertEqual(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2),
-            [
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
                 2: "pages/0002.png"
             ]
         )
-        XCTAssertFalse(FileManager.default.fileExists(atPath: emptyPageURL.path))
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
     }
 
+    @Test
     func testIsReadableAssetFileDoesNotDeleteFileWhenAttributesLookupFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -211,10 +216,11 @@ final class DownloadFileStorageTests: XCTestCase {
         try Data([0xFF, 0xD8, 0xFF]).write(to: fileURL, options: .atomic)
         fileManager.failingPath = fileURL.path
 
-        XCTAssertTrue(storage.isReadableAssetFile(at: fileURL))
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
+        #expect(storage.isReadableAssetFile(at: fileURL))
+        #expect(FileManager.default.fileExists(atPath: fileURL.path))
     }
 
+    @Test
     func testMakeFolderRelativePathSanitizesSeparatorsWhitespaceAndLength() {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -222,16 +228,17 @@ final class DownloadFileStorageTests: XCTestCase {
         let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta \(String(repeating: "X", count: 200)).  "
         let relativePath = storage.makeFolderRelativePath(gid: "123", title: unsafeTitle)
 
-        XCTAssertTrue(relativePath.hasPrefix("123 - "))
-        XCTAssertFalse(relativePath.contains("/"))
-        XCTAssertFalse(relativePath.contains("\\"))
-        XCTAssertFalse(relativePath.contains(":"))
-        XCTAssertFalse(relativePath.contains("\n"))
-        XCTAssertFalse(relativePath.hasSuffix(" "))
-        XCTAssertFalse(relativePath.hasSuffix("."))
-        XCTAssertLessThanOrEqual(relativePath.count, "123 - ".count + 96)
+        #expect(relativePath.hasPrefix("123 - "))
+        #expect(relativePath.contains("/") == false)
+        #expect(relativePath.contains("\\") == false)
+        #expect(relativePath.contains(":") == false)
+        #expect(relativePath.contains("\n") == false)
+        #expect(relativePath.hasSuffix(" ") == false)
+        #expect(relativePath.hasSuffix(".") == false)
+        #expect(relativePath.count <= "123 - ".count + 96)
     }
 
+    @Test
     func testWriteAndReadResumeState() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -252,12 +259,10 @@ final class DownloadFileStorageTests: XCTestCase {
         )
         try storage.writeResumeState(resumeState, folderURL: folderURL)
 
-        XCTAssertEqual(
-            try storage.readResumeState(folderURL: folderURL),
-            resumeState
-        )
+        #expect(try storage.readResumeState(folderURL: folderURL) == resumeState)
     }
 
+    @Test
     func testWriteReadAndRemoveFailedPagesSnapshot() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -277,12 +282,17 @@ final class DownloadFileStorageTests: XCTestCase {
         )
 
         try storage.writeFailedPages(snapshot, folderURL: folderURL)
-        XCTAssertEqual(try storage.readFailedPages(folderURL: folderURL), snapshot)
+        #expect(try storage.readFailedPages(folderURL: folderURL) == snapshot)
 
         try storage.removeFailedPages(folderURL: folderURL)
-        XCTAssertThrowsError(try storage.readFailedPages(folderURL: folderURL))
+        do {
+            _ = try storage.readFailedPages(folderURL: folderURL)
+            Issue.record("Expected readFailedPages to throw after removing the snapshot.")
+        } catch {
+        }
     }
 
+    @Test
     func testMaterializeRepairSeedCopiesOnlyManifestCoverAndExistingPageFiles() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -323,38 +333,39 @@ final class DownloadFileStorageTests: XCTestCase {
             to: tempFolderURL
         )
 
-        XCTAssertTrue(
+        #expect(
             FileManager.default.fileExists(
                 atPath: tempFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest).path
             )
         )
-        XCTAssertTrue(
+        #expect(
             FileManager.default.fileExists(
                 atPath: tempFolderURL.appendingPathComponent("cover.jpg").path
             )
         )
-        XCTAssertTrue(
+        #expect(
             FileManager.default.fileExists(
                 atPath: tempFolderURL.appendingPathComponent("pages/0001.jpg").path
             )
         )
-        XCTAssertFalse(
+        #expect(
             FileManager.default.fileExists(
                 atPath: tempFolderURL.appendingPathComponent("pages/0002.jpg").path
-            )
+            ) == false
         )
-        XCTAssertTrue(
+        #expect(
             FileManager.default.fileExists(
                 atPath: tempFolderURL.appendingPathComponent("pages/0003.jpg").path
             )
         )
-        XCTAssertFalse(
+        #expect(
             FileManager.default.fileExists(
                 atPath: tempFolderURL.appendingPathComponent("nested/ignored.bin").path
-            )
+            ) == false
         )
     }
 
+    @Test
     func testLinkOrCopyReadableAssetFallsBackToCopyWhenHardLinkFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -370,8 +381,8 @@ final class DownloadFileStorageTests: XCTestCase {
 
         try storage.linkOrCopyReadableAsset(at: sourceURL, to: destinationURL)
 
-        XCTAssertTrue(FileManager.default.fileExists(atPath: destinationURL.path))
-        XCTAssertEqual(try Data(contentsOf: destinationURL), Data([0x01, 0x02, 0x03]))
+        #expect(FileManager.default.fileExists(atPath: destinationURL.path))
+        #expect(try Data(contentsOf: destinationURL) == Data([0x01, 0x02, 0x03]))
     }
 }
 

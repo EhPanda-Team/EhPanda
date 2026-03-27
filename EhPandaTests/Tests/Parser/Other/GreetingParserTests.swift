@@ -4,19 +4,20 @@
 //
 
 import Kanna
-import XCTest
+import Testing
 @testable import EhPanda
 
-class GreetingParserTests: XCTestCase, TestHelper {
+struct GreetingParserTests: TestHelper {
+    @Test
     func testExample() throws {
         let document = try htmlDocument(filename: .galleryDetailWithGreeting)
         let greeting = try Parser.parseGreeting(doc: document)
-        XCTAssertEqual(greeting.gainedEXP, 30)
-        XCTAssertEqual(greeting.gainedCredits, 329)
-        XCTAssertNil(greeting.gainedGP)
-        XCTAssertNil(greeting.gainedHath)
-        XCTAssertNotNil(greeting.updateTime)
-        XCTAssertFalse(greeting.gainedNothing)
-        XCTAssertNotNil(greeting.gainContent)
+        #expect(greeting.gainedEXP == 30)
+        #expect(greeting.gainedCredits == 329)
+        #expect(greeting.gainedGP == nil)
+        #expect(greeting.gainedHath == nil)
+        #expect(greeting.updateTime != nil)
+        #expect(greeting.gainedNothing == false)
+        #expect(greeting.gainContent != nil)
     }
 }

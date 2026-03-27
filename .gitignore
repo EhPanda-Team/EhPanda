@@ -1,4 +1,5 @@
 .DS_Store
+.xcode-home
 EhPanda.xcodeproj/xcuserdata
 EhPanda.xcodeproj/project.xcworkspace/xcuserdata
 Config/LocalSigning.xcconfig

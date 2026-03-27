@@ -4,22 +4,23 @@
 //
 
 import Kanna
-import XCTest
+import Testing
 @testable import EhPanda
 
-class ListParserTests: XCTestCase, TestHelper {
+struct ListParserTests: TestHelper {
+    @Test
     func testExample() throws {
         let tuples: [(ListParserTestType, HTMLDocument)] = try ListParserTestType.allCases.compactMap { type in
             (type, try htmlDocument(filename: type.filename))
         }
-        XCTAssertEqual(tuples.count, ListParserTestType.allCases.count)
+        #expect(tuples.count == ListParserTestType.allCases.count)
 
         try tuples.forEach { type, document in
             let galleries = try Parser.parseGalleries(doc: document)
             let uploaders = galleries.compactMap(\.uploader).filter(\.notEmpty)
-            XCTAssertEqual(galleries.count, type.assertCount, .init(describing: type))
+            #expect(galleries.count == type.assertCount, "\(type)")
             if type.hasUploader {
-                XCTAssertEqual(uploaders.count, type.assertCount, .init(describing: type))
+                #expect(uploaders.count == type.assertCount, "\(type)")
             }
         }
     }

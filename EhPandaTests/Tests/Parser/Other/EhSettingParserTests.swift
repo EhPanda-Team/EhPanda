@@ -4,10 +4,11 @@
 //
 
 import Kanna
-import XCTest
+import Testing
 @testable import EhPanda
 
-class EhSettingParserTests: XCTestCase, TestHelper {
+struct EhSettingParserTests: TestHelper {
+    @Test
     func testExample() throws {
         let document = try htmlDocument(filename: .ehSetting)
         let ehSetting = try Parser.parseEhSetting(doc: document)
@@ -17,74 +18,74 @@ class EhSettingParserTests: XCTestCase, TestHelper {
     }
 
     func testEhProfiles(_ profiles: [EhProfile]) {
-        XCTAssertEqual(profiles.count, 3)
+        #expect(profiles.count == 3)
         
         let ehProfile1 = profiles[0]
-        XCTAssertEqual(ehProfile1.value, 1)
-        XCTAssertEqual(ehProfile1.name, "Default Profile")
-        XCTAssertEqual(ehProfile1.isSelected, true)
-        XCTAssertEqual(ehProfile1.isDefault, true)
+        #expect(ehProfile1.value == 1)
+        #expect(ehProfile1.name == "Default Profile")
+        #expect(ehProfile1.isSelected == true)
+        #expect(ehProfile1.isDefault == true)
 
         let ehProfile2 = profiles[1]
-        XCTAssertEqual(ehProfile2.value, 2)
-        XCTAssertEqual(ehProfile2.name, "EhPanda")
-        XCTAssertEqual(ehProfile2.isSelected, false)
-        XCTAssertEqual(ehProfile2.isDefault, false)
-        XCTAssertTrue(EhSetting.verifyEhPandaProfileName(with: ehProfile2.name))
+        #expect(ehProfile2.value == 2)
+        #expect(ehProfile2.name == "EhPanda")
+        #expect(ehProfile2.isSelected == false)
+        #expect(ehProfile2.isDefault == false)
+        #expect(EhSetting.verifyEhPandaProfileName(with: ehProfile2.name))
     }
 
     func testCapability(ehSetting: EhSetting) {
-        XCTAssertEqual(ehSetting.capableLoadThroughHathSetting, .legacyNo)
-        XCTAssertEqual(ehSetting.capableLoadThroughHathSettings, EhSetting.LoadThroughHathSetting.allCases)
+        #expect(ehSetting.capableLoadThroughHathSetting == .legacyNo)
+        #expect(ehSetting.capableLoadThroughHathSettings == EhSetting.LoadThroughHathSetting.allCases)
 
-        XCTAssertEqual(ehSetting.capableImageResolution, .x2400)
-        XCTAssertEqual(ehSetting.capableImageResolutions, EhSetting.ImageResolution.allCases)
+        #expect(ehSetting.capableImageResolution == .x2400)
+        #expect(ehSetting.capableImageResolutions == EhSetting.ImageResolution.allCases)
 
-        XCTAssertEqual(ehSetting.capableSearchResultCount, .oneHundred)
-        XCTAssertEqual(ehSetting.capableSearchResultCounts, [.twentyFive, .fifty, .oneHundred])
+        #expect(ehSetting.capableSearchResultCount == .oneHundred)
+        #expect(ehSetting.capableSearchResultCounts == [.twentyFive, .fifty, .oneHundred])
 
-        XCTAssertEqual(ehSetting.capableThumbnailConfigSizes, [.auto, .small, .normal])
+        #expect(ehSetting.capableThumbnailConfigSizes == [.auto, .small, .normal])
 
-        XCTAssertEqual(ehSetting.capableThumbnailConfigRowCount, .forty)
-        XCTAssertEqual(ehSetting.capableThumbnailConfigRowCounts, EhSetting.ThumbnailRowCount.allCases)
+        #expect(ehSetting.capableThumbnailConfigRowCount == .forty)
+        #expect(ehSetting.capableThumbnailConfigRowCounts == EhSetting.ThumbnailRowCount.allCases)
     }
 
     func testRemainingStuff(ehSetting: EhSetting) {
-        XCTAssertEqual(ehSetting.loadThroughHathSetting, .anyClient)
-        XCTAssertEqual(ehSetting.browsingCountry, .autoDetect)
-        XCTAssertEqual(ehSetting.literalBrowsingCountry, "Japan")
-        XCTAssertEqual(ehSetting.imageResolution, .auto)
-        XCTAssertEqual(ehSetting.imageSizeWidth, 0)
-        XCTAssertEqual(ehSetting.imageSizeHeight, 0)
-        XCTAssertEqual(ehSetting.galleryName, .japanese)
-        XCTAssertEqual(ehSetting.archiverBehavior, .manualSelectManualStart)
-        XCTAssertEqual(ehSetting.displayMode, .compact)
-        XCTAssertEqual(ehSetting.showSearchRangeIndicator, true)
-        XCTAssertEqual(ehSetting.disabledCategories, .init(repeating: false, count: 10))
-        XCTAssertEqual(ehSetting.favoriteCategories, [
+        #expect(ehSetting.loadThroughHathSetting == .anyClient)
+        #expect(ehSetting.browsingCountry == .autoDetect)
+        #expect(ehSetting.literalBrowsingCountry == "Japan")
+        #expect(ehSetting.imageResolution == .auto)
+        #expect(ehSetting.imageSizeWidth == 0)
+        #expect(ehSetting.imageSizeHeight == 0)
+        #expect(ehSetting.galleryName == .japanese)
+        #expect(ehSetting.archiverBehavior == .manualSelectManualStart)
+        #expect(ehSetting.displayMode == .compact)
+        #expect(ehSetting.showSearchRangeIndicator == true)
+        #expect(ehSetting.disabledCategories == .init(repeating: false, count: 10))
+        #expect(ehSetting.favoriteCategories == [
             "Favorites 0", "Favorites 1", "Favorites 2", "Favorites 3", "Favorites 4",
             "Favorites 5", "Favorites 6", "Favorites 7", "Favorites 8", "Favorites 9"
         ])
-        XCTAssertEqual(ehSetting.favoritesSortOrder, .favoritedTime)
-        XCTAssertEqual(ehSetting.ratingsColor, "")
-        XCTAssertEqual(ehSetting.tagFilteringThreshold, 0)
-        XCTAssertEqual(ehSetting.tagWatchingThreshold, 0)
-        XCTAssertEqual(ehSetting.showFilteredRemovalCount, true)
-        XCTAssertEqual(ehSetting.excludedLanguages, .init(repeating: false, count: 50))
-        XCTAssertEqual(ehSetting.excludedUploaders, "")
-        XCTAssertEqual(ehSetting.searchResultCount, .oneHundred)
-        XCTAssertEqual(ehSetting.thumbnailLoadTiming, .onMouseOver)
-        XCTAssertEqual(ehSetting.thumbnailConfigSize, .auto)
-        XCTAssertEqual(ehSetting.thumbnailConfigRows, .four)
-        XCTAssertEqual(ehSetting.coverScaleFactor, 100)
-        XCTAssertEqual(ehSetting.viewportVirtualWidth, 0)
-        XCTAssertEqual(ehSetting.commentsSortOrder, .oldest)
-        XCTAssertEqual(ehSetting.commentVotesShowTiming, .onHoverOrClick)
-        XCTAssertEqual(ehSetting.tagsSortOrder, .alphabetical)
-        XCTAssertEqual(ehSetting.galleryPageNumbering, .none)
-        XCTAssertEqual(ehSetting.useOriginalImages, false)
-        XCTAssertEqual(ehSetting.useMultiplePageViewer, true)
-        XCTAssertEqual(ehSetting.multiplePageViewerStyle, .alignLeftScaleIfOverWidth)
-        XCTAssertEqual(ehSetting.multiplePageViewerShowThumbnailPane, true)
+        #expect(ehSetting.favoritesSortOrder == .favoritedTime)
+        #expect(ehSetting.ratingsColor == "")
+        #expect(ehSetting.tagFilteringThreshold == 0)
+        #expect(ehSetting.tagWatchingThreshold == 0)
+        #expect(ehSetting.showFilteredRemovalCount == true)
+        #expect(ehSetting.excludedLanguages == .init(repeating: false, count: 50))
+        #expect(ehSetting.excludedUploaders == "")
+        #expect(ehSetting.searchResultCount == .oneHundred)
+        #expect(ehSetting.thumbnailLoadTiming == .onMouseOver)
+        #expect(ehSetting.thumbnailConfigSize == .auto)
+        #expect(ehSetting.thumbnailConfigRows == .four)
+        #expect(ehSetting.coverScaleFactor == 100)
+        #expect(ehSetting.viewportVirtualWidth == 0)
+        #expect(ehSetting.commentsSortOrder == .oldest)
+        #expect(ehSetting.commentVotesShowTiming == .onHoverOrClick)
+        #expect(ehSetting.tagsSortOrder == .alphabetical)
+        #expect(ehSetting.galleryPageNumbering == .none)
+        #expect(ehSetting.useOriginalImages == false)
+        #expect(ehSetting.useMultiplePageViewer == true)
+        #expect(ehSetting.multiplePageViewerStyle == .alignLeftScaleIfOverWidth)
+        #expect(ehSetting.multiplePageViewerShowThumbnailPane == true)
     }
 }
