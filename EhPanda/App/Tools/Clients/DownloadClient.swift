@@ -226,15 +226,21 @@ actor DownloadManager {
 
     private let storage: DownloadFileStorage
     private let urlSession: URLSession
+    private let persistenceContainer: NSPersistentContainer
     private var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
     private var lastObservedDownloads = [DownloadedGallery]()
     private var activeGalleryID: String?
     private var activeTask: Task<Void, Never>?
     private var schedulingBlockedGalleryIDs = Set<String>()
 
-    init(storage: DownloadFileStorage, urlSession: URLSession) {
+    init(
+        storage: DownloadFileStorage,
+        urlSession: URLSession,
+        persistenceContainer: NSPersistentContainer = PersistenceController.shared.container
+    ) {
         self.storage = storage
         self.urlSession = urlSession
+        self.persistenceContainer = persistenceContainer
     }
 
     func observeDownloads() -> AsyncStream<[DownloadedGallery]> {
@@ -3444,7 +3450,7 @@ actor DownloadManager {
         guard !validEntries.isEmpty else { return }
 
         await MainActor.run {
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<GalleryStateMO>(entityName: "GalleryStateMO")
             request.fetchLimit = 1
             request.predicate = NSPredicate(format: "gid == %@", gid)
@@ -3483,7 +3489,7 @@ actor DownloadManager {
     private func fetchCachedGalleryImageState(gid: String) async -> CachedGalleryImageState? {
         await MainActor.run {
             guard gid.isValidGID else { return nil }
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<GalleryStateMO>(entityName: "GalleryStateMO")
             request.fetchLimit = 1
             request.predicate = NSPredicate(format: "gid == %@", gid)
@@ -3666,7 +3672,7 @@ actor DownloadManager {
 
     fileprivate func fetchDownload(gid: String) async -> DownloadedGallery? {
         await MainActor.run {
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
                 entityName: "DownloadedGalleryMO"
             )
@@ -3678,7 +3684,7 @@ actor DownloadManager {
 
     private func fetchDownloadsFromStore() async -> [DownloadedGallery] {
         await MainActor.run {
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
                 entityName: "DownloadedGalleryMO"
             )
@@ -3695,7 +3701,7 @@ actor DownloadManager {
 
     private func fetchDownloadsFromStore(gids: [String]) async -> [DownloadedGallery] {
         await MainActor.run {
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
                 entityName: "DownloadedGalleryMO"
             )
@@ -3717,7 +3723,7 @@ actor DownloadManager {
         update: @escaping (DownloadedGalleryMO) -> Void
     ) async throws {
         try await MainActor.run {
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
                 entityName: "DownloadedGalleryMO"
             )
@@ -3757,7 +3763,7 @@ actor DownloadManager {
 
     private func deleteDownloadRecord(gid: String) async throws {
         try await MainActor.run {
-            let context = PersistenceController.shared.container.viewContext
+            let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
                 entityName: "DownloadedGalleryMO"
             )
