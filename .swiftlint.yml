@@ -6,13 +6,5 @@ disabled_rules:
  - function_body_length
  - cyclomatic_complexity
 
-identifier_name:
- excluded:
-  - x
-  - y
-  - id
-  - no
-
 excluded:
- - EhPandaTests
  - EhPanda/App/Generated

@@ -746,7 +746,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
         await store.send(.setting(.loadUserSettingsDone))
         #expect(store.state.didRunLaunchAutomation == false)
-        #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
+        #expect(store.state.isAwaitingIgneousForLaunchAutomation)
 
         let response = try #require(HTTPURLResponse(
             url: Defaults.URL.exhentai,
@@ -759,7 +759,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         await store.send(.setting(.fetchIgneousDone(.success(response))))
         await store.receive(\.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
-            $0.isWaitingForIgneousBeforeLaunchAutomation = false
+            $0.isAwaitingIgneousForLaunchAutomation = false
         }
     }
 
@@ -803,12 +803,12 @@ struct DownloadFeatureReducerTests: TestHelper {
 
         await store.send(.setting(.loadUserSettingsDone))
         #expect(store.state.didRunLaunchAutomation == false)
-        #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
+        #expect(store.state.isAwaitingIgneousForLaunchAutomation)
 
         await store.send(.setting(.fetchIgneousDone(.failure(.networkingFailed))))
         await store.receive(\.setting.account.loadCookies)
         #expect(store.state.didRunLaunchAutomation == false)
-        #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
+        #expect(store.state.isAwaitingIgneousForLaunchAutomation)
     }
 
     @MainActor
@@ -1793,7 +1793,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         }
         let imageData = try #require(image.pngData())
 
-        KingfisherManager.shared.cache.store(image, original: imageData, forKey: stableCacheKey)
+        try await KingfisherManager.shared.cache.store(image, original: imageData, forKey: stableCacheKey)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: stableCacheKey)
             KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
@@ -2795,7 +2795,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             + [currentPageImageURL, staleStoredPageURL, coverURL]
         let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
         for cacheKey in cachedKeys {
-            KingfisherManager.shared.cache.storeToDisk(cachedImageData, forKey: cacheKey)
+            try await KingfisherManager.shared.cache.storeToDisk(cachedImageData, forKey: cacheKey)
         }
         defer {
             cachedKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
@@ -3968,7 +3968,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
         let cacheKey = try #require(imageURL.stableImageCacheKey)
-        KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
+        try await KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
             KingfisherManager.shared.cache.removeImage(forKey: imageURL.absoluteString)
@@ -4037,7 +4037,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
         let cacheKey = try #require(imageURL.stableImageCacheKey)
-        KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
+        try await KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
             KingfisherManager.shared.cache.removeImage(forKey: imageURL.absoluteString)
@@ -4102,7 +4102,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredChainAndLatestHashAreDifferentKinds() async throws {
+    func testUpdateRemoteSignatureSkipsUpdateWhenStoredChainAndLatestHashDiffer() async throws {
         let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 101)
@@ -4134,7 +4134,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredHashAndLatestNonOriginalChainAreDifferentKinds() async throws {
+    func testUpdateRemoteSignatureSkipsUpdateWhenStoredHashAndLatestNonOriginalChainDiffer() async throws {
         let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 102)
@@ -4678,7 +4678,9 @@ struct DownloadFeatureReducerTests: TestHelper {
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
         let manager = makeTestingDownloadManager()
-        let normalImageURL = try #require(URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key"))
+        let normalImageURL = try #require(
+            URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key")
+        )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: try makeResponse(
@@ -4699,9 +4701,9 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let htmlData = try #require("""
+        let htmlData = Data("""
         <html><body>You have exceeded your image viewing limits</body></html>
-        """.data(using: .utf8))
+        """.utf8)
         try htmlData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
@@ -4741,7 +4743,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         let placeholderData = try Data(contentsOf: placeholderURL)
         let cacheKeys = normalImageURL.imageCacheKeys(includeStableAlias: true)
         for cacheKey in cacheKeys {
-            KingfisherManager.shared.cache.storeToDisk(placeholderData, forKey: cacheKey)
+            try await KingfisherManager.shared.cache.storeToDisk(placeholderData, forKey: cacheKey)
         }
         defer {
             cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
@@ -4760,7 +4762,7 @@ struct DownloadFeatureReducerTests: TestHelper {
                 pageCount: 1,
                 postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token"))
+                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token") as URL?)
             ),
             galleryDetail: GalleryDetail(
                 gid: gid,
@@ -4809,13 +4811,15 @@ struct DownloadFeatureReducerTests: TestHelper {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        let normalImageURL = try #require(URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key"))
+        let normalImageURL = try #require(
+            URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key")
+        )
         try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
 
         let imageData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
         let cacheKeys = normalImageURL.imageCacheKeys(includeStableAlias: true)
         for cacheKey in cacheKeys {
-            KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
+            try await KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
         }
         defer {
             cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
@@ -4834,7 +4838,7 @@ struct DownloadFeatureReducerTests: TestHelper {
                 pageCount: 1,
                 postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: try #require(URL(string: "https://exhentai.org/g/\(gid)/token"))
+                galleryURL: try #require(URL(string: "https://exhentai.org/g/\(gid)/token") as URL?)
             ),
             galleryDetail: GalleryDetail(
                 gid: gid,
@@ -4906,7 +4910,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let authHTMLData = try #require("""
+        let authHTMLData = Data("""
         <html>
           <body>
             <a href="bounce_login.php">Login</a>
@@ -4914,7 +4918,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             <p>Access to ExHentai.org is restricted.</p>
           </body>
         </html>
-        """.data(using: .utf8))
+        """.utf8)
         try authHTMLData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
@@ -4938,9 +4942,9 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let invalidPageData = try #require("""
+        let invalidPageData = Data("""
         <html><body><h1>Invalid page</h1><p>Gallery not found</p></body></html>
-        """.data(using: .utf8))
+        """.utf8)
         try invalidPageData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
@@ -4965,8 +4969,8 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let keepTryingData = try #require(
-            "<html><body><h1>Keep trying</h1></body></html>".data(using: .utf8)
+        let keepTryingData = Data(
+            "<html><body><h1>Keep trying</h1></body></html>".utf8
         )
         try keepTryingData.write(to: fileURL, options: .atomic)
 
@@ -5017,12 +5021,12 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let galleryNotAvailableData = try #require("""
+        let galleryNotAvailableData = Data("""
         <html>
           <head><title>Gallery Not Available</title></head>
           <body><h1>Gallery Not Available</h1></body>
         </html>
-        """.data(using: .utf8))
+        """.utf8)
         try galleryNotAvailableData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
@@ -5546,7 +5550,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         try insertPersistedGalleryState(in: container, gid: gid, imageURLs: imageURLs)
         let cacheKeys = Set(imageURLs.values.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
         for cacheKey in cacheKeys {
-            KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
+            try await KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
         }
         defer {
             cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) }
@@ -5578,7 +5582,7 @@ struct DownloadFeatureReducerTests: TestHelper {
                 pageCount: pageCount,
                 postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token"))
+                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token") as URL?)
             ),
             galleryDetail: GalleryDetail(
                 gid: gid,
@@ -6138,11 +6142,11 @@ private func requestBodyData(from request: URLRequest) -> Data? {
 }
 
 private final class FailFastURLProtocol: URLProtocol {
-    override class func canInit(with request: URLRequest) -> Bool {
+    override static func canInit(with request: URLRequest) -> Bool {
         true
     }
 
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
@@ -6185,11 +6189,11 @@ private final class SharedSessionStubURLProtocol: URLProtocol {
         return handlers[sessionID]
     }
 
-    override class func canInit(with request: URLRequest) -> Bool {
+    override static func canInit(with request: URLRequest) -> Bool {
         handler(for: request) != nil
     }
 
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 

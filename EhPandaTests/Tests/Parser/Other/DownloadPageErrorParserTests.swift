@@ -46,7 +46,8 @@ struct DownloadPageErrorParserTests: TestHelper {
     func testNotFoundMarkersMapToNotFound() throws {
         let document = try Kanna.HTML(
             html: """
-            <html><body><h1>Invalid page</h1><p>Gallery not found.</p><p>Key missing.</p><p>Keep trying.</p></body></html>
+            <html><body><h1>Invalid page</h1><p>Gallery not found.</p>
+            <p>Key missing.</p><p>Keep trying.</p></body></html>
             """,
             encoding: .utf8
         )

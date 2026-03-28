@@ -119,7 +119,9 @@ struct SettingReducer {
             .onChange(of: \.setting.galleryHost) { _, state in
                 .merge(
                     .send(.syncSetting),
-                    .run(operation: { [value = state.setting.galleryHost.rawValue] _ in userDefaultsClient.setValue(value, .galleryHost) })
+                    .run(operation: { [value = state.setting.galleryHost.rawValue] _ in
+                        userDefaultsClient.setValue(value, .galleryHost)
+                    })
                 )
             }
             .onChange(of: \.setting.enablesTagsExtension) { _, state in

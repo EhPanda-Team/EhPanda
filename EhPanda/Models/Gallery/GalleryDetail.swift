@@ -80,6 +80,7 @@ extension GalleryDetail: DateFormattable {
 
 enum GalleryVisibility: Codable, Equatable {
     case yes
+    // swiftlint:disable:next identifier_name
     case no(reason: String)
 }
 

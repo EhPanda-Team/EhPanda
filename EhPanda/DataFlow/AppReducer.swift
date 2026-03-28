@@ -20,7 +20,7 @@ struct AppReducer {
         var downloadsState = DownloadsReducer.State()
         var settingState = SettingReducer.State()
         var didRunLaunchAutomation = false
-        var isWaitingForIgneousBeforeLaunchAutomation = false
+        var isAwaitingIgneousForLaunchAutomation = false
     }
 
     enum Action: BindableAction {
@@ -222,19 +222,19 @@ struct AppReducer {
                     if state.settingState.setting.detectsLinksFromClipboard {
                         effects.append(.send(.appRoute(.detectClipboardURL)))
                     }
-                    state.isWaitingForIgneousBeforeLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
+                    state.isAwaitingIgneousForLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
                         state: state
                     )
-                    if !state.isWaitingForIgneousBeforeLaunchAutomation {
+                    if !state.isAwaitingIgneousForLaunchAutomation {
                         effects.append(.send(.runLaunchAutomation))
                     }
                     return effects.isEmpty ? .none : .merge(effects)
 
                 case .setting(.account(.loadCookies)):
-                    guard state.isWaitingForIgneousBeforeLaunchAutomation,
+                    guard state.isAwaitingIgneousForLaunchAutomation,
                           !shouldDelayLaunchAutomationUntilIgneous(state: state)
                     else { return .none }
-                    state.isWaitingForIgneousBeforeLaunchAutomation = false
+                    state.isAwaitingIgneousForLaunchAutomation = false
                     return .send(.runLaunchAutomation)
 
                 case .setting(.fetchGreetingDone(let result)):

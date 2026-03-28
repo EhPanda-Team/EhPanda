@@ -388,7 +388,7 @@ struct DownloadFileStorageTests {
             withIntermediateDirectories: true
         )
 
-        let manifest = try DownloadManifest(
+        let manifest = DownloadManifest(
             gid: "123",
             host: .ehentai,
             token: "token",
@@ -531,7 +531,7 @@ private extension DownloadFileStorageTests {
     }
 
     func sampleManifest(pageCount: Int) throws -> DownloadManifest {
-        try DownloadManifest(
+        DownloadManifest(
             gid: "123",
             host: .ehentai,
             token: "token",
