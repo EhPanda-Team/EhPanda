@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -324,14 +324,12 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		AB5BE68126B95FDD007D4A55 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 13;
+			dstSubfolder = PlugIns;
 			files = (
 				AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -653,14 +651,11 @@
 /* Begin PBXFrameworksBuildPhase section */
 		AB5BE67326B95FDD007D4A55 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ABC3C7512593696C00E0C11B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */,
 				AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */,
@@ -679,14 +674,11 @@
 				AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ABF294C926D20F82004DD03A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -1625,8 +1617,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = ShareExtension;
 			productName = ShareExtension;
 			productReference = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */;
@@ -1712,7 +1702,6 @@
 				};
 			};
 			buildConfigurationList = ABC3C74F2593696C00E0C11B /* Build configuration list for PBXProject "EhPanda" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1745,6 +1734,7 @@
 				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
+			preferredProjectObjectVersion = 56;
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1759,14 +1749,11 @@
 /* Begin PBXResourcesBuildPhase section */
 		AB5BE67426B95FDD007D4A55 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ABC3C7522593696C00E0C11B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				AB0CFB8C27BBD2D7004BD372 /* AppIcon_Developer@3x.png in Resources */,
 				AB0CFB9627BBD323004BD372 /* AppIcon_Ukiyoe@2x.png in Resources */,
@@ -1808,11 +1795,9 @@
 				ABE9012627F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad@2x.png in Resources */,
 				AB0CFB9427BBD323004BD372 /* AppIcon_Ukiyoe_iPad_Pro@2x.png in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ABF294CA26D20F82004DD03A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				AB41DB3F27B760D700DD3604 /* FrontPageExtendedList.html in Resources */,
 				AB41DB4C27B760D700DD3604 /* FavoritesCompactList.html in Resources */,
@@ -1845,7 +1830,6 @@
 				AB41DB4A27B760D700DD3604 /* WatchedThumbnailList.html in Resources */,
 				AB31CD3F27B670FD00F40E0A /* GalleryNormalImageURL.html in Resources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
@@ -1853,56 +1837,57 @@
 		AB2E936227A24E0A00EA99F1 /* SwiftGen */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
 			name = SwiftGen;
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				$SRCROOT/EhPanda/App/Generated/Strings.swift,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if test -d \"/opt/homebrew/bin/\"; then\n  PATH=\"/opt/homebrew/bin/:${PATH}\"\nfi\n\nexport PATH\n\nif which swiftgen >/dev/null; then\n  swiftgen\nelse\n  echo \"warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen\"\nfi\n";
+			shellScript = (
+				"if test -d \"/opt/homebrew/bin/\"; then",
+				"  PATH=\"/opt/homebrew/bin/:${PATH}\"",
+				"fi",
+				"",
+				"export PATH",
+				"",
+				"if which swiftgen >/dev/null; then",
+				"  swiftgen",
+				"else",
+				"  echo \"warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen\"",
+				"fi",
+				"",
+			);
 		};
 		AB69FE41263C328400716FBD /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
 			name = SwiftLint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if test -d \"/opt/homebrew/bin/\"; then\n  PATH=\"/opt/homebrew/bin/:${PATH}\"\nfi\n\nexport PATH\n\nif which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = (
+				"if test -d \"/opt/homebrew/bin/\"; then",
+				"  PATH=\"/opt/homebrew/bin/:${PATH}\"",
+				"fi",
+				"",
+				"export PATH",
+				"",
+				"if which swiftlint >/dev/null; then",
+				"  swiftlint",
+				"else",
+				"  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"",
+				"fi",
+				"",
+			);
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AB5BE67226B95FDD007D4A55 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ABC3C7502593696C00E0C11B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */,
 				AB0929D02781E1CC00F107CA /* UIApplicationClient.swift in Sources */,
@@ -2097,11 +2082,9 @@
 				ABBB266A2797C61F007B6149 /* TorrentsReducer.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ABF294C826D20F82004DD03A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				EAB100012F1E000100000003 /* DownloadFileStorageTests.swift in Sources */,
 				EAB100012F1E000100000004 /* DownloadFeatureReducerTests.swift in Sources */,
@@ -2120,7 +2103,6 @@
 				ABD9770E27B65A7300983DE7 /* ListParserTests.swift in Sources */,
 				EAB100012F1E000100000002 /* SettingDownloadTests.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -2179,7 +2161,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		AB5BE68226B95FDD007D4A55 /* Debug */ = {
+		AB5BE68226B95FDD007D4A55 /* Debug configuration for PBXNativeTarget "ShareExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -2206,7 +2188,7 @@
 			};
 			name = Debug;
 		};
-		AB5BE68326B95FDD007D4A55 /* Release */ = {
+		AB5BE68326B95FDD007D4A55 /* Release configuration for PBXNativeTarget "ShareExtension" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -2233,7 +2215,7 @@
 			};
 			name = Release;
 		};
-		ABC3C7612593696E00E0C11B /* Debug */ = {
+		ABC3C7612593696E00E0C11B /* Debug configuration for PBXProject "EhPanda" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -2296,7 +2278,7 @@
 			};
 			name = Debug;
 		};
-		ABC3C7622593696E00E0C11B /* Release */ = {
+		ABC3C7622593696E00E0C11B /* Release configuration for PBXProject "EhPanda" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -2353,7 +2335,7 @@
 			};
 			name = Release;
 		};
-		ABC3C7642593696E00E0C11B /* Debug */ = {
+		ABC3C7642593696E00E0C11B /* Debug configuration for PBXNativeTarget "EhPanda" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
@@ -2381,7 +2363,7 @@
 			};
 			name = Debug;
 		};
-		ABC3C7652593696E00E0C11B /* Release */ = {
+		ABC3C7652593696E00E0C11B /* Release configuration for PBXNativeTarget "EhPanda" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
@@ -2409,7 +2391,7 @@
 			};
 			name = Release;
 		};
-		ABF294D226D20F82004DD03A /* Debug */ = {
+		ABF294D226D20F82004DD03A /* Debug configuration for PBXNativeTarget "EhPandaTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -2435,7 +2417,7 @@
 			};
 			name = Debug;
 		};
-		ABF294D326D20F82004DD03A /* Release */ = {
+		ABF294D326D20F82004DD03A /* Release configuration for PBXNativeTarget "EhPandaTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -2467,37 +2449,33 @@
 		AB5BE68426B95FDD007D4A55 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AB5BE68226B95FDD007D4A55 /* Debug */,
-				AB5BE68326B95FDD007D4A55 /* Release */,
+				AB5BE68226B95FDD007D4A55 /* Debug configuration for PBXNativeTarget "ShareExtension" */,
+				AB5BE68326B95FDD007D4A55 /* Release configuration for PBXNativeTarget "ShareExtension" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		ABC3C74F2593696C00E0C11B /* Build configuration list for PBXProject "EhPanda" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				ABC3C7612593696E00E0C11B /* Debug */,
-				ABC3C7622593696E00E0C11B /* Release */,
+				ABC3C7612593696E00E0C11B /* Debug configuration for PBXProject "EhPanda" */,
+				ABC3C7622593696E00E0C11B /* Release configuration for PBXProject "EhPanda" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		ABC3C7632593696E00E0C11B /* Build configuration list for PBXNativeTarget "EhPanda" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				ABC3C7642593696E00E0C11B /* Debug */,
-				ABC3C7652593696E00E0C11B /* Release */,
+				ABC3C7642593696E00E0C11B /* Debug configuration for PBXNativeTarget "EhPanda" */,
+				ABC3C7652593696E00E0C11B /* Release configuration for PBXNativeTarget "EhPanda" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		ABF294D426D20F82004DD03A /* Build configuration list for PBXNativeTarget "EhPandaTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				ABF294D226D20F82004DD03A /* Debug */,
-				ABF294D326D20F82004DD03A /* Release */,
+				ABF294D226D20F82004DD03A /* Debug configuration for PBXNativeTarget "EhPandaTests" */,
+				ABF294D326D20F82004DD03A /* Release configuration for PBXNativeTarget "EhPandaTests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
@@ -2580,8 +2558,12 @@
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.17.0;
+				minimumVersion = 1.25.0;
 			};
+			traits = (
+				ComposableArchitecture2DeprecationOverloads,
+				ComposableArchitecture2Deprecations,
+			);
 		};
 		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -2604,7 +2586,7 @@
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
+				minimumVersion = 8.0.0;
 			};
 		};
 		ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
@@ -2612,7 +2594,7 @@
 			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
+				minimumVersion = 7.0.0;
 			};
 		};
 		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
@@ -2620,7 +2602,7 @@
 			repositoryURL = "https://github.com/tid-kijyun/Kanna";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
+				minimumVersion = 6.0.0;
 			};
 		};
 		EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
