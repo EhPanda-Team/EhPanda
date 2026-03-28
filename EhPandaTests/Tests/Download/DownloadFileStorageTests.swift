@@ -22,7 +22,7 @@ struct DownloadFileStorageTests {
             withIntermediateDirectories: true
         )
 
-        let manifest = sampleManifest(pageCount: 2)
+        let manifest = try sampleManifest(pageCount: 2)
         try storage.writeManifest(manifest, folderURL: folderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
             to: folderURL.appendingPathComponent("cover.jpg"),
@@ -304,7 +304,7 @@ struct DownloadFileStorageTests {
             at: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = sampleManifest(pageCount: 3)
+        let manifest = try sampleManifest(pageCount: 3)
         try storage.writeManifest(manifest, folderURL: sourceFolderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
             to: sourceFolderURL.appendingPathComponent("cover.jpg"),
@@ -447,8 +447,8 @@ private extension DownloadFileStorageTests {
         )
     }
 
-    func sampleManifest(pageCount: Int) -> DownloadManifest {
-        DownloadManifest(
+    func sampleManifest(pageCount: Int) throws -> DownloadManifest {
+        try DownloadManifest(
             gid: "123",
             host: .ehentai,
             token: "token",
@@ -461,7 +461,7 @@ private extension DownloadFileStorageTests {
             postedDate: .now,
             pageCount: pageCount,
             coverRelativePath: "cover.jpg",
-            galleryURL: URL(string: "https://e-hentai.org/g/123/token")!,
+            galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             versionSignature: "hash:v1",
