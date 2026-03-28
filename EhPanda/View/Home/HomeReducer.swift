@@ -116,18 +116,16 @@ struct HomeReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            .onChange(of: \.route) { _, state in
+                state.route == nil ? .send(.clearSubStates) : .none
             }
-            .onChange(of: \.cardPageIndex) { _, newValue in
-                Reduce { state, _ in
-                    guard newValue < state.popularGalleries.count else { return .none }
-                    state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
-                    state.allowsCardHitTesting = false
-                    return .run { send in
-                        try await Task.sleep(for: .milliseconds(300))
-                        await send(.setAllowsCardHitTesting(true))
-                    }
+            .onChange(of: \.cardPageIndex) { _, state in
+                guard state.cardPageIndex < state.popularGalleries.count else { return .none }
+                state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
+                state.allowsCardHitTesting = false
+                return .run { send in
+                    try await Task.sleep(for: .milliseconds(300))
+                    await send(.setAllowsCardHitTesting(true))
                 }
             }
 

@@ -95,7 +95,7 @@ private struct SuggestionCell: View {
             .contentShape(Rectangle())
             .onTapGesture(perform: action)
         } else {
-            (Text(displayValue.localizedKey) + Text("\n") + Text(suggestion.displayKey.localizedKey))
+            Text("\(Text(displayValue.localizedKey))\n\(Text(suggestion.displayKey.localizedKey))")
                 .searchCompletion(suggestion.tag.searchKeyword)
         }
     }

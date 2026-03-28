@@ -43,23 +43,17 @@ struct FiltersReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.searchFilter) { _, _ in
-                Reduce { state, _ in
-                    state.searchFilter.fixInvalidData()
-                    return .send(.syncFilter(.search))
-                }
+            .onChange(of: \.searchFilter) { _, state in
+                state.searchFilter.fixInvalidData()
+                return .send(.syncFilter(.search))
             }
-            .onChange(of: \.globalFilter) { _, _ in
-                Reduce { state, _ in
-                    state.globalFilter.fixInvalidData()
-                    return .send(.syncFilter(.global))
-                }
+            .onChange(of: \.globalFilter) { _, state in
+                state.globalFilter.fixInvalidData()
+                return .send(.syncFilter(.global))
             }
-            .onChange(of: \.watchedFilter) { _, _ in
-                Reduce { state, _ in
-                    state.watchedFilter.fixInvalidData()
-                    return .send(.syncFilter(.watched))
-                }
+            .onChange(of: \.watchedFilter) { _, state in
+                state.watchedFilter.fixInvalidData()
+                return .send(.syncFilter(.watched))
             }
 
         Reduce { state, action in

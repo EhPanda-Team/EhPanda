@@ -56,8 +56,8 @@ struct AppRouteReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            .onChange(of: \.route) { _, state in
+                state.route == nil ? .send(.clearSubStates) : .none
             }
 
         Reduce { state, action in
@@ -157,10 +157,10 @@ struct AppRouteReducer {
                 state.route = nil
                 switch result {
                 case .success(let gallery):
-                    return .concatenate(
-                        .run(operation: { _ in await databaseClient.cacheGalleries([gallery]) }),
-                        .send(.handleGalleryLink(url))
-                    )
+                    return .run { send in
+                        await databaseClient.cacheGalleries([gallery])
+                        await send(.handleGalleryLink(url))
+                    }
                 case .failure:
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))

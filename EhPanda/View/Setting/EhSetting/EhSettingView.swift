@@ -164,7 +164,7 @@ private struct EhProfileSection: View {
     }
 
     var body: some View {
-        Section(L10n.Localizable.EhSettingView.Section.Title.profileSettings) {
+        Section {
             Picker(L10n.Localizable.EhSettingView.Title.selectedProfile, selection: $ehProfile) {
                 ForEach(ehSetting.ehProfiles) { ehProfile in
                     Text(ehProfile.name)
@@ -194,6 +194,9 @@ private struct EhProfileSection: View {
                     )
                 }
             }
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.profileSettings)
+                .regularHeaderStyled()
         }
         .onChange(of: ehProfile) { _, newValue in
             performEhProfileAction(nil, nil, newValue.value)
@@ -239,17 +242,12 @@ private struct ImageLoadSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.imageLoadSettings)
+            Text.boldHeader(L10n.Localizable.EhSettingView.Section.Title.imageLoadSettings)
         } footer: {
             Text(ehSetting.loadThroughHathSetting.description)
         }
 
-        Section(
-            L10n.Localizable.EhSettingView.Description.browsingCountry(
-                ehSetting.localizedLiteralBrowsingCountry ?? ehSetting.literalBrowsingCountry
-            )
-            .localizedKey
-        ) {
+        Section {
             Picker(L10n.Localizable.EhSettingView.Title.browsingCountry, selection: $ehSetting.browsingCountry) {
                 ForEach(EhSetting.BrowsingCountry.allCases) { country in
                     Text(country.name)
@@ -257,6 +255,14 @@ private struct ImageLoadSettingsSection: View {
                         .foregroundColor(country == ehSetting.browsingCountry ? .accentColor : .primary)
                 }
             }
+        } header: {
+            Text(
+                L10n.Localizable.EhSettingView.Description.browsingCountry(
+                    ehSetting.localizedLiteralBrowsingCountry ?? ehSetting.literalBrowsingCountry
+                )
+                .localizedKey
+            )
+            .regularHeaderStyled()
         }
     }
 }
@@ -279,21 +285,25 @@ private struct ImageSizeSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.imageSizeSettings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.imageResolution)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.imageSizeSettings,
+                description: L10n.Localizable.EhSettingView.Description.imageResolution
+            )
         }
 
         if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
-            Section(L10n.Localizable.EhSettingView.Section.Title.originalImages) {
+            Section {
                 Toggle(
                     L10n.Localizable.EhSettingView.Title.useOriginalImages,
                     isOn: useOriginalImagesBinding
                 )
+            } header: {
+                Text(L10n.Localizable.EhSettingView.Section.Title.originalImages)
+                    .regularHeaderStyled()
             }
         }
 
-        Section(L10n.Localizable.EhSettingView.Description.imageSize) {
+        Section {
             Text(L10n.Localizable.EhSettingView.Title.imageSize)
 
             ValuePicker(
@@ -305,6 +315,9 @@ private struct ImageSizeSettingsSection: View {
                 title: L10n.Localizable.EhSettingView.Title.vertical,
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Description.imageSize)
+                .regularHeaderStyled()
         }
     }
 }
@@ -327,9 +340,10 @@ private struct GalleryNameDisplaySection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.galleryNameDisplay)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.galleryName)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.galleryNameDisplay,
+                description: L10n.Localizable.EhSettingView.Description.galleryName
+            )
         }
     }
 }
@@ -352,9 +366,10 @@ private struct ArchiverSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.archiverSettings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.archiverBehavior)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.archiverSettings,
+                description: L10n.Localizable.EhSettingView.Description.archiverBehavior
+            )
         }
     }
 }
@@ -375,12 +390,13 @@ private struct FrontPageSettingsSection: View {
         Section {
             CategoryView(bindings: categoryBindings)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.frontPageSettings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.galleryCategory)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.frontPageSettings,
+                description: L10n.Localizable.EhSettingView.Description.galleryCategory
+            )
         }
 
-        Section(L10n.Localizable.EhSettingView.Description.displayMode) {
+        Section {
             Picker(L10n.Localizable.EhSettingView.Title.displayMode, selection: $ehSetting.displayMode) {
                 ForEach(EhSetting.DisplayMode.allCases) { mode in
                     Text(mode.value)
@@ -388,13 +404,19 @@ private struct FrontPageSettingsSection: View {
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Description.displayMode)
+                .regularHeaderStyled()
         }
 
-        Section(L10n.Localizable.EhSettingView.Section.Title.showSearchRangeIndicator) {
+        Section {
             Toggle(
                 L10n.Localizable.EhSettingView.Title.showSearchRangeIndicator,
                 isOn: $ehSetting.showSearchRangeIndicator
             )
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.showSearchRangeIndicator)
+                .regularHeaderStyled()
         }
     }
 }
@@ -414,9 +436,10 @@ private struct OptionalUIElementsSection: View {
                 isOn: $ehSetting.enableGalleryThumbnailSelector
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.optionalUIElements)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.optionalUIElements)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.optionalUIElements,
+                description: L10n.Localizable.EhSettingView.Description.optionalUIElements
+            )
         }
     }
 }
@@ -450,12 +473,13 @@ private struct FavoritesSection: View {
                 .padding(.leading)
             }
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.favorites)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.favoriteCategories)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.favorites,
+                description: L10n.Localizable.EhSettingView.Description.favoriteCategories
+            )
         }
 
-        Section(L10n.Localizable.EhSettingView.Description.favoritesSortOrder) {
+        Section {
             Picker(
                 L10n.Localizable.EhSettingView.Title.favoritesSortOrder,
                 selection: $ehSetting.favoritesSortOrder
@@ -466,6 +490,9 @@ private struct FavoritesSection: View {
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Description.favoritesSortOrder)
+                .regularHeaderStyled()
         }
     }
 }
@@ -490,9 +517,10 @@ private struct RatingsSection: View {
                 .focused($isFocused)
             }
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.ratings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.ratingsColor)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.ratings,
+                description: L10n.Localizable.EhSettingView.Description.ratingsColor
+            )
         }
     }
 }
@@ -512,9 +540,10 @@ private struct TagFilteringThresholdSection: View {
                 value: $ehSetting.tagFilteringThreshold, range: -9999...0
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.tagFilteringThreshold)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.tagFilteringThreshold)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.tagFilteringThreshold,
+                description: L10n.Localizable.EhSettingView.Description.tagFilteringThreshold
+            )
         }
     }
 }
@@ -534,9 +563,10 @@ private struct TagWatchingThresholdSection: View {
                 value: $ehSetting.tagWatchingThreshold, range: 0...9999
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.tagWatchingThreshold)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.tagWatchingThreshold)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.tagWatchingThreshold,
+                description: L10n.Localizable.EhSettingView.Description.tagWatchingThreshold
+            )
         }
     }
 }
@@ -556,8 +586,10 @@ private struct FilteredRemovalCountSection: View {
                 isOn: $ehSetting.showFilteredRemovalCount
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.filteredRemovalCount).newlineBold()
-            + Text(L10n.Localizable.EhSettingView.Description.filteredRemovalCount)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.filteredRemovalCount,
+                description: L10n.Localizable.EhSettingView.Description.filteredRemovalCount
+            )
         }
     }
 }
@@ -610,9 +642,10 @@ private struct ExcludedLanguagesSection: View {
                 )
             }
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.excludedLanguages)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.excludedLanguages)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.excludedLanguages,
+                description: L10n.Localizable.EhSettingView.Description.excludedLanguages
+            )
         }
     }
 }
@@ -683,9 +716,10 @@ private struct ExcludedUploadersSection: View {
                 .disableAutocorrection(true)
                 .focused($isFocused)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.excludedUploaders)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.excludedUploaders)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.excludedUploaders,
+                description: L10n.Localizable.EhSettingView.Description.excludedUploaders
+            )
         } footer: {
             Text(
                 L10n.Localizable.EhSettingView.Description.excludedUploadersCount(
@@ -715,9 +749,10 @@ private struct SearchResultCountSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.searchResultCount)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.resultCount)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.searchResultCount,
+                description: L10n.Localizable.EhSettingView.Description.resultCount
+            )
         }
     }
 }
@@ -743,14 +778,15 @@ private struct ThumbnailSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.thumbnailSettings)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.thumbnailLoadTiming)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.thumbnailSettings,
+                description: L10n.Localizable.EhSettingView.Description.thumbnailLoadTiming
+            )
         } footer: {
             Text(ehSetting.thumbnailLoadTiming.description)
         }
 
-        Section(L10n.Localizable.EhSettingView.Description.thumbnailConfiguration) {
+        Section {
             LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailSize) {
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
@@ -776,6 +812,9 @@ private struct ThumbnailSettingsSection: View {
                 .pickerStyle(.segmented)
                 .frame(width: 200)
             }
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Description.thumbnailConfiguration)
+                .regularHeaderStyled()
         }
     }
 }
@@ -797,9 +836,10 @@ private struct CoverScalingSection: View {
                 unit: "%"
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.coverScaling)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.coverScaleFactor)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.coverScaling,
+                description: L10n.Localizable.EhSettingView.Description.coverScaleFactor
+            )
         }
     }
 }
@@ -821,9 +861,10 @@ private struct ViewportOverrideSection: View {
                 unit: "px"
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.viewportOverride)
-                .newlineBold()
-                .appending(L10n.Localizable.EhSettingView.Description.virtualWidth)
+            Text.boldHeader(
+                L10n.Localizable.EhSettingView.Section.Title.viewportOverride,
+                description: L10n.Localizable.EhSettingView.Description.virtualWidth
+            )
         }
     }
 }
@@ -874,7 +915,7 @@ private struct GalleryCommentsSection: View {
     }
 
     var body: some View {
-        Section(L10n.Localizable.EhSettingView.Section.Title.galleryComments) {
+        Section {
             Picker(
                 L10n.Localizable.EhSettingView.Title.commentsSortOrder,
                 selection: $ehSetting.commentsSortOrder
@@ -896,6 +937,9 @@ private struct GalleryCommentsSection: View {
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.galleryComments)
+                .regularHeaderStyled()
         }
     }
 }
@@ -909,7 +953,7 @@ private struct GalleryTagsSection: View {
     }
 
     var body: some View {
-        Section(L10n.Localizable.EhSettingView.Section.Title.galleryTags) {
+        Section {
             Picker(L10n.Localizable.EhSettingView.Title.tagsSortOrder, selection: $ehSetting.tagsSortOrder) {
                 ForEach(EhSetting.TagsSortOrder.allCases) { order in
                     Text(order.value)
@@ -917,6 +961,9 @@ private struct GalleryTagsSection: View {
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.galleryTags)
+                .regularHeaderStyled()
         }
     }
 }
@@ -930,7 +977,7 @@ private struct GalleryPageThumbnailLabelingSection: View {
     }
 
     var body: some View {
-        Section(L10n.Localizable.EhSettingView.Section.Title.galleryPageThumbnailLabeling) {
+        Section {
             Picker(
                 L10n.Localizable.EhSettingView.Title.showLabelBelowGalleryThumbnails,
                 selection: $ehSetting.galleryPageNumbering
@@ -941,6 +988,9 @@ private struct GalleryPageThumbnailLabelingSection: View {
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(L10n.Localizable.EhSettingView.Section.Title.galleryPageThumbnailLabeling)
+                .regularHeaderStyled()
         }
     }
 }
@@ -958,7 +1008,7 @@ private struct MultiplePageViewerSection: View {
            let multiplePageViewerStyleBinding = Binding($ehSetting.multiplePageViewerStyle),
            let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane)
         {
-            Section(L10n.Localizable.EhSettingView.Section.Title.multiPageViewer) {
+            Section {
                 Toggle(
                     L10n.Localizable.EhSettingView.Title.useMultiPageViewer,
                     isOn: useMultiplePageViewerBinding
@@ -979,6 +1029,9 @@ private struct MultiplePageViewerSection: View {
                     L10n.Localizable.EhSettingView.Title.showThumbnailPane,
                     isOn: multiplePageViewerShowPaneBinding
                 )
+            } header: {
+                Text(L10n.Localizable.EhSettingView.Section.Title.multiPageViewer)
+                    .regularHeaderStyled()
             }
         }
     }
@@ -997,12 +1050,19 @@ private extension String {
 }
 
 private extension Text {
-    func newlineBold() -> Text {
-        bold() + Text("\n")
+    static func boldHeader(_ title: String, description: String? = nil) -> Self {
+        var result = AttributedString(title)
+        result.font = .body.weight(.bold)
+        if let description{
+            var descriptionString = AttributedString("\n\(description)")
+            descriptionString.font = .subheadline.weight(.regular)
+            result.append(descriptionString)
+        }
+        return Text(result)
     }
 
-    func appending(_ string: some StringProtocol) -> Text {
-        self + Text(string)
+    func regularHeaderStyled() -> Self {
+        font(.subheadline.weight(.regular))
     }
 }
 

@@ -42,15 +42,19 @@ private struct LinkColoredText: View {
         self.components = components
     }
 
-    var body: some View {
-        components.map { component in
+    var body: Text {
+        var result = AttributedString()
+        for component in components {
             switch component {
             case .text(let text):
-                return Text(verbatim: text)
+                result.append(AttributedString(text))
             case .link(let text, _):
-                return Text(verbatim: text).foregroundColor(.accentColor)
+                var link = AttributedString(text)
+                link.foregroundColor = .accentColor
+                result.append(link)
             }
-        }.reduce(Text(""), +)
+        }
+        return Text(result)
     }
 }
 

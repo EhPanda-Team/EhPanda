@@ -49,11 +49,11 @@ struct AppReducer {
     var body: some Reducer<State, Action> {
         LoggingReducer {
             BindingReducer()
-                .onChange(of: \.appRouteState.route) { _, newValue in
-                    Reduce({ _, _ in newValue == nil ? .send(.appRoute(.clearSubStates)) : .none })
+                .onChange(of: \.appRouteState.route) { _, state in
+                    state.appRouteState.route == nil ? .send(.appRoute(.clearSubStates)) : .none
                 }
                 .onChange(of: \.settingState.setting) { _, _ in
-                    Reduce({ _, _ in .send(.setting(.syncSetting)) })
+                    .send(.setting(.syncSetting))
                 }
 
             Reduce { state, action in
@@ -94,19 +94,17 @@ struct AppReducer {
                     }
 
                 case .appDelegate(.migration(.onDatabasePreparationSuccess)):
-                    return .concatenate(
-                        .run { _ in
-                            if let loginCookies = AppLaunchAutomation.current?.loginCookies {
-                                cookieClient.importAutomationCookies(
-                                    memberID: loginCookies.memberID,
-                                    passHash: loginCookies.passHash,
-                                    igneous: loginCookies.igneous
-                                )
-                            }
-                        },
-                        .send(.appDelegate(.removeExpiredImageURLs)),
-                        .send(.setting(.loadUserSettings))
-                    )
+                    return .run { send in
+                        if let loginCookies = AppLaunchAutomation.current?.loginCookies {
+                            cookieClient.importAutomationCookies(
+                                memberID: loginCookies.memberID,
+                                passHash: loginCookies.passHash,
+                                igneous: loginCookies.igneous
+                            )
+                        }
+                        await send(.appDelegate(.removeExpiredImageURLs))
+                        await send(.setting(.loadUserSettings))
+                    }
 
                 case .appDelegate:
                     return .none

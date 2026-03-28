@@ -725,10 +725,10 @@ struct DetailReducer {
 
             case .comments(.detail(let recursiveAction)):
                 guard state.commentsState.wrappedValue != nil else { return .none }
-                return self.reduce(
+                let effect = self._reduce(
                     into: &state.commentsState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
                 )
-                .map({ Action.comments(.detail($0)) })
+                return .publisher({ _EffectPublisher(effect).map({ Action.comments(.detail($0)) }) })
 
             case .comments:
                 return .none
@@ -738,10 +738,10 @@ struct DetailReducer {
 
             case .detailSearch(.detail(let recursiveAction)):
                 guard state.detailSearchState.wrappedValue != nil else { return .none }
-                return self.reduce(
+                let effect = self._reduce(
                     into: &state.detailSearchState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
                 )
-                .map({ Action.detailSearch(.detail($0)) })
+                return .publisher({ _EffectPublisher(effect).map({ Action.comments(.detail($0)) }) })
 
             case .detailSearch:
                 return .none
@@ -804,8 +804,8 @@ struct DetailReducer {
     var body: some Reducer<State, Action> {
         RecurseReducer { (self) in
             BindingReducer()
-                .onChange(of: \.route) { _, newValue in
-                    Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+                .onChange(of: \.route) { _, state in
+                    state.route == nil ? .send(.clearSubStates) : .none
                 }
 
             coreReducer(self: self)

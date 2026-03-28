@@ -30,7 +30,7 @@ struct TorrentsView: View {
                         Button {
                             store.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
                         } label: {
-                            Image(systemSymbol: .arrowDownDocFill)
+                            Image(systemSymbol: .arrowDownDocumentFill)
                         }
                     }
                 }
@@ -89,7 +89,7 @@ private extension TorrentsView {
                     }
                     Spacer()
                     HStack(spacing: 3) {
-                        Image(systemSymbol: .docCircle)
+                        Image(systemSymbol: .documentCircle)
                         Text(torrent.fileSize)
                     }
                 }

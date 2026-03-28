@@ -559,7 +559,7 @@ extension HomeMiscGridType {
         case .watched:
             return .tagCircle
         case .history:
-            return .clockArrowCirclepath
+            return .clockArrowTriangleheadCounterclockwiseRotate90
         }
     }
 }

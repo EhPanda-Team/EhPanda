@@ -192,7 +192,7 @@ private struct UpperPanel: View {
 
                 ToolbarFeaturesMenu {
                     Button(action: retryAllFailedImagesAction) {
-                        Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                        Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                         Text(L10n.Localizable.ReadingView.ToolbarItem.Button.retryAllFailedImages)
                     }
                     Button(action: reloadAllImagesAction) {

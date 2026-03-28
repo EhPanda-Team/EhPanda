@@ -203,7 +203,7 @@ struct ReadingReducer {
     var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.showsSliderPreview) { _, _ in
-                Reduce({ _, _ in .run(operation: { _ in hapticsClient.generateFeedback(.soft) }) })
+                .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
             }
 
         Reduce { state, action in
