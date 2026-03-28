@@ -300,17 +300,17 @@ struct ReadingReducer {
                 return .none
 
             case .copyImage(let imageURL):
-                return .send(.fetchImage(.copy(imageURL.isGIF), imageURL))
+                return .send(.fetchImage(.copy(imageURL.isAnimatedImage), imageURL))
 
             case .saveImage(let imageURL):
-                return .send(.fetchImage(.save(imageURL.isGIF), imageURL))
+                return .send(.fetchImage(.save(imageURL.isAnimatedImage), imageURL))
 
             case .saveImageDone(let isSucceeded):
                 state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
                 return .send(.setNavigation(.hud))
 
             case .shareImage(let imageURL):
-                return .send(.fetchImage(.share(imageURL.isGIF), imageURL))
+                return .send(.fetchImage(.share(imageURL.isAnimatedImage), imageURL))
 
             case .fetchImage(let action, let imageURL):
                 return .run { send in

@@ -5,9 +5,9 @@
 
 import SwiftUI
 import Kingfisher
+import Observation
 import SwiftUIPager
 import ComposableArchitecture
-import Observation
 
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -579,34 +579,24 @@ private struct ImageContainer: View {
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
-        if let url, url.isFileURL {
-            if url.isGIF {
-                KFAnimatedImage(url)
-                    .cacheMemoryOnly()
-                    .placeholder(placeholder).fade(duration: 0.25)
-                    .onSuccess(onSuccess).onFailure(onFailure)
-            } else {
-                KFImage.url(
-                    url,
-                    cacheKey: localFileCacheKey(url)
-                )
-                .cacheMemoryOnly()
-                .placeholder(placeholder)
-                .defaultModifier(withRoundedCorners: false)
-                .onSuccess(onSuccess).onFailure(onFailure)
-            }
-        } else if url?.isGIF != true {
-            KFImage.url(
-                url,
-                cacheKey: url?.stableImageCacheKey ?? url?.absoluteString
-            )
-                .placeholder(placeholder)
-                .defaultModifier(withRoundedCorners: false)
-                .onSuccess(onSuccess).onFailure(onFailure)
-        } else {
+        let isFileURL = url?.isFileURL ?? false
+        if url?.isAnimatedImage == true {
             KFAnimatedImage(url)
-                .placeholder(placeholder).fade(duration: 0.25)
-                .onSuccess(onSuccess).onFailure(onFailure)
+                .placeholder(placeholder)
+                .fade(duration: 0.25)
+                .onSuccess(onSuccess)
+                .onFailure(onFailure)
+                .cacheMemoryOnly(isFileURL)
+        } else {
+            let cacheKey = isFileURL
+                ? url.map(localFileCacheKey)
+                : url?.stableImageCacheKey ?? url?.absoluteString
+            KFImage.url(url, cacheKey: cacheKey)
+                .placeholder(placeholder)
+                .defaultModifier(withRoundedCorners: false)
+                .onSuccess(onSuccess)
+                .onFailure(onFailure)
+                .cacheMemoryOnly(isFileURL)
         }
     }
 

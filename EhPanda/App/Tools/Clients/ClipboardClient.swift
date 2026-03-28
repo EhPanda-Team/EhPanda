@@ -34,6 +34,8 @@ extension ClipboardClient {
                 DispatchQueue.global(qos: .utility).async {
                     if let data = image.kf.data(format: .GIF) {
                         UIPasteboard.general.setData(data, forPasteboardType: UTType.gif.identifier)
+                    } else {
+                        UIPasteboard.general.image = image
                     }
                 }
             } else {
