@@ -10,6 +10,7 @@ import UIKit
 import Testing
 @testable import EhPanda
 
+@Suite(.serialized)
 struct DownloadFeatureReducerTests: TestHelper {
     @Test
     func testQuickSearchWordUsesNameWhenContentIsEmpty() {
@@ -20,7 +21,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testPauseKeepsActiveDownloadPausedWhenDeferredSchedulingRuns() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
@@ -68,7 +69,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testPauseUsesTemporaryWorkingSetProgressWhenCancelling() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 1)
         let rootURL = FileManager.default.temporaryDirectory
@@ -129,7 +130,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testReconcileDownloadsNormalizesLegacyFailedStatusToNeedsAttention() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
@@ -160,7 +161,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testReconcileDownloadsClearsCancellationLikeGalleryError() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 3)
         let rootURL = FileManager.default.temporaryDirectory
@@ -195,7 +196,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testLoadInspectionFiltersCancellationFailuresIntoPendingPages() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 4)
         let rootURL = FileManager.default.temporaryDirectory
@@ -747,14 +748,14 @@ struct DownloadFeatureReducerTests: TestHelper {
         #expect(store.state.didRunLaunchAutomation == false)
         #expect(store.state.isWaitingForIgneousBeforeLaunchAutomation)
 
-        let response: HTTPURLResponse = HTTPURLResponse(
+        let response = try #require(HTTPURLResponse(
             url: Defaults.URL.exhentai,
             statusCode: 200,
             httpVersion: nil,
             headerFields: [
                 "Set-Cookie": "\(Defaults.Cookie.igneous)=test-igneous"
             ]
-        )!
+        ))
         await store.send(.setting(.fetchIgneousDone(.success(response))))
         await store.receive(\.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -1073,7 +1074,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                     },
                     delete: { _ in .success(()) },
                     loadManifest: { _ in .failure(.notFound) },
-                    loadInspection: { _ in .success(initialState.inspection!) }
+                    loadInspection: { _ in
+                        guard let inspection = initialState.inspection else {
+                            return .failure(.notFound)
+                        }
+                        return .success(inspection)
+                    }
                 )
             }
             store.exhaustivity = .off
@@ -1121,7 +1127,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                 },
                 delete: { _ in .success(()) },
                 loadManifest: { _ in .failure(.notFound) },
-                loadInspection: { _ in .success(initialState.inspection!) }
+                loadInspection: { _ in
+                    guard let inspection = initialState.inspection else {
+                        return .failure(.notFound)
+                    }
+                    return .success(inspection)
+                }
             )
         }
         store.exhaustivity = .off
@@ -1432,7 +1443,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
@@ -1487,7 +1498,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testDownloadManagerLoadLocalPageURLsPrefersCompletedFolderForCompletedDownload() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 11)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1513,7 +1524,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = sampleManifest(gid: gid, title: "Pause Race")
+        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
         try JSONEncoder().encode(manifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
@@ -1546,7 +1557,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testDownloadManagerLoadLocalPageURLsMergesReadableCompletedPagesWithTemporaryPages() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 12)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1572,7 +1583,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = sampleManifest(gid: gid, title: "Pause Race")
+        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
         try JSONEncoder().encode(manifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
@@ -1632,7 +1643,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let oldManifest = sampleManifest(
+        let oldManifest = try sampleManifest(
             gid: gid,
             title: "Mixed Version",
             pageCount: 2,
@@ -1719,7 +1730,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testDownloadManagerLoadLocalPageURLsMarksCompletedDownloadMissingFilesWhenZeroBytePageIsFound() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1745,7 +1756,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = sampleManifest(gid: gid, title: "Pause Race")
+        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
         try JSONEncoder().encode(manifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
@@ -1796,7 +1807,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
@@ -1865,7 +1876,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testCancelQueuedRepairRestoresReadableCountAndClearsPendingOperation() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = "cancel-repair-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
@@ -1894,7 +1905,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = sampleManifest(gid: gid, title: "Pause Race")
+        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
         try JSONEncoder().encode(manifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
@@ -1922,7 +1933,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 200)
@@ -1942,15 +1953,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         let recorder = RequestRecorder()
         let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
         let mpvHTML = try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html")
+        let gidInt = try #require(Int(gid))
         let metadataResponse = try JSONSerialization.data(withJSONObject: [
             "gmetadata": [[
-                "gid": Int(gid)!,
+                "gid": gidInt,
                 "token": "token",
-                "current_gid": Int(gid)!,
+                "current_gid": gidInt,
                 "current_key": "updated-key",
-                "parent_gid": Int(gid)!,
+                "parent_gid": gidInt,
                 "parent_key": "token",
-                "first_gid": Int(gid)!,
+                "first_gid": gidInt,
                 "first_key": "token"
             ]]
         ])
@@ -1963,12 +1975,12 @@ struct DownloadFeatureReducerTests: TestHelper {
             if url.host == "api.e-hentai.org" {
                 recorder.recordMetadata()
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "application/json"]
-                    )!,
+                    )),
                     metadataResponse
                 )
             }
@@ -1985,12 +1997,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                     recorder.recordDetail()
                 }
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     detailHTML
                 )
             }
@@ -1998,12 +2010,12 @@ struct DownloadFeatureReducerTests: TestHelper {
             if url.path.contains("/mpv/\(gid)/token") {
                 recorder.recordMPV()
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     mpvHTML
                 )
             }
@@ -2014,12 +2026,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                 if method?["method"] as? String == "gdata" {
                     recorder.recordMetadata()
                     return (
-                        HTTPURLResponse(
+                        try #require(HTTPURLResponse(
                             url: url,
                             statusCode: 200,
                             httpVersion: nil,
                             headerFields: ["Content-Type": "application/json"]
-                        )!,
+                        )),
                         metadataResponse
                     )
                 }
@@ -2029,12 +2041,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                     "i": "https://example.com/image-\(pageIndex).jpg"
                 ])
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "application/json"]
-                    )!,
+                    )),
                     responseData
                 )
             }
@@ -2042,12 +2054,12 @@ struct DownloadFeatureReducerTests: TestHelper {
             if url.host == "example.com" {
                 recorder.recordImageDownload()
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "image/jpeg"]
-                    )!,
+                    )),
                     Data([0xFF, 0xD8, 0xFF, 0xD9])
                 )
             }
@@ -2075,7 +2087,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
         let pageCount = payload.galleryDetail.pageCount
-        let manifest = sampleManifest(
+        let manifest = try sampleManifest(
             gid: gid,
             title: "Pause Race",
             pageCount: pageCount,
@@ -2154,7 +2166,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testRetryPagesFallsBackToFullUpdateWhenGalleryHasUpdate() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
@@ -2180,15 +2192,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         )
         let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
         let mpvHTML = try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html")
+        let gidInt = try #require(Int(gid))
         let metadataResponse = try JSONSerialization.data(withJSONObject: [
             "gmetadata": [[
-                "gid": Int(gid)!,
+                "gid": gidInt,
                 "token": "token",
-                "current_gid": Int(gid)!,
+                "current_gid": gidInt,
                 "current_key": "updated-key",
-                "parent_gid": Int(gid)!,
+                "parent_gid": gidInt,
                 "parent_key": "token",
-                "first_gid": Int(gid)!,
+                "first_gid": gidInt,
                 "first_key": "token"
             ]]
         ])
@@ -2200,24 +2213,24 @@ struct DownloadFeatureReducerTests: TestHelper {
 
             if url.path.contains("/g/\(gid)/token") {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     detailHTML
                 )
             }
 
             if url.path.contains("/mpv/") {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     mpvHTML
                 )
             }
@@ -2228,12 +2241,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                 let method = body?["method"] as? String
                 if method == "gdata" {
                     return (
-                        HTTPURLResponse(
+                        try #require(HTTPURLResponse(
                             url: url,
                             statusCode: 200,
                             httpVersion: nil,
                             headerFields: ["Content-Type": "application/json"]
-                        )!,
+                        )),
                         metadataResponse
                     )
                 }
@@ -2242,24 +2255,24 @@ struct DownloadFeatureReducerTests: TestHelper {
                     "i": "https://example.com/image-\(pageIndex).jpg"
                 ])
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "application/json"]
-                    )!,
+                    )),
                     responseData
                 )
             }
 
             if url.host == "example.com" {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "image/jpeg"]
-                    )!,
+                    )),
                     Data([0xFF, 0xD8, 0xFF, 0xD9])
                 )
             }
@@ -2333,7 +2346,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         try? storage.removeTemporaryFolder(gid: gid)
 
         // Immediate update path: retryPages should normalize the working set to full-update semantics.
-        let manifest = sampleManifest(
+        let manifest = try sampleManifest(
             gid: gid,
             title: "Pause Race",
             pageCount: pageCount,
@@ -2405,7 +2418,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @Test
     func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
@@ -2428,15 +2441,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
         let mpvHTML = try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html")
         var allowedImageURLs = Set<String>()
+        let gidInt = try #require(Int(gid))
         let metadataResponse = try JSONSerialization.data(withJSONObject: [
             "gmetadata": [[
-                "gid": Int(gid)!,
+                "gid": gidInt,
                 "token": "token",
-                "current_gid": Int(gid)!,
+                "current_gid": gidInt,
                 "current_key": "updated-key",
-                "parent_gid": Int(gid)!,
+                "parent_gid": gidInt,
                 "parent_key": "token",
-                "first_gid": Int(gid)!,
+                "first_gid": gidInt,
                 "first_key": "token"
             ]]
         ])
@@ -2448,24 +2462,24 @@ struct DownloadFeatureReducerTests: TestHelper {
 
             if url.path.contains("/g/\(gid)/token") {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     detailHTML
                 )
             }
 
             if url.path.contains("/mpv/") {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     mpvHTML
                 )
             }
@@ -2476,12 +2490,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                 let method = body?["method"] as? String
                 if method == "gdata" {
                     return (
-                        HTTPURLResponse(
+                        try #require(HTTPURLResponse(
                             url: url,
                             statusCode: 200,
                             httpVersion: nil,
                             headerFields: ["Content-Type": "application/json"]
-                        )!,
+                        )),
                         metadataResponse
                     )
                 }
@@ -2490,24 +2504,24 @@ struct DownloadFeatureReducerTests: TestHelper {
                     "i": "https://example.com/image-\(pageIndex).jpg"
                 ])
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "application/json"]
-                    )!,
+                    )),
                     responseData
                 )
             }
 
             if url.host == "example.com" || allowedImageURLs.contains(url.absoluteString) {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "image/jpeg"]
-                    )!,
+                    )),
                     Data([0xFF, 0xD8, 0xFF, 0xD9])
                 )
             }
@@ -2561,7 +2575,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let staleManifest = sampleManifest(
+        let staleManifest = try sampleManifest(
             gid: gid,
             title: "Pause Race",
             pageCount: oldPageCount,
@@ -2624,7 +2638,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 402)
@@ -2662,15 +2676,16 @@ struct DownloadFeatureReducerTests: TestHelper {
             offset: "40"
         )
         var allowedImageURLs = Set<String>()
+        let gidInt = try #require(Int(gid))
         let metadataResponse = try JSONSerialization.data(withJSONObject: [
             "gmetadata": [[
-                "gid": Int(gid)!,
+                "gid": gidInt,
                 "token": "token",
-                "current_gid": Int(gid)!,
+                "current_gid": gidInt,
                 "current_key": "updated-key",
-                "parent_gid": Int(gid)!,
+                "parent_gid": gidInt,
                 "parent_key": "token",
-                "first_gid": Int(gid)!,
+                "first_gid": gidInt,
                 "first_key": "token"
             ]]
         ])
@@ -2682,24 +2697,24 @@ struct DownloadFeatureReducerTests: TestHelper {
 
             if url.path.contains("/g/\(gid)/token") {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     detailHTML
                 )
             }
 
             if url.path.contains("/mpv/") {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                    )!,
+                    )),
                     mpvHTML
                 )
             }
@@ -2710,12 +2725,12 @@ struct DownloadFeatureReducerTests: TestHelper {
                 let method = body?["method"] as? String
                 if method == "gdata" {
                     return (
-                        HTTPURLResponse(
+                        try #require(HTTPURLResponse(
                             url: url,
                             statusCode: 200,
                             httpVersion: nil,
                             headerFields: ["Content-Type": "application/json"]
-                        )!,
+                        )),
                         metadataResponse
                     )
                 }
@@ -2724,24 +2739,24 @@ struct DownloadFeatureReducerTests: TestHelper {
                     "i": currentPageImageURL.absoluteString
                 ])
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "application/json"]
-                    )!,
+                    )),
                     responseData
                 )
             }
 
             if url.host == "example.com" || allowedImageURLs.contains(url.absoluteString) {
                 return (
-                    HTTPURLResponse(
+                    try #require(HTTPURLResponse(
                         url: url,
                         statusCode: 200,
                         httpVersion: nil,
                         headerFields: ["Content-Type": "image/jpeg"]
-                    )!,
+                    )),
                     Data([0xFF, 0xD8, 0xFF, 0xD9])
                 )
             }
@@ -2814,7 +2829,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let staleManifest = sampleManifest(
+        let staleManifest = try sampleManifest(
             gid: gid,
             title: "Pause Race",
             pageCount: oldPageCount,
@@ -2996,7 +3011,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testDetailReducerStartDownloadEnqueuesGalleryWithSnapshotOptions() async {
+    func testDetailReducerStartDownloadEnqueuesGalleryWithSnapshotOptions() async throws {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3010,7 +3025,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
         initialState.galleryPreviewURLs = [
-            1: URL(string: "https://example.com/1.jpg")!
+            1: try #require(URL(string: "https://example.com/1.jpg"))
         ]
         initialState.previewConfig = .large(rows: 2)
 
@@ -3059,7 +3074,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testDetailReducerStartDownloadUnlocksActionsAfterQueueing() async {
+    func testDetailReducerStartDownloadUnlocksActionsAfterQueueing() async throws {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let options = DownloadOptionsSnapshot()
@@ -3068,7 +3083,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
         initialState.galleryPreviewURLs = [
-            1: URL(string: "https://example.com/1.jpg")!
+            1: try #require(URL(string: "https://example.com/1.jpg"))
         ]
 
         let store = TestStore(initialState: initialState) {
@@ -3118,7 +3133,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async {
+    func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async throws {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
@@ -3127,7 +3142,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
         initialState.galleryPreviewURLs = [
-            1: URL(string: "https://example.com/1.jpg")!
+            1: try #require(URL(string: "https://example.com/1.jpg"))
         ]
 
         setenv("EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID", gallery.gid, 1)
@@ -3422,7 +3437,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             status: .completed,
             pageCount: 2
         )
-        let manifest = sampleManifest(gid: download.gid, title: download.title)
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
         var initialState = DetailReducer.State(download: download)
         initialState.galleryDetail = sampleGalleryDetail(gid: download.gid, title: download.title)
 
@@ -3526,7 +3541,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             pageCount: 2,
             completedPageCount: 2
         )
-        let manifest = sampleManifest(gid: download.gid, title: download.title)
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
         var initialState = PreviewsReducer.State()
         initialState.gallery = download.gallery
 
@@ -3704,7 +3719,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     func testReadingReducerRemoteSourceLoadsLocalPagesAndSkipsRemoteFetchForDownloadedPage() async throws {
         let gallery = sampleGallery()
         let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
-        let remotePageURL = URL(string: "https://example.com/pages/0001.jpg")!
+        let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
         var initialState = ReadingReducer.State(contentSource: .remote)
         initialState.gallery = gallery
         initialState.imageURLs = [1: remotePageURL]
@@ -3763,10 +3778,10 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testReadingReducerOnWebImageSucceededCapturesCachedPageIntoDownloadProgress() async {
+    func testReadingReducerOnWebImageSucceededCapturesCachedPageIntoDownloadProgress() async throws {
         let capturedCalls = UncheckedBox([(String, Int, URL?)]())
         let gallery = sampleGallery()
-        let remotePageURL = URL(string: "https://example.com/pages/0001.jpg")!
+        let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
         var initialState = ReadingReducer.State(contentSource: .remote)
         initialState.gallery = gallery
         initialState.imageURLs = [1: remotePageURL]
@@ -3883,7 +3898,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             status: .completed,
             pageCount: 2
         )
-        let manifest = sampleManifest(gid: download.gid, title: download.title)
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
         let folderURL = try prepareLocalDownloadFiles(download: download, manifest: manifest)
         defer { try? FileManager.default.removeItem(at: folderURL) }
 
@@ -3920,7 +3935,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testDownloadManagerCaptureCachedPageRestoresTemporaryPageAndUpdatesCompletedCount() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
@@ -3975,7 +3990,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testDownloadManagerCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4001,7 +4016,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = sampleManifest(gid: gid, title: "Pause Race")
+        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
         try JSONEncoder().encode(manifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
@@ -4046,7 +4061,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testDownloadManagerReconcileNormalizesFailedDownloadBeforeTempCleanup() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 31)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4088,7 +4103,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredChainAndLatestHashAreDifferentKinds() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 101)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4120,7 +4135,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testUpdateRemoteSignatureDoesNotMarkUpdateAvailableWhenStoredHashAndLatestNonOriginalChainAreDifferentKinds() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 102)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4155,7 +4170,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testUpdateRemoteSignatureCanonicalizesStoredHashToOriginalChainWithoutMarkingUpdate() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 103)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4189,12 +4204,12 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async {
+    func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async throws {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         var galleryState = GalleryState(gid: gallery.gid)
-        galleryState.previewURLs = [1: URL(string: "https://example.com/1t.jpg")!]
+        galleryState.previewURLs = [1: try #require(URL(string: "https://example.com/1t.jpg"))]
         galleryState.previewConfig = .normal(rows: 4)
 
         var initialState = DetailReducer.State()
@@ -4251,7 +4266,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let galleryState = sampleGalleryState(gid: gallery.gid)
+        let galleryState = try sampleGalleryState(gid: gallery.gid)
         let sessionID = UUID().uuidString
         try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
         defer { uninstallSharedSessionStub(sessionID: sessionID) }
@@ -4317,7 +4332,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let galleryState = sampleGalleryState(gid: gallery.gid)
+        let galleryState = try sampleGalleryState(gid: gallery.gid)
         let sessionID = UUID().uuidString
         try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
         defer { uninstallSharedSessionStub(sessionID: sessionID) }
@@ -4571,15 +4586,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://ehgt.org/g/509.gif")!,
+        let quotaImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
+        let response = try makeResponse(
+            url: quotaImageURL,
             contentType: "image/gif",
             contentLength: 28658
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://ehgt.org/g/509.gif")
+            requestURL: quotaImageURL
         )
 
         #expect(error == .quotaExceeded)
@@ -4594,15 +4610,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         var data = try Data(contentsOf: fileURL)
         data[0] = 0
         try data.write(to: fileURL, options: .atomic)
-        let response = makeResponse(
-            url: URL(string: "https://ehgt.org/g/509.gif")!,
+        let quotaImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
+        let response = try makeResponse(
+            url: quotaImageURL,
             contentType: "image/gif",
             contentLength: data.count
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://ehgt.org/g/509.gif")
+            requestURL: quotaImageURL
         )
 
         #expect(error == nil)
@@ -4619,8 +4636,9 @@ struct DownloadFeatureReducerTests: TestHelper {
         try imageData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://exhentai.org/img/kokomade.jpg")!,
+        let kokomadeURL = try #require(URL(string: "https://exhentai.org/img/kokomade.jpg"))
+        let response = try makeResponse(
+            url: kokomadeURL,
             contentType: "image/gif",
             contentLength: imageData.count
         )
@@ -4640,7 +4658,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
         let manager = makeTestingDownloadManager()
         let normalImageURL = try #require(URL(string: "https://ehgt.org/h/normal-image-cache-key/1"))
-        let response = makeResponse(
+        let response = try makeResponse(
             url: normalImageURL,
             contentType: "image/gif",
             contentLength: 28658
@@ -4663,7 +4681,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         let normalImageURL = try #require(URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key"))
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
-            response: makeResponse(
+            response: try makeResponse(
                 url: normalImageURL,
                 contentType: "image/jpeg",
                 contentLength: 144844
@@ -4681,19 +4699,21 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        try """
+        let htmlData = try #require("""
         <html><body>You have exceeded your image viewing limits</body></html>
-        """.data(using: .utf8)!.write(to: fileURL, options: .atomic)
+        """.data(using: .utf8))
+        try htmlData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://e-hentai.org/s/1/1-1")!,
+        let quotaURL = try #require(URL(string: "https://e-hentai.org/s/1/1-1"))
+        let response = try makeResponse(
+            url: quotaURL,
             contentType: "text/html"
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://e-hentai.org/s/1/1-1")
+            requestURL: quotaURL
         )
 
         #expect(error == .quotaExceeded)
@@ -4702,7 +4722,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testCachedQuotaPlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 32)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4740,7 +4760,7 @@ struct DownloadFeatureReducerTests: TestHelper {
                 pageCount: 1,
                 postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: URL(string: "https://e-hentai.org/g/\(gid)/token")!
+                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token"))
             ),
             galleryDetail: GalleryDetail(
                 gid: gid,
@@ -4780,7 +4800,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 33)
         let rootURL = FileManager.default.temporaryDirectory
@@ -4814,7 +4834,7 @@ struct DownloadFeatureReducerTests: TestHelper {
                 pageCount: 1,
                 postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: URL(string: "https://exhentai.org/g/\(gid)/token")!
+                galleryURL: try #require(URL(string: "https://exhentai.org/g/\(gid)/token"))
             ),
             galleryDetail: GalleryDetail(
                 gid: gid,
@@ -4866,7 +4886,7 @@ struct DownloadFeatureReducerTests: TestHelper {
         )
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
+        let response = try makeResponse(
             url: Defaults.URL.exhentai,
             contentType: "text/html"
         )
@@ -4886,7 +4906,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        try """
+        let authHTMLData = try #require("""
         <html>
           <body>
             <a href="bounce_login.php">Login</a>
@@ -4894,10 +4914,11 @@ struct DownloadFeatureReducerTests: TestHelper {
             <p>Access to ExHentai.org is restricted.</p>
           </body>
         </html>
-        """.data(using: .utf8)!.write(to: fileURL, options: .atomic)
+        """.data(using: .utf8))
+        try authHTMLData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
+        let response = try makeResponse(
             url: Defaults.URL.exhentai,
             contentType: "text/html"
         )
@@ -4917,19 +4938,21 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        try """
+        let invalidPageData = try #require("""
         <html><body><h1>Invalid page</h1><p>Gallery not found</p></body></html>
-        """.data(using: .utf8)!.write(to: fileURL, options: .atomic)
+        """.data(using: .utf8))
+        try invalidPageData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://e-hentai.org/g/1/1/")!,
+        let galleryURL = try #require(URL(string: "https://e-hentai.org/g/1/1/"))
+        let response = try makeResponse(
+            url: galleryURL,
             contentType: "text/html"
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://e-hentai.org/g/1/1/")
+            requestURL: galleryURL
         )
 
         #expect(error == .notFound)
@@ -4942,19 +4965,21 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        try "<html><body><h1>Keep trying</h1></body></html>"
-            .data(using: .utf8)!
-            .write(to: fileURL, options: .atomic)
+        let keepTryingData = try #require(
+            "<html><body><h1>Keep trying</h1></body></html>".data(using: .utf8)
+        )
+        try keepTryingData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://e-hentai.org/s/1/1-1")!,
+        let pageURL = try #require(URL(string: "https://e-hentai.org/s/1/1-1"))
+        let response = try makeResponse(
+            url: pageURL,
             contentType: "text/html"
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://e-hentai.org/s/1/1-1")
+            requestURL: pageURL
         )
 
         #expect(error == .notFound)
@@ -4970,15 +4995,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         try Data("Not here".utf8).write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://e-hentai.org/g/1/1/")!,
+        let notFoundURL = try #require(URL(string: "https://e-hentai.org/g/1/1/"))
+        let response = try makeResponse(
+            url: notFoundURL,
             statusCode: 404,
             contentType: "text/html"
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://e-hentai.org/g/1/1/")
+            requestURL: notFoundURL
         )
 
         #expect(error == .notFound)
@@ -4991,23 +5017,25 @@ struct DownloadFeatureReducerTests: TestHelper {
             .appendingPathExtension("html")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        try """
+        let galleryNotAvailableData = try #require("""
         <html>
           <head><title>Gallery Not Available</title></head>
           <body><h1>Gallery Not Available</h1></body>
         </html>
-        """.data(using: .utf8)!.write(to: fileURL, options: .atomic)
+        """.data(using: .utf8))
+        try galleryNotAvailableData.write(to: fileURL, options: .atomic)
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://e-hentai.org/g/1/1/")!,
+        let galleryURL = try #require(URL(string: "https://e-hentai.org/g/1/1/"))
+        let response = try makeResponse(
+            url: galleryURL,
             statusCode: 404,
             contentType: "text/html"
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://e-hentai.org/g/1/1/")
+            requestURL: galleryURL
         )
 
         #expect(error == .notFound)
@@ -5019,14 +5047,15 @@ struct DownloadFeatureReducerTests: TestHelper {
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
         let manager = makeTestingDownloadManager()
-        let response = makeResponse(
-            url: URL(string: "https://example.com/banned")!,
+        let bannedURL = try #require(URL(string: "https://example.com/banned"))
+        let response = try makeResponse(
+            url: bannedURL,
             contentType: "text/html; charset=utf-8"
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,
             response: response,
-            requestURL: URL(string: "https://example.com/banned")
+            requestURL: bannedURL
         )
 
         #expect(error != .parseFailed)
@@ -5052,15 +5081,16 @@ struct DownloadFeatureReducerTests: TestHelper {
         )
         let recorder = RequestRecorder()
         let ipBannedHTML = try fixtureData(resource: HTMLFilename.ipBanned.rawValue, pathExtension: "html")
+        let fallbackBannedURL = try #require(URL(string: "https://example.com/banned"))
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             recorder.recordDetail()
             return (
-                HTTPURLResponse(
-                    url: request.url ?? URL(string: "https://example.com/banned")!,
+                try #require(HTTPURLResponse(
+                    url: request.url ?? fallbackBannedURL,
                     statusCode: 200,
                     httpVersion: nil,
                     headerFields: ["Content-Type": "text/html; charset=utf-8"]
-                )!,
+                )),
                 ipBannedHTML
             )
         }
@@ -5100,7 +5130,7 @@ struct DownloadFeatureReducerTests: TestHelper {
             pageCount: 2,
             completedPageCount: 2
         )
-        let manifest = sampleManifest(gid: download.gid, title: download.title)
+        let manifest = try sampleManifest(gid: download.gid, title: download.title)
         let store = TestStore(
             initialState: ReadingReducer.State(contentSource: .local(download, manifest))
         ) {
@@ -5483,7 +5513,7 @@ struct DownloadFeatureReducerTests: TestHelper {
     @MainActor
     @Test
     func testDownloadManagerBatchesObserverUpdatesDuringCachedPageRestore() async throws {
-        let container = makeInMemoryContainer()
+        let container = try makeInMemoryContainer()
 
         let pageCount = 20
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
@@ -5510,8 +5540,8 @@ struct DownloadFeatureReducerTests: TestHelper {
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let imageData = try #require(cachedImage.jpegData(compressionQuality: 1))
-        let imageURLs = Dictionary(uniqueKeysWithValues: (1...pageCount).map { index in
-            (index, URL(string: "https://example.com/pages/\(gid)-\(index).jpg")!)
+        let imageURLs = try Dictionary(uniqueKeysWithValues: (1...pageCount).map { index in
+            (index, try #require(URL(string: "https://example.com/pages/\(gid)-\(index).jpg")))
         })
         try insertPersistedGalleryState(in: container, gid: gid, imageURLs: imageURLs)
         let cacheKeys = Set(imageURLs.values.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
@@ -5548,7 +5578,7 @@ struct DownloadFeatureReducerTests: TestHelper {
                 pageCount: pageCount,
                 postedDate: .now,
                 coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: URL(string: "https://e-hentai.org/g/\(gid)/token")!
+                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token"))
             ),
             galleryDetail: GalleryDetail(
                 gid: gid,
@@ -5654,9 +5684,9 @@ private extension DownloadFeatureReducerTests {
         await store.skipReceivedActions(strict: false)
     }
 
-    func sampleGalleryState(gid: String) -> GalleryState {
+    func sampleGalleryState(gid: String) throws -> GalleryState {
         var galleryState = GalleryState(gid: gid)
-        galleryState.previewURLs = [1: URL(string: "https://example.com/1t.jpg")!]
+        galleryState.previewURLs = [1: try #require(URL(string: "https://example.com/1t.jpg"))]
         galleryState.previewConfig = .normal(rows: 4)
         return galleryState
     }
@@ -5689,18 +5719,18 @@ private extension DownloadFeatureReducerTests {
         contentType: String,
         contentLength: Int? = nil,
         headers: [String: String] = [:]
-    ) -> HTTPURLResponse {
+    ) throws -> HTTPURLResponse {
         var headerFields = headers
         headerFields["Content-Type"] = contentType
         if let contentLength {
             headerFields["Content-Length"] = "\(contentLength)"
         }
-        return HTTPURLResponse(
+        return try #require(HTTPURLResponse(
             url: url,
             statusCode: statusCode,
             httpVersion: nil,
             headerFields: headerFields
-        )!
+        ))
     }
 
     func writeFixtureToTemporaryFile(filename: HTMLFilename) throws -> URL {
@@ -5739,12 +5769,12 @@ private extension DownloadFeatureReducerTests {
         ]
         let responseData = try JSONSerialization.data(withJSONObject: payload, options: [])
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
-            let response = HTTPURLResponse(
+            let response = try #require(HTTPURLResponse(
                 url: request.url ?? Defaults.URL.api,
                 statusCode: 200,
                 httpVersion: nil,
                 headerFields: ["Content-Type": "application/json"]
-            )!
+            ))
             return (response, responseData)
         }
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
@@ -5798,7 +5828,7 @@ private extension DownloadFeatureReducerTests {
         title: String,
         pageCount: Int = 2,
         versionSignature: String = "hash:v1"
-    ) -> DownloadManifest {
+    ) throws -> DownloadManifest {
         DownloadManifest(
             gid: gid,
             host: .ehentai,
@@ -5812,7 +5842,7 @@ private extension DownloadFeatureReducerTests {
             postedDate: .now,
             pageCount: pageCount,
             coverRelativePath: "cover.jpg",
-            galleryURL: URL(string: "https://e-hentai.org/g/\(gid)/token")!,
+            galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             versionSignature: versionSignature,
@@ -5916,10 +5946,12 @@ private extension DownloadFeatureReducerTests {
         return folderURL
     }
 
-    func makeInMemoryContainer() -> NSPersistentContainer {
-        let modelURL = Bundle(for: TestBundleLocator.self).url(forResource: "Model", withExtension: "momd")
-            ?? Bundle.main.url(forResource: "Model", withExtension: "momd")!
-        let model = NSManagedObjectModel(contentsOf: modelURL)!
+    func makeInMemoryContainer() throws -> NSPersistentContainer {
+        let modelURL = try #require(
+            Bundle(for: TestBundleLocator.self).url(forResource: "Model", withExtension: "momd")
+            ?? Bundle.main.url(forResource: "Model", withExtension: "momd")
+        )
+        let model = try #require(NSManagedObjectModel(contentsOf: modelURL))
         let container = NSPersistentContainer(name: UUID().uuidString, managedObjectModel: model)
         let description = NSPersistentStoreDescription()
         description.type = NSInMemoryStoreType

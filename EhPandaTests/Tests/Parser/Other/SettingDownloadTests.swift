@@ -10,12 +10,12 @@ import Testing
 struct SettingDownloadTests {
     @Test
     func testLegacySettingDecodesDownloadDefaults() throws {
-        let data = """
+        let data = try #require("""
         {
           "galleryHost": "E-Hentai",
           "showsNewDawnGreeting": true
         }
-        """.data(using: .utf8)!
+        """.data(using: .utf8))
 
         let setting = try JSONDecoder().decode(Setting.self, from: data)
 
@@ -42,14 +42,14 @@ struct SettingDownloadTests {
 
     @Test
     func testLegacyDownloadOptionsSnapshotDecodesWithoutOriginalImageField() throws {
-        let data = """
+        let data = try #require("""
         {
           "threadMode": "triple",
           "useOriginalImages": true,
           "allowCellular": false,
           "autoRetryFailedPages": false
         }
-        """.data(using: .utf8)!
+        """.data(using: .utf8))
 
         let snapshot = try JSONDecoder().decode(DownloadOptionsSnapshot.self, from: data)
 
@@ -63,8 +63,8 @@ struct SettingDownloadTests {
     }
 
     @Test
-    func testImageCacheKeysPreferStablePathAlias() {
-        let url = URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1")!
+    func testImageCacheKeysPreferStablePathAlias() throws {
+        let url = try #require(URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1"))
 
         #expect(
             url.imageCacheKeys(includeStableAlias: true) == [
@@ -75,17 +75,17 @@ struct SettingDownloadTests {
     }
 
     @Test
-    func testStableImageCacheKeyIgnoresHostRotationAndQuery() {
-        let firstURL = URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1")!
-        let secondURL = URL(string: "https://beta.hath.network/h/123/456/image.webp?source=viewer")!
+    func testStableImageCacheKeyIgnoresHostRotationAndQuery() throws {
+        let firstURL = try #require(URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1"))
+        let secondURL = try #require(URL(string: "https://beta.hath.network/h/123/456/image.webp?source=viewer"))
 
         #expect(firstURL.stableImageCacheKey == secondURL.stableImageCacheKey)
     }
 
     @Test
-    func testStableImageCacheKeyKeepsIdentityQueryForFullImageScript() {
-        let firstURL = URL(string: "https://e-hentai.org/fullimg.php?gid=42&page=7&key=alpha")!
-        let secondURL = URL(string: "https://exhentai.org/fullimg.php?page=7&gid=42&key=beta")!
+    func testStableImageCacheKeyKeepsIdentityQueryForFullImageScript() throws {
+        let firstURL = try #require(URL(string: "https://e-hentai.org/fullimg.php?gid=42&page=7&key=alpha"))
+        let secondURL = try #require(URL(string: "https://exhentai.org/fullimg.php?page=7&gid=42&key=beta"))
 
         #expect(firstURL.stableImageCacheKey == "download::fullimg.php?gid=42&key=alpha&page=7")
         #expect(secondURL.stableImageCacheKey == "download::fullimg.php?gid=42&key=beta&page=7")
@@ -93,8 +93,8 @@ struct SettingDownloadTests {
     }
 
     @Test
-    func testCombinedPreviewURLCleanupIncludesPlainPreviewURL() {
-        let plainURL = URL(string: "https://ehgt.org/ab/cd/preview.webp")!
+    func testCombinedPreviewURLCleanupIncludesPlainPreviewURL() throws {
+        let plainURL = try #require(URL(string: "https://ehgt.org/ab/cd/preview.webp"))
         let combinedURL = URLUtil.combinedPreviewURL(
             plainURL: plainURL,
             width: "200",
