@@ -10,7 +10,7 @@ import UIImageColors
 
 struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
+    private let downloadStore = DownloadBadgeStore.shared
 
     private let currentID: String
     private let colors: [Color]

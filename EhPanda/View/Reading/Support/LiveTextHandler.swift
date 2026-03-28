@@ -14,15 +14,19 @@
 import Vision
 import SwiftUI
 import Foundation
+import Observation
 
-final class LiveTextHandler: ObservableObject {
-    @Published var enablesLiveText = false
-    @Published var liveTextGroups = [Int: [LiveTextGroup]]()
-    @Published private(set) var focusedLiveTextGroup: LiveTextGroup?
+@Observable
+@MainActor
+final class LiveTextHandler {
+    var enablesLiveText = false
+    var liveTextGroups = [Int: [LiveTextGroup]]()
+    private(set) var focusedLiveTextGroup: LiveTextGroup?
 
+    @ObservationIgnored
     private var processingRequests = [VNRequest]()
 
-    deinit {
+    isolated deinit {
         cancelRequests()
     }
 

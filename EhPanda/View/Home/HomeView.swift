@@ -313,7 +313,7 @@ private struct CoverWallSection: View {
 }
 
 private struct VerticalCoverStack: View {
-    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
+    private let downloadStore = DownloadBadgeStore.shared
 
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]

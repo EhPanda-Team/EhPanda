@@ -8,7 +8,7 @@ import Kingfisher
 
 struct GalleryDetailCell: View {
     @Environment(\.colorScheme) private var colorScheme
-    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
+    private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
     private let coverURLOverride: URL?

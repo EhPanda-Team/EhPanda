@@ -4,12 +4,16 @@
 //
 
 import SwiftUI
+import Observation
 
-final class AutoPlayHandler: ObservableObject {
-    @Published var policy: AutoPlayPolicy = .off
+@Observable
+@MainActor
+final class AutoPlayHandler {
+    var policy: AutoPlayPolicy = .off
+    @ObservationIgnored
     private var timer: Timer?
 
-    deinit {
+    isolated deinit {
         invalidate()
     }
 

@@ -7,7 +7,7 @@ import SwiftUI
 import Kingfisher
 
 struct GalleryHistoryCell: View {
-    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
+    private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
 

@@ -7,7 +7,7 @@ import SwiftUI
 import Kingfisher
 
 struct GalleryRankingCell: View {
-    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
+    private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
     private let ranking: Int

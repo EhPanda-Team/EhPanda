@@ -7,6 +7,7 @@ import SwiftUI
 import Kingfisher
 import SwiftUIPager
 import ComposableArchitecture
+import Observation
 
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -16,10 +17,10 @@ struct ReadingView: View {
     @Binding private var setting: Setting
     private let blurRadius: Double
 
-    @StateObject private var liveTextHandler = LiveTextHandler()
-    @StateObject private var autoPlayHandler = AutoPlayHandler()
-    @StateObject private var gestureHandler = GestureHandler()
-    @StateObject private var pageHandler = PageHandler()
+    @State private var liveTextHandler = LiveTextHandler()
+    @State private var autoPlayHandler = AutoPlayHandler()
+    @State private var gestureHandler = GestureHandler()
+    @State private var pageHandler = PageHandler()
     @StateObject private var page: Page = .first()
 
     init(
@@ -52,7 +53,10 @@ struct ReadingView: View {
     }
 
     var body: some View {
-        changeTriggers(content: { content })
+        @Bindable var bindableLiveTextHandler = liveTextHandler
+        @Bindable var bindablePageHandler = pageHandler
+
+        return changeTriggers(content: { content })
             .sheet(item: $store.route.sending(\.setNavigation).readingSetting) { _ in
                 NavigationView {
                     ReadingSettingView(
@@ -105,7 +109,10 @@ struct ReadingView: View {
     }
 
     var content: some View {
-        ZStack {
+        @Bindable var bindableLiveTextHandler = liveTextHandler
+        @Bindable var bindablePageHandler = pageHandler
+
+        return ZStack {
             backgroundColor.ignoresSafeArea()
 
             ZStack {
@@ -146,8 +153,8 @@ struct ReadingView: View {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
-                sliderValue: $pageHandler.sliderValue, setting: $setting,
-                enablesLiveText: $liveTextHandler.enablesLiveText,
+                sliderValue: $bindablePageHandler.sliderValue, setting: $setting,
+                enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
                 range: 1...Float(store.gallery.pageCount),
                 previewURLs: displayPreviewURLs,

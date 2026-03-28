@@ -4,15 +4,19 @@
 //
 
 import Foundation
+import Observation
 
+@Observable
 @MainActor
-final class DownloadBadgeStore: ObservableObject {
+final class DownloadBadgeStore {
     static let shared = DownloadBadgeStore(client: DownloadClientKey.liveValue)
 
-    @Published private(set) var badges = [String: DownloadBadge]()
-    @Published private(set) var downloads = [String: DownloadedGallery]()
+    private(set) var badges = [String: DownloadBadge]()
+    private(set) var downloads = [String: DownloadedGallery]()
 
+    @ObservationIgnored
     private let client: DownloadClient
+    @ObservationIgnored
     private var observeTask: Task<Void, Never>?
 
     init(client: DownloadClient) {
