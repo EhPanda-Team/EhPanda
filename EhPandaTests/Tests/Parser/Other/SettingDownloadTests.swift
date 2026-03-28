@@ -10,12 +10,12 @@ import Testing
 struct SettingDownloadTests {
     @Test
     func testLegacySettingDecodesDownloadDefaults() throws {
-        let data = try #require("""
+        let data = Data("""
         {
           "galleryHost": "E-Hentai",
           "showsNewDawnGreeting": true
         }
-        """.data(using: .utf8))
+        """.utf8)
 
         let setting = try JSONDecoder().decode(Setting.self, from: data)
 
@@ -42,14 +42,14 @@ struct SettingDownloadTests {
 
     @Test
     func testLegacyDownloadOptionsSnapshotDecodesWithoutOriginalImageField() throws {
-        let data = try #require("""
+        let data = Data("""
         {
           "threadMode": "triple",
           "useOriginalImages": true,
           "allowCellular": false,
           "autoRetryFailedPages": false
         }
-        """.data(using: .utf8))
+        """.utf8)
 
         let snapshot = try JSONDecoder().decode(DownloadOptionsSnapshot.self, from: data)
 

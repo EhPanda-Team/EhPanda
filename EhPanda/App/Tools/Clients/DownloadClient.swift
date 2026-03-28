@@ -224,6 +224,27 @@ actor DownloadManager {
         let failedPages: [DownloadFailedPagesSnapshot.Page]
     }
 
+    private struct FailureContext: Sendable {
+        let gid: String
+        let originalDownload: DownloadedGallery
+        let mode: DownloadStartMode
+        let hadReadableFiles: Bool
+        let latestSignature: String?
+    }
+
+    private struct PageDownloadContext: Sendable {
+        let payload: DownloadRequestPayload
+        let source: ResolvedSource?
+        let temporaryFolderURL: URL
+        let storedGalleryImageState: CachedGalleryImageState?
+    }
+
+    private struct CacheRestoreSource: Sendable {
+        let cacheURLs: [URL?]
+        let referenceURL: URL?
+        let imageURL: URL?
+    }
+
     private let storage: DownloadFileStorage
     private let urlSession: URLSession
     private let persistenceContainer: NSPersistentContainer
@@ -748,13 +769,16 @@ actor DownloadManager {
         )
         do {
             let cacheURLs = pageImageCacheURLs(imageURL: imageURL)
+            let cacheSource = CacheRestoreSource(
+                cacheURLs: cacheURLs,
+                referenceURL: preferredPageReferenceURL(imageURL: imageURL),
+                imageURL: imageURL
+            )
             guard let pageResult = try await restorePageFromCache(
                 index: index,
-                cacheURLs: cacheURLs,
+                source: cacheSource,
                 folderURL: captureTarget.folderURL,
                 preferredRelativePath: captureTarget.preferredRelativePath ?? existingPages[index],
-                referenceURL: preferredPageReferenceURL(imageURL: imageURL),
-                imageURL: imageURL,
                 overwriteExistingFile: true
             ) else {
                 return
@@ -994,14 +1018,14 @@ actor DownloadManager {
                     "error": error.localizedDescription
                 ]
             )
-            await persistFailure(
+            let failureContext = FailureContext(
                 gid: gid,
-                error: error,
                 originalDownload: download,
                 mode: mode,
                 hadReadableFiles: hadReadableFiles,
                 latestSignature: fetchedVersionSignature
             )
+            await persistFailure(error: error, context: failureContext)
             await notifyObservers()
         } catch let error as PartialDownloadError {
             let pageError = error.failedPages.first?.failure.appError ?? .unknown
@@ -1015,28 +1039,28 @@ actor DownloadManager {
                     "failedPages": error.failedPages.map(\.index)
                 ]
             )
-            await persistFailure(
+            let failureContext = FailureContext(
                 gid: gid,
-                error: pageError,
                 originalDownload: download,
                 mode: mode,
                 hadReadableFiles: hadReadableFiles,
                 latestSignature: fetchedVersionSignature
             )
+            await persistFailure(error: pageError, context: failureContext)
             await notifyObservers()
         } catch {
             let appError = AppError.fileOperationFailed(error.localizedDescription)
             guard !isCancellationLikeAppError(appError) else { return }
             guard !shouldSuppressFailurePersistence(for: gid) else { return }
             Logger.error(error)
-            await persistFailure(
+            let failureContext = FailureContext(
                 gid: gid,
-                error: appError,
                 originalDownload: download,
                 mode: mode,
                 hadReadableFiles: hadReadableFiles,
                 latestSignature: fetchedVersionSignature
             )
+            await persistFailure(error: appError, context: failureContext)
             await notifyObservers()
         }
     }
@@ -1348,56 +1372,52 @@ actor DownloadManager {
     }
 
     private func persistFailure(
-        gid: String,
         error: AppError,
-        originalDownload: DownloadedGallery,
-        mode: DownloadStartMode,
-        hadReadableFiles: Bool,
-        latestSignature: String?
+        context: FailureContext
     ) async {
         let workingCompletedPageCount = temporaryCompletedPageCount(
-            gid: gid,
-            expectedPageCount: originalDownload.pageCount
+            gid: context.gid,
+            expectedPageCount: context.originalDownload.pageCount
         )
-        let hasTemporaryWorkingSet = storage.temporaryFolderExists(gid: gid)
+        let hasTemporaryWorkingSet = storage.temporaryFolderExists(gid: context.gid)
         let recoveredCompletedPageCount = hasTemporaryWorkingSet
             ? workingCompletedPageCount
-            : max(originalDownload.completedPageCount, workingCompletedPageCount)
+            : max(context.originalDownload.completedPageCount, workingCompletedPageCount)
         do {
-            try await updateDownloadRecord(gid: gid, createIfMissing: false) { record in
+            try await updateDownloadRecord(gid: context.gid, createIfMissing: false) { record in
                 record.lastError = DownloadFailure(error: error).toData()
                 record.pendingOperation = nil
-                if mode == .repair {
+                if context.mode == .repair {
                     record.status = DownloadStatus.missingFiles.rawValue
-                    record.completedPageCount = Int64(originalDownload.completedPageCount)
-                    record.folderRelativePath = originalDownload.folderRelativePath
-                    record.coverRelativePath = originalDownload.coverRelativePath
-                    record.remoteVersionSignature = originalDownload.remoteVersionSignature
-                    record.latestRemoteVersionSignature = latestSignature
-                        ?? originalDownload.latestRemoteVersionSignature
-                } else if hadReadableFiles, [.update, .redownload].contains(mode) {
+                    record.completedPageCount = Int64(context.originalDownload.completedPageCount)
+                    record.folderRelativePath = context.originalDownload.folderRelativePath
+                    record.coverRelativePath = context.originalDownload.coverRelativePath
+                    record.remoteVersionSignature = context.originalDownload.remoteVersionSignature
+                    record.latestRemoteVersionSignature = context.latestSignature
+                        ?? context.originalDownload.latestRemoteVersionSignature
+                } else if context.hadReadableFiles, [.update, .redownload].contains(context.mode) {
                     record.status = self.fallbackStatus(
-                        for: originalDownload,
-                        mode: mode,
-                        latestSignature: latestSignature
+                        for: context.originalDownload,
+                        mode: context.mode,
+                        latestSignature: context.latestSignature
                     )
                     .rawValue
-                    record.completedPageCount = Int64(originalDownload.pageCount)
-                    record.folderRelativePath = originalDownload.folderRelativePath
-                    record.coverRelativePath = originalDownload.coverRelativePath
-                    record.remoteVersionSignature = originalDownload.remoteVersionSignature
-                    record.latestRemoteVersionSignature = latestSignature
-                        ?? originalDownload.latestRemoteVersionSignature
+                    record.completedPageCount = Int64(context.originalDownload.pageCount)
+                    record.folderRelativePath = context.originalDownload.folderRelativePath
+                    record.coverRelativePath = context.originalDownload.coverRelativePath
+                    record.remoteVersionSignature = context.originalDownload.remoteVersionSignature
+                    record.latestRemoteVersionSignature = context.latestSignature
+                        ?? context.originalDownload.latestRemoteVersionSignature
                 } else if workingCompletedPageCount > 0 {
                     record.status = DownloadStatus.partial.rawValue
                     record.completedPageCount = Int64(workingCompletedPageCount)
-                    record.latestRemoteVersionSignature = latestSignature
-                        ?? originalDownload.latestRemoteVersionSignature
+                    record.latestRemoteVersionSignature = context.latestSignature
+                        ?? context.originalDownload.latestRemoteVersionSignature
                 } else {
                     record.status = DownloadStatus.partial.rawValue
                     record.completedPageCount = Int64(recoveredCompletedPageCount)
-                    record.latestRemoteVersionSignature = latestSignature
-                        ?? originalDownload.latestRemoteVersionSignature
+                    record.latestRemoteVersionSignature = context.latestSignature
+                        ?? context.originalDownload.latestRemoteVersionSignature
                 }
             }
         } catch {
@@ -1566,14 +1586,17 @@ actor DownloadManager {
                     requiredPageIndices: pendingPageIndices
                 )
             }
-            let batchResult = try await downloadPages(
+            let downloadContext = PageDownloadContext(
                 payload: payload,
-                pendingPageIndices: pendingPageIndices,
                 source: source,
                 temporaryFolderURL: temporaryFolderURL,
-                existingManifest: workingSeed.manifest,
-                existingPageRelativePaths: workingSeed.existingPages,
                 storedGalleryImageState: storedGalleryImageState
+            )
+            let batchResult = try await downloadPages(
+                context: downloadContext,
+                pendingPageIndices: pendingPageIndices,
+                existingManifest: workingSeed.manifest,
+                existingPageRelativePaths: workingSeed.existingPages
             )
             if payload.pageSelection != nil {
                 try? storage.writeResumeState(
@@ -1729,13 +1752,10 @@ actor DownloadManager {
     }
 
     private func downloadPages(
-        payload: DownloadRequestPayload,
+        context: PageDownloadContext,
         pendingPageIndices: [Int],
-        source: ResolvedSource?,
-        temporaryFolderURL: URL,
         existingManifest: DownloadManifest?,
-        existingPageRelativePaths: [Int: String],
-        storedGalleryImageState: CachedGalleryImageState?
+        existingPageRelativePaths: [Int: String]
     ) async throws -> DownloadBatchResult {
         let manifestPages = Dictionary(
             uniqueKeysWithValues: (existingManifest?.pages ?? []).map { ($0.index, $0.relativePath) }
@@ -1744,6 +1764,8 @@ actor DownloadManager {
             existingPageRelativePaths,
             uniquingKeysWith: { manifestPath, _ in manifestPath }
         )
+        let payload = context.payload
+        let temporaryFolderURL = context.temporaryFolderURL
         var failedPages = (try? storage.readFailedPages(folderURL: temporaryFolderURL).map) ?? [:]
         let pageIndices = Array(1...payload.galleryDetail.pageCount)
         var results = [PageResult]()
@@ -1756,7 +1778,7 @@ actor DownloadManager {
                 .init(
                     index: index,
                     relativePath: relativePath,
-                    imageURL: storedGalleryImageState?.imageURLs[index]
+                    imageURL: context.storedGalleryImageState?.imageURLs[index]
                 )
             )
         }
@@ -1775,7 +1797,7 @@ actor DownloadManager {
             indices: pendingPageIndices,
             temporaryFolderURL: temporaryFolderURL,
             existingPages: existingPages,
-            storedGalleryImageState: storedGalleryImageState
+            storedGalleryImageState: context.storedGalleryImageState
         )
         if !restoredCachedPages.isEmpty {
             restoredCachedPages.forEach {
@@ -1805,11 +1827,8 @@ actor DownloadManager {
                         return .success(
                             try await self.downloadPage(
                                 index: index,
-                                payload: payload,
-                                source: source,
-                                temporaryFolderURL: temporaryFolderURL,
-                                preferredRelativePath: existingPages[index],
-                                storedGalleryImageState: storedGalleryImageState
+                                context: context,
+                                preferredRelativePath: existingPages[index]
                             )
                         )
                     } catch is CancellationError {
@@ -1883,11 +1902,8 @@ actor DownloadManager {
                             return .success(
                                 try await self.downloadPage(
                                     index: nextIndex,
-                                    payload: payload,
-                                    source: source,
-                                    temporaryFolderURL: temporaryFolderURL,
-                                    preferredRelativePath: existingPages[nextIndex],
-                                    storedGalleryImageState: storedGalleryImageState
+                                    context: context,
+                                    preferredRelativePath: existingPages[nextIndex]
                                 )
                             )
                         } catch is CancellationError {
@@ -1948,12 +1964,12 @@ actor DownloadManager {
 
     private func downloadPage(
         index: Int,
-        payload: DownloadRequestPayload,
-        source: ResolvedSource?,
-        temporaryFolderURL: URL,
-        preferredRelativePath: String?,
-        storedGalleryImageState: CachedGalleryImageState?
+        context: PageDownloadContext,
+        preferredRelativePath: String?
     ) async throws -> PageResult {
+        let payload = context.payload
+        let temporaryFolderURL = context.temporaryFolderURL
+        let storedGalleryImageState = context.storedGalleryImageState
         let attempts = payload.options.autoRetryFailedPages ? 2 : 1
         var capturedError: AppError = .unknown
 
@@ -1964,17 +1980,20 @@ actor DownloadManager {
                     index: index,
                     storedGalleryImageState: storedGalleryImageState
                 )
-                if let pageResult = try await restorePageFromCache(
-                    index: index,
+                let storedSource = CacheRestoreSource(
                     cacheURLs: storedCacheURLs,
-                    folderURL: temporaryFolderURL,
-                    preferredRelativePath: preferredRelativePath,
                     referenceURL: storedCacheURLs.compactMap(\.self).first,
                     imageURL: storedGalleryImageState?.imageURLs[index]
+                )
+                if let pageResult = try await restorePageFromCache(
+                    index: index,
+                    source: storedSource,
+                    folderURL: temporaryFolderURL,
+                    preferredRelativePath: preferredRelativePath
                 ) {
                     return pageResult
                 }
-                guard let source else { throw AppError.notFound }
+                guard let source = context.source else { throw AppError.notFound }
                 let resolvedImageSource = try await resolvedImageSource(
                     index: index,
                     payload: payload,
@@ -1986,13 +2005,16 @@ actor DownloadManager {
                     index: index,
                     storedGalleryImageState: storedGalleryImageState
                 )
-                if let pageResult = try await restorePageFromCache(
-                    index: index,
+                let resolvedSource = CacheRestoreSource(
                     cacheURLs: resolvedCacheURLs,
-                    folderURL: temporaryFolderURL,
-                    preferredRelativePath: preferredRelativePath,
                     referenceURL: preferredPageReferenceURL(resolvedImageSource: resolvedImageSource),
                     imageURL: resolvedImageSource.imageURL
+                )
+                if let pageResult = try await restorePageFromCache(
+                    index: index,
+                    source: resolvedSource,
+                    folderURL: temporaryFolderURL,
+                    preferredRelativePath: preferredRelativePath
                 ) {
                     return pageResult
                 }
@@ -2128,12 +2150,10 @@ actor DownloadManager {
         case .mpv(let mpvKey, let imageKeys):
             guard let imageKey = imageKeys[index] else { throw AppError.notFound }
             let imageURL = try await fetchMPVImageURL(
-                host: payload.host,
-                gid: payload.gallery.gid,
+                payload: payload,
                 index: index,
                 mpvKey: mpvKey,
                 imageKey: imageKey,
-                allowsCellular: payload.options.allowCellular,
                 retriesRequest: retriesRequest
             )
             return .init(imageURL: imageURL)
@@ -2204,15 +2224,13 @@ actor DownloadManager {
     }
 
     private func fetchMPVImageURL(
-        host: GalleryHost,
-        gid: String,
+        payload: DownloadRequestPayload,
         index: Int,
         mpvKey: String,
         imageKey: String,
-        allowsCellular: Bool,
         retriesRequest: Bool = true
     ) async throws -> URL {
-        guard let gidInteger = Int(gid) else { throw AppError.notFound }
+        guard let gidInteger = Int(payload.gallery.gid) else { throw AppError.notFound }
         let params: [String: Any] = [
             "method": "imagedispatch",
             "gid": gidInteger,
@@ -2221,10 +2239,10 @@ actor DownloadManager {
             "mpvkey": mpvKey
         ]
 
-        var request = URLRequest(url: host.url.appendingPathComponent("api.php"))
+        var request = URLRequest(url: payload.host.url.appendingPathComponent("api.php"))
         request.httpMethod = "POST"
         request.httpBody = try JSONSerialization.data(withJSONObject: params)
-        request.allowsCellularAccess = allowsCellular
+        request.allowsCellularAccess = payload.options.allowCellular
 
         let (data, response) = try await dataResponse(for: request, retriesRequest: retriesRequest)
         if let error = detectResponseError(
@@ -3120,13 +3138,16 @@ actor DownloadManager {
                 index: index,
                 storedGalleryImageState: storedGalleryImageState
             )
-            guard let pageResult = try await restorePageFromCache(
-                index: index,
+            let cacheSource = CacheRestoreSource(
                 cacheURLs: cacheURLs,
-                folderURL: temporaryFolderURL,
-                preferredRelativePath: existingPages[index],
                 referenceURL: cacheURLs.compactMap(\.self).first,
                 imageURL: storedGalleryImageState?.imageURLs[index]
+            )
+            guard let pageResult = try await restorePageFromCache(
+                index: index,
+                source: cacheSource,
+                folderURL: temporaryFolderURL,
+                preferredRelativePath: existingPages[index]
             ) else {
                 continue
             }
@@ -3159,15 +3180,13 @@ actor DownloadManager {
 
     private func restorePageFromCache(
         index: Int,
-        cacheURLs: [URL?],
+        source: CacheRestoreSource,
         folderURL: URL,
         preferredRelativePath: String?,
-        referenceURL: URL?,
-        imageURL: URL?,
         overwriteExistingFile: Bool = false
     ) async throws -> PageResult? {
         // Cache-assisted restores must reject known placeholder images before promoting them to offline files.
-        guard let cachedData = await validatedCachedAssetData(for: cacheURLs)
+        guard let cachedData = await validatedCachedAssetData(for: source.cacheURLs)
         else {
             return nil
         }
@@ -3176,7 +3195,7 @@ actor DownloadManager {
         if let preferredRelativePath {
             relativePath = preferredRelativePath
         } else {
-            let fallbackURL = referenceURL ?? URL(string: "https://example.com/\(index).jpg")!
+            let fallbackURL = source.referenceURL ?? URL(string: "https://example.com/\(index).jpg")!
             let fileExtension = fileExtension(
                 for: fallbackURL,
                 response: nil,
@@ -3196,7 +3215,7 @@ actor DownloadManager {
         return .init(
             index: index,
             relativePath: relativePath,
-            imageURL: imageURL
+            imageURL: source.imageURL
         )
     }
 
@@ -3810,18 +3829,21 @@ actor DownloadManager {
             )
         )
 
-        let batchResult = try await downloadPages(
+        let downloadContext = PageDownloadContext(
             payload: payload,
+            source: nil,
+            temporaryFolderURL: temporaryFolderURL,
+            storedGalleryImageState: await fetchCachedGalleryImageState(gid: payload.gallery.gid)
+        )
+        let batchResult = try await downloadPages(
+            context: downloadContext,
             pendingPageIndices: pendingPageIndices(
                 payload: payload,
                 folderURL: temporaryFolderURL,
                 existingPageRelativePaths: [:]
             ),
-            source: nil,
-            temporaryFolderURL: temporaryFolderURL,
             existingManifest: nil,
-            existingPageRelativePaths: [:],
-            storedGalleryImageState: await fetchCachedGalleryImageState(gid: payload.gallery.gid)
+            existingPageRelativePaths: [:]
         )
         return batchResult.pages.count
     }

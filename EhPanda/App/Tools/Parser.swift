@@ -1858,7 +1858,9 @@ extension Parser {
         // JDownloader matches these image-limit texts to distinguish quota exhaustion from generic HTML failures.
         // Reference: https://github.com/mirror/jdownloader/blob/master/src/jd/plugins/hoster/EHentaiOrg.java
         if normalizedContent.contains("you have exceeded your image viewing limits")
-            || normalizedContent.contains("you have reached the image limit, and do not have sufficient gp to buy a download quota")
+            || normalizedContent.contains(
+                "you have reached the image limit, and do not have sufficient gp to buy a download quota"
+            )
         {
             return .quotaExceeded
         }

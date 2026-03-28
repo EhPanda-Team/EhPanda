@@ -23,7 +23,10 @@ struct GalleryDetailParserTests: TestHelper {
         #expect(detail.category == .nonH)
         #expect(detail.language == .japanese)
         #expect(detail.uploader == "Pokom")
-        #expect(detail.coverURL?.absoluteString == "https://ehgt.org/03/08/0308268821e99628b05a19fa54e2fc0fa9ad8f4b-1705560-1012-1470-png_250.jpg")
+        #expect(
+            detail.coverURL?.absoluteString
+                == "https://ehgt.org/03/08/0308268821e99628b05a19fa54e2fc0fa9ad8f4b-1705560-1012-1470-png_250.jpg"
+        )
         #expect(detail.archiveURL?.absoluteString == "https://e-hentai.org/archiver.php?gid=3103480&token=0000000000")
         #expect(detail.parentURL?.absoluteString == "https://e-hentai.org/g/2930572/daf4b9880d/")
         #expect(detail.favoritedCount == 591)

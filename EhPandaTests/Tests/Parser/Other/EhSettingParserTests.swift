@@ -19,7 +19,7 @@ struct EhSettingParserTests: TestHelper {
 
     func testEhProfiles(_ profiles: [EhProfile]) {
         #expect(profiles.count == 3)
-        
+
         let ehProfile1 = profiles[0]
         #expect(ehProfile1.value == 1)
         #expect(ehProfile1.name == "Default Profile")

@@ -12,26 +12,26 @@ final class GestureHandler: ObservableObject {
     @Published private var baseScale: Double = 1
     @Published private var newOffset: CGSize = .zero
 
-    private func edgeWidth(x: Double) -> Double {
+    private func edgeWidth(xAxis: Double) -> Double {
         let marginW = DeviceUtil.absWindowW * (scale - 1) / 2
         let leadingMargin = scaleAnchor.x / 0.5 * marginW
         let trailingMargin = (1 - scaleAnchor.x) / 0.5 * marginW
-        return min(max(x, -trailingMargin), leadingMargin)
+        return min(max(xAxis, -trailingMargin), leadingMargin)
     }
-    private func edgeHeight(y: Double) -> Double {
+    private func edgeHeight(yAxis: Double) -> Double {
         let marginH = DeviceUtil.absWindowH * (scale - 1) / 2
         let topMargin = scaleAnchor.y / 0.5 * marginH
         let bottomMargin = (1 - scaleAnchor.y) / 0.5 * marginH
-        return min(max(y, -bottomMargin), topMargin)
+        return min(max(yAxis, -bottomMargin), topMargin)
     }
     private func correctOffset() {
-        offset.width = edgeWidth(x: offset.width)
-        offset.height = edgeHeight(y: offset.height)
+        offset.width = edgeWidth(xAxis: offset.width)
+        offset.height = edgeHeight(yAxis: offset.height)
     }
     private func correctScaleAnchor(point: CGPoint) {
-        let x = min(1, max(0, point.x / DeviceUtil.absWindowW))
-        let y = min(1, max(0, point.y / DeviceUtil.absWindowH))
-        scaleAnchor = .init(x: x, y: y)
+        let xAxis = min(1, max(0, point.x / DeviceUtil.absWindowW))
+        let yAxis = min(1, max(0, point.y / DeviceUtil.absWindowH))
+        scaleAnchor = .init(x: xAxis, y: yAxis)
     }
     private func setOffset(_ offset: CGSize) {
         self.offset = offset
@@ -106,8 +106,8 @@ final class GestureHandler: ObservableObject {
         guard scale > 1 else { return }
         let newX = value.translation.width + newOffset.width
         let newY = value.translation.height + newOffset.height
-        let newOffsetW = edgeWidth(x: newX)
-        let newOffsetH = edgeHeight(y: newY)
+        let newOffsetW = edgeWidth(xAxis: newX)
+        let newOffsetH = edgeHeight(yAxis: newY)
         setOffset(.init(width: newOffsetW, height: newOffsetH))
     }
 

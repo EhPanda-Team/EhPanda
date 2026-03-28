@@ -76,10 +76,9 @@ extension ImageClient {
             }
             return .failure(AppError.notFound)
         }
-        for key in url.imageCacheKeys(includeStableAlias: true) {
-            if KingfisherManager.shared.cache.isCached(forKey: key) {
-                return await retrieveImage(key)
-            }
+        for key in url.imageCacheKeys(includeStableAlias: true)
+        where KingfisherManager.shared.cache.isCached(forKey: key) {
+            return await retrieveImage(key)
         }
         return await downloadImage(url)
     }

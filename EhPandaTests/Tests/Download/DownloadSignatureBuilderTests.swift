@@ -15,7 +15,10 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"))
+                1: try #require(URL(
+                    string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"
+                ))
             ],
             versionMetadata: .init(
                 gid: "1394965",
@@ -135,8 +138,14 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0")),
-                2: try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=200"))
+                1: try #require(URL(
+                    string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"
+                )),
+                2: try #require(URL(
+                    string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=200"
+                ))
             ]
         )
 
@@ -145,8 +154,14 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://beta.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=250&ehpandaHeight=366&ehpandaOffset=0")),
-                2: try #require(URL(string: "https://beta.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=250&ehpandaHeight=366&ehpandaOffset=250"))
+                1: try #require(URL(
+                    string: "https://beta.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=250&ehpandaHeight=366&ehpandaOffset=0"
+                )),
+                2: try #require(URL(
+                    string: "https://beta.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=250&ehpandaHeight=366&ehpandaOffset=250"
+                ))
             ]
         )
 
@@ -160,7 +175,10 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"))
+                1: try #require(URL(
+                    string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"
+                ))
             ]
         )
 
@@ -169,7 +187,10 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-1.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"))
+                1: try #require(URL(
+                    string: "https://alpha.hath.network/c2/token-a/1394965-1.webp"
+                        + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"
+                ))
             ]
         )
 
@@ -183,7 +204,10 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"))
+                1: try #require(URL(
+                    string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                        + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"
+                ))
             ]
         )
 
@@ -192,7 +216,10 @@ struct DownloadSignatureBuilderTests {
             detail: sampleDetail,
             host: .ehentai,
             previewURLs: [
-                1: try #require(URL(string: "https://beta.hath.network/c2/token-b/1394965-0.webp?ehpandaWidth=250&ehpandaHeight=366&ehpandaOffset=0"))
+                1: try #require(URL(
+                    string: "https://beta.hath.network/c2/token-b/1394965-0.webp"
+                        + "?ehpandaWidth=250&ehpandaHeight=366&ehpandaOffset=0"
+                ))
             ]
         )
 
@@ -267,8 +294,14 @@ struct DownloadSignatureBuilderTests {
     }
     @Test
     func testSignatureIsOrderIndependentForSamePreviewURLSet() throws {
-        let urlA = try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"))
-        let urlB = try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=200"))
+        let urlA = try #require(URL(
+            string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"
+        ))
+        let urlB = try #require(URL(
+            string: "https://alpha.hath.network/c2/token-a/1394965-0.webp"
+                + "?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=200"
+        ))
 
         let ascendingSignature = DownloadSignatureBuilder.make(
             gallery: sampleGallery,

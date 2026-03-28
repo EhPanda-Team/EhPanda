@@ -1617,6 +1617,9 @@
 			);
 			buildRules = (
 			);
+			dependencies = (
+				A66A766F2F77C89100FC07B8 /* PBXTargetDependency */,
+			);
 			name = ShareExtension;
 			productName = ShareExtension;
 			productReference = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */;
@@ -1627,7 +1630,6 @@
 			buildConfigurationList = ABC3C7632593696E00E0C11B /* Build configuration list for PBXNativeTarget "EhPanda" */;
 			buildPhases = (
 				AB2E936227A24E0A00EA99F1 /* SwiftGen */,
-				AB69FE41263C328400716FBD /* SwiftLint */,
 				ABC3C7502593696C00E0C11B /* Sources */,
 				ABC3C7512593696C00E0C11B /* Frameworks */,
 				ABC3C7522593696C00E0C11B /* Resources */,
@@ -1636,6 +1638,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A66A766D2F77C88A00FC07B8 /* PBXTargetDependency */,
 				AB5BE67F26B95FDD007D4A55 /* PBXTargetDependency */,
 			);
 			name = EhPanda;
@@ -1672,6 +1675,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A66A76712F77C89600FC07B8 /* PBXTargetDependency */,
 				ABF294D126D20F82004DD03A /* PBXTargetDependency */,
 			);
 			name = EhPandaTests;
@@ -1733,6 +1737,7 @@
 				AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */,
 				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
@@ -1853,26 +1858,6 @@
 				"  swiftgen",
 				"else",
 				"  echo \"warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen\"",
-				"fi",
-				"",
-			);
-		};
-		AB69FE41263C328400716FBD /* SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			name = SwiftLint;
-			shellPath = /bin/sh;
-			shellScript = (
-				"if test -d \"/opt/homebrew/bin/\"; then",
-				"  PATH=\"/opt/homebrew/bin/:${PATH}\"",
-				"fi",
-				"",
-				"export PATH",
-				"",
-				"if which swiftlint >/dev/null; then",
-				"  swiftlint",
-				"else",
-				"  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"",
 				"fi",
 				"",
 			);
@@ -2107,6 +2092,18 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A66A766D2F77C88A00FC07B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = A66A766C2F77C88A00FC07B8 /* SwiftLintBuildToolPlugin */;
+		};
+		A66A766F2F77C89100FC07B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = A66A766E2F77C89100FC07B8 /* SwiftLintBuildToolPlugin */;
+		};
+		A66A76712F77C89600FC07B8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = A66A76702F77C89600FC07B8 /* SwiftLintBuildToolPlugin */;
+		};
 		AB5BE67F26B95FDD007D4A55 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB5BE67526B95FDD007D4A55 /* ShareExtension */;
@@ -2481,6 +2478,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.0;
+			};
+		};
 		AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Co2333/Colorful";
@@ -2616,6 +2621,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A66A766C2F77C88A00FC07B8 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		A66A766E2F77C89100FC07B8 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		A66A76702F77C89600FC07B8 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		AB17573C27675B1E00FD64E2 /* Colorful */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */;

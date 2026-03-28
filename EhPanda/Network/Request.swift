@@ -391,43 +391,43 @@ struct GalleryDetailRequest: Request {
     }
 }
 
-private struct GalleryVersionMetadataAPIResponse: Decodable {
-    struct GalleryMetadata: Decodable {
-        let gid: Int
-        let token: String
-        let currentGID: Int?
-        let currentKey: String?
-        let parentGID: Int?
-        let parentKey: String?
-        let firstGID: Int?
-        let firstKey: String?
+private struct GalleryVersionMetadata: Decodable {
+    let gid: Int
+    let token: String
+    let currentGID: Int?
+    let currentKey: String?
+    let parentGID: Int?
+    let parentKey: String?
+    let firstGID: Int?
+    let firstKey: String?
 
-        enum CodingKeys: String, CodingKey {
-            case gid
-            case token
-            case currentGID = "current_gid"
-            case currentKey = "current_key"
-            case parentGID = "parent_gid"
-            case parentKey = "parent_key"
-            case firstGID = "first_gid"
-            case firstKey = "first_key"
-        }
-
-        var versionMetadata: DownloadVersionMetadata {
-            DownloadVersionMetadata(
-                gid: String(gid),
-                token: token,
-                currentGID: currentGID.map(String.init),
-                currentKey: currentKey,
-                parentGID: parentGID.map(String.init),
-                parentKey: parentKey,
-                firstGID: firstGID.map(String.init),
-                firstKey: firstKey
-            )
-        }
+    enum CodingKeys: String, CodingKey {
+        case gid
+        case token
+        case currentGID = "current_gid"
+        case currentKey = "current_key"
+        case parentGID = "parent_gid"
+        case parentKey = "parent_key"
+        case firstGID = "first_gid"
+        case firstKey = "first_key"
     }
 
-    let gmetadata: [GalleryMetadata]
+    var versionMetadata: DownloadVersionMetadata {
+        DownloadVersionMetadata(
+            gid: String(gid),
+            token: token,
+            currentGID: currentGID.map(String.init),
+            currentKey: currentKey,
+            parentGID: parentGID.map(String.init),
+            parentKey: parentKey,
+            firstGID: firstGID.map(String.init),
+            firstKey: firstKey
+        )
+    }
+}
+
+private struct GalleryVersionMetadataAPIResponse: Decodable {
+    let gmetadata: [GalleryVersionMetadata]
 }
 
 struct GalleryVersionMetadataRequest: Request {
