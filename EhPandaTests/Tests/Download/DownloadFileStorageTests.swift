@@ -366,6 +366,89 @@ struct DownloadFileStorageTests {
     }
 
     @Test
+    func testMaterializeRepairSeedRejectsTraversalPathsInManifestPages() throws {
+        let sourceRootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let destRootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer {
+            try? FileManager.default.removeItem(at: sourceRootURL)
+            try? FileManager.default.removeItem(at: destRootURL)
+        }
+
+        let sourceStorage = DownloadFileStorage(rootURL: sourceRootURL, fileManager: .default)
+        let destStorage = DownloadFileStorage(rootURL: destRootURL, fileManager: .default)
+        try sourceStorage.ensureRootDirectory()
+        try destStorage.ensureRootDirectory()
+
+        let sourceFolderURL = sourceStorage.folderURL(relativePath: "123 - Source")
+        let tempFolderURL = destStorage.temporaryFolderURL(gid: "123")
+        try FileManager.default.createDirectory(
+            at: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            withIntermediateDirectories: true
+        )
+
+        let manifest = try DownloadManifest(
+            gid: "123",
+            host: .ehentai,
+            token: "token",
+            title: "Sample",
+            jpnTitle: nil,
+            category: .doujinshi,
+            language: .japanese,
+            uploader: "Uploader",
+            tags: [],
+            postedDate: .now,
+            pageCount: 2,
+            coverRelativePath: "cover.jpg",
+            galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
+            rating: 4,
+            downloadOptions: DownloadOptionsSnapshot(),
+            versionSignature: "hash:v1",
+            downloadedAt: .now,
+            pages: [
+                .init(index: 1, relativePath: "pages/0001.jpg"),
+                .init(index: 2, relativePath: "../escape.jpg")
+            ]
+        )
+        try sourceStorage.writeManifest(manifest, folderURL: sourceFolderURL)
+        try Data([0xFF, 0xD8, 0xFF]).write(
+            to: sourceFolderURL.appendingPathComponent("cover.jpg"),
+            options: .atomic
+        )
+        try Data([0x01]).write(
+            to: sourceFolderURL.appendingPathComponent("pages/0001.jpg"),
+            options: .atomic
+        )
+        let escapeURL = sourceFolderURL.deletingLastPathComponent()
+            .appendingPathComponent("escape.jpg")
+        try Data([0x99]).write(to: escapeURL, options: .atomic)
+
+        try destStorage.materializeRepairSeed(
+            from: sourceFolderURL,
+            manifest: manifest,
+            to: tempFolderURL
+        )
+
+        #expect(
+            FileManager.default.fileExists(
+                atPath: tempFolderURL.appendingPathComponent("pages/0001.jpg").path
+            )
+        )
+        #expect(
+            FileManager.default.fileExists(
+                atPath: tempFolderURL.appendingPathComponent("../escape.jpg")
+                    .standardizedFileURL.path
+            ) == false
+        )
+        #expect(
+            FileManager.default.fileExists(
+                atPath: destRootURL.appendingPathComponent("escape.jpg").path
+            ) == false
+        )
+    }
+
+    @Test
     func testLinkOrCopyReadableAssetFallsBackToCopyWhenHardLinkFails() throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

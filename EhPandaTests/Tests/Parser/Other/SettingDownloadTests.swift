@@ -93,6 +93,13 @@ struct SettingDownloadTests {
     }
 
     @Test
+    func testStableImageCacheKeyFallbackRetainsNonIgnoredNonPreferredQueries() throws {
+        let url = try #require(URL(string: "https://example.com/h/123/image.webp?custom=abc&dl=1"))
+
+        #expect(url.stableImageCacheKey == "download::h/123/image.webp?custom=abc")
+    }
+
+    @Test
     func testCombinedPreviewURLCleanupIncludesPlainPreviewURL() throws {
         let plainURL = try #require(URL(string: "https://ehgt.org/ab/cd/preview.webp"))
         let combinedURL = URLUtil.combinedPreviewURL(

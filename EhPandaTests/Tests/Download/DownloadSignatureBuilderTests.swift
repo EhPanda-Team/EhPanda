@@ -265,6 +265,27 @@ struct DownloadSignatureBuilderTests {
 
         #expect(ehSignature == exSignature)
     }
+    @Test
+    func testSignatureIsOrderIndependentForSamePreviewURLSet() throws {
+        let urlA = try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=0"))
+        let urlB = try #require(URL(string: "https://alpha.hath.network/c2/token-a/1394965-0.webp?ehpandaWidth=200&ehpandaHeight=293&ehpandaOffset=200"))
+
+        let ascendingSignature = DownloadSignatureBuilder.make(
+            gallery: sampleGallery,
+            detail: sampleDetail,
+            host: .ehentai,
+            previewURLs: [1: urlA, 2: urlB]
+        )
+
+        let descendingSignature = DownloadSignatureBuilder.make(
+            gallery: sampleGallery,
+            detail: sampleDetail,
+            host: .ehentai,
+            previewURLs: [2: urlB, 1: urlA]
+        )
+
+        #expect(ascendingSignature == descendingSignature)
+    }
 }
 
 private extension DownloadSignatureBuilderTests {
