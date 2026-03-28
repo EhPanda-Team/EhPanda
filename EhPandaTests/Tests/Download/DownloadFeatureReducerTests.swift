@@ -708,7 +708,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testLoadUserSettingsDefersExLaunchAutomationUntilIgneousArrives() async {
+    func testLoadUserSettingsDefersExLaunchAutomationUntilIgneousArrives() async throws {
         let cookieClient = CookieClient.live
         cookieClient.clearAll()
         cookieClient.importAutomationCookies(
@@ -3430,7 +3430,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testDetailReducerOpenReadingUsesLocalManifestWhenAvailable() async {
+    func testDetailReducerOpenReadingUsesLocalManifestWhenAvailable() async throws {
         let download = sampleDownload(
             gid: "888",
             title: "Offline Archive",
@@ -3533,7 +3533,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testPreviewsReducerOpenReadingUsesLocalManifestWhenAvailable() async {
+    func testPreviewsReducerOpenReadingUsesLocalManifestWhenAvailable() async throws {
         let download = sampleDownload(
             gid: "991",
             title: "Preview Download",
@@ -5122,7 +5122,7 @@ struct DownloadFeatureReducerTests: TestHelper {
 
     @MainActor
     @Test
-    func testReadingReducerLocalSourceWithoutGalleryStateDoesNotStayLoading() async {
+    func testReadingReducerLocalSourceWithoutGalleryStateDoesNotStayLoading() async throws {
         let download = sampleDownload(
             gid: "700001",
             title: "Offline Gallery",
