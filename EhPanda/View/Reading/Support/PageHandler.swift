@@ -4,9 +4,12 @@
 //
 
 import SwiftUI
+import Observation
 
-final class PageHandler: ObservableObject {
-    @Published var sliderValue: Float = 1 {
+@Observable
+@MainActor
+final class PageHandler {
+    var sliderValue: Float = 1 {
         didSet {
             Logger.info("sliderValue.didSet", context: ["sliderValue": sliderValue])
         }

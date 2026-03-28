@@ -436,7 +436,7 @@ private extension DetailView {
 
 // MARK: HeaderSection
 private struct HeaderSection: View {
-    @ObservedObject private var downloadStore = DownloadBadgeStore.shared
+    private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail

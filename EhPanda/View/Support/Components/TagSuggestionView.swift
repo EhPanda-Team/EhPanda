@@ -5,6 +5,7 @@
 
 import SwiftUI
 import Kingfisher
+import Observation
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String
@@ -12,7 +13,7 @@ struct TagSuggestionView: View {
     private let showsImages: Bool
     private let isEnabled: Bool
 
-    @StateObject private var translationHandler = TagTranslationHandler()
+    @State private var translationHandler = TagTranslationHandler()
 
     init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
         _keyword = keyword
@@ -102,8 +103,10 @@ private struct SuggestionCell: View {
 }
 
 // MARK: TagTranslationHandler
-final class TagTranslationHandler: ObservableObject {
-    @Published var suggestions = [TagSuggestion]()
+@Observable
+@MainActor
+final class TagTranslationHandler {
+    var suggestions = [TagSuggestion]()
 
     func analyze(text: inout String, translations: [String: TagTranslation]) {
         let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)

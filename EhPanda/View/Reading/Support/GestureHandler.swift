@@ -4,13 +4,18 @@
 //
 
 import SwiftUI
+import Observation
 
-final class GestureHandler: ObservableObject {
-    @Published var scaleAnchor: UnitPoint = .center
-    @Published var scale: Double = 1
-    @Published var offset: CGSize = .zero
-    @Published private var baseScale: Double = 1
-    @Published private var newOffset: CGSize = .zero
+@Observable
+@MainActor
+final class GestureHandler {
+    var scaleAnchor: UnitPoint = .center
+    var scale: Double = 1
+    var offset: CGSize = .zero
+    @ObservationIgnored
+    private var baseScale: Double = 1
+    @ObservationIgnored
+    private var newOffset: CGSize = .zero
 
     private func edgeWidth(xAxis: Double) -> Double {
         let marginW = DeviceUtil.absWindowW * (scale - 1) / 2
