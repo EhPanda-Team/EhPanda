@@ -621,7 +621,7 @@ private struct ImageContainer: View {
                         .foregroundColor(.gray).padding(.bottom, 30)
                     ZStack {
                         Button(action: reloadImage) {
-                            Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                            Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                         }
                         .font(.system(size: 30, weight: .medium)).foregroundColor(.gray)
                         .opacity(loadingState == .loading ? 0 : 1)

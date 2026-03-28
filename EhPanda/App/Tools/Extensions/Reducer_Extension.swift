@@ -25,7 +25,7 @@ extension Reducer {
     ) -> some Reducer<State, Action> {
         Reduce { state, action in
             let previousCase = Binding.constant(`enum`(state)).case(caseKeyPath).wrappedValue
-            let effects = reduce(into: &state, action: action)
+            let effects = _reduce(into: &state, action: action)
             let currentCase = Binding.constant(`enum`(state)).case(caseKeyPath).wrappedValue
 
             return previousCase == nil && currentCase != nil
@@ -47,7 +47,7 @@ where State == Base.State, Action == Base.Action {
     public var body: some Reducer<State, Action> {
         var `self`: Reduce<State, Action>!
         self = Reduce { state, action in
-            base(self).reduce(into: &state, action: action)
+            base(self)._reduce(into: &state, action: action)
         }
         return self
     }
@@ -66,7 +66,7 @@ where State == Base.State, Action == Base.Action {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             Logger.info(action)
-            return base.reduce(into: &state, action: action)
+            return base._reduce(into: &state, action: action)
         }
     }
 }

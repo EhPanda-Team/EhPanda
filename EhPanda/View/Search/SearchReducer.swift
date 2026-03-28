@@ -74,16 +74,14 @@ struct SearchReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            .onChange(of: \.route) { _, state in
+                state.route == nil ? .send(.clearSubStates) : .none
             }
-            .onChange(of: \.keyword) { _, newValue in
-                Reduce { state, _ in
-                    if !newValue.isEmpty {
-                        state.lastKeyword = newValue
-                    }
-                    return .none
+            .onChange(of: \.keyword) { _, state in
+                if !state.keyword.isEmpty {
+                    state.lastKeyword = state.keyword
                 }
+                return .none
             }
 
         Reduce { state, action in

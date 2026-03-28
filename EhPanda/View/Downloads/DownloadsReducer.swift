@@ -80,16 +80,12 @@ struct DownloadsReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce { _, _ in
-                    newValue == nil ? .send(.clearSubStates) : .none
-                }
+            .onChange(of: \.route) { _, state in
+                state.route == nil ? .send(.clearSubStates) : .none
             }
-            .onChange(of: \.galleryFilter) { _, _ in
-                Reduce { state, _ in
-                    state.galleryFilter.fixInvalidData()
-                    return .none
-                }
+            .onChange(of: \.galleryFilter) { _, state in
+                state.galleryFilter.fixInvalidData()
+                return .none
             }
 
         Reduce { state, action in

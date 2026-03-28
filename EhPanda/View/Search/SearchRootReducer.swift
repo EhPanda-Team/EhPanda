@@ -89,15 +89,13 @@ struct SearchRootReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce { _, _ in
-                    newValue == nil
-                    ? .merge(
-                        .send(.clearSubStates),
-                        .send(.fetchDatabaseInfos)
-                    )
-                    : .none
-                }
+            .onChange(of: \.route) { _, state in
+                state.route == nil
+                ? .merge(
+                    .send(.clearSubStates),
+                    .send(.fetchDatabaseInfos)
+                )
+                : .none
             }
 
         Reduce { state, action in

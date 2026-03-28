@@ -67,8 +67,8 @@ struct FrontpageReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            .onChange(of: \.route) { _, state in
+                state.route == nil ? .send(.clearSubStates) : .none
             }
 
         Reduce { state, action in

@@ -409,7 +409,7 @@ private extension DetailView {
                         store.send(.setNavigation(.archives(galleryURL, archiveURL)))
                     }
                 } label: {
-                    Label(L10n.Localizable.DetailView.ToolbarItem.Button.archives, systemSymbol: .docZipper)
+                    Label(L10n.Localizable.DetailView.ToolbarItem.Button.archives, systemSymbol: .zipperPage)
                 }
                 .disabled(store.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
                 Button {
@@ -1092,7 +1092,7 @@ private extension TagsSection {
                                     links: translation.links
                                 ))
                             } label: {
-                                Image(systemSymbol: .docRichtext)
+                                Image(systemSymbol: .richtextPage)
                                 Text(L10n.Localizable.DetailView.ContextMenu.Button.detail)
                             }
                         }

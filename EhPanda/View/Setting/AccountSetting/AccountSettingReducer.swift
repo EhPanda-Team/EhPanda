@@ -46,14 +46,14 @@ struct AccountSettingReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, newValue in
-                Reduce({ _, _ in newValue == nil ? .send(.clearSubStates) : .none })
+            .onChange(of: \.route) { _, state in
+                state.route == nil ? .send(.clearSubStates) : .none
             }
-            .onChange(of: \.ehCookiesState) { _, newValue in
-                Reduce({ _, _ in .run(operation: { _ in cookieClient.setCookies(state: newValue) }) })
+            .onChange(of: \.ehCookiesState) { _, state in
+                .run(operation: { [value = state.ehCookiesState] _ in cookieClient.setCookies(state: value) })
             }
-            .onChange(of: \.exCookiesState) { _, newValue in
-                Reduce({ _, _ in .run(operation: { _ in cookieClient.setCookies(state: newValue) }) })
+            .onChange(of: \.exCookiesState) { _, state in
+                .run(operation: { [value = state.exCookiesState] _ in cookieClient.setCookies(state: value) })
             }
 
         Reduce { state, action in

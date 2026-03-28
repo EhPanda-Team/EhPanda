@@ -21,7 +21,7 @@ final class DownloadBadgeStore: ObservableObject {
             guard let self else { return }
             await self.apply(downloads: client.fetchDownloads())
             for await downloads in client.observeDownloads() {
-                await self.apply(downloads: downloads)
+                self.apply(downloads: downloads)
             }
         }
     }

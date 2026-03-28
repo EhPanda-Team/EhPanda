@@ -35,7 +35,7 @@ struct FetchMoreFooter: View {
                 Button {
                     retryAction?()
                 } label: {
-                    Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                    Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                         .foregroundStyle(.red).imageScale(.large)
                 }
                 .opacity(![.idle, .loading].contains(loadingState) ? 1 : 0)

@@ -78,7 +78,7 @@ extension AppError {
         case .parseFailed:
             return .rectangleAndTextMagnifyingglass
         case .quotaExceeded:
-            return .speedometer
+            return .gaugeWithDotsNeedle67percent
         case .authenticationRequired:
             return .lockCircleFill
         case .fileOperationFailed:
