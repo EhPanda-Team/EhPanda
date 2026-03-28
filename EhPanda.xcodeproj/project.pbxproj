@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		82F69C912F12815E00A7F9E4 /* KingfisherWebP in Frameworks */ = {isa = PBXBuildFile; productRef = 82F69C902F12815E00A7F9E4 /* KingfisherWebP */; };
 		AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573C27675B1E00FD64E2 /* Colorful */; };
 		AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573F27678B3400FD64E2 /* UIImageColors */; };
 		AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */ = {isa = PBXBuildFile; productRef = AB1FA94827C62BC80063EF55 /* CommonMark */; };
@@ -148,6 +149,7 @@
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
 				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
+				82F69C912F12815E00A7F9E4 /* KingfisherWebP in Frameworks */,
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
 				AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
@@ -285,6 +287,7 @@
 				AB2EB9A1280251F600011A8A /* AlertKit */,
 				AB2EB9A42802521700011A8A /* DeprecatedAPI */,
 				EAE63E2029E2A6330048C601 /* SwiftyBeaver */,
+				82F69C902F12815E00A7F9E4 /* KingfisherWebP */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -355,6 +358,7 @@
 				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
 				AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				8268CA182F127FF900AE0557 /* XCRemoteSwiftPackageReference "KingfisherWebP" */,
 				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
 				AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */,
 				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
@@ -797,6 +801,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8268CA182F127FF900AE0557 /* XCRemoteSwiftPackageReference "KingfisherWebP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yeatse/KingfisherWebP";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.2;
+			};
+		};
 		A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
@@ -940,6 +952,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		82F69C902F12815E00A7F9E4 /* KingfisherWebP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8268CA182F127FF900AE0557 /* XCRemoteSwiftPackageReference "KingfisherWebP" */;
+			productName = KingfisherWebP;
+		};
 		A66A766C2F77C88A00FC07B8 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
