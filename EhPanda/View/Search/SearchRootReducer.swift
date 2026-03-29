@@ -91,11 +91,11 @@ struct SearchRootReducer {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil
-                ? .merge(
-                    .send(.clearSubStates),
-                    .send(.fetchDatabaseInfos)
-                )
-                : .none
+                    ? .merge(
+                        .send(.clearSubStates),
+                        .send(.fetchDatabaseInfos)
+                    )
+                    : .none
             }
 
         Reduce { state, action in
@@ -106,11 +106,11 @@ struct SearchRootReducer {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil
-                ? .merge(
-                    .send(.clearSubStates),
-                    .send(.fetchDatabaseInfos)
-                )
-                : .none
+                    ? .merge(
+                        .send(.clearSubStates),
+                        .send(.fetchDatabaseInfos)
+                    )
+                    : .none
 
             case .setKeyword(let keyword):
                 state.keyword = keyword

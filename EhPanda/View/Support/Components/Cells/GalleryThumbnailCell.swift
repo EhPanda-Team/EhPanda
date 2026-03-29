@@ -59,7 +59,7 @@ struct GalleryThumbnailCell: View {
                         }
                         Spacer()
                     }
-            }
+                }
             VStack(alignment: .leading, spacing: 5) {
                 Text(gallery.title)
                     .font(.callout.bold())

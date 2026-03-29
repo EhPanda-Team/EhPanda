@@ -76,7 +76,7 @@ private struct LogCell: View {
 
     private var dateRangeString: String {
         parseDate(string: log.contents.first)
-        + " - " + parseDate(string: log.contents.last)
+            + " - " + parseDate(string: log.contents.last)
     }
 
     init(log: Log, isLatest: Bool) {

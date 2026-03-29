@@ -1,0 +1,110 @@
+//
+//  DownloadRetryMinimalSourceTests.swift
+//  EhPandaTests
+//
+
+import CoreData
+import Foundation
+import Testing
+@testable import EhPanda
+
+@Suite(.serialized)
+struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
+    @Test
+    func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {
+        let container = try makeInMemoryContainer()
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 200)
+        let pageIndex = 42
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadManager(rootURL: rootURL, sessionID: sessionID)
+        let setup = try await setupMinimalSourceTest(
+            manager: manager, sessionID: sessionID, gid: gid, pageIndex: pageIndex
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let manifest = try sampleManifest(
+            gid: gid, title: "Pause Race",
+            pageCount: setup.pageCount, versionSignature: setup.versionSignature
+        )
+        try insertPersistedDownload(
+            in: container, gid: gid, status: .partial,
+            completedPageCount: setup.pageCount - 1, pageCount: setup.pageCount,
+            remoteVersionSignature: setup.versionSignature,
+            latestRemoteVersionSignature: setup.versionSignature
+        )
+        try writeTemporaryManifestAndPages(
+            storage: storage, gid: gid, manifest: manifest,
+            pageCount: setup.pageCount, omittingPage: pageIndex,
+            versionSignature: setup.versionSignature,
+            pageSelection: [pageIndex]
+        )
+        await manager.testingProcessDownload(gid: gid)
+
+        let firstRunSnapshot = setup.recorder.snapshot()
+        #expect(firstRunSnapshot.previewPageNumbers == [1])
+
+        setup.recorder.reset()
+        try clearPersistedDownloads(in: container)
+        try insertPersistedDownload(
+            in: container, gid: gid, status: .partial,
+            completedPageCount: setup.pageCount, pageCount: setup.pageCount,
+            remoteVersionSignature: setup.versionSignature,
+            latestRemoteVersionSignature: setup.versionSignature
+        )
+        try writeTemporaryManifestAndPages(
+            storage: storage, gid: gid, manifest: manifest,
+            pageCount: setup.pageCount, versionSignature: setup.versionSignature,
+            pageSelection: [pageIndex]
+        )
+        await manager.testingProcessDownload(gid: gid)
+
+        let secondRunSnapshot = setup.recorder.snapshot()
+        #expect(secondRunSnapshot.previewPageNumbers.isEmpty)
+        #expect(secondRunSnapshot.mpvRequests == 0)
+        #expect(secondRunSnapshot.imageDispatchRequests == 0)
+    }
+}
+
+// MARK: - Minimal Source Test Result
+
+private struct MinimalSourceTestResult {
+    let recorder: RequestRecorder
+    let versionSignature: String
+    let pageCount: Int
+}
+
+// MARK: - Setup Helpers
+
+private extension DownloadRetryMinimalSourceTests {
+    func setupMinimalSourceTest(
+        manager: DownloadManager, sessionID: String, gid: String, pageIndex: Int
+    ) async throws -> MinimalSourceTestResult {
+        let recorder = RequestRecorder()
+        let stubContent = StubHandlerContent(
+            detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
+            mpvHTML: try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html"),
+            metadataResponse: try makeMetadataResponseData(gid: gid)
+        )
+        installDownloadStubHandler(
+            sessionID: sessionID, gid: gid, pageIndex: pageIndex,
+            content: stubContent, recorder: recorder
+        )
+        let scaffoldDownload = sampleDownload(
+            gid: gid, title: "Pause Race", status: .partial,
+            pageCount: 156, completedPageCount: 155
+        )
+        let fetchResult = try await manager.testingFetchLatestPayload(
+            for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
+        )
+        recorder.reset()
+        return MinimalSourceTestResult(
+            recorder: recorder,
+            versionSignature: fetchResult.versionSignature,
+            pageCount: fetchResult.payload.galleryDetail.pageCount
+        )
+    }
+}

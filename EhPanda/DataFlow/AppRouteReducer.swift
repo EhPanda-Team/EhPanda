@@ -98,7 +98,7 @@ struct AppRouteReducer {
                     state.route = nil
                     state.detailState.wrappedValue = .init()
                 }
-                let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
+                let analysis = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
                     return .run { [delay] send in
@@ -108,11 +108,13 @@ struct AppRouteReducer {
                 }
                 return .run { [delay] send in
                     try await Task.sleep(for: .milliseconds(delay))
-                    await send(.fetchGallery(url, isGalleryImageURL))
+                    await send(.fetchGallery(url, analysis.isGalleryImageURL))
                 }
 
             case .handleGalleryLink(let url):
-                let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
+                let analysis = urlClient.analyzeURL(url)
+                let pageIndex = analysis.pageIndex
+                let commentID = analysis.commentID
                 let gid = urlClient.parseGalleryID(url)
                 var effects = [Effect<Action>]()
                 state.detailState.wrappedValue = .init()

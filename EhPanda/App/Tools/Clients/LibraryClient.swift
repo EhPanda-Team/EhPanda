@@ -57,7 +57,7 @@ extension LibraryClient {
             KingfisherManager.shared.downloader.sessionConfiguration = config
             KingfisherManager.shared.defaultOptions += [
                 .processor(WebPProcessor.default),
-                .cacheSerializer(WebPSerializer.default),
+                .cacheSerializer(WebPSerializer.default)
             ]
         },
         clearWebImageDiskCache: {

@@ -1,0 +1,258 @@
+//
+//  DownloadClient+ExecutionPerform.swift
+//  EhPanda
+//
+
+import Foundation
+
+// MARK: - Perform Download
+extension DownloadManager {
+    struct PerformDownloadResult {
+        let coverRelativePath: String?
+        let pages: [PageResult]
+    }
+
+    func performDownload(
+        payload: DownloadRequestPayload,
+        versionSignature: String,
+        folderRelativePath: String,
+        existingDownload: DownloadedGallery
+    ) async throws -> PerformDownloadResult {
+        try storage.ensureRootDirectory()
+
+        let temporaryFolderURL = storage
+            .temporaryFolderURL(gid: payload.gallery.gid)
+        let workingSeed = try prepareWorkingSeed(
+            payload: payload,
+            existingDownload: existingDownload,
+            temporaryFolderURL: temporaryFolderURL,
+            versionSignature: versionSignature
+        )
+        let pendingIndices = pendingPageIndices(
+            payload: payload,
+            folderURL: temporaryFolderURL,
+            existingPageRelativePaths: workingSeed.existingPages
+        )
+        try storage.writeResumeState(
+            .init(
+                mode: payload.mode,
+                versionSignature: versionSignature,
+                pageCount: payload.galleryDetail.pageCount,
+                downloadOptions: payload.options,
+                pageSelection: payload.pageSelection?.sorted()
+            ),
+            folderURL: temporaryFolderURL
+        )
+
+        let executionContext = DownloadExecutionContext(
+            existingDownload: existingDownload,
+            versionSignature: versionSignature,
+            folderRelativePath: folderRelativePath
+        )
+        do {
+            let batchAndCover = try await executePageDownloads(
+                payload: payload,
+                workingSeed: workingSeed,
+                pendingIndices: pendingIndices,
+                temporaryFolderURL: temporaryFolderURL,
+                executionContext: executionContext
+            )
+            return batchAndCover
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw error
+        }
+    }
+
+    private func executePageDownloads(
+        payload: DownloadRequestPayload,
+        workingSeed: WorkingSeed,
+        pendingIndices: [Int],
+        temporaryFolderURL: URL,
+        executionContext: DownloadExecutionContext
+    ) async throws -> PerformDownloadResult {
+        let existingDownload = executionContext.existingDownload
+        let versionSignature = executionContext.versionSignature
+        let folderRelativePath = executionContext.folderRelativePath
+        let storedGalleryImageState =
+            await fetchCachedGalleryImageState(
+                gid: payload.gallery.gid
+            )
+        let coverRelativePath = try await downloadAndPersistCoverIfNeeded(
+            payload: payload,
+            temporaryFolderURL: temporaryFolderURL,
+            existingCoverRelativePath: workingSeed.coverRelativePath,
+            existingDownload: existingDownload
+        )
+        let source = try await resolveSourceIfNeeded(
+            payload: payload,
+            pendingIndices: pendingIndices,
+            temporaryFolderURL: temporaryFolderURL,
+            existingPages: workingSeed.existingPages,
+            storedGalleryImageState: storedGalleryImageState
+        )
+        let downloadContext = PageDownloadContext(
+            payload: payload,
+            source: source,
+            temporaryFolderURL: temporaryFolderURL,
+            storedGalleryImageState: storedGalleryImageState
+        )
+        let batchResult = try await downloadPages(
+            context: downloadContext,
+            pendingPageIndices: pendingIndices,
+            existingManifest: workingSeed.manifest,
+            existingPageRelativePaths: workingSeed.existingPages
+        )
+        let finalizeCtx = FinalizeContext(
+            versionSignature: versionSignature,
+            coverRelativePath: coverRelativePath,
+            batchResult: batchResult,
+            storedGalleryImageState: storedGalleryImageState,
+            existingDownload: existingDownload
+        )
+        try await finalizeBatchResult(
+            context: finalizeCtx,
+            payload: payload,
+            temporaryFolderURL: temporaryFolderURL,
+            folderRelativePath: folderRelativePath
+        )
+        return PerformDownloadResult(
+            coverRelativePath: coverRelativePath,
+            pages: batchResult.pages
+        )
+    }
+
+    private func downloadAndPersistCoverIfNeeded(
+        payload: DownloadRequestPayload,
+        temporaryFolderURL: URL,
+        existingCoverRelativePath: String?,
+        existingDownload: DownloadedGallery
+    ) async throws -> String? {
+        let coverRelativePath = try await downloadCoverImage(
+            payload: payload,
+            temporaryFolderURL: temporaryFolderURL,
+            existingCoverRelativePath: existingCoverRelativePath
+        )
+        if coverRelativePath != existingDownload.coverRelativePath {
+            try? await updateDownloadRecord(
+                gid: payload.gallery.gid,
+                createIfMissing: false
+            ) { record in
+                record.coverRelativePath = coverRelativePath
+            }
+        }
+        return coverRelativePath
+    }
+
+    private func finalizeBatchResult(
+        context: FinalizeContext,
+        payload: DownloadRequestPayload,
+        temporaryFolderURL: URL,
+        folderRelativePath: String
+    ) async throws {
+        if payload.pageSelection != nil {
+            try? storage.writeResumeState(
+                .init(
+                    mode: payload.mode,
+                    versionSignature: context.versionSignature,
+                    pageCount: payload.galleryDetail.pageCount,
+                    downloadOptions: payload.options
+                ),
+                folderURL: temporaryFolderURL
+            )
+        }
+        if !context.batchResult.failedPages.isEmpty {
+            throw PartialDownloadError(
+                failedPages: context.batchResult.failedPages
+            )
+        }
+        try finalizeDownload(
+            payload: payload,
+            temporaryFolderURL: temporaryFolderURL,
+            folderRelativePath: folderRelativePath,
+            finalizeContext: context
+        )
+    }
+
+    private func resolveSourceIfNeeded(
+        payload: DownloadRequestPayload,
+        pendingIndices: [Int],
+        temporaryFolderURL: URL,
+        existingPages: [Int: String],
+        storedGalleryImageState: CachedGalleryImageState?
+    ) async throws -> ResolvedSource? {
+        let canSatisfyFromCache =
+            await canSatisfyPendingPageDownloadsFromCache(
+                pendingPageIndices: pendingIndices,
+                temporaryFolderURL: temporaryFolderURL,
+                existingPageRelativePaths: existingPages,
+                storedGalleryImageState: storedGalleryImageState
+            )
+        if pendingIndices.isEmpty || canSatisfyFromCache {
+            return nil
+        }
+        return try await resolveSource(
+            payload: payload,
+            requiredPageIndices: pendingIndices
+        )
+    }
+
+    private func finalizeDownload(
+        payload: DownloadRequestPayload,
+        temporaryFolderURL: URL,
+        folderRelativePath: String,
+        finalizeContext: FinalizeContext
+    ) throws {
+        let versionSignature = finalizeContext.versionSignature
+        let coverRelativePath = finalizeContext.coverRelativePath
+        let batchResult = finalizeContext.batchResult
+        let storedGalleryImageState = finalizeContext.storedGalleryImageState
+        let existingDownload = finalizeContext.existingDownload
+        let manifest = DownloadManifest(
+            gid: payload.gallery.gid,
+            host: payload.host,
+            token: payload.gallery.token,
+            title: payload.gallery.title,
+            jpnTitle: payload.galleryDetail.jpnTitle,
+            category: payload.gallery.category,
+            language: payload.galleryDetail.language,
+            uploader: payload.galleryDetail.uploader,
+            tags: payload.gallery.tags,
+            postedDate: payload.galleryDetail.postedDate,
+            pageCount: payload.galleryDetail.pageCount,
+            coverRelativePath: coverRelativePath,
+            galleryURL:
+                payload.gallery.galleryURL.forceUnwrapped,
+            rating: payload.galleryDetail.rating,
+            downloadOptions: payload.options,
+            versionSignature: versionSignature,
+            downloadedAt: .now,
+            pages: batchResult.pages
+                .sorted(by: { $0.index < $1.index })
+                .map {
+                    .init(
+                        index: $0.index,
+                        relativePath: $0.relativePath
+                    )
+                }
+        )
+        try storage.writeManifest(
+            manifest,
+            folderURL: temporaryFolderURL
+        )
+        try? storage.removeFailedPages(
+            folderURL: temporaryFolderURL
+        )
+        try storage.replaceFolder(
+            relativePath: folderRelativePath,
+            with: temporaryFolderURL
+        )
+        cleanupCachedRemoteAssetsAfterSuccessfulDownload(
+            payload: payload,
+            storedGalleryImageState: storedGalleryImageState,
+            pages: batchResult.pages,
+            existingDownload: existingDownload
+        )
+    }
+}

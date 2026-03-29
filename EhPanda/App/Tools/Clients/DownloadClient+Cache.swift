@@ -1,0 +1,324 @@
+//
+//  DownloadClient+Cache.swift
+//  EhPanda
+//
+
+import Foundation
+import Kingfisher
+
+// MARK: - Cache Operations
+extension DownloadManager {
+    func cacheKeys(
+        for url: URL,
+        includeStableAlias: Bool
+    ) -> [String] {
+        url.imageCacheKeys(includeStableAlias: includeStableAlias)
+    }
+
+    func removeCachedImages(
+        for urls: [URL?],
+        includeStableAlias: Bool
+    ) {
+        let keys = urls
+            .compactMap(\.self)
+            .flatMap {
+                cacheKeys(for: $0, includeStableAlias: includeStableAlias)
+            }
+
+        for key in Set(keys) {
+            KingfisherManager.shared.cache
+                .removeImage(forKey: key)
+        }
+    }
+
+    func pageImageCacheURLs(
+        resolvedImageSource: ResolvedImageSource?,
+        index: Int,
+        storedGalleryImageState: CachedGalleryImageState?
+    ) -> [URL?] {
+        [
+            resolvedImageSource?.imageURL,
+            storedGalleryImageState?.imageURLs[index]
+        ]
+    }
+
+    func pageImageCacheURLs(
+        imageURL: URL?
+    ) -> [URL?] {
+        [imageURL]
+    }
+
+    func canSatisfyPendingPageDownloadsFromCache(
+        pendingPageIndices: [Int],
+        temporaryFolderURL: URL,
+        existingPageRelativePaths: [Int: String],
+        storedGalleryImageState: CachedGalleryImageState?
+    ) async -> Bool {
+        guard !pendingPageIndices.isEmpty else { return true }
+        for index in pendingPageIndices {
+            if let relativePath =
+                existingPageRelativePaths[index] {
+                let fileURL = temporaryFolderURL
+                    .appendingPathComponent(relativePath)
+                if fileManager()
+                    .fileExists(atPath: fileURL.path) {
+                    continue
+                }
+            }
+            guard await validatedCachedAssetData(
+                for: pageImageCacheURLs(
+                    resolvedImageSource: nil,
+                    index: index,
+                    storedGalleryImageState:
+                        storedGalleryImageState
+                )
+            ) != nil else {
+                return false
+            }
+        }
+        return true
+    }
+
+    func restorePendingPagesFromStoredCache(
+        indices: [Int],
+        temporaryFolderURL: URL,
+        existingPages: [Int: String],
+        storedGalleryImageState: CachedGalleryImageState?
+    ) async throws -> [PageResult] {
+        var restoredPages = [PageResult]()
+        for index in indices {
+            let cacheURLs = pageImageCacheURLs(
+                resolvedImageSource: nil,
+                index: index,
+                storedGalleryImageState:
+                    storedGalleryImageState
+            )
+            let cacheSource = CacheRestoreSource(
+                cacheURLs: cacheURLs,
+                referenceURL: cacheURLs
+                    .compactMap(\.self).first,
+                imageURL: storedGalleryImageState?
+                    .imageURLs[index]
+            )
+            guard let pageResult =
+                    try await restorePageFromCache(
+                        index: index,
+                        source: cacheSource,
+                        folderURL: temporaryFolderURL,
+                        preferredRelativePath:
+                            existingPages[index]
+                    ) else {
+                continue
+            }
+            restoredPages.append(pageResult)
+        }
+        return restoredPages
+    }
+
+    func restorePageFromCache(
+        index: Int,
+        source: CacheRestoreSource,
+        folderURL: URL,
+        preferredRelativePath: String?,
+        overwriteExistingFile: Bool = false
+    ) async throws -> PageResult? {
+        guard let cachedData = await validatedCachedAssetData(
+            for: source.cacheURLs
+        )
+        else {
+            return nil
+        }
+
+        let relativePath: String
+        if let preferredRelativePath {
+            relativePath = preferredRelativePath
+        } else {
+            let fallbackURL = source.referenceURL
+                ?? URL(
+                    string: "https://example.com/\(index).jpg"
+                )!
+            let ext = fileExtension(
+                for: fallbackURL,
+                response: nil,
+                prefixData: cachedData
+            )
+            relativePath = storage.makePageRelativePath(
+                index: index,
+                fileExtension: ext
+            )
+        }
+
+        let fileURL = folderURL
+            .appendingPathComponent(relativePath)
+        if overwriteExistingFile
+            || !fileManager()
+            .fileExists(atPath: fileURL.path) {
+            try write(data: cachedData, to: fileURL)
+        }
+
+        return .init(
+            index: index,
+            relativePath: relativePath,
+            imageURL: source.imageURL
+        )
+    }
+
+    func preferredPageReferenceURL(
+        resolvedImageSource: ResolvedImageSource
+    ) -> URL? {
+        resolvedImageSource.imageURL
+    }
+
+    func preferredPageReferenceURL(
+        imageURL: URL?
+    ) -> URL? {
+        imageURL
+    }
+
+    func clearFailedPage(
+        index: Int,
+        folderURL: URL
+    ) throws {
+        guard let failedSnapshot = try? storage
+                .readFailedPages(folderURL: folderURL) else {
+            return
+        }
+        let remainingPages = failedSnapshot.pages
+            .filter { $0.index != index }
+        if remainingPages.count == failedSnapshot.pages.count {
+            return
+        }
+        if remainingPages.isEmpty {
+            try? storage.removeFailedPages(folderURL: folderURL)
+        } else {
+            try storage.writeFailedPages(
+                .init(pages: remainingPages),
+                folderURL: folderURL
+            )
+        }
+    }
+
+    func shouldExposeTemporaryWorkingSet(
+        for download: DownloadedGallery
+    ) -> Bool {
+        download.shouldPreserveTemporaryWorkingSet
+            || download.status == .failed
+    }
+
+    func cachedImageData(for url: URL) async -> Data? {
+        await cachedImageData(
+            for: [url],
+            includeStableAlias: false
+        )
+    }
+
+    func cachedImageData(
+        for urls: [URL?],
+        includeStableAlias: Bool
+    ) async -> Data? {
+        let allKeys = urls
+            .compactMap { $0 }
+            .flatMap {
+                cacheKeys(
+                    for: $0,
+                    includeStableAlias: includeStableAlias
+                )
+            }
+        let keys = allKeys
+            .reduce(into: [String]()) { partialResult, key in
+                guard !partialResult.contains(key) else {
+                    return
+                }
+                partialResult.append(key)
+            }
+
+        for key in keys {
+            if let data = await cachedImageData(forKey: key) {
+                return data
+            }
+        }
+        return nil
+    }
+
+    func cachedImageData(forKey key: String) async -> Data? {
+        if let image = KingfisherManager.shared.cache
+            .retrieveImageInMemoryCache(forKey: key),
+           let data = image.kf.data(format: .unknown) {
+            return data
+        }
+
+        if let data = try? KingfisherManager.shared.cache
+            .diskStorage.value(forKey: key) {
+            return data
+        }
+
+        return await withCheckedContinuation { continuation in
+            KingfisherManager.shared.cache
+                .retrieveImage(forKey: key) { result in
+                    switch result {
+                    case .success(let value):
+                        guard let image = value.image,
+                              let data = image.kf
+                                .data(format: .unknown)
+                        else {
+                            continuation.resume(returning: nil)
+                            return
+                        }
+                        continuation.resume(returning: data)
+
+                    case .failure:
+                        continuation.resume(returning: nil)
+                    }
+                }
+        }
+    }
+
+    func validatedCachedAssetData(
+        for urls: [URL?]
+    ) async -> Data? {
+        guard let cachedData = await cachedImageData(
+            for: urls,
+            includeStableAlias: true
+        ) else {
+            return nil
+        }
+        guard detectCachedAssetError(
+            data: cachedData,
+            referenceURLs: urls
+        ) == nil else {
+            removeCachedImages(
+                for: urls,
+                includeStableAlias: true
+            )
+            return nil
+        }
+        return cachedData
+    }
+
+    func detectCachedAssetError(
+        data: Data,
+        referenceURLs _: [URL?]
+    ) -> AppError? {
+        guard !data.isEmpty else { return .parseFailed }
+        if isAuthenticationRequiredPlaceholderImageData(data) {
+            return .authenticationRequired
+        }
+        if isQuotaExceededAssetData(data) {
+            return .quotaExceeded
+        }
+
+        let looksLikeHTML = prefixLooksLikeHTML(
+            Data(
+                data.prefix(Self.responseInspectionPrefixLength)
+            )
+        )
+        if let error = detectTextualDownloadError(
+            data: data,
+            looksLikeHTML: looksLikeHTML
+        ) {
+            return error
+        }
+
+        return isDecodableImageData(data) ? nil : .parseFailed
+    }
+}

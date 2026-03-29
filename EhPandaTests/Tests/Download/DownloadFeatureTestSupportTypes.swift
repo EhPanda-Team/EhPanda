@@ -1,0 +1,195 @@
+//
+//  DownloadFeatureTestSupportTypes.swift
+//  EhPandaTests
+//
+
+import Foundation
+@testable import EhPanda
+
+// MARK: - Supporting Types
+
+final class UncheckedBox<Value>: @unchecked Sendable {
+    var value: Value
+
+    init(_ value: Value) {
+        self.value = value
+    }
+}
+
+struct RequestRecorderSnapshot: Equatable {
+    var detailRequests = 0
+    var metadataRequests = 0
+    var mpvRequests = 0
+    var imageDispatchRequests = 0
+    var imageDownloads = 0
+    var previewPageNumbers = [Int]()
+}
+
+final class RequestRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var state = RequestRecorderSnapshot()
+
+    func recordDetail() {
+        mutate { $0.detailRequests += 1 }
+    }
+
+    func recordMetadata() {
+        mutate { $0.metadataRequests += 1 }
+    }
+
+    func recordPreview(_ pageNumber: Int) {
+        mutate { $0.previewPageNumbers.append(pageNumber) }
+    }
+
+    func recordMPV() {
+        mutate { $0.mpvRequests += 1 }
+    }
+
+    func recordImageDispatch() {
+        mutate { $0.imageDispatchRequests += 1 }
+    }
+
+    func recordImageDownload() {
+        mutate { $0.imageDownloads += 1 }
+    }
+
+    func reset() {
+        mutate { $0 = .init() }
+    }
+
+    func snapshot() -> RequestRecorderSnapshot {
+        lock.lock()
+        defer { lock.unlock() }
+        return state
+    }
+
+    private func mutate(
+        _ update: (inout RequestRecorderSnapshot) -> Void
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+        update(&state)
+    }
+}
+
+func requestBodyData(from request: URLRequest) -> Data? {
+    if let httpBody = request.httpBody {
+        return httpBody
+    }
+
+    guard let stream = request.httpBodyStream else {
+        return nil
+    }
+
+    stream.open()
+    defer { stream.close() }
+
+    var data = Data()
+    let bufferSize = 1024
+    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+    defer { buffer.deallocate() }
+
+    while stream.hasBytesAvailable {
+        let readCount = stream.read(buffer, maxLength: bufferSize)
+        guard readCount >= 0 else {
+            return nil
+        }
+        guard readCount > 0 else {
+            break
+        }
+        data.append(buffer, count: readCount)
+    }
+
+    return data
+}
+
+final class FailFastURLProtocol: URLProtocol {
+    override static func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override static func canonicalRequest(
+        for request: URLRequest
+    ) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        client?.urlProtocol(
+            self, didFailWithError: URLError(.cancelled)
+        )
+    }
+
+    override func stopLoading() {}
+}
+
+final class SharedSessionStubURLProtocol: URLProtocol {
+    static let headerKey = "X-TestSession-ID"
+
+    private static let lock = NSLock()
+    private static var handlers:
+        [String: (URLRequest) throws -> (HTTPURLResponse, Data)] = [:]
+
+    static func setHandler(
+        for sessionID: String,
+        handler: @escaping (URLRequest) throws -> (HTTPURLResponse, Data)
+    ) {
+        lock.lock()
+        defer { lock.unlock() }
+        handlers[sessionID] = handler
+    }
+
+    static func removeHandler(for sessionID: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        handlers[sessionID] = nil
+    }
+
+    private static func handler(
+        for request: URLRequest
+    ) -> ((URLRequest) throws -> (HTTPURLResponse, Data))? {
+        guard let sessionID = request.value(
+            forHTTPHeaderField: headerKey
+        ) else {
+            return nil
+        }
+        lock.lock()
+        defer { lock.unlock() }
+        return handlers[sessionID]
+    }
+
+    override static func canInit(with request: URLRequest) -> Bool {
+        handler(for: request) != nil
+    }
+
+    override static func canonicalRequest(
+        for request: URLRequest
+    ) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard let handler = Self.handler(for: request) else {
+            client?.urlProtocol(
+                self,
+                didFailWithError: URLError(.badServerResponse)
+            )
+            return
+        }
+
+        do {
+            let (response, data) = try handler(request)
+            client?.urlProtocol(
+                self,
+                didReceive: response,
+                cacheStoragePolicy: .notAllowed
+            )
+            client?.urlProtocol(self, didLoad: data)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+    }
+
+    override func stopLoading() {}
+}

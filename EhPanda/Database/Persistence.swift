@@ -22,7 +22,7 @@ struct PersistenceController {
 extension PersistenceController {
     func prepare(completion: @escaping (Result<Void, AppError>) -> Void) {
         do {
-           try loadPersistentStore(completion: completion)
+            try loadPersistentStore(completion: completion)
         } catch {
             completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
         }

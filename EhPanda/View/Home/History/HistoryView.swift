@@ -26,31 +26,31 @@ struct HistoryView: View {
 
     var body: some View {
         let content =
-        GenericList(
-            galleries: store.filteredGalleries,
-            setting: setting,
-            pageNumber: nil,
-            loadingState: store.loadingState,
-            footerLoadingState: .idle,
-            fetchAction: { store.send(.fetchGalleries) },
-            navigateAction: { store.send(.setNavigation(.detail($0))) },
-            translateAction: {
-                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-            },
-            downloadBadges: store.downloadBadges
-        )
-        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
-        .onAppear {
-            store.send(.onAppear)
-            if store.galleries.isEmpty {
-                DispatchQueue.main.async {
-                    store.send(.fetchGalleries)
+            GenericList(
+                galleries: store.filteredGalleries,
+                setting: setting,
+                pageNumber: nil,
+                loadingState: store.loadingState,
+                footerLoadingState: .idle,
+                fetchAction: { store.send(.fetchGalleries) },
+                navigateAction: { store.send(.setNavigation(.detail($0))) },
+                translateAction: {
+                    tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                },
+                downloadBadges: store.downloadBadges
+            )
+            .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+            .onAppear {
+                store.send(.onAppear)
+                if store.galleries.isEmpty {
+                    DispatchQueue.main.async {
+                        store.send(.fetchGalleries)
+                    }
                 }
             }
-        }
-        .background(navigationLink)
-        .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.HistoryView.Title.history)
+            .background(navigationLink)
+            .toolbar(content: toolbar)
+            .navigationTitle(L10n.Localizable.HistoryView.Title.history)
 
         if DeviceUtil.isPad {
             content

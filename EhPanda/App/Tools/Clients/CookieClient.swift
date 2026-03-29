@@ -178,8 +178,8 @@ extension CookieClient {
     var shouldFetchIgneous: Bool {
         let url = Defaults.URL.exhentai
         return !getCookie(url, Defaults.Cookie.ipbMemberId).rawValue.isEmpty
-        && !getCookie(url, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
-        && getCookie(url, Defaults.Cookie.igneous).rawValue.isEmpty
+            && !getCookie(url, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
+            && getCookie(url, Defaults.Cookie.igneous).rawValue.isEmpty
     }
     func removeYay() {
         removeCookie(Defaults.URL.exhentai, Defaults.Cookie.yay)
@@ -256,7 +256,7 @@ extension CookieClient {
                     for: cookie,
                     key: subState.key,
                     value: trimsSpaces
-                    ? subState.editingText .trimmingCharacters(in: .whitespaces) : subState.editingText
+                        ? subState.editingText .trimmingCharacters(in: .whitespaces) : subState.editingText
                 )
             }
         }

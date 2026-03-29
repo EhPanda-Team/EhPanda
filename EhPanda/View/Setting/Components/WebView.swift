@@ -26,8 +26,8 @@ struct WebView: UIViewControllerRepresentable {
             guard parent.url.absoluteString == Defaults.URL.webLogin.absoluteString, let webViewURL = webView.url,
                   let queryItems = URLComponents(url: webViewURL, resolvingAgainstBaseURL: false)?.queryItems,
                   queryItems.contains(where: { queryItem in
-                      queryItem.name == Defaults.URL.Component.Key.code.rawValue
-                      && queryItem.value == Defaults.URL.Component.Value.zeroOne.rawValue
+                    queryItem.name == Defaults.URL.Component.Key.code.rawValue
+                        && queryItem.value == Defaults.URL.Component.Value.zeroOne.rawValue
                   })
             else { return }
 

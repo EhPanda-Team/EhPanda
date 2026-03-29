@@ -36,7 +36,7 @@ class CoreDataMigrator: CoreDataMigratorProtocol {
                 )
             } catch {
                 let message = "Failed attempting to migrate from \(migrationStep.sourceModel) "
-                + "to \(migrationStep.destinationModel), error: \(error)."
+                    + "to \(migrationStep.destinationModel), error: \(error)."
                 throw AppError.databaseCorrupted(message)
             }
 

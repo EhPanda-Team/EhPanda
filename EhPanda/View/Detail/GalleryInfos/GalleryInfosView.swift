@@ -69,7 +69,7 @@ struct GalleryInfosView: View {
             Info(
                 title: L10n.Localizable.GalleryInfosView.Title.favorited,
                 value: galleryDetail.isFavorited ? L10n.Localizable.GalleryInfosView.Value.yes
-                : L10n.Localizable.GalleryInfosView.Value.no
+                    : L10n.Localizable.GalleryInfosView.Value.no
             ),
             Info(
                 title: L10n.Localizable.GalleryInfosView.Title.ratingCount,

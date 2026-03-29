@@ -73,13 +73,13 @@ struct QuickSearchView: View {
                 }
                 LoadingView().opacity(
                     store.loadingState == .loading
-                    && store.quickSearchWords.isEmpty ? 1 : 0
+                        && store.quickSearchWords.isEmpty ? 1 : 0
                 )
                 ErrorView(error: .notFound)
-                .opacity(
-                    store.loadingState != .loading
-                    && store.quickSearchWords.isEmpty ? 1 : 0
-                )
+                    .opacity(
+                        store.loadingState != .loading
+                            && store.quickSearchWords.isEmpty ? 1 : 0
+                    )
             }
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)

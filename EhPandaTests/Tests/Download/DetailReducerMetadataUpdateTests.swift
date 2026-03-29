@@ -1,0 +1,174 @@
+//
+//  DetailReducerMetadataUpdateTests.swift
+//  EhPandaTests
+//
+
+import Foundation
+import ComposableArchitecture
+import Testing
+@testable import EhPanda
+
+@Suite(.serialized)
+struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
+    @MainActor
+    @Test
+    func testDetailReducerObserveDownloadDoneAlsoTriggersMetadataCheckWithoutDuplicateRequests() async throws {
+        let updateCheckCount = UncheckedBox(0)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let sessionID = UUID().uuidString
+        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
+        defer { uninstallSharedSessionStub(sessionID: sessionID) }
+
+        let store = makeUpdateTestStore(
+            gid: gallery.gid, gallery: gallery, detail: detail,
+            updateCheckCount: updateCheckCount
+        )
+        store.exhaustivity = .off
+
+        await store.send(.observeDownloadDone(.downloaded))
+        await drainDetailMetadataEffects(store, condition: { updateCheckCount.value == 1 })
+        #expect(updateCheckCount.value == 1)
+
+        await store.send(.observeDownloadDone(.downloaded))
+        await store.skipReceivedActions(strict: false)
+        #expect(updateCheckCount.value == 1)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerRemoteUpdateFlagDoesNotStayStickyWhenBadgeReturnsToNone() async throws {
+        let updateCheckCount = UncheckedBox(0)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let sessionID = UUID().uuidString
+        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
+        defer { uninstallSharedSessionStub(sessionID: sessionID) }
+
+        let store = makeUpdateTestStore(
+            gid: gallery.gid, gallery: gallery, detail: detail,
+            updateCheckCount: updateCheckCount
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchDownloadBadgeDone(.downloaded))
+        await drainDetailMetadataEffects(
+            store,
+            condition: {
+                updateCheckCount.value == 1 && store.state.galleryVersionMetadata != nil
+            }
+        )
+        #expect(updateCheckCount.value == 1)
+        #expect(store.state.shouldCheckForRemoteUpdates)
+        #expect(store.state.didRequestVersionMetadata)
+
+        await store.send(.fetchDownloadBadgeDone(.none)) {
+            $0.downloadBadge = .none
+            $0.hasLoadedDownloadBadge = true
+            $0.shouldCheckForRemoteUpdates = false
+            $0.didRequestVersionMetadata = false
+            $0.galleryVersionMetadata = nil
+        }
+        await store.skipReceivedActions(strict: false)
+
+        #expect(store.state.shouldCheckForRemoteUpdates == false)
+        #expect(store.state.didRequestVersionMetadata == false)
+        #expect(store.state.galleryVersionMetadata == nil)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerDeleteDownloadResetsDownloadContext() async {
+        let download = sampleDownload(gid: "7733", title: "Reset Context", status: .completed)
+        var initialState = DetailReducer.State(download: download)
+        initialState.galleryVersionMetadata = sampleVersionMetadata(
+            gid: download.gid, token: download.token
+        )
+        initialState.didRequestVersionMetadata = true
+
+        let store = TestStore(initialState: initialState) {
+            DetailReducer()
+        } withDependencies: {
+            $0.downloadClient = makeDeleteTestClient(download: download)
+            $0.hapticsClient = .noop
+            $0.databaseClient = .noop
+            $0.cookieClient = .noop
+        }
+        store.exhaustivity = .off
+
+        await store.send(.deleteDownloadDone(.success(()))) {
+            $0.galleryVersionMetadata = nil
+            $0.didRequestVersionMetadata = false
+            $0.isDownloadContext = false
+            $0.shouldCheckForRemoteUpdates = false
+        }
+        await store.skipReceivedActions(strict: false)
+
+        #expect(store.state.isDownloadContext == false)
+        #expect(store.state.shouldCheckForRemoteUpdates == false)
+        #expect(store.state.didRequestVersionMetadata == false)
+        #expect(store.state.galleryVersionMetadata == nil)
+    }
+
+}
+
+// MARK: - Store Factory Helpers
+
+private extension DetailReducerMetadataUpdateTests {
+    func makeUpdateTestStore(
+        gid: String, gallery: Gallery, detail: GalleryDetail,
+        updateCheckCount: UncheckedBox<Int>
+    ) -> TestStoreOf<DetailReducer> {
+        var initialState = DetailReducer.State()
+        initialState.gid = gid
+        initialState.gallery = gallery
+        initialState.galleryDetail = detail
+        return TestStore(initialState: initialState) {
+            DetailReducer()
+        } withDependencies: {
+            $0.downloadClient = .init(
+                observeDownloads: {
+                    AsyncStream { continuation in continuation.finish() }
+                },
+                fetchDownloads: { [] },
+                fetchDownload: { _ in nil },
+                refreshDownloads: {},
+                resumeQueue: {},
+                badges: { _ in [:] },
+                updateRemoteSignature: { _, _ in
+                    updateCheckCount.value += 1
+                    return .downloaded
+                },
+                enqueue: { _ in .success(()) },
+                togglePause: { _ in .success(()) },
+                retry: { _, _ in .success(()) },
+                delete: { _ in .success(()) },
+                loadManifest: { _ in .failure(.notFound) },
+                loadLocalPageURLs: { _ in .success([:]) }
+            )
+            $0.hapticsClient = .noop
+            $0.databaseClient = .noop
+            $0.cookieClient = .noop
+        }
+    }
+
+    func makeDeleteTestClient(download: DownloadedGallery) -> DownloadClient {
+        .init(
+            observeDownloads: {
+                AsyncStream { continuation in continuation.finish() }
+            },
+            fetchDownloads: { [download] },
+            fetchDownload: { gid in gid == download.gid ? download : nil },
+            refreshDownloads: {},
+            resumeQueue: {},
+            badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, .none) }) },
+            updateRemoteSignature: { _, _ in .none },
+            enqueue: { _ in .success(()) },
+            togglePause: { _ in .success(()) },
+            retry: { _, _ in .success(()) },
+            delete: { _ in .success(()) },
+            loadManifest: { _ in .failure(.notFound) },
+            loadLocalPageURLs: { _ in .success([:]) }
+        )
+    }
+}

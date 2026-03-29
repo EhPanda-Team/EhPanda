@@ -1,0 +1,125 @@
+import Kanna
+import Foundation
+
+extension Parser {
+    static func parseGTX00IndexFromTitle(from title: String) -> Int? {
+        // The probable format of page title is "Page [Number]: filename"
+        (
+            title
+                .components(separatedBy: ":")
+                .first?
+                .replacingOccurrences(of: "Page ", with: "")
+                .trimmingCharacters(in: .whitespaces)
+        )
+        .flatMap(Int.init)
+    }
+
+    static func parseDate(time: String, format: String) throws -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+
+        guard let date = formatter.date(from: time)
+        else { throw AppError.parseFailed }
+
+        return date
+    }
+
+    // swiftlint:disable cyclomatic_complexity
+    /// Returns ratings parsed from stars image / text and if the return contains a userRating .
+    static func parseRating(node: XMLElement) throws -> RatingResult {
+        func parseTextRating(node: XMLElement) throws -> Float {
+            guard let ratingString = node
+              .at_xpath("//td [@id='rating_label']")?.text?
+              .replacingOccurrences(of: "Average: ", with: "")
+              .replacingOccurrences(of: "Not Yet Rated", with: "0"),
+                  let rating = Float(ratingString)
+            else { throw AppError.parseFailed }
+
+            return rating
+        }
+
+        var tmpRatingString: String?
+        var containsUserRating = false
+
+        for link in node.xpath("//div") where
+            link.className?.contains("ir") == true
+            && link["style"]?.isEmpty == false {
+            if tmpRatingString != nil { break }
+            tmpRatingString = link["style"]
+            containsUserRating = link.className != "ir"
+        }
+
+        guard let ratingString = tmpRatingString
+        else { throw AppError.parseFailed }
+
+        var tmpRating: Float?
+        if ratingString.contains("0px") { tmpRating = 5.0 }
+        if ratingString.contains("-16px") { tmpRating = 4.0 }
+        if ratingString.contains("-32px") { tmpRating = 3.0 }
+        if ratingString.contains("-48px") { tmpRating = 2.0 }
+        if ratingString.contains("-64px") { tmpRating = 1.0 }
+        if ratingString.contains("-80px") { tmpRating = 0.0 }
+
+        guard var rating = tmpRating
+        else { throw AppError.parseFailed }
+
+        if ratingString.contains("-21px") { rating -= 0.5 }
+        return RatingResult(
+            imgRating: rating,
+            textRating: try? parseTextRating(node: node),
+            containsUserRating: containsUserRating
+        )
+    }
+    // swiftlint:enable cyclomatic_complexity
+
+    static func parseBanInterval(doc: HTMLDocument) -> BanInterval? {
+        guard let text = doc.body?.text, let range = text.range(of: "The ban expires in ")
+        else { return nil }
+
+        let expireDescription = String(text[range.upperBound...])
+
+        if let daysRange = expireDescription.range(of: "days"),
+           let days = Int(expireDescription[..<daysRange.lowerBound]
+            .trimmingCharacters(in: .whitespaces)) {
+            if let andRange = expireDescription.range(of: "and"),
+               let hoursRange = expireDescription.range(of: "hours"),
+               let hours = Int(expireDescription[andRange.upperBound..<hoursRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)) {
+                return .days(days, hours: hours)
+            } else {
+                return .days(days, hours: nil)
+            }
+        } else if let hoursRange = expireDescription.range(of: "hours"),
+                  let hours = Int(expireDescription[..<hoursRange.lowerBound]
+                    .trimmingCharacters(in: .whitespaces)) {
+            if let andRange = expireDescription.range(of: "and"),
+               let minutesRange = expireDescription.range(of: "minutes"),
+               let minutes = Int(expireDescription[andRange.upperBound..<minutesRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)) {
+                return .hours(hours, minutes: minutes)
+            } else {
+                return .hours(hours, minutes: nil)
+            }
+        } else if let minutesRange = expireDescription.range(of: "minutes"),
+                  let minutes = Int(expireDescription[..<minutesRange.lowerBound]
+                    .trimmingCharacters(in: .whitespaces)) {
+            if let andRange = expireDescription.range(of: "and"),
+               let secondsRange = expireDescription.range(of: "seconds"),
+               let seconds = Int(expireDescription[andRange.upperBound..<secondsRange.lowerBound]
+                .trimmingCharacters(in: .whitespaces)) {
+                return .minutes(minutes, seconds: seconds)
+            } else {
+                return .minutes(minutes, seconds: nil)
+            }
+        } else {
+            Logger.error(
+                "Unrecognized BanInterval format", context: [
+                    "expireDescription": expireDescription
+                ]
+            )
+            return .unrecognized(content: expireDescription)
+        }
+    }
+}

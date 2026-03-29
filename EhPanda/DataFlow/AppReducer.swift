@@ -266,8 +266,7 @@ private extension AppReducer {
         else { return false }
 
         if let galleryURL = automation.galleryURL,
-           galleryURL.host?.contains("exhentai.org") == true
-        {
+           galleryURL.host?.contains("exhentai.org") == true {
             return true
         }
 

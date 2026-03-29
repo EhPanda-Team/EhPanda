@@ -29,7 +29,7 @@ extension NSPersistentStoreCoordinator {
         }
     }
 
-    static func metadata(at storeURL: URL) -> [String: Any]?  {
+    static func metadata(at storeURL: URL) -> [String: Any]? {
         try? NSPersistentStoreCoordinator.metadataForPersistentStore(
             ofType: NSSQLiteStoreType, at: storeURL, options: nil
         )

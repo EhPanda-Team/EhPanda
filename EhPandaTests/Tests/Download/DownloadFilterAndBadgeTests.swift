@@ -1,0 +1,204 @@
+//
+//  DownloadFilterAndBadgeTests.swift
+//  EhPandaTests
+//
+
+import Foundation
+import ComposableArchitecture
+import Testing
+@testable import EhPanda
+
+struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
+    @Test
+    func testDownloadsFilterMatchesKeywordAndStatus() {
+        let activeDownload = sampleDownload(
+            gid: "101",
+            title: "Alpha Archive",
+            status: .downloading,
+            completedPageCount: 2
+        )
+        let completedDownload = sampleDownload(
+            gid: "202",
+            title: "Beta Collection",
+            status: .completed
+        )
+
+        var state = DownloadsReducer.State()
+        state.downloads = [activeDownload, completedDownload]
+        state.filter = .active
+        state.keyword = "alpha"
+
+        #expect(state.filteredDownloads == [activeDownload])
+    }
+
+    @Test
+    func testQueuedRetryWorkAppearsAsActiveDownloadBadge() {
+        let queuedRedownload = sampleDownload(
+            gid: "303",
+            title: "Gamma Archive",
+            status: .completed,
+            completedPageCount: 12,
+            pendingOperation: .redownload
+        )
+
+        #expect(queuedRedownload.pendingOperation == .redownload)
+        #expect(queuedRedownload.badge == .queued)
+        #expect(queuedRedownload.matches(filter: .active))
+    }
+
+    @Test
+    func testQueuedRepairWorkAppearsAsActiveDownloadBadge() {
+        let queuedRepair = sampleDownload(
+            gid: "404",
+            title: "Broken Archive",
+            status: .missingFiles,
+            completedPageCount: 3,
+            pendingOperation: .repair
+        )
+
+        #expect(queuedRepair.pendingOperation == .repair)
+        #expect(queuedRepair.badge == .queued)
+        #expect(queuedRepair.matches(filter: .active))
+    }
+
+    @Test
+    func testQueuedUpdateWorkAppearsAsActiveDownloadBadge() {
+        let queuedUpdate = sampleDownload(
+            gid: "414",
+            title: "Updated Archive",
+            status: .updateAvailable,
+            completedPageCount: 12,
+            latestRemoteVersionSignature: "hash:v2",
+            pendingOperation: .update
+        )
+
+        #expect(queuedUpdate.pendingOperation == .update)
+        #expect(queuedUpdate.badge == .queued)
+        #expect(queuedUpdate.matches(filter: .active))
+        #expect(queuedUpdate.matches(filter: .update) == false)
+    }
+
+    @Test
+    func testQueuedResumedUpdateDoesNotPretendToBeInitialWork() {
+        let resumedUpdate = sampleDownload(
+            gid: "415",
+            title: "Resumed Update",
+            status: .queued,
+            pageCount: 26,
+            completedPageCount: 7,
+            latestRemoteVersionSignature: "hash:v2"
+        )
+
+        #expect(resumedUpdate.pendingOperation == nil)
+        #expect(resumedUpdate.isQueuedWorkItem)
+        #expect(resumedUpdate.badge == .queued)
+        #expect(resumedUpdate.matches(filter: .active))
+    }
+
+    @Test
+    func testPausedDownloadAppearsAsActiveBadge() {
+        let pausedDownload = sampleDownload(
+            gid: "455",
+            title: "Paused Archive",
+            status: .paused,
+            pageCount: 12,
+            completedPageCount: 4
+        )
+
+        #expect(pausedDownload.badge == .paused(4, 12))
+        #expect(pausedDownload.matches(filter: .active))
+    }
+
+    @Test
+    func testActiveDownloadsDoNotExposeUpdateActions() {
+        let downloadingUpdate = sampleDownload(
+            gid: "456",
+            title: "Downloading Update",
+            status: .downloading,
+            completedPageCount: 5,
+            latestRemoteVersionSignature: "hash:v2"
+        )
+        let pausedUpdate = sampleDownload(
+            gid: "457",
+            title: "Paused Update",
+            status: .paused,
+            completedPageCount: 5,
+            latestRemoteVersionSignature: "hash:v2"
+        )
+        let completedUpdate = sampleDownload(
+            gid: "458",
+            title: "Completed Update",
+            status: .completed,
+            latestRemoteVersionSignature: "hash:v2"
+        )
+
+        #expect(downloadingUpdate.canTriggerUpdate == false)
+        #expect(pausedUpdate.canTriggerUpdate == false)
+        #expect(completedUpdate.canTriggerUpdate)
+    }
+
+    @Test
+    func testDownloadsFilterMatchesGalleryFilterCriteria() {
+        let qualifyingDownload = sampleDownload(
+            gid: "466",
+            title: "Chinese Archive",
+            status: .completed,
+            pageCount: 28
+        )
+        let filteredOutDownload = sampleDownload(
+            gid: "477",
+            title: "Low Rated Archive",
+            status: .completed,
+            pageCount: 8
+        )
+
+        var state = DownloadsReducer.State()
+        state.downloads = [
+            qualifyingDownload,
+            filteredOutDownload
+        ]
+        state.galleryFilter.minimumRatingActivated = true
+        state.galleryFilter.minimumRating = 4
+        state.galleryFilter.pageRangeActivated = true
+        state.galleryFilter.pageLowerBound = "20"
+        state.galleryFilter.pageUpperBound = "40"
+
+        #expect(state.filteredDownloads == [qualifyingDownload])
+    }
+
+    @Test
+    func testDownloadsFilterExcludesSelectedCategoriesLikeSearchFilter() {
+        let nonHDownload = sampleDownload(
+            gid: "478",
+            title: "Healthy Archive",
+            status: .completed,
+            category: .nonH
+        )
+        let mangaDownload = sampleDownload(
+            gid: "479",
+            title: "Comic Archive",
+            status: .completed,
+            category: .manga
+        )
+
+        var state = DownloadsReducer.State()
+        state.downloads = [nonHDownload, mangaDownload]
+        state.galleryFilter.excludedCategories = [.nonH]
+
+        #expect(state.filteredDownloads == [mangaDownload])
+    }
+
+    @Test
+    func testPartialDownloadBadgeUsesNeedsAttentionCopy() {
+        let partialDownload = sampleDownload(
+            gid: "480",
+            title: "Incomplete Archive",
+            status: .partial,
+            pageCount: 12,
+            completedPageCount: 5
+        )
+
+        #expect(partialDownload.badge.text == "Needs Attention 5/12")
+        #expect(DownloadListFilter.failed.title == "Needs Attention")
+    }
+}

@@ -61,7 +61,7 @@ struct URLUtil {
         if let sortOrder = sortOrder {
             url.append(queryItems: [
                 .inlineSet: sortOrder == .favoritedTime
-                ? .sortOrderByFavoritedTime : .sortOrderByUpdateTime
+                    ? .sortOrderByFavoritedTime : .sortOrderByUpdateTime
             ])
         }
         return url
@@ -142,6 +142,23 @@ private extension URL {
         var queryItems1 = [Defaults.URL.Component.Key: String]()
         var queryItems2 = [Defaults.URL.Component.Key: Defaults.URL.Component.Value]()
 
+        applyingCategoryFilter(filter, queryItems1: &queryItems1)
+
+        if !filter.advanced { return appending(queryItems: queryItems1).appending(queryItems: queryItems2) }
+        queryItems2[.advSearch] = .one
+
+        applyingBasicAdvancedFilter(filter, queryItems2: &queryItems2)
+        applyingMinRatingFilter(filter, queryItems1: &queryItems1, queryItems2: &queryItems2)
+        applyingPageRangeFilter(filter, queryItems1: &queryItems1, queryItems2: &queryItems2)
+        applyingDisableFilter(filter, queryItems2: &queryItems2)
+
+        return appending(queryItems: queryItems1).appending(queryItems: queryItems2)
+    }
+
+    func applyingCategoryFilter(
+        _ filter: Filter,
+        queryItems1: inout [Defaults.URL.Component.Key: String]
+    ) {
         var categoryValue = 0
         categoryValue += filter.doujinshi ? Category.doujinshi.filterValue : 0
         categoryValue += filter.manga ? Category.manga.filterValue : 0
@@ -153,14 +170,15 @@ private extension URL {
         categoryValue += filter.cosplay ? Category.cosplay.filterValue : 0
         categoryValue += filter.asianPorn ? Category.asianPorn.filterValue : 0
         categoryValue += filter.misc ? Category.misc.filterValue : 0
-
         if ![0, 1023].contains(categoryValue) {
             queryItems1[.fCats] = String(categoryValue)
         }
+    }
 
-        if !filter.advanced { return appending(queryItems: queryItems1).appending(queryItems: queryItems2) }
-        queryItems2[.advSearch] = .one
-
+    func applyingBasicAdvancedFilter(
+        _ filter: Filter,
+        queryItems2: inout [Defaults.URL.Component.Key: Defaults.URL.Component.Value]
+    ) {
         if filter.galleryName { queryItems2[.fSname] = .filterOn }
         if filter.galleryTags { queryItems2[.fStags] = .filterOn }
         if filter.galleryDesc { queryItems2[.fSdesc] = .filterOn }
@@ -169,41 +187,42 @@ private extension URL {
         if filter.lowPowerTags { queryItems2[.fSdt1] = .filterOn }
         if filter.downvotedTags { queryItems2[.fSdt2] = .filterOn }
         if filter.expungedGalleries { queryItems2[.fSh] = .filterOn }
+    }
 
+    func applyingMinRatingFilter(
+        _ filter: Filter,
+        queryItems1: inout [Defaults.URL.Component.Key: String],
+        queryItems2: inout [Defaults.URL.Component.Key: Defaults.URL.Component.Value]
+    ) {
         if filter.minRatingActivated, [2, 3, 4, 5].contains(filter.minRating) {
             queryItems2[.fSr] = .filterOn
             queryItems1[.fSrdd] = String(filter.minRating)
         }
+    }
 
-        if filter.pageRangeActivated {
-            queryItems2[.fSp] = .filterOn
-
-            switch (Int(filter.pageLowerBound), Int(filter.pageUpperBound)) {
-            case let (.some(minPages), .some(maxPages)):
-                if minPages > 0 && maxPages > 0 && minPages <= maxPages {
-                    queryItems1[.fSpf] = String(minPages)
-                    queryItems1[.fSpt] = String(maxPages)
-                }
-
-            case let (.some(minPages), _):
-                if minPages > 0 {
-                    queryItems1[.fSpf] = String(minPages)
-                }
-
-            case let (_, .some(maxPages)):
-                if maxPages > 0 {
-                    queryItems1[.fSpt] = String(maxPages)
-                }
-
-            case (.none, .none):
-                break
-            }
+    func applyingPageRangeFilter(
+        _ filter: Filter,
+        queryItems1: inout [Defaults.URL.Component.Key: String],
+        queryItems2: inout [Defaults.URL.Component.Key: Defaults.URL.Component.Value]
+    ) {
+        guard filter.pageRangeActivated else { return }
+        queryItems2[.fSp] = .filterOn
+        let minPages = Int(filter.pageLowerBound)
+        let maxPages = Int(filter.pageUpperBound)
+        if let minPages, minPages > 0 {
+            queryItems1[.fSpf] = String(minPages)
         }
+        if let maxPages, maxPages > 0 {
+            queryItems1[.fSpt] = String(maxPages)
+        }
+    }
 
+    func applyingDisableFilter(
+        _ filter: Filter,
+        queryItems2: inout [Defaults.URL.Component.Key: Defaults.URL.Component.Value]
+    ) {
         if filter.disableLanguage { queryItems2[.fSfl] = .filterOn }
         if filter.disableUploader { queryItems2[.fSfu] = .filterOn }
         if filter.disableTags { queryItems2[.fSft] = .filterOn }
-
-        return appending(queryItems: queryItems1).appending(queryItems: queryItems2)
     }
 }

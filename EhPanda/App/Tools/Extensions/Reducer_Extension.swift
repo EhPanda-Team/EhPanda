@@ -29,8 +29,8 @@ extension Reducer {
             let currentCase = Binding.constant(`enum`(state)).case(caseKeyPath).wrappedValue
 
             return previousCase == nil && currentCase != nil
-            ? .merge(effects, additionalEffects(&state, action))
-            : effects
+                ? .merge(effects, additionalEffects(&state, action))
+                : effects
         }
     }
 }
