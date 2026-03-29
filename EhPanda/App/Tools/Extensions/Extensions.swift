@@ -103,13 +103,13 @@ extension URL {
     }
 
     func previewCacheCleanupURLs() -> [URL] {
-        guard let (plainURL, _, _) = Parser.parsePreviewConfigs(url: self),
-              plainURL != self
+        guard let info = Parser.parsePreviewConfigs(url: self),
+              info.plainURL != self
         else {
             return [self]
         }
 
-        return [self, plainURL]
+        return [self, info.plainURL]
     }
 
     func appending(queryItems: [URLQueryItem]) -> URL {
@@ -215,7 +215,7 @@ extension String {
             types: NSTextCheckingResult.CheckingType.link.rawValue
         ) {
             if let match = detector.firstMatch(in: self, options: [],
-                range: NSRange(location: 0, length: utf16.count)
+                                               range: NSRange(location: 0, length: utf16.count)
             ) {
                 return match.range.length == utf16.count
             } else { return false }
@@ -238,8 +238,7 @@ extension String {
 
         while let rangeA = result.range(of: subString1),
               let rangeB = result.range(of: subString2),
-              rangeA.lowerBound < rangeB.upperBound
-        {
+              rangeA.lowerBound < rangeB.upperBound {
             let unwanted = result[rangeA.lowerBound..<rangeB.upperBound]
             result = result.replacingOccurrences(of: unwanted, with: replacement)
         }

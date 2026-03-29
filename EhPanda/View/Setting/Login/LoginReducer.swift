@@ -35,7 +35,7 @@ struct LoginReducer {
         }
         var loginButtonColor: Color {
             loginState == .loading ? .clear : loginButtonDisabled
-            ? .primary.opacity(0.25) : .primary.opacity(0.75)
+                ? .primary.opacity(0.25) : .primary.opacity(0.75)
         }
     }
 

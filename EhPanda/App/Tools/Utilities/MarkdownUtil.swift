@@ -13,7 +13,7 @@ struct MarkdownUtil {
             .compactMap({ $0[case: \.paragraph] })
             .flatMap(\.text)
             .compactMap({ $0[case: \.text] })
-        ?? []
+            ?? []
     }
     static func parseLinks(markdown: String) -> [URL] {
         (try? Document(markdown: markdown))?.blocks
@@ -21,7 +21,7 @@ struct MarkdownUtil {
             .flatMap(\.text)
             .compactMap({ $0[case: \.link] })
             .compactMap(\.url)
-        ?? []
+            ?? []
     }
     static func parseImages(markdown: String) -> [URL] {
         (try? Document(markdown: markdown))?.blocks
@@ -36,7 +36,7 @@ struct MarkdownUtil {
                 }
                 return nil
             }
-        ?? []
+            ?? []
     }
 }
 
@@ -93,13 +93,13 @@ extension Block.AllCasePaths: Sequence {
     public func makeIterator() -> some IteratorProtocol<PartialCaseKeyPath<Block>> {
         [
             \.blockQuote,
-             \.bulletList,
-             \.orderedList,
-             \.code,
-             \.html,
-             \.paragraph,
-             \.heading,
-             \.thematicBreak
+            \.bulletList,
+            \.orderedList,
+            \.code,
+            \.html,
+            \.paragraph,
+            \.heading,
+            \.thematicBreak
         ]
         .makeIterator()
     }
@@ -161,14 +161,14 @@ extension Inline.AllCasePaths: Sequence {
     public func makeIterator() -> some IteratorProtocol<PartialCaseKeyPath<Inline>> {
         [
             \.text,
-             \.softBreak,
-             \.lineBreak,
-             \.code,
-             \.html,
-             \.emphasis,
-             \.strong,
-             \.link,
-             \.image
+            \.softBreak,
+            \.lineBreak,
+            \.code,
+            \.html,
+            \.emphasis,
+            \.strong,
+            \.link,
+            \.image
         ]
         .makeIterator()
     }

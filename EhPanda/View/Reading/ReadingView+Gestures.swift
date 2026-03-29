@@ -1,0 +1,57 @@
+//
+//  ReadingView+Gestures.swift
+//  EhPanda
+//
+
+import SwiftUI
+
+// MARK: Gesture
+extension ReadingView {
+    var tapGesture: some Gesture {
+        let singleTap = TapGesture(count: 1)
+            .onEnded {
+                gestureHandler.onSingleTapGestureEnded(
+                    readingDirection: setting.readingDirection,
+                    setPageIndexOffsetAction: {
+                        let newValue = page.index + $0
+                        page.update(.new(index: newValue))
+                        Logger.info("Pager.update", context: ["update": newValue])
+                    },
+                    toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
+                )
+            }
+        let doubleTap = TapGesture(count: 2)
+            .onEnded {
+                gestureHandler.onDoubleTapGestureEnded(
+                    scaleMaximum: setting.maximumScaleFactor,
+                    doubleTapScale: setting.doubleTapScaleFactor
+                )
+            }
+        return ExclusiveGesture(doubleTap, singleTap)
+    }
+    var magnificationGesture: some Gesture {
+        MagnificationGesture()
+            .onChanged {
+                gestureHandler.onMagnificationGestureChanged(
+                    value: $0, scaleMaximum: setting.maximumScaleFactor
+                )
+            }
+            .onEnded {
+                gestureHandler.onMagnificationGestureEnded(
+                    value: $0, scaleMaximum: setting.maximumScaleFactor
+                )
+            }
+    }
+    var dragGesture: some Gesture {
+        DragGesture(minimumDistance: .zero, coordinateSpace: .local)
+            .onChanged(gestureHandler.onDragGestureChanged)
+            .onEnded(gestureHandler.onDragGestureEnded)
+    }
+    var controlPanelDismissGesture: some Gesture {
+        DragGesture().onEnded {
+            gestureHandler.onControlPanelDismissGestureEnded(
+                value: $0, dismissAction: { store.send(.onPerformDismiss) }
+            )
+        }
+    }
+}

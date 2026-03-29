@@ -17,7 +17,7 @@ struct TagDetailView: View {
         NavigationView {
             ScrollView(showsIndicators: false) {
                 VStack {
-                    DescriptionSection(description: detail.description)
+                    TagDescriptionSection(description: detail.description)
                     ImagesSection(imageURLs: detail.imageURLs).padding(.vertical)
                     LinksSection(links: detail.links).padding(.vertical)
                 }
@@ -27,7 +27,7 @@ struct TagDetailView: View {
     }
 }
 
-private struct DescriptionSection: View {
+private struct TagDescriptionSection: View {
     private let description: String
 
     init(description: String) {

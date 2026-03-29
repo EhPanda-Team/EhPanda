@@ -83,12 +83,12 @@ extension ListParserTestType {
     var hasUploader: Bool {
         switch self {
         case .frontPageMinimalList, .frontPageMinimalPlusList, .frontPageCompactList, .frontPageExtendedList,
-                .watchedMinimalList, .watchedMinimalPlusList, .watchedCompactList, .watchedExtendedList,
-                .popularMinimalList, .popularMinimalPlusList, .popularCompactList, .popularExtendedList,
-                .toplistsCompactList:
+             .watchedMinimalList, .watchedMinimalPlusList, .watchedCompactList, .watchedExtendedList,
+             .popularMinimalList, .popularMinimalPlusList, .popularCompactList, .popularExtendedList,
+             .toplistsCompactList:
             return true
         case .frontPageThumbnailList, .watchedThumbnailList, .popularThumbnailList, .favoritesThumbnailList,
-                .favoritesMinimalList, .favoritesMinimalPlusList, .favoritesCompactList, .favoritesExtendedList:
+             .favoritesMinimalList, .favoritesMinimalPlusList, .favoritesCompactList, .favoritesExtendedList:
             return false
         }
     }

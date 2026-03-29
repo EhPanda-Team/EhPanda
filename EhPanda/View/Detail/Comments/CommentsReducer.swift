@@ -132,15 +132,17 @@ struct CommentsReducer {
                 guard urlClient.checkIfHandleable(url) else {
                     return .run(operation: { _ in await uiApplicationClient.openURL(url) })
                 }
-                let (isGalleryImageURL, _, _) = urlClient.analyzeURL(url)
+                let analysis = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
                 guard databaseClient.fetchGallery(gid: gid) == nil else {
                     return .send(.handleGalleryLink(url))
                 }
-                return .send(.fetchGallery(url, isGalleryImageURL))
+                return .send(.fetchGallery(url, analysis.isGalleryImageURL))
 
             case .handleGalleryLink(let url):
-                let (_, pageIndex, commentID) = urlClient.analyzeURL(url)
+                let analysis = urlClient.analyzeURL(url)
+                let pageIndex = analysis.pageIndex
+                let commentID = analysis.commentID
                 let gid = urlClient.parseGalleryID(url)
                 var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {

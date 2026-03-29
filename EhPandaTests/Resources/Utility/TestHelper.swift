@@ -14,7 +14,7 @@ final class TestBundleLocator {}
 extension TestHelper {
     func htmlDocument(filename: HTMLFilename) throws -> HTMLDocument {
         guard let url = Bundle(for: TestBundleLocator.self)
-            .url(forResource: filename.rawValue, withExtension: "html")
+                .url(forResource: filename.rawValue, withExtension: "html")
         else {
             throw TestError.htmlDocumentNotFound(filename)
         }

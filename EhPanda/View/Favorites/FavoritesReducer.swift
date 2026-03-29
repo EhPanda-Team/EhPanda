@@ -71,9 +71,9 @@ struct FavoritesReducer {
         case onNotLoginViewButtonTapped
 
         case fetchGalleries(String? = nil, FavoritesSortOrder? = nil)
-        case fetchGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
+        case fetchGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
         case fetchMoreGalleries
-        case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
+        case fetchMoreGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
         case fetchDownloadBadges([String])
         case fetchDownloadBadgesDone([String: DownloadBadge])
         case observeDownloads
@@ -139,7 +139,9 @@ struct FavoritesReducer {
             case .fetchGalleriesDone(let targetFavIndex, let result):
                 state.rawLoadingState[targetFavIndex] = .idle
                 switch result {
-                case .success(let (pageNumber, sortOrder, galleries)):
+                case .success(let fetchResult):
+                    let pageNumber = fetchResult.pageNumber
+                    let galleries = fetchResult.galleries
                     guard !galleries.isEmpty else {
                         state.rawLoadingState[targetFavIndex] = .failed(.notFound)
                         guard pageNumber.hasNextPage() else { return .none }
@@ -147,7 +149,7 @@ struct FavoritesReducer {
                     }
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawGalleries[targetFavIndex] = galleries
-                    state.sortOrder = sortOrder
+                    state.sortOrder = fetchResult.sortOrder
                     return .merge(
                         .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
                         .send(.fetchDownloadBadges(galleries.map(\.gid)))
@@ -179,10 +181,12 @@ struct FavoritesReducer {
             case .fetchMoreGalleriesDone(let targetFavIndex, let result):
                 state.rawFooterLoadingState[targetFavIndex] = .idle
                 switch result {
-                case .success(let (pageNumber, sortOrder, galleries)):
+                case .success(let fetchResult):
+                    let pageNumber = fetchResult.pageNumber
+                    let galleries = fetchResult.galleries
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.insertGalleries(index: targetFavIndex, galleries: galleries)
-                    state.sortOrder = sortOrder
+                    state.sortOrder = fetchResult.sortOrder
 
                     var effects: [Effect<Action>] = [
                         .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })

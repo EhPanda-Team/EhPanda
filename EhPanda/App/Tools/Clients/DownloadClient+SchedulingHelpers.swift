@@ -1,0 +1,212 @@
+//
+//  DownloadClient+SchedulingHelpers.swift
+//  EhPanda
+//
+
+import Foundation
+
+// MARK: - Mode Resolution
+extension DownloadManager {
+    func queuedMode(
+        for download: DownloadedGallery
+    ) -> DownloadStartMode {
+        if let pendingOperation = download.pendingOperation {
+            return pendingOperation
+        }
+        switch download.status {
+        case .missingFiles:
+            return effectiveRetryMode(
+                for: download,
+                requestedMode: .repair
+            )
+        case .updateAvailable:
+            return .update
+        case .partial:
+            return resumeMode(for: download)
+        case .completed:
+            return effectiveRetryMode(
+                for: download,
+                requestedMode: .redownload
+            )
+        case .failed:
+            return effectiveRetryMode(
+                for: download,
+                requestedMode: download.remoteVersionSignature.isEmpty
+                    ? .initial : .redownload
+            )
+        case .paused:
+            return resumeMode(for: download)
+        case .queued, .downloading:
+            return readResumeMode(gid: download.gid)
+                ?? effectiveRetryMode(
+                    for: download,
+                    requestedMode: download.remoteVersionSignature.isEmpty
+                        ? .initial : .redownload
+                )
+        }
+    }
+
+    func resumeMode(
+        for download: DownloadedGallery
+    ) -> DownloadStartMode {
+        if download.remoteVersionSignature.isEmpty {
+            return .initial
+        }
+        if download.hasUpdate {
+            return .update
+        }
+        if let mode = readResumeMode(gid: download.gid) {
+            return effectiveRetryMode(
+                for: download,
+                requestedMode: mode
+            )
+        }
+        if download.status == .partial {
+            return effectiveRetryMode(
+                for: download,
+                requestedMode: download.remoteVersionSignature.isEmpty
+                    ? .initial : .redownload
+            )
+        }
+        if case .missingFiles = storage.validate(download: download) {
+            return .repair
+        }
+        return .redownload
+    }
+
+    func effectiveRetryMode(
+        for download: DownloadedGallery,
+        requestedMode: DownloadStartMode
+    ) -> DownloadStartMode {
+        guard requestedMode != .initial, download.hasUpdate else {
+            return requestedMode
+        }
+        return .update
+    }
+
+    func preferredVersionSignature(
+        for download: DownloadedGallery,
+        mode: DownloadStartMode,
+        resumeState: DownloadResumeState?
+    ) -> String {
+        switch mode {
+        case .update:
+            if let latestSignature =
+                download.latestRemoteVersionSignature,
+               latestSignature.notEmpty {
+                return latestSignature
+            }
+        case .initial, .redownload, .repair:
+            break
+        }
+
+        if let resumeState,
+           resumeState.versionSignature.notEmpty {
+            return resumeState.versionSignature
+        }
+
+        if download.remoteVersionSignature.notEmpty {
+            return download.remoteVersionSignature
+        }
+
+        return download.latestRemoteVersionSignature ?? ""
+    }
+
+    func preferredWorkingPageCount(
+        for download: DownloadedGallery,
+        mode: DownloadStartMode,
+        versionSignature: String,
+        resumeState: DownloadResumeState?
+    ) -> Int {
+        guard mode == .update else {
+            return download.pageCount
+        }
+
+        let temporaryFolderURL = storage
+            .temporaryFolderURL(gid: download.gid)
+        guard fileManager()
+                .fileExists(atPath: temporaryFolderURL.path) else {
+            return download.pageCount
+        }
+
+        if let manifest = try? storage
+            .readManifest(folderURL: temporaryFolderURL),
+           manifest.gid == download.gid,
+           manifest.versionSignature == versionSignature {
+            return manifest.pageCount
+        }
+
+        if let resumeState,
+           resumeState.versionSignature == versionSignature {
+            return resumeState.pageCount
+        }
+
+        return download.pageCount
+    }
+
+    func shouldResumeExistingWorkingSet(
+        for download: DownloadedGallery,
+        mode: DownloadStartMode,
+        resumeState: DownloadResumeState?
+    ) -> Bool {
+        guard download.status == .failed
+                || storage.temporaryFolderExists(gid: download.gid),
+              let resumeState
+        else {
+            return false
+        }
+
+        let versionSignature = preferredVersionSignature(
+            for: download,
+            mode: mode,
+            resumeState: resumeState
+        )
+        let pageCount = preferredWorkingPageCount(
+            for: download,
+            mode: mode,
+            versionSignature: versionSignature,
+            resumeState: resumeState
+        )
+
+        guard resumeState.mode == mode,
+              resumeState.versionSignature == versionSignature,
+              resumeState.downloadOptions ==
+                download.downloadOptionsSnapshot
+        else {
+            return false
+        }
+
+        if mode == .update,
+           let manifest = try? storage.readManifest(
+            folderURL: storage.temporaryFolderURL(gid: download.gid)
+           ),
+           manifest.gid == download.gid,
+           manifest.versionSignature == versionSignature {
+            return manifest.pageCount == pageCount
+        }
+
+        return resumeState.pageCount == pageCount
+    }
+
+    func readResumeMode(gid: String) -> DownloadStartMode? {
+        let folderURL = storage.temporaryFolderURL(gid: gid)
+        return try? storage.readResumeState(folderURL: folderURL).mode
+    }
+
+    func fallbackStatus(
+        for download: DownloadedGallery,
+        mode: DownloadStartMode,
+        latestSignature: String?
+    ) -> DownloadStatus {
+        let comparison = DownloadSignatureBuilder.hasUpdateComparison(
+            remoteVersionSignature: download.remoteVersionSignature,
+            latestRemoteVersionSignature: latestSignature,
+            gid: download.gid,
+            token: download.token
+        )
+        let shouldKeepUpdateBadge = mode == .update
+            || download.status == .updateAvailable
+            || comparison == .different
+        return shouldKeepUpdateBadge ? .updateAvailable : .completed
+    }
+}

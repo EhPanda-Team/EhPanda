@@ -1,0 +1,388 @@
+//
+//  DownloadClient+Persistence.swift
+//  EhPanda
+//
+
+import CoreData
+import Foundation
+
+// MARK: - Core Data Operations
+extension DownloadManager {
+    func fetchDownload(
+        gid: String
+    ) async -> DownloadedGallery? {
+        await MainActor.run {
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<DownloadedGalleryMO>(
+                entityName: "DownloadedGalleryMO"
+            )
+            request.fetchLimit = 1
+            request.predicate = NSPredicate(
+                format: "gid == %@",
+                gid
+            )
+            return try? context.fetch(request).first?.toEntity()
+        }
+    }
+
+    func fetchDownloadsFromStore() async -> [DownloadedGallery] {
+        await MainActor.run {
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<DownloadedGalleryMO>(
+                entityName: "DownloadedGalleryMO"
+            )
+            request.sortDescriptors = [
+                NSSortDescriptor(
+                    keyPath: \DownloadedGalleryMO
+                        .lastDownloadedAt,
+                    ascending: false
+                )
+            ]
+            let objects = (try? context.fetch(request)) ?? []
+            return objects.map { $0.toEntity() }
+        }
+    }
+
+    func fetchDownloadsFromStore(
+        gids: [String]
+    ) async -> [DownloadedGallery] {
+        await MainActor.run {
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<DownloadedGalleryMO>(
+                entityName: "DownloadedGalleryMO"
+            )
+            request.predicate = NSPredicate(
+                format: "gid IN %@",
+                gids
+            )
+            request.sortDescriptors = [
+                NSSortDescriptor(
+                    keyPath: \DownloadedGalleryMO
+                        .lastDownloadedAt,
+                    ascending: false
+                )
+            ]
+            let objects = (try? context.fetch(request)) ?? []
+            return objects.map { $0.toEntity() }
+        }
+    }
+
+    func updateDownloadRecord(
+        gid: String,
+        createIfMissing: Bool = true,
+        update: @escaping (DownloadedGalleryMO) -> Void
+    ) async throws {
+        try await MainActor.run {
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<DownloadedGalleryMO>(
+                entityName: "DownloadedGalleryMO"
+            )
+            request.fetchLimit = 1
+            request.predicate = NSPredicate(
+                format: "gid == %@",
+                gid
+            )
+
+            let object: DownloadedGalleryMO
+            if let storedObject =
+                try context.fetch(request).first {
+                object = storedObject
+            } else if !createIfMissing {
+                return
+            } else {
+                object = DownloadedGalleryMO(context: context)
+                object.gid = gid
+                object.host = GalleryHost.ehentai.rawValue
+                object.token = ""
+                object.title = ""
+                object.category =
+                    Category.private.rawValue
+                object.pageCount = 0
+                object.postedDate = .now
+                object.rating = 0
+                object.folderRelativePath = gid
+                object.status =
+                    DownloadStatus.queued.rawValue
+                object.remoteVersionSignature = ""
+                object.completedPageCount = 0
+            }
+
+            update(object)
+            guard context.hasChanges else { return }
+            do {
+                try context.save()
+            } catch {
+                throw AppError.databaseCorrupted(
+                    error.localizedDescription
+                )
+            }
+        }
+    }
+
+    func deleteDownloadRecord(gid: String) async throws {
+        try await MainActor.run {
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<DownloadedGalleryMO>(
+                entityName: "DownloadedGalleryMO"
+            )
+            request.fetchLimit = 1
+            request.predicate = NSPredicate(
+                format: "gid == %@",
+                gid
+            )
+            guard let object =
+                    try context.fetch(request).first else {
+                return
+            }
+            context.delete(object)
+            guard context.hasChanges else { return }
+            do {
+                try context.save()
+            } catch {
+                throw AppError.databaseCorrupted(
+                    error.localizedDescription
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Persist Failure & Progress
+extension DownloadManager {
+    func persistFailure(
+        error: AppError,
+        context: FailureContext
+    ) async {
+        let workingCompletedPageCount =
+            temporaryCompletedPageCount(
+                gid: context.gid,
+                expectedPageCount:
+                    context.originalDownload.pageCount
+            )
+        let hasTemporaryWorkingSet = storage
+            .temporaryFolderExists(gid: context.gid)
+        let recoveredCompletedPageCount =
+            hasTemporaryWorkingSet
+            ? workingCompletedPageCount
+            : max(
+                context.originalDownload
+                    .completedPageCount,
+                workingCompletedPageCount
+            )
+        do {
+            try await updateDownloadRecord(
+                gid: context.gid,
+                createIfMissing: false
+            ) { record in
+                record.lastError =
+                    DownloadFailure(error: error).toData()
+                record.pendingOperation = nil
+                self.applyFailureStatus(
+                    to: record,
+                    context: context,
+                    workingCompletedPageCount:
+                        workingCompletedPageCount,
+                    recoveredCompletedPageCount:
+                        recoveredCompletedPageCount
+                )
+            }
+        } catch {
+            Logger.error(error)
+        }
+    }
+
+    private func applyFailureStatus(
+        to record: DownloadedGalleryMO,
+        context: FailureContext,
+        workingCompletedPageCount: Int,
+        recoveredCompletedPageCount: Int
+    ) {
+        if context.mode == .repair {
+            applyRepairFailureStatus(to: record, context: context)
+        } else if context.hadReadableFiles,
+                  [.update, .redownload].contains(context.mode) {
+            applyFallbackFailureStatus(to: record, context: context)
+        } else if workingCompletedPageCount > 0 {
+            record.status = DownloadStatus.partial.rawValue
+            record.completedPageCount = Int64(workingCompletedPageCount)
+            record.latestRemoteVersionSignature =
+                context.latestSignature
+                ?? context.originalDownload.latestRemoteVersionSignature
+        } else {
+            record.status = DownloadStatus.partial.rawValue
+            record.completedPageCount = Int64(recoveredCompletedPageCount)
+            record.latestRemoteVersionSignature =
+                context.latestSignature
+                ?? context.originalDownload.latestRemoteVersionSignature
+        }
+    }
+
+    private func applyRepairFailureStatus(
+        to record: DownloadedGalleryMO,
+        context: FailureContext
+    ) {
+        record.status = DownloadStatus.missingFiles.rawValue
+        record.completedPageCount = Int64(
+            context.originalDownload.completedPageCount
+        )
+        record.folderRelativePath =
+            context.originalDownload.folderRelativePath
+        record.coverRelativePath =
+            context.originalDownload.coverRelativePath
+        record.remoteVersionSignature =
+            context.originalDownload.remoteVersionSignature
+        record.latestRemoteVersionSignature =
+            context.latestSignature
+            ?? context.originalDownload.latestRemoteVersionSignature
+    }
+
+    private func applyFallbackFailureStatus(
+        to record: DownloadedGalleryMO,
+        context: FailureContext
+    ) {
+        record.status = self.fallbackStatus(
+            for: context.originalDownload,
+            mode: context.mode,
+            latestSignature: context.latestSignature
+        ).rawValue
+        record.completedPageCount = Int64(
+            context.originalDownload.pageCount
+        )
+        record.folderRelativePath =
+            context.originalDownload.folderRelativePath
+        record.coverRelativePath =
+            context.originalDownload.coverRelativePath
+        record.remoteVersionSignature =
+            context.originalDownload.remoteVersionSignature
+        record.latestRemoteVersionSignature =
+            context.latestSignature
+            ?? context.originalDownload.latestRemoteVersionSignature
+    }
+
+    func flushDownloadProgress(
+        gid: String,
+        pendingResolvedPages: inout [PageResult],
+        completedCount: Int,
+        lastFlushDate: inout Date,
+        force: Bool
+    ) async throws {
+        let shouldFlush = force
+            || pendingResolvedPages.count
+            >= Self.progressFlushPageInterval
+            || Date().timeIntervalSince(lastFlushDate)
+            >= Self.progressFlushMinimumInterval
+        guard shouldFlush else { return }
+
+        let resolvedPages = pendingResolvedPages
+        pendingResolvedPages
+            .removeAll(keepingCapacity: true)
+        await persistResolvedImageURLs(
+            gid: gid,
+            entries: resolvedPages
+        )
+        try await updateDownloadRecord(
+            gid: gid,
+            createIfMissing: false
+        ) { record in
+            record.completedPageCount =
+                Int64(completedCount)
+        }
+        lastFlushDate = Date()
+        await notifyObservers()
+    }
+
+    func persistResolvedImageURLs(
+        gid: String,
+        index: Int,
+        imageURL: URL?
+    ) async {
+        await persistResolvedImageURLs(
+            gid: gid,
+            entries: [
+                .init(
+                    index: index,
+                    relativePath: "",
+                    imageURL: imageURL
+                )
+            ]
+        )
+    }
+
+    func persistResolvedImageURLs(
+        gid: String,
+        entries: [PageResult]
+    ) async {
+        guard gid.isValidGID else { return }
+        let validEntries = entries
+            .filter { $0.imageURL != nil }
+        guard !validEntries.isEmpty else { return }
+
+        await MainActor.run {
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<GalleryStateMO>(
+                entityName: "GalleryStateMO"
+            )
+            request.fetchLimit = 1
+            request.predicate = NSPredicate(
+                format: "gid == %@",
+                gid
+            )
+
+            let object: GalleryStateMO
+            if let stored =
+                try? context.fetch(request).first {
+                object = stored
+            } else {
+                object = GalleryStateMO(context: context)
+                object.gid = gid
+            }
+
+            var imageURLs = (object.imageURLs?.toObject()
+                                as [Int: URL]?) ?? [:]
+            var hasChanges = false
+
+            for entry in validEntries {
+                if let imageURL = entry.imageURL,
+                   imageURLs[entry.index] != imageURL {
+                    imageURLs[entry.index] = imageURL
+                    hasChanges = true
+                }
+            }
+
+            guard hasChanges else {
+                return
+            }
+
+            object.imageURLs = imageURLs.toData()
+
+            guard context.hasChanges else { return }
+            try? context.save()
+        }
+    }
+
+    func fetchCachedGalleryImageState(
+        gid: String
+    ) async -> CachedGalleryImageState? {
+        await MainActor.run {
+            guard gid.isValidGID else { return nil }
+            let context = persistenceContainer.viewContext
+            let request = NSFetchRequest<GalleryStateMO>(
+                entityName: "GalleryStateMO"
+            )
+            request.fetchLimit = 1
+            request.predicate = NSPredicate(
+                format: "gid == %@",
+                gid
+            )
+            guard let object =
+                    try? context.fetch(request).first else {
+                return nil
+            }
+            let state = object.toEntity()
+            return .init(
+                previewURLs: state.previewURLs,
+                imageURLs: state.imageURLs
+            )
+        }
+    }
+}

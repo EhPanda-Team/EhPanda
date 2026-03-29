@@ -16,7 +16,7 @@ extension TranslatableLanguage {
     static var current: TranslatableLanguage? {
         guard let preferredLanguage = Locale.preferredLanguages.first,
               let translatableLanguage = TranslatableLanguage.allCases.compactMap({ lang in
-                  preferredLanguage.contains(lang.languageCode) ? lang : nil
+                preferredLanguage.contains(lang.languageCode) ? lang : nil
               }).first else { return nil }
         return translatableLanguage
     }

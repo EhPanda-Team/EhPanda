@@ -47,7 +47,7 @@ struct ArchivesView: View {
                 LoadingView()
                     .opacity(
                         store.loadingState == .loading
-                        && store.hathArchives.isEmpty ? 1 : 0
+                            && store.hathArchives.isEmpty ? 1 : 0
                     )
 
                 let error = store.loadingState.failed

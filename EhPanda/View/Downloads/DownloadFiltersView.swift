@@ -57,7 +57,7 @@ struct DownloadFiltersView: View {
                         L10n.Localizable.FiltersView.Title.setPagesRange,
                         isOn: $filter.pageRangeActivated
                     )
-                        .disabled(focusedBound != nil)
+                    .disabled(focusedBound != nil)
                     DownloadPagesRangeSetter(
                         lowerBound: $filter.pageLowerBound,
                         upperBound: $filter.pageUpperBound,

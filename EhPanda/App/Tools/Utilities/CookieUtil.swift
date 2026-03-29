@@ -9,7 +9,7 @@ import Foundation
 struct CookieUtil {
     static var didLogin: Bool {
         CookieUtil.verify(for: Defaults.URL.ehentai, isEx: false)
-        || CookieUtil.verify(for: Defaults.URL.exhentai, isEx: true)
+            || CookieUtil.verify(for: Defaults.URL.exhentai, isEx: true)
     }
 
     static func verify(for url: URL, isEx: Bool) -> Bool {

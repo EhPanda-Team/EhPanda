@@ -39,7 +39,7 @@ struct ArchivesReducer {
 
         case teardown
         case fetchArchive(String, URL, URL)
-        case fetchArchiveDone(String, URL, Result<(GalleryArchive, String?, String?), AppError>)
+        case fetchArchiveDone(String, URL, Result<GalleryArchiveResponse, AppError>)
         case fetchArchiveFunds(String, URL)
         case fetchArchiveFundsDone(Result<(String, String), AppError>)
         case fetchDownloadResponse(URL)
@@ -82,13 +82,13 @@ struct ArchivesReducer {
             case .fetchArchiveDone(let gid, let galleryURL, let result):
                 state.loadingState = .idle
                 switch result {
-                case .success(let (archive, galleryPoints, credits)):
-                    guard !archive.hathArchives.isEmpty else {
+                case .success(let response):
+                    guard !response.archive.hathArchives.isEmpty else {
                         state.loadingState = .failed(.notFound)
                         return .none
                     }
-                    state.hathArchives = archive.hathArchives
-                    if let galleryPoints = galleryPoints, let credits = credits {
+                    state.hathArchives = response.archive.hathArchives
+                    if let galleryPoints = response.galleryPoints, let credits = response.credits {
                         return .send(.syncGalleryFunds(galleryPoints, credits))
                     } else if cookieClient.isSameAccount {
                         return .send(.fetchArchiveFunds(gid, galleryURL))

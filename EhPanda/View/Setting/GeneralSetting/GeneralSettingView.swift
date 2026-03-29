@@ -46,7 +46,7 @@ struct GeneralSettingView: View {
 
     private var language: String {
         Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
-        ?? L10n.Localizable.GeneralSettingView.Value.defaultLanguageDescription
+            ?? L10n.Localizable.GeneralSettingView.Value.defaultLanguageDescription
     }
 
     var body: some View {
@@ -75,7 +75,7 @@ struct GeneralSettingView: View {
                             .foregroundStyle(.yellow)
                             .opacity(
                                 translatesTags && tagTranslatorEmpty
-                                && tagTranslatorLoadingState != .loading ? 1 : 0
+                                    && tagTranslatorLoadingState != .loading ? 1 : 0
                             )
                         ProgressView()
                             .tint(nil)

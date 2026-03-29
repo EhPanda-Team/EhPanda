@@ -160,8 +160,7 @@ private extension DFStreamEventHandler {
             if ["/", "/popular", "/watched"].contains(url.absoluteString)
                 || ["/?f_search"].contains(where: url.absoluteString.contains),
                let domain = request.request.domainWithScheme,
-               let originalURL = URL(string: domain)
-            {
+               let originalURL = URL(string: domain) {
                 url = originalURL.appendingPathComponent(url.absoluteString)
             }
 

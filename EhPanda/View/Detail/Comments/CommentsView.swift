@@ -41,13 +41,13 @@ struct CommentsView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List(comments) { comment in
-                CommentCell(
+                CommentsCommentCell(
                     gid: gid, comment: comment,
                     linkAction: { store.send(.handleCommentLink($0)) }
                 )
                 .opacity(
                     comment.commentID == store.scrollCommentID
-                    ? store.scrollRowOpacity : 1
+                        ? store.scrollRowOpacity : 1
                 )
                 .swipeActions(edge: .leading) {
                     if comment.votable {
@@ -92,8 +92,8 @@ struct CommentsView: View {
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
-                ? L10n.Localizable.PostCommentView.Title.editComment
-                : L10n.Localizable.PostCommentView.Title.postComment,
+                    ? L10n.Localizable.PostCommentView.Title.editComment
+                    : L10n.Localizable.PostCommentView.Title.postComment,
                 content: $store.commentContent,
                 isFocused: $store.postCommentFocused,
                 postAction: {
@@ -149,8 +149,8 @@ private extension CommentsView {
     }
 }
 
-// MARK: CommentCell
-private struct CommentCell: View {
+// MARK: CommentsCommentCell
+private struct CommentsCommentCell: View {
     private let gid: String
     private var comment: GalleryComment
     private let linkAction: (URL) -> Void

@@ -20,7 +20,7 @@ struct DFRequest {
         request = req.domainIPReplaced()
 
         if let url = req.url,
-            let cookies = HTTPCookieStorage
+           let cookies = HTTPCookieStorage
             .shared.cookies(for: url) {
             request.allHTTPHeaderFields = HTTPCookie
                 .requestHeaderFields(with: cookies)

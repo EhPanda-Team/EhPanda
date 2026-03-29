@@ -232,7 +232,7 @@ extension Setting {
         doubleTapScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .doubleTapScaleFactor)) ?? 2
         // Downloads
         downloadThreadMode = (try? container?.decodeIfPresent(DownloadThreadMode.self, forKey: .downloadThreadMode))
-        ?? .single
+            ?? .single
         downloadAllowCellular = (try? container?.decodeIfPresent(Bool.self, forKey: .downloadAllowCellular)) ?? true
         downloadAutoRetryFailedPages = (
             try? container?.decodeIfPresent(Bool.self, forKey: .downloadAutoRetryFailedPages)

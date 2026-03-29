@@ -28,10 +28,10 @@ extension AppError {
     var isRetryable: Bool {
         switch self {
         case .databaseCorrupted, .networkingFailed, .parseFailed,
-                .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
+             .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
             return true
         case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
-                .ipBanned:
+             .ipBanned:
             return false
         }
     }
@@ -165,18 +165,18 @@ extension BanInterval {
 
     private func daysWithUnit(_ days: Int) -> String {
         days > 1 ? L10n.Localizable.Common.Value.days("\(days)")
-        : L10n.Localizable.Common.Value.day("\(days)")
+            : L10n.Localizable.Common.Value.day("\(days)")
     }
     private func hoursWithUnit(_ hours: Int) -> String {
         hours > 1 ? L10n.Localizable.Common.Value.hours("\(hours)")
-        : L10n.Localizable.Common.Value.hour("\(hours)")
+            : L10n.Localizable.Common.Value.hour("\(hours)")
     }
     private func minutesWithUnit(_ minutes: Int) -> String {
         minutes > 1 ? L10n.Localizable.Common.Value.minutes("\(minutes)")
-        : L10n.Localizable.Common.Value.minute("\(minutes)")
+            : L10n.Localizable.Common.Value.minute("\(minutes)")
     }
     private func secondsWithUnit(_ seconds: Int) -> String {
         seconds > 1 ? L10n.Localizable.Common.Value.seconds("\(seconds)")
-        : L10n.Localizable.Common.Value.second("\(seconds)")
+            : L10n.Localizable.Common.Value.second("\(seconds)")
     }
 }

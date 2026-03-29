@@ -31,8 +31,8 @@ struct GalleryDetail: Codable, Equatable {
         postedDate: .distantPast,
         coverURL: URL(
             string: "https://github.com/"
-            + "EhPanda-Team/Imageset/blob/"
-            + "main/JPGs/2.jpg?raw=true"
+                + "EhPanda-Team/Imageset/blob/"
+                + "main/JPGs/2.jpg?raw=true"
         ),
         favoritedCount: 514,
         pageCount: 114,

@@ -24,8 +24,7 @@ class ShareViewController: UIViewController {
         itemProvider.loadItem(forTypeIdentifier: "public.url") { (item, _) in
             if let shareURL = item as? URL, let scheme = shareURL.scheme,
                let replacedURL = URL(string: shareURL.absoluteString
-                .replacingOccurrences(of: scheme, with: "ehpanda"))
-            {
+                                        .replacingOccurrences(of: scheme, with: "ehpanda")) {
                 self.openMainApp(url: replacedURL)
             }
         }

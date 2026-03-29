@@ -6,6 +6,12 @@
 import SwiftUI
 import Dependencies
 
+struct URLAnalysisResult {
+    let isGalleryImageURL: Bool
+    let pageIndex: Int?
+    let commentID: String?
+}
+
 struct URLClient {
     let checkIfHandleable: (URL) -> Bool
     let checkIfMPVURL: (URL?) -> Bool
@@ -16,7 +22,7 @@ extension URLClient {
     static let live: Self = .init(
         checkIfHandleable: { url in
             (url.absoluteString.contains(Defaults.URL.ehentai.absoluteString)
-             || url.absoluteString.contains(Defaults.URL.exhentai.absoluteString))
+                || url.absoluteString.contains(Defaults.URL.exhentai.absoluteString))
                 && url.pathComponents.count >= 4 && ["g", "s"].contains(url.pathComponents[1])
                 && !url.pathComponents[2].isEmpty && !url.pathComponents[3].isEmpty
         },
@@ -40,9 +46,9 @@ extension URLClient {
         else { return url }
         return newURL
     }
-    func analyzeURL(_ url: URL) -> (Bool, Int?, String?) {
+    func analyzeURL(_ url: URL) -> URLAnalysisResult {
         guard checkIfHandleable(url) else {
-            return (false, nil, nil)
+            return URLAnalysisResult(isGalleryImageURL: false, pageIndex: nil, commentID: nil)
         }
         var isGalleryImageURL = false
         var commentID: String?
@@ -62,7 +68,7 @@ extension URLClient {
             }
         }
 
-        return (isGalleryImageURL, pageIndex, commentID)
+        return URLAnalysisResult(isGalleryImageURL: isGalleryImageURL, pageIndex: pageIndex, commentID: commentID)
     }
 }
 

@@ -49,7 +49,7 @@ extension FileClient {
             await withCheckedContinuation { continuation in
                 guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(fileName)
                 else {
-                continuation.resume(returning: .failure(.notFound))
+                    continuation.resume(returning: .failure(.notFound))
                     return
                 }
 
@@ -68,13 +68,13 @@ extension FileClient {
                         EhTagTranslationDatabaseResponse.self, from: data
                       ).tagTranslations
                 else {
-                continuation.resume(returning: .failure(.parseFailed))
-                return
-            }
+                    continuation.resume(returning: .failure(.parseFailed))
+                    return
+                }
                 guard !translations.isEmpty else {
-                continuation.resume(returning: .failure(.parseFailed))
-                return
-            }
+                    continuation.resume(returning: .failure(.parseFailed))
+                    return
+                }
                 continuation.resume(returning: .success(.init(hasCustomTranslations: true, translations: translations)))
             }
         }

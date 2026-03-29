@@ -33,57 +33,57 @@ struct FavoritesView: View {
     var body: some View {
         NavigationView {
             let content =
-            ZStack {
-                if CookieUtil.didLogin {
-                    GenericList(
-                        galleries: store.galleries ?? [],
-                        setting: setting,
-                        pageNumber: store.pageNumber,
-                        loadingState: store.loadingState ?? .idle,
-                        footerLoadingState: store.footerLoadingState ?? .idle,
-                        fetchAction: { store.send(.fetchGalleries()) },
-                        fetchMoreAction: { store.send(.fetchMoreGalleries) },
-                        navigateAction: { store.send(.setNavigation(.detail($0))) },
-                        translateAction: {
-                            tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                        },
-                        downloadBadges: store.downloadBadges
-                    )
-                } else {
-                    NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
-                }
-            }
-            .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
-                QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: \.quickSearch)
-                ) { keyword in
-                    store.send(.setNavigation(nil))
-                    store.send(.fetchGalleries(keyword))
-                }
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
-            }
-            .searchable(text: $store.keyword)
-            .searchSuggestions {
-                TagSuggestionView(
-                    keyword: $store.keyword, translations: tagTranslator.translations,
-                    showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
-                )
-            }
-            .onSubmit(of: .search) {
-                store.send(.fetchGalleries())
-            }
-            .onAppear {
-                store.send(.onAppear)
-                if store.galleries?.isEmpty != false && CookieUtil.didLogin {
-                    DispatchQueue.main.async {
-                        store.send(.fetchGalleries())
+                ZStack {
+                    if CookieUtil.didLogin {
+                        GenericList(
+                            galleries: store.galleries ?? [],
+                            setting: setting,
+                            pageNumber: store.pageNumber,
+                            loadingState: store.loadingState ?? .idle,
+                            footerLoadingState: store.footerLoadingState ?? .idle,
+                            fetchAction: { store.send(.fetchGalleries()) },
+                            fetchMoreAction: { store.send(.fetchMoreGalleries) },
+                            navigateAction: { store.send(.setNavigation(.detail($0))) },
+                            translateAction: {
+                                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                            },
+                            downloadBadges: store.downloadBadges
+                        )
+                    } else {
+                        NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                     }
                 }
-            }
-            .background(navigationLink)
-            .toolbar(content: toolbar)
-            .navigationTitle(navigationTitle)
+                .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
+                    QuickSearchView(
+                        store: store.scope(state: \.quickSearchState, action: \.quickSearch)
+                    ) { keyword in
+                        store.send(.setNavigation(nil))
+                        store.send(.fetchGalleries(keyword))
+                    }
+                    .accentColor(setting.accentColor)
+                    .autoBlur(radius: blurRadius)
+                }
+                .searchable(text: $store.keyword)
+                .searchSuggestions {
+                    TagSuggestionView(
+                        keyword: $store.keyword, translations: tagTranslator.translations,
+                        showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
+                    )
+                }
+                .onSubmit(of: .search) {
+                    store.send(.fetchGalleries())
+                }
+                .onAppear {
+                    store.send(.onAppear)
+                    if store.galleries?.isEmpty != false && CookieUtil.didLogin {
+                        DispatchQueue.main.async {
+                            store.send(.fetchGalleries())
+                        }
+                    }
+                }
+                .background(navigationLink)
+                .toolbar(content: toolbar)
+                .navigationTitle(navigationTitle)
 
             if DeviceUtil.isPad {
                 content

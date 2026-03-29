@@ -1,0 +1,197 @@
+//
+//  DownloadManagerRepairSeedTests.swift
+//  EhPandaTests
+//
+
+import CoreData
+import Kingfisher
+import UIKit
+import Foundation
+import Testing
+@testable import EhPanda
+
+@Suite(.serialized)
+struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
+    @Test
+    func testRepairSeedRejectsOldCompletedVersionWhenGalleryUpdatedButPageCountMatches() async throws {
+        let gid = "repair-seed-\(UUID().uuidString)"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        try storage.ensureRootDirectory()
+
+        let existingDownload = sampleDownload(
+            gid: gid, title: "Mixed Version", status: .missingFiles,
+            pageCount: 2, completedPageCount: 2,
+            remoteVersionSignature: "hash:v1",
+            latestRemoteVersionSignature: "hash:v2"
+        )
+        try setupRepairSeedFiles(storage: storage, rootURL: rootURL, gid: gid)
+
+        let payload = makeRepairSeedPayload(gid: gid)
+        let workingSeed = try await manager.testingPrepareWorkingSeed(
+            payload: payload, existingDownload: existingDownload,
+            versionSignature: "hash:v2"
+        )
+
+        #expect(workingSeed.manifest == nil)
+        #expect(workingSeed.existingPages.isEmpty)
+        #expect(workingSeed.coverRelativePath == nil)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: workingSeed.folderURL.appendingPathComponent("pages/0001.jpg").path
+            ) == false
+        )
+        #expect(
+            FileManager.default.fileExists(
+                atPath: workingSeed.folderURL.appendingPathComponent("pages/0002.jpg").path
+            ) == false
+        )
+    }
+
+    @Test
+    func testDownloadManagerLoadLocalPageURLsMarksCompletedDownloadMissingFilesWhenZeroBytePageIsFound() async throws {
+        let container = try makeInMemoryContainer()
+
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+
+        try insertPersistedDownload(
+            in: container, gid: gid, status: .completed,
+            completedPageCount: 2, pageCount: 2
+        )
+
+        let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
+            rootURL: rootURL, gid: gid, storage: storage
+        )
+
+        let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
+        let stored = await manager.testingFetchDownload(gid: gid)
+
+        #expect(pageURLs[1] == nil)
+        #expect(pageURLs[2] == goodPageURL)
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+        #expect(stored?.status == .missingFiles)
+        #expect(stored?.completedPageCount == 1)
+    }
+
+    @MainActor
+    @Test
+    func testImageClientFetchImageUsesStableAliasCacheKey() async throws {
+        let url = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
+        )
+        let stableCacheKey = try #require(url.stableImageCacheKey)
+        let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
+            UIColor.systemRed.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
+        let imageData = try #require(image.pngData())
+
+        try await KingfisherManager.shared.cache.store(image, original: imageData, forKey: stableCacheKey)
+        defer {
+            KingfisherManager.shared.cache.removeImage(forKey: stableCacheKey)
+            KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
+        }
+
+        let result = await ImageClient.live.fetchImage(url: url)
+        let fetchedImage = try result.get()
+
+        #expect(fetchedImage.size == image.size)
+    }
+
+}
+
+// MARK: - Repair Seed Helpers
+
+private extension DownloadManagerRepairSeedTests {
+    func setupRepairSeedFiles(
+        storage: DownloadFileStorage, rootURL: URL, gid: String
+    ) throws {
+        let completedFolderURL = rootURL.appendingPathComponent(
+            "\(gid) - Mixed Version", isDirectory: true
+        )
+        try FileManager.default.createDirectory(
+            at: completedFolderURL.appendingPathComponent(
+                Defaults.FilePath.downloadPages, isDirectory: true
+            ),
+            withIntermediateDirectories: true
+        )
+        let oldManifest = try sampleManifest(
+            gid: gid, title: "Mixed Version",
+            pageCount: 2, versionSignature: "hash:v1"
+        )
+        try JSONEncoder().encode(oldManifest).write(
+            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            options: .atomic
+        )
+        try Data([0x00]).write(
+            to: completedFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+        )
+        try Data([0x01]).write(
+            to: completedFolderURL.appendingPathComponent("pages/0001.jpg"), options: .atomic
+        )
+        try Data([0x02]).write(
+            to: completedFolderURL.appendingPathComponent("pages/0002.jpg"), options: .atomic
+        )
+    }
+
+    func makeRepairSeedPayload(gid: String) -> DownloadRequestPayload {
+        DownloadRequestPayload(
+            gallery: Gallery(
+                gid: gid, token: "token", title: "Mixed Version",
+                rating: 4, tags: [], category: .doujinshi,
+                uploader: "Uploader", pageCount: 2, postedDate: .now,
+                coverURL: URL(string: "https://example.com/cover.jpg"),
+                galleryURL: URL(string: "https://e-hentai.org/g/\(gid)/token")
+            ),
+            galleryDetail: GalleryDetail(
+                gid: gid, title: "Mixed Version", jpnTitle: nil,
+                isFavorited: false, visibility: .yes,
+                rating: 4, userRating: 0, ratingCount: 1,
+                category: .doujinshi, language: .japanese,
+                uploader: "Uploader", postedDate: .now,
+                coverURL: URL(string: "https://example.com/cover.jpg"),
+                favoritedCount: 0, pageCount: 2,
+                sizeCount: 1, sizeType: "MB", torrentCount: 0
+            ),
+            previewURLs: [:], previewConfig: .normal(rows: 4),
+            host: .ehentai, options: .init(), mode: .repair
+        )
+    }
+
+    func setupZeroBytePageFiles(
+        rootURL: URL, gid: String, storage: DownloadFileStorage
+    ) throws -> (URL, URL) {
+        let completedFolderURL = rootURL.appendingPathComponent(
+            "\(gid) - Pause Race", isDirectory: true
+        )
+        try FileManager.default.createDirectory(
+            at: completedFolderURL.appendingPathComponent(
+                Defaults.FilePath.downloadPages, isDirectory: true
+            ),
+            withIntermediateDirectories: true
+        )
+        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
+        try JSONEncoder().encode(manifest).write(
+            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            options: .atomic
+        )
+        try Data([0x00]).write(
+            to: completedFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+        )
+        let emptyPageURL = completedFolderURL.appendingPathComponent("pages/0001.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        let goodPageURL = completedFolderURL.appendingPathComponent("pages/0002.jpg")
+        try Data([0x02]).write(to: goodPageURL, options: .atomic)
+        return (emptyPageURL, goodPageURL)
+    }
+}

@@ -8,7 +8,7 @@ import Foundation
 extension FileManager {
     static func clearApplicationSupportDirectoryContents() {
         guard let applicationSupportURL = FileManager.default.urls(
-            for: .applicationSupportDirectory, in: .userDomainMask).first,
+                for: .applicationSupportDirectory, in: .userDomainMask).first,
               let applicationSupportDirectoryContents = try? FileManager
                 .default.contentsOfDirectory(atPath: applicationSupportURL.path)
         else { return }

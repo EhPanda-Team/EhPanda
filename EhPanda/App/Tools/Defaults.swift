@@ -9,7 +9,7 @@ import Foundation
 struct Defaults {
     struct FrameSize {
         static let archiveGridWidth: CGFloat =
-        DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
+            DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
         static var cardCellWidth: CGFloat { DeviceUtil.windowW * 0.8 }
         static let cardCellHeight: CGFloat = Defaults.ImageSize.headerH + 20 * 2
         static var cardCellSize: CGSize {

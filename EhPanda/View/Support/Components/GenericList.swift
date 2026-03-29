@@ -196,7 +196,7 @@ private struct WaterfallList: View {
                         translateAction: translateAction,
                         downloadBadge: downloadBadges[gallery.gid] ?? .none
                     )
-                        .tint(.primary).multilineTextAlignment(.leading)
+                    .tint(.primary).multilineTextAlignment(.leading)
                 }
                 .buttonStyle(.borderless)
             }
