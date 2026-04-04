@@ -44,15 +44,11 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
                 .onAppear(perform: { tryScrollTo(id: pagerModel.index + 1, proxy: proxy) })
             }
             .scrollPosition(id: $scrollPositionID, anchor: .center)
-            .onScrollPhaseChange { _, newValue in
-                if newValue == .idle, let index = scrollPositionID {
-                    performingChanges = true
-                    pagerModel.update(.new(index: index - 1))
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        performingChanges = false
-                    }
-                }
-            }
+            .modifier(ScrollPhaseChangeModifier(
+                scrollPositionID: $scrollPositionID,
+                performingChanges: $performingChanges,
+                pagerModel: pagerModel
+            ))
             .onChange(of: pagerModel.index) { _, newValue in
                 tryScrollTo(id: newValue + 1, proxy: proxy)
             }
@@ -62,6 +58,47 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     private func tryScrollTo(id: Int, proxy: ScrollViewProxy) {
         if !performingChanges {
             scrollPositionID = id
+        }
+    }
+}
+
+// MARK: ScrollPhaseChangeModifier
+private struct ScrollPhaseChangeModifier: ViewModifier {
+    @Binding var scrollPositionID: Int?
+    @Binding var performingChanges: Bool
+    let pagerModel: Page
+    @State private var lastScrollPositionID: Int?
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content
+                .onScrollPhaseChange { _, newValue in
+                    if newValue == .idle, let index = scrollPositionID {
+                        performingChanges = true
+                        pagerModel.update(.new(index: index - 1))
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            performingChanges = false
+                        }
+                    }
+                }
+        } else {
+            content
+                .onChange(of: scrollPositionID) { _, newValue in
+                    if let index = newValue, index != lastScrollPositionID {
+                        lastScrollPositionID = index
+                        // Use a small delay to detect when scrolling has stopped
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            // Check if scroll position is still the same (scrolling stopped)
+                            if scrollPositionID == index {
+                                performingChanges = true
+                                pagerModel.update(.new(index: index - 1))
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    performingChanges = false
+                                }
+                            }
+                        }
+                    }
+                }
         }
     }
 }

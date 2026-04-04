@@ -6,31 +6,32 @@ on:
     types: [closed]
 env:
   DEVELOPER_DIR: /Applications/Xcode_26.0.1.app
-  APP_VERSION: '2.8.0'
-  SCHEME_NAME: 'EhPanda'
-  ALTSTORE_JSON_PATH: './AltStore.json'
-  BUILDS_PATH: '/tmp/action-builds'
-  PAYLOAD_PATH: '/tmp/action-builds/Payload'
-  FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
-  FILTER_PATH: './actions-tool/ReleaseNotesFilter'
-  THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
-  ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
-  IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
-
+  APP_VERSION: "2.9.0"
+  SCHEME_NAME: "EhPanda"
+  ALTSTORE_JSON_PATH: "./AltStore.json"
+  BUILDS_PATH: "/tmp/action-builds"
+  PAYLOAD_PATH: "/tmp/action-builds/Payload"
+  FILTER_SWIFT_PATH: "./actions-tool/ReleaseNotesFilter.swift"
+  FILTER_PATH: "./actions-tool/ReleaseNotesFilter"
+  THIN_PAYLOAD_SCRIPT_PATH: "./actions-tool/thin-payload.sh"
+  ARCHIVE_PATH: "/tmp/action-builds/EhPanda.xcarchive"
+  IPA_OUTPUT_PATH: "/tmp/action-builds/EhPanda.ipa"
+permissions: write-all
 jobs:
   Deploy:
     runs-on: macos-26
     if: |
       github.event.pull_request.merged == true && (
       github.event.pull_request.user.login == 'aalberrty' ||
-      github.event.pull_request.user.login == 'chihchy')
+      github.event.pull_request.user.login == 'chihchy' ||
+      github.event.pull_request.user.login == 'AokazeNozomi')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Modify git config
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "272103650+github-actions[bot]@users.noreply.github.com"
       - name: Install iOS 26 Platform
         uses: nick-fields/retry@v3
         with:
@@ -89,12 +90,12 @@ jobs:
       - name: Release to GitHub
         uses: softprops/action-gh-release@v2
         with:
-         fail_on_unmatched_files: true
-         files: ${{ env.IPA_OUTPUT_PATH }}
-         token: ${{ secrets.GITHUB_TOKEN }}
-         body: ${{ github.event.pull_request.body }}
-         name: ${{ github.event.pull_request.title }}
-         tag_name: 'v${{ steps.bump-version.outputs.version }}'
+          fail_on_unmatched_files: true
+          files: ${{ env.IPA_OUTPUT_PATH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: ${{ github.event.pull_request.body }}
+          name: ${{ github.event.pull_request.title }}
+          tag_name: "v${{ steps.bump-version.outputs.version }}"
       - name: Commit bump version
         run: |
           git add .
@@ -106,17 +107,19 @@ jobs:
           echo "`jq '.apps[0].versions[0].localizedDescription="${{ steps.retrieve-data.outputs.notes }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versions[0].date="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versions[0].version="${{ steps.bump-version.outputs.version }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
-          echo "`jq '.apps[0].versions[0].downloadURL="https://github.com/EhPanda-Team/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].versions[0].minOSVersion="17.0"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].versions[0].downloadURL="https://github.com/AokazeNozomi/EhPanda17/releases/download/v${{ steps.bump-version.outputs.version }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
       - name: Commit update AltStore.json
         run: |
           git add .
           git commit -m "Update AltStore.json"
           git push origin HEAD
-      - name: Post release notes
-        run: |
-         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         -d text='*v${{ steps.bump-version.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
-         curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
+#      - name: Post release notes
+#        run: |
+#         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+#         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
+#         -d text='*v${{ steps.bump-version.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+#
+#         curl ${{ secrets.DISCORD_WEBHOOK }} \
+#         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'

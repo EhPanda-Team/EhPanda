@@ -3,26 +3,26 @@ on:
   workflow_dispatch:
     inputs:
       versionTag:
-        description: 'Version tag'
+        description: "Version tag"
         required: true
         type: string
       releaseTitle:
-        description: 'Release title'
+        description: "Release title"
         required: true
         type: string
       releaseDescription:
-        description: 'Release description'
+        description: "Release description"
         required: true
         type: string
 env:
   DEVELOPER_DIR: /Applications/Xcode_26.0.1.app
-  SCHEME_NAME: 'EhPanda'
-  ALTSTORE_JSON_PATH: './AltStore.json'
-  BUILDS_PATH: '/tmp/action-builds'
-  PAYLOAD_PATH: '/tmp/action-builds/Payload'
-  THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
-  ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
-  IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
+  SCHEME_NAME: "EhPanda"
+  ALTSTORE_JSON_PATH: "./AltStore.json"
+  BUILDS_PATH: "/tmp/action-builds"
+  PAYLOAD_PATH: "/tmp/action-builds/Payload"
+  THIN_PAYLOAD_SCRIPT_PATH: "./actions-tool/thin-payload.sh"
+  ARCHIVE_PATH: "/tmp/action-builds/EhPanda.xcarchive"
+  IPA_OUTPUT_PATH: "/tmp/action-builds/EhPanda.ipa"
 
 jobs:
   Deploy:
@@ -34,7 +34,7 @@ jobs:
       - name: Modify git config
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "272103650+github-actions[bot]@users.noreply.github.com"
       - name: Install iOS 26 Platform
         uses: nick-fields/retry@v3
         with:
@@ -89,10 +89,10 @@ jobs:
       - name: Release to GitHub
         uses: softprops/action-gh-release@v2
         with:
-         prerelease: true
-         fail_on_unmatched_files: true
-         files: ${{ env.IPA_OUTPUT_PATH }}
-         token: ${{ secrets.GITHUB_TOKEN }}
-         name: ${{ inputs.releaseTitle }}
-         body: ${{ inputs.releaseDescription }}
-         tag_name: 'v${{ steps.bump-version.outputs.version }}'
+          prerelease: true
+          fail_on_unmatched_files: true
+          files: ${{ env.IPA_OUTPUT_PATH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.releaseTitle }}
+          body: ${{ inputs.releaseDescription }}
+          tag_name: "v${{ steps.bump-version.outputs.version }}"

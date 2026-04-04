@@ -1,18 +1,18 @@
 {
   "name": "EhPanda AltStore Source",
-  "identifier": "app.ehpanda.altstore",
+  "identifier": "app.ehpanda17.altstore",
   "subtitle": "Unleash your passion for E-Hentai with EhPanda.",
   "description": "EhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
   "iconURL": "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
   "website": "https://ehpanda.app",
   "tintColor": "289979",
   "featuredApps": [
-    "app.ehpanda"
+    "app.ehpanda17"
   ],
   "apps": [
     {
       "name": "EhPanda",
-      "bundleIdentifier": "app.ehpanda",
+      "bundleIdentifier": "app.ehpanda17",
       "developerName": "EhPanda Team",
       "subtitle": "Unleash your passion for E-Hentai with EhPanda.",
       "localizedDescription": "EhPanda is an unofficial app for iOS and iPadOS that allows users to access and explore adult manga and doujinshi from E-Hentai.\nWith a user-friendly interface, powerful search features, and a vast collection of content, it offers a personalized library and an immersive reading experience.\nNote: EhPanda is not affiliated with or endorsed by E-Hentai.",
@@ -32,12 +32,12 @@
       ],
       "versions": [
         {
-          "version": "2.8.0",
-          "date": "2025-10-23T04:23:41",
-          "localizedDescription": "1. feat: Adapt to the new Liquid Glass design.\n3. fix: Gesture issue in the reading page.\n4. fix: Crash issue in eh setting page.\n5. fix: A minor issue in search page.",
-          "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.8.0/EhPanda.ipa",
-          "size": 7224545,
-          "minOSVersion": "16.0"
+          "version": "2.9.0",
+          "date": "2026-02-07T21:33:03",
+          "localizedDescription": "1. feat: Added back support for older iOS versions, going back to iOS 17.0",
+          "downloadURL": "https://github.com/AokazeNozomi/EhPanda17/releases/download/v2.9.0/EhPanda.ipa",
+          "size": 7285388,
+          "minOSVersion": "17.0"
         }
       ],
       "appPermissions": {
@@ -60,7 +60,7 @@
       "identifier": "ehpanda-now-available",
       "caption": "An unofficial E-Hentai App for iOS & iPadOS.",
       "tintColor": "289979",
-      "appID": "app.ehpanda",
+      "appID": "app.ehpanda17",
       "date": "2021-08-19",
       "notify": false
     }

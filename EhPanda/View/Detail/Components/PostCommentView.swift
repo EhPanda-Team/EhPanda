@@ -42,11 +42,24 @@ struct PostCommentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: cancelAction)
+                    if #available(iOS 26.0, *) {
+                        Button(role: .close, action: cancelAction)
+                    } else {
+                        Button(action: cancelAction) {
+                            Text(L10n.Localizable.PostCommentView.Button.cancel)
+                        }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .confirm, action: postAction)
+                    if #available(iOS 26.0, *) {
+                        Button(role: .confirm, action: postAction)
+                            .disabled(content.isEmpty)
+                    } else {
+                        Button(action: postAction) {
+                            Text(L10n.Localizable.PostCommentView.Button.post)
+                        }
                         .disabled(content.isEmpty)
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

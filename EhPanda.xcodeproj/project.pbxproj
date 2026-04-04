@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E1F0E7F2ED6ABE4005C6249 /* SwiftUIBackports in Frameworks */ = {isa = PBXBuildFile; productRef = 7E1F0E7E2ED6ABE4005C6249 /* SwiftUIBackports */; };
 		AB0929B6277F043D00F107CA /* AccountSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingReducer.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingReducer.swift */; };
 		AB0929C027805A8200F107CA /* LoginReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginReducer.swift */; };
@@ -638,6 +639,7 @@
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
 				AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
+				7E1F0E7F2ED6ABE4005C6249 /* SwiftUIBackports in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1590,6 +1592,7 @@
 				AB2EB9A1280251F600011A8A /* AlertKit */,
 				AB2EB9A42802521700011A8A /* DeprecatedAPI */,
 				EAE63E2029E2A6330048C601 /* SwiftyBeaver */,
+				7E1F0E7E2ED6ABE4005C6249 /* SwiftUIBackports */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1668,6 +1671,7 @@
 				AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */,
 				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				7E1F0E7D2ED6A647005C6249 /* XCRemoteSwiftPackageReference "iOS-Backports" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -2088,10 +2092,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 157;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = 3H9YQKVXRL;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -2102,9 +2106,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda17.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShareExtension_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2116,10 +2120,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 157;
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = 3H9YQKVXRL;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -2130,9 +2134,9 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda17.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ShareExtension_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2267,22 +2271,23 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 157;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = 3H9YQKVXRL;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = EhPanda/App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda17;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = App_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2296,22 +2301,23 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 157;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				DEVELOPMENT_TEAM = 3H9YQKVXRL;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = EhPanda/App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda17;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = App_Dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2334,7 +2340,7 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda17.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -2361,7 +2367,7 @@
 					"@loader_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda17.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -2414,6 +2420,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		7E1F0E7D2ED6A647005C6249 /* XCRemoteSwiftPackageReference "iOS-Backports" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superwall/iOS-Backports";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.5;
+			};
+		};
 		AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Co2333/Colorful";
@@ -2545,6 +2559,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7E1F0E7E2ED6ABE4005C6249 /* SwiftUIBackports */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E1F0E7D2ED6A647005C6249 /* XCRemoteSwiftPackageReference "iOS-Backports" */;
+			productName = SwiftUIBackports;
+		};
 		AB17573C27675B1E00FD64E2 /* Colorful */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */;

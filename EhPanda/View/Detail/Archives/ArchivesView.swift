@@ -5,6 +5,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import SwiftUIBackports
 
 struct ArchivesView: View {
     @Bindable private var store: StoreOf<ArchivesReducer>
@@ -163,7 +164,7 @@ private struct HathArchiveGrid: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        let bodyStack: some View = VStack(spacing: 10) {
             Text(archive.resolution.value)
                 .font(.title3.bold())
 
@@ -178,14 +179,18 @@ private struct HathArchiveGrid: View {
             }
             .lineLimit(1)
         }
-        .foregroundColor(foregroundColor)
-        .frame(width: width, height: height)
-        .contentShape(.rect)
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(borderColor, lineWidth: 1)
-        )
-        .glassEffect(.clear.interactive(), in: .rect(cornerRadius: 10))
+            .foregroundColor(foregroundColor)
+            .frame(width: width, height: height)
+            .contentShape(.rect)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(borderColor, lineWidth: 1)
+            )
+        if #available(iOS 26.0, *) {
+            bodyStack.glassEffect(.clear.interactive(), in: .rect(cornerRadius: 10))
+        } else {
+            bodyStack
+        }
     }
 }
 
@@ -214,23 +219,39 @@ private struct DownloadButton: View {
     }
 
     var body: some View {
-        Text(L10n.Localizable.ArchivesView.Button.downloadToHathClient)
-            .font(.headline)
-            .foregroundStyle(textColor)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(backgroundColor)
-            .animation(.default, value: backgroundColor)
-            .clipShape(.rect(cornerRadius: 30))
-            .glassEffect(.regular.interactive())
-            .padding(paddingInsets)
-            .onTapGesture(perform: { if !isDisabled { action() }})
+        if #available(iOS 26.0, *) {
+            Text(L10n.Localizable.ArchivesView.Button.downloadToHathClient)
+                .font(.headline)
+                .foregroundStyle(textColor)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(backgroundColor)
+                .animation(.default, value: backgroundColor)
+                .clipShape(.rect(cornerRadius: 30))
+                .backport.glassEffect(.regularInteractive)
+                .padding(paddingInsets)
+                .onTapGesture(perform: { if !isDisabled { action() }})
+                .onLongPressGesture(
+                    minimumDuration: 0,
+                    maximumDistance: 50,
+                    pressing: { isPressing = $0 },
+                    perform: {}
+                )
+        } else {
+            HStack {
+                Spacer()
+                Text(L10n.Localizable.ArchivesView.Button.downloadToHathClient)
+                    .font(.headline).foregroundColor(textColor)
+                Spacer()
+            }
+            .frame(height: 50).background(backgroundColor)
+            .cornerRadius(30).padding(paddingInsets)
+            .onTapGesture { if !isDisabled { action() }}
             .onLongPressGesture(
-                minimumDuration: 0,
-                maximumDistance: 50,
-                pressing: { isPressing = $0 },
-                perform: {}
+                minimumDuration: 0, maximumDistance: 50,
+                pressing: { isPressing = $0 }, perform: {}
             )
+        }
     }
 }
 

@@ -147,6 +147,7 @@
 "quick_search_view.title.content" = "Content";
 "quick_search_view.title.name" = "Name";
 "quick_search_view.placeholder.optional" = "Optional";
+"quick_search_view.toolbar_item.button.confirm" = "Confirm";
 
 // MARK: SettingView
 "setting_view.title.setting" = "Einstellungen";
@@ -337,6 +338,8 @@
 // MARK: PostCommentView
 "post_comment_view.title.post_comment" = "Kommentar abgeben";
 "post_comment_view.title.edit_comment" = "Kommentar bearbeiten";
+"post_comment_view.button.cancel" = "Abbrechen";
+"post_comment_view.button.post" = "Senden";
 
 // MARK: PreviewsView
 "previews_view.title.previews" = "Vorschau";

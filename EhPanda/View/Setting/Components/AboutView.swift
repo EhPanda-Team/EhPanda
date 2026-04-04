@@ -14,6 +14,17 @@ struct AboutView: View {
         .joined(separator: " ")
     }
 
+    private var versionInfoView: some View {
+        VStack(alignment: .leading) {
+            Text(L10n.Constant.App.copyright)
+            Text(version)
+        }
+        .foregroundStyle(.gray)
+        .font(.caption2.bold())
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 4)
+    }
+
     var body: some View {
         Form {
             Section {
@@ -44,15 +55,14 @@ struct AboutView: View {
         }
         .navigationTitle(L10n.Localizable.AboutView.Title.ehPanda)
         .toolbar {
-            ToolbarItem(placement: .largeSubtitle) {
-                VStack(alignment: .leading) {
-                    Text(L10n.Constant.App.copyright)
-                    Text(version)
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .largeSubtitle) {
+                    versionInfoView
                 }
-                .foregroundStyle(.gray)
-                .font(.caption2.bold())
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 4)
+            } else {
+                ToolbarItem(placement: .principal) {
+                    versionInfoView
+                }
             }
         }
     }

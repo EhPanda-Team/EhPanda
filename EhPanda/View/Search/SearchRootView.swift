@@ -26,44 +26,36 @@ struct SearchRootView: View {
 
     var body: some View {
         NavigationView {
-            let content =
-            ScrollView(showsIndicators: false) {
-                SuggestionsPanel(
-                    historyKeywords: store.historyKeywords.reversed(),
-                    historyGalleries: store.historyGalleries,
-                    quickSearchWords: store.quickSearchWords,
-                    navigateGalleryAction: { store.send(.setNavigation(.detail($0))) },
-                    navigateQuickSearchAction: { store.send(.setNavigation(.quickSearch())) },
-                    searchKeywordAction: { keyword in
-                        store.send(.setKeyword(keyword))
-                        store.send(.setNavigation(.search))
-                    },
-                    removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
-                )
+            if DeviceUtil.isPad {
+                baseContent
+                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { gid in
+                        detailSheetView(gid: gid)
+                    }
+            } else {
+                if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
+                    if #available(iOS 26.0, *) {
+                        baseContent.navigationSubtitle(Text(" "))
+                    } else {
+                        baseContent.navigationTitle(Text(" "))
+                    }
+                } else {
+                    baseContent
+                }
             }
+        }
+    }
+
+    private var baseContent: some View {
+        scrollViewContent
             .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
-                FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
-                    .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+                filtersSheetView
             }
             .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
-                QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: \.quickSearch)
-                ) { keyword in
-                    store.send(.setNavigation(nil))
-                    store.send(.setKeyword(keyword))
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        store.send(.setNavigation(.search))
-                    }
-                }
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                quickSearchSheetView
             }
             .searchable(text: $store.keyword)
             .searchSuggestions {
-                TagSuggestionView(
-                    keyword: $store.keyword, translations: tagTranslator.translations,
-                    showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
-                )
+                searchSuggestionsView
             }
             .onSubmit(of: .search) {
                 store.send(.setNavigation(.search))
@@ -75,32 +67,68 @@ struct SearchRootView: View {
             .background(navigationLinks)
             .toolbar(content: toolbar)
             .navigationTitle(L10n.Localizable.SearchView.Title.search)
+    }
 
-            if DeviceUtil.isPad {
-                content
-                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { gid in
-                        NavigationView {
-                            DetailView(
-                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                                gid: gid,
-                                user: user,
-                                setting: $setting,
-                                blurRadius: blurRadius,
-                                tagTranslator: tagTranslator
-                            )
-                        }
-                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-                    }
-            } else {
-                // Workaround: Prevent the title disappearing issue.
-                if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
-                    content
-                        .navigationSubtitle(Text(" "))
-                } else {
-                    content
-                }
+    private var scrollViewContent: some View {
+        ScrollView(showsIndicators: false) {
+            SuggestionsPanel(
+                historyKeywords: store.historyKeywords.reversed(),
+                historyGalleries: store.historyGalleries,
+                quickSearchWords: store.quickSearchWords,
+                navigateGalleryAction: { store.send(.setNavigation(.detail($0))) },
+                navigateQuickSearchAction: { store.send(.setNavigation(.quickSearch())) },
+                searchKeywordAction: { keyword in
+                    store.send(.setKeyword(keyword))
+                    store.send(.setNavigation(.search))
+                },
+                removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
+            )
+        }
+    }
+
+    private var filtersSheetView: some View {
+        FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
+            .autoBlur(radius: blurRadius)
+            .environment(\.inSheet, true)
+    }
+
+    private var quickSearchSheetView: some View {
+        QuickSearchView(
+            store: store.scope(state: \.quickSearchState, action: \.quickSearch)
+        ) { keyword in
+            store.send(.setNavigation(nil))
+            store.send(.setKeyword(keyword))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                store.send(.setNavigation(.search))
             }
         }
+        .accentColor(setting.accentColor)
+        .autoBlur(radius: blurRadius)
+    }
+
+    private var searchSuggestionsView: some View {
+        TagSuggestionView(
+            keyword: $store.keyword,
+            translations: tagTranslator.translations,
+            showsImages: setting.showsImagesInTags,
+            isEnabled: setting.showsTagsSearchSuggestion
+        )
+    }
+
+    private func detailSheetView(gid: String) -> some View {
+        NavigationView {
+            DetailView(
+                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
+                gid: gid,
+                user: user,
+                setting: $setting,
+                blurRadius: blurRadius,
+                tagTranslator: tagTranslator
+            )
+        }
+        .autoBlur(radius: blurRadius)
+        .environment(\.inSheet, true)
+        .navigationViewStyle(.stack)
     }
 
     private func toolbar() -> some ToolbarContent {

@@ -25,11 +25,11 @@ GitHub Readme: [README.{lang}.md](/READMEs)
 https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/blob/main/src/main.js)
 
 ## 安裝步驟
-1. 在 [Releases](https://github.com/EhPanda-Team/EhPanda/releases) 取得 ipa 文件。
+1. 在 [Releases](https://github.com/AokazeNozomi/EhPanda17/releases) 取得 ipa 文件。
 2. 使用 [AltStore](https://altstore.io) 這類軟件將 ipa 文件安裝到你的裝置。
 
 ## 系統需求
-須使用 iOS / iPadOS 26.0 或以上版本。
+須使用 iOS / iPadOS 17.0 或以上版本。
 
 ## 內容及其著作權
 本應用程式內的內容均來自 E-Hentai，而 E-Hentai 的內容均為用戶生成內容。

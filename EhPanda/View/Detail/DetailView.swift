@@ -7,6 +7,7 @@ import SwiftUI
 import Kingfisher
 import ComposableArchitecture
 import CommonMark
+import SwiftUIBackports
 
 struct DetailView: View {
     @Bindable private var store: StoreOf<DetailReducer>
@@ -361,7 +362,7 @@ private struct HeaderSection: View {
 
                     Spacer()
 
-                    ZStack {
+                    let buttonsStack = ZStack {
                         Button(action: unfavorAction) {
                             Image(systemSymbol: .heartFill)
                         }
@@ -380,8 +381,13 @@ private struct HeaderSection: View {
                     }
                     .imageScale(.large)
                     .foregroundStyle(.tint)
-                    .buttonStyle(.glass(.regular.interactive()))
                     .disabled(!CookieUtil.didLogin)
+                    if #available(iOS 26.0, *) {
+                        buttonsStack
+                            .buttonStyle(.glass(.regular.interactive()))
+                    } else {
+                        buttonsStack
+                    }
 
                     Button(action: navigateReadingAction) {
                         Text(L10n.Localizable.DetailView.Button.read)
@@ -389,7 +395,7 @@ private struct HeaderSection: View {
                             .foregroundColor(.white).padding(.vertical, -2)
                             .padding(.horizontal, 2).lineLimit(1)
                     }
-                    .buttonStyle(.glassProminent)
+                    .backport.glassProminentButtonStyle()
                     .buttonBorderShape(.capsule)
                 }
                 .minimumScaleFactor(0.5)
@@ -874,19 +880,32 @@ private struct CommentButton: View {
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 15)
 
-        Button(action: action) {
-            HStack {
-                Image(systemSymbol: .squareAndPencil)
-
-                Text(L10n.Localizable.DetailView.Button.postComment)
-                    .bold()
+        if #available(iOS 26.0, *) {
+            Button(action: action) {
+                HStack {
+                    Image(systemSymbol: .squareAndPencil)
+                    
+                    Text(L10n.Localizable.DetailView.Button.postComment)
+                        .bold()
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(backgroundColor)
+                .clipShape(shape)
             }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(backgroundColor)
-            .clipShape(shape)
+            .glassEffect(.clear.interactive(), in: shape)
+        } else {
+            Button(action: action) {
+                HStack {
+                    Spacer()
+                    Image(systemSymbol: .squareAndPencil)
+                    Text(L10n.Localizable.DetailView.Button.postComment).bold()
+                    Spacer()
+
+                }
+                .padding().background(backgroundColor).cornerRadius(15)
+            }
         }
-        .glassEffect(.clear.interactive(), in: shape)
     }
 }
 

@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SFSafeSymbols
+import SwiftUIBackports
 
 struct LaboratorySettingView: View {
     @Binding private var bypassesSNIFiltering: Bool
@@ -52,24 +53,42 @@ struct LaboratoryCell: View {
     }
 
     var body: some View {
-        HStack {
-            Image(systemSymbol: symbol)
-
-            Text(title)
-                .bold()
+        if #available(iOS 26.0, *) {
+            HStack {
+                Image(systemSymbol: symbol)
+                Text(title)
+                    .bold()
+            }
+            .foregroundStyle(contentColor)
+            .font(.title2)
+            .frame(maxWidth: .infinity)
+            .contentShape(.rect)
+            .onTapGesture(perform: { isOn.toggle() })
+            .minimumScaleFactor(0.75)
+            .padding(.vertical, 20)
+            .lineLimit(1)
+            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
+            .animation(.default, value: isOn)
+        } else {
+            HStack {
+                Spacer()
+                Group {
+                    Image(systemSymbol: symbol)
+                    Text(title).bold()
+                }
+                .foregroundColor(contentColor)
+                .font(.title2)
+                Spacer()
+            }
+            .contentShape(.rect)
+            .onTapGesture(perform: { isOn.toggle() })
+            .minimumScaleFactor(0.75)
+            .padding(.vertical, 20)
+            .background(bgColor)
+            .cornerRadius(15)
+            .lineLimit(1)
+            .animation(.default, value: isOn)
         }
-        .foregroundStyle(contentColor)
-        .font(.title2)
-        .frame(maxWidth: .infinity)
-        .contentShape(.rect)
-        .onTapGesture(perform: { isOn.toggle() })
-        .minimumScaleFactor(0.75)
-        .padding(.vertical, 20)
-        .background(bgColor)
-        .cornerRadius(15)
-        .lineLimit(1)
-        .animation(.default, value: isOn)
-        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
     }
 }
 

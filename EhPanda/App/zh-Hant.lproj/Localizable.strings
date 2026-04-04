@@ -337,6 +337,8 @@
 // MARK: PostCommentView
 "post_comment_view.title.post_comment" = "發表留言";
 "post_comment_view.title.edit_comment" = "編輯留言";
+"post_comment_view.button.cancel" = "取消";
+"post_comment_view.button.post" = "发布";
 
 // MARK: PreviewsView
 "previews_view.title.previews" = "預覽";

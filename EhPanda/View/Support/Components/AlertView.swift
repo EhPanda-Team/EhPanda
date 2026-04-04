@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SFSafeSymbols
+import SwiftUIBackports
 
 struct LoadingView: View {
     private let title: String
@@ -126,7 +127,7 @@ struct AlertViewButton: View {
                 .textCase(.uppercase)
         }
         .buttonBorderShape(.capsule)
-        .buttonStyle(.glass)
+        .backport.glassButtonStyle()
     }
 }
 
