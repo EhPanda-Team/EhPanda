@@ -167,7 +167,7 @@ extension DownloadManager {
                 failedPages: context.batchResult.failedPages
             )
         }
-        try finalizeDownload(
+        try await finalizeDownload(
             payload: payload,
             temporaryFolderURL: temporaryFolderURL,
             folderRelativePath: folderRelativePath,
@@ -203,7 +203,7 @@ extension DownloadManager {
         temporaryFolderURL: URL,
         folderRelativePath: String,
         finalizeContext: FinalizeContext
-    ) throws {
+    ) async throws {
         let versionSignature = finalizeContext.versionSignature
         let coverRelativePath = finalizeContext.coverRelativePath
         let batchResult = finalizeContext.batchResult
@@ -248,7 +248,7 @@ extension DownloadManager {
             relativePath: folderRelativePath,
             with: temporaryFolderURL
         )
-        cleanupCachedRemoteAssetsAfterSuccessfulDownload(
+        await cleanupCachedRemoteAssetsAfterSuccessfulDownload(
             payload: payload,
             storedGalleryImageState: storedGalleryImageState,
             pages: batchResult.pages,

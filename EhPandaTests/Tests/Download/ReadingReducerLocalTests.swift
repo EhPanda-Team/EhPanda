@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct ReadingReducerLocalTests: DownloadFeatureTestCase {
+    @MainActor
     func testReadingReducerOnWebImageSucceededDoesNotCaptureAlreadyLocalPage() async {
         let capturedCalls = UncheckedBox([(String, Int, URL?)]())
         let gallery = sampleGallery()

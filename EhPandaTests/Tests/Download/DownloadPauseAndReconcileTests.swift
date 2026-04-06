@@ -33,7 +33,8 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
@@ -82,7 +83,8 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
@@ -142,7 +144,8 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
@@ -173,7 +176,8 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
@@ -206,7 +210,9 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: URLSession(configuration: configuration))
+        let manager = DownloadManager(
+            storage: storage, urlSession: URLSession(configuration: configuration), persistenceContainer: container
+        )
         try insertPersistedDownload(
             in: container, gid: gid, status: .partial, completedPageCount: 1, pageCount: 2
         )

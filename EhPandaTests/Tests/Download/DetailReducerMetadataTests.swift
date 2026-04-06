@@ -46,9 +46,6 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = try sampleGalleryState(gid: gallery.gid)
-        let sessionID = UUID().uuidString
-        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
-        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         let store = makeDownloadedMetadataTestStore(
             gid: gallery.gid, gallery: gallery,
@@ -83,9 +80,6 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = try sampleGalleryState(gid: gallery.gid)
-        let sessionID = UUID().uuidString
-        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
-        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         let store = makeDownloadedMetadataTestStore(
             gid: gallery.gid, gallery: gallery,
@@ -136,6 +130,9 @@ private extension DetailReducerMetadataTests {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, badgeValue) }) },
+                fetchVersionMetadata: { _, _ in
+                    .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
+                },
                 updateRemoteSignature: { _, _ in
                     updateCheckCount.value += 1
                     return .none
@@ -171,6 +168,9 @@ private extension DetailReducerMetadataTests {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, badgeValue) }) },
+                fetchVersionMetadata: { _, _ in
+                    .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
+                },
                 updateRemoteSignature: { _, _ in
                     updateCheckCount.value += 1
                     return .downloaded

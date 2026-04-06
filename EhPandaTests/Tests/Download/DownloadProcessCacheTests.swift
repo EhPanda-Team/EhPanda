@@ -27,7 +27,8 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let cacheTestManager = try makeCacheTestManager(
-            rootURL: rootURL, sessionID: sessionID, gid: gid, pageIndex: pageIndex
+            rootURL: rootURL, sessionID: sessionID, gid: gid, pageIndex: pageIndex,
+            persistenceContainer: container
         )
         let storage = cacheTestManager.storage
         let manager = cacheTestManager.manager
@@ -42,8 +43,14 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         await waitUntilCacheReady(for: cachedKeys)
 
         let updatedPageCount = try await setupCacheTestDownload(
-            container: container, storage: storage, gid: gid,
-            pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
+            .init(
+                container: container,
+                storage: storage,
+                manager: manager,
+                gid: gid,
+                pageIndex: pageIndex,
+                oldVersionSignature: oldVersionSignature
+            )
         )
 
         await manager.testingProcessDownload(gid: gid)
@@ -72,19 +79,33 @@ struct CacheTestManagerResult {
     let metadataResponse: Data
 }
 
+private struct CacheTestDownloadSetup {
+    let container: NSPersistentContainer
+    let storage: DownloadFileStorage
+    let manager: DownloadManager
+    let gid: String
+    let pageIndex: Int
+    let oldVersionSignature: String
+}
+
 // MARK: - Cache Test Helpers
 
 private extension DownloadProcessCacheTests {
     func makeCacheTestManager(
-        rootURL: URL, sessionID: String, gid: String, pageIndex: Int
+        rootURL: URL, sessionID: String, gid: String, pageIndex: Int,
+        persistenceContainer: NSPersistentContainer = PersistenceController.shared.container
     ) throws -> CacheTestManagerResult {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: URLSession(configuration: configuration))
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: persistenceContainer
+        )
         let content = StubHandlerContent(
-            detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
+            detailHTML: try makeUniqueDetailHTML(gid: gid),
             mpvHTML: try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html"),
             metadataResponse: try makeMetadataResponseData(gid: gid)
         )
@@ -104,7 +125,7 @@ private extension DownloadProcessCacheTests {
         let detailHTML = content.detailHTML
         let mpvHTML = content.mpvHTML
         let metadataResponse = content.metadataResponse
-        let currentPageImageURL = URL(string: "https://example.com/image-\(pageIndex).jpg")
+        let currentPageImageURL = Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             guard let url = request.url else { throw URLError(.badURL) }
             if url.path.contains("/g/\(gid)/token") {
@@ -125,6 +146,20 @@ private extension DownloadProcessCacheTests {
             }
             throw URLError(.unsupportedURL)
         }
+    }
+
+    func makeUniqueDetailHTML(gid: String) throws -> Data {
+        let fixtureCoverURL =
+            "https://ehgt.org/03/08/0308268821e99628b05a19fa54e2fc0fa9ad8f4b-1705560-1012-1470-png_250.jpg"
+        let uniqueCoverURL = "https://example.com/download-cache/\(gid)/cover.jpg"
+        let fixtureHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
+        let detailHTML = try #require(String(bytes: fixtureHTML, encoding: .utf8))
+            .replacingOccurrences(of: fixtureCoverURL, with: uniqueCoverURL)
+        return Data(detailHTML.utf8)
+    }
+
+    static func currentPageImageURL(gid: String, pageIndex: Int) -> URL? {
+        URL(string: "https://example.com/download-cache/\(gid)/image-\(pageIndex).jpg")
     }
 
     static func makeCacheHTMLResponse(url: URL) throws -> HTTPURLResponse {
@@ -167,7 +202,7 @@ private extension DownloadProcessCacheTests {
         pageIndex: Int, oldVersionSignature: String
     ) async throws -> (Set<String>, URL) {
         let currentPageImageURL = try #require(
-            URL(string: "https://example.com/image-\(pageIndex).jpg")
+            Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
         )
         let staleStoredPageURL = try #require(
             URL(string: "https://example.com/stale-image-\(gid)-1.jpg")
@@ -206,47 +241,48 @@ private extension DownloadProcessCacheTests {
         return (cachedKeys, coverURL)
     }
 
-    func setupCacheTestDownload(
-        container: NSPersistentContainer, storage: DownloadFileStorage,
-        gid: String, pageIndex: Int, oldVersionSignature: String
-    ) async throws -> Int {
+    func setupCacheTestDownload(_ setup: CacheTestDownloadSetup) async throws -> Int {
         let staleStoredPageURL = try #require(
-            URL(string: "https://example.com/stale-image-\(gid)-1.jpg")
+            URL(string: "https://example.com/stale-image-\(setup.gid)-1.jpg")
         )
-        let plainPreviewURL = try #require(URL(string: "https://ehgt.org/preview/\(gid)/1.webp"))
+        let plainPreviewURL = try #require(
+            URL(string: "https://ehgt.org/preview/\(setup.gid)/1.webp")
+        )
         let combinedPreviewURL = URLUtil.combinedPreviewURL(
             plainURL: plainPreviewURL, width: "200", height: "300", offset: "40"
         )
         let scaffoldDownload = sampleDownload(
-            gid: gid, title: "Pause Race", status: .partial,
+            gid: setup.gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155,
-            remoteVersionSignature: oldVersionSignature,
-            latestRemoteVersionSignature: oldVersionSignature
+            remoteVersionSignature: setup.oldVersionSignature,
+            latestRemoteVersionSignature: setup.oldVersionSignature
         )
-        let latestPayload = try await DownloadManager(
-            storage: storage, urlSession: .shared
-        ).testingFetchLatestPayload(
-            for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
+        let latestPayload = try await setup.manager.testingFetchLatestPayload(
+            for: scaffoldDownload, mode: .redownload,
+            pageSelection: [setup.pageIndex]
         ).payload
         let updatedPageCount = latestPayload.galleryDetail.pageCount
         let oldPageCount = updatedPageCount - 5
-        #expect(updatedPageCount > pageIndex)
+        #expect(updatedPageCount > setup.pageIndex)
         #expect(oldPageCount > 0)
 
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .partial,
-            completedPageCount: oldPageCount - 1, pageCount: oldPageCount,
-            remoteVersionSignature: oldVersionSignature,
-            latestRemoteVersionSignature: oldVersionSignature
-        )
-        try insertPersistedGalleryState(
-            in: container, gid: gid,
-            previewURLs: [1: combinedPreviewURL], imageURLs: [1: staleStoredPageURL]
-        )
+        try await MainActor.run {
+            try insertPersistedDownload(
+                in: setup.container, gid: setup.gid, status: .partial,
+                completedPageCount: oldPageCount - 1, pageCount: oldPageCount,
+                remoteVersionSignature: setup.oldVersionSignature,
+                latestRemoteVersionSignature: setup.oldVersionSignature
+            )
+            try insertPersistedGalleryState(
+                in: setup.container, gid: setup.gid,
+                previewURLs: [1: combinedPreviewURL],
+                imageURLs: [1: staleStoredPageURL]
+            )
+        }
         try setupCacheTestTemporaryFolder(
-            storage: storage, gid: gid,
-            pageIndex: pageIndex, oldPageCount: oldPageCount,
-            oldVersionSignature: oldVersionSignature
+            storage: setup.storage, gid: setup.gid,
+            pageIndex: setup.pageIndex, oldPageCount: oldPageCount,
+            oldVersionSignature: setup.oldVersionSignature
         )
         return updatedPageCount
     }

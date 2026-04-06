@@ -146,7 +146,7 @@ extension DetailReducer {
         state.didRequestVersionMetadata = true
         return .run { [gallery = state.gallery, previewURLs = state.galleryPreviewURLs, detail] send in
             let metadata: DownloadVersionMetadata?
-            switch await GalleryVersionMetadataRequest(gid: gallery.gid, token: gallery.token).response() {
+            switch await downloadClient.fetchVersionMetadata(gallery.gid, gallery.token) {
             case .success(let fetchedMetadata):
                 metadata = fetchedMetadata
             case .failure:

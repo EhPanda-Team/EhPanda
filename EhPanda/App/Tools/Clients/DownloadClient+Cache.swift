@@ -18,7 +18,7 @@ extension DownloadManager {
     func removeCachedImages(
         for urls: [URL?],
         includeStableAlias: Bool
-    ) {
+    ) async {
         let keys = urls
             .compactMap(\.self)
             .flatMap {
@@ -26,7 +26,7 @@ extension DownloadManager {
             }
 
         for key in Set(keys) {
-            KingfisherManager.shared.cache
+            try? await KingfisherManager.shared.cache
                 .removeImage(forKey: key)
         }
     }
@@ -286,7 +286,7 @@ extension DownloadManager {
             data: cachedData,
             referenceURLs: urls
         ) == nil else {
-            removeCachedImages(
+            await removeCachedImages(
                 for: urls,
                 includeStableAlias: true
             )

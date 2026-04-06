@@ -98,6 +98,13 @@ private struct GalleryVersionMetadataAPIResponse: Decodable {
 struct GalleryVersionMetadataRequest: Request {
     let gid: String
     let token: String
+    let urlSession: URLSession
+
+    init(gid: String, token: String, urlSession: URLSession = .shared) {
+        self.gid = gid
+        self.token = token
+        self.urlSession = urlSession
+    }
 
     var publisher: AnyPublisher<DownloadVersionMetadata, AppError> {
         guard let gid = Int(gid) else {
@@ -115,7 +122,7 @@ struct GalleryVersionMetadataRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map(\.data)
             .tryMap { data in

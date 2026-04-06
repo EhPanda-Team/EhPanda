@@ -14,6 +14,7 @@ struct DownloadClient {
     let refreshDownloads: () async -> Void
     let resumeQueue: () async -> Void
     let badges: ([String]) async -> [String: DownloadBadge]
+    let fetchVersionMetadata: (String, String) async -> Result<DownloadVersionMetadata, AppError>
     let updateRemoteSignature: (String, String?) async -> DownloadBadge
     let enqueue: (DownloadRequestPayload) async -> Result<Void, AppError>
     let togglePause: (String) async -> Result<Void, AppError>
@@ -33,6 +34,8 @@ struct DownloadClient {
         refreshDownloads: @escaping () async -> Void,
         resumeQueue: @escaping () async -> Void,
         badges: @escaping ([String]) async -> [String: DownloadBadge],
+        fetchVersionMetadata: @escaping (String, String) async -> Result<DownloadVersionMetadata, AppError>
+        = { _, _ in .failure(.notFound) },
         updateRemoteSignature: @escaping (String, String?) async -> DownloadBadge,
         enqueue: @escaping (DownloadRequestPayload) async -> Result<Void, AppError>,
         togglePause: @escaping (String) async -> Result<Void, AppError>,
@@ -51,6 +54,7 @@ struct DownloadClient {
         self.refreshDownloads = refreshDownloads
         self.resumeQueue = resumeQueue
         self.badges = badges
+        self.fetchVersionMetadata = fetchVersionMetadata
         self.updateRemoteSignature = updateRemoteSignature
         self.enqueue = enqueue
         self.togglePause = togglePause
@@ -109,6 +113,9 @@ extension DownloadClient {
             refreshDownloads: { await manager.refreshDownloads() },
             resumeQueue: { await manager.resumeQueue() },
             badges: { gids in await manager.badges(for: gids) },
+            fetchVersionMetadata: { gid, token in
+                await manager.fetchVersionMetadata(gid: gid, token: token)
+            },
             updateRemoteSignature: { gid, signature in
                 await manager.updateRemoteSignature(gid: gid, latestSignature: signature)
             },
@@ -158,6 +165,7 @@ extension DownloadClient {
         refreshDownloads: {},
         resumeQueue: {},
         badges: { _ in [:] },
+        fetchVersionMetadata: { _, _ in .failure(.notFound) },
         updateRemoteSignature: { _, _ in .none },
         enqueue: { _ in .success(()) },
         togglePause: { _ in .success(()) },
@@ -180,6 +188,7 @@ extension DownloadClient {
         refreshDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
         resumeQueue: IssueReporting.unimplemented(placeholder: placeholder()),
         badges: IssueReporting.unimplemented(placeholder: placeholder()),
+        fetchVersionMetadata: IssueReporting.unimplemented(placeholder: placeholder()),
         updateRemoteSignature: IssueReporting.unimplemented(placeholder: placeholder()),
         enqueue: IssueReporting.unimplemented(placeholder: placeholder()),
         togglePause: IssueReporting.unimplemented(placeholder: placeholder()),

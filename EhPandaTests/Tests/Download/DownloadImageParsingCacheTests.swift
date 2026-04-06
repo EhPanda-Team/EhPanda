@@ -20,7 +20,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
         let normalImageURL = try #require(
             URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key")
         )

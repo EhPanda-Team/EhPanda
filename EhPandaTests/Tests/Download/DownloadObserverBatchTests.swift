@@ -13,6 +13,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadObserverBatchTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testDownloadInspectorClearsInspectionWhenObservedDownloadDisappears() async {
         let download = sampleDownload(

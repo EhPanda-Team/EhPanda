@@ -95,7 +95,7 @@ extension DownloadManager {
         storedGalleryImageState: CachedGalleryImageState?,
         pages: [PageResult],
         existingDownload: DownloadedGallery
-    ) {
+    ) async {
         let previewURLs = (
             Array(payload.previewURLs.values)
                 + (storedGalleryImageState.map {
@@ -116,7 +116,7 @@ extension DownloadManager {
 
         let urls = Array(Set(previewURLs + pageURLs + coverURLs))
             .map(Optional.some)
-        removeCachedImages(for: urls, includeStableAlias: true)
+        await removeCachedImages(for: urls, includeStableAlias: true)
     }
 
     func resolveSource(

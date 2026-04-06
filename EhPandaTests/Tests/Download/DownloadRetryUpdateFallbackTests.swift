@@ -23,7 +23,9 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, queueingManager) = makeStubbedDownloadManager(rootURL: rootURL, sessionID: sessionID)
+        let (storage, queueingManager) = makeStubbedDownloadManager(
+            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+        )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
         let fallbackResult = try await fetchUpdateFallbackPayload(
@@ -78,7 +80,9 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, immediateManager) = makeStubbedDownloadManager(rootURL: rootURL, sessionID: sessionID)
+        let (storage, immediateManager) = makeStubbedDownloadManager(
+            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+        )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
         let updateResult = try await fetchUpdateFallbackPayload(
