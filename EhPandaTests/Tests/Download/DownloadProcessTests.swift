@@ -23,7 +23,9 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, manager) = makeStubbedDownloadManager(rootURL: rootURL, sessionID: sessionID)
+        let (storage, manager) = makeStubbedDownloadManager(
+            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+        )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
         let (updatedPageCount, updatedVersionSignature) = try await fetchAndInstallStub(

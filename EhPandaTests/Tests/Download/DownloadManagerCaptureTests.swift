@@ -24,7 +24,8 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
         try insertPersistedDownload(
             in: container,
@@ -76,7 +77,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
         try insertPersistedDownload(
             in: container, gid: gid, status: .missingFiles, completedPageCount: 1, pageCount: 2,
             lastError: .init(code: .fileOperationFailed, message: "Page 1 is missing.")

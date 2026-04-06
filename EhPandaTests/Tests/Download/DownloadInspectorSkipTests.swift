@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadInspectorSkipTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testDownloadInspectorSkipsReloadWhenObservedDownloadDidNotChange() async {
         let download = sampleDownload(

@@ -249,7 +249,7 @@ struct DownloadFileStorage {
         do {
             attributes = try fileManager.attributesOfItem(atPath: url.path)
         } catch {
-            return false
+            return canReadNonEmptyFile(at: url)
         }
 
         let isRegularFile = (attributes[.type] as? FileAttributeType).map { $0 == .typeRegular } ?? true
@@ -264,5 +264,15 @@ struct DownloadFileStorage {
         }
 
         return true
+    }
+
+    private func canReadNonEmptyFile(at url: URL) -> Bool {
+        do {
+            let handle = try FileHandle(forReadingFrom: url)
+            defer { try? handle.close() }
+            return try handle.read(upToCount: 1)?.isEmpty == false
+        } catch {
+            return false
+        }
     }
 }

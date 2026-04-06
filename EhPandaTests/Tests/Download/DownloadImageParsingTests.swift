@@ -162,7 +162,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
         let normalImageURL = try #require(
             URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(gid)/1")
         )

@@ -19,7 +19,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
         try insertPersistedDownload(
             in: container, gid: gid, status: .partial, completedPageCount: 1, pageCount: 2
         )
@@ -62,7 +62,8 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(

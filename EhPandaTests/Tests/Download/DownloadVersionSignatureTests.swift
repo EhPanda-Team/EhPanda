@@ -20,7 +20,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
         try insertPersistedDownload(
             in: container,
             gid: gid,
@@ -63,7 +63,8 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
         try insertPersistedDownload(
             in: container,
@@ -95,7 +96,8 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
         try insertPersistedDownload(
             in: container,
@@ -130,7 +132,8 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
         try insertPersistedDownload(
             in: container,

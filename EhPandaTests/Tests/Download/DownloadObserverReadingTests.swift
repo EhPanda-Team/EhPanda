@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadObserverReadingTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testReadingReducerLocalSourceWithoutGalleryStateDoesNotStayLoading() async throws {
         let download = sampleDownload(

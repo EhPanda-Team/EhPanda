@@ -45,7 +45,7 @@ extension DownloadManager {
             galleryState: galleryState,
             galleryURL: galleryURL
         )
-        let versionMetadata = await fetchVersionMetadata(
+        let versionMetadata = await fetchOptionalVersionMetadata(
             gid: download.gid,
             token: download.token
         )
@@ -132,14 +132,25 @@ extension DownloadManager {
         )
     }
 
-    private func fetchVersionMetadata(
+    func fetchVersionMetadata(
+        gid: String,
+        token: String
+    ) async -> Result<DownloadVersionMetadata, AppError> {
+        await GalleryVersionMetadataRequest(
+            gid: gid,
+            token: token,
+            urlSession: urlSession
+        ).response()
+    }
+
+    private func fetchOptionalVersionMetadata(
         gid: String,
         token: String
     ) async -> DownloadVersionMetadata? {
-        switch await GalleryVersionMetadataRequest(
+        switch await fetchVersionMetadata(
             gid: gid,
             token: token
-        ).response() {
+        ) {
         case .success(let metadata):
             return metadata
         case .failure:

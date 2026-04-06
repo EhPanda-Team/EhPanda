@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadsReducerActionTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testDownloadsReducerKeepsIdleStateForEmptyLibrary() async {
         let store = TestStore(initialState: DownloadsReducer.State()) {

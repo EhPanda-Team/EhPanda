@@ -16,9 +16,6 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let sessionID = UUID().uuidString
-        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
-        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         let store = makeUpdateTestStore(
             gid: gallery.gid, gallery: gallery, detail: detail,
@@ -41,9 +38,6 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let sessionID = UUID().uuidString
-        try installGalleryVersionMetadataStub(for: gallery, sessionID: sessionID)
-        defer { uninstallSharedSessionStub(sessionID: sessionID) }
 
         let store = makeUpdateTestStore(
             gid: gallery.gid, gallery: gallery, detail: detail,
@@ -135,6 +129,9 @@ private extension DetailReducerMetadataUpdateTests {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
+                fetchVersionMetadata: { _, _ in
+                    .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
+                },
                 updateRemoteSignature: { _, _ in
                     updateCheckCount.value += 1
                     return .downloaded

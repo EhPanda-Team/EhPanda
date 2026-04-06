@@ -22,7 +22,8 @@ struct DownloadIpBanTests: DownloadFeatureTestCase {
                     .appendingPathComponent(UUID().uuidString, isDirectory: true),
                 fileManager: .default
             ),
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: PersistenceController.shared.container
         )
         let recorder = RequestRecorder()
         let ipBannedHTML = try fixtureData(resource: HTMLFilename.ipBanned.rawValue, pathExtension: "html")

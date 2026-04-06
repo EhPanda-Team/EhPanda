@@ -20,7 +20,9 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, manager) = makeStubbedDownloadManager(rootURL: rootURL, sessionID: sessionID)
+        let (storage, manager) = makeStubbedDownloadManager(
+            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+        )
         let setup = try await setupMinimalSourceTest(
             manager: manager, sessionID: sessionID, gid: gid, pageIndex: pageIndex
         )
@@ -61,7 +63,6 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             pageSelection: [pageIndex]
         )
         await manager.testingProcessDownload(gid: gid)
-
         let secondRunSnapshot = setup.recorder.snapshot()
         #expect(secondRunSnapshot.previewPageNumbers.isEmpty)
         #expect(secondRunSnapshot.mpvRequests == 0)

@@ -142,13 +142,9 @@ extension DownloadFeatureTestCase {
     }
 
     func makeInMemoryContainer() throws -> NSPersistentContainer {
-        let modelURL = try #require(
-            Bundle(for: TestBundleLocator.self).url(forResource: "Model", withExtension: "momd")
-                ?? Bundle.main.url(forResource: "Model", withExtension: "momd")
-        )
-        let model = try #require(NSManagedObjectModel(contentsOf: modelURL))
         let container = NSPersistentContainer(
-            name: UUID().uuidString, managedObjectModel: model
+            name: UUID().uuidString,
+            managedObjectModel: PersistenceController.shared.container.managedObjectModel
         )
         let description = NSPersistentStoreDescription()
         description.type = NSInMemoryStoreType
@@ -271,7 +267,8 @@ struct StubRouteContext {
 extension DownloadFeatureTestCase {
     func makeStubbedDownloadManager(
         rootURL: URL,
-        sessionID: String
+        sessionID: String,
+        persistenceContainer: NSPersistentContainer? = nil
     ) -> (DownloadFileStorage, DownloadManager) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -281,9 +278,11 @@ extension DownloadFeatureTestCase {
         let storage = DownloadFileStorage(
             rootURL: rootURL, fileManager: .default
         )
+        let container = persistenceContainer ?? PersistenceController.shared.container
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: container
         )
         return (storage, manager)
     }

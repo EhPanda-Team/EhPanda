@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testDetailReducerLaunchAutomationDoesNotRedownloadWhenBadgeIsResolved() async {
         let gallery = sampleGallery()

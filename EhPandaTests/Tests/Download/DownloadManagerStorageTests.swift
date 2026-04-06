@@ -23,7 +23,8 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let manager = DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
@@ -79,7 +80,8 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
@@ -138,7 +140,8 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared
+            urlSession: .shared,
+            persistenceContainer: container
         )
 
         try insertPersistedDownload(
