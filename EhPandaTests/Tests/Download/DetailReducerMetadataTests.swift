@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DetailReducerMetadataTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testDetailReducerDoesNotRequestVersionMetadataForUndownloadedGallery() async throws {
         let updateCheckCount = UncheckedBox(0)

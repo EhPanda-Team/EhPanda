@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testDownloadInspectorReducerLoadsInspection() async {
         let download = sampleDownload(
