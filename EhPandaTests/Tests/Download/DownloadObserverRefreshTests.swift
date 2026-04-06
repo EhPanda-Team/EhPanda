@@ -10,6 +10,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadObserverRefreshTests: DownloadFeatureTestCase {
+    @MainActor
     @Test
     func testReadingReducerEmitsOneFinalRefreshWhenRelevantDownloadDisappears() async {
         let gallery = sampleGallery()
@@ -45,6 +46,7 @@ struct DownloadObserverRefreshTests: DownloadFeatureTestCase {
         await store.finish()
     }
 
+    @MainActor
     @Test
     func testPreviewsReducerEmitsOneFinalRefreshWhenRelevantDownloadDisappears() async {
         let gallery = sampleGallery()
