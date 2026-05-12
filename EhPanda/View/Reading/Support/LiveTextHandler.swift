@@ -24,7 +24,7 @@ final class LiveTextHandler {
     private(set) var focusedLiveTextGroup: LiveTextGroup?
 
     @ObservationIgnored
-    private var processingRequests = [VNRequest]()
+    private var analysisTasks = [Int: Task<Void, Never>]()
 
     isolated deinit {
         cancelRequests()
@@ -32,11 +32,12 @@ final class LiveTextHandler {
 
     func cancelRequests() {
         Logger.info("cancelRequests", context: [
-            "processingRequestsCount": processingRequests.count
+            "processingRequestsCount": analysisTasks.count
         ])
-        processingRequests.forEach { request in
-            request.cancel()
+        analysisTasks.values.forEach { task in
+            task.cancel()
         }
+        analysisTasks.removeAll()
     }
 
     func setFocusedLiveTextGroup(_ group: LiveTextGroup) {
@@ -49,89 +50,82 @@ final class LiveTextHandler {
             "index": index, "recognitionLanguages": recognitionLanguages as Any
         ])
 
-        let requestHandler = VNImageRequestHandler(cgImage: cgImage)
-        let textRecognitionRequest = VNRecognizeTextRequest { [weak self] in
-            self?.textRecognitionHandler(request: $0, error: $1, size: size, index: index)
-        }
-        textRecognitionRequest.usesLanguageCorrection = true
-        textRecognitionRequest.preferBackgroundProcessing = true
-        if let languages = recognitionLanguages {
-            textRecognitionRequest.recognitionLanguages = languages
-        }
-
-        processingRequests.append(textRecognitionRequest)
-        DispatchQueue.global(qos: .utility).async { [weak self] in
-            guard let self = self else { return }
+        analysisTasks[index]?.cancel()
+        analysisTasks[index] = Task { [weak self] in
             do {
-                try requestHandler.perform([textRecognitionRequest])
-            } catch {
-                self.removeRequest(textRecognitionRequest)
-                Logger.info("Unable to perform the requests.", context: ["error": error])
-            }
-        }
-    }
-
-    private func removeRequest(_ request: VNRequest) {
-        if let index = processingRequests.firstIndex(of: request) {
-            processingRequests.remove(at: index)
-        }
-    }
-
-    private func textRecognitionHandler(request: VNRequest, error: Error?, size: CGSize, index: Int) {
-        Logger.info("textRecognitionHandler", context: [
-            "request": request, "error": error as Any, "index": index
-        ])
-        removeRequest(request)
-
-        guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
-
-        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-            guard let self = self else { return }
-            let blocks: [LiveTextBlock] = observations.compactMap { observation in
-                guard let recognizedText = observation.topCandidates(1).first?.string else { return nil }
-                return .init(
-                    text: recognizedText,
-                    bounds: .init(
-                        topLeft: observation.topLeft.verticalReversed,
-                        topRight: observation.topRight.verticalReversed,
-                        bottomLeft: observation.bottomLeft.verticalReversed,
-                        bottomRight: observation.bottomRight.verticalReversed
-                    )
+                let groups = try await Self.recognizeTextGroups(
+                    in: cgImage,
+                    size: size,
+                    recognitionLanguages: recognitionLanguages
                 )
+                guard !Task.isCancelled else { return }
+                self?.liveTextGroups[index] = groups
+            } catch is CancellationError {
+            } catch {
+                Logger.info("Unable to perform the requests.", context: [
+                    "error": error, "index": index
+                ])
             }
-
-            var groupData = [[LiveTextBlock]]()
-            blocks.forEach { newItem in
-                if let groupIndex = groupData.firstIndex(where: { items in
-                    items.first { item in
-                        let angle = abs(item.bounds.getAngle(size) - newItem.bounds.getAngle(size))
-                            .truncatingRemainder(dividingBy: 360.0)
-                        let isAngleValid = angle < 5 || angle > (360 - 5)
-                        let aHeight = item.bounds.getHeight(size)
-                        let bHeight = newItem.bounds.getHeight(size)
-                        let isHeightValid = abs(aHeight - bHeight) < (min(aHeight, bHeight) / 2)
-
-                        guard isAngleValid && isHeightValid else { return false }
-                        return self.polygonsIntersecting(
-                            lhs: item.bounds.expandingHalfHeight(size).edges,
-                            rhs: newItem.bounds.expandingHalfHeight(size).edges
-                        )
-                    } != nil
-                }) {
-                    groupData[groupIndex].append(newItem)
-                } else {
-                    groupData.append([newItem])
-                }
-            }
-
-            let groups = groupData.compactMap(LiveTextGroup.init)
-            DispatchQueue.main.async {
-                self.liveTextGroups[index] = groups
-            }
+            self?.analysisTasks[index] = nil
         }
     }
 
-    private func polygonsIntersecting(lhs: [CGPoint], rhs: [CGPoint]) -> Bool {
+    @concurrent
+    private static func recognizeTextGroups(
+        in cgImage: CGImage,
+        size: CGSize,
+        recognitionLanguages: [String]?
+    ) async throws -> [LiveTextGroup] {
+        var request = RecognizeTextRequest()
+        request.usesLanguageCorrection = true
+        if let recognitionLanguages {
+            request.recognitionLanguages = recognitionLanguages.map {
+                Locale.Language(identifier: $0)
+            }
+        }
+
+        let observations = try await request.perform(on: cgImage)
+        let blocks: [LiveTextBlock] = observations.compactMap { observation in
+            guard let recognizedText = observation.topCandidates(1).first?.string else { return nil }
+            return .init(
+                text: recognizedText,
+                bounds: .init(
+                    topLeft: observation.topLeft.cgPoint.verticalReversed,
+                    topRight: observation.topRight.cgPoint.verticalReversed,
+                    bottomLeft: observation.bottomLeft.cgPoint.verticalReversed,
+                    bottomRight: observation.bottomRight.cgPoint.verticalReversed
+                )
+            )
+        }
+
+        var groupData = [[LiveTextBlock]]()
+        blocks.forEach { newItem in
+            if let groupIndex = groupData.firstIndex(where: { items in
+                items.first { item in
+                    let angle = abs(item.bounds.getAngle(size) - newItem.bounds.getAngle(size))
+                        .truncatingRemainder(dividingBy: 360.0)
+                    let isAngleValid = angle < 5 || angle > (360 - 5)
+                    let aHeight = item.bounds.getHeight(size)
+                    let bHeight = newItem.bounds.getHeight(size)
+                    let isHeightValid = abs(aHeight - bHeight) < (min(aHeight, bHeight) / 2)
+
+                    guard isAngleValid && isHeightValid else { return false }
+                    return polygonsIntersecting(
+                        lhs: item.bounds.expandingHalfHeight(size).edges,
+                        rhs: newItem.bounds.expandingHalfHeight(size).edges
+                    )
+                } != nil
+            }) {
+                groupData[groupIndex].append(newItem)
+            } else {
+                groupData.append([newItem])
+            }
+        }
+
+        return groupData.compactMap(LiveTextGroup.init)
+    }
+
+    nonisolated private static func polygonsIntersecting(lhs: [CGPoint], rhs: [CGPoint]) -> Bool {
         guard !lhs.isEmpty, !rhs.isEmpty, lhs.count == rhs.count else { return false }
         for points in [lhs, rhs] {
             for index1 in 0..<points.count {

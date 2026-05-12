@@ -290,7 +290,9 @@ extension ReadingView {
             return
         }
         let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
-        retrieveCachedImage(cacheKeys: ArraySlice(cacheKeys), index: index)
+        Task {
+            await retrieveCachedImage(cacheKeys: ArraySlice(cacheKeys), index: index)
+        }
     }
 
     private func analyzeLocalImage(at imageURL: URL, index: Int) {
@@ -306,28 +308,27 @@ extension ReadingView {
         }
     }
 
-    private func retrieveCachedImage(cacheKeys: ArraySlice<String>, index: Int) {
+    private func retrieveCachedImage(cacheKeys: ArraySlice<String>, index: Int) async {
         guard let cacheKey = cacheKeys.first else {
             Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
             return
         }
-        KingfisherManager.shared.cache.retrieveImage(forKey: cacheKey) { result in
-            switch result {
-            case .success(let result):
-                if let image = result.image, let cgImage = image.cgImage {
-                    liveTextHandler.analyzeImage(
-                        cgImage, size: image.size, index: index, recognitionLanguages:
-                            store.galleryDetail?.language.codes
-                    )
-                } else {
-                    retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
-                }
-            case .failure:
-                if cacheKeys.count > 1 {
-                    retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
-                } else {
-                    Logger.info("analyzeImageForLiveText failed", context: ["index": index])
-                }
+
+        do {
+            let result = try await KingfisherManager.shared.cache.retrieveImage(forKey: cacheKey)
+            if let image = result.image, let cgImage = image.cgImage {
+                liveTextHandler.analyzeImage(
+                    cgImage, size: image.size, index: index, recognitionLanguages:
+                        store.galleryDetail?.language.codes
+                )
+            } else {
+                await retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
+            }
+        } catch {
+            if cacheKeys.count > 1 {
+                await retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
+            } else {
+                Logger.info("analyzeImageForLiveText failed", context: ["index": index])
             }
         }
     }

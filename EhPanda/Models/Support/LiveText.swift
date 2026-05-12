@@ -7,7 +7,7 @@ import SwiftUI
 import Foundation
 
 // MARK: LiveTextBounds
-struct LiveTextBounds: Equatable {
+struct LiveTextBounds: Equatable, Sendable {
     let topLeft: CGPoint
     let topRight: CGPoint
     let bottomLeft: CGPoint
@@ -88,7 +88,7 @@ struct LiveTextBounds: Equatable {
 }
 
 // MARK: LiveTextGroup
-struct LiveTextGroup: Equatable, Identifiable {
+struct LiveTextGroup: Equatable, Identifiable, Sendable {
     var id: UUID = .init()
     let blocks: [LiveTextBlock]
     let text: String
@@ -130,7 +130,7 @@ struct LiveTextGroup: Equatable, Identifiable {
 }
 
 // MARK: LiveTextBlock
-struct LiveTextBlock: Equatable, Identifiable {
+struct LiveTextBlock: Equatable, Identifiable, Sendable {
     var id: UUID = .init()
 
     let text: String
