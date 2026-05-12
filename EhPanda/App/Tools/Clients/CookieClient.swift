@@ -6,12 +6,12 @@
 import Foundation
 import ComposableArchitecture
 
-struct CookieClient {
-    let clearAll: () -> Void
-    let getCookie: (URL, String) -> CookieValue
-    private let removeCookie: (URL, String) -> Void
-    private let checkExistence: (URL, String) -> Bool
-    private let initializeCookie: (HTTPCookie, String) -> HTTPCookie
+struct CookieClient: Sendable {
+    let clearAll: @Sendable () -> Void
+    let getCookie: @Sendable (URL, String) -> CookieValue
+    private let removeCookie: @Sendable (URL, String) -> Void
+    private let checkExistence: @Sendable (URL, String) -> Bool
+    private let initializeCookie: @Sendable (HTTPCookie, String) -> HTTPCookie
 }
 
 extension CookieClient {

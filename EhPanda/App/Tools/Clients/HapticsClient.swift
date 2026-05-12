@@ -6,9 +6,9 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct HapticsClient {
-    let generateFeedback: (UIImpactFeedbackGenerator.FeedbackStyle) -> Void
-    let generateNotificationFeedback: (UINotificationFeedbackGenerator.FeedbackType) -> Void
+struct HapticsClient: Sendable {
+    let generateFeedback: @MainActor @Sendable (UIImpactFeedbackGenerator.FeedbackStyle) -> Void
+    let generateNotificationFeedback: @MainActor @Sendable (UINotificationFeedbackGenerator.FeedbackType) -> Void
 }
 
 extension HapticsClient {

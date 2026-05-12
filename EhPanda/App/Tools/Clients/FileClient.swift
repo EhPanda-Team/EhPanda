@@ -7,11 +7,11 @@ import Combine
 import Foundation
 import ComposableArchitecture
 
-struct FileClient {
-    let createFile: (String, Data?) -> Bool
-    let fetchLogs: () async -> Result<[Log], AppError>
-    let deleteLog: (String) async -> Result<String, AppError>
-    let importTagTranslator: (URL) async -> Result<TagTranslator, AppError>
+struct FileClient: Sendable {
+    let createFile: @Sendable (String, Data?) -> Bool
+    let fetchLogs: @Sendable () async -> Result<[Log], AppError>
+    let deleteLog: @Sendable (String) async -> Result<String, AppError>
+    let importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
 }
 
 extension FileClient {

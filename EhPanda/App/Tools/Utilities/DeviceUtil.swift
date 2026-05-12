@@ -6,6 +6,7 @@
 import SwiftUI
 import Foundation
 
+@MainActor
 struct DeviceUtil {
     static var isPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
@@ -32,6 +33,10 @@ struct DeviceUtil {
         UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene }).last?
             .windows.last
+    }
+
+    private static var currentScreen: UIScreen? {
+        keyWindow?.windowScene?.screen ?? anyWindow?.windowScene?.screen
     }
 
     static var isLandscape: Bool {
@@ -69,10 +74,10 @@ struct DeviceUtil {
     }
 
     static var absScreenW: CGFloat {
-        UIScreen.main.bounds.size.width
+        currentScreen?.bounds.size.width ?? 0
     }
 
     static var absScreenH: CGFloat {
-        UIScreen.main.bounds.size.height
+        currentScreen?.bounds.size.height ?? 0
     }
 }

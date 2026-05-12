@@ -6,6 +6,7 @@
 import SwiftUI
 import AudioToolbox
 
+@MainActor
 struct HapticsUtil {
     static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         guard !isLegacyTapticEngine else {

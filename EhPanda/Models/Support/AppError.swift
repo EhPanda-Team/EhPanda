@@ -6,7 +6,7 @@
 import Foundation
 import SFSafeSymbols
 
-enum AppError: Error, Identifiable, Equatable, Hashable {
+enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     var id: String { localizedDescription }
 
     case databaseCorrupted(String?)

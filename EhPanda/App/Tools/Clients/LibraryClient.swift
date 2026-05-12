@@ -12,12 +12,12 @@ import UIImageColors
 import KingfisherWebP
 import ComposableArchitecture
 
-struct LibraryClient {
-    let initializeLogger: () -> Void
-    let initializeWebImage: () -> Void
-    let clearWebImageDiskCache: () -> Void
-    let analyzeImageColors: (UIImage) async -> UIImageColors?
-    let calculateWebImageDiskCacheSize: () async -> UInt?
+struct LibraryClient: Sendable {
+    let initializeLogger: @Sendable () -> Void
+    let initializeWebImage: @Sendable () -> Void
+    let clearWebImageDiskCache: @Sendable () -> Void
+    let analyzeImageColors: @Sendable (UIImage) async -> [Color]?
+    let calculateWebImageDiskCacheSize: @Sendable () async -> UInt?
 }
 
 extension LibraryClient {
@@ -66,7 +66,15 @@ extension LibraryClient {
         analyzeImageColors: { image in
             await withCheckedContinuation { continuation in
                 image.getColors(quality: .lowest) { colors in
-                    continuation.resume(returning: colors)
+                    continuation.resume(
+                        returning: colors.map {
+                            [
+                                $0.primary, $0.secondary,
+                                $0.detail, $0.background
+                            ]
+                            .map(Color.init)
+                        }
+                    )
                 }
             }
         },
@@ -110,7 +118,10 @@ extension LibraryClient {
         initializeLogger: IssueReporting.unimplemented(placeholder: placeholder()),
         initializeWebImage: IssueReporting.unimplemented(placeholder: placeholder()),
         clearWebImageDiskCache: IssueReporting.unimplemented(placeholder: placeholder()),
-        analyzeImageColors: IssueReporting.unimplemented(placeholder: placeholder()),
+        analyzeImageColors: { _ in
+            reportIssue("Unimplemented: LibraryClient.analyzeImageColors")
+            return .none
+        },
         calculateWebImageDiskCacheSize:
             IssueReporting.unimplemented(placeholder: placeholder())
     )

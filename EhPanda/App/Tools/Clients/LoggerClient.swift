@@ -5,9 +5,9 @@
 
 import ComposableArchitecture
 
-struct LoggerClient {
-    let info: (Any, Any?) -> Void
-    let error: (Any, Any?) -> Void
+struct LoggerClient: Sendable {
+    let info: @Sendable (Any, Any?) -> Void
+    let error: @Sendable (Any, Any?) -> Void
 }
 
 extension LoggerClient {

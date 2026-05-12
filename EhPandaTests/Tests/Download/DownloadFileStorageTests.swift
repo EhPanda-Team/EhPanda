@@ -208,13 +208,13 @@ struct DownloadFileStorageTests {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let fileManager = ThrowingAttributesFileManager(failingPath: rootURL.path)
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: fileManager)
-
-        try storage.ensureRootDirectory()
+        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
         let fileURL = rootURL.appendingPathComponent("cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: fileURL, options: .atomic)
-        fileManager.failingPath = fileURL.path
+        let storage = DownloadFileStorage(
+            rootURL: rootURL,
+            fileManager: ThrowingAttributesFileManager(failingPath: fileURL.path)
+        )
 
         #expect(storage.isReadableAssetFile(at: fileURL))
         #expect(FileManager.default.fileExists(atPath: fileURL.path))
@@ -240,7 +240,7 @@ struct DownloadFileStorageTests {
 }
 
 private final class ThrowingAttributesFileManager: FileManager {
-    var failingPath: String
+    let failingPath: String
 
     init(failingPath: String) {
         self.failingPath = failingPath

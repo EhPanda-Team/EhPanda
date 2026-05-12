@@ -5,7 +5,7 @@
 
 import CoreData
 
-struct PersistenceController {
+struct PersistenceController: Sendable {
     static let shared = PersistenceController()
     let migrator = CoreDataMigrator()
 
@@ -20,14 +20,14 @@ struct PersistenceController {
 
 // MARK: Preparation
 extension PersistenceController {
-    func prepare(completion: @escaping (Result<Void, AppError>) -> Void) {
+    func prepare(completion: @escaping @Sendable (Result<Void, AppError>) -> Void) {
         do {
             try loadPersistentStore(completion: completion)
         } catch {
             completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
         }
     }
-    func rebuild(completion: @escaping (Result<Void, AppError>) -> Void) {
+    func rebuild(completion: @escaping @Sendable (Result<Void, AppError>) -> Void) {
         guard let storeURL = container.persistentStoreDescriptions.first?.url else {
             completion(.failure(.databaseCorrupted("PersistentContainer was not set up properly.")))
             return
@@ -49,7 +49,9 @@ extension PersistenceController {
             }
         }
     }
-    private func loadPersistentStore(completion: @escaping (Result<Void, AppError>) -> Void) throws {
+    private func loadPersistentStore(
+        completion: @escaping @Sendable (Result<Void, AppError>) -> Void
+    ) throws {
         try migrateStoreIfNeeded { result in
             switch result {
             case .success:
@@ -66,7 +68,9 @@ extension PersistenceController {
             }
         }
     }
-    private func migrateStoreIfNeeded(completion: @escaping (Result<Void, AppError>) -> Void) throws {
+    private func migrateStoreIfNeeded(
+        completion: @escaping @Sendable (Result<Void, AppError>) -> Void
+    ) throws {
         guard let storeURL = container.persistentStoreDescriptions.first?.url else {
             throw AppError.databaseCorrupted("PersistentContainer was not set up properly.")
         }

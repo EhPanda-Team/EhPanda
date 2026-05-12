@@ -27,7 +27,7 @@ extension ReadingReducer {
     func makeBody() -> some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.showsSliderPreview) { _, _ in
-                .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
+                .run(operation: { _ in await hapticsClient.generateFeedback(.soft) })
             }
         mainReducer
     }
@@ -50,7 +50,7 @@ extension ReadingReducer {
                 return reduceOrientation(isPortrait: isPortrait)
 
             case .onPerformDismiss:
-                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
+                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
                 return reduceOnAppear(gid: gid, enablesLandscape: enablesLandscape)
@@ -79,7 +79,7 @@ extension ReadingReducer {
                 return .send(.fetchImage(.save(imageURL.isAnimatedImage), imageURL))
 
             case .saveImageDone(let isSucceeded):
-                state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
+                state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error()
                 return .send(.setNavigation(.hud))
 
             case .shareImage(let imageURL):
@@ -215,10 +215,10 @@ extension ReadingReducer {
     func reduceOrientation(isPortrait: Bool) -> Effect<Action> {
         var effects = [Effect<Action>]()
         if isPortrait {
-            effects.append(.run(operation: { _ in appDelegateClient.setPortraitOrientationMask() }))
+            effects.append(.run(operation: { _ in await appDelegateClient.setPortraitOrientationMask() }))
             effects.append(.run(operation: { _ in await appDelegateClient.setPortraitOrientation() }))
         } else {
-            effects.append(.run(operation: { _ in appDelegateClient.setAllOrientationMask() }))
+            effects.append(.run(operation: { _ in await appDelegateClient.setAllOrientationMask() }))
         }
         return .merge(effects)
     }
@@ -308,7 +308,7 @@ extension ReadingReducer {
                 }
             }
         } else {
-            state.hudConfig = .error
+            state.hudConfig = .error()
             return .send(.setNavigation(.hud))
         }
     }

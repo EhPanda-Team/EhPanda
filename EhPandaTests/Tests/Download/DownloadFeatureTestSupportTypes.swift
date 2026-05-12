@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import Synchronization
 @testable import EhPanda
 
 // MARK: - Supporting Types
@@ -126,36 +127,28 @@ final class FailFastURLProtocol: URLProtocol {
 final class SharedSessionStubURLProtocol: URLProtocol {
     static let headerKey = "X-TestSession-ID"
 
-    private static let lock = NSLock()
-    private static var handlers:
-        [String: (URLRequest) throws -> (HTTPURLResponse, Data)] = [:]
+    private static let handlers = SharedSessionStubHandlers()
 
     static func setHandler(
         for sessionID: String,
-        handler: @escaping (URLRequest) throws -> (HTTPURLResponse, Data)
+        handler: @escaping @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)
     ) {
-        lock.lock()
-        defer { lock.unlock() }
-        handlers[sessionID] = handler
+        handlers.setHandler(for: sessionID, handler: handler)
     }
 
     static func removeHandler(for sessionID: String) {
-        lock.lock()
-        defer { lock.unlock() }
-        handlers[sessionID] = nil
+        handlers.removeHandler(for: sessionID)
     }
 
     private static func handler(
         for request: URLRequest
-    ) -> ((URLRequest) throws -> (HTTPURLResponse, Data))? {
+    ) -> (@Sendable (URLRequest) throws -> (HTTPURLResponse, Data))? {
         guard let sessionID = request.value(
             forHTTPHeaderField: headerKey
         ) else {
             return nil
         }
-        lock.lock()
-        defer { lock.unlock() }
-        return handlers[sessionID]
+        return handlers.handler(for: sessionID)
     }
 
     override static func canInit(with request: URLRequest) -> Bool {
@@ -192,4 +185,27 @@ final class SharedSessionStubURLProtocol: URLProtocol {
     }
 
     override func stopLoading() {}
+}
+
+private final class SharedSessionStubHandlers: Sendable {
+    private let handlers = Mutex<
+        [String: @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)]
+    >([:])
+
+    func setHandler(
+        for sessionID: String,
+        handler: @escaping @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)
+    ) {
+        handlers.withLock { $0[sessionID] = handler }
+    }
+
+    func removeHandler(for sessionID: String) {
+        handlers.withLock { $0[sessionID] = nil }
+    }
+
+    func handler(
+        for sessionID: String
+    ) -> (@Sendable (URLRequest) throws -> (HTTPURLResponse, Data))? {
+        handlers.withLock { $0[sessionID] }
+    }
 }

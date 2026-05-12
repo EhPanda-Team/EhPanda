@@ -212,11 +212,11 @@ extension DetailReducer {
             state.downloadBadge = .queued
             state.hasLoadedDownloadBadge = true
             return .merge(
-                .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
                 .send(.fetchDownloadBadge)
             )
         }
-        return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+        return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
     }
 
     private func handleToggleDownloadPause(state: inout State) -> Effect<Action> {
@@ -243,11 +243,11 @@ extension DetailReducer {
             }
             state.hasLoadedDownloadBadge = state.downloadBadge != .none
             return .merge(
-                .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
                 .send(.fetchDownloadBadge)
             )
         }
-        return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+        return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
     }
 
     private func handleRetryDownload(
@@ -270,11 +270,11 @@ extension DetailReducer {
             state.downloadBadge = .queued
             state.hasLoadedDownloadBadge = true
             return .merge(
-                .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
                 .send(.fetchDownloadBadge)
             )
         }
-        return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+        return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
     }
 
     private func handleDeleteDownload(state: State) -> Effect<Action> {
@@ -293,10 +293,10 @@ extension DetailReducer {
             state.isDownloadContext = false
             state.shouldCheckForRemoteUpdates = false
             return .merge(
-                .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) }),
+                .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
                 .send(.fetchDownloadBadge)
             )
         }
-        return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+        return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
     }
 }

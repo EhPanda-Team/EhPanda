@@ -6,17 +6,19 @@
 import SwiftUI
 import Dependencies
 
-struct DeviceClient {
-    let isPad: () -> Bool
-    let absWindowW: () -> Double
-    let absWindowH: () -> Double
-    let touchPoint: () -> CGPoint?
+struct DeviceClient: Sendable {
+    let isPad: @Sendable () async -> Bool
+    let absWindowW: @MainActor @Sendable () -> Double
+    let absWindowH: @MainActor @Sendable () -> Double
+    let touchPoint: @MainActor @Sendable () -> CGPoint?
 }
 
 extension DeviceClient {
     static let live: Self = .init(
         isPad: {
-            DeviceUtil.isPad
+            await MainActor.run {
+                DeviceUtil.isPad
+            }
         },
         absWindowW: {
             DeviceUtil.absWindowW

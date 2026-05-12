@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -44,7 +43,7 @@ struct ReadingReducer {
 
         var readingProgress: Int = .zero
         var forceRefreshID: UUID = .init()
-        var hudConfig: TTProgressHUDConfig = .loading
+        var hudConfig: ProgressHUDConfigState = .loading()
 
         var webImageLoadSuccessIndices = Set<Int>()
         var imageURLLoadingStates = [Int: LoadingState]()
@@ -88,7 +87,7 @@ struct ReadingReducer {
         }
 
         // Image
-        func containerDataSource(setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> [Int] {
+        func containerDataSource(setting: Setting, isLandscape: Bool) -> [Int] {
             let defaultData = Array(1...gallery.pageCount)
             guard isLandscape && setting.enablesDualPageMode
                     && setting.readingDirection != .vertical
@@ -101,7 +100,7 @@ struct ReadingReducer {
             return data
         }
         func imageContainerConfigs(
-            index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape
+            index: Int, setting: Setting, isLandscape: Bool
         ) -> ImageStackConfig {
             let direction = setting.readingDirection
             let isReversed = direction == .rightToLeft

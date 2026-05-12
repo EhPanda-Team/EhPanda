@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -20,7 +19,7 @@ struct AppRouteReducer {
     @ObservableState
     struct State: Equatable {
         var route: Route?
-        var hudConfig: TTProgressHUDConfig = .loading
+        var hudConfig: ProgressHUDConfigState = .loading()
 
         var detailState: Heap<DetailReducer.State?>
 
@@ -32,7 +31,7 @@ struct AppRouteReducer {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
-        case setHUDConfig(TTProgressHUDConfig)
+        case setHUDConfig(ProgressHUDConfigState)
         case clearSubStates
 
         case detectClipboardURL
@@ -166,7 +165,7 @@ struct AppRouteReducer {
                 case .failure:
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(.setHUDConfig(.error))
+                        await send(.setHUDConfig(.error()))
                     }
                 }
 

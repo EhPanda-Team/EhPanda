@@ -195,19 +195,19 @@ extension DetailReducer {
     private func handleRateGallery(state: State) -> Effect<Action> {
         guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
         else { return .none }
-        return .run { [state] send in
+        return .run { [apiKey = state.apiKey, token = state.gallery.token, rating = state.userRating] send in
             let response = await RateGalleryRequest(
-                apiuid: apiuid, apikey: state.apiKey,
-                gid: gid, token: state.gallery.token, rating: state.userRating
+                apiuid: apiuid, apikey: apiKey,
+                gid: gid, token: token, rating: rating
             ).response()
             await send(.anyGalleryOpsDone(response))
         }.cancellable(id: CancelID.rateGallery)
     }
 
     private func handleFavorGallery(favIndex: Int, state: State) -> Effect<Action> {
-        .run { [state] send in
+        .run { [gid = state.gallery.id, token = state.gallery.token] send in
             let response = await FavorGalleryRequest(
-                gid: state.gallery.id, token: state.gallery.token, favIndex: favIndex
+                gid: gid, token: token, favIndex: favIndex
             ).response()
             await send(.anyGalleryOpsDone(response))
         }
@@ -236,23 +236,23 @@ extension DetailReducer {
     private func handleVoteTag(tag: String, vote: Int, state: State) -> Effect<Action> {
         guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
         else { return .none }
-        return .run { [state] send in
+        return .run { [apiKey = state.apiKey, token = state.gallery.token] send in
             let response = await VoteGalleryTagRequest(
-                apiuid: apiuid, apikey: state.apiKey,
-                gid: gid, token: state.gallery.token, tag: tag, vote: vote
+                apiuid: apiuid, apikey: apiKey,
+                gid: gid, token: token, tag: tag, vote: vote
             ).response()
             await send(.anyGalleryOpsDone(response))
         }
         .cancellable(id: CancelID.voteTag)
     }
 
-    private func handleAnyGalleryOpsDone(result: Result<Any, AppError>) -> Effect<Action> {
+    private func handleAnyGalleryOpsDone(result: Result<Void, AppError>) -> Effect<Action> {
         if case .success = result {
             return .merge(
                 .send(.fetchGalleryDetail),
-                .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
             )
         }
-        return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+        return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
     }
 }

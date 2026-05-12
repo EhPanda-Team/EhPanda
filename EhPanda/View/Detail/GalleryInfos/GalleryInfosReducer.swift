@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -16,7 +15,7 @@ struct GalleryInfosReducer {
     @ObservableState
     struct State: Equatable {
         var route: Route?
-        var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
+        var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
     }
 
     enum Action: BindableAction, Equatable {
@@ -39,7 +38,7 @@ struct GalleryInfosReducer {
                 state.route = .hud
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(text) }),
-                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
                 )
             }
         }

@@ -31,7 +31,7 @@ struct Setting: Codable, Equatable {
     var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
-    var listDisplayMode: ListDisplayMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
+    var listDisplayMode: ListDisplayMode = .detail
     var preferredColorScheme = PreferredColorScheme.automatic
     var accentColor: Color = .blue
     var appIconType: AppIconType = .default
@@ -214,7 +214,7 @@ extension Setting {
         backgroundBlurRadius = (try? container?.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius)) ?? 10
         autoLockPolicy = (try? container?.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy)) ?? .never
         // Appearance
-        listDisplayMode = (try? container?.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode)) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)
+        listDisplayMode = (try? container?.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode)) ?? .detail
         preferredColorScheme = (try? container?.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme)) ?? .automatic
         accentColor = (try? container?.decodeIfPresent(Color.self, forKey: .accentColor)) ?? .blue
         appIconType = (try? container?.decodeIfPresent(AppIconType.self, forKey: .appIconType)) ?? .default

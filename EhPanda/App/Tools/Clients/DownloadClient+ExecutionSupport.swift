@@ -220,7 +220,7 @@ extension DownloadManager {
         temporaryFolderURL: URL,
         shouldReuse: Bool,
         seedContext: RepairSeedContext,
-        localFileManager: FileManager
+        localFileManager: DownloadFileManager
     ) throws {
         if !shouldReuse {
             try? localFileManager.removeItem(at: temporaryFolderURL)

@@ -6,9 +6,9 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AppDelegateClient {
-    let setOrientation: @MainActor (UIInterfaceOrientationMask) -> Void
-    let setOrientationMask: (UIInterfaceOrientationMask) -> Void
+struct AppDelegateClient: Sendable {
+    let setOrientation: @MainActor @Sendable (UIInterfaceOrientationMask) -> Void
+    let setOrientationMask: @MainActor @Sendable (UIInterfaceOrientationMask) -> Void
 }
 
 extension AppDelegateClient {
@@ -25,9 +25,11 @@ extension AppDelegateClient {
     func setPortraitOrientation() {
         setOrientation(.portrait)
     }
+    @MainActor
     func setAllOrientationMask() {
         setOrientationMask([.all])
     }
+    @MainActor
     func setPortraitOrientationMask() {
         setOrientationMask([.portrait, .portraitUpsideDown])
     }

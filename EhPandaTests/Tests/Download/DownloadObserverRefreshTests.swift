@@ -9,6 +9,7 @@ import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
+@MainActor
 struct DownloadObserverRefreshTests: DownloadFeatureTestCase {
     @MainActor
     @Test

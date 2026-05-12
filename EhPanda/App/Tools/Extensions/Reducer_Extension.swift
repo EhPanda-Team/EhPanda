@@ -7,18 +7,18 @@ import SwiftUI
 import ComposableArchitecture
 
 extension Reducer {
-    func haptics<Enum, Case>(
+    func haptics<Enum: Sendable, Case: Sendable>(
         unwrapping enum: @escaping (State) -> Enum?,
         case caseKeyPath: CaseKeyPath<Enum, Case>,
         hapticsClient: HapticsClient,
         style: UIImpactFeedbackGenerator.FeedbackStyle = .light
     ) -> some Reducer<State, Action> {
         onBecomeNonNil(unwrapping: `enum`, case: caseKeyPath) { _, _ in
-            .run(operation: { _ in hapticsClient.generateFeedback(style) })
+            .run(operation: { _ in await hapticsClient.generateFeedback(style) })
         }
     }
 
-    private func onBecomeNonNil<Enum, Case>(
+    private func onBecomeNonNil<Enum: Sendable, Case: Sendable>(
         unwrapping enum: @escaping (State) -> Enum?,
         case caseKeyPath: CaseKeyPath<Enum, Case>,
         perform additionalEffects: @escaping (inout State, Action) -> Effect<Action>

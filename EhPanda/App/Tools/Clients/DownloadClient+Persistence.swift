@@ -70,7 +70,7 @@ extension DownloadManager {
     func updateDownloadRecord(
         gid: String,
         createIfMissing: Bool = true,
-        update: @escaping (DownloadedGalleryMO) -> Void
+        update: @MainActor @Sendable @escaping (DownloadedGalleryMO) -> Void
     ) async throws {
         try await MainActor.run {
             let context = persistenceContainer.viewContext
@@ -191,7 +191,7 @@ extension DownloadManager {
         }
     }
 
-    private func applyFailureStatus(
+    nonisolated private func applyFailureStatus(
         to record: DownloadedGalleryMO,
         context: FailureContext,
         workingCompletedPageCount: Int,
@@ -217,7 +217,7 @@ extension DownloadManager {
         }
     }
 
-    private func applyRepairFailureStatus(
+    nonisolated private func applyRepairFailureStatus(
         to record: DownloadedGalleryMO,
         context: FailureContext
     ) {
@@ -236,7 +236,7 @@ extension DownloadManager {
             ?? context.originalDownload.latestRemoteVersionSignature
     }
 
-    private func applyFallbackFailureStatus(
+    nonisolated private func applyFallbackFailureStatus(
         to record: DownloadedGalleryMO,
         context: FailureContext
     ) {

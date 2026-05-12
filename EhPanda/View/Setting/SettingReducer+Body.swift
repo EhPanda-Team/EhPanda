@@ -61,8 +61,13 @@ extension SettingReducer {
                 var effects: [Effect<Action>] = [
                     .send(.syncSetting)
                 ]
-                if !state.setting.enablesLandscape && !deviceClient.isPad() {
-                    effects.append(.run(operation: { _ in appDelegateClient.setPortraitOrientationMask() }))
+                if !state.setting.enablesLandscape {
+                    effects.append(
+                        .run { _ in
+                            guard await !deviceClient.isPad() else { return }
+                            await appDelegateClient.setPortraitOrientationMask()
+                        }
+                    )
                 }
                 return .merge(effects)
             }
@@ -81,7 +86,7 @@ extension SettingReducer {
             .onChange(of: \.setting.bypassesSNIFiltering) { _, state in
                 .merge(
                     .send(.syncSetting),
-                    .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                    .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                     .run(operation: { [value = state.setting.bypassesSNIFiltering] _ in dfClient.setActive(value) })
                 )
             }
@@ -106,7 +111,12 @@ extension SettingReducer {
                 return .none
 
             case .syncAppIconType:
-                if let iconName = uiApplicationClient.alternateIconName() {
+                return .run { send in
+                    await send(.syncAppIconTypeDone(await uiApplicationClient.alternateIconName()))
+                }
+
+            case .syncAppIconTypeDone(let iconName):
+                if let iconName {
                     state.setting.appIconType = AppIconType.allCases.filter({
                         iconName.contains($0.filename)
                     }).first ?? .default

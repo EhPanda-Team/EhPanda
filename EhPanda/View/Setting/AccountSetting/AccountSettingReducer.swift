@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -23,7 +22,7 @@ struct AccountSettingReducer {
         var route: Route?
         var ehCookiesState: CookiesState = .empty(.ehentai)
         var exCookiesState: CookiesState = .empty(.exhentai)
-        var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
+        var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
 
         var loginState = LoginReducer.State()
         var ehSettingState = EhSettingReducer.State()
@@ -86,7 +85,7 @@ struct AccountSettingReducer {
                 return .merge(
                     .send(.setNavigation(.hud)),
                     .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),
-                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .login(.loginDone):

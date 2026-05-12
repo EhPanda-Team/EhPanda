@@ -5,7 +5,6 @@
 
 import SwiftUI
 import Kingfisher
-import UIImageColors
 import ComposableArchitecture
 
 extension HomeReducer {
@@ -159,13 +158,7 @@ extension HomeReducer {
                 }
 
             case .analyzeImageColorsDone(let gid, let colors):
-                if let colors = colors {
-                    state.rawCardColors[gid] = [
-                        colors.primary, colors.secondary,
-                        colors.detail, colors.background
-                    ]
-                    .map(Color.init)
-                }
+                state.rawCardColors[gid] = colors
                 return .none
 
             case .fetchDownloadBadges(let gids):

@@ -9,11 +9,11 @@ import Combine
 import Kingfisher
 import ComposableArchitecture
 
-struct ImageClient {
-    let prefetchImages: ([URL]) -> Void
-    let saveImageToPhotoLibrary: (UIImage, Bool) async -> Bool
-    let downloadImage: (URL) async -> Result<UIImage, Error>
-    let retrieveImage: (String) async -> Result<UIImage, Error>
+struct ImageClient: Sendable {
+    let prefetchImages: @Sendable ([URL]) -> Void
+    let saveImageToPhotoLibrary: @Sendable (UIImage, Bool) async -> Bool
+    let downloadImage: @Sendable (URL) async -> Result<UIImage, Error>
+    let retrieveImage: @Sendable (String) async -> Result<UIImage, Error>
 }
 
 extension ImageClient {
@@ -87,7 +87,7 @@ extension ImageClient {
 private final class ImageSaver: NSObject {
     private let completion: (Bool) -> Void
 
-    init(completion: @escaping (Bool) -> Void) {
+    init(completion: @escaping @Sendable (Bool) -> Void) {
         self.completion = completion
     }
 
