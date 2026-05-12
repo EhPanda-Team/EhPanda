@@ -7,12 +7,12 @@ import SwiftUI
 import Combine
 import ComposableArchitecture
 
-struct UIApplicationClient {
-    let openURL: @MainActor (URL) -> Void
+struct UIApplicationClient: Sendable {
+    let openURL: @MainActor @Sendable (URL) -> Void
     let hideKeyboard: @Sendable () async -> Void
-    let alternateIconName: () -> String?
-    let setAlternateIconName: @MainActor (String?) async -> Bool
-    let setUserInterfaceStyle: @MainActor (UIUserInterfaceStyle) -> Void
+    let alternateIconName: @MainActor @Sendable () -> String?
+    let setAlternateIconName: @MainActor @Sendable (String?) async -> Bool
+    let setUserInterfaceStyle: @MainActor @Sendable (UIUserInterfaceStyle) -> Void
 }
 
 extension UIApplicationClient {

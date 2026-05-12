@@ -7,11 +7,11 @@ import SwiftUI
 import ComposableArchitecture
 import UniformTypeIdentifiers
 
-struct ClipboardClient {
-    let url: () -> URL?
-    let changeCount: () -> Int
-    let saveText: (String) -> Void
-    let saveImage: (UIImage, Bool) -> Void
+struct ClipboardClient: Sendable {
+    let url: @Sendable () -> URL?
+    let changeCount: @Sendable () -> Int
+    let saveText: @Sendable (String) -> Void
+    let saveImage: @Sendable (UIImage, Bool) -> Void
 }
 
 extension ClipboardClient {

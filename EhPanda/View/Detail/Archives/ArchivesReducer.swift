@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -27,8 +26,8 @@ struct ArchivesReducer {
         var loadingState: LoadingState = .idle
         var hathArchives = [GalleryArchive.HathArchive]()
 
-        var messageHUDConfig = TTProgressHUDConfig()
-        var communicatingHUDConfig: TTProgressHUDConfig = .communicating
+        var messageHUDConfig: ProgressHUDConfigState = .loading()
+        var communicatingHUDConfig: ProgressHUDConfigState = .communicating
     }
 
     enum Action: BindableAction {
@@ -149,11 +148,11 @@ struct ArchivesReducer {
                         isSuccess = true
                     }
                 case .failure:
-                    state.messageHUDConfig = .error
+                    state.messageHUDConfig = .error()
                     isSuccess = false
                 }
                 return .run { _ in
-                    hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error)
+                    await hapticsClient.generateNotificationFeedback(isSuccess ? .success : .error)
                 }
             }
         }

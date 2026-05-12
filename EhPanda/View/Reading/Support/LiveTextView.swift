@@ -112,6 +112,7 @@ private struct HighlightView: UIViewRepresentable {
             self.highLightView = highLightView
         }
 
+        @MainActor
         @objc func onTap(sender: UIView) {
             Logger.info("onTap", context: ["tappedText": textView?.text])
             guard let textView = textView else { return }

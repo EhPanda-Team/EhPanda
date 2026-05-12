@@ -85,11 +85,11 @@ extension DetailReducer {
         switch action {
         case .toggleShowFullTitle:
             state.showsFullTitle.toggle()
-            return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
+            return .run(operation: { _ in await hapticsClient.generateFeedback(.soft) })
 
         case .toggleShowUserRating:
             state.showsUserRating.toggle()
-            return .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
+            return .run(operation: { _ in await hapticsClient.generateFeedback(.soft) })
 
         case .setCommentContent(let content):
             state.commentContent = content
@@ -107,7 +107,7 @@ extension DetailReducer {
             state.updateRating(value: value)
             return .merge(
                 .send(.rateGallery),
-                .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                 .run { send in
                     try await Task.sleep(for: .seconds(1))
                     await send(.confirmRatingDone)
@@ -129,8 +129,8 @@ extension DetailReducer {
     ) -> Effect<Action>? {
         switch action {
         case .syncGalleryTags:
-            return .run { [state] _ in
-                await databaseClient.updateGalleryTags(gid: state.gallery.id, tags: state.galleryTags)
+            return .run { [gid = state.gallery.id, tags = state.galleryTags] _ in
+                await databaseClient.updateGalleryTags(gid: gid, tags: tags)
             }
 
         case .syncGalleryDetail:
@@ -138,32 +138,32 @@ extension DetailReducer {
             return .run(operation: { _ in await databaseClient.cacheGalleryDetail(detail) })
 
         case .syncGalleryPreviewURLs:
-            return .run { [state] _ in
+            return .run { [gid = state.gallery.id, previewURLs = state.galleryPreviewURLs] _ in
                 await databaseClient
-                    .updatePreviewURLs(gid: state.gallery.id, previewURLs: state.galleryPreviewURLs)
+                    .updatePreviewURLs(gid: gid, previewURLs: previewURLs)
             }
 
         case .syncGalleryComments:
-            return .run { [state] _ in
-                await databaseClient.updateComments(gid: state.gallery.id, comments: state.galleryComments)
+            return .run { [gid = state.gallery.id, comments = state.galleryComments] _ in
+                await databaseClient.updateComments(gid: gid, comments: comments)
             }
 
         case .syncGreeting(let greeting):
             return .run(operation: { _ in await databaseClient.updateGreeting(greeting) })
 
         case .syncPreviewConfig(let config):
-            return .run { [state] _ in
-                await databaseClient.updatePreviewConfig(gid: state.gallery.id, config: config)
+            return .run { [gid = state.gallery.id] _ in
+                await databaseClient.updatePreviewConfig(gid: gid, config: config)
             }
 
         case .saveGalleryHistory:
-            return .run { [state] _ in
-                await databaseClient.updateLastOpenDate(gid: state.gallery.id)
+            return .run { [gid = state.gallery.id] _ in
+                await databaseClient.updateLastOpenDate(gid: gid)
             }
 
         case .updateReadingProgress(let progress):
-            return .run { [state] _ in
-                await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+            return .run { [gid = state.gallery.id] _ in
+                await databaseClient.updateReadingProgress(gid: gid, progress: progress)
             }
 
         default:

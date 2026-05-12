@@ -128,8 +128,8 @@ struct SearchRootReducer {
                 )
 
             case .syncHistoryKeywords:
-                return .run { [state] _ in
-                    await databaseClient.updateHistoryKeywords(state.historyKeywords)
+                return .run { [historyKeywords = state.historyKeywords] _ in
+                    await databaseClient.updateHistoryKeywords(historyKeywords)
                 }
 
             case .fetchDatabaseInfos:

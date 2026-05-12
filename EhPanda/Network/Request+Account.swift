@@ -191,7 +191,7 @@ struct FavorGalleryRequest: Request {
     let token: String
     let favIndex: Int
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let url = URLUtil.addFavorite(gid: gid, token: token)
         let params: [String: String] = [
             "favcat": "\(favIndex)",
@@ -207,7 +207,7 @@ struct FavorGalleryRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -216,7 +216,7 @@ struct FavorGalleryRequest: Request {
 struct UnfavorGalleryRequest: Request {
     let gid: String
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let params: [String: String] = [
             "ddact": "delete",
             "modifygids[]": gid,
@@ -230,7 +230,7 @@ struct UnfavorGalleryRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -266,7 +266,7 @@ struct RateGalleryRequest: Request {
     let token: String
     let rating: Int
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
             "method": "rategallery",
             "apiuid": apiuid,
@@ -282,7 +282,7 @@ struct RateGalleryRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -292,7 +292,7 @@ struct CommentGalleryRequest: Request {
     let content: String
     let galleryURL: URL
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let params: [String: String] = [
             "commenttext_new": fixedContent
@@ -305,7 +305,7 @@ struct CommentGalleryRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -316,7 +316,7 @@ struct EditGalleryCommentRequest: Request {
     let content: String
     let galleryURL: URL
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let params: [String: String] = [
             "edit_comment": commentID,
@@ -330,7 +330,7 @@ struct EditGalleryCommentRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -344,7 +344,7 @@ struct VoteGalleryCommentRequest: Request {
     let commentID: Int
     let commentVote: Int
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
             "method": "votecomment",
             "apiuid": apiuid,
@@ -361,7 +361,7 @@ struct VoteGalleryCommentRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -375,7 +375,7 @@ struct VoteGalleryTagRequest: Request {
     let tag: String
     let vote: Int
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
             "method": "taggallery",
             "apiuid": apiuid,
@@ -392,7 +392,7 @@ struct VoteGalleryTagRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .map { $0 }
+            .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }

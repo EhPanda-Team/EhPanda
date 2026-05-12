@@ -12,10 +12,10 @@ struct URLAnalysisResult {
     let commentID: String?
 }
 
-struct URLClient {
-    let checkIfHandleable: (URL) -> Bool
-    let checkIfMPVURL: (URL?) -> Bool
-    let parseGalleryID: (URL) -> String
+struct URLClient: Sendable {
+    let checkIfHandleable: @Sendable (URL) -> Bool
+    let checkIfMPVURL: @Sendable (URL?) -> Bool
+    let parseGalleryID: @Sendable (URL) -> String
 }
 
 extension URLClient {

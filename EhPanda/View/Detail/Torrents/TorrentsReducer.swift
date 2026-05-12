@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -24,7 +23,7 @@ struct TorrentsReducer {
         var route: Route?
         var torrents = [GalleryTorrent]()
         var loadingState: LoadingState = .idle
-        var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
+        var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
     }
 
     enum Action: BindableAction, Equatable {
@@ -61,7 +60,7 @@ struct TorrentsReducer {
                 state.route = .hud
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(magnetURL) }),
-                    .run(operation: { _ in hapticsClient.generateNotificationFeedback(.success) })
+                    .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
                 )
 
             case .presentTorrentActivity(let hash, let data):

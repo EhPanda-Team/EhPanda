@@ -27,6 +27,7 @@ struct AppReducer {
         case binding(BindingAction<State>)
         case onScenePhaseChange(ScenePhase)
         case runLaunchAutomation
+        case clearPadSettingSubstates
 
         case appDelegate(AppDelegateReducer.Action)
         case appRoute(AppRouteReducer.Action)
@@ -110,12 +111,14 @@ struct AppReducer {
                     return .none
 
                 case .appRoute(.clearSubStates):
-                    var effects = [Effect<Action>]()
-                    if deviceClient.isPad() {
-                        state.settingState.route = nil
-                        effects.append(.send(.setting(.clearSubStates)))
+                    return .run { send in
+                        guard await deviceClient.isPad() else { return }
+                        await send(.clearPadSettingSubstates)
                     }
-                    return effects.isEmpty ? .none : .merge(effects)
+
+                case .clearPadSettingSubstates:
+                    state.settingState.route = nil
+                    return .send(.setting(.clearSubStates))
 
                 case .appRoute:
                     return .none
@@ -134,7 +137,9 @@ struct AppReducer {
 
                 case .tabBar(.setTabBarItemType(let type)):
                     var effects = [Effect<Action>]()
-                    let hapticEffect: Effect<Action> = .run(operation: { _ in hapticsClient.generateFeedback(.soft) })
+                    let hapticEffect: Effect<Action> = .run { _ in
+                        await hapticsClient.generateFeedback(.soft)
+                    }
                     if type == state.tabBarState.tabBarItemType {
                         switch type {
                         case .home:
@@ -174,8 +179,13 @@ struct AppReducer {
                             effects.append(hapticEffect)
                         }
                     }
-                    if type == .setting && deviceClient.isPad() {
-                        effects.append(.send(.appRoute(.setNavigation(.setting()))))
+                    if type == .setting {
+                        effects.append(
+                            .run { send in
+                                guard await deviceClient.isPad() else { return }
+                                await send(.appRoute(.setNavigation(.setting())))
+                            }
+                        )
                     }
                     return effects.isEmpty ? .none : .merge(effects)
 
@@ -184,14 +194,15 @@ struct AppReducer {
 
                 case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
                     var effects: [Effect<Action>] = [
-                        .run(operation: { _ in hapticsClient.generateFeedback(.soft) }),
+                        .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                         .send(.tabBar(.setTabBarItemType(.setting)))
                     ]
                     effects.append(.send(.setting(.setNavigation(.account))))
                     if !cookieClient.didLogin {
                         effects.append(
                             .run { send in
-                                let delay = UInt64(deviceClient.isPad() ? 1200 : 200)
+                                let isPad = await deviceClient.isPad()
+                                let delay = UInt64(isPad ? 1200 : 200)
                                 try await Task.sleep(for: .milliseconds(delay))
                                 await send(.setting(.account(.setNavigation(.login))))
                             }

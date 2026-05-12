@@ -7,8 +7,8 @@ import Foundation
 import Kingfisher
 import ComposableArchitecture
 
-struct DFClient {
-    let setActive: (Bool) -> Void
+struct DFClient: Sendable {
+    let setActive: @Sendable (Bool) -> Void
 }
 
 extension DFClient {

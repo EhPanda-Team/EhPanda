@@ -8,7 +8,7 @@ import Foundation
 import ComposableArchitecture
 
 protocol Request {
-    associatedtype Response
+    associatedtype Response: Sendable
 
     var publisher: AnyPublisher<Response, AppError> { get }
 }
@@ -39,8 +39,17 @@ extension Publisher {
         retry(3)
     }
 
-    func async() async -> Result<Output, Failure> where Failure == AppError {
-        await withCheckedContinuation { continuation in
+    func async() async -> Result<Output, AppError> where Output: Sendable, Failure == AppError {
+        do {
+            let output = try await asyncOutput()
+            return .success(output)
+        } catch {
+            return .failure(error as? AppError ?? .unknown)
+        }
+    }
+
+    private func asyncOutput() async throws -> Output where Output: Sendable, Failure == AppError {
+        try await withCheckedThrowingContinuation { continuation in
             var cancellable: AnyCancellable?
             var finishedWithoutValue = true
             cancellable = first()
@@ -48,15 +57,15 @@ extension Publisher {
                     switch result {
                     case .finished:
                         if finishedWithoutValue {
-                            continuation.resume(returning: .failure(.unknown))
+                            continuation.resume(throwing: AppError.unknown)
                         }
                     case let .failure(error):
-                        continuation.resume(returning: .failure(error))
+                        continuation.resume(throwing: error)
                     }
                     cancellable?.cancel()
                 } receiveValue: { value in
                     finishedWithoutValue = false
-                    continuation.resume(returning: .success(value))
+                    continuation.resume(returning: value)
                 }
         }
     }

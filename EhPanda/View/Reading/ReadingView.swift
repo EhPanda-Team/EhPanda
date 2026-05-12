@@ -119,7 +119,10 @@ struct ReadingView: View {
                 if setting.readingDirection == .vertical {
                     AdvancedList(
                         page: page,
-                        data: store.state.containerDataSource(setting: setting),
+                        data: store.state.containerDataSource(
+                            setting: setting,
+                            isLandscape: DeviceUtil.isLandscape
+                        ),
                         id: \.self,
                         spacing: setting.contentDividerHeight,
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
@@ -129,7 +132,10 @@ struct ReadingView: View {
                 } else {
                     Pager(
                         page: page,
-                        data: store.state.containerDataSource(setting: setting),
+                        data: store.state.containerDataSource(
+                            setting: setting,
+                            isLandscape: DeviceUtil.isLandscape
+                        ),
                         id: \.self,
                         content: imageStack
                     )
@@ -230,7 +236,11 @@ struct ReadingView: View {
     }
 
     @ViewBuilder private func imageStack(index: Int) -> some View {
-        let imageStackConfig = store.state.imageContainerConfigs(index: index, setting: setting)
+        let imageStackConfig = store.state.imageContainerConfigs(
+            index: index,
+            setting: setting,
+            isLandscape: DeviceUtil.isLandscape
+        )
         let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
         HorizontalImageStack(
             index: index,

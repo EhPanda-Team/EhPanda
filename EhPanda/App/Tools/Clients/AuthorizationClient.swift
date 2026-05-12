@@ -7,9 +7,9 @@ import Combine
 import LocalAuthentication
 import ComposableArchitecture
 
-struct AuthorizationClient {
-    let passcodeNotSet: () -> Bool
-    let localAuthroize: (String) async -> Bool
+struct AuthorizationClient: Sendable {
+    let passcodeNotSet: @Sendable () -> Bool
+    let localAuthroize: @Sendable (String) async -> Bool
 }
 
 extension AuthorizationClient {

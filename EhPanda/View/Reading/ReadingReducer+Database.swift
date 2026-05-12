@@ -11,9 +11,12 @@ extension ReadingReducer {
         var effects: [Effect<Action>] = [
             .merge(ReadingCancelID.allCases.map(Effect.cancel(id:)))
         ]
-        if !deviceClient.isPad() {
-            effects.append(.send(.setOrientationPortrait(true)))
-        }
+        effects.append(
+            .run { send in
+                guard await !deviceClient.isPad() else { return }
+                await send(.setOrientationPortrait(true))
+            }
+        )
         return .merge(effects)
     }
 

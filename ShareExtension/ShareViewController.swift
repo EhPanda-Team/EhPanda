@@ -3,6 +3,7 @@
 //  ShareExtension
 //
 
+import AppIntents
 import UIKit
 
 class ShareViewController: UIViewController {
@@ -21,20 +22,25 @@ class ShareViewController: UIViewController {
             return
         }
 
-        itemProvider.loadItem(forTypeIdentifier: "public.url") { (item, _) in
+        itemProvider.loadItem(forTypeIdentifier: "public.url") { [weak self] (item, _) in
             if let shareURL = item as? URL, let scheme = shareURL.scheme,
                let replacedURL = URL(string: shareURL.absoluteString
                                         .replacingOccurrences(of: scheme, with: "ehpanda")) {
-                self.openMainApp(url: replacedURL)
+                Task { @MainActor in
+                    self?.openMainApp(url: replacedURL)
+                }
             }
         }
     }
 
+    @MainActor
     private func openMainApp(url: URL) {
         extensionContext?.completeRequest(
             returningItems: nil,
             completionHandler: { [weak self] _ in
-                self?.openURL(url)
+                Task { @MainActor in
+                    self?.openURL(url)
+                }
             }
         )
     }

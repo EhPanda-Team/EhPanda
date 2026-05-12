@@ -19,7 +19,7 @@ extension NavigationLink {
             isActive: .init(value)
         )
     }
-    init<Enum, Case, WrappedDestination>(
+    init<Enum: Sendable, Case: Sendable, WrappedDestination>(
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>,
         @ViewBuilder destination: @escaping (Binding<Case>) -> WrappedDestination
@@ -32,7 +32,7 @@ extension NavigationLink {
 }
 
 extension View {
-    func confirmationDialog<Enum, Case, A: View>(
+    func confirmationDialog<Enum: Sendable, Case: Sendable, A: View>(
         message: String,
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>,
@@ -46,7 +46,7 @@ extension View {
             message: { _ in Text(message) }
         )
     }
-    func confirmationDialog<Enum, Case: Equatable, A: View>(
+    func confirmationDialog<Enum: Sendable, Case: Equatable & Sendable, A: View>(
         message: String,
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>,
@@ -66,7 +66,7 @@ extension View {
         )
     }
 
-    func sheet<Enum, Case, Content: View>(
+    func sheet<Enum: Sendable, Case: Sendable, Content: View>(
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>,
         @ViewBuilder content: @escaping (Case) -> Content
@@ -77,8 +77,8 @@ extension View {
         )
     }
 
-    func progressHUD<Enum: Equatable, Case>(
-        config: TTProgressHUDConfig,
+    func progressHUD<Enum: Equatable & Sendable, Case: Sendable>(
+        config: ProgressHUDConfigState,
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>
     ) -> some View {
@@ -86,23 +86,26 @@ extension View {
             self
             TTProgressHUD(
                 `enum`.case(caseKeyPath).isRemovedDuplicatesPresent(),
-                config: config
+                config: config.progressHUDConfig
             )
         }
     }
 }
 
 extension Binding {
-    func `case`<Enum: Sendable, Case>(_ caseKeyPath: CaseKeyPath<Enum, Case>) -> Binding<Case?> where Value == Enum? {
-        .init(
-            get: { self.wrappedValue.flatMap(AnyCasePath(caseKeyPath).extract(from:)) },
+    func `case`<Enum: Sendable, Case: Sendable>(
+        _ caseKeyPath: CaseKeyPath<Enum, Case>
+    ) -> Binding<Case?> where Value == Enum? {
+        let casePath = AnyCasePath(caseKeyPath)
+        return .init(
+            get: { self.wrappedValue.flatMap(casePath.extract(from:)) },
             set: { newValue, transaction in
-                self.transaction(transaction).wrappedValue = newValue.map(AnyCasePath(caseKeyPath).embed)
+                self.transaction(transaction).wrappedValue = newValue.map(casePath.embed)
             }
         )
     }
 
-    func isRemovedDuplicatesPresent<Wrapped>() -> Binding<Bool> where Value == Wrapped? {
+    func isRemovedDuplicatesPresent<Wrapped: Sendable>() -> Binding<Bool> where Value == Wrapped? {
         .init(
             get: { wrappedValue != nil },
             set: { isPresent, transaction in

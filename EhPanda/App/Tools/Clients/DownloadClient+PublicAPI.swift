@@ -76,12 +76,12 @@ extension DownloadManager {
                     token: download.token
                 )
         )
-        var didChange = false
+        let didChange = signatureUpdateWouldChange(info: info)
         do {
             try await updateDownloadRecord(
                 gid: gid, createIfMissing: false
             ) { record in
-                self.applySignatureUpdate(to: record, info: info, didChange: &didChange)
+                self.applySignatureUpdate(to: record, info: info)
             }
         } catch {
             Logger.error(error)
@@ -90,21 +90,18 @@ extension DownloadManager {
         return (await fetchDownload(gid: gid))?.badge ?? .none
     }
 
-    private func applySignatureUpdate(
+    nonisolated private func applySignatureUpdate(
         to record: DownloadedGalleryMO,
-        info: SignatureUpdateInfo,
-        didChange: inout Bool
+        info: SignatureUpdateInfo
     ) {
         let download = info.download
         let latestSignature = info.latestSignature
         if download.latestRemoteVersionSignature != latestSignature {
             record.latestRemoteVersionSignature = latestSignature
-            didChange = true
         }
         if let canonicalized = info.canonicalizedSignature,
            canonicalized != download.remoteVersionSignature {
             record.remoteVersionSignature = canonicalized
-            didChange = true
         }
         guard latestSignature?.notEmpty == true,
               [.completed, .updateAvailable].contains(download.status)
@@ -117,8 +114,31 @@ extension DownloadManager {
         }
         if let desiredStatus, desiredStatus != download.status {
             record.status = desiredStatus.rawValue
-            didChange = true
         }
+    }
+
+    nonisolated private func signatureUpdateWouldChange(
+        info: SignatureUpdateInfo
+    ) -> Bool {
+        let download = info.download
+        let latestSignature = info.latestSignature
+        if download.latestRemoteVersionSignature != latestSignature {
+            return true
+        }
+        if let canonicalized = info.canonicalizedSignature,
+           canonicalized != download.remoteVersionSignature {
+            return true
+        }
+        guard latestSignature?.notEmpty == true,
+              [.completed, .updateAvailable].contains(download.status)
+        else { return false }
+        let desiredStatus: DownloadStatus?
+        switch info.comparison {
+        case .different: desiredStatus = .updateAvailable
+        case .same: desiredStatus = .completed
+        case .incomparable: desiredStatus = nil
+        }
+        return desiredStatus != nil && desiredStatus != download.status
     }
 
     func enqueue(

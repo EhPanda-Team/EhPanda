@@ -8,11 +8,12 @@ import Combine
 import CoreData
 import ComposableArchitecture
 
-struct DatabaseClient {
-    let prepareDatabase: () async -> Result<Void, AppError>
-    let dropDatabase: () async -> Result<Void, AppError>
-    private let saveContext: () -> Void
-    private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
+struct DatabaseClient: Sendable {
+    let prepareDatabase: @Sendable () async -> Result<Void, AppError>
+    let dropDatabase: @Sendable () async -> Result<Void, AppError>
+    private let saveContext: @Sendable () -> Void
+    private let materializedObjects:
+        @Sendable (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
 }
 
 extension DatabaseClient {
@@ -161,7 +162,7 @@ extension DatabaseClient {
     func update<MO: GalleryIdentifiable>(
         entityType: MO.Type, gid: String,
         createIfNil: Bool = false,
-        commitChanges: @escaping ((MO) -> Void)
+        commitChanges: @escaping @Sendable ((MO) -> Void)
     ) {
         AppUtil.dispatchMainSync {
             let storedMO: MO?

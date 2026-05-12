@@ -103,7 +103,10 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
         let fileURL = fileURL
         let maxPixelSize = maxPixelSize
         let generatedThumbnail = await Task.detached(priority: .utility) {
-            Self.makeThumbnail(fileURL: fileURL, maxPixelSize: maxPixelSize)
+            LocalPreviewThumbnailGenerator.make(
+                fileURL: fileURL,
+                maxPixelSize: maxPixelSize
+            )
         }
         .value
 
@@ -113,7 +116,10 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
         thumbnail = generatedThumbnail
     }
 
-    nonisolated private static func makeThumbnail(fileURL: URL, maxPixelSize: CGFloat) -> UIImage? {
+}
+
+private enum LocalPreviewThumbnailGenerator {
+    static func make(fileURL: URL, maxPixelSize: CGFloat) -> UIImage? {
         guard let imageSource = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {
             return nil
         }
@@ -137,6 +143,7 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
     }
 }
 
+@MainActor
 private final class LocalPreviewThumbnailCache {
     static let shared = LocalPreviewThumbnailCache()
 

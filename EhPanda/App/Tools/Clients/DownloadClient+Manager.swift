@@ -151,7 +151,7 @@ actor DownloadManager {
         self.persistenceContainer = persistenceContainer
     }
 
-    func fileManager() -> FileManager {
+    func fileManager() -> DownloadFileManager {
         storage.fileManager
     }
 }

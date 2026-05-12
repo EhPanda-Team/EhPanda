@@ -34,7 +34,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let manager = cacheTestManager.manager
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
-        let (cachedKeys, coverURL) = try await prepareCacheTestAssets(
+        let (cachedKeys, _) = try await prepareCacheTestAssets(
             manager: manager, gid: gid,
             pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
         )

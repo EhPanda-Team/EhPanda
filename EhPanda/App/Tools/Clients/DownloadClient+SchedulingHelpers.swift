@@ -193,7 +193,7 @@ extension DownloadManager {
         return try? storage.readResumeState(folderURL: folderURL).mode
     }
 
-    func fallbackStatus(
+    nonisolated func fallbackStatus(
         for download: DownloadedGallery,
         mode: DownloadStartMode,
         latestSignature: String?

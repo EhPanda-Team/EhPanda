@@ -10,7 +10,7 @@ protocol CoreDataMigratorProtocol {
     func migrateStore(at storeURL: URL, toVersion version: CoreDataMigrationVersion) throws
 }
 
-class CoreDataMigrator: CoreDataMigratorProtocol {
+final class CoreDataMigrator: CoreDataMigratorProtocol, Sendable {
     func requiresMigration(at storeURL: URL, toVersion version: CoreDataMigrationVersion) throws -> Bool {
         guard let metadata = NSPersistentStoreCoordinator.metadata(at: storeURL) else { return false }
         return (try CoreDataMigrationVersion.compatibleVersionForStoreMetadata(metadata) != version)

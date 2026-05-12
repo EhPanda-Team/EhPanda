@@ -15,8 +15,6 @@ where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
     private let spacing: Double
     private let content: (Element) -> TagCell
 
-    @State private var totalHeight = CGFloat.zero
-
     init<Data: RandomAccessCollection>(
         data: Data, id: KeyPath<Element, ID> = \Element.id, spacing: Double = 4,
         @ViewBuilder content: @escaping (Element) -> TagCell
@@ -28,56 +26,73 @@ where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
     }
 
     var body: some View {
-        VStack {
-            GeometryReader { geometry in
-                generateContent(in: geometry)
+        FlowLayout(spacing: spacing) {
+            ForEach(data, id: id) { element in
+                content(element)
             }
         }
-        .frame(height: totalHeight)
     }
 }
 
-private extension TagCloudView {
-    func generateContent(in proxy: GeometryProxy) -> some View {
-        ZStack(alignment: .topLeading) {
-            var width = CGFloat.zero
-            var height = CGFloat.zero
-            ForEach(data, id: id) { content in
-                self.content(content)
-                    .padding([.trailing, .bottom], spacing)
-                    .alignmentGuide(.leading, computeValue: { [proxyWidth = proxy.size.width] dimensions in
-                        if abs(width - dimensions.width) > proxyWidth {
-                            width = 0
-                            height -= dimensions.height
-                        }
-                        let result = width
-                        if content == data.last {
-                            width = 0 // last item
-                        } else {
-                            width -= dimensions.width
-                        }
-                        return result
-                    })
-                    .alignmentGuide(.top, computeValue: { _ in
-                        let result = height
-                        if content == data.last {
-                            height = 0 // last item
-                        }
-                        return result
-                    })
-            }
+private struct FlowLayout: Layout {
+    let spacing: Double
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        let frames = frames(
+            for: subviews,
+            maxWidth: proposal.width ?? .infinity
+        )
+        let size = frames.reduce(CGSize.zero) { size, frame in
+            CGSize(
+                width: max(size.width, frame.maxX),
+                height: max(size.height, frame.maxY)
+            )
         }
-        .background(viewHeightReader(binding: $totalHeight))
+        return CGSize(width: proposal.width ?? size.width, height: size.height)
     }
 
-    func viewHeightReader(binding: Binding<CGFloat>) -> some View {
-        GeometryReader { geometry -> Color in
-            let rect = geometry.frame(in: .local)
-            DispatchQueue.main.async {
-                binding.wrappedValue = rect.size.height
-            }
-            return .clear
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        let frames = frames(for: subviews, maxWidth: bounds.width)
+        for (index, subview) in subviews.enumerated() {
+            subview.place(
+                at: CGPoint(
+                    x: bounds.minX + frames[index].minX,
+                    y: bounds.minY + frames[index].minY
+                ),
+                proposal: ProposedViewSize(frames[index].size)
+            )
         }
+    }
+
+    private func frames(for subviews: Subviews, maxWidth: CGFloat) -> [CGRect] {
+        var frames = [CGRect]()
+        var origin = CGPoint.zero
+        var rowHeight = CGFloat.zero
+        let maxWidth = maxWidth.isFinite ? maxWidth : .greatestFiniteMagnitude
+        let spacing = CGFloat(spacing)
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if origin.x > 0, origin.x + size.width > maxWidth {
+                origin.x = 0
+                origin.y += rowHeight + spacing
+                rowHeight = 0
+            }
+
+            frames.append(CGRect(origin: origin, size: size))
+            origin.x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
+        return frames
     }
 }
 

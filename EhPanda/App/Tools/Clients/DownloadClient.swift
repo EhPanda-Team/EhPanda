@@ -6,46 +6,52 @@
 import Foundation
 import ComposableArchitecture
 
-struct DownloadClient {
-    let observeDownloads: () -> AsyncStream<[DownloadedGallery]>
-    let fetchDownloads: () async -> [DownloadedGallery]
-    let fetchDownload: (String) async -> DownloadedGallery?
-    let reconcileDownloads: () async -> Void
-    let refreshDownloads: () async -> Void
-    let resumeQueue: () async -> Void
-    let badges: ([String]) async -> [String: DownloadBadge]
-    let fetchVersionMetadata: (String, String) async -> Result<DownloadVersionMetadata, AppError>
-    let updateRemoteSignature: (String, String?) async -> DownloadBadge
-    let enqueue: (DownloadRequestPayload) async -> Result<Void, AppError>
-    let togglePause: (String) async -> Result<Void, AppError>
-    let retry: (String, DownloadStartMode) async -> Result<Void, AppError>
-    let retryPages: (String, [Int]) async -> Result<Void, AppError>
-    let delete: (String) async -> Result<Void, AppError>
-    let loadManifest: (String) async -> Result<(DownloadedGallery, DownloadManifest), AppError>
-    let loadLocalPageURLs: (String) async -> Result<[Int: URL], AppError>
-    let captureCachedPage: (String, Int, URL?) async -> Void
-    let loadInspection: (String) async -> Result<DownloadInspection, AppError>
+struct DownloadClient: Sendable {
+    let observeDownloads: @Sendable () -> AsyncStream<[DownloadedGallery]>
+    let fetchDownloads: @Sendable () async -> [DownloadedGallery]
+    let fetchDownload: @Sendable (String) async -> DownloadedGallery?
+    let reconcileDownloads: @Sendable () async -> Void
+    let refreshDownloads: @Sendable () async -> Void
+    let resumeQueue: @Sendable () async -> Void
+    let badges: @Sendable ([String]) async -> [String: DownloadBadge]
+    let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
+    let updateRemoteSignature: @Sendable (String, String?) async -> DownloadBadge
+    let enqueue: @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
+    let togglePause: @Sendable (String) async -> Result<Void, AppError>
+    let retry: @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>
+    let retryPages: @Sendable (String, [Int]) async -> Result<Void, AppError>
+    let delete: @Sendable (String) async -> Result<Void, AppError>
+    let loadManifest: @Sendable (String) async -> Result<(DownloadedGallery, DownloadManifest), AppError>
+    let loadLocalPageURLs: @Sendable (String) async -> Result<[Int: URL], AppError>
+    let captureCachedPage: @Sendable (String, Int, URL?) async -> Void
+    let loadInspection: @Sendable (String) async -> Result<DownloadInspection, AppError>
 
     init(
-        observeDownloads: @escaping () -> AsyncStream<[DownloadedGallery]>,
-        fetchDownloads: @escaping () async -> [DownloadedGallery],
-        fetchDownload: @escaping (String) async -> DownloadedGallery?,
-        reconcileDownloads: @escaping () async -> Void = {},
-        refreshDownloads: @escaping () async -> Void,
-        resumeQueue: @escaping () async -> Void,
-        badges: @escaping ([String]) async -> [String: DownloadBadge],
-        fetchVersionMetadata: @escaping (String, String) async -> Result<DownloadVersionMetadata, AppError>
+        observeDownloads: @escaping @Sendable () -> AsyncStream<[DownloadedGallery]>,
+        fetchDownloads: @escaping @Sendable () async -> [DownloadedGallery],
+        fetchDownload: @escaping @Sendable (String) async -> DownloadedGallery?,
+        reconcileDownloads: @escaping @Sendable () async -> Void = {},
+        refreshDownloads: @escaping @Sendable () async -> Void,
+        resumeQueue: @escaping @Sendable () async -> Void,
+        badges: @escaping @Sendable ([String]) async -> [String: DownloadBadge],
+        fetchVersionMetadata: @escaping @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
         = { _, _ in .failure(.notFound) },
-        updateRemoteSignature: @escaping (String, String?) async -> DownloadBadge,
-        enqueue: @escaping (DownloadRequestPayload) async -> Result<Void, AppError>,
-        togglePause: @escaping (String) async -> Result<Void, AppError>,
-        retry: @escaping (String, DownloadStartMode) async -> Result<Void, AppError>,
-        retryPages: @escaping (String, [Int]) async -> Result<Void, AppError> = { _, _ in .success(()) },
-        delete: @escaping (String) async -> Result<Void, AppError>,
-        loadManifest: @escaping (String) async -> Result<(DownloadedGallery, DownloadManifest), AppError>,
-        loadLocalPageURLs: @escaping (String) async -> Result<[Int: URL], AppError> = { _ in .failure(.notFound) },
-        captureCachedPage: @escaping (String, Int, URL?) async -> Void = { _, _, _ in },
-        loadInspection: @escaping (String) async -> Result<DownloadInspection, AppError> = { _ in .failure(.notFound) }
+        updateRemoteSignature: @escaping @Sendable (String, String?) async -> DownloadBadge,
+        enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>,
+        togglePause: @escaping @Sendable (String) async -> Result<Void, AppError>,
+        retry: @escaping @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>,
+        retryPages: @escaping @Sendable (String, [Int]) async -> Result<Void, AppError> = { _, _ in .success(()) },
+        delete: @escaping @Sendable (String) async -> Result<Void, AppError>,
+        loadManifest: @escaping @Sendable (String) async -> Result<
+            (DownloadedGallery, DownloadManifest), AppError
+        >,
+        loadLocalPageURLs: @escaping @Sendable (String) async -> Result<
+            [Int: URL], AppError
+        > = { _ in .failure(.notFound) },
+        captureCachedPage: @escaping @Sendable (String, Int, URL?) async -> Void = { _, _, _ in },
+        loadInspection: @escaping @Sendable (String) async -> Result<
+            DownloadInspection, AppError
+        > = { _ in .failure(.notFound) }
     ) {
         self.observeDownloads = observeDownloads
         self.fetchDownloads = fetchDownloads
@@ -72,7 +78,7 @@ extension DownloadClient {
     static func live(
         rootURL: URL? = FileUtil.downloadsDirectoryURL,
         urlSession: URLSession = .shared,
-        fileManager: FileManager = .default
+        fileManager: sending FileManager = .default
     ) -> Self {
         let manager = DownloadManager(
             storage: .init(rootURL: rootURL, fileManager: fileManager),

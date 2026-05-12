@@ -6,8 +6,8 @@
 import Foundation
 import ComposableArchitecture
 
-struct UserDefaultsClient {
-    let setValue: (Any, AppUserDefaults) -> Void
+struct UserDefaultsClient: Sendable {
+    let setValue: @Sendable (Any, AppUserDefaults) -> Void
 }
 
 extension UserDefaultsClient {

@@ -9,6 +9,7 @@ import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
+@MainActor
 struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
@@ -116,7 +117,13 @@ private extension PreviewsReducerDownloadTests {
     }
 
     func makePreviewsNoManifestClient(loadLocalPageURLs: Bool) -> DownloadClient {
-        .init(
+        let loadLocalPageURLsResult: @Sendable (String) async -> Result<[Int: URL], AppError>
+        if loadLocalPageURLs {
+            loadLocalPageURLsResult = { _ in .success([:]) }
+        } else {
+            loadLocalPageURLsResult = { _ in .failure(.notFound) }
+        }
+        return .init(
             observeDownloads: { AsyncStream { continuation in continuation.finish() } },
             fetchDownloads: { [] },
             fetchDownload: { _ in nil },
@@ -129,7 +136,7 @@ private extension PreviewsReducerDownloadTests {
             retry: { _, _ in .success(()) },
             delete: { _ in .success(()) },
             loadManifest: { _ in .failure(.notFound) },
-            loadLocalPageURLs: loadLocalPageURLs ? { _ in .success([:]) } : { _ in .failure(.notFound) }
+            loadLocalPageURLs: loadLocalPageURLsResult
         )
     }
 

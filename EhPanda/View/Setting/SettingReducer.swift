@@ -70,6 +70,7 @@ struct SettingReducer {
         case clearSubStates
 
         case syncAppIconType
+        case syncAppIconTypeDone(String?)
         case syncUserInterfaceStyle
         case syncSetting
         case syncTagTranslator

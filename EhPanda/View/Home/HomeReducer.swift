@@ -5,7 +5,6 @@
 
 import SwiftUI
 import Kingfisher
-import UIImageColors
 import ComposableArchitecture
 
 @Reducer
@@ -87,7 +86,7 @@ struct HomeReducer {
         case clearSubStates
         case setAllowsCardHitTesting(Bool)
         case analyzeImageColors(String, RetrieveImageResult)
-        case analyzeImageColorsDone(String, UIImageColors?)
+        case analyzeImageColorsDone(String, [Color]?)
 
         case fetchAllGalleries
         case fetchAllToplistsGalleries

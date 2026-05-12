@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import TTProgressHUD
 import ComposableArchitecture
 
 @Reducer
@@ -26,7 +25,7 @@ struct CommentsReducer {
         var commentContent = ""
         var postCommentFocused = false
 
-        var hudConfig: TTProgressHUDConfig = .loading
+        var hudConfig: ProgressHUDConfigState = .loading()
         var scrollCommentID: String?
         var scrollRowOpacity: Double = 1
 
@@ -43,7 +42,7 @@ struct CommentsReducer {
         case clearSubStates
         case clearScrollCommentID
 
-        case setHUDConfig(TTProgressHUDConfig)
+        case setHUDConfig(ProgressHUDConfigState)
         case setPostCommentFocused(Bool)
         case setScrollRowOpacity(Double)
         case setCommentContent(String)
@@ -58,7 +57,7 @@ struct CommentsReducer {
         case teardown
         case postComment(URL, String? = nil)
         case voteComment(String, String, String, String, Int)
-        case performCommentActionDone(Result<Any, AppError>)
+        case performCommentActionDone(Result<Void, AppError>)
         case fetchGallery(URL, Bool)
         case fetchGalleryDone(URL, Result<Gallery, AppError>)
 
@@ -253,7 +252,7 @@ struct CommentsReducer {
                 case .failure:
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(.setHUDConfig(.error))
+                        await send(.setHUDConfig(.error()))
                     }
                 }
 

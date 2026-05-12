@@ -155,7 +155,7 @@ struct DetailReducer {
         case unfavorGallery
         case postComment(URL)
         case voteTag(String, Int)
-        case anyGalleryOpsDone(Result<Any, AppError>)
+        case anyGalleryOpsDone(Result<Void, AppError>)
         case reading(ReadingReducer.Action)
         case archives(ArchivesReducer.Action)
         case torrents(TorrentsReducer.Action)

@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import Synchronization
 
 enum DownloadValidationState: Equatable {
     case valid
@@ -44,24 +45,20 @@ struct DownloadResumeState: Codable, Equatable {
     }
 }
 
-struct DownloadFileStorage {
+struct DownloadFileStorage: Sendable {
     let rootURL: URL
-    let fileManager: FileManager
-    let encoder: JSONEncoder
-    let decoder: JSONDecoder
+    let fileManager: DownloadFileManager
 
     init(
         rootURL: URL? = FileUtil.downloadsDirectoryURL,
-        fileManager: FileManager = .default
+        fileManager: sending FileManager = .default
     ) {
         self.rootURL = rootURL
             ?? FileUtil.temporaryDirectory.appendingPathComponent(
                 Defaults.FilePath.downloads,
                 isDirectory: true
             )
-        self.fileManager = fileManager
-        encoder = JSONEncoder()
-        decoder = JSONDecoder()
+        self.fileManager = DownloadFileManager(fileManager)
     }
 
     func ensureRootDirectory() throws {
@@ -116,23 +113,23 @@ struct DownloadFileStorage {
     }
 
     func writeResumeState(_ state: DownloadResumeState, folderURL: URL) throws {
-        let data = try encoder.encode(state)
+        let data = try JSONEncoder().encode(state)
         try data.write(to: resumeStateURL(folderURL: folderURL), options: .atomic)
     }
 
     func readResumeState(folderURL: URL) throws -> DownloadResumeState {
         let data = try Data(contentsOf: resumeStateURL(folderURL: folderURL))
-        return try decoder.decode(DownloadResumeState.self, from: data)
+        return try JSONDecoder().decode(DownloadResumeState.self, from: data)
     }
 
     func writeFailedPages(_ snapshot: DownloadFailedPagesSnapshot, folderURL: URL) throws {
-        let data = try encoder.encode(snapshot)
+        let data = try JSONEncoder().encode(snapshot)
         try data.write(to: failedPagesURL(folderURL: folderURL), options: .atomic)
     }
 
     func readFailedPages(folderURL: URL) throws -> DownloadFailedPagesSnapshot {
         let data = try Data(contentsOf: failedPagesURL(folderURL: folderURL))
-        return try decoder.decode(DownloadFailedPagesSnapshot.self, from: data)
+        return try JSONDecoder().decode(DownloadFailedPagesSnapshot.self, from: data)
     }
 
     func removeFailedPages(folderURL: URL) throws {
@@ -230,7 +227,7 @@ struct DownloadFileStorage {
     }
 
     func writeManifest(_ manifest: DownloadManifest, folderURL: URL) throws {
-        let data = try encoder.encode(manifest)
+        let data = try JSONEncoder().encode(manifest)
         let fileURL = folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         try data.write(to: fileURL, options: .atomic)
     }
@@ -238,7 +235,7 @@ struct DownloadFileStorage {
     func readManifest(folderURL: URL) throws -> DownloadManifest {
         let manifestURL = folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         let data = try Data(contentsOf: manifestURL)
-        return try decoder.decode(DownloadManifest.self, from: data)
+        return try JSONDecoder().decode(DownloadManifest.self, from: data)
     }
 
     @discardableResult
@@ -273,6 +270,78 @@ struct DownloadFileStorage {
             return try handle.read(upToCount: 1)?.isEmpty == false
         } catch {
             return false
+        }
+    }
+}
+
+final class DownloadFileManager: Sendable {
+    private let fileManager: Mutex<FileManager>
+
+    init(_ fileManager: sending FileManager) {
+        self.fileManager = Mutex(fileManager)
+    }
+
+    func createDirectory(
+        at url: URL,
+        withIntermediateDirectories createIntermediates: Bool
+    ) throws {
+        try fileManager.withLock {
+            try $0.createDirectory(
+                at: url,
+                withIntermediateDirectories: createIntermediates
+            )
+        }
+    }
+
+    func fileExists(atPath path: String) -> Bool {
+        fileManager.withLock { $0.fileExists(atPath: path) }
+    }
+
+    func removeItem(at url: URL) throws {
+        try fileManager.withLock {
+            try $0.removeItem(at: url)
+        }
+    }
+
+    func contentsOfDirectory(
+        at url: URL,
+        includingPropertiesForKeys keys: [URLResourceKey]?
+    ) throws -> [URL] {
+        try fileManager.withLock {
+            try $0.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: keys
+            )
+        }
+    }
+
+    func attributesOfItem(atPath path: String) throws -> [FileAttributeKey: Any] {
+        try fileManager.withLock {
+            try $0.attributesOfItem(atPath: path)
+        }
+    }
+
+    func replaceItemAt(_ originalItemURL: URL, withItemAt newItemURL: URL) throws -> URL? {
+        try fileManager.withLock {
+            try $0.replaceItemAt(originalItemURL, withItemAt: newItemURL)
+        }
+    }
+
+    func moveItem(at sourceURL: URL, to destinationURL: URL) throws {
+        try fileManager.withLock {
+            try $0.moveItem(at: sourceURL, to: destinationURL)
+        }
+    }
+
+    func linkItem(at sourceURL: URL, to destinationURL: URL) throws {
+        try fileManager.withLock {
+            try $0.linkItem(at: sourceURL, to: destinationURL)
+        }
+    }
+
+    func copyItem(at sourceURL: URL, to destinationURL: URL) throws {
+        try fileManager.withLock {
+            try $0.copyItem(at: sourceURL, to: destinationURL)
         }
     }
 }

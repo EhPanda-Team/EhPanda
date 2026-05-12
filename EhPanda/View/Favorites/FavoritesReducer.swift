@@ -128,12 +128,12 @@ struct FavoritesReducer {
                 } else {
                     state.rawPageNumber[state.index]?.resetPages()
                 }
-                return .run { [state] send in
+                return .run { [index = state.index, keyword = state.keyword] send in
                     let response = await FavoritesGalleriesRequest(
-                        favIndex: state.index, keyword: state.keyword, sortOrder: sortOrder
+                        favIndex: index, keyword: keyword, sortOrder: sortOrder
                     )
                     .response()
-                    await send(.fetchGalleriesDone(state.index, response))
+                    await send(.fetchGalleriesDone(index, response))
                 }
 
             case .fetchGalleriesDone(let targetFavIndex, let result):
@@ -167,15 +167,15 @@ struct FavoritesReducer {
                       let lastItemTimestamp = pageNumber.lastItemTimestamp
                 else { return .none }
                 state.rawFooterLoadingState[state.index] = .loading
-                return .run { [state] send in
+                return .run { [index = state.index, keyword = state.keyword] send in
                     let response = await MoreFavoritesGalleriesRequest(
-                        favIndex: state.index,
+                        favIndex: index,
                         lastID: lastID,
                         lastTimestamp: lastItemTimestamp,
-                        keyword: state.keyword
+                        keyword: keyword
                     )
                     .response()
-                    await send(.fetchMoreGalleriesDone(state.index, response))
+                    await send(.fetchMoreGalleriesDone(index, response))
                 }
 
             case .fetchMoreGalleriesDone(let targetFavIndex, let result):

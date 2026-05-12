@@ -22,7 +22,7 @@ final class AutoPlayHandler {
         timer?.invalidate()
     }
 
-    func setPolicy(_ policy: AutoPlayPolicy, updatePageAction: @escaping () -> Void) {
+    func setPolicy(_ policy: AutoPlayPolicy, updatePageAction: @MainActor @escaping () -> Void) {
         Logger.info("setPolicy", context: ["policy": policy])
         self.policy = policy
         timer?.invalidate()
@@ -30,7 +30,11 @@ final class AutoPlayHandler {
         if timeInterval > 0 {
             timer = .scheduledTimer(
                 withTimeInterval: timeInterval, repeats: true,
-                block: { _ in updatePageAction() }
+                block: { _ in
+                    Task { @MainActor in
+                        updatePageAction()
+                    }
+                }
             )
         }
     }

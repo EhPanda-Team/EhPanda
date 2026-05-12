@@ -50,23 +50,17 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         #expect(firstRunSnapshot.previewPageNumbers == [1])
 
         setup.recorder.reset()
-        try clearPersistedDownloads(in: container)
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .partial,
-            completedPageCount: setup.pageCount, pageCount: setup.pageCount,
-            remoteVersionSignature: setup.versionSignature,
-            latestRemoteVersionSignature: setup.versionSignature
+        try await assertRetrySkipsCompletedSelection(
+            .init(
+                container: container,
+                storage: storage,
+                manager: manager,
+                gid: gid,
+                pageIndex: pageIndex,
+                setup: setup,
+                manifest: manifest
+            )
         )
-        try writeTemporaryManifestAndPages(
-            storage: storage, gid: gid, manifest: manifest,
-            pageCount: setup.pageCount, versionSignature: setup.versionSignature,
-            pageSelection: [pageIndex]
-        )
-        await manager.testingProcessDownload(gid: gid)
-        let secondRunSnapshot = setup.recorder.snapshot()
-        #expect(secondRunSnapshot.previewPageNumbers.isEmpty)
-        #expect(secondRunSnapshot.mpvRequests == 0)
-        #expect(secondRunSnapshot.imageDispatchRequests == 0)
     }
 }
 
@@ -78,9 +72,44 @@ private struct MinimalSourceTestResult {
     let pageCount: Int
 }
 
+private struct MinimalSourceRetrySkipContext {
+    let container: NSPersistentContainer
+    let storage: DownloadFileStorage
+    let manager: DownloadManager
+    let gid: String
+    let pageIndex: Int
+    let setup: MinimalSourceTestResult
+    let manifest: DownloadManifest
+}
+
 // MARK: - Setup Helpers
 
 private extension DownloadRetryMinimalSourceTests {
+    func assertRetrySkipsCompletedSelection(
+        _ context: MinimalSourceRetrySkipContext
+    ) async throws {
+        try clearPersistedDownloads(in: context.container)
+        try insertPersistedDownload(
+            in: context.container, gid: context.gid, status: .partial,
+            completedPageCount: context.setup.pageCount,
+            pageCount: context.setup.pageCount,
+            remoteVersionSignature: context.setup.versionSignature,
+            latestRemoteVersionSignature: context.setup.versionSignature
+        )
+        try writeTemporaryManifestAndPages(
+            storage: context.storage, gid: context.gid,
+            manifest: context.manifest,
+            pageCount: context.setup.pageCount,
+            versionSignature: context.setup.versionSignature,
+            pageSelection: [context.pageIndex]
+        )
+        await context.manager.testingProcessDownload(gid: context.gid)
+        let snapshot = context.setup.recorder.snapshot()
+        #expect(snapshot.previewPageNumbers.isEmpty)
+        #expect(snapshot.mpvRequests == 0)
+        #expect(snapshot.imageDispatchRequests == 0)
+    }
+
     func setupMinimalSourceTest(
         manager: DownloadManager, sessionID: String, gid: String, pageIndex: Int
     ) async throws -> MinimalSourceTestResult {

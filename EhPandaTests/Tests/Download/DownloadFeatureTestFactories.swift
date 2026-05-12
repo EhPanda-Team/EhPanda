@@ -247,7 +247,7 @@ extension DownloadFeatureTestCase {
 
 // MARK: - Stub Handler Content
 
-struct StubHandlerContent {
+struct StubHandlerContent: Sendable {
     let detailHTML: Data
     let mpvHTML: Data
     let metadataResponse: Data
@@ -255,7 +255,7 @@ struct StubHandlerContent {
 
 // MARK: - Stub Route Context
 
-struct StubRouteContext {
+struct StubRouteContext: Sendable {
     let gid: String
     let pageIndex: Int
     let content: StubHandlerContent
@@ -315,14 +315,26 @@ extension DownloadFeatureTestCase {
             guard let url = request.url else { throw URLError(.badURL) }
             if url.host == "example.com" || allowedImageURLs.contains(url.absoluteString) {
                 recorder?.recordImageDownload()
-                return (try Self.stubResponse(url: url, contentType: "image/jpeg"), Data([0xFF, 0xD8, 0xFF, 0xD9]))
+                return (
+                    try DownloadFeatureTestStubRouter.stubResponse(
+                        url: url,
+                        contentType: "image/jpeg"
+                    ),
+                    Data([0xFF, 0xD8, 0xFF, 0xD9])
+                )
             }
-            return try Self.routeStubRequest(url: url, request: request, context: context)
+            return try DownloadFeatureTestStubRouter.routeStubRequest(
+                url: url,
+                request: request,
+                context: context
+            )
         }
         URLProtocol.registerClass(SharedSessionStubURLProtocol.self)
     }
+}
 
-    private static func routeStubRequest(
+private enum DownloadFeatureTestStubRouter {
+    static func routeStubRequest(
         url: URL, request: URLRequest,
         context: StubRouteContext
     ) throws -> (HTTPURLResponse, Data) {
@@ -362,7 +374,7 @@ extension DownloadFeatureTestCase {
         throw URLError(.unsupportedURL)
     }
 
-    private static func stubResponse(
+    static func stubResponse(
         url: URL, contentType: String
     ) throws -> HTTPURLResponse {
         try #require(HTTPURLResponse(
@@ -370,5 +382,4 @@ extension DownloadFeatureTestCase {
             headerFields: ["Content-Type": contentType]
         ))
     }
-
 }

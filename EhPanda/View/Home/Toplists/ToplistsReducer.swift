@@ -120,13 +120,13 @@ struct ToplistsReducer {
                 guard let index = Int(state.jumpPageIndex),
                       let pageNumber = state.pageNumber,
                       index > 0, index <= pageNumber.maximum + 1 else {
-                    return .run(operation: { _ in hapticsClient.generateNotificationFeedback(.error) })
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
                 }
                 return .send(.fetchGalleries(index - 1))
 
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
-                return .run(operation: { _ in hapticsClient.generateFeedback(.light) })
+                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
             case .setJumpPageAlertFocused(let isFocused):
                 state.jumpPageAlertFocused = isFocused
