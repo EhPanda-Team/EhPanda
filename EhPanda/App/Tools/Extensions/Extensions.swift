@@ -69,10 +69,8 @@ extension URL {
 
     var isAnimatedImage: Bool {
         switch pathExtension.lowercased() {
-        case "gif", "webp":
-            true
-        default:
-            false
+        case "gif", "webp": true
+        default: false
         }
     }
 

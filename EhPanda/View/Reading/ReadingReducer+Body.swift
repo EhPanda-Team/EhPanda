@@ -73,17 +73,17 @@ extension ReadingReducer {
                 return reduceRetryAllFailedWebImages(state: &state)
 
             case .copyImage(let imageURL):
-                return .send(.fetchImage(.copy(imageURL.isAnimatedImage), imageURL))
+                return .send(.fetchImage(.copy, imageURL))
 
             case .saveImage(let imageURL):
-                return .send(.fetchImage(.save(imageURL.isAnimatedImage), imageURL))
+                return .send(.fetchImage(.save, imageURL))
 
             case .saveImageDone(let isSucceeded):
                 state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error()
                 return .send(.setNavigation(.hud))
 
             case .shareImage(let imageURL):
-                return .send(.fetchImage(.share(imageURL.isAnimatedImage), imageURL))
+                return .send(.fetchImage(.share, imageURL))
 
             case .fetchImage(let action, let imageURL):
                 return .run { send in
@@ -289,19 +289,22 @@ extension ReadingReducer {
     ) -> Effect<Action> {
         if case .success(let image) = result {
             switch action {
-            case .copy(let isAnimated):
+            case .copy:
+                let isAnimated = image.hasAnimatedFrames
                 state.hudConfig = .copiedToClipboardSucceeded
                 return .merge(
                     .send(.setNavigation(.hud)),
                     .run(operation: { _ in clipboardClient.saveImage(image, isAnimated) })
                 )
-            case .save(let isAnimated):
+            case .save:
+                let isAnimated = image.hasAnimatedFrames
                 return .run { send in
                     let success = await imageClient.saveImageToPhotoLibrary(image, isAnimated)
                     await send(.saveImageDone(success))
                 }
-            case .share(let isAnimated):
-                if isAnimated, let data = image.kf.data(format: .GIF) {
+            case .share:
+                let isAnimated = image.hasAnimatedFrames
+                if isAnimated, let data = image.animatedSourceData {
                     return .send(.setNavigation(.share(.init(value: .data(data)))))
                 } else {
                     return .send(.setNavigation(.share(.init(value: .image(image)))))

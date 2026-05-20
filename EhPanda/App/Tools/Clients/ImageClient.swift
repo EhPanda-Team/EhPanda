@@ -23,7 +23,10 @@ extension ImageClient {
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
             await withCheckedContinuation { continuation in
-                if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
+                let data = isAnimated
+                    ? image.animatedSourceData
+                    : image.kf.data(format: .unknown)
+                if let data {
                     PHPhotoLibrary.shared().performChanges {
                         let request = PHAssetCreationRequest.forAsset()
                         request.addResource(with: .photo, data: data, options: nil)

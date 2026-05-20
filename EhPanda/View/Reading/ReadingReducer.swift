@@ -29,9 +29,7 @@ struct ReadingReducer {
     }
 
     enum ImageAction {
-        case copy(Bool)
-        case save(Bool)
-        case share(Bool)
+        case copy, save, share
     }
 
     @ObservableState
