@@ -5,7 +5,6 @@
 
 import SwiftUI
 import ComposableArchitecture
-import UniformTypeIdentifiers
 
 struct ClipboardClient: Sendable {
     let url: @Sendable () -> URL?
@@ -32,8 +31,9 @@ extension ClipboardClient {
         saveImage: { (image, isAnimated) in
             if isAnimated {
                 DispatchQueue.global(qos: .utility).async {
-                    if let data = image.kf.data(format: .GIF) {
-                        UIPasteboard.general.setData(data, forPasteboardType: UTType.gif.identifier)
+                    if let data = image.animatedSourceData,
+                       let pasteboardType = data.animatedImagePasteboardType {
+                        UIPasteboard.general.setData(data, forPasteboardType: pasteboardType)
                     } else {
                         UIPasteboard.general.image = image
                     }
