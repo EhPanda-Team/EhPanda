@@ -6,7 +6,6 @@ on:
     types: [closed]
 env:
   DEVELOPER_DIR: /Applications/Xcode_26.6.app
-  APP_VERSION: '2.8.1'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
@@ -43,11 +42,6 @@ jobs:
           -skipMacroValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'platform=iOS Simulator,name=iPhone Air'
-      - name: Bump version
-        id: bump-version
-        uses: yanamura/ios-bump-version@v1
-        with:
-          version: ${{ env.APP_VERSION }}
       - name: Xcode archive
         run: xcodebuild archive
           -skipMacroValidation
@@ -96,6 +90,7 @@ jobs:
           [[ ! -z "$min_os_version" ]] || exit 1
           [[ ! -z "$size" ]] || exit 1
           [[ ! -z "$sha256" ]] || exit 1
+          [[ ! -z "$notes" ]] || exit 1
           [[ ! -z "$privacy" ]] || exit 1
 
           {
@@ -145,11 +140,6 @@ jobs:
          body: ${{ github.event.pull_request.body }}
          name: ${{ github.event.pull_request.title }}
          tag_name: 'v${{ steps.retrieve-data.outputs.version }}'
-      - name: Commit bump version
-        run: |
-          git add .
-          git commit -m "Bump version"
-          git push origin HEAD
       - name: Update AltStore.json
         env:
           RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
@@ -200,10 +190,16 @@ jobs:
           git commit -m "Update AltStore.json"
           git push origin HEAD
       - name: Post release notes
+        env:
+          RELEASE_VERSION: ${{ steps.retrieve-data.outputs.version }}
+          RELEASE_BODY: ${{ github.event.pull_request.body }}
+          RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
         run: |
+         message="$(printf '*v%s Release Notes:*\n%s' "$RELEASE_VERSION" "$RELEASE_BODY")"
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
          -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         -d text='*v${{ steps.retrieve-data.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+         --data-urlencode "text=$message"
 
+         payload="$(jq -n --arg content "**v$RELEASE_VERSION Release Notes:**\n$RELEASE_NOTES" '{content: $content}')"
          curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.retrieve-data.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
+         -F "payload_json=$payload"
