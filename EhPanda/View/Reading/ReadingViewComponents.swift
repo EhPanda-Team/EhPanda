@@ -4,6 +4,8 @@
 
 import SwiftUI
 import Kingfisher
+import SDWebImage
+import SDWebImageSwiftUI
 
 // MARK: ImageStackConfig
 struct ImageStackConfig {
@@ -40,6 +42,7 @@ extension AutoPlayPolicy {
 struct HorizontalImageStack: View {
     private let index: Int
     private let isDualPage: Bool
+    private let isActive: Bool
     private let isDatabaseLoading: Bool
     private let backgroundColor: Color
     private let config: ImageStackConfig
@@ -61,7 +64,7 @@ struct HorizontalImageStack: View {
     private let shareImageAction: (URL) -> Void
 
     init(
-        index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
+        index: Int, isDualPage: Bool, isActive: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
         loadingStates: [Int: LoadingState], enablesLiveText: Bool,
         liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
@@ -74,6 +77,7 @@ struct HorizontalImageStack: View {
     ) {
         self.index = index
         self.isDualPage = isDualPage
+        self.isActive = isActive
         self.isDatabaseLoading = isDatabaseLoading
         self.backgroundColor = backgroundColor
         self.config = config
@@ -112,6 +116,7 @@ struct HorizontalImageStack: View {
             imageURL: imageURLs[index],
             loadingState: loadingStates[index] ?? .idle,
             isDualPage: isDualPage,
+            isActive: isActive,
             backgroundColor: backgroundColor,
             enablesLiveText: enablesLiveText,
             liveTextGroups: liveTextGroups[index] ?? [],
@@ -181,6 +186,7 @@ struct ImageContainer: View {
     private let imageURL: URL?
     private let loadingState: LoadingState
     private let isDualPage: Bool
+    private let isActive: Bool
     private let backgroundColor: Color
     private let enablesLiveText: Bool
     private let liveTextGroups: [LiveTextGroup]
@@ -195,6 +201,7 @@ struct ImageContainer: View {
         index: Int, imageURL: URL?,
         loadingState: LoadingState,
         isDualPage: Bool,
+        isActive: Bool,
         backgroundColor: Color,
         enablesLiveText: Bool,
         liveTextGroups: [LiveTextGroup],
@@ -209,6 +216,7 @@ struct ImageContainer: View {
         self.imageURL = imageURL
         self.loadingState = loadingState
         self.isDualPage = isDualPage
+        self.isActive = isActive
         self.backgroundColor = backgroundColor
         self.enablesLiveText = enablesLiveText
         self.liveTextGroups = liveTextGroups
@@ -220,42 +228,48 @@ struct ImageContainer: View {
         self.loadFailedAction = loadFailedAction
     }
 
-    private func placeholder(_ progress: Progress) -> some View {
-        Placeholder(style: .progress(
-            pageNumber: index, progress: progress,
-            isDualPage: isDualPage, backgroundColor: backgroundColor
-        ))
+    private func placeholder(_ progress: Progress?) -> some View {
+        Placeholder(
+            style: .progress(
+                pageNumber: index,
+                progress: progress,
+                isDualPage: isDualPage,
+                backgroundColor: backgroundColor
+            )
+        )
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
-        if let url, url.isFileURL {
-            if url.isAnimatedImage {
-                KFAnimatedImage(url)
-                    .cacheMemoryOnly()
-                    .placeholder(placeholder).fade(duration: 0.25)
-                    .onSuccess(onSuccess).onFailure(onFailure)
-            } else {
-                KFImage.url(
-                    url,
-                    cacheKey: localFileCacheKey(url)
-                )
-                .cacheMemoryOnly()
+        if let url, url.isPotentiallyAnimatedImage {
+            AnimatedImage(
+                url: url,
+                options: [.retryFailed, .continueInBackground, .handleCookies],
+                context: [.callbackQueue: SDCallbackQueue.main],
+                isAnimating: .constant(isActive),
+                placeholder: { placeholder(nil) }
+            )
+            .resizable()
+            .onViewUpdate { imageView, _ in
+                if !isActive {
+                    imageView.stopAnimating()
+                }
+            }
+            .onSuccess(perform: { _, _, _ in loadSucceededAction(index) })
+            .onFailure(perform: { _ in loadFailedAction(index) })
+            .clipped()
+        } else {
+            let isFileURL = url?.isFileURL ?? false
+            let cacheKey = url.map { url in
+                isFileURL
+                    ? localFileCacheKey(url)
+                    : url.stableImageCacheKey ?? url.absoluteString
+            }
+            KFImage.url(url, cacheKey: cacheKey)
+                .cacheMemoryOnly(isFileURL)
                 .placeholder(placeholder)
                 .defaultModifier(withRoundedCorners: false)
-                .onSuccess(onSuccess).onFailure(onFailure)
-            }
-        } else if url?.isAnimatedImage != true {
-            KFImage.url(
-                url,
-                cacheKey: url?.stableImageCacheKey ?? url?.absoluteString
-            )
-            .placeholder(placeholder)
-            .defaultModifier(withRoundedCorners: false)
-            .onSuccess(onSuccess).onFailure(onFailure)
-        } else {
-            KFAnimatedImage(url)
-                .placeholder(placeholder).fade(duration: 0.25)
-                .onSuccess(onSuccess).onFailure(onFailure)
+                .onSuccess(onSuccess)
+                .onFailure(onFailure)
         }
     }
 
@@ -304,6 +318,10 @@ struct ImageContainer: View {
         if imageURL != nil {
             loadFailedAction(index)
         }
+    }
+
+    private var emptyProgress: Progress {
+        Progress(totalUnitCount: 1)
     }
 
     private func localFileCacheKey(_ url: URL) -> String {

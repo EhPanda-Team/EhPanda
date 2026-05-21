@@ -7,6 +7,7 @@ import Photos
 import SwiftUI
 import Combine
 import Kingfisher
+import SDWebImage
 import ComposableArchitecture
 
 struct ImageClient: Sendable {
@@ -19,7 +20,25 @@ struct ImageClient: Sendable {
 extension ImageClient {
     static let live: Self = .init(
         prefetchImages: { urls in
-            ImagePrefetcher(urls: urls).start()
+            let (sdWebImageURLs, kingfisherURLs) = urls.reduce(into: ([URL](), [URL]())) { result, url in
+                if url.isPotentiallyAnimatedImage {
+                    result.0.append(url)
+                } else {
+                    result.1.append(url)
+                }
+            }
+            if !kingfisherURLs.isEmpty {
+                ImagePrefetcher(urls: kingfisherURLs).start()
+            }
+            if !sdWebImageURLs.isEmpty {
+                SDWebImagePrefetcher.shared.prefetchURLs(
+                    sdWebImageURLs,
+                    options: [.lowPriority, .continueInBackground, .handleCookies],
+                    context: [.animatedImageClass: SDAnimatedImage.self],
+                    progress: nil,
+                    completed: nil
+                )
+            }
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
             await withCheckedContinuation { continuation in
@@ -39,7 +58,24 @@ extension ImageClient {
             }
         },
         downloadImage: { url in
-            await withCheckedContinuation { continuation in
+            if url.isPotentiallyAnimatedImage {
+                let result: Result<UIImage, Error> = await withCheckedContinuation { continuation in
+                    SDWebImageManager.shared.loadImage(
+                        with: url,
+                        options: [.retryFailed, .continueInBackground, .handleCookies],
+                        context: [.callbackQueue: SDCallbackQueue.main],
+                        progress: nil
+                    ) { image, _, error, _, _, _ in
+                        if let image {
+                            continuation.resume(returning: .success(image))
+                        } else {
+                            continuation.resume(returning: .failure(error ?? AppError.notFound))
+                        }
+                    }
+                }
+                return result
+            }
+            let result: Result<UIImage, Error> = await withCheckedContinuation { continuation in
                 KingfisherManager.shared.downloader.downloadImage(with: url, options: nil) { result in
                     switch result {
                     case .success(let result):
@@ -49,6 +85,7 @@ extension ImageClient {
                     }
                 }
             }
+            return result
         },
         retrieveImage: { key in
             await withCheckedContinuation { continuation in

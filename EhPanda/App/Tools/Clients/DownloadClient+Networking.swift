@@ -315,7 +315,7 @@ extension DownloadManager {
         if let ext = extensionFromMimeType(response) {
             return ext
         }
-        return extensionFromMagicBytes(prefixData) ?? "jpg"
+        return prefixData.knownBinaryImageFileExtension ?? "jpg"
     }
 
     private func extensionFromMimeType(
@@ -337,26 +337,6 @@ extension DownloadManager {
         default:
             return nil
         }
-    }
-
-    private func extensionFromMagicBytes(
-        _ prefixData: Data
-    ) -> String? {
-        if prefixData.starts(with: [0x47, 0x49, 0x46]) {
-            return "gif"
-        }
-        if prefixData.starts(with: [0x89, 0x50, 0x4E, 0x47]) {
-            return "png"
-        }
-        if prefixData.starts(with: [0x52, 0x49, 0x46, 0x46]),
-           prefixData.count >= 12,
-           String(
-            bytes: prefixData[8..<12],
-            encoding: .utf8
-           ) == "WEBP" {
-            return "webp"
-        }
-        return nil
     }
 
     func createDirectory(at url: URL) throws {

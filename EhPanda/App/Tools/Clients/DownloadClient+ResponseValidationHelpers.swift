@@ -44,7 +44,7 @@ extension DownloadManager {
             return prefixLooksLikeHTML(prefixData)
         }
 
-        guard !prefixIsKnownBinaryImage(prefixData) else {
+        guard !prefixData.isKnownBinaryImageFormat else {
             return false
         }
         return true
@@ -109,26 +109,6 @@ extension DownloadManager {
         return Parser.parseDownloadPageError(
             content: rawContent
         )
-    }
-
-    func prefixIsKnownBinaryImage(
-        _ prefixData: Data
-    ) -> Bool {
-        prefixData.starts(with: [0xFF, 0xD8, 0xFF])
-            || prefixData.starts(
-                with: [0x89, 0x50, 0x4E, 0x47]
-            )
-            || prefixData.starts(with: [0x47, 0x49, 0x46])
-            || (
-                prefixData.starts(
-                    with: [0x52, 0x49, 0x46, 0x46]
-                )
-                && prefixData.count >= 12
-                && String(
-                    bytes: prefixData[8..<12],
-                    encoding: .utf8
-                ) == "WEBP"
-            )
     }
 
     func isQuotaExceededResponse(
