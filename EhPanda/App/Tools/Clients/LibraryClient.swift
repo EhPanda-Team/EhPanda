@@ -7,9 +7,10 @@ import SwiftUI
 import Combine
 import Foundation
 import Kingfisher
+import SDWebImage
+import SDWebImageWebPCoder
 import SwiftyBeaver
 import UIImageColors
-import KingfisherWebP
 import ComposableArchitecture
 
 struct LibraryClient: Sendable {
@@ -55,13 +56,19 @@ extension LibraryClient {
             let config = KingfisherManager.shared.downloader.sessionConfiguration
             config.httpCookieStorage = HTTPCookieStorage.shared
             KingfisherManager.shared.downloader.sessionConfiguration = config
-            KingfisherManager.shared.defaultOptions += [
-                .processor(WebPProcessor.default),
-                .cacheSerializer(WebPSerializer.default)
-            ]
+
+            let sdConfig = URLSessionConfiguration.default
+            sdConfig.httpCookieStorage = HTTPCookieStorage.shared
+            SDWebImageDownloaderConfig.default.sessionConfiguration = sdConfig
+            SDWebImageDownloader.shared.setValue(
+                "image/webp,image/apng,image/png,image/gif,image/*,*/*;q=0.8",
+                forHTTPHeaderField: "Accept"
+            )
+            SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
         },
         clearWebImageDiskCache: {
             KingfisherManager.shared.cache.clearDiskCache()
+            SDImageCache.shared.clearDisk(onCompletion: nil)
         },
         analyzeImageColors: { image in
             await withCheckedContinuation { continuation in
@@ -79,11 +86,17 @@ extension LibraryClient {
             }
         },
         calculateWebImageDiskCacheSize: {
-            await withCheckedContinuation { continuation in
+            async let kingfisherSize: UInt? = withCheckedContinuation { continuation in
                 KingfisherManager.shared.cache.calculateDiskStorageSize {
                     continuation.resume(returning: try? $0.get())
                 }
             }
+            async let sdWebImageSize: UInt? = withCheckedContinuation { continuation in
+                SDImageCache.shared.calculateSize { _, totalSize in
+                    continuation.resume(returning: UInt(totalSize))
+                }
+            }
+            return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0)
         }
     )
 }

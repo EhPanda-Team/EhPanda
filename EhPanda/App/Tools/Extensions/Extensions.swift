@@ -67,9 +67,9 @@ extension URL {
         "gid", "page", "imgkey", "fileindex", "xres", "p", "key"
     ]
 
-    var isAnimatedImage: Bool {
+    var isPotentiallyAnimatedImage: Bool {
         switch pathExtension.lowercased() {
-        case "gif", "webp": true
+        case "apng", "gif", "png", "webp": true
         default: false
         }
     }

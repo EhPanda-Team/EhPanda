@@ -242,9 +242,12 @@ struct ReadingView: View {
             isLandscape: DeviceUtil.isLandscape
         )
         let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
+        let dataSource = store.state.containerDataSource(setting: setting, isLandscape: DeviceUtil.isLandscape)
+        let activeStackIndex = dataSource.indices.contains(page.index) ? dataSource[page.index] : nil
         HorizontalImageStack(
             index: index,
             isDualPage: isDualPage,
+            isActive: index == activeStackIndex,
             isDatabaseLoading: store.databaseLoadingState != .idle,
             backgroundColor: backgroundColor,
             config: imageStackConfig,
