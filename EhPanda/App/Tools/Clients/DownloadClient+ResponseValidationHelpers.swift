@@ -68,6 +68,17 @@ extension DownloadManager {
         return htmlMarkers.contains(where: prefix.contains)
     }
 
+    func prefixLooksLikeJSON(_ prefixData: Data) -> Bool {
+        let prefix = String(
+            bytes: prefixData,
+            encoding: .utf8
+        )?
+        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard let firstCharacter = prefix.first else { return false }
+
+        return firstCharacter == "{" || firstCharacter == "["
+    }
+
     func responseLooksLikeHTML(
         mimeType: String?,
         prefixData: Data,

@@ -227,6 +227,10 @@ extension DownloadManager {
             encoding: .utf8
         ) ?? ""
 
+        guard !prefixLooksLikeJSON(prefixData) else {
+            return nil
+        }
+
         let looksLikeHTML = responseLooksLikeHTML(
             mimeType: mimeType,
             prefixData: prefixData,
