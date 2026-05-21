@@ -144,4 +144,38 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         }
     }
 
+    @Test
+    func testTextHTMLJSONAPIResponseDoesNotMapToParseFailed() async throws {
+        let manager = makeTestingDownloadManager()
+        let apiURL = try #require(URL(string: "https://e-hentai.org/api.php"))
+        let response = try makeResponse(
+            url: apiURL,
+            contentType: "text/html; charset=UTF-8"
+        )
+        let responsePayload: [String: String] = [
+            "d": "1184 x 1728 :: 14.78 MiB",
+            "o": "org",
+            "lf": #"fullimg/3861928/1/99j92okaldl/Karin_1.webp"#,
+            "ls": "?f_shash=6aa741ba4e302352139ae2fc7377c846e68d9093",
+            "ll": "6aa741ba4e302352139ae2fc7377c846e68d9093"
+                + "-15497378-1184-1728-wbp/forumtoken/3861928-1/Karin_1.webp",
+            "lo": "s/6aa741ba4e/3861928-1",
+            "xres": "1184",
+            "yres": "1728",
+            "i": "https://mrfmlfe.vzpqazmbjydh.hath.network:60000/h/"
+                + "6aa741ba4e302352139ae2fc7377c846e68d9093-15497378-1184-1728-wbp/"
+                + "keystamp=1779356100-f4c09dd971;fileindex=232157952;xres=org/Karin_1.webp",
+            "s": "48803"
+        ]
+        let data = try JSONSerialization.data(withJSONObject: responsePayload)
+
+        let error = await manager.testingDetectResponseError(
+            data: data,
+            response: response,
+            requestURL: apiURL
+        )
+
+        #expect(error == nil)
+    }
+
 }

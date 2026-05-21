@@ -115,5 +115,17 @@ extension DownloadManager {
             requestURL: requestURL
         )
     }
+
+    func testingDetectResponseError(
+        data: Data,
+        response: URLResponse,
+        requestURL: URL?
+    ) -> AppError? {
+        detectResponseError(
+            data: data,
+            response: response,
+            requestURL: requestURL
+        )
+    }
 }
 #endif
