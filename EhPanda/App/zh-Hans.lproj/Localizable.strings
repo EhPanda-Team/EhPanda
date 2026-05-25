@@ -399,6 +399,7 @@
 "downloads_view.empty_state.downloads" = "已下载的画廊会显示在这里。";
 "downloads_view.empty_state.no_matching_filters" = "没有下载项符合当前筛选条件。";
 "downloads_view.button.clear_filters" = "清除筛选";
+"downloads_view.button.validate_image_data" = "验证图片数据";
 "downloads_view.inspector.section.actions" = "操作";
 "downloads_view.inspector.section.pages" = "页面";
 "downloads_view.inspector.button.retry_failed_pages" = "重试失败页面（%d）";
@@ -407,6 +408,10 @@
 "downloads_view.inspector.page.pending" = "等待中";
 "downloads_view.inspector.page.tap_to_retry" = "点按以重试此页";
 "downloads_view.inspector.page.title" = "第 %d 页";
+"downloads_view.inspector.page.none" = "无页面";
+"downloads_view.inspector.status.pending" = "等待中";
+"downloads_view.inspector.status.downloaded" = "已下载";
+"downloads_view.inspector.status.failed" = "失败";
 
 // MARK: DownloadSettingView
 "download_setting_view.section.title.download_queue" = "下载队列";
@@ -478,6 +483,8 @@
 "download_file_storage.validation.downloaded_pages_incomplete" = "下载页面不完整。";
 "download_file_storage.validation.cover_image_missing" = "封面图片缺失。";
 "download_file_storage.validation.page_missing" = "第 %d 页缺失。";
+"download_file_storage.validation.cover_image_corrupted" = "封面图片数据已损坏。";
+"download_file_storage.validation.page_image_corrupted" = "第 %d 页图片数据已损坏。";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "筛选";

@@ -201,40 +201,6 @@ enum DownloadStartMode: String, Codable, Equatable, Sendable {
     case repair
 }
 
-struct DownloadManifest: Codable, Equatable {
-    struct Page: Codable, Equatable, Identifiable {
-        var id: Int { index }
-
-        let index: Int
-        let relativePath: String
-    }
-
-    let gid: String
-    let host: GalleryHost
-    let token: String
-    let title: String
-    let jpnTitle: String?
-    let category: Category
-    let language: Language
-    let uploader: String?
-    let tags: [GalleryTag]
-    let postedDate: Date
-    let pageCount: Int
-    let coverRelativePath: String?
-    let galleryURL: URL
-    let rating: Float
-    let downloadOptions: DownloadOptionsSnapshot
-    let versionSignature: String
-    let downloadedAt: Date
-    let pages: [Page]
-
-    func imageURLs(folderURL: URL) -> [Int: URL] {
-        Dictionary(uniqueKeysWithValues: pages.map {
-            ($0.index, folderURL.appendingPathComponent($0.relativePath))
-        })
-    }
-}
-
 struct DownloadFailedPagesSnapshot: Codable, Equatable, Sendable {
     struct Page: Codable, Equatable, Identifiable, Sendable {
         var id: Int { index }
@@ -251,7 +217,7 @@ struct DownloadFailedPagesSnapshot: Codable, Equatable, Sendable {
     }
 }
 
-enum DownloadPageStatus: String, Equatable, Sendable {
+enum DownloadPageStatus: String, Equatable, CaseIterable, Sendable {
     case pending
     case downloaded
     case failed

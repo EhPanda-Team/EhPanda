@@ -205,40 +205,21 @@ extension DownloadManager {
         finalizeContext: FinalizeContext
     ) async throws {
         let versionSignature = finalizeContext.versionSignature
-        let coverRelativePath = finalizeContext.coverRelativePath
         let batchResult = finalizeContext.batchResult
         let storedGalleryImageState = finalizeContext.storedGalleryImageState
         let existingDownload = finalizeContext.existingDownload
-        let manifest = DownloadManifest(
-            gid: payload.gallery.gid,
-            host: payload.host,
-            token: payload.gallery.token,
-            title: payload.gallery.title,
-            jpnTitle: payload.galleryDetail.jpnTitle,
-            category: payload.gallery.category,
-            language: payload.galleryDetail.language,
-            uploader: payload.galleryDetail.uploader,
-            tags: payload.gallery.tags,
-            postedDate: payload.galleryDetail.postedDate,
-            pageCount: payload.galleryDetail.pageCount,
-            coverRelativePath: coverRelativePath,
-            galleryURL:
-                payload.gallery.galleryURL.forceUnwrapped,
-            rating: payload.galleryDetail.rating,
-            downloadOptions: payload.options,
-            versionSignature: versionSignature,
-            downloadedAt: .now,
-            pages: batchResult.pages
-                .sorted(by: { $0.index < $1.index })
-                .map {
-                    .init(
-                        index: $0.index,
-                        relativePath: $0.relativePath
-                    )
-                }
+        let manifest = makeManifest(
+            payload: payload,
+            coverRelativePath: finalizeContext.coverRelativePath,
+            batchResult: batchResult,
+            versionSignature: versionSignature
+        )
+        let hashedManifest = try storage.addingCurrentFileHashes(
+            to: manifest,
+            folderURL: temporaryFolderURL
         )
         try storage.writeManifest(
-            manifest,
+            hashedManifest,
             folderURL: temporaryFolderURL
         )
         try? storage.removeFailedPages(
@@ -253,6 +234,41 @@ extension DownloadManager {
             storedGalleryImageState: storedGalleryImageState,
             pages: batchResult.pages,
             existingDownload: existingDownload
+        )
+    }
+
+    private func makeManifest(
+        payload: DownloadRequestPayload,
+        coverRelativePath: String?,
+        batchResult: DownloadBatchResult,
+        versionSignature: String
+    ) -> DownloadManifest {
+        DownloadManifest(
+            gid: payload.gallery.gid,
+            host: payload.host,
+            token: payload.gallery.token,
+            title: payload.gallery.title,
+            jpnTitle: payload.galleryDetail.jpnTitle,
+            category: payload.gallery.category,
+            language: payload.galleryDetail.language,
+            uploader: payload.galleryDetail.uploader,
+            tags: payload.gallery.tags,
+            postedDate: payload.galleryDetail.postedDate,
+            pageCount: payload.galleryDetail.pageCount,
+            coverRelativePath: coverRelativePath,
+            galleryURL: payload.gallery.galleryURL.forceUnwrapped,
+            rating: payload.galleryDetail.rating,
+            downloadOptions: payload.options,
+            versionSignature: versionSignature,
+            downloadedAt: .now,
+            pages: batchResult.pages
+                .sorted(by: { $0.index < $1.index })
+                .map {
+                    .init(
+                        index: $0.index,
+                        relativePath: $0.relativePath
+                    )
+                }
         )
     }
 }

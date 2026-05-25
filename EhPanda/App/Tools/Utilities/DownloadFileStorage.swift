@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import CryptoKit
 import Synchronization
 
 enum DownloadValidationState: Equatable {
@@ -236,6 +237,22 @@ struct DownloadFileStorage: Sendable {
         let manifestURL = folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         let data = try Data(contentsOf: manifestURL)
         return try JSONDecoder().decode(DownloadManifest.self, from: data)
+    }
+
+    func fileHash(at url: URL) throws -> String {
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+
+        var hasher = SHA256()
+        while true {
+            let data = try handle.read(upToCount: 1024 * 1024)
+            guard let data, !data.isEmpty else { break }
+            hasher.update(data: data)
+        }
+
+        let digest = hasher.finalize()
+        let hex = digest.map { String(format: "%02x", $0) }.joined()
+        return "sha256:\(hex)"
     }
 
     @discardableResult

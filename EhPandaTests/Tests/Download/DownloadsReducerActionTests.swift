@@ -144,6 +144,94 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testDownloadsReducerOpenReadingLoadsManifestAndRoutesToReader() async throws {
+        let download = sampleDownload(
+            gid: "135790",
+            title: "Readable Gallery",
+            status: .completed,
+            pageCount: 2
+        )
+        let manifest = try sampleManifest(
+            gid: download.gid,
+            title: download.title,
+            pageCount: 2,
+            versionSignature: "hash:v1"
+        )
+        var initialState = DownloadsReducer.State()
+        initialState.downloads = [download]
+
+        let store = TestStore(initialState: initialState) {
+            DownloadsReducer()
+        } withDependencies: {
+            $0.downloadClient = .init(
+                observeDownloads: {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                },
+                fetchDownloads: { [] },
+                fetchDownload: { _ in nil },
+                refreshDownloads: {},
+                resumeQueue: {},
+                badges: { _ in [:] },
+                updateRemoteSignature: { _, _ in .none },
+                enqueue: { _ in .success(()) },
+                togglePause: { _ in .success(()) },
+                retry: { _, _ in .success(()) },
+                delete: { _ in .success(()) },
+                loadManifest: { gid in
+                    gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
+                }
+            )
+        }
+        store.exhaustivity = .off
+
+        await store.send(.openReading(download.gid))
+        await store.receive(\.openReadingDone)
+
+        #expect(store.state.route == .reading(download.gid))
+        #expect(store.state.readingState.contentSource == .local(download, manifest))
+    }
+
+    @MainActor
+    @Test
+    func testDownloadsReducerValidateImageDataUsesDownloadClient() async {
+        let validated = UncheckedBox(false)
+        let store = TestStore(initialState: DownloadsReducer.State()) {
+            DownloadsReducer()
+        } withDependencies: {
+            $0.downloadClient = .init(
+                observeDownloads: {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                },
+                fetchDownloads: { [] },
+                fetchDownload: { _ in nil },
+                refreshDownloads: {},
+                validateImageData: {
+                    validated.value = true
+                },
+                resumeQueue: {},
+                badges: { _ in [:] },
+                updateRemoteSignature: { _, _ in .none },
+                enqueue: { _ in .success(()) },
+                togglePause: { _ in .success(()) },
+                retry: { _, _ in .success(()) },
+                delete: { _ in .success(()) },
+                loadManifest: { _ in .failure(.notFound) }
+            )
+        }
+        store.exhaustivity = .off
+
+        await store.send(.validateImageData)
+        await store.receive(\.validateImageDataDone)
+
+        #expect(validated.value)
+    }
+
+    @MainActor
+    @Test
     func testDownloadsReducerTogglePauseActionUsesDownloadClientPause() async {
         let toggled = UncheckedBox<[String]>([])
         let download = sampleDownload(

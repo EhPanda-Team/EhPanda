@@ -120,6 +120,16 @@ struct DownloadsView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
+        .fullScreenCover(item: $store.route.sending(\.setNavigation).reading, id: \.self) { route in
+            ReadingView(
+                store: store.scope(state: \.readingState, action: \.reading),
+                gid: route.wrappedValue,
+                setting: $setting,
+                blurRadius: blurRadius
+            )
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
+        }
         .onAppear {
             store.send(.onAppear)
         }
@@ -177,7 +187,10 @@ private extension DownloadsView {
                         setting: setting,
                         tagTranslator: tagTranslator
                     ) {
-                        store.send(.setNavigation(.detail(download.gid)))
+                        store.send(.openReading(download.gid))
+                    }
+                    .contextMenu {
+                        downloadContextMenu(download)
                     }
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
                         Button {
@@ -227,8 +240,59 @@ private extension DownloadsView {
                     }
                 }
             }
-            .listStyle(.plain)
             .refreshable { store.send(.refreshDownloads) }
+        }
+    }
+
+    @ViewBuilder private func downloadContextMenu(_ download: DownloadedGallery) -> some View {
+        Button {
+            store.send(.setNavigation(.detail(download.gid)))
+        } label: {
+            Label(
+                L10n.Localizable.DetailView.ContextMenu.Button.detail,
+                systemImage: "info.circle"
+            )
+        }
+
+        Button {
+            store.send(.setNavigation(.inspector(download.gid)))
+        } label: {
+            Label(
+                L10n.Localizable.DownloadsView.Swipe.Button.pages,
+                systemImage: "list.bullet.rectangle.portrait"
+            )
+        }
+
+        if download.canTriggerUpdate {
+            Button {
+                store.send(.updateDownload(download.gid))
+            } label: {
+                Label(
+                    L10n.Localizable.DownloadsView.Swipe.Button.update,
+                    systemImage: "arrow.triangle.2.circlepath"
+                )
+            }
+        }
+
+        if download.canPauseOrResume || download.isPendingQueue {
+            Button {
+                store.send(.toggleDownloadPause(download.gid))
+            } label: {
+                Label(
+                    download.status == .paused
+                        ? L10n.Localizable.DownloadsView.Swipe.Button.resume
+                        : L10n.Localizable.DownloadsView.Swipe.Button.pause,
+                    systemImage: download.status == .paused
+                        ? "play.fill"
+                        : "pause.fill"
+                )
+            }
+        }
+
+        Button(role: .destructive) {
+            rowDialog = .delete(download)
+        } label: {
+            Label(L10n.Localizable.ConfirmationDialog.Button.delete, systemSymbol: .trash)
         }
     }
 
@@ -293,6 +357,14 @@ private extension DownloadsView {
                 }
                 QuickSearchButton {
                     store.send(.setNavigation(.quickSearch()))
+                }
+                Button {
+                    store.send(.validateImageData)
+                } label: {
+                    Label(
+                        L10n.Localizable.DownloadsView.Button.validateImageData,
+                        systemImage: "checkmark.shield"
+                    )
                 }
                 if store.filter != .all || store.keyword.notEmpty || store.galleryFilter.hasActiveValues {
                     Button {

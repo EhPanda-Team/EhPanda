@@ -969,6 +969,7 @@
 "downloads_view.empty_state.downloads" = "다운로드한 갤러리가 여기에 표시됩니다.";
 "downloads_view.empty_state.no_matching_filters" = "현재 필터와 일치하는 다운로드가 없습니다.";
 "downloads_view.button.clear_filters" = "필터 지우기";
+"downloads_view.button.validate_image_data" = "이미지 데이터 검증";
 "downloads_view.inspector.section.actions" = "동작";
 "downloads_view.inspector.section.pages" = "페이지";
 "downloads_view.inspector.button.retry_failed_pages" = "실패한 페이지 다시 시도 (%d)";
@@ -977,6 +978,10 @@
 "downloads_view.inspector.page.pending" = "대기 중";
 "downloads_view.inspector.page.tap_to_retry" = "탭하여 이 페이지를 다시 시도";
 "downloads_view.inspector.page.title" = "페이지 %d";
+"downloads_view.inspector.page.none" = "페이지 없음";
+"downloads_view.inspector.status.pending" = "대기 중";
+"downloads_view.inspector.status.downloaded" = "다운로드됨";
+"downloads_view.inspector.status.failed" = "실패";
 "download_setting_view.section.title.download_queue" = "다운로드 대기열";
 "download_setting_view.section.title.network" = "네트워크";
 "download_setting_view.title.concurrent_image_downloads" = "동시 이미지 다운로드 수";
@@ -1013,3 +1018,5 @@
 "download_file_storage.validation.downloaded_pages_incomplete" = "다운로드한 페이지가 불완전합니다.";
 "download_file_storage.validation.cover_image_missing" = "표지 이미지가 없습니다.";
 "download_file_storage.validation.page_missing" = "페이지 %d가 없습니다.";
+"download_file_storage.validation.cover_image_corrupted" = "표지 이미지 데이터가 손상되었습니다.";
+"download_file_storage.validation.page_image_corrupted" = "페이지 %d 이미지 데이터가 손상되었습니다.";

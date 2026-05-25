@@ -967,6 +967,7 @@
 "downloads_view.empty_state.downloads" = "已下載的畫廊會顯示在這裡。";
 "downloads_view.empty_state.no_matching_filters" = "沒有下載項符合目前的篩選條件。";
 "downloads_view.button.clear_filters" = "清除篩選";
+"downloads_view.button.validate_image_data" = "驗證圖片資料";
 "downloads_view.inspector.section.actions" = "操作";
 "downloads_view.inspector.section.pages" = "頁面";
 "downloads_view.inspector.button.retry_failed_pages" = "重試失敗頁面（%d）";
@@ -975,6 +976,10 @@
 "downloads_view.inspector.page.pending" = "等待中";
 "downloads_view.inspector.page.tap_to_retry" = "點按以重試此頁";
 "downloads_view.inspector.page.title" = "第 %d 頁";
+"downloads_view.inspector.page.none" = "沒有頁面";
+"downloads_view.inspector.status.pending" = "等待中";
+"downloads_view.inspector.status.downloaded" = "已下載";
+"downloads_view.inspector.status.failed" = "失敗";
 "download_setting_view.section.title.download_queue" = "下載佇列";
 "download_setting_view.section.title.network" = "網路";
 "download_setting_view.title.concurrent_image_downloads" = "並行圖片下載";
@@ -1011,3 +1016,5 @@
 "download_file_storage.validation.downloaded_pages_incomplete" = "下載頁面不完整。";
 "download_file_storage.validation.cover_image_missing" = "封面圖片缺失。";
 "download_file_storage.validation.page_missing" = "第 %d 頁缺失。";
+"download_file_storage.validation.cover_image_corrupted" = "封面圖片資料已損壞。";
+"download_file_storage.validation.page_image_corrupted" = "第 %d 頁圖片資料已損壞。";

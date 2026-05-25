@@ -399,6 +399,7 @@
 "downloads_view.empty_state.downloads" = "Downloaded galleries will appear here.";
 "downloads_view.empty_state.no_matching_filters" = "No downloads match the current filters.";
 "downloads_view.button.clear_filters" = "Clear Filters";
+"downloads_view.button.validate_image_data" = "Validate Image Data";
 "downloads_view.inspector.section.actions" = "Actions";
 "downloads_view.inspector.section.pages" = "Pages";
 "downloads_view.inspector.button.retry_failed_pages" = "Retry Failed Pages (%d)";
@@ -407,6 +408,10 @@
 "downloads_view.inspector.page.pending" = "Pending";
 "downloads_view.inspector.page.tap_to_retry" = "Tap to retry this page";
 "downloads_view.inspector.page.title" = "Page %d";
+"downloads_view.inspector.page.none" = "No pages";
+"downloads_view.inspector.status.pending" = "Pending";
+"downloads_view.inspector.status.downloaded" = "Downloaded";
+"downloads_view.inspector.status.failed" = "Failed";
 
 // MARK: DownloadSettingView
 "download_setting_view.section.title.download_queue" = "Download Queue";
@@ -478,6 +483,8 @@
 "download_file_storage.validation.downloaded_pages_incomplete" = "Downloaded pages are incomplete.";
 "download_file_storage.validation.cover_image_missing" = "Cover image is missing.";
 "download_file_storage.validation.page_missing" = "Page %d is missing.";
+"download_file_storage.validation.cover_image_corrupted" = "Cover image data is corrupted.";
+"download_file_storage.validation.page_image_corrupted" = "Page %d image data is corrupted.";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "Filters";

@@ -969,6 +969,7 @@
 "downloads_view.empty_state.downloads" = "Heruntergeladene Galerien werden hier angezeigt.";
 "downloads_view.empty_state.no_matching_filters" = "Keine Downloads entsprechen den aktuellen Filtern.";
 "downloads_view.button.clear_filters" = "Filter löschen";
+"downloads_view.button.validate_image_data" = "Bilddaten validieren";
 "downloads_view.inspector.section.actions" = "Aktionen";
 "downloads_view.inspector.section.pages" = "Seiten";
 "downloads_view.inspector.button.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen (%d)";
@@ -977,6 +978,10 @@
 "downloads_view.inspector.page.pending" = "Ausstehend";
 "downloads_view.inspector.page.tap_to_retry" = "Tippen, um diese Seite erneut zu versuchen";
 "downloads_view.inspector.page.title" = "Seite %d";
+"downloads_view.inspector.page.none" = "Keine Seiten";
+"downloads_view.inspector.status.pending" = "Ausstehend";
+"downloads_view.inspector.status.downloaded" = "Heruntergeladen";
+"downloads_view.inspector.status.failed" = "Fehlgeschlagen";
 "download_setting_view.section.title.download_queue" = "Download-Warteschlange";
 "download_setting_view.section.title.network" = "Netzwerk";
 "download_setting_view.title.concurrent_image_downloads" = "Gleichzeitige Bilddownloads";
@@ -1013,3 +1018,5 @@
 "download_file_storage.validation.downloaded_pages_incomplete" = "Heruntergeladene Seiten sind unvollständig.";
 "download_file_storage.validation.cover_image_missing" = "Coverbild fehlt.";
 "download_file_storage.validation.page_missing" = "Seite %d fehlt.";
+"download_file_storage.validation.cover_image_corrupted" = "Coverbilddaten sind beschädigt.";
+"download_file_storage.validation.page_image_corrupted" = "Bilddaten von Seite %d sind beschädigt.";

@@ -84,11 +84,13 @@ struct DownloadInspectorView: View {
                             }
                         }
 
-                        Section(L10n.Localizable.DownloadsView.Inspector.Section.pages) {
-                            ForEach(inspection.pages) { page in
-                                DownloadInspectorPageRow(page: page) {
-                                    store.send(.retryPage(page.index))
-                                }
+                        ForEach(DownloadPageStatus.allCases, id: \.self) { status in
+                            let pages = inspection.pages.filter { $0.status == status }
+                            Section(status.sectionTitle(count: pages.count)) {
+                                DownloadInspectorPageGroupRow(
+                                    status: status,
+                                    pages: pages
+                                )
                             }
                         }
                     }
@@ -108,6 +110,101 @@ struct DownloadInspectorView: View {
         }
         .onAppear {
             store.send(.onAppear)
+        }
+    }
+}
+
+struct DownloadInspectorPageGroupRow: View {
+    let status: DownloadPageStatus
+    let pages: [DownloadPageInspection]
+
+    private var pageNumbersText: String {
+        let indices = pages.map(\.index).sorted()
+        guard !indices.isEmpty else {
+            return L10n.Localizable.DownloadsView.Inspector.Page.none
+        }
+        return Self.formattedPageRanges(indices)
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: status.symbolName)
+                .foregroundStyle(status.tint)
+                .font(.title3)
+                .frame(width: 24)
+
+            Text(pageNumbersText)
+                .font(.callout)
+                .foregroundStyle(pages.isEmpty ? .secondary : .primary)
+                .lineLimit(nil)
+                .textSelection(.enabled)
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+    }
+
+    private static func formattedPageRanges(_ indices: [Int]) -> String {
+        var ranges = [String]()
+        var rangeStart: Int?
+        var previous: Int?
+
+        func appendCurrentRange() {
+            guard let start = rangeStart,
+                  let end = previous
+            else { return }
+            ranges.append(start == end ? "\(start)" : "\(start)-\(end)")
+        }
+
+        for index in indices {
+            if let last = previous, index == last + 1 {
+                previous = index
+                continue
+            }
+            appendCurrentRange()
+            rangeStart = index
+            previous = index
+        }
+        appendCurrentRange()
+
+        return ranges.joined(separator: ", ")
+    }
+}
+
+private extension DownloadPageStatus {
+    var title: String {
+        switch self {
+        case .pending:
+            return L10n.Localizable.DownloadsView.Inspector.Status.pending
+        case .downloaded:
+            return L10n.Localizable.DownloadsView.Inspector.Status.downloaded
+        case .failed:
+            return L10n.Localizable.DownloadsView.Inspector.Status.failed
+        }
+    }
+
+    func sectionTitle(count: Int) -> String {
+        "\(title) (\(count))"
+    }
+
+    var symbolName: String {
+        switch self {
+        case .pending:
+            return "clock"
+        case .downloaded:
+            return "checkmark.circle.fill"
+        case .failed:
+            return "exclamationmark.circle.fill"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .pending:
+            return .secondary
+        case .downloaded:
+            return .green
+        case .failed:
+            return .red
         }
     }
 }

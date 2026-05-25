@@ -106,6 +106,10 @@ extension ReadingReducer {
             state.forceRefreshID = .init()
         }
         state.localPageURLs = localPageURLs
+        localPageURLs.keys.forEach {
+            state.imageURLLoadingStates[$0] = .idle
+            state.previewLoadingStates[$0] = .idle
+        }
         return .none
     }
 

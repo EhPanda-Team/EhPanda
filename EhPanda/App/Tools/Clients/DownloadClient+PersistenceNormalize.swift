@@ -183,6 +183,7 @@ extension DownloadManager {
                 .validate(download: download)
             switch validation {
             case .valid:
+                refreshMissingManifestHashesIfNeeded(download: download)
                 let expectedStatus: DownloadStatus =
                     download.hasUpdate
                     ? .updateAvailable : .completed
@@ -220,5 +221,36 @@ extension DownloadManager {
                 }
             }
         }
+    }
+
+    func validateImageData() async {
+        await validateDownloads()
+        await notifyObservers()
+    }
+
+    private func refreshMissingManifestHashesIfNeeded(
+        download: DownloadedGallery
+    ) {
+        guard let folderURL = download
+                .resolvedFolderURL(rootURL: storage.rootURL),
+              let manifest = try? storage.readManifest(folderURL: folderURL),
+              manifest.needsFileHashRefresh
+        else {
+            return
+        }
+
+        do {
+            try storage.refreshManifestFileHashes(folderURL: folderURL)
+        } catch {
+            Logger.error(error)
+        }
+    }
+}
+
+private extension DownloadManifest {
+    var needsFileHashRefresh: Bool {
+        let needsCoverHash = coverRelativePath?.notEmpty == true
+            && coverFileHash == nil
+        return needsCoverHash || pages.contains { $0.fileHash == nil }
     }
 }
