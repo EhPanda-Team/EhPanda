@@ -14,6 +14,7 @@ struct DownloadsReducer {
         case filters(EquatableVoid = .init())
         case inspector(String)
         case detail(String)
+        case reading(String)
     }
 
     private enum CancelID {
@@ -31,8 +32,10 @@ struct DownloadsReducer {
         var hasLoadedInitialDownloads = false
 
         var detailState: Heap<DetailReducer.State?>
+        var readingState = ReadingReducer.State()
         var inspectorState = DownloadInspectorReducer.State()
         var quickSearchState = QuickSearchReducer.State()
+        var readingRequestID = UUID()
 
         init() {
             detailState = .init(.init())
@@ -64,6 +67,10 @@ struct DownloadsReducer {
         case observeDownloadsDone([DownloadedGallery])
         case refreshDownloads
         case refreshDownloadsDone
+        case validateImageData
+        case validateImageDataDone
+        case openReading(String)
+        case openReadingDone(UUID, String, Result<(DownloadedGallery, DownloadManifest), AppError>)
         case toggleDownloadPause(String)
         case toggleDownloadPauseDone(Result<Void, AppError>)
         case updateDownload(String)
@@ -72,6 +79,7 @@ struct DownloadsReducer {
         case deleteDownloadDone(Result<Void, AppError>)
 
         case detail(DetailReducer.Action)
+        case reading(ReadingReducer.Action)
         case inspector(DownloadInspectorReducer.Action)
         case quickSearch(QuickSearchReducer.Action)
     }
@@ -105,10 +113,12 @@ struct DownloadsReducer {
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
+                state.readingState = .init()
                 state.inspectorState = .init()
                 state.quickSearchState = .init()
                 return .merge(
                     .send(.detail(.teardown)),
+                    .send(.reading(.teardown)),
                     .send(.inspector(.teardown)),
                     .send(.quickSearch(.teardown))
                 )
@@ -162,6 +172,40 @@ struct DownloadsReducer {
             case .refreshDownloadsDone:
                 return .none
 
+            case .validateImageData:
+                return .run { send in
+                    await downloadClient.validateImageData()
+                    await send(.validateImageDataDone)
+                }
+
+            case .validateImageDataDone:
+                return .none
+
+            case .openReading(let gid):
+                let requestID = UUID()
+                state.readingRequestID = requestID
+                state.readingState = .init(contentSource: .remote)
+                if let download = state.downloads.first(where: { $0.gid == gid }) {
+                    state.readingState.applyDownloadFallback(download)
+                }
+                return .run { send in
+                    await send(
+                        .openReadingDone(
+                            requestID,
+                            gid,
+                            await downloadClient.loadManifest(gid)
+                        )
+                    )
+                }
+
+            case .openReadingDone(let requestID, let gid, let result):
+                guard state.readingRequestID == requestID else { return .none }
+                if case .success(let (download, manifest)) = result {
+                    state.readingState = .init(contentSource: .local(download, manifest))
+                }
+                state.route = .reading(gid)
+                return .none
+
             case .toggleDownloadPause(let gid):
                 return .run { send in
                     await send(.toggleDownloadPauseDone(await downloadClient.togglePause(gid)))
@@ -194,6 +238,12 @@ struct DownloadsReducer {
             case .detail:
                 return .none
 
+            case .reading(.onPerformDismiss):
+                return .send(.setNavigation(nil))
+
+            case .reading:
+                return .none
+
             case .inspector:
                 return .none
 
@@ -205,9 +255,38 @@ struct DownloadsReducer {
         Scope(state: \.detailState.wrappedValue!, action: \.detail) {
             DetailReducer()
         }
+        Scope(state: \.readingState, action: \.reading) {
+            ReadingReducer()
+        }
         Scope(state: \.inspectorState, action: \.inspector) {
             DownloadInspectorReducer()
         }
         Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
+    }
+}
+
+private extension ReadingReducer.State {
+    mutating func applyDownloadFallback(_ download: DownloadedGallery) {
+        gallery = download.gallery
+        galleryDetail = GalleryDetail(
+            gid: download.gid,
+            title: download.title,
+            jpnTitle: download.jpnTitle,
+            isFavorited: false,
+            visibility: .yes,
+            rating: download.rating,
+            userRating: 0,
+            ratingCount: 0,
+            category: download.category,
+            language: .other,
+            uploader: download.uploader ?? "",
+            postedDate: download.postedDate,
+            coverURL: download.coverURL,
+            favoritedCount: 0,
+            pageCount: download.pageCount,
+            sizeCount: 0,
+            sizeType: "",
+            torrentCount: 0
+        )
     }
 }

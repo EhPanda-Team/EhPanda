@@ -77,6 +77,88 @@ extension DownloadFileStorage {
         }
     }
 
+    func addingCurrentFileHashes(
+        to manifest: DownloadManifest,
+        folderURL: URL
+    ) throws -> DownloadManifest {
+        let coverFileHash: String?
+        if let coverRelativePath = manifest.coverRelativePath,
+           coverRelativePath.notEmpty {
+            coverFileHash = try hashReadableAsset(
+                folderURL: folderURL,
+                relativePath: coverRelativePath,
+                missingMessage: L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing
+            )
+        } else {
+            coverFileHash = nil
+        }
+
+        let pages = try manifest.pages.map { page in
+            DownloadManifest.Page(
+                index: page.index,
+                relativePath: page.relativePath,
+                fileHash: try hashReadableAsset(
+                    folderURL: folderURL,
+                    relativePath: page.relativePath,
+                    missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index)
+                )
+            )
+        }
+
+        return manifest.replacing(
+            coverFileHash: coverFileHash,
+            pages: pages
+        )
+    }
+
+    @discardableResult
+    func refreshManifestFileHashes(folderURL: URL) throws -> DownloadManifest {
+        let manifest = try readManifest(folderURL: folderURL)
+        let hashedManifest = try addingCurrentFileHashes(
+            to: manifest,
+            folderURL: folderURL
+        )
+        if hashedManifest != manifest {
+            try writeManifest(hashedManifest, folderURL: folderURL)
+        }
+        return hashedManifest
+    }
+
+    @discardableResult
+    func refreshManifestPageFileHash(
+        folderURL: URL,
+        pageIndex: Int,
+        relativePath: String? = nil
+    ) throws -> DownloadManifest {
+        let manifest = try readManifest(folderURL: folderURL)
+        var didUpdate = false
+        let pages = try manifest.pages.map { page in
+            guard page.index == pageIndex else { return page }
+            didUpdate = true
+            let refreshedRelativePath = relativePath ?? page.relativePath
+            return DownloadManifest.Page(
+                index: page.index,
+                relativePath: refreshedRelativePath,
+                fileHash: try hashReadableAsset(
+                    folderURL: folderURL,
+                    relativePath: refreshedRelativePath,
+                    missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index)
+                )
+            )
+        }
+
+        guard didUpdate else { return manifest }
+
+        let refreshedManifest = manifest.replacing(
+            coverFileHash: manifest.coverFileHash,
+            pages: pages
+        )
+        if refreshedManifest != manifest {
+            try writeManifest(refreshedManifest, folderURL: folderURL)
+        }
+        return refreshedManifest
+    }
+
     func removeFolder(relativePath: String) throws {
         let targetURL = folderURL(relativePath: relativePath)
         guard fileManager.fileExists(atPath: targetURL.path) else { return }
@@ -116,20 +198,17 @@ extension DownloadFileStorage {
         guard manifest.pageCount == manifest.pages.count else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadedPagesIncomplete)
         }
-        if let coverRelativePath = manifest.coverRelativePath,
-           !coverRelativePath.isEmpty {
-            guard let coverURL = validatedChildURL(root: folderURL, relativePath: coverRelativePath),
-                  sanitizeAssetFileIfNeeded(at: coverURL)
-            else {
-                return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing)
-            }
+        if let coverValidationFailure = validateCover(
+            folderURL: folderURL,
+            manifest: manifest
+        ) {
+            return coverValidationFailure
         }
-        for page in manifest.pages {
-            guard let pageURL = validatedChildURL(root: folderURL, relativePath: page.relativePath),
-                  sanitizeAssetFileIfNeeded(at: pageURL)
-            else {
-                return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index))
-            }
+        if let pageValidationFailure = validatePages(
+            folderURL: folderURL,
+            pages: manifest.pages
+        ) {
+            return pageValidationFailure
         }
         return .valid
     }
@@ -145,5 +224,103 @@ extension DownloadFileStorage {
 
     func isReadableAssetFile(at url: URL) -> Bool {
         sanitizeAssetFileIfNeeded(at: url)
+    }
+
+    private func hashReadableAsset(
+        folderURL: URL,
+        relativePath: String,
+        missingMessage: String
+    ) throws -> String {
+        guard let fileURL = validatedChildURL(root: folderURL, relativePath: relativePath),
+              sanitizeAssetFileIfNeeded(at: fileURL)
+        else {
+            throw AppError.fileOperationFailed(missingMessage)
+        }
+        return try fileHash(at: fileURL)
+    }
+
+    private func validateCover(
+        folderURL: URL,
+        manifest: DownloadManifest
+    ) -> DownloadValidationState? {
+        guard let coverRelativePath = manifest.coverRelativePath,
+              coverRelativePath.notEmpty
+        else { return nil }
+
+        guard let coverURL = validatedChildURL(root: folderURL, relativePath: coverRelativePath),
+              sanitizeAssetFileIfNeeded(at: coverURL)
+        else {
+            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing)
+        }
+
+        if let expectedHash = manifest.coverFileHash,
+           (try? fileHash(at: coverURL)) != expectedHash {
+            return .missingFiles(
+                L10n.Localizable.DownloadFileStorage.Validation.coverImageCorrupted
+            )
+        }
+
+        return nil
+    }
+
+    private func validatePages(
+        folderURL: URL,
+        pages: [DownloadManifest.Page]
+    ) -> DownloadValidationState? {
+        for page in pages {
+            if let validationFailure = validatePage(folderURL: folderURL, page: page) {
+                return validationFailure
+            }
+        }
+        return nil
+    }
+
+    private func validatePage(
+        folderURL: URL,
+        page: DownloadManifest.Page
+    ) -> DownloadValidationState? {
+        guard let pageURL = validatedChildURL(root: folderURL, relativePath: page.relativePath),
+              sanitizeAssetFileIfNeeded(at: pageURL)
+        else {
+            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index))
+        }
+
+        if let expectedHash = page.fileHash,
+           (try? fileHash(at: pageURL)) != expectedHash {
+            return .missingFiles(
+                L10n.Localizable.DownloadFileStorage.Validation.pageImageCorrupted(page.index)
+            )
+        }
+
+        return nil
+    }
+}
+
+private extension DownloadManifest {
+    func replacing(
+        coverFileHash: String?,
+        pages: [Page]
+    ) -> DownloadManifest {
+        DownloadManifest(
+            gid: gid,
+            host: host,
+            token: token,
+            title: title,
+            jpnTitle: jpnTitle,
+            category: category,
+            language: language,
+            uploader: uploader,
+            tags: tags,
+            postedDate: postedDate,
+            pageCount: pageCount,
+            coverRelativePath: coverRelativePath,
+            coverFileHash: coverFileHash,
+            galleryURL: galleryURL,
+            rating: rating,
+            downloadOptions: downloadOptions,
+            versionSignature: versionSignature,
+            downloadedAt: downloadedAt,
+            pages: pages
+        )
     }
 }

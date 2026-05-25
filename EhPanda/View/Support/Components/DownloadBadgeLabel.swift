@@ -7,23 +7,45 @@ import SwiftUI
 
 struct DownloadBadgeLabel: View {
     private let badge: DownloadBadge
-    private let compact: Bool
+    private let isCompactStyle: Bool
 
-    init(badge: DownloadBadge, compact: Bool = false) {
+    init?(badge: DownloadBadge, compact: Bool = false) {
+        guard badge != .none else { return nil }
+
         self.badge = badge
-        self.compact = compact
+        self.isCompactStyle = compact
     }
 
     var body: some View {
-        if badge != .none {
-            Text(compact ? compactText : badge.text)
-                .font(compact ? .caption2.bold() : .caption.bold())
-                .foregroundStyle(foregroundColor)
-                .padding(.horizontal, compact ? 6 : 8)
-                .padding(.vertical, compact ? 3 : 4)
-                .background(backgroundColor)
-                .clipShape(Capsule())
+        labelText
+            .foregroundStyle(foregroundColor)
+            .padding(.horizontal, isCompactStyle ? 6 : 8)
+            .padding(.vertical, isCompactStyle ? 3 : 4)
+            .background(backgroundColor)
+            .clipShape(.capsule)
+    }
+
+    private var labelText: Text {
+        if isCompactStyle {
+            Text(compactText)
+                .font(.caption2.bold())
+        } else {
+            Text(attributedText)
         }
+    }
+
+    private var attributedText: AttributedString {
+        let baseFont = Font.caption.bold()
+        let label = badge.labelContent
+        let separator = " "
+        var text = AttributedString(label.text)
+        text.font = baseFont
+        if let numbers = label.numbers {
+            var numberText = AttributedString([separator, numbers].joined())
+            numberText.font = baseFont.monospacedDigit()
+            text += numberText
+        }
+        return text
     }
 
     private var compactText: String {

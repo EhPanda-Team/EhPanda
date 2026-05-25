@@ -593,6 +593,8 @@ internal enum L10n {
         }
       }
       internal enum Validation {
+        /// Cover image data is corrupted.
+        internal static let coverImageCorrupted = L10n.tr("Localizable", "download_file_storage.validation.cover_image_corrupted", fallback: "Cover image data is corrupted.")
         /// Cover image is missing.
         internal static let coverImageMissing = L10n.tr("Localizable", "download_file_storage.validation.cover_image_missing", fallback: "Cover image is missing.")
         /// Download folder is missing.
@@ -605,6 +607,10 @@ internal enum L10n {
         internal static let manifestCorrupted = L10n.tr("Localizable", "download_file_storage.validation.manifest_corrupted", fallback: "Manifest file is corrupted.")
         /// Manifest file is missing.
         internal static let manifestMissing = L10n.tr("Localizable", "download_file_storage.validation.manifest_missing", fallback: "Manifest file is missing.")
+        /// Page %d image data is corrupted.
+        internal static func pageImageCorrupted(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "download_file_storage.validation.page_image_corrupted", p1, fallback: "Page %d image data is corrupted.")
+        }
         /// Page %d is missing.
         internal static func pageMissing(_ p1: Int) -> String {
           return L10n.tr("Localizable", "download_file_storage.validation.page_missing", p1, fallback: "Page %d is missing.")
@@ -637,6 +643,8 @@ internal enum L10n {
       internal enum Button {
         /// Clear Filters
         internal static let clearFilters = L10n.tr("Localizable", "downloads_view.button.clear_filters", fallback: "Clear Filters")
+        /// Validate Image Data
+        internal static let validateImageData = L10n.tr("Localizable", "downloads_view.button.validate_image_data", fallback: "Validate Image Data")
       }
       internal enum Dialog {
         internal enum Message {
@@ -666,6 +674,8 @@ internal enum L10n {
           internal static let updateDownload = L10n.tr("Localizable", "downloads_view.inspector.button.update_download", fallback: "Update Download")
         }
         internal enum Page {
+          /// No pages
+          internal static let `none` = L10n.tr("Localizable", "downloads_view.inspector.page.none", fallback: "No pages")
           /// Pending
           internal static let pending = L10n.tr("Localizable", "downloads_view.inspector.page.pending", fallback: "Pending")
           /// Tap to retry this page
@@ -680,6 +690,14 @@ internal enum L10n {
           internal static let actions = L10n.tr("Localizable", "downloads_view.inspector.section.actions", fallback: "Actions")
           /// Pages
           internal static let pages = L10n.tr("Localizable", "downloads_view.inspector.section.pages", fallback: "Pages")
+        }
+        internal enum Status {
+          /// Downloaded
+          internal static let downloaded = L10n.tr("Localizable", "downloads_view.inspector.status.downloaded", fallback: "Downloaded")
+          /// Failed
+          internal static let failed = L10n.tr("Localizable", "downloads_view.inspector.status.failed", fallback: "Failed")
+          /// Pending
+          internal static let pending = L10n.tr("Localizable", "downloads_view.inspector.status.pending", fallback: "Pending")
         }
         internal enum Title {
           /// Download Status

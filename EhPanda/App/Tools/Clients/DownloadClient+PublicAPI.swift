@@ -331,6 +331,11 @@ extension DownloadManager {
                     index: index, folderURL: captureTarget.folderURL
                 )
             }
+            _ = try? storage.refreshManifestPageFileHash(
+                folderURL: captureTarget.folderURL,
+                pageIndex: index,
+                relativePath: pageResult.relativePath
+            )
             _ = await sanitizeLocalFilesIfNeeded(gid: gid, clearingLastError: true)
         } catch {
             Logger.error(error)

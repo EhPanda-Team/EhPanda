@@ -12,6 +12,7 @@ struct DownloadClient: Sendable {
     let fetchDownload: @Sendable (String) async -> DownloadedGallery?
     let reconcileDownloads: @Sendable () async -> Void
     let refreshDownloads: @Sendable () async -> Void
+    let validateImageData: @Sendable () async -> Void
     let resumeQueue: @Sendable () async -> Void
     let badges: @Sendable ([String]) async -> [String: DownloadBadge]
     let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
@@ -32,6 +33,7 @@ struct DownloadClient: Sendable {
         fetchDownload: @escaping @Sendable (String) async -> DownloadedGallery?,
         reconcileDownloads: @escaping @Sendable () async -> Void = {},
         refreshDownloads: @escaping @Sendable () async -> Void,
+        validateImageData: @escaping @Sendable () async -> Void = {},
         resumeQueue: @escaping @Sendable () async -> Void,
         badges: @escaping @Sendable ([String]) async -> [String: DownloadBadge],
         fetchVersionMetadata: @escaping @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
@@ -58,6 +60,7 @@ struct DownloadClient: Sendable {
         self.fetchDownload = fetchDownload
         self.reconcileDownloads = reconcileDownloads
         self.refreshDownloads = refreshDownloads
+        self.validateImageData = validateImageData
         self.resumeQueue = resumeQueue
         self.badges = badges
         self.fetchVersionMetadata = fetchVersionMetadata
@@ -117,6 +120,7 @@ extension DownloadClient {
             fetchDownload: { gid in await manager.fetchDownload(gid: gid) },
             reconcileDownloads: { await manager.reconcileDownloads() },
             refreshDownloads: { await manager.refreshDownloads() },
+            validateImageData: { await manager.validateImageData() },
             resumeQueue: { await manager.resumeQueue() },
             badges: { gids in await manager.badges(for: gids) },
             fetchVersionMetadata: { gid, token in
@@ -169,6 +173,7 @@ extension DownloadClient {
         fetchDownload: { _ in nil },
         reconcileDownloads: {},
         refreshDownloads: {},
+        validateImageData: {},
         resumeQueue: {},
         badges: { _ in [:] },
         fetchVersionMetadata: { _, _ in .failure(.notFound) },
@@ -192,6 +197,7 @@ extension DownloadClient {
         fetchDownload: IssueReporting.unimplemented(placeholder: placeholder()),
         reconcileDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
         refreshDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
+        validateImageData: IssueReporting.unimplemented(placeholder: placeholder()),
         resumeQueue: IssueReporting.unimplemented(placeholder: placeholder()),
         badges: IssueReporting.unimplemented(placeholder: placeholder()),
         fetchVersionMetadata: IssueReporting.unimplemented(placeholder: placeholder()),

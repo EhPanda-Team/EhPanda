@@ -120,8 +120,17 @@ private struct GalleryDetailCellContent: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
-                DownloadBadgeLabel(badge: downloadBadge)
-                Text(gallery.uploader ?? "").lineLimit(1).font(.subheadline).foregroundStyle(.secondary)
+
+                HStack {
+                    Text(gallery.uploader ?? "")
+                        .lineLimit(1)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    DownloadBadgeLabel(badge: downloadBadge)
+                }
+
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in

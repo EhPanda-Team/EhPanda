@@ -58,6 +58,30 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testReadingReducerLocalPageLoadClearsStaleRemoteImageFailure() async throws {
+        let gallery = sampleGallery()
+        let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
+        var initialState = ReadingReducer.State(contentSource: .remote)
+        initialState.gallery = gallery
+        initialState.imageURLLoadingStates[1] = .failed(.webImageFailed)
+        initialState.previewLoadingStates[1] = .failed(.webImageFailed)
+
+        let store = makeLocalPageLoadStore(
+            initialState: initialState, gallery: gallery, localPageURL: localPageURL
+        )
+
+        await store.send(.loadLocalPageURLs(gallery.gid))
+        let requestID = store.state.localPageRequestID
+        await store.receive(\.loadLocalPageURLsDone) {
+            $0.localPageURLs = [1: localPageURL]
+            $0.imageURLLoadingStates[1] = .idle
+            $0.previewLoadingStates[1] = .idle
+        }
+        #expect(store.state.localPageRequestID == requestID)
+    }
+
+    @MainActor
+    @Test
     func testReadingReducerOnWebImageSucceededCapturesCachedPageIntoDownloadProgress() async throws {
         let capturedCalls = UncheckedBox([CapturedPageCall]())
         let gallery = sampleGallery()

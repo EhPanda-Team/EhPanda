@@ -58,16 +58,24 @@ struct HeaderSection: View {
         Group {
             if let progress = activeDownloadProgress {
                 Button(action: downloadAction) {
-                    progressIndicator(progress: progress, isDeterminate: true,
-                                      centerSystemName: activeDownloadIconSystemName)
+                    progressIndicator(
+                        progress: progress,
+                        isDeterminate: true,
+                        centerSystemName: activeDownloadIconSystemName
+                    )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.glass(.regular.interactive()))
+                .buttonBorderShape(.circle)
             } else if let progress = queuedDownloadProgress {
                 Button(action: downloadAction) {
-                    progressIndicator(progress: progress, isDeterminate: false,
-                                      centerSystemName: activeDownloadIconSystemName)
+                    progressIndicator(
+                        progress: progress,
+                        isDeterminate: false,
+                        centerSystemName: activeDownloadIconSystemName
+                    )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.glass(.regular.interactive()))
+                .buttonBorderShape(.circle)
             } else {
                 Button(action: downloadAction) {
                     Image(systemName: downloadIconSystemName)
@@ -129,9 +137,6 @@ struct HeaderSection: View {
         progress: Double, isDeterminate: Bool, centerSystemName: String
     ) -> some View {
         ZStack {
-            Circle()
-                .fill(.ultraThinMaterial)
-                .overlay(Circle().strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.75))
             if isDeterminate {
                 Circle().stroke(downloadButtonTint.opacity(0.18), lineWidth: 2.5).padding(3)
                 Circle()
@@ -155,11 +160,13 @@ struct HeaderSection: View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 6) { downloadButton; favoriteButton; readButton }
                 .fixedSize(horizontal: true, vertical: false)
+
             VStack(alignment: .trailing, spacing: 6) {
                 HStack(spacing: 6) { downloadButton; favoriteButton }
                 readButton
             }
             .fixedSize(horizontal: true, vertical: false)
+
             VStack(alignment: .trailing, spacing: 6) { downloadButton; favoriteButton; readButton }
                 .fixedSize(horizontal: true, vertical: false)
         }
@@ -168,7 +175,13 @@ struct HeaderSection: View {
     private var bottomActionRow: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 8) { categoryLabel; Spacer(minLength: 8); actionButtons }
-            VStack(alignment: .leading, spacing: 8) { categoryLabel; actionButtons }
+
+            VStack(alignment: .leading, spacing: 8) {
+                categoryLabel
+
+                actionButtons
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
         }
     }
     private var queuedDownloadProgress: Double? {
