@@ -89,7 +89,7 @@ private extension SettingView {
             )
             .tint(store.setting.accentColor)
         }
-        NavigationLink(unwrapping: $store.route, case: \.downloads) { _ in
+        NavigationLink(unwrapping: $store.route, case: \.download) { _ in
             DownloadSettingView(
                 downloadThreadMode: $store.setting.downloadThreadMode,
                 downloadAllowCellular: $store.setting.downloadAllowCellular,
@@ -160,8 +160,8 @@ extension SettingReducer.Route {
             return L10n.Localizable.Enum.SettingStateRoute.Value.appearance
         case .reading:
             return L10n.Localizable.Enum.SettingStateRoute.Value.reading
-        case .downloads:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.downloads
+        case .download:
+            return L10n.Localizable.Enum.SettingStateRoute.Value.download
         case .laboratory:
             return L10n.Localizable.Enum.SettingStateRoute.Value.laboratory
         case .about:
@@ -178,12 +178,12 @@ extension SettingReducer.Route {
             return .circleRighthalfFilled
         case .reading:
             return .newspaperFill
-        case .downloads:
-            return .arrowDownCircle
+        case .download:
+            return .squareAndArrowDownOnSquareFill
         case .laboratory:
             return .testtube2
         case .about:
-            return .pCircleFill
+            return .iCircleFill
         }
     }
 }

@@ -155,9 +155,9 @@
 "enum.setting_state_route.value.general" = "一般";
 "enum.setting_state_route.value.appearance" = "外觀";
 "enum.setting_state_route.value.reading" = "閱讀";
-"enum.setting_state_route.value.downloads" = "下載";
+"enum.setting_state_route.value.download" = "下載";
 "enum.setting_state_route.value.laboratory" = "實驗性功能";
-"enum.setting_state_route.value.about" = "關於 EhPanda";
+"enum.setting_state_route.value.about" = "關於";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "帳號設定";

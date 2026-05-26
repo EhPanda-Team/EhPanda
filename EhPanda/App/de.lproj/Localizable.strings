@@ -155,9 +155,9 @@
 "enum.setting_state_route.value.general" = "Allgemein";
 "enum.setting_state_route.value.appearance" = "Oberfläche";
 "enum.setting_state_route.value.reading" = "Am Lesen";
-"enum.setting_state_route.value.downloads" = "Downloads";
+"enum.setting_state_route.value.download" = "Download";
 "enum.setting_state_route.value.laboratory" = "Experimentelles";
-"enum.setting_state_route.value.about" = "Über EhPanda";
+"enum.setting_state_route.value.about" = "About";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "Konto";

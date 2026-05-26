@@ -618,6 +618,8 @@ internal enum L10n {
       }
     }
     internal enum DownloadSettingView {
+      /// Download
+      internal static let title = L10n.tr("Localizable", "download_setting_view.title", fallback: "Download")
       internal enum Footer {
         /// Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.
         internal static let network = L10n.tr("Localizable", "download_setting_view.footer.network", fallback: "Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.")
@@ -1891,14 +1893,14 @@ internal enum L10n {
       }
       internal enum SettingStateRoute {
         internal enum Value {
-          /// About EhPanda
-          internal static let about = L10n.tr("Localizable", "enum.setting_state_route.value.about", fallback: "About EhPanda")
+          /// About
+          internal static let about = L10n.tr("Localizable", "enum.setting_state_route.value.about", fallback: "About")
           /// Account
           internal static let account = L10n.tr("Localizable", "enum.setting_state_route.value.account", fallback: "Account")
           /// Appearance
           internal static let appearance = L10n.tr("Localizable", "enum.setting_state_route.value.appearance", fallback: "Appearance")
-          /// Downloads
-          internal static let downloads = L10n.tr("Localizable", "enum.setting_state_route.value.downloads", fallback: "Downloads")
+          /// Download
+          internal static let download = L10n.tr("Localizable", "enum.setting_state_route.value.download", fallback: "Download")
           /// General
           internal static let general = L10n.tr("Localizable", "enum.setting_state_route.value.general", fallback: "General")
           /// Laboratory
