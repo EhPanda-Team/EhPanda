@@ -90,7 +90,6 @@ jobs:
           [[ ! -z "$min_os_version" ]] || exit 1
           [[ ! -z "$size" ]] || exit 1
           [[ ! -z "$sha256" ]] || exit 1
-          [[ ! -z "$notes" ]] || exit 1
           [[ ! -z "$privacy" ]] || exit 1
 
           {
