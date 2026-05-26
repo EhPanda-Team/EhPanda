@@ -40,11 +40,13 @@ jobs:
       - name: Run tests
         run: xcodebuild clean test
           -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'platform=iOS Simulator,name=iPhone Air'
       - name: Xcode archive
         run: xcodebuild archive
           -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'generic/platform=iOS'
           -archivePath ${{ env.ARCHIVE_PATH }}
@@ -138,7 +140,7 @@ jobs:
          token: ${{ secrets.GITHUB_TOKEN }}
          body: ${{ github.event.pull_request.body }}
          name: ${{ github.event.pull_request.title }}
-         tag_name: 'v${{ steps.retrieve-data.outputs.version }}'
+         tag_name: ${{ steps.retrieve-data.outputs.version }}
       - name: Update AltStore.json
         env:
           RELEASE_SIZE: ${{ steps.retrieve-data.outputs.size }}
@@ -194,11 +196,11 @@ jobs:
           RELEASE_BODY: ${{ github.event.pull_request.body }}
           RELEASE_NOTES: ${{ steps.retrieve-data.outputs.notes }}
         run: |
-         message="$(printf '*v%s Release Notes:*\n%s' "$RELEASE_VERSION" "$RELEASE_BODY")"
+         message="$(printf '*%s Release Notes:*\n%s' "$RELEASE_VERSION" "$RELEASE_BODY")"
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
          -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
          --data-urlencode "text=$message"
 
-         payload="$(jq -n --arg content "**v$RELEASE_VERSION Release Notes:**\n$RELEASE_NOTES" '{content: $content}')"
+         payload="$(jq -n --arg content "**$RELEASE_VERSION Release Notes:**\n$RELEASE_NOTES" '{content: $content}')"
          curl ${{ secrets.DISCORD_WEBHOOK }} \
          -F "payload_json=$payload"
