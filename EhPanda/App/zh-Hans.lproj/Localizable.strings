@@ -177,9 +177,9 @@
 "enum.setting_state_route.value.general" = "一般";
 "enum.setting_state_route.value.appearance" = "外观";
 "enum.setting_state_route.value.reading" = "阅读";
-"enum.setting_state_route.value.downloads" = "下载";
+"enum.setting_state_route.value.download" = "下载";
 "enum.setting_state_route.value.laboratory" = "实验室";
-"enum.setting_state_route.value.about" = "关于 EhPanda";
+"enum.setting_state_route.value.about" = "关于";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "账户";

@@ -155,9 +155,9 @@
 "enum.setting_state_route.value.general" = "一般";
 "enum.setting_state_route.value.appearance" = "外観";
 "enum.setting_state_route.value.reading" = "閲覧";
-"enum.setting_state_route.value.downloads" = "ダウンロード";
+"enum.setting_state_route.value.download" = "ダウンロード";
 "enum.setting_state_route.value.laboratory" = "ラボ";
-"enum.setting_state_route.value.about" = "EhPanda について";
+"enum.setting_state_route.value.about" = "アプリについて";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "アカウント";

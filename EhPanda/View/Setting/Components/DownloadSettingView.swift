@@ -49,7 +49,7 @@ struct DownloadSettingView: View {
                 Text(L10n.Localizable.DownloadSettingView.Footer.network)
             }
         }
-        .navigationTitle(L10n.Localizable.DownloadsView.Title.downloads)
+        .navigationTitle(L10n.Localizable.DownloadSettingView.title)
     }
 }
 

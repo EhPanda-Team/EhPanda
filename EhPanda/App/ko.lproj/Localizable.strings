@@ -155,9 +155,9 @@
 "enum.setting_state_route.value.general" = "일반";
 "enum.setting_state_route.value.appearance" = "외관";
 "enum.setting_state_route.value.reading" = "읽기";
-"enum.setting_state_route.value.downloads" = "다운로드";
+"enum.setting_state_route.value.download" = "다운로드";
 "enum.setting_state_route.value.laboratory" = "실험실";
-"enum.setting_state_route.value.about" = "EhPanda 정보";
+"enum.setting_state_route.value.about" = "About";
 
 // MARK: AccountSettingView
 "account_setting_view.title.account" = "계정";
