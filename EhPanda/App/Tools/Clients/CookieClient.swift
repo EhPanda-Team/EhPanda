@@ -31,7 +31,8 @@ extension CookieClient {
 
             cookies.forEach { cookie in
                 guard cookie.name == key && !cookie.value.isEmpty else { return }
-                guard cookie.expiresDate == nil || cookie.expiresDate! > .now else {
+                if let expiresDate = cookie.expiresDate,
+                   expiresDate <= .now {
                     value = CookieValue(
                         rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.expired
                     )
