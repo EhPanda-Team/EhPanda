@@ -972,8 +972,11 @@
 "downloads_view.button.validate_image_data" = "画像データを検証";
 "downloads_view.inspector.section.actions" = "操作";
 "downloads_view.inspector.section.pages" = "ページ";
-"downloads_view.inspector.button.retry_failed_pages" = "失敗したページを再試行 (%d)";
+"downloads_view.inspector.button.retry_failed_pages" = "失敗したページを再試行";
+"downloads_view.inspector.button.validating_image_data" = "画像データを検証中...";
 "downloads_view.inspector.button.update_download" = "ダウンロードを更新";
+"downloads_view.inspector.hud.image_data_valid" = "画像データは有効です";
+"downloads_view.inspector.hud.image_data_unavailable" = "画像データを検証できませんでした。";
 "downloads_view.inspector.title.download_status" = "ダウンロード状況";
 "downloads_view.inspector.page.pending" = "待機中";
 "downloads_view.inspector.page.tap_to_retry" = "タップしてこのページを再試行";

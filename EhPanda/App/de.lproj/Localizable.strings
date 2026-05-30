@@ -972,8 +972,11 @@
 "downloads_view.button.validate_image_data" = "Bilddaten validieren";
 "downloads_view.inspector.section.actions" = "Aktionen";
 "downloads_view.inspector.section.pages" = "Seiten";
-"downloads_view.inspector.button.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen (%d)";
+"downloads_view.inspector.button.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen";
+"downloads_view.inspector.button.validating_image_data" = "Bilddaten werden geprüft...";
 "downloads_view.inspector.button.update_download" = "Download aktualisieren";
+"downloads_view.inspector.hud.image_data_valid" = "Bilddaten sind gültig";
+"downloads_view.inspector.hud.image_data_unavailable" = "Bilddaten konnten nicht geprüft werden.";
 "downloads_view.inspector.title.download_status" = "Downloadstatus";
 "downloads_view.inspector.page.pending" = "Ausstehend";
 "downloads_view.inspector.page.tap_to_retry" = "Tippen, um diese Seite erneut zu versuchen";

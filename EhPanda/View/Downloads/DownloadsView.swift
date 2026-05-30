@@ -155,7 +155,7 @@ struct DownloadsView: View {
             switch dialog {
             case .delete(let download):
                 Text(
-                    download.canPauseOrResume || download.isPendingQueue
+                    download.canTogglePause
                         ? L10n.Localizable.DownloadsView.Dialog.Message.deleteActiveDownload
                         : L10n.Localizable.DownloadsView.Dialog.Message.deleteDownloadedGallery
                 )
@@ -216,7 +216,7 @@ private extension DownloadsView {
                             .tint(.orange)
                         }
 
-                        if download.canPauseOrResume || download.isPendingQueue {
+                        if download.canTogglePause {
                             Button {
                                 store.send(.toggleDownloadPause(download.gid))
                             } label: {
@@ -274,7 +274,7 @@ private extension DownloadsView {
             }
         }
 
-        if download.canPauseOrResume || download.isPendingQueue {
+        if download.canTogglePause {
             Button {
                 store.send(.toggleDownloadPause(download.gid))
             } label: {
@@ -347,37 +347,8 @@ private extension DownloadsView {
                     }
                 }
             } label: {
-                Image(systemSymbol: .line3HorizontalDecreaseCircle)
+                Image(systemSymbol: .dialLow)
                     .symbolRenderingMode(.hierarchical)
-            }
-
-            ToolbarFeaturesMenu {
-                FiltersButton {
-                    store.send(.setNavigation(.filters()))
-                }
-                QuickSearchButton {
-                    store.send(.setNavigation(.quickSearch()))
-                }
-                Button {
-                    store.send(.validateImageData)
-                } label: {
-                    Label(
-                        L10n.Localizable.DownloadsView.Button.validateImageData,
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if store.filter != .all || store.keyword.notEmpty || store.galleryFilter.hasActiveValues {
-                    Button {
-                        store.filter = .all
-                        store.keyword = ""
-                        store.galleryFilter.reset()
-                    } label: {
-                        Label(
-                            L10n.Localizable.DownloadsView.Button.clearFilters,
-                            systemSymbol: .arrowCounterclockwise
-                        )
-                    }
-                }
             }
         }
     }

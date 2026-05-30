@@ -7,7 +7,7 @@ import Foundation
 import CryptoKit
 import Synchronization
 
-enum DownloadValidationState: Equatable {
+enum DownloadValidationState: Equatable, Sendable {
     case valid
     case missingFiles(String)
 }

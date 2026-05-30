@@ -22,7 +22,7 @@ struct DownloadSettingView: View {
 
     var body: some View {
         Form {
-            Section(L10n.Localizable.DownloadSettingView.Section.Title.downloadQueue) {
+            Section {
                 Picker(
                     L10n.Localizable.DownloadSettingView.Title.concurrentImageDownloads,
                     selection: $downloadThreadMode

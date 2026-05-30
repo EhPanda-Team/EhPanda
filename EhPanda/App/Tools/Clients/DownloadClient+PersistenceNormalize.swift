@@ -176,56 +176,59 @@ extension DownloadManager {
 
     func validateDownloads() async {
         let downloads = await fetchDownloadsFromStore()
-        for download in downloads
-        where [.completed, .updateAvailable, .missingFiles]
-            .contains(download.status) {
-            let validation = storage
-                .validate(download: download)
-            switch validation {
-            case .valid:
-                refreshMissingManifestHashesIfNeeded(download: download)
-                let expectedStatus: DownloadStatus =
-                    download.hasUpdate
-                    ? .updateAvailable : .completed
-                guard download.status != expectedStatus
-                else { continue }
-                do {
-                    try await updateDownloadRecord(
-                        gid: download.gid,
-                        createIfMissing: false
-                    ) { record in
-                        record.status =
-                            expectedStatus.rawValue
-                    }
-                } catch {
-                    Logger.error(error)
-                }
-
-            case .missingFiles(let message):
-                do {
-                    try await updateDownloadRecord(
-                        gid: download.gid,
-                        createIfMissing: false
-                    ) { record in
-                        record.status =
-                            DownloadStatus.missingFiles
-                            .rawValue
-                        record.lastError = DownloadFailure(
-                            code: .fileOperationFailed,
-                            message: message
-                        )
-                        .toData()
-                    }
-                } catch {
-                    Logger.error(error)
-                }
-            }
+        for download in downloads where download.canValidateImageData {
+            _ = await validateDownload(download)
         }
     }
 
-    func validateImageData() async {
-        await validateDownloads()
+    func validateImageData(gid: String) async -> DownloadValidationState? {
+        guard let download = await fetchDownload(gid: gid),
+              download.canValidateImageData
+        else { return nil }
+        let validation = await validateDownload(download)
         await notifyObservers()
+        return validation
+    }
+
+    private func validateDownload(_ download: DownloadedGallery) async -> DownloadValidationState {
+        let validation = storage.validate(download: download)
+        switch validation {
+        case .valid:
+            refreshMissingManifestHashesIfNeeded(download: download)
+            let expectedStatus: DownloadStatus =
+                download.hasUpdate
+                ? .updateAvailable : .completed
+            guard download.status != expectedStatus
+            else { return validation }
+            do {
+                try await updateDownloadRecord(
+                    gid: download.gid,
+                    createIfMissing: false
+                ) { record in
+                    record.status = expectedStatus.rawValue
+                }
+            } catch {
+                Logger.error(error)
+            }
+
+        case .missingFiles(let message):
+            do {
+                try await updateDownloadRecord(
+                    gid: download.gid,
+                    createIfMissing: false
+                ) { record in
+                    record.status = DownloadStatus.missingFiles.rawValue
+                    record.lastError = DownloadFailure(
+                        code: .fileOperationFailed,
+                        message: message
+                    )
+                    .toData()
+                }
+            } catch {
+                Logger.error(error)
+            }
+        }
+        return validation
     }
 
     private func refreshMissingManifestHashesIfNeeded(

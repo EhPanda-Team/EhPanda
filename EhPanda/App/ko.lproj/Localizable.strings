@@ -972,8 +972,11 @@
 "downloads_view.button.validate_image_data" = "이미지 데이터 검증";
 "downloads_view.inspector.section.actions" = "동작";
 "downloads_view.inspector.section.pages" = "페이지";
-"downloads_view.inspector.button.retry_failed_pages" = "실패한 페이지 다시 시도 (%d)";
+"downloads_view.inspector.button.retry_failed_pages" = "실패한 페이지 다시 시도";
+"downloads_view.inspector.button.validating_image_data" = "이미지 데이터 검증 중...";
 "downloads_view.inspector.button.update_download" = "다운로드 업데이트";
+"downloads_view.inspector.hud.image_data_valid" = "이미지 데이터가 유효합니다";
+"downloads_view.inspector.hud.image_data_unavailable" = "이미지 데이터를 검증할 수 없습니다.";
 "downloads_view.inspector.title.download_status" = "다운로드 상태";
 "downloads_view.inspector.page.pending" = "대기 중";
 "downloads_view.inspector.page.tap_to_retry" = "탭하여 이 페이지를 다시 시도";
