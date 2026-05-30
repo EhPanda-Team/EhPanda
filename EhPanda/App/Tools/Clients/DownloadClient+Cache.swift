@@ -132,11 +132,7 @@ extension DownloadManager {
         let relativePath: String
         if let preferredRelativePath {
             relativePath = preferredRelativePath
-        } else {
-            let fallbackURL = source.referenceURL
-                ?? URL(
-                    string: "https://example.com/\(index).jpg"
-                )!
+        } else if let fallbackURL = source.referenceURL {
             let ext = fileExtension(
                 for: fallbackURL,
                 response: nil,
@@ -146,6 +142,8 @@ extension DownloadManager {
                 index: index,
                 fileExtension: ext
             )
+        } else {
+            return nil
         }
 
         let fileURL = folderURL

@@ -189,6 +189,7 @@ extension DetailReducer {
         case .comments(.detail(let recursiveAction)):
             guard state.commentsState.wrappedValue != nil else { return .none }
             let effect = reducer._reduce(
+                // swiftlint:disable:next force_unwrapping
                 into: &state.commentsState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
             )
             return .publisher({ _EffectPublisher(effect).map({ Action.comments(.detail($0)) }) })
@@ -199,6 +200,7 @@ extension DetailReducer {
         case .detailSearch(.detail(let recursiveAction)):
             guard state.detailSearchState.wrappedValue != nil else { return .none }
             let effect = reducer._reduce(
+                // swiftlint:disable:next force_unwrapping
                 into: &state.detailSearchState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
             )
             return .publisher({ _EffectPublisher(effect).map({ Action.comments(.detail($0)) }) })

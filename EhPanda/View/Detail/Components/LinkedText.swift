@@ -31,7 +31,12 @@ private struct LinkColoredText: View {
                 )
                 components.append(.text(trimmedText))
             }
-            components.append(.link(nsText.substring(with: result.range), result.url!))
+            let linkText = nsText.substring(with: result.range)
+            if let url = result.url {
+                components.append(.link(linkText, url))
+            } else {
+                components.append(.text(linkText))
+            }
             index = result.range.location + result.range.length
         }
 
@@ -110,8 +115,9 @@ private struct LinkTapOverlay: UIViewRepresentable {
         let attributedString = NSAttributedString(
             string: text, attributes: [.font: UIFont.preferredFont(forTextStyle: .body)]
         )
-        context.coordinator.textStorage = NSTextStorage(attributedString: attributedString)
-        context.coordinator.textStorage!.addLayoutManager(context.coordinator.layoutManager)
+        let textStorage = NSTextStorage(attributedString: attributedString)
+        textStorage.addLayoutManager(context.coordinator.layoutManager)
+        context.coordinator.textStorage = textStorage
     }
 
     func makeCoordinator() -> Coordinator {
@@ -135,13 +141,15 @@ private struct LinkTapOverlay: UIViewRepresentable {
         }
 
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-            let location = touch.location(in: gestureRecognizer.view!)
+            guard let view = gestureRecognizer.view else { return false }
+            let location = touch.location(in: view)
             let result = link(at: location)
             return result != nil
         }
 
         @objc func didTapLabel(_ gesture: UITapGestureRecognizer) {
-            let location = gesture.location(in: gesture.view!)
+            guard let view = gesture.view else { return }
+            let location = gesture.location(in: view)
             guard let result = link(at: location) else {
                 return
             }
@@ -170,13 +178,13 @@ private struct LinkTapOverlay: UIViewRepresentable {
 }
 
 private final class LinkTapOverlayView: UIView {
-    var textContainer: NSTextContainer!
+    var textContainer: NSTextContainer?
 
     override func layoutSubviews() {
         super.layoutSubviews()
 
         var newSize = bounds.size
         newSize.height += 20 // need some extra space here to actually get the last line
-        textContainer.size = newSize
+        textContainer?.size = newSize
     }
 }
