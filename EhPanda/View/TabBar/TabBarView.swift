@@ -20,7 +20,13 @@ struct TabBarView: View {
             TabView(
                 selection: .init(
                     get: { store.tabBarState.tabBarItemType },
-                    set: { store.send(.tabBar(.setTabBarItemType($0))) }
+                    set: { tab in
+                        if tab == .setting, DeviceUtil.isPad {
+                            store.send(.appRoute(.setNavigation(.setting())))
+                        } else {
+                            store.send(.tabBar(.setTabBarItemType(tab)))
+                        }
+                    }
                 )
             ) {
                 ForEach(TabBarItemType.allCases) { type in

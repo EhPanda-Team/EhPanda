@@ -179,14 +179,6 @@ struct AppReducer {
                             effects.append(hapticEffect)
                         }
                     }
-                    if type == .setting {
-                        effects.append(
-                            .run { send in
-                                guard await deviceClient.isPad() else { return }
-                                await send(.appRoute(.setNavigation(.setting())))
-                            }
-                        )
-                    }
                     return effects.isEmpty ? .none : .merge(effects)
 
                 case .tabBar:
