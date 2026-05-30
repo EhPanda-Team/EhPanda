@@ -1,2 +1,21 @@
+disabled_rules:
+ - file_length
+ - opening_brace
+ - type_body_length
+ - function_body_length
+ - cyclomatic_complexity
+ - blanket_disable_command
+ - multiple_closures_with_trailing_closure
+
+opt_in_rules:
+ - force_try
+
+force_try:
+ severity: error
+
+line_length:
+ warning: 120
+ error: 120
+
 excluded:
  - EhPanda/App/Generated
