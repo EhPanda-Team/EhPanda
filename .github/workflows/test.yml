@@ -22,5 +22,6 @@ jobs:
       - name: Run tests
         run: xcodebuild clean test
           -skipMacroValidation
+          -skipPackagePluginValidation
           -scheme ${{ env.SCHEME_NAME }}
           -destination 'platform=iOS Simulator,name=iPhone Air'
