@@ -8,6 +8,11 @@ import ComposableArchitecture
 
 @Reducer
 struct DownloadInspectorReducer {
+    @CasePathable
+    enum Route: Equatable {
+        case hud
+    }
+
     private enum CancelID {
         case observeDownloads
         case loadInspection
@@ -15,12 +20,15 @@ struct DownloadInspectorReducer {
 
     @ObservableState
     struct State: Equatable {
+        var route: Route?
         var gid = ""
         var inspection: DownloadInspection?
         var stableInspection: DownloadInspection?
         var loadingState: LoadingState = .loading
+        var hudConfig: ProgressHUDConfigState = .loading()
         var inspectionRequestID = UUID()
         var retryingPageIndices = Set<Int>()
+        var isValidatingImageData = false
 
         init(gid: String = "") {
             self.gid = gid
@@ -28,7 +36,8 @@ struct DownloadInspectorReducer {
         }
     }
 
-    enum Action {
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case onAppear
         case teardown
         case loadInspection
@@ -39,15 +48,22 @@ struct DownloadInspectorReducer {
         case retryPageDone(Result<Void, AppError>)
         case retryFailedPages
         case retryFailedPagesDone(Result<Void, AppError>)
-        case updateDownload
-        case updateDownloadDone(Result<Void, AppError>)
+        case toggleDownloadPause
+        case toggleDownloadPauseDone(Result<Void, AppError>)
+        case validateImageData
+        case validateImageDataDone(DownloadValidationState?)
     }
 
     @Dependency(\.downloadClient) private var downloadClient
 
     var body: some Reducer<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+
             case .onAppear:
                 guard state.gid.notEmpty else { return .none }
                 return .merge(
@@ -203,18 +219,55 @@ struct DownloadInspectorReducer {
                 }
                 return .none
 
-            case .updateDownload:
-                guard let gid = state.inspection?.download.gid else { return .none }
+            case .toggleDownloadPause:
+                guard let download = state.inspection?.download,
+                      download.canTogglePause
+                else { return .none }
                 return .run { send in
-                    await send(.updateDownloadDone(await downloadClient.retry(gid, .update)))
+                    await send(.toggleDownloadPauseDone(await downloadClient.togglePause(download.gid)))
                 }
 
-            case .updateDownloadDone(let result):
+            case .toggleDownloadPauseDone(let result):
                 if case .failure = result {
                     return .send(.loadInspection)
                 }
                 return .none
+
+            case .validateImageData:
+                guard state.gid.notEmpty,
+                      state.inspection?.canValidateImageData == true,
+                      !state.isValidatingImageData
+                else { return .none }
+                state.isValidatingImageData = true
+                return .run { [gid = state.gid] send in
+                    await send(.validateImageDataDone(await downloadClient.validateImageData(gid)))
+                }
+
+            case .validateImageDataDone(let validation):
+                state.isValidatingImageData = false
+                state.hudConfig = validation.hudConfig
+                state.route = .hud
+                return .send(.loadInspection)
             }
+        }
+    }
+}
+
+private extension Optional where Wrapped == DownloadValidationState {
+    var hudConfig: ProgressHUDConfigState {
+        switch self {
+        case .some(.valid):
+            return .success(
+                caption: L10n.Localizable.DownloadsView.Inspector.Hud.imageDataValid
+            )
+
+        case .some(.missingFiles(let message)):
+            return .error(caption: message)
+
+        case nil:
+            return .error(
+                caption: L10n.Localizable.DownloadsView.Inspector.Hud.imageDataUnavailable
+            )
         }
     }
 }

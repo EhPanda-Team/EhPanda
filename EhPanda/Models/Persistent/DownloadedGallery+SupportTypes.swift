@@ -169,8 +169,16 @@ extension DownloadedGallery {
         [.partial, .failed, .missingFiles].contains(status)
     }
 
+    var canValidateImageData: Bool {
+        [.completed, .updateAvailable, .missingFiles].contains(status)
+    }
+
     var canPauseOrResume: Bool {
         [.downloading, .paused].contains(status)
+    }
+
+    var canTogglePause: Bool {
+        canPauseOrResume || isPendingQueue
     }
 
     var shouldPreserveTemporaryWorkingSet: Bool {
@@ -259,5 +267,19 @@ extension DownloadedGallery {
         let isRegularFile = values?.isRegularFile ?? true
         let fileSize = values?.fileSize ?? 0
         return isRegularFile && fileSize > 0
+    }
+}
+
+extension DownloadInspection {
+    var hasDownloadedPages: Bool {
+        pages.contains { $0.status == .downloaded }
+    }
+
+    var canRetryFailedPages: Bool {
+        !failedPageIndices.isEmpty
+    }
+
+    var canValidateImageData: Bool {
+        hasDownloadedPages && download.canValidateImageData
     }
 }

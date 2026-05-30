@@ -12,7 +12,7 @@ struct DownloadClient: Sendable {
     let fetchDownload: @Sendable (String) async -> DownloadedGallery?
     let reconcileDownloads: @Sendable () async -> Void
     let refreshDownloads: @Sendable () async -> Void
-    let validateImageData: @Sendable () async -> Void
+    let validateImageData: @Sendable (String) async -> DownloadValidationState?
     let resumeQueue: @Sendable () async -> Void
     let badges: @Sendable ([String]) async -> [String: DownloadBadge]
     let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
@@ -33,7 +33,7 @@ struct DownloadClient: Sendable {
         fetchDownload: @escaping @Sendable (String) async -> DownloadedGallery?,
         reconcileDownloads: @escaping @Sendable () async -> Void = {},
         refreshDownloads: @escaping @Sendable () async -> Void,
-        validateImageData: @escaping @Sendable () async -> Void = {},
+        validateImageData: @escaping @Sendable (String) async -> DownloadValidationState? = { _ in nil },
         resumeQueue: @escaping @Sendable () async -> Void,
         badges: @escaping @Sendable ([String]) async -> [String: DownloadBadge],
         fetchVersionMetadata: @escaping @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
@@ -120,7 +120,7 @@ extension DownloadClient {
             fetchDownload: { gid in await manager.fetchDownload(gid: gid) },
             reconcileDownloads: { await manager.reconcileDownloads() },
             refreshDownloads: { await manager.refreshDownloads() },
-            validateImageData: { await manager.validateImageData() },
+            validateImageData: { gid in await manager.validateImageData(gid: gid) },
             resumeQueue: { await manager.resumeQueue() },
             badges: { gids in await manager.badges(for: gids) },
             fetchVersionMetadata: { gid, token in
@@ -173,7 +173,7 @@ extension DownloadClient {
         fetchDownload: { _ in nil },
         reconcileDownloads: {},
         refreshDownloads: {},
-        validateImageData: {},
+        validateImageData: { _ in nil },
         resumeQueue: {},
         badges: { _ in [:] },
         fetchVersionMetadata: { _, _ in .failure(.notFound) },

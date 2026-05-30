@@ -67,8 +67,6 @@ struct DownloadsReducer {
         case observeDownloadsDone([DownloadedGallery])
         case refreshDownloads
         case refreshDownloadsDone
-        case validateImageData
-        case validateImageDataDone
         case openReading(String)
         case openReadingDone(UUID, String, Result<(DownloadedGallery, DownloadManifest), AppError>)
         case toggleDownloadPause(String)
@@ -170,15 +168,6 @@ struct DownloadsReducer {
                 }
 
             case .refreshDownloadsDone:
-                return .none
-
-            case .validateImageData:
-                return .run { send in
-                    await downloadClient.validateImageData()
-                    await send(.validateImageDataDone)
-                }
-
-            case .validateImageDataDone:
                 return .none
 
             case .openReading(let gid):

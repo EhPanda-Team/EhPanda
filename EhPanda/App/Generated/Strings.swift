@@ -668,12 +668,18 @@ internal enum L10n {
       }
       internal enum Inspector {
         internal enum Button {
-          /// Retry Failed Pages (%d)
-          internal static func retryFailedPages(_ p1: Int) -> String {
-            return L10n.tr("Localizable", "downloads_view.inspector.button.retry_failed_pages", p1, fallback: "Retry Failed Pages (%d)")
-          }
+          /// Retry Failed Pages
+          internal static let retryFailedPages = L10n.tr("Localizable", "downloads_view.inspector.button.retry_failed_pages", fallback: "Retry Failed Pages")
           /// Update Download
           internal static let updateDownload = L10n.tr("Localizable", "downloads_view.inspector.button.update_download", fallback: "Update Download")
+          /// Validating Image Data...
+          internal static let validatingImageData = L10n.tr("Localizable", "downloads_view.inspector.button.validating_image_data", fallback: "Validating Image Data...")
+        }
+        internal enum Hud {
+          /// Image data could not be validated.
+          internal static let imageDataUnavailable = L10n.tr("Localizable", "downloads_view.inspector.hud.image_data_unavailable", fallback: "Image data could not be validated.")
+          /// Image data is valid
+          internal static let imageDataValid = L10n.tr("Localizable", "downloads_view.inspector.hud.image_data_valid", fallback: "Image data is valid")
         }
         internal enum Page {
           /// No pages

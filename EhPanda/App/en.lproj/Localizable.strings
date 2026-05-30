@@ -402,8 +402,11 @@
 "downloads_view.button.validate_image_data" = "Validate Image Data";
 "downloads_view.inspector.section.actions" = "Actions";
 "downloads_view.inspector.section.pages" = "Pages";
-"downloads_view.inspector.button.retry_failed_pages" = "Retry Failed Pages (%d)";
+"downloads_view.inspector.button.retry_failed_pages" = "Retry Failed Pages";
+"downloads_view.inspector.button.validating_image_data" = "Validating Image Data...";
 "downloads_view.inspector.button.update_download" = "Update Download";
+"downloads_view.inspector.hud.image_data_valid" = "Image data is valid";
+"downloads_view.inspector.hud.image_data_unavailable" = "Image data could not be validated.";
 "downloads_view.inspector.title.download_status" = "Download Status";
 "downloads_view.inspector.page.pending" = "Pending";
 "downloads_view.inspector.page.tap_to_retry" = "Tap to retry this page";

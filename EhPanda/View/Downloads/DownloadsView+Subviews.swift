@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct DownloadInspectorView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Bindable private var store: StoreOf<DownloadInspectorReducer>
     private let setting: Setting
@@ -56,42 +57,53 @@ struct DownloadInspectorView: View {
                             .listRowBackground(Color.clear)
                         }
 
-                        if !inspection.failedPageIndices.isEmpty || inspection.download.canTriggerUpdate {
-                            Section(L10n.Localizable.DownloadsView.Inspector.Section.actions) {
-                                if !inspection.failedPageIndices.isEmpty {
-                                    Button {
-                                        store.send(.retryFailedPages)
-                                    } label: {
-                                        Label(
-                                            L10n.Localizable.DownloadsView.Inspector.Button.retryFailedPages(
-                                                inspection.failedPageIndices.count
-                                            ),
-                                            systemImage: "arrow.clockwise.circle"
-                                        )
-                                    }
-                                }
-
-                                if inspection.download.canTriggerUpdate {
-                                    Button {
-                                        store.send(.updateDownload)
-                                    } label: {
-                                        Label(
-                                            L10n.Localizable.DownloadsView.Inspector.Button.updateDownload,
-                                            systemImage: "arrow.triangle.2.circlepath"
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        ForEach(DownloadPageStatus.allCases, id: \.self) { status in
-                            let pages = inspection.pages.filter { $0.status == status }
-                            Section(status.sectionTitle(count: pages.count)) {
+                        Section {
+                            ForEach(DownloadPageStatus.inspectorSummaryOrder, id: \.self) { status in
+                                let pages = inspection.pages.filter { $0.status == status }
                                 DownloadInspectorPageGroupRow(
                                     status: status,
                                     pages: pages
                                 )
                             }
+                        }
+
+                        let isPauseResumeDisabled = !inspection.download.canTogglePause
+                        let isRetryFailedPagesDisabled = !inspection.canRetryFailedPages
+                        let isValidateImageDataDisabled =
+                            !inspection.canValidateImageData || store.isValidatingImageData
+                        Section(L10n.Localizable.DownloadsView.Inspector.Section.actions) {
+                            Button {
+                                store.send(.toggleDownloadPause)
+                            } label: {
+                                Label(
+                                    inspection.download.inspectorPauseResumeTitle,
+                                    systemSymbol: inspection.download.inspectorPauseResumeSymbol
+                                )
+                                .disabledActionForegroundStyle(isPauseResumeDisabled)
+                            }
+                            .disabled(isPauseResumeDisabled)
+
+                            Button {
+                                store.send(.retryFailedPages)
+                            } label: {
+                                Label(
+                                    L10n.Localizable.DownloadsView.Inspector.Button.retryFailedPages,
+                                    systemSymbol: .arrowClockwise
+                                )
+                                .disabledActionForegroundStyle(isRetryFailedPagesDisabled)
+                            }
+                            .disabled(isRetryFailedPagesDisabled)
+
+                            Button {
+                                store.send(.validateImageData)
+                            } label: {
+                                DownloadInspectorValidationActionLabel(
+                                    isValidating: store.isValidatingImageData,
+                                    isDisabled: isValidateImageDataDisabled,
+                                    reduceMotion: reduceMotion
+                                )
+                            }
+                            .disabled(isValidateImageDataDisabled)
                         }
                     }
                 }
@@ -99,13 +111,16 @@ struct DownloadInspectorView: View {
             }
         }
         .autoBlur(radius: blurRadius)
+        .progressHUD(
+            config: store.hudConfig,
+            unwrapping: $store.route,
+            case: \.hud
+        )
         .navigationTitle(L10n.Localizable.DownloadsView.Inspector.Title.downloadStatus)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            CustomToolbarItem(placement: .cancellationAction) {
-                Button(L10n.Localizable.EhSettingView.ToolbarItem.Button.done) {
-                    dismiss()
-                }
+            ToolbarItem(placement: .cancellationAction) {
+                Button(role: .close, action: dismiss.callAsFunction)
             }
         }
         .onAppear {
@@ -114,9 +129,50 @@ struct DownloadInspectorView: View {
     }
 }
 
+private struct DownloadInspectorValidationActionLabel: View {
+    let isValidating: Bool
+    let isDisabled: Bool
+    let reduceMotion: Bool
+
+    private var title: String {
+        isValidating
+            ? L10n.Localizable.DownloadsView.Inspector.Button.validatingImageData
+            : L10n.Localizable.DownloadsView.Button.validateImageData
+    }
+
+    private var progressAnimation: Animation? {
+        reduceMotion ? nil : .easeInOut(duration: 0.2)
+    }
+
+    var body: some View {
+        HStack {
+            Label(title, systemSymbol: .checkmarkShield)
+            Spacer(minLength: 12)
+            ZStack {
+                if isValidating {
+                    ProgressView()
+                        .controlSize(.small)
+                        .transition(
+                            .opacity.combined(with: .scale(scale: 0.85))
+                        )
+                }
+            }
+            .frame(width: 20, height: 20)
+        }
+        .disabledActionForegroundStyle(isDisabled)
+        .animation(progressAnimation, value: isValidating)
+    }
+}
+
 struct DownloadInspectorPageGroupRow: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let status: DownloadPageStatus
     let pages: [DownloadPageInspection]
+
+    private var countAnimation: Animation? {
+        reduceMotion ? nil : .easeInOut(duration: 0.2)
+    }
 
     private var pageNumbersText: String {
         let indices = pages.map(\.index).sorted()
@@ -128,16 +184,27 @@ struct DownloadInspectorPageGroupRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: status.symbolName)
-                .foregroundStyle(status.tint)
+            Image(systemSymbol: status.symbol)
+                .foregroundStyle(status.tintColor)
                 .font(.title3)
-                .frame(width: 24)
+                .labelReservedIconWidth(24)
 
-            Text(pageNumbersText)
-                .font(.callout)
-                .foregroundStyle(pages.isEmpty ? .secondary : .primary)
-                .lineLimit(nil)
-                .textSelection(.enabled)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(status.summaryTitle(count: pages.count))
+                    .font(.body.weight(.medium))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(countAnimation, value: pages.count)
+
+                Text(pageNumbersText)
+                    .font(.callout)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .foregroundStyle(pages.isEmpty ? .secondary : .primary)
+                    .lineLimit(nil)
+                    .textSelection(.enabled)
+                    .animation(countAnimation, value: pageNumbersText)
+            }
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
@@ -171,6 +238,12 @@ struct DownloadInspectorPageGroupRow: View {
 }
 
 private extension DownloadPageStatus {
+    static let inspectorSummaryOrder: [Self] = [
+        .downloaded,
+        .pending,
+        .failed
+    ]
+
     var title: String {
         switch self {
         case .pending:
@@ -182,29 +255,46 @@ private extension DownloadPageStatus {
         }
     }
 
-    func sectionTitle(count: Int) -> String {
+    func summaryTitle(count: Int) -> String {
         "\(title) (\(count))"
     }
 
-    var symbolName: String {
+    var symbol: SFSymbol {
         switch self {
-        case .pending:
-            return "clock"
-        case .downloaded:
-            return "checkmark.circle.fill"
-        case .failed:
-            return "exclamationmark.circle.fill"
+        case .pending: .clock
+        case .downloaded: .checkmarkCircle
+        case .failed: .exclamationmarkCircle
         }
     }
 
-    var tint: Color {
+    var tintColor: Color {
         switch self {
-        case .pending:
-            return .secondary
-        case .downloaded:
-            return .green
-        case .failed:
-            return .red
+        case .pending: .primary
+        case .downloaded: .green
+        case .failed: .red
+        }
+    }
+}
+
+private extension DownloadedGallery {
+    var inspectorPauseResumeTitle: String {
+        status == .paused
+            ? L10n.Localizable.DownloadsView.Swipe.Button.resume
+            : L10n.Localizable.DownloadsView.Swipe.Button.pause
+    }
+
+    var inspectorPauseResumeSymbol: SFSymbol {
+        status == .paused ? .playFill : .pauseFill
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func disabledActionForegroundStyle(_ isDisabled: Bool) -> some View {
+        if isDisabled {
+            foregroundStyle(.secondary)
+        } else {
+            self
         }
     }
 }
@@ -241,14 +331,14 @@ struct DownloadInspectorPageRow: View {
     let page: DownloadPageInspection
     let retryAction: () -> Void
 
-    private var symbolName: String {
+    private var symbol: SFSymbol {
         switch page.status {
         case .pending:
-            return "clock"
+            return .clock
         case .downloaded:
-            return "checkmark.circle.fill"
+            return .checkmarkCircle
         case .failed:
-            return "exclamationmark.circle.fill"
+            return .exclamationmarkCircle
         }
     }
 
@@ -289,7 +379,7 @@ struct DownloadInspectorPageRow: View {
 
     private var rowContent: some View {
         HStack(spacing: 12) {
-            Image(systemName: symbolName)
+            Image(systemSymbol: symbol)
                 .foregroundStyle(tint)
                 .font(.title3)
             VStack(alignment: .leading, spacing: 4) {

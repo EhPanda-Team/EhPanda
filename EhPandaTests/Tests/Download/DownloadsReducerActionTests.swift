@@ -195,43 +195,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDownloadsReducerValidateImageDataUsesDownloadClient() async {
-        let validated = UncheckedBox(false)
-        let store = TestStore(initialState: DownloadsReducer.State()) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                validateImageData: {
-                    validated.value = true
-                },
-                resumeQueue: {},
-                badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
-        store.exhaustivity = .off
-
-        await store.send(.validateImageData)
-        await store.receive(\.validateImageDataDone)
-
-        #expect(validated.value)
-    }
-
-    @MainActor
-    @Test
     func testDownloadsReducerTogglePauseActionUsesDownloadClientPause() async {
         let toggled = UncheckedBox<[String]>([])
         let download = sampleDownload(
