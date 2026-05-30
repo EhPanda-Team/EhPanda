@@ -183,7 +183,7 @@ extension SettingReducer.Route {
         case .laboratory:
             return .testtube2
         case .about:
-            return .iCircleFill
+            return .infoCircleFill
         }
     }
 }
