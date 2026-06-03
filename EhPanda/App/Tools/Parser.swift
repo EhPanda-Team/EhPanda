@@ -1378,6 +1378,39 @@ extension Parser {
 
     // MARK: PageNumber
     static func parsePageNum(doc: HTMLDocument) -> PageNumber {
+        func parseScriptVariable(name: String) -> String? {
+            let pattern = #"var \#(name)="([^"]*)";"#
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+
+            for script in doc.xpath("//script") {
+                guard let text = script.text else { continue }
+                let range = NSRange(text.startIndex..., in: text)
+                guard let match = regex.firstMatch(in: text, range: range),
+                      let valueRange = Range(match.range(at: 1), in: text)
+                else { continue }
+
+                return String(text[valueRange])
+            }
+            return nil
+        }
+        func parseScriptURL(name: String) -> URL? {
+            guard let value = parseScriptVariable(name: name), !value.isEmpty else { return nil }
+            return URL(string: value)
+        }
+        func parseScriptDate(name: String) -> Date? {
+            guard let value = parseScriptVariable(name: name), !value.isEmpty else { return nil }
+            return try? parseDate(time: value, format: "yyyy-MM-dd")
+        }
+        func parsePageJumpNavigation() -> PageJumpNavigation? {
+            let navigation = PageJumpNavigation(
+                previousURL: parseScriptURL(name: "prevurl"),
+                nextURL: parseScriptURL(name: "nexturl"),
+                minimumDate: parseScriptDate(name: "mindate"),
+                maximumDate: parseScriptDate(name: "maxdate")
+            )
+            return navigation.isEnabled ? navigation : nil
+        }
+
         var current = 0
         var maximum = 0
 
@@ -1402,7 +1435,11 @@ extension Parser {
                     break
                 }
 
-                return PageNumber(lastItemTimestamp: timestamp, isNextButtonEnabled: isEnabled)
+                return PageNumber(
+                    lastItemTimestamp: timestamp,
+                    isNextButtonEnabled: isEnabled,
+                    jumpNavigation: parsePageJumpNavigation()
+                )
             } else {
                 return PageNumber(isNextButtonEnabled: false)
             }

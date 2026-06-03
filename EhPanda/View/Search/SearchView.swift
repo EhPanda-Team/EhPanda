@@ -55,6 +55,15 @@ struct SearchView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
+        .sheet(isPresented: $store.dateJumpSheetPresented) {
+            DateJumpView(
+                pageNumber: store.pageNumber,
+                selectedDate: $store.dateJumpDate,
+                jumpAction: { store.send(.jumpToDate($0)) }
+            )
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
+        }
         .searchable(text: $store.keyword)
         .searchSuggestions {
             TagSuggestionView(
@@ -107,6 +116,11 @@ struct SearchView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
+                if AppUtil.galleryHost == .ehentai {
+                    DateJumpButton(pageNumber: store.pageNumber) {
+                        store.send(.presentDateJump)
+                    }
+                }
                 FiltersButton {
                     store.send(.setNavigation(.filters()))
                 }

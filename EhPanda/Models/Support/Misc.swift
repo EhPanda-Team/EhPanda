@@ -10,6 +10,54 @@ import SwiftyBeaver
 typealias Logger = SwiftyBeaver
 typealias FavoritesSortOrder = EhSetting.FavoritesSortOrder
 
+enum PageJumpDirection: Equatable {
+    case newer
+    case older
+}
+
+struct PageJumpNavigation: Equatable {
+    var previousURL: URL?
+    var nextURL: URL?
+    var minimumDate: Date?
+    var maximumDate: Date?
+
+    var isEnabled: Bool {
+        previousURL != nil || nextURL != nil
+    }
+    var dateRange: ClosedRange<Date> {
+        (minimumDate ?? .distantPast)...(maximumDate ?? .distantFuture)
+    }
+
+    func clampedDate(_ date: Date = Date()) -> Date {
+        if let maximumDate, date > maximumDate {
+            return maximumDate
+        }
+        if let minimumDate, date < minimumDate {
+            return minimumDate
+        }
+        return date
+    }
+
+    func seekURL(date: Date, direction: PageJumpDirection) -> URL? {
+        let baseURL: URL?
+        switch direction {
+        case .newer:
+            baseURL = previousURL
+        case .older:
+            baseURL = nextURL
+        }
+        return baseURL?.appending(queryItems: ["seek": Self.dateFormatter.string(from: date)])
+    }
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+}
+
 protocol DateFormattable {
     var originalDate: Date { get }
 }
@@ -29,6 +77,7 @@ struct PageNumber: Equatable {
     var maximum = 0
     var lastItemTimestamp: String?
     var isNextButtonEnabled = false
+    var jumpNavigation: PageJumpNavigation?
 
     var isSinglePage: Bool {
         current == 0 && maximum == 0
