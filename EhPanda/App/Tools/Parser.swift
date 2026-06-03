@@ -1379,7 +1379,8 @@ extension Parser {
     // MARK: PageNumber
     static func parsePageNum(doc: HTMLDocument) -> PageNumber {
         func parseScriptVariable(name: String) -> String? {
-            let pattern = #"var \#(name)="([^"]*)";"#
+            let escapedName = NSRegularExpression.escapedPattern(for: name)
+            let pattern = #"var\s+\#(escapedName)\s*=\s*["']([^"']*)["']\s*;"#
             guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
 
             for script in doc.xpath("//script") {
@@ -1394,8 +1395,41 @@ extension Parser {
             return nil
         }
         func parseScriptURL(name: String) -> URL? {
-            guard let value = parseScriptVariable(name: name), !value.isEmpty else { return nil }
-            return URL(string: value)
+            guard var value = parseScriptVariable(name: name)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !value.isEmpty
+            else { return nil }
+            value = value
+                .replacingOccurrences(of: "&amp;", with: "&")
+                .replacingOccurrences(of: "\\u0026", with: "&")
+
+            let baseURL = Defaults.URL.host
+            let parsedURL: URL?
+            if let url = URL(string: value), url.scheme != nil {
+                parsedURL = url
+            } else {
+                parsedURL = URL(string: value, relativeTo: baseURL)?.absoluteURL
+            }
+
+            guard let parsedURL else { return nil }
+            guard var components = URLComponents(url: parsedURL, resolvingAgainstBaseURL: false) else {
+                return parsedURL
+            }
+
+            let knownGalleryHosts = [
+                Defaults.URL.ehentai.host,
+                Defaults.URL.exhentai.host,
+                Defaults.URL.sexhentai.host
+            ]
+            .compactMap { $0?.lowercased() }
+
+            if let host = components.host?.lowercased(),
+               knownGalleryHosts.contains(host),
+               let baseComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
+            {
+                components.scheme = baseComponents.scheme
+                components.host = baseComponents.host
+            }
+            return components.url
         }
         func parseScriptDate(name: String) -> Date? {
             guard let value = parseScriptVariable(name: name), !value.isEmpty else { return nil }
@@ -1441,7 +1475,10 @@ extension Parser {
                     jumpNavigation: parsePageJumpNavigation()
                 )
             } else {
-                return PageNumber(isNextButtonEnabled: false)
+                return PageNumber(
+                    isNextButtonEnabled: false,
+                    jumpNavigation: parsePageJumpNavigation()
+                )
             }
         }
 
@@ -1455,7 +1492,11 @@ extension Parser {
                 maximum = num - 1
             }
         }
-        return PageNumber(current: current, maximum: maximum)
+        return PageNumber(
+            current: current,
+            maximum: maximum,
+            jumpNavigation: parsePageJumpNavigation()
+        )
     }
 
     // MARK: SortOrder

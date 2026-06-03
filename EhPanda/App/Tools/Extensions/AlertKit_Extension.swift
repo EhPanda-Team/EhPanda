@@ -101,14 +101,14 @@ struct DateJumpView: View {
             Form {
                 Section {
                     DatePicker(
-                        "Date",
+                        L10n.Localizable.DateJumpView.Title.date,
                         selection: $selectedDate,
                         in: dateRange,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
                 } footer: {
-                    Text("Seek to galleries around the selected date.")
+                    Text(L10n.Localizable.DateJumpView.Footer.seekAroundDate)
                 }
 
                 Section {
@@ -116,19 +116,19 @@ struct DateJumpView: View {
                         Button {
                             jumpAction(.newer)
                         } label: {
-                            Label("Seek Newer", systemImage: "chevron.left")
+                            Label(L10n.Localizable.DateJumpView.Button.seekNewer, systemImage: "chevron.left")
                         }
                     }
                     if showsOlderButton {
                         Button {
                             jumpAction(.older)
                         } label: {
-                            Label("Seek Older", systemImage: "chevron.right")
+                            Label(L10n.Localizable.DateJumpView.Button.seekOlder, systemImage: "chevron.right")
                         }
                     }
                 }
             }
-            .navigationTitle("Date Jump")
+            .navigationTitle(L10n.Localizable.DateJumpView.Title.dateJump)
             .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {

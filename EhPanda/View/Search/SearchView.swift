@@ -116,10 +116,8 @@ struct SearchView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
-                if AppUtil.galleryHost == .ehentai {
-                    DateJumpButton(pageNumber: store.pageNumber) {
-                        store.send(.presentDateJump)
-                    }
+                DateJumpButton(pageNumber: store.pageNumber) {
+                    store.send(.presentDateJump)
                 }
                 FiltersButton {
                     store.send(.setNavigation(.filters()))

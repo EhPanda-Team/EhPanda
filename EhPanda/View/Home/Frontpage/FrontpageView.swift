@@ -95,10 +95,8 @@ struct FrontpageView: View {
     }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            if AppUtil.galleryHost == .ehentai {
-                DateJumpButton(pageNumber: store.pageNumber, hideText: true) {
-                    store.send(.presentDateJump)
-                }
+            DateJumpButton(pageNumber: store.pageNumber, hideText: true) {
+                store.send(.presentDateJump)
             }
             FiltersButton(hideText: true) {
                 store.send(.setNavigation(.filters()))

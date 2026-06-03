@@ -50,6 +50,81 @@ class ListParserTests: XCTestCase, TestHelper {
         XCTAssertNil(navigation.seekURL(date: maximumDate, direction: .newer))
     }
 
+    func testPageJumpNavigationNormalizesExHentaiHost() throws {
+        let originalHost: String? = UserDefaultsUtil.value(forKey: .galleryHost)
+        UserDefaults.standard.set(GalleryHost.exhentai.rawValue, forKey: AppUserDefaults.galleryHost.rawValue)
+        defer {
+            if let originalHost {
+                UserDefaults.standard.set(originalHost, forKey: AppUserDefaults.galleryHost.rawValue)
+            } else {
+                UserDefaults.standard.removeObject(forKey: AppUserDefaults.galleryHost.rawValue)
+            }
+        }
+
+        let document = try Kanna.HTML(html: """
+        <html>
+        <body>
+        <script>
+        var prevurl="https://e-hentai.org/?prev=123&amp;page=1";
+        var nexturl="/?next=456";
+        var mindate="2007-03-20";
+        var maxdate="2023-09-08";
+        </script>
+        <div class="searchnav"><a href="https://exhentai.org/?next=456-2668517">Next</a></div>
+        </body>
+        </html>
+        """, encoding: .utf8)
+
+        let navigation = try XCTUnwrap(Parser.parsePageNum(doc: document).jumpNavigation)
+
+        XCTAssertEqual(navigation.previousURL?.host, "exhentai.org")
+        XCTAssertEqual(navigation.nextURL?.host, "exhentai.org")
+        XCTAssertEqual(
+            URLComponents(url: try XCTUnwrap(navigation.previousURL), resolvingAgainstBaseURL: false)?
+                .queryItems?
+                .first(where: { $0.name == "page" })?
+                .value,
+            "1"
+        )
+        XCTAssertEqual(
+            URLComponents(url: try XCTUnwrap(navigation.nextURL), resolvingAgainstBaseURL: false)?
+                .queryItems?
+                .first(where: { $0.name == "next" })?
+                .value,
+            "456"
+        )
+    }
+
+    func testPageJumpNavigationIsPreservedWithNumericPager() throws {
+        let document = try Kanna.HTML(html: """
+        <html>
+        <body>
+        <script>
+        var prevurl="https://e-hentai.org/?prev=123";
+        var nexturl="https://e-hentai.org/?next=456";
+        var mindate="2007-03-20";
+        var maxdate="2023-09-08";
+        </script>
+        <table class="ptt">
+          <tr>
+            <td><a>1</a></td>
+            <td class="ptds">2</td>
+            <td><a>3</a></td>
+          </tr>
+        </table>
+        </body>
+        </html>
+        """, encoding: .utf8)
+
+        let pageNumber = Parser.parsePageNum(doc: document)
+        let navigation = try XCTUnwrap(pageNumber.jumpNavigation)
+
+        XCTAssertEqual(pageNumber.current, 1)
+        XCTAssertEqual(pageNumber.maximum, 2)
+        XCTAssertEqual(navigation.previousURL?.absoluteString, "https://e-hentai.org/?prev=123")
+        XCTAssertEqual(navigation.nextURL?.absoluteString, "https://e-hentai.org/?next=456")
+    }
+
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"

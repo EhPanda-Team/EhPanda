@@ -126,7 +126,7 @@ struct DateJumpButton: View {
         Button(action: action) {
             Image(systemName: "calendar")
             if !hideText {
-                Text("Date Jump")
+                Text(L10n.Localizable.ToolbarItem.Button.dateJump)
             }
         }
         .disabled(pageNumber.jumpNavigation?.isEnabled != true)
