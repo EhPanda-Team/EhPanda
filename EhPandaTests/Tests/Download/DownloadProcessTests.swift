@@ -105,6 +105,55 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             )
         )
     }
+
+    @Test
+    func testFetchLatestPayloadUsesLiveDownloadOptionsProvider() async throws {
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 403)
+        let pageIndex = 42
+        let options = DownloadOptionsSnapshot(
+            threadLimit: 3,
+            allowCellular: false,
+            autoRetryFailedPages: false
+        )
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let (_, manager) = makeStubbedDownloadManager(
+            rootURL: rootURL,
+            sessionID: sessionID,
+            downloadOptionsProvider: { options }
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let stubContent = StubHandlerContent(
+            detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
+            mpvHTML: try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html"),
+            metadataResponse: try makeMetadataResponseData(gid: gid)
+        )
+        installDownloadStubHandler(
+            sessionID: sessionID,
+            gid: gid,
+            pageIndex: pageIndex,
+            content: stubContent
+        )
+
+        let download = sampleDownload(
+            gid: gid,
+            title: "Options Gallery",
+            status: .partial,
+            pageCount: 156,
+            completedPageCount: 155
+        )
+        let payload = try await manager.testingFetchLatestPayload(
+            for: download,
+            mode: .redownload,
+            pageSelection: [pageIndex]
+        )
+
+        #expect(payload.options == options)
+    }
 }
 
 private actor FailurePersistenceGate {

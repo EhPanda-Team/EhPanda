@@ -83,7 +83,6 @@ struct DownloadedGallery: Identifiable, Equatable {
     let completedPageCount: Int
     let lastDownloadedAt: Date?
     let lastError: DownloadFailure?
-    let downloadOptionsSnapshot: DownloadOptionsSnapshot
 
     init(
         gid: String,
@@ -102,8 +101,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         status: DownloadStatus,
         completedPageCount: Int,
         lastDownloadedAt: Date?,
-        lastError: DownloadFailure?,
-        downloadOptionsSnapshot: DownloadOptionsSnapshot
+        lastError: DownloadFailure?
     ) {
         self.gid = gid
         self.host = host
@@ -122,7 +120,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.completedPageCount = completedPageCount
         self.lastDownloadedAt = lastDownloadedAt
         self.lastError = lastError
-        self.downloadOptionsSnapshot = downloadOptionsSnapshot
     }
 
     init(
@@ -130,7 +127,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         folderRelativePath: String,
         modifiedAt: Date?,
         displayStatus: DownloadDisplayStatus,
-        downloadOptionsSnapshot: DownloadOptionsSnapshot,
         lastError: DownloadFailure? = nil
     ) {
         self.init(
@@ -150,8 +146,7 @@ struct DownloadedGallery: Identifiable, Equatable {
             status: displayStatus.downloadStatus,
             completedPageCount: manifest.completedPageCount,
             lastDownloadedAt: modifiedAt,
-            lastError: lastError,
-            downloadOptionsSnapshot: downloadOptionsSnapshot
+            lastError: lastError
         )
     }
 }

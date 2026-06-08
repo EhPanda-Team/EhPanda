@@ -22,11 +22,7 @@ extension DownloadManager {
 
     func indexedDownload(gid: String) async -> DownloadedGallery? {
         guard let record = downloadIndex[gid] else { return nil }
-        let downloadOptionsSnapshot = await downloadOptionsProvider()
-        return downloadedGallery(
-            from: record,
-            downloadOptionsSnapshot: downloadOptionsSnapshot
-        )
+        return downloadedGallery(from: record)
     }
 
     func indexedDownloads() async -> [DownloadedGallery] {
@@ -36,13 +32,9 @@ extension DownloadManager {
     private func downloads(
         from records: [DownloadFolderRecord]
     ) async -> [DownloadedGallery] {
-        let downloadOptionsSnapshot = await downloadOptionsProvider()
         return deduplicatedDownloadIndex(from: records).values
             .map {
-                downloadedGallery(
-                    from: $0,
-                    downloadOptionsSnapshot: downloadOptionsSnapshot
-                )
+                downloadedGallery(from: $0)
             }
             .sorted(by: sortDownloadsByDisplayStatus)
     }
@@ -63,8 +55,7 @@ extension DownloadManager {
     }
 
     private func downloadedGallery(
-        from record: DownloadFolderRecord,
-        downloadOptionsSnapshot: DownloadOptionsSnapshot
+        from record: DownloadFolderRecord
     ) -> DownloadedGallery {
         let gid = record.manifest.gid
         return DownloadedGallery(
@@ -72,7 +63,6 @@ extension DownloadManager {
             folderRelativePath: record.relativePath,
             modifiedAt: record.modifiedAt,
             displayStatus: displayStatus(for: record),
-            downloadOptionsSnapshot: downloadOptionsSnapshot,
             lastError: validationErrors[gid] ?? downloadErrors[gid]
         )
     }

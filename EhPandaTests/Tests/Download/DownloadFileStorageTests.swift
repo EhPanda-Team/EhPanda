@@ -405,8 +405,7 @@ private extension DownloadFileStorageTests {
             status: status,
             completedPageCount: status == .completed ? 2 : 0,
             lastDownloadedAt: .now,
-            lastError: nil,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot()
+            lastError: nil
         )
     }
 

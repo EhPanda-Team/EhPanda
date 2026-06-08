@@ -107,8 +107,7 @@ struct DownloadFileStorageHashTests {
             status: .completed,
             completedPageCount: 2,
             lastDownloadedAt: .now,
-            lastError: nil,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot()
+            lastError: nil
         )
     }
 
