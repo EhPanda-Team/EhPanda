@@ -88,8 +88,8 @@ extension Parser {
                 } else {
                     throw AppError.expunged(reason)
                 }
-            } else if let banInterval = parseBanInterval(doc: doc) {
-                throw AppError.ipBanned(banInterval)
+            } else if let error = parseResponseError(doc: doc) {
+                throw error
             } else {
                 throw AppError.parseFailed
             }

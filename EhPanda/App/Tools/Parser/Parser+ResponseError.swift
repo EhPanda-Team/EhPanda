@@ -1,7 +1,7 @@
 import Kanna
 
 extension Parser {
-    static func parseDownloadPageError(doc: HTMLDocument) -> AppError? {
+    static func parseResponseError(doc: HTMLDocument) -> AppError? {
         if let banInterval = parseBanInterval(doc: doc) {
             return .ipBanned(banInterval)
         }
@@ -11,15 +11,15 @@ extension Parser {
             return .authenticationRequired
         }
 
-        for candidate in downloadErrorCandidates(doc: doc) {
-            if let error = parseDownloadPageError(content: candidate) {
+        for candidate in responseErrorCandidates(doc: doc) {
+            if let error = parseResponseError(content: candidate) {
                 return error
             }
         }
         return nil
     }
 
-    static func parseDownloadPageError(content: String) -> AppError? {
+    static func parseResponseError(content: String) -> AppError? {
         let normalizedContent = content.lowercased()
         guard !normalizedContent.isEmpty else { return nil }
 
@@ -68,7 +68,7 @@ extension Parser {
 
 // MARK: Helpers
 private extension Parser {
-    static func downloadErrorCandidates(doc: HTMLDocument) -> [String] {
+    static func responseErrorCandidates(doc: HTMLDocument) -> [String] {
         var candidates = [String]()
 
         let directCandidates = [

@@ -20,8 +20,8 @@ extension Parser {
             galleries = (try? parseCompactModeGalleries(doc: doc)) ?? []
         }
 
-        if galleries.isEmpty, let banInterval = parseBanInterval(doc: doc) {
-            throw AppError.ipBanned(banInterval)
+        if galleries.isEmpty, let error = parseResponseError(doc: doc) {
+            throw error
         }
         return galleries
     }

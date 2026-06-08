@@ -248,7 +248,7 @@ extension DownloadManager {
             html: fullData.utf8InvalidCharactersRipped,
             encoding: .utf8
            ),
-           let error = Parser.parseDownloadPageError(
+           let error = Parser.parseResponseError(
             doc: document
            ) {
             return error

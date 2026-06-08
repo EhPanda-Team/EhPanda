@@ -21,8 +21,8 @@ struct MPVKeysRequest: Request {
     var publisher: AnyPublisher<(String, [Int: String]), AppError> {
         URLSession.shared.dataTaskPublisher(for: mpvURL)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseMPVKeys)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseMPVKeys) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -37,8 +37,8 @@ struct ThumbnailURLsRequest: Request {
             for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum)
         )
         .genericRetry()
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .tryMap(Parser.parseThumbnailURLs)
+        .tryMap { try htmlDocument(data: $0.data) }
+        .tryMap { try parseResponse(doc: $0, Parser.parseThumbnailURLs) }
         .mapError(mapAppError)
         .eraseToAnyPublisher()
     }
@@ -52,9 +52,14 @@ struct GalleryNormalImageURLsRequest: Request {
             .flatMap { index, url in
                 URLSession.shared.dataTaskPublisher(for: url)
                     .genericRetry()
-                    .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-                    .tryMap {
-                        try Parser.parseGalleryNormalImageURL(doc: $0, index: index)
+                    .tryMap { try htmlDocument(data: $0.data) }
+                    .tryMap { doc in
+                        try parseResponse(doc: doc) {
+                            try Parser.parseGalleryNormalImageURL(
+                                doc: $0,
+                                index: index
+                            )
+                        }
                     }
             }
             .collect()
@@ -109,8 +114,8 @@ struct GalleryNormalImageURLRefetchRequest: Request {
             return URLSession.shared.dataTaskPublisher(
                 for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum)
             )
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseThumbnailURLs)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseThumbnailURLs) }
             .compactMap({ thumbnailURLs in thumbnailURLs[index] })
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -120,18 +125,20 @@ struct GalleryNormalImageURLRefetchRequest: Request {
     func renewThumbnailURL(stored: URL)
     -> AnyPublisher<(URL, URL), AppError> {
         URLSession.shared.dataTaskPublisher(for: stored)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap {
-                let identifier = try Parser.parseSkipServerIdentifier(doc: $0)
-                let imageURL = try Parser.parseGalleryNormalImageURL(
-                    doc: $0, index: index
-                ).imageURL
-                return (
-                    stored.appending(
-                        queryItems: [.skipServerIdentifier: identifier]
-                    ),
-                    imageURL
-                )
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { doc in
+                try parseResponse(doc: doc) {
+                    let identifier = try Parser.parseSkipServerIdentifier(doc: $0)
+                    let imageURL = try Parser.parseGalleryNormalImageURL(
+                        doc: $0, index: index
+                    ).imageURL
+                    return (
+                        stored.appending(
+                            queryItems: [.skipServerIdentifier: identifier]
+                        ),
+                        imageURL
+                    )
+                }
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -142,17 +149,20 @@ struct GalleryNormalImageURLRefetchRequest: Request {
         URLSession.shared.dataTaskPublisher(for: thumbnailURL)
             .tryMap {
                 (
-                    try Kanna.HTML(html: $0.data, encoding: .utf8),
+                    try htmlDocument(data: $0.data),
                     $0.response as? HTTPURLResponse
                 )
             }
             .tryMap { html, response in
-                (
-                    try Parser.parseGalleryNormalImageURL(
-                        doc: html, index: index
-                    ),
-                    response
-                )
+                try parseResponse(doc: html) {
+                    (
+                        try Parser.parseGalleryNormalImageURL(
+                            doc: $0,
+                            index: index
+                        ),
+                        response
+                    )
+                }
             }
             .map { info, response in
                 ImageURLRefetchResult(

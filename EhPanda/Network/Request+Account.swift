@@ -53,8 +53,8 @@ struct VerifyEhProfileRequest: Request {
     var publisher: AnyPublisher<VerifyEhProfileResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseProfileIndex)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseProfileIndex) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -85,8 +85,8 @@ struct EhProfileRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -96,8 +96,8 @@ struct EhSettingRequest: Request {
     var publisher: AnyPublisher<EhSetting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -179,8 +179,8 @@ struct SubmitEhSettingChangesRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -252,8 +252,10 @@ struct SendDownloadCommandRequest: Request {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseDownloadCommandResponse)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap {
+                try parseResponse(doc: $0, Parser.parseDownloadCommandResponse)
+            }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }

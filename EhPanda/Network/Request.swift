@@ -12,12 +12,86 @@ protocol Request {
 
     var publisher: AnyPublisher<Response, AppError> { get }
 }
+
+private struct ResponseParsingError: Error {
+    let underlyingError: Error
+    let responseError: AppError?
+}
+
 extension Request {
     func response() async -> Result<Response, AppError> {
         await publisher.receive(on: DispatchQueue.main).async()
     }
 
+    func htmlDocument(data: Data) throws -> HTMLDocument {
+        do {
+            return try Kanna.HTML(html: data, encoding: .utf8)
+        } catch {
+            let content = String(
+                data: data.utf8InvalidCharactersRipped,
+                encoding: .utf8
+            )
+            throw ResponseParsingError(
+                underlyingError: error,
+                responseError: content.flatMap(
+                    Parser.parseResponseError(content:)
+                )
+            )
+        }
+    }
+
+    func htmlDocumentWithUTF8Fallback(data: Data) throws -> HTMLDocument {
+        do {
+            return try Kanna.HTML(html: data, encoding: .utf8)
+        } catch {
+            guard let parseError = error as? ParseError,
+                  parseError == .EncodingMismatch,
+                  let htmlDocument = try? Kanna.HTML(
+                    html: data.utf8InvalidCharactersRipped,
+                    encoding: .utf8
+                  )
+            else {
+                let content = String(
+                    data: data.utf8InvalidCharactersRipped,
+                    encoding: .utf8
+                )
+                throw ResponseParsingError(
+                    underlyingError: error,
+                    responseError: content.flatMap(
+                        Parser.parseResponseError(content:)
+                    )
+                )
+            }
+            return htmlDocument
+        }
+    }
+
+    func parseResponse<T>(
+        doc: HTMLDocument,
+        _ parser: (HTMLDocument) throws -> T
+    ) throws -> T {
+        do {
+            return try parser(doc)
+        } catch {
+            throw ResponseParsingError(
+                underlyingError: error,
+                responseError: Parser.parseResponseError(doc: doc)
+            )
+        }
+    }
+
     func mapAppError(error: Error) -> AppError {
+        if let responseParsingError = error as? ResponseParsingError {
+            if let responseError = parsedResponseError(
+                from: responseParsingError
+            ) {
+                return responseError
+            }
+            return mapAppError(
+                error: responseParsingError.underlyingError
+            )
+        }
+
         switch error {
         case is ParseError:
             return .parseFailed
@@ -31,6 +105,12 @@ extension Request {
         default:
             return error as? AppError ?? .unknown
         }
+    }
+
+    private func parsedResponseError(
+        from error: ResponseParsingError
+    ) -> AppError? {
+        error.responseError
     }
 }
 
@@ -112,8 +192,8 @@ struct GreetingRequest: Request {
     var publisher: AnyPublisher<Greeting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.news)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseGreeting)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseGreeting) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -125,8 +205,8 @@ struct UserInfoRequest: Request {
     var publisher: AnyPublisher<User, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.userInfo(uid: uid))
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseUserInfo)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseUserInfo) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -136,8 +216,8 @@ struct FavoriteCategoriesRequest: Request {
     var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseFavoriteCategories)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseFavoriteCategories) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }

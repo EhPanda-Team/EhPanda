@@ -4,6 +4,7 @@
 //
 
 import Kanna
+import Combine
 import Testing
 @testable import EhPanda
 
@@ -13,7 +14,7 @@ struct DownloadPageErrorParserTests: TestHelper {
         let document = try htmlDocument(filename: .ipBanned)
 
         #expect(
-            Parser.parseDownloadPageError(doc: document) == .ipBanned(.minutes(59, seconds: 48))
+            Parser.parseResponseError(doc: document) == .ipBanned(.minutes(59, seconds: 48))
         )
     }
 
@@ -21,7 +22,26 @@ struct DownloadPageErrorParserTests: TestHelper {
     func testNormalGalleryDetailPageDoesNotMapToDownloadError() throws {
         let document = try htmlDocument(filename: .galleryDetail)
 
-        #expect(Parser.parseDownloadPageError(doc: document) == nil)
+        #expect(Parser.parseResponseError(doc: document) == nil)
+    }
+
+    @Test
+    func testNormalParserFixturesDoNotMapToResponseError() throws {
+        for type in ListParserTestType.allCases {
+            let document = try htmlDocument(filename: type.filename)
+            #expect(Parser.parseResponseError(doc: document) == nil)
+        }
+
+        for filename in [
+            HTMLFilename.galleryDetail,
+            .galleryDetailWithGreeting,
+            .galleryMPVKeys,
+            .galleryNormalImageURL,
+            .ehSetting
+        ] {
+            let document = try htmlDocument(filename: filename)
+            #expect(Parser.parseResponseError(doc: document) == nil)
+        }
     }
 
     @Test
@@ -39,7 +59,7 @@ struct DownloadPageErrorParserTests: TestHelper {
             encoding: .utf8
         )
 
-        #expect(Parser.parseDownloadPageError(doc: document) == .authenticationRequired)
+        #expect(Parser.parseResponseError(doc: document) == .authenticationRequired)
     }
 
     @Test
@@ -52,13 +72,42 @@ struct DownloadPageErrorParserTests: TestHelper {
             encoding: .utf8
         )
 
-        #expect(Parser.parseDownloadPageError(doc: document) == .notFound)
-        #expect(Parser.parseDownloadPageError(content: "Gallery not found") == .notFound)
-        #expect(Parser.parseDownloadPageError(content: "Keep trying") == .notFound)
+        #expect(Parser.parseResponseError(doc: document) == .notFound)
+        #expect(Parser.parseResponseError(content: "Gallery not found") == .notFound)
+        #expect(Parser.parseResponseError(content: "Keep trying") == .notFound)
     }
 
     @Test
     func testGalleryNotAvailableIsNotHardMappedToDownloadError() {
-        #expect(Parser.parseDownloadPageError(content: "Gallery Not Available") == nil)
+        #expect(Parser.parseResponseError(content: "Gallery Not Available") == nil)
+    }
+
+    @Test
+    func testMapAppErrorUsesResponseErrorFromParserFailure() async throws {
+        let document = try htmlDocument(filename: .ipBanned)
+        let result = await FailingHTMLRequest(document: document).response()
+
+        switch result {
+        case .success:
+            Issue.record("Expected response parser to map the IP ban failure.")
+        case .failure(let error):
+            #expect(error == .ipBanned(.minutes(59, seconds: 48)))
+        }
+    }
+}
+
+private struct FailingHTMLRequest: Request {
+    let document: HTMLDocument
+
+    var publisher: AnyPublisher<Void, AppError> {
+        Just(document)
+            .setFailureType(to: AppError.self)
+            .tryMap { document in
+                try parseResponse(doc: document) { _ in
+                    throw AppError.parseFailed
+                }
+            }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
