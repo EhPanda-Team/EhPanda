@@ -62,7 +62,7 @@ extension DownloadManager {
             folderRelativePath: record.relativePath,
             modifiedAt: record.modifiedAt,
             displayStatus: displayStatus(for: record),
-            lastError: downloadErrors[gid]
+            lastError: validationErrors[gid] ?? downloadErrors[gid]
         )
     }
 
@@ -70,6 +70,9 @@ extension DownloadManager {
         for record: DownloadFolderRecord
     ) -> DownloadDisplayStatus {
         let gid = record.manifest.gid
+        if validationErrors[gid] != nil {
+            return .error
+        }
         if record.manifest.isComplete,
            updatedGalleryIDs.contains(gid) {
             return .updateAvailable

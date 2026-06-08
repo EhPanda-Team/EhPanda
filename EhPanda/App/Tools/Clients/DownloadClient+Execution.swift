@@ -26,6 +26,7 @@ extension DownloadManager {
 
         do {
             downloadErrors[gid] = nil
+            validationErrors[gid] = nil
             await notifyObservers()
             let result = try await fetchNormalizeAndDownload(
                 gid: gid,
@@ -191,6 +192,7 @@ extension DownloadManager {
 
     func settleCompletedDownload(gid: String) async {
         downloadErrors[gid] = nil
+        validationErrors[gid] = nil
         updatedGalleryIDs.remove(gid)
         await queueStore.remove(gid)
     }

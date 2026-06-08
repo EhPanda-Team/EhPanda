@@ -71,6 +71,9 @@ extension DownloadManager {
 
         if downloadIndex[gid] != nil {
             downloadErrors[gid] = updateResult.lastError
+            if updateResult.lastError == nil {
+                validationErrors[gid] = nil
+            }
             await notifyObservers()
             return await fetchDownload(gid: gid)
         }

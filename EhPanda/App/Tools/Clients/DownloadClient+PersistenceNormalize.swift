@@ -204,9 +204,14 @@ extension DownloadManager {
 
     private func validateDownload(_ download: DownloadedGallery) async -> DownloadValidationState {
         let validation = storage.validate(download: download)
+        let isIndexedDownload = downloadIndex[download.gid] != nil
         switch validation {
         case .valid:
             refreshMissingManifestHashesIfNeeded(download: download)
+            if isIndexedDownload {
+                validationErrors[download.gid] = nil
+                return validation
+            }
             let expectedStatus: DownloadStatus =
                 download.hasUpdate
                 ? .updateAvailable : .completed
@@ -224,17 +229,21 @@ extension DownloadManager {
             }
 
         case .missingFiles(let message):
+            let failure = DownloadFailure(
+                code: .fileOperationFailed,
+                message: message
+            )
+            if isIndexedDownload {
+                validationErrors[download.gid] = failure
+                return validation
+            }
             do {
                 try await updateDownloadRecord(
                     gid: download.gid,
                     createIfMissing: false
                 ) { record in
                     record.status = DownloadStatus.missingFiles.rawValue
-                    record.lastError = DownloadFailure(
-                        code: .fileOperationFailed,
-                        message: message
-                    )
-                    .toData()
+                    record.lastError = failure.toData()
                 }
             } catch {
                 Logger.error(error)
