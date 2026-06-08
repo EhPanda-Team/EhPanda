@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: DownloadedGallery Computed Properties
 extension DownloadedGallery {
     var displayTitle: String {
-        jpnTitle?.notEmpty == true ? jpnTitle.forceUnwrapped : title
+        jpnTitle?.nonEmpty ?? title
     }
 
     var searchableText: String {

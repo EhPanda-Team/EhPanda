@@ -118,6 +118,9 @@ extension String {
     var notEmpty: Bool {
         !isEmpty
     }
+    var nonEmpty: String? {
+        isEmpty ? nil : self
+    }
     var isInteger: Bool {
         Int(self) != nil
     }

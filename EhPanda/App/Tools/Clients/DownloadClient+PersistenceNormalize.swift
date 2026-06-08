@@ -252,7 +252,7 @@ extension DownloadManager {
 
 private extension DownloadManifest {
     var needsFileHashRefresh: Bool {
-        let needsCoverHash = coverRelativePath?.notEmpty == true
+        let needsCoverHash = coverRelativePath?.nonEmpty != nil
             && coverFileHash == nil
         return needsCoverHash || pages.contains { $0.fileHash == nil }
     }

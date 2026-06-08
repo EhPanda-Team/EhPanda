@@ -174,10 +174,10 @@ struct DownloadVersionMetadata: Equatable, Codable, Sendable {
     }
 
     private var resolvedCurrentGID: String {
-        currentGID?.notEmpty == true ? currentGID.forceUnwrapped : gid
+        currentGID?.nonEmpty ?? gid
     }
 
     private var resolvedCurrentKey: String {
-        currentKey?.notEmpty == true ? currentKey.forceUnwrapped : token
+        currentKey?.nonEmpty ?? token
     }
 }
