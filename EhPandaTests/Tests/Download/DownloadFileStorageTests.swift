@@ -14,8 +14,8 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let download = sampleDownload(folderRelativePath: "123 - Sample")
-        let folderURL = storage.folderURL(relativePath: download.folderRelativePath)
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
@@ -62,8 +62,8 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let download = sampleDownload(folderRelativePath: "123 - Sample")
-        let folderURL = storage.folderURL(relativePath: download.folderRelativePath)
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
@@ -94,8 +94,8 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let download = sampleDownload(folderRelativePath: "123 - Sample")
-        let folderURL = storage.folderURL(relativePath: download.folderRelativePath)
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
@@ -386,7 +386,7 @@ private extension DownloadFileStorageTests {
 
     func sampleDownload(
         status: DownloadStatus = .completed,
-        folderRelativePath: String
+        folderURL: URL
     ) -> DownloadedGallery {
         DownloadedGallery(
             gid: "123",
@@ -401,7 +401,7 @@ private extension DownloadFileStorageTests {
             postedDate: .now,
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
-            folderRelativePath: folderRelativePath,
+            folderURL: folderURL,
             status: status,
             completedPageCount: status == .completed ? 2 : 0,
             lastDownloadedAt: .now,

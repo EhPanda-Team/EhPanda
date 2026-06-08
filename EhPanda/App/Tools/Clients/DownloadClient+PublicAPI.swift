@@ -165,7 +165,7 @@ extension DownloadManager {
             return .failure(.notFound)
         }
         do {
-            try storage.removeFolder(relativePath: download.folderRelativePath)
+            try storage.removeFolder(at: download.folderURL)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .success(())

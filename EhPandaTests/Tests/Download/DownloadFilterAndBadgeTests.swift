@@ -46,7 +46,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             postedDate: .now,
             rating: 4,
             onlineCoverURL: nil,
-            folderRelativePath: "111 - Solo Title",
+            folderURL: URL(fileURLWithPath: "/tmp/111 - Solo Title", isDirectory: true),
             status: .completed,
             completedPageCount: 1,
             lastDownloadedAt: .now,

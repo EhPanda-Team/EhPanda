@@ -173,6 +173,14 @@ extension DownloadFileStorage {
 
     func removeFolder(relativePath: String) throws {
         let targetURL = folderURL(relativePath: relativePath)
+        try removeFolder(at: targetURL)
+    }
+
+    func removeFolder(at folderURL: URL) throws {
+        let targetURL = folderURL.standardizedFileURL
+        guard targetURL.path.hasPrefix(rootURL.standardizedFileURL.path + "/") else {
+            throw AppError.fileOperationFailed(targetURL.path)
+        }
         try fileManager.operate {
             guard $0.fileExists(atPath: targetURL.path) else { return }
             try $0.removeItem(at: targetURL)

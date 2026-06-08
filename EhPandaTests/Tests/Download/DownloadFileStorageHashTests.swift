@@ -58,8 +58,8 @@ struct DownloadFileStorageHashTests {
         storage: DownloadFileStorage
     ) throws -> (DownloadedGallery, URL) {
         try storage.ensureRootDirectory()
-        let download = sampleDownload(folderRelativePath: "123 - Sample")
-        let folderURL = storage.folderURL(relativePath: download.folderRelativePath)
+        let folderURL = storage.folderURL(relativePath: "123 - Sample")
+        let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
@@ -89,7 +89,7 @@ struct DownloadFileStorageHashTests {
         )
     }
 
-    private func sampleDownload(folderRelativePath: String) -> DownloadedGallery {
+    private func sampleDownload(folderURL: URL) -> DownloadedGallery {
         DownloadedGallery(
             gid: "123",
             host: .ehentai,
@@ -103,7 +103,7 @@ struct DownloadFileStorageHashTests {
             postedDate: .now,
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
-            folderRelativePath: folderRelativePath,
+            folderURL: folderURL,
             status: .completed,
             completedPageCount: 2,
             lastDownloadedAt: .now,
