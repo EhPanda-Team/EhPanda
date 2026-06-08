@@ -66,7 +66,6 @@ final class LiveTextHandler {
                     "error": error, "index": index
                 ])
             }
-            self?.analysisTasks[index] = nil
         }
     }
 
