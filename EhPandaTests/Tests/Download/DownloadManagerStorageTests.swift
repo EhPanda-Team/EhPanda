@@ -330,6 +330,55 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerReconcileClearsIndexedInterruptedActiveFlag() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try insertPersistedDownload(
+            in: container,
+            gid: "420",
+            status: .downloading,
+            completedPageCount: 0,
+            pageCount: 1
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[420_token] Interrupted",
+            manifest: indexedManifest(
+                gid: "420",
+                title: "Interrupted",
+                pageHashes: [""]
+            )
+        )
+        await manager.testingSetActiveGalleryID("420")
+
+        await manager.reconcileDownloads()
+
+        let download = try #require(await manager.fetchDownload(gid: "420"))
+        #expect(download.displayStatus == .inactive)
+        #expect(download.status == .paused)
+        #expect(await manager.testingActiveGalleryID() == nil)
+
+        let request = NSFetchRequest<DownloadedGalleryMO>(
+            entityName: "DownloadedGalleryMO"
+        )
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "gid == %@", "420")
+        let persistedDownload = try container.viewContext.fetch(request).first
+        #expect(persistedDownload?.status == DownloadStatus.downloading.rawValue)
+    }
+
+    @Test
     func testDownloadManagerFailureSettlesQueueIntent() async throws {
         let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
