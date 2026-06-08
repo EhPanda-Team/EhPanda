@@ -161,10 +161,10 @@ private extension DownloadRetryUpdateFallbackTests {
             remoteVersionSignature: oldVersionSignature,
             latestRemoteVersionSignature: ""
         )
-        let fetchResult = try await manager.testingFetchLatestPayload(
+        let fetchedPayload = try await manager.testingFetchLatestPayload(
             for: scaffoldDownload, mode: .update
         )
-        let pageCount = fetchResult.payload.galleryDetail.pageCount
+        let pageCount = fetchedPayload.galleryDetail.pageCount
         #expect(pageCount > pageIndex)
         #expect(pageCount > 5)
         return UpdateFallbackPayloadResult(

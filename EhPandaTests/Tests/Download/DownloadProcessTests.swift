@@ -185,10 +185,9 @@ private extension DownloadProcessTests {
             remoteVersionSignature: oldVersionSignature,
             latestRemoteVersionSignature: oldVersionSignature
         )
-        let fetchResult = try await manager.testingFetchLatestPayload(
+        let latestPayload = try await manager.testingFetchLatestPayload(
             for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
         )
-        let latestPayload = fetchResult.payload
         if let coverURL = latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL {
             allowedImageURLs.insert(coverURL.absoluteString)
             installDownloadStubHandler(

@@ -91,7 +91,7 @@ extension DownloadManager {
         for download: DownloadedGallery,
         mode: DownloadStartMode,
         pageSelection: [Int]? = nil
-    ) async throws -> FetchLatestPayloadResult {
+    ) async throws -> DownloadRequestPayload {
         try await fetchLatestPayload(
             for: download,
             mode: mode,

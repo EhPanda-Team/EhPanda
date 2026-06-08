@@ -127,14 +127,14 @@ private extension DownloadRetryMinimalSourceTests {
             gid: gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155
         )
-        let fetchResult = try await manager.testingFetchLatestPayload(
+        let fetchedPayload = try await manager.testingFetchLatestPayload(
             for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
         )
         recorder.reset()
         return MinimalSourceTestResult(
             recorder: recorder,
             versionSignature: chainVersionSignature(gid: gid, token: "token"),
-            pageCount: fetchResult.payload.galleryDetail.pageCount
+            pageCount: fetchedPayload.galleryDetail.pageCount
         )
     }
 }
