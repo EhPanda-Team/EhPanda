@@ -64,7 +64,13 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         #expect(stored?.completedPageCount == 1)
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        #expect(pageURLs[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
+        let pageRelativePath = storage.makePageRelativePath(
+            gid: gid,
+            token: "token",
+            index: 1,
+            fileExtension: "jpg"
+        )
+        #expect(pageURLs[1] == temporaryFolderURL.appendingPathComponent(pageRelativePath))
     }
 
     @MainActor
@@ -100,7 +106,13 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         #expect(stored?.status == .completed)
         #expect(stored?.completedPageCount == 2)
         #expect(stored?.lastError == nil)
-        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
+        let pageRelativePath = storage.makePageRelativePath(
+            gid: gid,
+            token: "token",
+            index: 1,
+            fileExtension: "jpg"
+        )
+        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent(pageRelativePath))
     }
 
 }
@@ -114,16 +126,48 @@ private extension DownloadManagerCaptureTests {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
-        try JSONEncoder().encode(manifest).write(
-            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
-            options: .atomic
-        )
         try Data([0x00]).write(
             to: completedFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
         )
+        let page2RelativePath = "\(gid)_token_2.jpg"
+        let page2URL = completedFolderURL.appendingPathComponent(page2RelativePath)
         try Data([0x02]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0002.jpg"), options: .atomic
+            to: page2URL, options: .atomic
+        )
+        let manifest = DownloadManifest(
+            gid: gid,
+            host: .ehentai,
+            token: "token",
+            title: "Pause Race",
+            jpnTitle: nil,
+            category: .doujinshi,
+            language: .japanese,
+            uploader: "Uploader",
+            tags: [],
+            postedDate: .now,
+            pageCount: 2,
+            coverRelativePath: "cover.jpg",
+            galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
+            rating: 4,
+            downloadOptions: DownloadOptionsSnapshot(),
+            versionSignature: "hash:v1",
+            downloadedAt: .now,
+            pages: [
+                .init(
+                    index: 1,
+                    relativePath: "\(gid)_token_1.jpg",
+                    fileHash: "sha256:missing"
+                ),
+                .init(
+                    index: 2,
+                    relativePath: page2RelativePath,
+                    fileHash: try DownloadFileStorage().fileHash(at: page2URL)
+                )
+            ]
+        )
+        try JSONEncoder().encode(manifest).write(
+            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            options: .atomic
         )
         return completedFolderURL
     }

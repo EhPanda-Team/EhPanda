@@ -197,6 +197,7 @@ extension DownloadManager {
         download: DownloadedGallery
     ) async throws -> Task<Void, Never>? {
         downloadErrors[gid] = nil
+        validationErrors[gid] = nil
         await queueStore.remove(gid)
         let indexedDownloads = await reloadDownloadIndex()
         if !indexedDownloads.contains(where: { $0.gid == gid }) {
@@ -233,6 +234,7 @@ extension DownloadManager {
         download: DownloadedGallery
     ) async throws {
         downloadErrors[gid] = nil
+        validationErrors[gid] = nil
         await queueStore.remove(gid)
         let indexedDownloads = await reloadDownloadIndex()
         if !indexedDownloads.contains(where: { $0.gid == gid }) {
@@ -297,6 +299,7 @@ extension DownloadManager {
 
         do {
             downloadErrors[gid] = nil
+            validationErrors[gid] = nil
             await queueStore.enqueue(gid)
             let indexedDownloads = await reloadDownloadIndex()
             if indexedDownloads.contains(where: { $0.gid == gid }) {
