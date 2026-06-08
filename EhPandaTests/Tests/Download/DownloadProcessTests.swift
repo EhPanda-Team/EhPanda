@@ -11,6 +11,66 @@ import Testing
 @Suite(.serialized)
 struct DownloadProcessTests: DownloadFeatureTestCase {
     @Test
+    func testFailurePersistenceCompletesBeforeRescheduling() async throws {
+        let container = try makeInMemoryContainer()
+        let sessionID = UUID().uuidString
+        let gid = "100010"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let (_, manager) = makeStubbedDownloadManager(
+            rootURL: rootURL,
+            sessionID: sessionID,
+            persistenceContainer: container
+        )
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        try insertPersistedDownload(
+            in: container,
+            gid: gid,
+            status: .queued,
+            completedPageCount: 0,
+            pageCount: 2
+        )
+
+        let persistenceGate = FailurePersistenceGate()
+        await manager.testingSetPersistFailureHook {
+            await persistenceGate.waitAtGate()
+        }
+
+        let completionProbe = ProcessCompletionProbe()
+        let processTask = Task {
+            await manager.testingProcessDownload(gid: gid)
+            await completionProbe.finish()
+        }
+
+        await persistenceGate.waitForArrival()
+        let completedBeforePersistence = await completionProbe
+            .isFinished()
+        let scheduledBeforePersistence = await manager
+            .testingScheduledGalleryIDs()
+        #expect(completedBeforePersistence == false)
+        #expect(scheduledBeforePersistence.isEmpty)
+
+        await persistenceGate.release()
+        await processTask.value
+        await manager.testingSetPersistFailureHook(nil)
+
+        let stored = await manager.testingFetchDownload(gid: gid)
+        #expect(stored?.status == .partial)
+        #expect(stored?.lastError?.code == .networkingFailed)
+
+        await manager.testingScheduleNextIfNeeded()
+        let scheduledAfterFailure = await manager
+            .testingScheduledGalleryIDs()
+        #expect(scheduledAfterFailure.isEmpty)
+    }
+
+    @Test
     func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
         let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
@@ -59,6 +119,45 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
                 temporaryFolderURL: temporaryFolderURL
             )
         )
+    }
+}
+
+private actor FailurePersistenceGate {
+    private var didArrive = false
+    private var arrivalContinuation: CheckedContinuation<Void, Never>?
+    private var releaseContinuation: CheckedContinuation<Void, Never>?
+
+    func waitAtGate() async {
+        didArrive = true
+        arrivalContinuation?.resume()
+        arrivalContinuation = nil
+        await withCheckedContinuation { continuation in
+            releaseContinuation = continuation
+        }
+    }
+
+    func waitForArrival() async {
+        guard !didArrive else { return }
+        await withCheckedContinuation { continuation in
+            arrivalContinuation = continuation
+        }
+    }
+
+    func release() {
+        releaseContinuation?.resume()
+        releaseContinuation = nil
+    }
+}
+
+private actor ProcessCompletionProbe {
+    private var finished = false
+
+    func finish() {
+        finished = true
+    }
+
+    func isFinished() -> Bool {
+        finished
     }
 }
 

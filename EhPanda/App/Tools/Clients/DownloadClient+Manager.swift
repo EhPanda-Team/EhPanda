@@ -142,6 +142,7 @@ actor DownloadManager {
     var schedulingBlockedGalleryIDs = Set<String>()
 #if DEBUG
     var testingFetchDownloadsFromStoreHook: (@Sendable () async -> Void)?
+    var testingPersistFailureHook: (@Sendable () async -> Void)?
     var testingScheduledGalleryIDHistory = [String]()
 #endif
 
