@@ -38,7 +38,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
 
         try insertPersistedDownload(
-            in: container, gid: gid, status: .partial,
+            in: container, gid: gid, status: .updateAvailable,
             completedPageCount: oldCount - 1, pageCount: oldCount,
             remoteVersionSignature: oldVersionSignature,
             latestRemoteVersionSignature: updatedVersionSignature
@@ -57,7 +57,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         }
 
         let queued = await queueingManager.testingFetchDownload(gid: gid)
-        #expect(queued?.status == .partial)
+        #expect(queued?.status == .updateAvailable)
         #expect(queued?.pendingOperation == .update)
         #expect(queued?.lastError == nil)
         if FileManager.default.fileExists(atPath: temporaryFolderURL.path) {
@@ -193,7 +193,7 @@ private extension DownloadRetryUpdateFallbackTests {
             mode: .update, pageSelection: [context.pageIndex]
         )
         try insertPersistedDownload(
-            in: container, gid: context.gid, status: .partial,
+            in: container, gid: context.gid, status: .updateAvailable,
             completedPageCount: oldCount - 1, pageCount: oldCount,
             remoteVersionSignature: signatures.old,
             latestRemoteVersionSignature: signatures.updated

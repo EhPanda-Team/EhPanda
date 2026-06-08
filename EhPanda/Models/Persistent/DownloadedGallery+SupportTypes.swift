@@ -122,7 +122,7 @@ extension DownloadedGallery {
     }
 
     var displayStatus: DownloadDisplayStatus {
-        if status == .updateAvailable || hasUpdate {
+        if status == .updateAvailable {
             return .updateAvailable
         }
         if status == .completed {
@@ -215,7 +215,7 @@ extension DownloadedGallery {
 
     var canTriggerUpdate: Bool {
         guard !isQueuedWorkItem, !canPauseOrResume else { return false }
-        return status == .updateAvailable || ([.completed, .missingFiles].contains(status) && hasUpdate)
+        return status == .updateAvailable
     }
 
     var isQueuedWorkItem: Bool {
@@ -223,12 +223,7 @@ extension DownloadedGallery {
     }
 
     var hasUpdate: Bool {
-        DownloadSignatureBuilder.hasUpdateComparison(
-            remoteVersionSignature: remoteVersionSignature,
-            latestRemoteVersionSignature: latestRemoteVersionSignature,
-            gid: gid,
-            token: token
-        ) == .different
+        status == .updateAvailable
     }
 
     func needsInterruptedDownloadNormalization(
@@ -253,7 +248,7 @@ extension DownloadedGallery {
         case .failed:
             return [.partial, .failed, .missingFiles].contains(status)
         case .update:
-            return status == .updateAvailable || hasUpdate
+            return status == .updateAvailable
         }
     }
 
