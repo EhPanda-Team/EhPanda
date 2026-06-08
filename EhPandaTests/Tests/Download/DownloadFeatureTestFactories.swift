@@ -15,7 +15,7 @@ extension DownloadFeatureTestCase {
         gid: String,
         title: String,
         pageCount: Int = 2,
-        versionSignature: String = "hash:v1"
+        versionSignature _: String = "hash:v1"
     ) throws -> DownloadManifest {
         DownloadManifest(
             gid: gid,
@@ -33,7 +33,6 @@ extension DownloadFeatureTestCase {
             galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            versionSignature: versionSignature,
             downloadedAt: .now,
             pages: (1...pageCount).map {
                 .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")

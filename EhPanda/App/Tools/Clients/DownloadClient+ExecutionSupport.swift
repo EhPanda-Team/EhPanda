@@ -191,8 +191,7 @@ extension DownloadManager {
         )
         let seedContext = RepairSeedContext(
             existingDownload: existingDownload,
-            payload: payload,
-            versionSignature: versionSignature
+            payload: payload
         )
         try setupWorkingFolder(
             folderURL: folderURL,
@@ -204,7 +203,6 @@ extension DownloadManager {
             at: folderURL,
             gid: payload.gallery.gid,
             pageCount: payload.galleryDetail.pageCount,
-            versionSignature: versionSignature,
             downloadOptions: payload.options
         )
         let existingPages = storage.existingPageRelativePaths(
@@ -248,7 +246,6 @@ extension DownloadManager {
             return manifest.gid == payload.gallery.gid
                 && manifest.token == payload.gallery.token
                 && manifest.pageCount == payload.galleryDetail.pageCount
-                && manifest.versionSignature == versionSignature
                 && manifest.downloadOptions == payload.options
         case .repair:
             return true
@@ -260,7 +257,6 @@ extension DownloadManager {
     private struct RepairSeedContext {
         let existingDownload: DownloadedGallery
         let payload: DownloadRequestPayload
-        let versionSignature: String
     }
 
     private func setupWorkingFolder(
@@ -276,8 +272,7 @@ extension DownloadManager {
         if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {
             if let seed = repairSeed(
                 for: seedContext.existingDownload,
-                payload: seedContext.payload,
-                versionSignature: seedContext.versionSignature
+                payload: seedContext.payload
             ) {
                 try storage.materializeRepairSeed(
                     from: seed.folderURL,
@@ -338,8 +333,7 @@ extension DownloadManager {
 
     func repairSeed(
         for download: DownloadedGallery,
-        payload: DownloadRequestPayload,
-        versionSignature: String
+        payload: DownloadRequestPayload
     ) -> RepairSeed? {
         let folderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
@@ -352,8 +346,7 @@ extension DownloadManager {
               manifest.gid == download.gid,
               manifest.pageCount ==
                 payload.galleryDetail.pageCount,
-              manifest.pages.count == manifest.pageCount,
-              manifest.versionSignature == versionSignature
+              manifest.pages.count == manifest.pageCount
         else {
             return nil
         }

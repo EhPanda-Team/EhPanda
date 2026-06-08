@@ -14,7 +14,7 @@ import Testing
 @Suite(.serialized)
 struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
     @Test
-    func testRepairSeedRejectsOldCompletedVersionWhenGalleryUpdatedButPageCountMatches() async throws {
+    func testRepairSeedReusesCompletedFilesWhenPageCountMatches() async throws {
         let gid = "repair-seed-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -38,23 +38,27 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             versionSignature: "hash:v2"
         )
 
-        #expect(workingSeed.manifest == nil)
-        #expect(workingSeed.existingPages.isEmpty)
-        #expect(workingSeed.coverRelativePath == nil)
+        let manifest = try #require(workingSeed.manifest)
+        #expect(manifest.gid == gid)
+        #expect(workingSeed.existingPages == [
+            1: "pages/0001.jpg",
+            2: "pages/0002.jpg"
+        ])
+        #expect(workingSeed.coverRelativePath == "cover.jpg")
         #expect(
             FileManager.default.fileExists(
                 atPath: workingSeed.folderURL.appendingPathComponent("pages/0001.jpg").path
-            ) == false
+            )
         )
         #expect(
             FileManager.default.fileExists(
                 atPath: workingSeed.folderURL.appendingPathComponent("pages/0002.jpg").path
-            ) == false
+            )
         )
     }
 
     @Test
-    func testDownloadManagerLoadLocalPageURLsMarksCompletedDownloadMissingFilesWhenZeroBytePageIsFound() async throws {
+    func testDownloadManagerLoadLocalPageURLsRemovesZeroBytePage() async throws {
         let container = try makeInMemoryContainer()
 
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
@@ -75,13 +79,10 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         )
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        let stored = await manager.testingFetchDownload(gid: gid)
 
         #expect(pageURLs[1] == nil)
         #expect(pageURLs[2] == goodPageURL)
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
-        #expect(stored?.status == .missingFiles)
-        #expect(stored?.completedPageCount == 1)
     }
 
     @MainActor

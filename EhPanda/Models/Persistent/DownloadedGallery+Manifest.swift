@@ -40,7 +40,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let galleryURL: URL
     let rating: Float
     let downloadOptions: DownloadOptionsSnapshot
-    let versionSignature: String
     let downloadedAt: Date
     let pages: [Page]
 
@@ -61,7 +60,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         galleryURL: URL,
         rating: Float,
         downloadOptions: DownloadOptionsSnapshot,
-        versionSignature: String,
         downloadedAt: Date,
         pages: [Page]
     ) {
@@ -81,7 +79,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         self.galleryURL = galleryURL
         self.rating = rating
         self.downloadOptions = downloadOptions
-        self.versionSignature = versionSignature
         self.downloadedAt = downloadedAt
         self.pages = pages
     }

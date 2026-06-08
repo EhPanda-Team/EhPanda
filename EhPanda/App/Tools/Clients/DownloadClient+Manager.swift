@@ -125,7 +125,6 @@ actor DownloadManager {
     }
 
     struct FinalizeContext: Sendable {
-        let versionSignature: String
         let coverRelativePath: String?
         let batchResult: DownloadBatchResult
         let existingDownload: DownloadedGallery

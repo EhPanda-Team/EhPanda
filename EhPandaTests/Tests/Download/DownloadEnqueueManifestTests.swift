@@ -61,7 +61,6 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         #expect(manifest.pages.count == detail.pageCount)
         #expect(manifest.pages.first?.relativePath == "\(gallery.gid)_\(gallery.token)_1.pending")
         #expect(manifest.downloadOptions.threadLimit == 3)
-        #expect(manifest.versionSignature == "chain:\(gallery.gid):\(gallery.token)")
 
         let request = NSFetchRequest<DownloadedGalleryMO>(
             entityName: "DownloadedGalleryMO"

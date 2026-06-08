@@ -451,7 +451,6 @@ private extension DownloadFileStorageTests {
             galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            versionSignature: "hash:v1",
             downloadedAt: .now,
             pages: (1...pageCount).map {
                 .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")

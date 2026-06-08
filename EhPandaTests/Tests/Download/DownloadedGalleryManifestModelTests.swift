@@ -55,7 +55,6 @@ private extension DownloadedGalleryManifestModelTests {
             galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
             rating: 4,
             downloadOptions: .init(threadLimit: 3),
-            versionSignature: "hash:v1",
             downloadedAt: Date(timeIntervalSince1970: 1_111),
             pages: pageHashes.sorted(by: { $0.key < $1.key }).map { index, hash in
                 .init(

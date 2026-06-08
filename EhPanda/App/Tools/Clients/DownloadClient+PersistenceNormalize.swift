@@ -11,7 +11,6 @@ extension DownloadManager {
         at folderURL: URL,
         gid: String,
         pageCount: Int,
-        versionSignature: String,
         downloadOptions: DownloadOptionsSnapshot
     ) -> DownloadManifest? {
         guard let manifest = try? storage
@@ -19,7 +18,6 @@ extension DownloadManager {
               manifest.gid == gid,
               manifest.pageCount == pageCount,
               manifest.pages.count == pageCount,
-              manifest.versionSignature == versionSignature,
               manifest.downloadOptions == downloadOptions
         else {
             return nil

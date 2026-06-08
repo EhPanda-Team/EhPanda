@@ -77,15 +77,10 @@ extension DownloadManager {
     ) async -> Result<Void, AppError> {
         do {
             try storage.ensureRootDirectory()
-            let versionSignature = manifestVersionSignature(
-                for: payload.gallery,
-                versionMetadata: payload.versionMetadata
-            )
             let folderRelativePath = folderRelativePath(for: payload)
             try writeInitialManifest(
                 payload: payload,
-                folderRelativePath: folderRelativePath,
-                versionSignature: versionSignature
+                folderRelativePath: folderRelativePath
             )
             await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
@@ -101,8 +96,7 @@ extension DownloadManager {
 
     private func writeInitialManifest(
         payload: DownloadRequestPayload,
-        folderRelativePath: String,
-        versionSignature: String
+        folderRelativePath: String
     ) throws {
         guard let galleryURL = payload.gallery.galleryURL else {
             throw AppError.notFound
@@ -140,7 +134,6 @@ extension DownloadManager {
                 galleryURL: galleryURL,
                 rating: payload.galleryDetail.rating,
                 downloadOptions: payload.options,
-                versionSignature: versionSignature,
                 downloadedAt: .now,
                 pages: pages
             ),
