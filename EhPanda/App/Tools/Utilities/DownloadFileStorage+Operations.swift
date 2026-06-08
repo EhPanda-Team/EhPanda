@@ -354,7 +354,6 @@ private extension DownloadManifest {
             pageCount: pageCount,
             coverRelativePath: coverRelativePath,
             coverFileHash: coverFileHash,
-            galleryURL: galleryURL,
             rating: rating,
             downloadOptions: downloadOptions,
             downloadedAt: downloadedAt,

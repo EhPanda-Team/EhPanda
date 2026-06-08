@@ -98,9 +98,6 @@ extension DownloadManager {
         payload: DownloadRequestPayload,
         folderRelativePath: String
     ) throws {
-        guard let galleryURL = payload.gallery.galleryURL else {
-            throw AppError.notFound
-        }
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try createDirectory(at: folderURL)
         let pageCount = payload.galleryDetail.pageCount
@@ -131,7 +128,6 @@ extension DownloadManager {
                 postedDate: payload.galleryDetail.postedDate,
                 pageCount: pageCount,
                 coverRelativePath: nil,
-                galleryURL: galleryURL,
                 rating: payload.galleryDetail.rating,
                 downloadOptions: payload.options,
                 downloadedAt: .now,

@@ -37,7 +37,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let pageCount: Int
     let coverRelativePath: String?
     let coverFileHash: String?
-    let galleryURL: URL
     let rating: Float
     let downloadOptions: DownloadOptionsSnapshot
     let downloadedAt: Date
@@ -57,7 +56,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         pageCount: Int,
         coverRelativePath: String?,
         coverFileHash: String? = nil,
-        galleryURL: URL,
         rating: Float,
         downloadOptions: DownloadOptionsSnapshot,
         downloadedAt: Date,
@@ -76,7 +74,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         self.pageCount = pageCount
         self.coverRelativePath = coverRelativePath
         self.coverFileHash = coverFileHash
-        self.galleryURL = galleryURL
         self.rating = rating
         self.downloadOptions = downloadOptions
         self.downloadedAt = downloadedAt
@@ -91,6 +88,13 @@ struct DownloadManifest: Codable, Equatable, Sendable {
 }
 
 extension DownloadManifest {
+    var galleryURL: URL {
+        host.url
+            .appendingPathComponent("g")
+            .appendingPathComponent(gid)
+            .appendingPathComponent(token)
+    }
+
     var completedPageCount: Int {
         pages.filter { $0.fileHash?.isEmpty == false }.count
     }

@@ -129,7 +129,6 @@ struct DownloadFileStorageHashTests {
             postedDate: .now,
             pageCount: pageCount,
             coverRelativePath: "cover.jpg",
-            galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             downloadedAt: .now,

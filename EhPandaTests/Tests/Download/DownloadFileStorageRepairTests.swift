@@ -113,7 +113,6 @@ private extension DownloadFileStorageRepairTests {
             gid: "123", host: .ehentai, token: "token", title: "Sample", jpnTitle: nil,
             category: .doujinshi, language: .japanese, uploader: "Uploader", tags: [],
             postedDate: .now, pageCount: 2, coverRelativePath: "cover.jpg",
-            galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
             rating: 4, downloadOptions: DownloadOptionsSnapshot(),
             downloadedAt: .now,
             pages: [
@@ -208,7 +207,6 @@ private extension DownloadFileStorageRepairTests {
             postedDate: .now,
             pageCount: pageCount,
             coverRelativePath: "cover.jpg",
-            galleryURL: try #require(URL(string: "https://e-hentai.org/g/123/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             downloadedAt: .now,
