@@ -41,13 +41,13 @@ struct DownloadedGalleryManifestModelTests {
 
         let download = DownloadedGallery(
             manifest: manifest,
-            folderRelativePath: "[123_token] Sample",
+            folderURL: URL(fileURLWithPath: "/tmp/[123_token] Sample", isDirectory: true),
             modifiedAt: modifiedAt,
             displayStatus: .queued
         )
 
         #expect(download.gid == "123")
-        #expect(download.folderRelativePath == "[123_token] Sample")
+        #expect(download.folderURL.lastPathComponent == "[123_token] Sample")
         #expect(download.status == .queued)
         #expect(download.onlineCoverURL == manifest.remoteCoverURL)
         #expect(download.completedPageCount == 2)

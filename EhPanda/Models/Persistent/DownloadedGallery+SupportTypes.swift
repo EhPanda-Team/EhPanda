@@ -24,17 +24,15 @@ extension DownloadedGallery {
         .joined(separator: " ")
     }
 
-    func resolvedFolderURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL {
-        rootURL.appendingPathComponent(folderRelativePath, isDirectory: true)
+    func resolvedFolderURL(rootURL _: URL = FileUtil.downloadsDirectoryURL) -> URL {
+        folderURL
     }
 
-    func resolvedManifestURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL {
-        resolvedFolderURL(rootURL: rootURL)
-            .appendingPathComponent(Defaults.FilePath.downloadManifest)
+    func resolvedManifestURL(rootURL _: URL = FileUtil.downloadsDirectoryURL) -> URL {
+        folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
     }
 
     func resolvedLocalCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
-        let folderURL = resolvedFolderURL(rootURL: rootURL)
         return DownloadFileStorage(rootURL: rootURL)
             .existingCoverRelativePath(folderURL: folderURL)
             .map { folderURL.appendingPathComponent($0) }
@@ -43,10 +41,6 @@ extension DownloadedGallery {
     func resolvedCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
         resolvedLocalCoverURL(rootURL: rootURL)
             ?? onlineCoverURL
-    }
-
-    var folderURL: URL {
-        resolvedFolderURL()
     }
 
     var manifestURL: URL {

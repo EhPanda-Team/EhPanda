@@ -60,7 +60,7 @@ extension DownloadManager {
         let gid = record.manifest.gid
         return DownloadedGallery(
             manifest: record.manifest,
-            folderRelativePath: record.relativePath,
+            folderURL: record.folderURL,
             modifiedAt: record.modifiedAt,
             displayStatus: displayStatus(for: record),
             lastError: validationErrors[gid] ?? downloadErrors[gid]

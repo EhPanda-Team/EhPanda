@@ -57,10 +57,11 @@ extension DownloadManager {
         result: ProcessDownloadResult
     ) async {
         await settleCompletedDownload(gid: gid)
-        if download.folderRelativePath != result.folderRelativePath {
-            try? storage.removeFolder(
-                relativePath: download.folderRelativePath
-            )
+        let completedFolderURL = storage.folderURL(
+            relativePath: result.folderRelativePath
+        )
+        if download.folderURL != completedFolderURL {
+            try? storage.removeFolder(at: download.folderURL)
         }
         await notifyObservers()
     }

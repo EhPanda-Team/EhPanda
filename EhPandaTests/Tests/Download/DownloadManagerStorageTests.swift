@@ -114,7 +114,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(downloads.map(\.gid) == ["500"])
         let download = try #require(downloads.first)
         #expect(download.title == "New")
-        #expect(download.folderRelativePath == "[500_token] New")
+        #expect(download.folderURL == storage.folderURL(relativePath: "[500_token] New"))
         #expect(download.lastDownloadedAt == newerDate)
         #expect((await manager.indexedDownload(gid: "500")) == download)
     }
