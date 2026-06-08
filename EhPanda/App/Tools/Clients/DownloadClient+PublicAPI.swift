@@ -101,18 +101,8 @@ extension DownloadManager {
         try createDirectory(at: folderURL)
         let pageCount = payload.galleryDetail.pageCount
         let pages = pageCount > 0
-            ? (1...pageCount).map { index in
-                DownloadManifest.Page(
-                    index: index,
-                    relativePath: storage.makePageRelativePath(
-                        gid: payload.gallery.gid,
-                        token: payload.gallery.token,
-                        index: index,
-                        fileExtension: "pending"
-                    )
-                )
-            }
-            : []
+            ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+            : [:]
         try storage.writeManifest(
             DownloadManifest(
                 gid: payload.gallery.gid,

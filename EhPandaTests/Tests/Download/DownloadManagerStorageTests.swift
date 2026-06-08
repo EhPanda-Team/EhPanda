@@ -731,11 +731,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             manifest: indexedManifest(
                 gid: "840",
                 title: "Progress",
-                pageHashes: ["", ""],
-                pageRelativePaths: [
-                    "840_token_1.pending",
-                    "840_token_2.pending"
-                ]
+                pageHashes: ["", ""]
             )
         )
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
@@ -764,10 +760,8 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let download = try #require(await manager.fetchDownload(gid: "840"))
 
         #expect(pendingResolvedPages.isEmpty)
-        #expect(manifest.pages[0].relativePath == pageRelativePath)
-        #expect(manifest.pages[0].fileHash?.hasPrefix("sha256:") == true)
-        #expect(manifest.pages[1].relativePath == "840_token_2.pending")
-        #expect(manifest.pages[1].fileHash == "")
+        #expect(manifest.pages[1]?.hasPrefix("sha256:") == true)
+        #expect(manifest.pages[2] == "")
         #expect(download.completedPageCount == 1)
     }
 
@@ -935,8 +929,7 @@ private extension DownloadManagerStorageTests {
         gid: String,
         title: String,
         pageHashes: [String],
-        modifiedAt: Date = .now,
-        pageRelativePaths: [String]? = nil
+        modifiedAt: Date = .now
     ) throws -> DownloadManifest {
         DownloadManifest(
             gid: gid,
@@ -950,14 +943,10 @@ private extension DownloadManagerStorageTests {
             tags: [],
             postedDate: modifiedAt,
             rating: 4,
-            pages: pageHashes.enumerated().map { offset, hash in
-                DownloadManifest.Page(
-                    index: offset + 1,
-                    relativePath: pageRelativePaths?[offset]
-                        ?? "\(gid)_token_\(offset + 1).jpg",
-                    fileHash: hash
-                )
-            }
+            pages: Dictionary(
+                uniqueKeysWithValues:
+                    pageHashes.enumerated().map { ($0.offset + 1, $0.element) }
+            )
         )
     }
 

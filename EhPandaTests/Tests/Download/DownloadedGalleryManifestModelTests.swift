@@ -70,13 +70,10 @@ private extension DownloadedGalleryManifestModelTests {
             tags: [],
             postedDate: Date(timeIntervalSince1970: 1_000),
             rating: 4,
-            pages: pageHashes.sorted(by: { $0.key < $1.key }).map { index, hash in
-                .init(
-                    index: index,
-                    relativePath: "123_token_\(index).jpg",
-                    fileHash: hash
-                )
-            }
+            pages: Dictionary(
+                uniqueKeysWithValues:
+                    pageHashes.map { index, hash in (index, hash ?? "") }
+            )
         )
     }
 }

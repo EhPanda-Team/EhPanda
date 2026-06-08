@@ -202,13 +202,10 @@ private extension DownloadRetryUpdateFallbackTests {
             tags: manifest.tags,
             postedDate: manifest.postedDate,
             rating: manifest.rating,
-            pages: manifest.pages.map {
-                DownloadManifest.Page(
-                    index: $0.index,
-                    relativePath: $0.relativePath,
-                    fileHash: "sha256:\($0.index)"
-                )
-            }
+            pages: Dictionary(
+                uniqueKeysWithValues:
+                    manifest.pages.keys.sorted().map { ($0, "sha256:\($0)") }
+            )
         )
     }
 }

@@ -29,9 +29,9 @@ extension DownloadFeatureTestCase {
             tags: [],
             postedDate: .now,
             rating: 4,
-            pages: (1...pageCount).map {
-                .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
-            }
+            pages: pageCount > 0
+                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                : [:]
         )
     }
 

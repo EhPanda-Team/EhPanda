@@ -112,13 +112,10 @@ private extension DownloadRetryPagesTests {
                 tags: [],
                 postedDate: .now,
                 rating: 4,
-                pages: pageHashes.enumerated().map { offset, hash in
-                    .init(
-                        index: offset + 1,
-                        relativePath: "pages/\(String(format: "%04d", offset + 1)).jpg",
-                        fileHash: hash
-                    )
-                }
+                pages: Dictionary(
+                    uniqueKeysWithValues:
+                        pageHashes.enumerated().map { ($0.offset + 1, $0.element) }
+                )
             ),
             folderURL: folderURL
         )

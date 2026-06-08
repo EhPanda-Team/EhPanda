@@ -56,7 +56,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         #expect(manifest.token == gallery.token)
         #expect(manifest.pageCount == detail.pageCount)
         #expect(manifest.pages.count == detail.pageCount)
-        #expect(manifest.pages.first?.relativePath == "\(gallery.gid)_\(gallery.token)_1.pending")
+        #expect(manifest.pages[1] == "")
 
         let manifestData = try Data(
             contentsOf: storage
