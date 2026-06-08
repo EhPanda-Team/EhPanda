@@ -123,11 +123,10 @@ struct URLUtil {
     }
 
     static func combinedPreviewURL(plainURL: URL, width: String, height: String, offset: String) -> URL {
-        plainURL.appending(queryItems: [
-            URLQueryItem(name: Defaults.URL.Component.Key.ehpandaWidth.rawValue, value: width),
-            URLQueryItem(name: Defaults.URL.Component.Key.ehpandaHeight.rawValue, value: height),
-            URLQueryItem(name: Defaults.URL.Component.Key.ehpandaOffset.rawValue, value: offset)
-        ])
+        plainURL
+            .appending(queryItems: [.ehpandaWidth: width])
+            .appending(queryItems: [.ehpandaHeight: height])
+            .appending(queryItems: [.ehpandaOffset: offset])
     }
 
     // GitHub
