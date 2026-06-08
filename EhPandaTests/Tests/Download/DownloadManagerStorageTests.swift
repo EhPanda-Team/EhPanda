@@ -558,7 +558,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try await manager.flushDownloadProgress(
             context: .init(gid: "840", folderURL: folderURL),
             pendingResolvedPages: &pendingResolvedPages,
-            completedCount: 1,
             lastFlushDate: &lastFlushDate,
             force: true
         )

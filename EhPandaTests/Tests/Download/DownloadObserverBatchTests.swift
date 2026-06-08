@@ -115,7 +115,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             try await manager.flushDownloadProgress(
                 context: .init(gid: gid, folderURL: folderURL),
                 pendingResolvedPages: &pendingResolvedPages,
-                completedCount: index,
                 lastFlushDate: &lastFlushDate,
                 force: false
             )
@@ -123,7 +122,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         try await manager.flushDownloadProgress(
             context: .init(gid: gid, folderURL: folderURL),
             pendingResolvedPages: &pendingResolvedPages,
-            completedCount: pageCount,
             lastFlushDate: &lastFlushDate,
             force: true
         )
