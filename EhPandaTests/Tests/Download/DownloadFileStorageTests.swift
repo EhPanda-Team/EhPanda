@@ -407,9 +407,7 @@ private extension DownloadFileStorageTests {
             completedPageCount: status == .completed ? 2 : 0,
             lastDownloadedAt: .now,
             lastError: nil,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot(),
-            remoteVersionSignature: "hash:v1",
-            latestRemoteVersionSignature: "hash:v1"
+            downloadOptionsSnapshot: DownloadOptionsSnapshot()
         )
     }
 

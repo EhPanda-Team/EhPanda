@@ -109,9 +109,7 @@ struct DownloadFileStorageHashTests {
             completedPageCount: 2,
             lastDownloadedAt: .now,
             lastError: nil,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot(),
-            remoteVersionSignature: "hash:v1",
-            latestRemoteVersionSignature: "hash:v1"
+            downloadOptionsSnapshot: DownloadOptionsSnapshot()
         )
     }
 

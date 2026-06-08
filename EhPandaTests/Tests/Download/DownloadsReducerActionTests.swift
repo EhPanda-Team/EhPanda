@@ -56,8 +56,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         let download = sampleDownload(
             gid: "123456",
             title: "Completed Gallery",
-            status: .updateAvailable,
-            latestRemoteVersionSignature: "hash:v2"
+            status: .updateAvailable
         )
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]

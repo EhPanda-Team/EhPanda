@@ -188,9 +188,7 @@ private extension DownloadProcessTests {
         )
         let scaffoldDownload = sampleDownload(
             gid: gid, title: "Pause Race", status: .partial,
-            pageCount: 156, completedPageCount: 155,
-            remoteVersionSignature: oldVersionSignature,
-            latestRemoteVersionSignature: oldVersionSignature
+            pageCount: 156, completedPageCount: 155
         )
         let latestPayload = try await manager.testingFetchLatestPayload(
             for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]

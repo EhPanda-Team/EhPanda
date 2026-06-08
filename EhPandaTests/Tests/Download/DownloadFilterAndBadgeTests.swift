@@ -52,9 +52,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 1,
             lastDownloadedAt: .now,
             lastError: nil,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot(),
-            remoteVersionSignature: "hash:v1",
-            latestRemoteVersionSignature: "hash:v1"
+            downloadOptionsSnapshot: DownloadOptionsSnapshot()
         )
 
         #expect(download.searchableText == ["Solo Title", Category.doujinshi.value].joined(separator: " "))
@@ -99,7 +97,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             title: "Updated Archive",
             status: .updateAvailable,
             completedPageCount: 12,
-            latestRemoteVersionSignature: "hash:v2",
             pendingOperation: .update
         )
 
@@ -116,8 +113,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             title: "Resumed Update",
             status: .queued,
             pageCount: 26,
-            completedPageCount: 7,
-            latestRemoteVersionSignature: "hash:v2"
+            completedPageCount: 7
         )
 
         #expect(resumedUpdate.pendingOperation == nil)
@@ -146,21 +142,18 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             gid: "456",
             title: "Downloading Update",
             status: .downloading,
-            completedPageCount: 5,
-            latestRemoteVersionSignature: "hash:v2"
+            completedPageCount: 5
         )
         let pausedUpdate = sampleDownload(
             gid: "457",
             title: "Paused Update",
             status: .paused,
-            completedPageCount: 5,
-            latestRemoteVersionSignature: "hash:v2"
+            completedPageCount: 5
         )
         let completedUpdate = sampleDownload(
             gid: "458",
             title: "Completed Update",
-            status: .updateAvailable,
-            latestRemoteVersionSignature: "hash:v2"
+            status: .updateAvailable
         )
 
         #expect(downloadingUpdate.canTriggerUpdate == false)

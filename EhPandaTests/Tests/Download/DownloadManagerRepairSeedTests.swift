@@ -25,16 +25,13 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
 
         let existingDownload = sampleDownload(
             gid: gid, title: "Mixed Version", status: .missingFiles,
-            pageCount: 2, completedPageCount: 2,
-            remoteVersionSignature: "hash:v1",
-            latestRemoteVersionSignature: "hash:v2"
+            pageCount: 2, completedPageCount: 2
         )
         try setupRepairSeedFiles(storage: storage, rootURL: rootURL, gid: gid)
 
         let payload = makeRepairSeedPayload(gid: gid)
         let workingSeed = try await manager.testingPrepareWorkingSeed(
-            payload: payload, existingDownload: existingDownload,
-            versionSignature: "hash:v2"
+            payload: payload, existingDownload: existingDownload
         )
 
         let manifest = try #require(workingSeed.manifest)
