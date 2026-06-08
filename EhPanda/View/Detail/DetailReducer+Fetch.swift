@@ -8,38 +8,36 @@ import ComposableArchitecture
 
 // MARK: - Fetch & Gallery Ops Action Handlers
 extension DetailReducer {
-    func handleFetchActions(
-        state: inout State,
-        action: Action,
-        self reducer: Reduce<State, Action>
-    ) -> Effect<Action>? {
-        switch action {
-        case .teardown:
-            return .merge(CancelID.allCases.map(Effect.cancel(id:)))
+    func fetchReducer(_ reducer: Reduce<State, Action>) -> some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .teardown:
+                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
-        case .fetchDatabaseInfos(let gid):
-            return handleFetchDatabaseInfos(gid: gid, state: &state)
+            case .fetchDatabaseInfos(let gid):
+                return handleFetchDatabaseInfos(gid: gid, state: &state)
 
-        case .fetchDatabaseInfosDone(let galleryState):
-            return handleFetchDatabaseInfosDone(galleryState: galleryState, state: &state)
+            case .fetchDatabaseInfosDone(let galleryState):
+                return handleFetchDatabaseInfosDone(galleryState: galleryState, state: &state)
 
-        case .fetchGalleryDetail:
-            return handleFetchGalleryDetail(state: &state)
+            case .fetchGalleryDetail:
+                return handleFetchGalleryDetail(state: &state)
 
-        case .fetchGalleryDetailDone(let result):
-            return handleFetchGalleryDetailDone(result: result, state: &state)
+            case .fetchGalleryDetailDone(let result):
+                return handleFetchGalleryDetailDone(result: result, state: &state)
 
-        case .fetchVersionMetadataIfNeeded:
-            return handleFetchVersionMetadataIfNeeded(state: &state)
+            case .fetchVersionMetadataIfNeeded:
+                return handleFetchVersionMetadataIfNeeded(state: &state)
 
-        case .fetchVersionMetadataDone(let result):
-            if case .success(let metadata) = result {
-                state.galleryVersionMetadata = metadata
+            case .fetchVersionMetadataDone(let result):
+                if case .success(let metadata) = result {
+                    state.galleryVersionMetadata = metadata
+                }
+                return .none
+
+            default:
+                return .none
             }
-            return .none
-
-        default:
-            return nil
         }
     }
 
@@ -170,25 +168,24 @@ extension DetailReducer {
         .cancellable(id: CancelID.fetchVersionMetadata, cancelInFlight: true)
     }
 
-    func handleGalleryOpsActions(
-        state: inout State,
-        action: Action
-    ) -> Effect<Action>? {
-        switch action {
-        case .rateGallery:
-            return handleRateGallery(state: state)
-        case .favorGallery(let favIndex):
-            return handleFavorGallery(favIndex: favIndex, state: state)
-        case .unfavorGallery:
-            return handleUnfavorGallery(state: state)
-        case .postComment(let galleryURL):
-            return handlePostComment(galleryURL: galleryURL, state: state)
-        case .voteTag(let tag, let vote):
-            return handleVoteTag(tag: tag, vote: vote, state: state)
-        case .anyGalleryOpsDone(let result):
-            return handleAnyGalleryOpsDone(result: result)
-        default:
-            return nil
+    var galleryOpsReducer: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .rateGallery:
+                return handleRateGallery(state: state)
+            case .favorGallery(let favIndex):
+                return handleFavorGallery(favIndex: favIndex, state: state)
+            case .unfavorGallery:
+                return handleUnfavorGallery(state: state)
+            case .postComment(let galleryURL):
+                return handlePostComment(galleryURL: galleryURL, state: state)
+            case .voteTag(let tag, let vote):
+                return handleVoteTag(tag: tag, vote: vote, state: state)
+            case .anyGalleryOpsDone(let result):
+                return handleAnyGalleryOpsDone(result: result)
+            default:
+                return .none
+            }
         }
     }
 

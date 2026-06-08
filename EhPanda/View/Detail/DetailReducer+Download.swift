@@ -8,65 +8,46 @@ import ComposableArchitecture
 
 // MARK: - Download Action Handlers
 extension DetailReducer {
-    func handleDownloadActions(
-        state: inout State,
-        action: Action
-    ) -> Effect<Action>? {
-        handleDownloadBadgeActions(state: &state, action: action)
-            ?? handleDownloadLifecycleActions(state: &state, action: action)
-    }
-
-    private func handleDownloadBadgeActions(
-        state: inout State,
-        action: Action
-    ) -> Effect<Action>? {
-        switch action {
-        case .fetchDownloadBadge:
-            return handleFetchDownloadBadge(state: &state)
-        case .fetchDownloadBadgeDone(let badge):
-            return handleFetchDownloadBadgeDone(badge: badge, state: &state)
-        case .observeDownload:
-            return handleObserveDownload(state: &state)
-        case .observeDownloadDone(let badge):
-            return handleObserveDownloadDone(badge: badge, state: &state)
-        case .loadLocalPreviewURLs:
-            return handleLoadLocalPreviewURLs(state: &state)
-        case .loadLocalPreviewURLsDone(let requestID, let urls):
-            return handleLoadLocalPreviewURLsDone(requestID: requestID, urls: urls, state: &state)
-        case .openReading:
-            return handleOpenReading(state: &state)
-        case .openReadingDone(let result):
-            return handleOpenReadingDone(result: result, state: &state)
-        default:
-            return nil
-        }
-    }
-
-    private func handleDownloadLifecycleActions(
-        state: inout State,
-        action: Action
-    ) -> Effect<Action>? {
-        switch action {
-        case .runLaunchAutomationIfNeeded(let options):
-            return handleRunLaunchAutomation(options: options, state: &state)
-        case .startDownload(let options):
-            return handleStartDownload(options: options, state: &state)
-        case .startDownloadDone(let result):
-            return handleStartDownloadDone(result: result, state: &state)
-        case .toggleDownloadPause:
-            return handleToggleDownloadPause(state: &state)
-        case .toggleDownloadPauseDone(let result):
-            return handleToggleDownloadPauseDone(result: result, state: &state)
-        case .retryDownload(let mode):
-            return handleRetryDownload(mode: mode, state: &state)
-        case .retryDownloadDone(let result):
-            return handleRetryDownloadDone(result: result, state: &state)
-        case .deleteDownload:
-            return handleDeleteDownload(state: state)
-        case .deleteDownloadDone(let result):
-            return handleDeleteDownloadDone(result: result, state: &state)
-        default:
-            return nil
+    var downloadReducer: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .fetchDownloadBadge:
+                return handleFetchDownloadBadge(state: &state)
+            case .fetchDownloadBadgeDone(let badge):
+                return handleFetchDownloadBadgeDone(badge: badge, state: &state)
+            case .observeDownload:
+                return handleObserveDownload(state: &state)
+            case .observeDownloadDone(let badge):
+                return handleObserveDownloadDone(badge: badge, state: &state)
+            case .loadLocalPreviewURLs:
+                return handleLoadLocalPreviewURLs(state: &state)
+            case .loadLocalPreviewURLsDone(let requestID, let urls):
+                return handleLoadLocalPreviewURLsDone(requestID: requestID, urls: urls, state: &state)
+            case .openReading:
+                return handleOpenReading(state: &state)
+            case .openReadingDone(let result):
+                return handleOpenReadingDone(result: result, state: &state)
+            case .runLaunchAutomationIfNeeded(let options):
+                return handleRunLaunchAutomation(options: options, state: &state)
+            case .startDownload(let options):
+                return handleStartDownload(options: options, state: &state)
+            case .startDownloadDone(let result):
+                return handleStartDownloadDone(result: result, state: &state)
+            case .toggleDownloadPause:
+                return handleToggleDownloadPause(state: &state)
+            case .toggleDownloadPauseDone(let result):
+                return handleToggleDownloadPauseDone(result: result, state: &state)
+            case .retryDownload(let mode):
+                return handleRetryDownload(mode: mode, state: &state)
+            case .retryDownloadDone(let result):
+                return handleRetryDownloadDone(result: result, state: &state)
+            case .deleteDownload:
+                return handleDeleteDownload(state: state)
+            case .deleteDownloadDone(let result):
+                return handleDeleteDownloadDone(result: result, state: &state)
+            default:
+                return .none
+            }
         }
     }
 
