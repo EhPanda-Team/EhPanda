@@ -112,31 +112,6 @@ extension DownloadedGallery {
         return .inactive
     }
 
-    var sortPriority: Int {
-        if isQueuedWorkItem {
-            return 1
-        }
-
-        switch status {
-        case .downloading:
-            return 0
-        case .paused:
-            return 1
-        case .queued:
-            return 2
-        case .partial:
-            return 3
-        case .updateAvailable:
-            return 4
-        case .missingFiles:
-            return 5
-        case .failed:
-            return 6
-        case .completed:
-            return 7
-        }
-    }
-
     var gallery: Gallery {
         Gallery(
             gid: gid,
