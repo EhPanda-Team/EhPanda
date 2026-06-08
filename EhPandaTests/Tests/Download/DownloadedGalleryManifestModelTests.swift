@@ -17,14 +17,16 @@ struct DownloadedGalleryManifestModelTests {
     }
 
     @Test
-    func testManifestGalleryURLDerivesFromIdentityAndIsNotEncoded() throws {
-        let manifest = try sampleManifest(pageHashes: [1: "sha256:a"])
+    func testManifestDerivedFieldsAreNotEncoded() throws {
+        let manifest = try sampleManifest(pageHashes: [1: "sha256:a", 2: "sha256:b"])
         let encoded = try JSONEncoder().encode(manifest)
         let object = try #require(
             JSONSerialization.jsonObject(with: encoded) as? [String: Any]
         )
 
+        #expect(manifest.pageCount == 2)
         #expect(manifest.galleryURL == URL(string: "https://e-hentai.org/g/123/token"))
+        #expect(object["pageCount"] == nil)
         #expect(object["galleryURL"] == nil)
     }
 
@@ -62,7 +64,6 @@ private extension DownloadedGalleryManifestModelTests {
             uploader: "Uploader",
             tags: [],
             postedDate: Date(timeIntervalSince1970: 1_000),
-            pageCount: pageHashes.count,
             coverRelativePath: "123_token_cover.jpg",
             rating: 4,
             downloadOptions: .init(threadLimit: 3),

@@ -377,8 +377,7 @@ extension DownloadManager {
                 .readManifest(folderURL: folderURL),
               manifest.gid == download.gid,
               manifest.pageCount ==
-                payload.galleryDetail.pageCount,
-              manifest.pages.count == manifest.pageCount
+                payload.galleryDetail.pageCount
         else {
             return nil
         }

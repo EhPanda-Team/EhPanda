@@ -112,7 +112,7 @@ private extension DownloadFileStorageRepairTests {
         let manifest = DownloadManifest(
             gid: "123", host: .ehentai, token: "token", title: "Sample", jpnTitle: nil,
             category: .doujinshi, language: .japanese, uploader: "Uploader", tags: [],
-            postedDate: .now, pageCount: 2, coverRelativePath: "cover.jpg",
+            postedDate: .now, coverRelativePath: "cover.jpg",
             rating: 4, downloadOptions: DownloadOptionsSnapshot(),
             downloadedAt: .now,
             pages: [
@@ -205,7 +205,6 @@ private extension DownloadFileStorageRepairTests {
             uploader: "Uploader",
             tags: [],
             postedDate: .now,
-            pageCount: pageCount,
             coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),

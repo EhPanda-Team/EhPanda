@@ -1171,7 +1171,6 @@ private extension DownloadManagerStorageTests {
             uploader: "Uploader",
             tags: [],
             postedDate: downloadedAt,
-            pageCount: pageHashes.count,
             coverRelativePath: nil,
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
