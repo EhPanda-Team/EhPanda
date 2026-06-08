@@ -67,11 +67,8 @@ extension DownloadManager {
         let download = fetchedData.download
         let detail = fetchedData.detail
         let versionMetadata = fetchedData.versionMetadata
-        let versionSignature = DownloadSignatureBuilder.make(
-            gallery: components.gallery,
-            detail: detail,
-            host: download.host,
-            previewURLs: components.previewURLs,
+        let versionSignature = manifestVersionSignature(
+            for: components.gallery,
             versionMetadata: versionMetadata
         )
         return FetchLatestPayloadResult(

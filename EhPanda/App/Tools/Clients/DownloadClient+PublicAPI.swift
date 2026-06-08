@@ -179,11 +179,8 @@ extension DownloadManager {
     ) async -> Result<Void, AppError> {
         do {
             try storage.ensureRootDirectory()
-            let versionSignature = DownloadSignatureBuilder.make(
-                gallery: payload.gallery,
-                detail: payload.galleryDetail,
-                host: payload.host,
-                previewURLs: payload.previewURLs,
+            let versionSignature = manifestVersionSignature(
+                for: payload.gallery,
                 versionMetadata: payload.versionMetadata
             )
             let folderRelativePath = folderRelativePath(for: payload)
