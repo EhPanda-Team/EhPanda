@@ -196,18 +196,10 @@ extension DownloadManager {
 
     nonisolated func fallbackStatus(
         for download: DownloadedGallery,
-        mode: DownloadStartMode,
-        latestSignature: String?
+        mode: DownloadStartMode
     ) -> DownloadStatus {
-        let comparison = DownloadSignatureBuilder.hasUpdateComparison(
-            remoteVersionSignature: download.remoteVersionSignature,
-            latestRemoteVersionSignature: latestSignature,
-            gid: download.gid,
-            token: download.token
-        )
         let shouldKeepUpdateBadge = mode == .update
             || download.status == .updateAvailable
-            || comparison == .different
         return shouldKeepUpdateBadge ? .updateAvailable : .completed
     }
 }
