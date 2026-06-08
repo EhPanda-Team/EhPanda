@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import Kingfisher
 import LocalAuthentication
 import ComposableArchitecture
 
@@ -74,11 +73,14 @@ struct GeneralSettingReducer {
                 return .none
 
             case .clearWebImageCache:
-                return .merge(
-                    .run(operation: { _ in libraryClient.clearWebImageDiskCache() }),
-                    .run(operation: { _ in await databaseClient.removeImageURLs() }),
-                    .send(.calculateWebImageDiskCache)
-                )
+                return .run { send in
+                    async let removeCachedImages: Void =
+                        libraryClient.removeAllCachedImages()
+                    async let removeImageURLs: Void =
+                        databaseClient.removeImageURLs()
+                    _ = await (removeCachedImages, removeImageURLs)
+                    await send(.calculateWebImageDiskCache)
+                }
 
             case .checkPasscodeSetting:
                 state.passcodeNotSet = authorizationClient.passcodeNotSet()

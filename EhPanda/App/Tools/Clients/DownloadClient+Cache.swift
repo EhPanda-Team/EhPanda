@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import Kingfisher
 
 // MARK: - Cache Operations
 extension DownloadManager {
@@ -26,8 +25,7 @@ extension DownloadManager {
             }
 
         for key in Set(keys) {
-            try? await KingfisherManager.shared.cache
-                .removeImage(forKey: key)
+            await libraryClient.removeCachedImage(key)
         }
     }
 
@@ -237,36 +235,7 @@ extension DownloadManager {
     }
 
     func cachedImageData(forKey key: String) async -> Data? {
-        if let image = KingfisherManager.shared.cache
-            .retrieveImageInMemoryCache(forKey: key),
-           let data = image.kf.data(format: .unknown) {
-            return data
-        }
-
-        if let data = try? KingfisherManager.shared.cache
-            .diskStorage.value(forKey: key) {
-            return data
-        }
-
-        return await withCheckedContinuation { continuation in
-            KingfisherManager.shared.cache
-                .retrieveImage(forKey: key) { result in
-                    switch result {
-                    case .success(let value):
-                        guard let image = value.image,
-                              let data = image.kf
-                                .data(format: .unknown)
-                        else {
-                            continuation.resume(returning: nil)
-                            return
-                        }
-                        continuation.resume(returning: data)
-
-                    case .failure:
-                        continuation.resume(returning: nil)
-                    }
-                }
-        }
+        await libraryClient.cachedImageData(key)
     }
 
     func validatedCachedAssetData(
