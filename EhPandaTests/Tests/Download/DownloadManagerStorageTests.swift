@@ -344,15 +344,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             token: gallery.token,
             title: detail.trimmedTitle
         )
-        let payload = DownloadRequestPayload(
-            gallery: gallery,
-            galleryDetail: detail,
-            previewURLs: [:],
-            previewConfig: .normal(rows: 4),
-            host: .ehentai,
-            options: .init(),
-            mode: .initial
-        )
 
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
@@ -373,13 +364,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             gid: gallery.gid
         )
 
-        try await manager.persistCompletedDownload(
-            gid: gallery.gid,
-            payload: payload,
-            folderRelativePath: folderRelativePath,
-            coverRelativePath: nil,
-            versionSignature: "hash:v1"
-        )
+        await manager.settleCompletedDownload(gid: gallery.gid)
 
         let completedDownload = try #require(
             await manager.fetchDownload(gid: gallery.gid)
