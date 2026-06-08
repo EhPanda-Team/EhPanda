@@ -455,6 +455,63 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerSchedulesManifestQueueOrder() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore,
+            persistenceContainer: container
+        )
+        await manager.testingSetScheduledProcessHook { _ in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(10))
+            }
+        }
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[830_token] First",
+            manifest: indexedManifest(
+                gid: "830",
+                title: "First",
+                pageHashes: [""],
+                downloadedAt: Date(timeIntervalSince1970: 100)
+            )
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[831_token] Newer",
+            manifest: indexedManifest(
+                gid: "831",
+                title: "Newer",
+                pageHashes: [""],
+                downloadedAt: Date(timeIntervalSince1970: 200)
+            )
+        )
+        await queueStore.enqueue("830")
+        await queueStore.enqueue("831")
+
+        await manager.testingScheduleNextIfNeeded()
+
+        let scheduledGalleryIDs = await manager.testingScheduledGalleryIDs()
+        #expect(scheduledGalleryIDs == ["830"])
+        #expect(await manager.testingActiveGalleryID() == "830")
+
+        guard case .success = await manager.pause(gid: "830") else {
+            Issue.record("Pause should cancel the active queued test download.")
+            return
+        }
+    }
+
+    @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
         let container = try makeInMemoryContainer()
 

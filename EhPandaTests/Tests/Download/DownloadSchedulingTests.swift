@@ -17,16 +17,19 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [HangingURLProtocol.self]
         let manager = DownloadManager(
             storage: DownloadFileStorage(
                 rootURL: rootURL,
                 fileManager: .default
             ),
-            urlSession: URLSession(configuration: configuration),
+            urlSession: .shared,
             persistenceContainer: container
         )
+        await manager.testingSetScheduledProcessHook { _ in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(10))
+            }
+        }
 
         try insertPersistedDownload(
             in: container,

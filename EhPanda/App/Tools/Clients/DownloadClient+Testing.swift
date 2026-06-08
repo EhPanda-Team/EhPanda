@@ -31,6 +31,12 @@ extension DownloadManager {
         testingPersistFailureHook = hook
     }
 
+    func testingSetScheduledProcessHook(
+        _ hook: (@Sendable (String) async -> Void)?
+    ) {
+        testingScheduledProcessHook = hook
+    }
+
     func testingScheduledGalleryIDs() -> [String] {
         testingScheduledGalleryIDHistory
     }

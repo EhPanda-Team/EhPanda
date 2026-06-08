@@ -29,16 +29,63 @@ extension DownloadManager {
     }
 
     func scheduleNextIfNeeded() async {
-        let downloads = await fetchDownloadsFromStore()
+        let queuedGIDs = queueStore.gids
+        let downloads = queuedGIDs.isEmpty
+            ? await fetchDownloadsFromStore()
+            : await fetchDownloadsFromStore(gids: queuedGIDs)
         guard activeTask == nil else {
             await reconcileActiveDownloadState()
             return
         }
-        let nextDownload = downloads
-            .filter {
-                !schedulingBlockedGalleryIDs.contains($0.gid)
-                    && shouldSchedule(download: $0)
+        let nextDownload = queuedGIDs.isEmpty
+            ? nextLegacyScheduledDownload(from: downloads)
+            : nextQueuedDownload(
+                orderedGIDs: queuedGIDs,
+                downloads: downloads
+            )
+        guard let nextDownload else { return }
+
+#if DEBUG
+        testingScheduledGalleryIDHistory.append(nextDownload.gid)
+#endif
+        activeGalleryID = nextDownload.gid
+        activeTask = Task { [weak self] in
+            guard let self else { return }
+            await self.processScheduledDownload(gid: nextDownload.gid)
+        }
+    }
+
+    private func processScheduledDownload(gid: String) async {
+#if DEBUG
+        if let testingScheduledProcessHook {
+            defer {
+                activeTask = nil
+                activeGalleryID = nil
             }
+            await testingScheduledProcessHook(gid)
+            return
+        }
+#endif
+        await processDownload(gid: gid)
+    }
+
+    private func nextQueuedDownload(
+        orderedGIDs: [String],
+        downloads: [DownloadedGallery]
+    ) -> DownloadedGallery? {
+        let downloadsByGID = Dictionary(
+            uniqueKeysWithValues: downloads.map { ($0.gid, $0) }
+        )
+        return orderedGIDs
+            .compactMap { downloadsByGID[$0] }
+            .first { isSchedulableDownload($0) }
+    }
+
+    private func nextLegacyScheduledDownload(
+        from downloads: [DownloadedGallery]
+    ) -> DownloadedGallery? {
+        downloads
+            .filter(isSchedulableDownload)
             .sorted { lhs, rhs in
                 let lhsIsDownloading = lhs.status == .downloading
                 let rhsIsDownloading = rhs.status == .downloading
@@ -49,16 +96,13 @@ extension DownloadManager {
                     < (rhs.lastDownloadedAt ?? .distantPast)
             }
             .first
-        guard let nextDownload else { return }
+    }
 
-#if DEBUG
-        testingScheduledGalleryIDHistory.append(nextDownload.gid)
-#endif
-        activeGalleryID = nextDownload.gid
-        activeTask = Task { [weak self] in
-            guard let self else { return }
-            await self.processDownload(gid: nextDownload.gid)
-        }
+    private func isSchedulableDownload(
+        _ download: DownloadedGallery
+    ) -> Bool {
+        !schedulingBlockedGalleryIDs.contains(download.gid)
+            && shouldSchedule(download: download)
     }
 
     func shouldSchedule(download: DownloadedGallery) -> Bool {

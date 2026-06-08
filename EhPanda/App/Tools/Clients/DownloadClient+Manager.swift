@@ -149,6 +149,7 @@ actor DownloadManager {
 #if DEBUG
     var testingFetchDownloadsFromStoreHook: (@Sendable () async -> Void)?
     var testingPersistFailureHook: (@Sendable () async -> Void)?
+    var testingScheduledProcessHook: (@Sendable (String) async -> Void)?
     var testingScheduledGalleryIDHistory = [String]()
 #endif
 
