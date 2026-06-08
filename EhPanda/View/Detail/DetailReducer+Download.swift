@@ -290,7 +290,6 @@ extension DetailReducer {
         if case .success = result {
             state.galleryVersionMetadata = nil
             state.didRequestVersionMetadata = false
-            state.isDownloadContext = false
             state.shouldCheckForRemoteUpdates = false
             return .merge(
                 .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),

@@ -62,7 +62,6 @@ struct DetailReducer {
         var isPreparingDownload = false
         var hasLoadedDownloadBadge = false
         var didRunLaunchAutomation = false
-        var isDownloadContext = false
         var shouldCheckForRemoteUpdates = false
         var didRequestVersionMetadata = false
         var localPreviewRequestID = UUID()
@@ -77,26 +76,6 @@ struct DetailReducer {
         init() {
             commentsState = .init(nil)
             detailSearchState = .init(nil)
-        }
-
-        init(download: DownloadedGallery) {
-            self.init()
-            gid = download.gid
-            gallery = download.gallery
-            galleryDetail = GalleryDetail(
-                gid: download.gid, title: download.title, jpnTitle: download.jpnTitle,
-                isFavorited: false, visibility: .yes, rating: download.rating,
-                userRating: 0, ratingCount: 0, category: download.category,
-                language: .other, uploader: download.uploader ?? "",
-                postedDate: download.postedDate, coverURL: download.coverURL,
-                favoritedCount: 0, pageCount: download.pageCount,
-                sizeCount: 0, sizeType: "", torrentCount: 0
-            )
-            downloadBadge = download.badge
-            hasLoadedDownloadBadge = download.badge != .none
-            isDownloadContext = true
-            shouldCheckForRemoteUpdates = true
-            didRequestVersionMetadata = false
         }
 
         mutating func updateRating(value: DragGesture.Value) {
@@ -229,8 +208,8 @@ extension DetailReducer {
         state.downloadBadge = badge
         if badge != .none { state.isPreparingDownload = false }
         state.hasLoadedDownloadBadge = true
-        state.shouldCheckForRemoteUpdates = state.isDownloadContext || badge != .none
-        if badge == .none && !state.isDownloadContext {
+        state.shouldCheckForRemoteUpdates = badge != .none
+        if badge == .none {
             state.galleryVersionMetadata = nil
             state.didRequestVersionMetadata = false
         }

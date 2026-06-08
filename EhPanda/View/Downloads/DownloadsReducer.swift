@@ -93,7 +93,9 @@ struct DownloadsReducer {
                 state.route = route
                 if case .detail(let gid) = route,
                    let download = state.downloads.first(where: { $0.gid == gid }) {
-                    state.detailState.wrappedValue = .init(download: download)
+                    var detailState = DetailReducer.State()
+                    detailState.gallery = download.gallery
+                    state.detailState.wrappedValue = detailState
                 } else if case .inspector(let gid) = route {
                     state.inspectorState = .init(gid: gid)
                 }

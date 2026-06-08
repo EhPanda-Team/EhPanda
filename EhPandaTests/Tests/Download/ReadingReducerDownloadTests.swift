@@ -18,7 +18,8 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
             gid: "889", title: "Offline Archive", status: .completed, pageCount: 2
         )
         let detail = sampleGalleryDetail(gid: download.gid, title: download.title)
-        var initialState = DetailReducer.State(download: download)
+        var initialState = DetailReducer.State()
+        initialState.gallery = download.gallery
         initialState.galleryDetail = detail
         let metadata = DownloadVersionMetadata(
             gid: detail.gid, token: download.token,
