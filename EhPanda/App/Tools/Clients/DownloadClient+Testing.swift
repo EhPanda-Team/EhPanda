@@ -73,45 +73,6 @@ extension DownloadManager {
         activeGalleryID
     }
 
-    func testingRestoreCachedPages(
-        payload: DownloadRequestPayload
-    ) async throws -> Int {
-        try storage.ensureRootDirectory()
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: payload.gallery.gid)
-        try? fileManager.operate {
-            try $0.removeItem(at: temporaryFolderURL)
-        }
-        try createDirectory(at: temporaryFolderURL)
-        try createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages,
-                isDirectory: true
-            )
-        )
-
-        let downloadContext = PageDownloadContext(
-            payload: payload,
-            source: nil,
-            temporaryFolderURL: temporaryFolderURL,
-            storedGalleryImageState:
-                await fetchCachedGalleryImageState(
-                    gid: payload.gallery.gid
-                )
-        )
-        let batchResult = try await downloadPages(
-            context: downloadContext,
-            pendingPageIndices: pendingPageIndices(
-                payload: payload,
-                folderURL: temporaryFolderURL,
-                existingPageRelativePaths: [:]
-            ),
-            existingManifest: nil,
-            existingPageRelativePaths: [:]
-        )
-        return batchResult.pages.count
-    }
-
     func testingFetchLatestPayload(
         for download: DownloadedGallery,
         mode: DownloadStartMode,

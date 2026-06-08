@@ -47,13 +47,6 @@ extension DownloadManager {
         let payload = context.payload
         let temporaryFolderURL = context.temporaryFolderURL
 
-        if let result = try await attemptCacheRestore(
-            index: index,
-            context: context,
-            preferredRelativePath: preferredRelativePath
-        ) {
-            return result
-        }
         guard let source = context.source else {
             throw AppError.notFound
         }
@@ -79,35 +72,6 @@ extension DownloadManager {
         )
     }
 
-    private func attemptCacheRestore(
-        index: Int,
-        context: PageDownloadContext,
-        preferredRelativePath: String?
-    ) async throws -> PageResult? {
-        let payload = context.payload
-        let storedGalleryImageState = context.storedGalleryImageState
-        let storedCacheURLs = pageImageCacheURLs(
-            resolvedImageSource: nil,
-            index: index,
-            storedGalleryImageState: storedGalleryImageState
-        )
-        let storedSource = CacheRestoreSource(
-            gid: payload.gallery.gid,
-            token: payload.gallery.token,
-            cacheURLs: storedCacheURLs,
-            referenceURL: storedCacheURLs
-                .compactMap(\.self).first,
-            imageURL: storedGalleryImageState?
-                .imageURLs[index]
-        )
-        return try await restorePageFromCache(
-            index: index,
-            source: storedSource,
-            folderURL: context.temporaryFolderURL,
-            preferredRelativePath: preferredRelativePath
-        )
-    }
-
     private func attemptResolvedCacheRestore(
         index: Int,
         resolvedImageSource: ResolvedImageSource,
@@ -115,11 +79,8 @@ extension DownloadManager {
         preferredRelativePath: String?
     ) async throws -> PageResult? {
         let payload = context.payload
-        let storedGalleryImageState = context.storedGalleryImageState
         let resolvedCacheURLs = pageImageCacheURLs(
-            resolvedImageSource: resolvedImageSource,
-            index: index,
-            storedGalleryImageState: storedGalleryImageState
+            imageURL: resolvedImageSource.imageURL
         )
         let resolvedSource = CacheRestoreSource(
             gid: payload.gallery.gid,

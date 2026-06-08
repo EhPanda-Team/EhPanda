@@ -37,13 +37,6 @@ extension DownloadManager {
             progress: &progress
         )
 
-        try await restoreAndFlushCachedPages(
-            context: context,
-            pendingPageIndices: pendingPageIndices,
-            existingPages: existingPages,
-            progress: &progress
-        )
-
         let restoredIndices = Set(
             progress.results
                 .prefix(progress.completedCount)
@@ -108,42 +101,6 @@ extension DownloadManager {
             record.completedPageCount = Int64(completedCount)
         }
         await notifyObservers()
-    }
-
-    private func restoreAndFlushCachedPages(
-        context: PageDownloadContext,
-        pendingPageIndices: [Int],
-        existingPages: [Int: String],
-        progress: inout PageDownloadProgress
-    ) async throws {
-        let payload = context.payload
-        let restoredCachedPages =
-            try await restorePendingPagesFromStoredCache(
-                payload: payload,
-                indices: pendingPageIndices,
-                temporaryFolderURL: context.temporaryFolderURL,
-                existingPages: existingPages,
-                storedGalleryImageState:
-                    context.storedGalleryImageState
-            )
-        guard !restoredCachedPages.isEmpty else { return }
-        restoredCachedPages.forEach {
-            progress.failedPages[$0.index] = nil
-            progress.results.append($0)
-        }
-        progress.completedCount += restoredCachedPages.count
-        progress.pendingResolvedPages
-            .append(contentsOf: restoredCachedPages)
-        try await flushDownloadProgress(
-            context: .init(
-                gid: payload.gallery.gid,
-                folderURL: context.temporaryFolderURL
-            ),
-            pendingResolvedPages: &progress.pendingResolvedPages,
-            completedCount: progress.completedCount,
-            lastFlushDate: &progress.lastFlushDate,
-            force: true
-        )
     }
 
     private func buildBatchResult(
@@ -212,8 +169,7 @@ extension DownloadManager {
                 .init(
                     index: index,
                     relativePath: relativePath,
-                    imageURL: context.storedGalleryImageState?
-                        .imageURLs[index]
+                    imageURL: nil
                 )
             )
         }

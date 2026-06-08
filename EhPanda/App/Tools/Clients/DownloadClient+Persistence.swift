@@ -424,10 +424,6 @@ extension DownloadManager {
         )
         pendingResolvedPages
             .removeAll(keepingCapacity: true)
-        await persistResolvedImageURLs(
-            gid: context.gid,
-            entries: resolvedPages
-        )
         try await updateDownloadRecord(
             gid: context.gid,
             createIfMissing: false
@@ -460,98 +456,4 @@ extension DownloadManager {
         )
     }
 
-    func persistResolvedImageURLs(
-        gid: String,
-        index: Int,
-        imageURL: URL?
-    ) async {
-        await persistResolvedImageURLs(
-            gid: gid,
-            entries: [
-                .init(
-                    index: index,
-                    relativePath: "",
-                    imageURL: imageURL
-                )
-            ]
-        )
-    }
-
-    func persistResolvedImageURLs(
-        gid: String,
-        entries: [PageResult]
-    ) async {
-        guard gid.isValidGID else { return }
-        let validEntries = entries
-            .filter { $0.imageURL != nil }
-        guard !validEntries.isEmpty else { return }
-
-        await MainActor.run {
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<GalleryStateMO>(
-                entityName: "GalleryStateMO"
-            )
-            request.fetchLimit = 1
-            request.predicate = NSPredicate(
-                format: "gid == %@",
-                gid
-            )
-
-            let object: GalleryStateMO
-            if let stored =
-                try? context.fetch(request).first {
-                object = stored
-            } else {
-                object = GalleryStateMO(context: context)
-                object.gid = gid
-            }
-
-            var imageURLs = (object.imageURLs?.toObject()
-                                as [Int: URL]?) ?? [:]
-            var hasChanges = false
-
-            for entry in validEntries {
-                if let imageURL = entry.imageURL,
-                   imageURLs[entry.index] != imageURL {
-                    imageURLs[entry.index] = imageURL
-                    hasChanges = true
-                }
-            }
-
-            guard hasChanges else {
-                return
-            }
-
-            object.imageURLs = imageURLs.toData()
-
-            guard context.hasChanges else { return }
-            try? context.save()
-        }
-    }
-
-    func fetchCachedGalleryImageState(
-        gid: String
-    ) async -> CachedGalleryImageState? {
-        await MainActor.run {
-            guard gid.isValidGID else { return nil }
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<GalleryStateMO>(
-                entityName: "GalleryStateMO"
-            )
-            request.fetchLimit = 1
-            request.predicate = NSPredicate(
-                format: "gid == %@",
-                gid
-            )
-            guard let object =
-                    try? context.fetch(request).first else {
-                return nil
-            }
-            let state = object.toEntity()
-            return .init(
-                previewURLs: state.previewURLs,
-                imageURLs: state.imageURLs
-            )
-        }
-    }
 }

@@ -74,10 +74,6 @@ extension DownloadManager {
     ) async throws -> PerformDownloadResult {
         let existingDownload = executionContext.existingDownload
         let versionSignature = executionContext.versionSignature
-        let storedGalleryImageState =
-            await fetchCachedGalleryImageState(
-                gid: payload.gallery.gid
-            )
         let coverRelativePath = try await downloadAndPersistCoverIfNeeded(
             payload: payload,
             folderURL: workingFolderURL,
@@ -88,14 +84,12 @@ extension DownloadManager {
             payload: payload,
             pendingIndices: pendingIndices,
             folderURL: workingFolderURL,
-            existingPages: workingSeed.existingPages,
-            storedGalleryImageState: storedGalleryImageState
+            existingPages: workingSeed.existingPages
         )
         let downloadContext = PageDownloadContext(
             payload: payload,
             source: source,
-            temporaryFolderURL: workingFolderURL,
-            storedGalleryImageState: storedGalleryImageState
+            temporaryFolderURL: workingFolderURL
         )
         let batchResult = try await downloadPages(
             context: downloadContext,
@@ -107,7 +101,6 @@ extension DownloadManager {
             versionSignature: versionSignature,
             coverRelativePath: coverRelativePath,
             batchResult: batchResult,
-            storedGalleryImageState: storedGalleryImageState,
             existingDownload: existingDownload
         )
         try await finalizeBatchResult(
@@ -175,22 +168,23 @@ extension DownloadManager {
         payload: DownloadRequestPayload,
         pendingIndices: [Int],
         folderURL: URL,
-        existingPages: [Int: String],
-        storedGalleryImageState: CachedGalleryImageState?
+        existingPages: [Int: String]
     ) async throws -> ResolvedSource? {
-        let canSatisfyFromCache =
-            await canSatisfyPendingPageDownloadsFromCache(
-                pendingPageIndices: pendingIndices,
-                temporaryFolderURL: folderURL,
-                existingPageRelativePaths: existingPages,
-                storedGalleryImageState: storedGalleryImageState
-            )
-        if pendingIndices.isEmpty || canSatisfyFromCache {
+        let missingIndices = pendingIndices.filter { index in
+            guard let relativePath = existingPages[index] else {
+                return true
+            }
+            let fileURL = folderURL.appendingPathComponent(relativePath)
+            return !fileManager.operate {
+                $0.fileExists(atPath: fileURL.path)
+            }
+        }
+        if missingIndices.isEmpty {
             return nil
         }
         return try await resolveSource(
             payload: payload,
-            requiredPageIndices: pendingIndices
+            requiredPageIndices: missingIndices
         )
     }
 
@@ -201,7 +195,6 @@ extension DownloadManager {
     ) async throws {
         let versionSignature = finalizeContext.versionSignature
         let batchResult = finalizeContext.batchResult
-        let storedGalleryImageState = finalizeContext.storedGalleryImageState
         let existingDownload = finalizeContext.existingDownload
         let manifest = makeManifest(
             payload: payload,
@@ -222,7 +215,6 @@ extension DownloadManager {
         )
         await cleanupCachedRemoteAssetsAfterSuccessfulDownload(
             payload: payload,
-            storedGalleryImageState: storedGalleryImageState,
             pages: batchResult.pages,
             existingDownload: existingDownload
         )

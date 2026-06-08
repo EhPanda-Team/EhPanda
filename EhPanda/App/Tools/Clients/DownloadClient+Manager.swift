@@ -67,11 +67,6 @@ actor DownloadManager {
         let imageURL: URL
     }
 
-    struct CachedGalleryImageState: Sendable {
-        let previewURLs: [Int: URL]
-        let imageURLs: [Int: URL]
-    }
-
     struct PartialDownloadError: Error, Sendable {
         let failedPages: [DownloadFailedPagesSnapshot.Page]
     }
@@ -93,7 +88,6 @@ actor DownloadManager {
         let payload: DownloadRequestPayload
         let source: ResolvedSource?
         let temporaryFolderURL: URL
-        let storedGalleryImageState: CachedGalleryImageState?
     }
 
     struct CacheRestoreSource: Sendable {
@@ -134,7 +128,6 @@ actor DownloadManager {
         let versionSignature: String
         let coverRelativePath: String?
         let batchResult: DownloadBatchResult
-        let storedGalleryImageState: CachedGalleryImageState?
         let existingDownload: DownloadedGallery
     }
 

@@ -154,19 +154,12 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testCachedQuotaPlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
-        let container = try makeInMemoryContainer()
+    func testCachedQuotaPlaceholderStoredUnderNormalImageURLIsRejected() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 32)
-        let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
+        let manager = makeTestingDownloadManager()
         let normalImageURL = try #require(
             URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(gid)/1")
         )
-        try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
 
         let placeholderURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: placeholderURL) }
@@ -178,37 +171,11 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         defer { cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) } }
         await waitUntilCacheReady(for: cacheKeys)
 
-        let payload = makeEhentaiPayload(gid: gid)
-        let restoredCount = try await manager.testingRestoreCachedPages(payload: payload)
-        let restoredPageURL = storage.temporaryFolderURL(gid: gid)
-            .appendingPathComponent("pages/0001.gif")
-
-        #expect(restoredCount == 0)
-        #expect(FileManager.default.fileExists(atPath: restoredPageURL.path) == false)
-    }
-
-}
-
-// MARK: - Payload Factory
-
-private extension DownloadImageParsingTests {
-    func makeEhentaiPayload(gid: String) -> DownloadRequestPayload {
-        DownloadRequestPayload(
-            gallery: Gallery(
-                gid: gid, token: "token", title: "Quota Placeholder", rating: 4,
-                tags: [], category: .doujinshi, uploader: "Uploader", pageCount: 1, postedDate: .now,
-                coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: URL(string: "https://e-hentai.org/g/\(gid)/token")
-            ),
-            galleryDetail: GalleryDetail(
-                gid: gid, title: "Quota Placeholder", jpnTitle: nil,
-                isFavorited: false, visibility: .yes, rating: 4, userRating: 0, ratingCount: 0,
-                category: .doujinshi, language: .japanese, uploader: "Uploader", postedDate: .now,
-                coverURL: URL(string: "https://example.com/cover.jpg"),
-                favoritedCount: 0, pageCount: 1, sizeCount: 12, sizeType: "MB", torrentCount: 0
-            ),
-            previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, options: DownloadOptionsSnapshot(), mode: .initial
+        let cachedData = await manager.validatedCachedAssetData(
+            for: [normalImageURL]
         )
+
+        #expect(cachedData == nil)
     }
+
 }

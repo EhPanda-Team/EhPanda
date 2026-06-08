@@ -352,9 +352,6 @@ extension DownloadManager {
                     captureTarget.preferredRelativePath ?? existingPages[index],
                 overwriteExistingFile: true
             ) else { return }
-            await persistResolvedImageURLs(
-                gid: gid, index: index, imageURL: pageResult.imageURL
-            )
             if captureTarget.isTemporary {
                 try clearFailedPage(
                     index: index, folderURL: captureTarget.folderURL

@@ -30,89 +30,9 @@ extension DownloadManager {
     }
 
     func pageImageCacheURLs(
-        resolvedImageSource: ResolvedImageSource?,
-        index: Int,
-        storedGalleryImageState: CachedGalleryImageState?
-    ) -> [URL?] {
-        [
-            resolvedImageSource?.imageURL,
-            storedGalleryImageState?.imageURLs[index]
-        ]
-    }
-
-    func pageImageCacheURLs(
         imageURL: URL?
     ) -> [URL?] {
         [imageURL]
-    }
-
-    func canSatisfyPendingPageDownloadsFromCache(
-        pendingPageIndices: [Int],
-        temporaryFolderURL: URL,
-        existingPageRelativePaths: [Int: String],
-        storedGalleryImageState: CachedGalleryImageState?
-    ) async -> Bool {
-        guard !pendingPageIndices.isEmpty else { return true }
-        for index in pendingPageIndices {
-            if let relativePath =
-                existingPageRelativePaths[index] {
-                let fileURL = temporaryFolderURL
-                    .appendingPathComponent(relativePath)
-                if fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) {
-                    continue
-                }
-            }
-            guard await validatedCachedAssetData(
-                for: pageImageCacheURLs(
-                    resolvedImageSource: nil,
-                    index: index,
-                    storedGalleryImageState:
-                        storedGalleryImageState
-                )
-            ) != nil else {
-                return false
-            }
-        }
-        return true
-    }
-
-    func restorePendingPagesFromStoredCache(
-        payload: DownloadRequestPayload,
-        indices: [Int],
-        temporaryFolderURL: URL,
-        existingPages: [Int: String],
-        storedGalleryImageState: CachedGalleryImageState?
-    ) async throws -> [PageResult] {
-        var restoredPages = [PageResult]()
-        for index in indices {
-            let cacheURLs = pageImageCacheURLs(
-                resolvedImageSource: nil,
-                index: index,
-                storedGalleryImageState:
-                    storedGalleryImageState
-            )
-            let cacheSource = CacheRestoreSource(
-                gid: payload.gallery.gid,
-                token: payload.gallery.token,
-                cacheURLs: cacheURLs,
-                referenceURL: cacheURLs
-                    .compactMap(\.self).first,
-                imageURL: storedGalleryImageState?
-                    .imageURLs[index]
-            )
-            guard let pageResult =
-                    try await restorePageFromCache(
-                        index: index,
-                        source: cacheSource,
-                        folderURL: temporaryFolderURL,
-                        preferredRelativePath:
-                            existingPages[index]
-                    ) else {
-                continue
-            }
-            restoredPages.append(pageResult)
-        }
-        return restoredPages
     }
 
     func restorePageFromCache(
