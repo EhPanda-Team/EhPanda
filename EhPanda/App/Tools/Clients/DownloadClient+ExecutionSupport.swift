@@ -16,8 +16,7 @@ extension DownloadManager {
            !coverRelativePath.isEmpty {
             let localCoverURL = temporaryFolderURL
                 .appendingPathComponent(coverRelativePath)
-            if fileManager
-                .fileExists(atPath: localCoverURL.path) {
+            if fileManager.operate({ $0.fileExists(atPath: localCoverURL.path) }) {
                 return coverRelativePath
             }
         }
@@ -164,7 +163,6 @@ extension DownloadManager {
         temporaryFolderURL: URL,
         versionSignature: String
     ) throws -> WorkingSeed {
-        let localFileManager = fileManager
         let resumeState = try? storage
             .readResumeState(folderURL: temporaryFolderURL)
         let shouldReuseTemporaryFolder = resumeState?.matches(
@@ -173,7 +171,9 @@ extension DownloadManager {
             pageCount: payload.galleryDetail.pageCount,
             downloadOptions: payload.options
         ) == true
-        && localFileManager.fileExists(atPath: temporaryFolderURL.path)
+        && fileManager.operate {
+            $0.fileExists(atPath: temporaryFolderURL.path)
+        }
 
         let seedContext = RepairSeedContext(
             existingDownload: existingDownload,
@@ -183,8 +183,7 @@ extension DownloadManager {
         try setupTemporaryFolder(
             temporaryFolderURL: temporaryFolderURL,
             shouldReuse: shouldReuseTemporaryFolder,
-            seedContext: seedContext,
-            localFileManager: localFileManager
+            seedContext: seedContext
         )
 
         let manifest = validatedManifest(
@@ -219,13 +218,14 @@ extension DownloadManager {
     private func setupTemporaryFolder(
         temporaryFolderURL: URL,
         shouldReuse: Bool,
-        seedContext: RepairSeedContext,
-        localFileManager: DownloadFileManager
+        seedContext: RepairSeedContext
     ) throws {
         if !shouldReuse {
-            try? localFileManager.removeItem(at: temporaryFolderURL)
+            try? fileManager.operate {
+                try $0.removeItem(at: temporaryFolderURL)
+            }
         }
-        if !localFileManager.fileExists(atPath: temporaryFolderURL.path) {
+        if !fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
             if let seed = repairSeed(
                 for: seedContext.existingDownload,
                 payload: seedContext.payload,
@@ -294,8 +294,9 @@ extension DownloadManager {
         let folderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
         guard payload.mode == .repair,
-              fileManager
-                .fileExists(atPath: folderURL.path),
+              fileManager.operate({
+                  $0.fileExists(atPath: folderURL.path)
+              }),
               let manifest = try? storage
                 .readManifest(folderURL: folderURL),
               manifest.gid == download.gid,
@@ -326,8 +327,9 @@ extension DownloadManager {
             }
             let fileURL = folderURL
                 .appendingPathComponent(relativePath)
-            return !fileManager
-                .fileExists(atPath: fileURL.path)
+            return !fileManager.operate {
+                $0.fileExists(atPath: fileURL.path)
+            }
         }
     }
 }

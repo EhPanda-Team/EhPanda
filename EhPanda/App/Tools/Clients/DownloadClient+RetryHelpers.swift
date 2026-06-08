@@ -35,8 +35,9 @@ extension DownloadManager {
             for: download, requestedMode: mode
         )
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let existingResumeState = fileManager
-            .fileExists(atPath: temporaryFolderURL.path)
+        let existingResumeState = fileManager.operate {
+            $0.fileExists(atPath: temporaryFolderURL.path)
+        }
             ? (try? storage.readResumeState(folderURL: temporaryFolderURL))
             : nil
         let retryParams = computeRetryParams(
@@ -57,7 +58,7 @@ extension DownloadManager {
             record.lastError = nil
             record.pendingOperation = retryParams.pendingOperation?.rawValue
         }
-        if fileManager.fileExists(atPath: temporaryFolderURL.path) {
+        if fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
             writeRetryResumeState(
                 download: download,
                 resolvedMode: resolvedMode,
@@ -83,7 +84,7 @@ extension DownloadManager {
         guard !selectedPageIndices.isEmpty else { return .success(()) }
 
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        guard fileManager.fileExists(atPath: temporaryFolderURL.path) else {
+        guard fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) else {
             return .failure(.notFound)
         }
         do {
@@ -168,8 +169,9 @@ extension DownloadManager {
         let completedFolderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let hasTemporaryFolder = fileManager
-            .fileExists(atPath: temporaryFolderURL.path)
+        let hasTemporaryFolder = fileManager.operate {
+            $0.fileExists(atPath: temporaryFolderURL.path)
+        }
         let shouldExposeTemp = hasTemporaryFolder
             && self.shouldExposeTemporaryWorkingSet(for: download)
         let completedValidation = storage.validate(download: download)

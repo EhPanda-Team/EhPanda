@@ -192,8 +192,7 @@ extension DownloadManager {
             }
             let fileURL = context.temporaryFolderURL
                 .appendingPathComponent(relativePath)
-            guard fileManager
-                    .fileExists(atPath: fileURL.path) else {
+            guard fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) else {
                 continue
             }
             failedPages[index] = nil

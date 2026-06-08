@@ -19,7 +19,7 @@ extension DownloadManager {
                let folderURL = activeFolderURL {
                 let fileURL = folderURL
                     .appendingPathComponent(relativePath)
-                if fileManager.fileExists(atPath: fileURL.path) {
+                if fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) {
                     return .init(
                         index: index,
                         status: .downloaded,
@@ -95,7 +95,7 @@ extension DownloadManager {
     ) -> Result<[Int: URL], AppError> {
         if completedValidation == .valid,
            let completedFolderURL,
-           fileManager.fileExists(atPath: completedFolderURL.path),
+           fileManager.operate({ $0.fileExists(atPath: completedFolderURL.path) }),
            let manifest = try? storage.readManifest(
             folderURL: completedFolderURL
            ) {

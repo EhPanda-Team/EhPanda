@@ -34,10 +34,12 @@ extension DownloadManager {
             .temporaryFolderURL(gid: download.gid)
         let completedFolderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
-        let temporaryFolderExists = fileManager
-            .fileExists(atPath: temporaryFolderURL.path)
-        let completedFolderExists = fileManager
-            .fileExists(atPath: completedFolderURL.path)
+        let temporaryFolderExists = fileManager.operate {
+            $0.fileExists(atPath: temporaryFolderURL.path)
+        }
+        let completedFolderExists = fileManager.operate {
+            $0.fileExists(atPath: completedFolderURL.path)
+        }
 
         if shouldExposeTemporaryWorkingSet(for: download) {
             return temporaryFolderExists
