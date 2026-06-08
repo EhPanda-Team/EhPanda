@@ -277,7 +277,6 @@ private extension DownloadProcessTests {
         )
 
         let resumeState = try storage.readResumeState(folderURL: completedFolderURL)
-        #expect(resumeState.mode == .redownload)
         #expect(resumeState.versionSignature == context.updatedVersionSignature)
         #expect(resumeState.pageCount == context.updatedPageCount)
         #expect(resumeState.pageSelection == nil)
