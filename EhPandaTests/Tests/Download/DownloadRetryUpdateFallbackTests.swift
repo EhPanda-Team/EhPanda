@@ -16,9 +16,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
-        let oldVersionSignature = try #require(
-            DownloadSignatureBuilder.chainVersionIdentifier(gid: gid, token: "token")
-        )
+        let oldVersionSignature = chainVersionSignature(gid: gid, token: "token")
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -73,9 +71,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
-        let oldVersionSignature = try #require(
-            DownloadSignatureBuilder.chainVersionIdentifier(gid: gid, token: "token")
-        )
+        let oldVersionSignature = chainVersionSignature(gid: gid, token: "token")
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }

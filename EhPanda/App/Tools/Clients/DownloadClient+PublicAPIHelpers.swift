@@ -12,10 +12,10 @@ extension DownloadManager {
         for gallery: Gallery,
         versionMetadata: DownloadVersionMetadata?
     ) -> String {
-        DownloadSignatureBuilder.chainVersionIdentifier(
-            gid: versionMetadata?.resolvedCurrentGID ?? gallery.gid,
-            token: versionMetadata?.resolvedCurrentKey ?? gallery.token
-        ) ?? ""
+        let gid = versionMetadata?.resolvedCurrentGID ?? gallery.gid
+        let token = versionMetadata?.resolvedCurrentKey ?? gallery.token
+        guard !gid.isEmpty, !token.isEmpty else { return "" }
+        return "chain:\(gid):\(token)"
     }
 
     func buildInspectionPages(
