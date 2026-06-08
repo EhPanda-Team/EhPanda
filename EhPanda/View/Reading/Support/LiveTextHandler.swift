@@ -85,6 +85,8 @@ final class LiveTextHandler {
         }
 
         let observations = try await request.perform(on: cgImage)
+        try Task.checkCancellation()
+
         let blocks: [LiveTextBlock] = observations.compactMap { observation in
             guard let recognizedText = observation.topCandidates(1).first?.string else { return nil }
             return .init(
@@ -99,7 +101,9 @@ final class LiveTextHandler {
         }
 
         var groupData = [[LiveTextBlock]]()
-        blocks.forEach { newItem in
+        for newItem in blocks {
+            try Task.checkCancellation()
+
             if let groupIndex = groupData.firstIndex(where: { items in
                 items.first { item in
                     let angle = abs(item.bounds.getAngle(size) - newItem.bounds.getAngle(size))
