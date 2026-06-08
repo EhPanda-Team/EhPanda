@@ -230,15 +230,9 @@ struct DownloadsReducer {
             }
         }
 
-        Scope(state: \.detailState.wrappedValue!, action: \.detail) {
-            DetailReducer()
-        }
-        Scope(state: \.readingState, action: \.reading) {
-            ReadingReducer()
-        }
-        Scope(state: \.inspectorState, action: \.inspector) {
-            DownloadInspectorReducer()
-        }
+        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
+        Scope(state: \.inspectorState, action: \.inspector, child: DownloadInspectorReducer.init)
     }
 }
 

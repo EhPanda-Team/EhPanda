@@ -32,6 +32,16 @@ custom_rules:
   regex: "\\bNSLock\\b"
   message: "NSLock is banned - use Mutex (Synchronization) instead."
   severity: error
+ scope_reducer_child_shorthand:
+  name: "Scope child shorthand"
+  regex: 'Scope\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
+  message: "Use Scope(state:action:child: Reducer.init) instead of expanding a closure for a single bare Reducer()."
+  severity: error
+ foreach_reducer_element_shorthand:
+  name: "forEach element shorthand"
+  regex: 'forEach\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
+  message: "Use .forEach(_:action:element: Reducer.init) instead of expanding a closure for a single bare Reducer()."
+  severity: error
 
 excluded:
  - EhPanda/App/Generated
