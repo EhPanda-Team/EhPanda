@@ -1177,7 +1177,6 @@ private extension DownloadManagerStorageTests {
             galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            versionSignature: "hash:v1",
             downloadedAt: downloadedAt,
             pages: pageHashes.enumerated().map { offset, hash in
                 DownloadManifest.Page(

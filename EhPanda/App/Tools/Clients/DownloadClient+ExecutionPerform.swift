@@ -97,7 +97,6 @@ extension DownloadManager {
             existingPageRelativePaths: workingSeed.existingPages
         )
         let finalizeCtx = FinalizeContext(
-            versionSignature: versionSignature,
             coverRelativePath: coverRelativePath,
             batchResult: batchResult,
             existingDownload: existingDownload
@@ -105,7 +104,8 @@ extension DownloadManager {
         try await finalizeBatchResult(
             context: finalizeCtx,
             payload: payload,
-            folderURL: workingFolderURL
+            folderURL: workingFolderURL,
+            versionSignature: versionSignature
         )
         return PerformDownloadResult(
             coverRelativePath: coverRelativePath,
@@ -128,13 +128,14 @@ extension DownloadManager {
     private func finalizeBatchResult(
         context: FinalizeContext,
         payload: DownloadRequestPayload,
-        folderURL: URL
+        folderURL: URL,
+        versionSignature: String
     ) async throws {
         if payload.pageSelection != nil {
             try? storage.writeResumeState(
                 .init(
                     mode: payload.mode,
-                    versionSignature: context.versionSignature,
+                    versionSignature: versionSignature,
                     pageCount: payload.galleryDetail.pageCount,
                     downloadOptions: payload.options
                 ),
@@ -182,14 +183,12 @@ extension DownloadManager {
         folderURL: URL,
         finalizeContext: FinalizeContext
     ) async throws {
-        let versionSignature = finalizeContext.versionSignature
         let batchResult = finalizeContext.batchResult
         let existingDownload = finalizeContext.existingDownload
         let manifest = makeManifest(
             payload: payload,
             coverRelativePath: finalizeContext.coverRelativePath,
-            batchResult: batchResult,
-            versionSignature: versionSignature
+            batchResult: batchResult
         )
         let hashedManifest = try storage.addingCurrentFileHashes(
             to: manifest,
@@ -212,8 +211,7 @@ extension DownloadManager {
     private func makeManifest(
         payload: DownloadRequestPayload,
         coverRelativePath: String?,
-        batchResult: DownloadBatchResult,
-        versionSignature: String
+        batchResult: DownloadBatchResult
     ) -> DownloadManifest {
         DownloadManifest(
             gid: payload.gallery.gid,
@@ -231,7 +229,6 @@ extension DownloadManager {
             galleryURL: payload.gallery.galleryURL.forceUnwrapped,
             rating: payload.galleryDetail.rating,
             downloadOptions: payload.options,
-            versionSignature: versionSignature,
             downloadedAt: .now,
             pages: batchResult.pages
                 .sorted(by: { $0.index < $1.index })

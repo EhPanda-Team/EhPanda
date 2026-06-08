@@ -132,8 +132,7 @@ extension DownloadManager {
 
         if let manifest = try? storage
             .readManifest(folderURL: temporaryFolderURL),
-           manifest.gid == download.gid,
-           manifest.versionSignature == versionSignature {
+           manifest.gid == download.gid {
             return manifest.pageCount
         }
 
@@ -181,8 +180,7 @@ extension DownloadManager {
            let manifest = try? storage.readManifest(
             folderURL: storage.temporaryFolderURL(gid: download.gid)
            ),
-           manifest.gid == download.gid,
-           manifest.versionSignature == versionSignature {
+           manifest.gid == download.gid {
             return manifest.pageCount == pageCount
         }
 

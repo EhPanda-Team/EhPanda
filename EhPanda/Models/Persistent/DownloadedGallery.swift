@@ -281,8 +281,8 @@ struct DownloadedGallery: Identifiable, Equatable {
             lastDownloadedAt: modifiedAt ?? manifest.downloadedAt,
             lastError: lastError,
             downloadOptionsSnapshot: manifest.downloadOptions,
-            remoteVersionSignature: manifest.versionSignature,
-            latestRemoteVersionSignature: manifest.versionSignature
+            remoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)",
+            latestRemoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)"
         )
     }
 }

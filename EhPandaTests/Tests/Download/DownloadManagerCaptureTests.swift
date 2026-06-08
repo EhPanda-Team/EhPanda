@@ -150,7 +150,6 @@ private extension DownloadManagerCaptureTests {
             galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            versionSignature: "hash:v1",
             downloadedAt: .now,
             pages: [
                 .init(

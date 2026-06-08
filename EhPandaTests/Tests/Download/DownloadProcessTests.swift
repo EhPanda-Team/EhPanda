@@ -255,12 +255,9 @@ private extension DownloadProcessTests {
         #expect(unwrapped.status == .completed)
         #expect(unwrapped.pageCount == context.updatedPageCount)
         #expect(unwrapped.completedPageCount == context.updatedPageCount)
-        #expect(unwrapped.remoteVersionSignature == context.updatedVersionSignature)
-        #expect(unwrapped.latestRemoteVersionSignature == context.updatedVersionSignature)
 
         let completedFolderURL = storage.folderURL(relativePath: unwrapped.folderRelativePath)
         let manifest = try storage.readManifest(folderURL: completedFolderURL)
-        #expect(manifest.versionSignature == context.updatedVersionSignature)
         #expect(manifest.pageCount == context.updatedPageCount)
         #expect(manifest.pages.count == context.updatedPageCount)
         #expect(

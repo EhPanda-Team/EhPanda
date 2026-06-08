@@ -357,7 +357,6 @@ private extension DownloadManifest {
             galleryURL: galleryURL,
             rating: rating,
             downloadOptions: downloadOptions,
-            versionSignature: versionSignature,
             downloadedAt: downloadedAt,
             pages: pages
         )
