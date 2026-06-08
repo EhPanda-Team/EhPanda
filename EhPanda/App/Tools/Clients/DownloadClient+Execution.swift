@@ -37,7 +37,7 @@ extension DownloadManager {
             )
             fetchedVersionSignature = result.versionSignature
             guard !Task.isCancelled else { return }
-            try await completeDownload(
+            await completeDownload(
                 gid: gid,
                 download: download,
                 result: result
@@ -60,14 +60,8 @@ extension DownloadManager {
         gid: String,
         download: DownloadedGallery,
         result: ProcessDownloadResult
-    ) async throws {
-        try await persistCompletedDownload(
-            gid: gid,
-            payload: result.payload,
-            folderRelativePath: result.folderRelativePath,
-            coverRelativePath: result.coverRelativePath,
-            versionSignature: result.versionSignature
-        )
+    ) async {
+        await settleCompletedDownload(gid: gid)
         if download.folderRelativePath != result.folderRelativePath {
             try? storage.removeFolder(
                 relativePath: download.folderRelativePath
@@ -99,9 +93,7 @@ extension DownloadManager {
     }
 
     private struct ProcessDownloadResult {
-        let payload: DownloadRequestPayload
         let folderRelativePath: String
-        let coverRelativePath: String?
         let versionSignature: String
     }
 
@@ -142,16 +134,14 @@ extension DownloadManager {
             rawPageSelection: rawPageSelection
         )
         let folderRelativePath = folderRelativePath(for: payload)
-        let downloadResult = try await performDownload(
+        _ = try await performDownload(
             payload: payload,
             versionSignature: fetchResult.versionSignature,
             folderRelativePath: folderRelativePath,
             existingDownload: download
         )
         return ProcessDownloadResult(
-            payload: payload,
             folderRelativePath: folderRelativePath,
-            coverRelativePath: downloadResult.coverRelativePath,
             versionSignature: fetchResult.versionSignature
         )
     }
@@ -217,46 +207,9 @@ extension DownloadManager {
         await notifyObservers()
     }
 
-    func persistCompletedDownload(
-        gid: String,
-        payload: DownloadRequestPayload,
-        folderRelativePath: String,
-        coverRelativePath: String?,
-        versionSignature: String
-    ) async throws {
+    func settleCompletedDownload(gid: String) async {
         downloadErrors[gid] = nil
         updatedGalleryIDs.remove(gid)
         await queueStore.remove(gid)
-        try await updateDownloadRecord(
-            gid: gid,
-            createIfMissing: false
-        ) { record in
-            record.host = payload.host.rawValue
-            record.token = payload.gallery.token
-            record.title = payload.gallery.title
-            record.jpnTitle = payload.galleryDetail.jpnTitle
-            record.uploader = payload.galleryDetail.uploader
-            record.category = payload.gallery.category.rawValue
-            record.tags = payload.gallery.tags.toData()
-            record.pageCount =
-                Int64(payload.galleryDetail.pageCount)
-            record.postedDate = payload.galleryDetail.postedDate
-            record.rating = payload.galleryDetail.rating
-            record.onlineCoverURL =
-                payload.galleryDetail.coverURL
-                ?? payload.gallery.coverURL
-            record.folderRelativePath = folderRelativePath
-            record.coverRelativePath = coverRelativePath
-            record.downloadOptionsSnapshot =
-                payload.options.toData()
-            record.completedPageCount =
-                Int64(payload.galleryDetail.pageCount)
-            record.lastDownloadedAt = .now
-            record.lastError = nil
-            record.remoteVersionSignature = versionSignature
-            record.latestRemoteVersionSignature = versionSignature
-            record.pendingOperation = nil
-            record.status = DownloadStatus.completed.rawValue
-        }
     }
 }
