@@ -26,7 +26,7 @@ extension ReadingReducer {
         } else {
             guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
             state.gallery = gallery
-            state.galleryDetail = databaseClient.fetchGalleryDetail(gid: state.gallery.id)
+            state.language = databaseClient.fetchGalleryDetail(gid: state.gallery.id)?.language
         }
         return .run { [state] send in
             guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
@@ -121,26 +121,7 @@ extension ReadingReducer {
         guard let folderURL = download.folderURL else { return }
 
         state.gallery = download.gallery
-        state.galleryDetail = GalleryDetail(
-            gid: download.gid,
-            title: download.title,
-            jpnTitle: download.jpnTitle,
-            isFavorited: false,
-            visibility: .yes,
-            rating: download.rating,
-            userRating: 0,
-            ratingCount: 0,
-            category: download.category,
-            language: manifest.language,
-            uploader: download.uploader ?? "",
-            postedDate: download.postedDate,
-            coverURL: download.coverURL,
-            favoritedCount: 0,
-            pageCount: download.pageCount,
-            sizeCount: 0,
-            sizeType: "",
-            torrentCount: 0
-        )
+        state.language = manifest.language
         let imageURLs = manifest.imageURLs(folderURL: folderURL)
         state.localPageURLs = imageURLs
         state.previewConfig = .normal(rows: 4)

@@ -243,25 +243,6 @@ struct DownloadsReducer {
 private extension ReadingReducer.State {
     mutating func applyDownloadFallback(_ download: DownloadedGallery) {
         gallery = download.gallery
-        galleryDetail = GalleryDetail(
-            gid: download.gid,
-            title: download.title,
-            jpnTitle: download.jpnTitle,
-            isFavorited: false,
-            visibility: .yes,
-            rating: download.rating,
-            userRating: 0,
-            ratingCount: 0,
-            category: download.category,
-            language: .other,
-            uploader: download.uploader ?? "",
-            postedDate: download.postedDate,
-            coverURL: download.coverURL,
-            favoritedCount: 0,
-            pageCount: download.pageCount,
-            sizeCount: 0,
-            sizeType: "",
-            torrentCount: 0
-        )
+        language = .other
     }
 }

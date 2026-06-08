@@ -37,7 +37,7 @@ struct ReadingReducer {
         var route: Route?
         var contentSource: ReadingContentSource = .remote
         var gallery: Gallery = .empty
-        var galleryDetail: GalleryDetail?
+        var language: Language?
 
         var readingProgress: Int = .zero
         var forceRefreshID: UUID = .init()

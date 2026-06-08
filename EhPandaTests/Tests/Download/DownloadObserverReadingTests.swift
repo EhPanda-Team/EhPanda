@@ -39,15 +39,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
 
         await store.send(.fetchDatabaseInfos(download.gid)) {
             $0.gallery = download.gallery
-            $0.galleryDetail = GalleryDetail(
-                gid: download.gid, title: download.title, jpnTitle: download.jpnTitle,
-                isFavorited: false, visibility: .yes, rating: download.rating,
-                userRating: 0, ratingCount: 0, category: download.category,
-                language: manifest.language, uploader: download.uploader ?? "",
-                postedDate: download.postedDate, coverURL: download.coverURL,
-                favoritedCount: 0, pageCount: download.pageCount, sizeCount: 0, sizeType: "",
-                torrentCount: 0
-            )
+            $0.language = manifest.language
             $0.localPageURLs = [
                 1: folderURL.appendingPathComponent("pages/0001.jpg"),
                 2: folderURL.appendingPathComponent("pages/0002.jpg")
