@@ -352,7 +352,6 @@ private extension DownloadManifest {
             coverFileHash: coverFileHash,
             rating: rating,
             downloadOptions: downloadOptions,
-            downloadedAt: downloadedAt,
             pages: pages
         )
     }

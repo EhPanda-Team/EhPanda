@@ -219,7 +219,6 @@ extension DownloadManager {
             coverRelativePath: coverRelativePath,
             rating: payload.galleryDetail.rating,
             downloadOptions: payload.options,
-            downloadedAt: .now,
             pages: batchResult.pages
                 .sorted(by: { $0.index < $1.index })
                 .map {

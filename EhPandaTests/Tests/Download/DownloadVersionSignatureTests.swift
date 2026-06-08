@@ -98,7 +98,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 coverRelativePath: nil,
                 rating: 4,
                 downloadOptions: DownloadOptionsSnapshot(),
-                downloadedAt: .now,
                 pages: [
                     .init(
                         index: 1,
