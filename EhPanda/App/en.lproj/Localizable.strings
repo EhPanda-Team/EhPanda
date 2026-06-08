@@ -450,13 +450,6 @@
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "Off";
 
-// MARK: DownloadThreadMode
-"enum.download_thread_mode.value.single" = "1 image at a time";
-"enum.download_thread_mode.value.double" = "2 images at a time";
-"enum.download_thread_mode.value.triple" = "3 images at a time";
-"enum.download_thread_mode.value.quadruple" = "4 images at a time";
-"enum.download_thread_mode.value.quintuple" = "5 images at a time";
-
 // MARK: DownloadListFilter
 "enum.download_list_filter.title.all" = "All";
 "enum.download_list_filter.title.active" = "Active";

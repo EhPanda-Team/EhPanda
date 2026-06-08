@@ -18,7 +18,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let options = DownloadOptionsSnapshot(
-            threadMode: .quadruple,
+            threadLimit: 4,
             allowCellular: false,
             autoRetryFailedPages: false
         )

@@ -449,13 +449,6 @@
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "不启用";
 
-// MARK: DownloadThreadMode
-"enum.download_thread_mode.value.single" = "同时下载 1 张图片";
-"enum.download_thread_mode.value.double" = "同时下载 2 张图片";
-"enum.download_thread_mode.value.triple" = "同时下载 3 张图片";
-"enum.download_thread_mode.value.quadruple" = "同时下载 4 张图片";
-"enum.download_thread_mode.value.quintuple" = "同时下载 5 张图片";
-
 // MARK: DownloadListFilter
 "enum.download_list_filter.title.all" = "全部";
 "enum.download_list_filter.title.active" = "进行中";
