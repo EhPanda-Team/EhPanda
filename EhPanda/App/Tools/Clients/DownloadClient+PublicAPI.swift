@@ -155,9 +155,15 @@ extension DownloadManager {
             )
             let folderRelativePath = storage.makeFolderRelativePath(
                 gid: payload.gallery.gid,
+                token: payload.gallery.token,
                 title: payload.galleryDetail.trimmedTitle.isEmpty
                     ? payload.gallery.title
                     : payload.galleryDetail.trimmedTitle
+            )
+            try writeInitialManifest(
+                payload: payload,
+                folderRelativePath: folderRelativePath,
+                versionSignature: versionSignature
             )
             try await updateDownloadRecord(gid: payload.gallery.gid) { record in
                 record.gid = payload.gallery.gid
@@ -182,6 +188,7 @@ extension DownloadManager {
                 record.pendingOperation = nil
                 record.status = DownloadStatus.queued.rawValue
             }
+            await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .success(())
@@ -191,6 +198,55 @@ extension DownloadManager {
             Logger.error(error)
             return .failure(.unknown)
         }
+    }
+
+    private func writeInitialManifest(
+        payload: DownloadRequestPayload,
+        folderRelativePath: String,
+        versionSignature: String
+    ) throws {
+        guard let galleryURL = payload.gallery.galleryURL else {
+            throw AppError.notFound
+        }
+        let folderURL = storage.folderURL(relativePath: folderRelativePath)
+        try createDirectory(at: folderURL)
+        let pageCount = payload.galleryDetail.pageCount
+        let pages = pageCount > 0
+            ? (1...pageCount).map { index in
+                DownloadManifest.Page(
+                    index: index,
+                    relativePath: storage.makePageRelativePath(
+                        gid: payload.gallery.gid,
+                        token: payload.gallery.token,
+                        index: index,
+                        fileExtension: "pending"
+                    )
+                )
+            }
+            : []
+        try storage.writeManifest(
+            DownloadManifest(
+                gid: payload.gallery.gid,
+                host: payload.host,
+                token: payload.gallery.token,
+                title: payload.gallery.title,
+                jpnTitle: payload.galleryDetail.jpnTitle,
+                category: payload.gallery.category,
+                language: payload.galleryDetail.language,
+                uploader: payload.galleryDetail.uploader,
+                tags: payload.gallery.tags,
+                postedDate: payload.galleryDetail.postedDate,
+                pageCount: pageCount,
+                coverRelativePath: nil,
+                galleryURL: galleryURL,
+                rating: payload.galleryDetail.rating,
+                downloadOptions: payload.options,
+                versionSignature: versionSignature,
+                downloadedAt: .now,
+                pages: pages
+            ),
+            folderURL: folderURL
+        )
     }
 
     func togglePause(gid: String) async -> Result<Void, AppError> {
