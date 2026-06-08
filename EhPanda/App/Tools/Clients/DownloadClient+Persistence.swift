@@ -6,6 +6,107 @@
 import CoreData
 import Foundation
 
+// MARK: - Disk Index
+extension DownloadManager {
+    @discardableResult
+    func reloadDownloadIndex() async -> [DownloadedGallery] {
+        do {
+            let records = try storage.scanDownloadFolders()
+            downloadIndex = deduplicatedDownloadIndex(from: records)
+            return downloads(from: records)
+        } catch {
+            Logger.error(error)
+            downloadIndex = [:]
+            return []
+        }
+    }
+
+    func indexedDownload(gid: String) -> DownloadedGallery? {
+        guard let record = downloadIndex[gid] else { return nil }
+        return downloadedGallery(from: record)
+    }
+
+    func indexedDownloads() -> [DownloadedGallery] {
+        downloads(from: Array(downloadIndex.values))
+    }
+
+    private func downloads(
+        from records: [DownloadFolderRecord]
+    ) -> [DownloadedGallery] {
+        deduplicatedDownloadIndex(from: records).values
+            .map { downloadedGallery(from: $0) }
+            .sorted(by: sortDownloadsByDisplayStatus)
+    }
+
+    private func deduplicatedDownloadIndex(
+        from records: [DownloadFolderRecord]
+    ) -> [String: DownloadFolderRecord] {
+        records.reduce(into: [:]) { index, record in
+            let gid = record.manifest.gid
+            guard let currentRecord = index[gid] else {
+                index[gid] = record
+                return
+            }
+            if record.displayDate > currentRecord.displayDate {
+                index[gid] = record
+            }
+        }
+    }
+
+    private func downloadedGallery(
+        from record: DownloadFolderRecord
+    ) -> DownloadedGallery {
+        let gid = record.manifest.gid
+        return DownloadedGallery(
+            manifest: record.manifest,
+            folderRelativePath: record.relativePath,
+            modifiedAt: record.modifiedAt,
+            displayStatus: displayStatus(for: record),
+            lastError: downloadErrors[gid]
+        )
+    }
+
+    private func displayStatus(
+        for record: DownloadFolderRecord
+    ) -> DownloadDisplayStatus {
+        let gid = record.manifest.gid
+        if record.manifest.isComplete,
+           updatedGalleryIDs.contains(gid) {
+            return .updateAvailable
+        }
+        if record.manifest.isComplete {
+            return .completed
+        }
+        if activeGalleryID == gid {
+            return .active
+        }
+        if queueStore.contains(gid) {
+            return .queued
+        }
+        if downloadErrors[gid] != nil {
+            return .error
+        }
+        return .inactive
+    }
+
+    private func sortDownloadsByDisplayStatus(
+        _ lhs: DownloadedGallery,
+        _ rhs: DownloadedGallery
+    ) -> Bool {
+        if lhs.displayStatus != rhs.displayStatus {
+            return lhs.displayStatus.rawValue < rhs.displayStatus.rawValue
+        }
+        return (lhs.lastDownloadedAt ?? .distantPast)
+            > (rhs.lastDownloadedAt ?? .distantPast)
+    }
+}
+
+private extension DownloadFolderRecord {
+    var displayDate: Date {
+        modifiedAt ?? manifest.downloadedAt
+    }
+}
+
 // MARK: - Core Data Operations
 extension DownloadManager {
     func fetchDownload(
