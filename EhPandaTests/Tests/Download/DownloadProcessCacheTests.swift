@@ -210,16 +210,6 @@ private extension DownloadProcessCacheTests {
         let currentPageImageURL = try #require(
             Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
         )
-        let staleStoredPageURL = try #require(
-            URL(string: "https://example.com/stale-image-\(gid)-1.jpg")
-        )
-        let plainPreviewURL = try #require(
-            URL(string: "https://ehgt.org/preview/\(gid)/1.webp")
-        )
-        let combinedPreviewURL = URLUtil.combinedPreviewURL(
-            plainURL: plainPreviewURL, width: "200", height: "300", offset: "40"
-        )
-
         let scaffoldDownload = sampleDownload(
             gid: gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155,
@@ -232,14 +222,16 @@ private extension DownloadProcessCacheTests {
         let coverURL = try #require(
             latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL
         )
+        let previewCleanupURLs = latestPayload.previewURLs.values
+            .flatMap { $0.previewCacheCleanupURLs() }
 
         let cachedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { ctx in
             UIColor.systemTeal.setFill()
             ctx.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let cachedImageData = try #require(cachedImage.jpegData(compressionQuality: 1))
-        let cachedURLs = combinedPreviewURL.previewCacheCleanupURLs()
-            + [currentPageImageURL, staleStoredPageURL, coverURL]
+        let cachedURLs = previewCleanupURLs
+            + [currentPageImageURL, coverURL]
         let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
         for cacheKey in cachedKeys {
             try await KingfisherManager.shared.cache.storeToDisk(cachedImageData, forKey: cacheKey)
@@ -249,15 +241,6 @@ private extension DownloadProcessCacheTests {
     }
 
     func setupCacheTestDownload(_ setup: CacheTestDownloadSetup) async throws -> Int {
-        let staleStoredPageURL = try #require(
-            URL(string: "https://example.com/stale-image-\(setup.gid)-1.jpg")
-        )
-        let plainPreviewURL = try #require(
-            URL(string: "https://ehgt.org/preview/\(setup.gid)/1.webp")
-        )
-        let combinedPreviewURL = URLUtil.combinedPreviewURL(
-            plainURL: plainPreviewURL, width: "200", height: "300", offset: "40"
-        )
         let scaffoldDownload = sampleDownload(
             gid: setup.gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155,
@@ -279,11 +262,6 @@ private extension DownloadProcessCacheTests {
                 completedPageCount: oldPageCount - 1, pageCount: oldPageCount,
                 remoteVersionSignature: setup.oldVersionSignature,
                 latestRemoteVersionSignature: setup.oldVersionSignature
-            )
-            try insertPersistedGalleryState(
-                in: setup.container, gid: setup.gid,
-                previewURLs: [1: combinedPreviewURL],
-                imageURLs: [1: staleStoredPageURL]
             )
         }
         try setupCacheTestTemporaryFolder(

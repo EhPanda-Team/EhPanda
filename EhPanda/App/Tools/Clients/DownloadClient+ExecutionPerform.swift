@@ -74,11 +74,10 @@ extension DownloadManager {
     ) async throws -> PerformDownloadResult {
         let existingDownload = executionContext.existingDownload
         let versionSignature = executionContext.versionSignature
-        let coverRelativePath = try await downloadAndPersistCoverIfNeeded(
+        let coverRelativePath = try await downloadCoverIfNeeded(
             payload: payload,
             folderURL: workingFolderURL,
-            existingCoverRelativePath: workingSeed.coverRelativePath,
-            existingDownload: existingDownload
+            existingCoverRelativePath: workingSeed.coverRelativePath
         )
         let source = try await resolveSourceIfNeeded(
             payload: payload,
@@ -114,26 +113,16 @@ extension DownloadManager {
         )
     }
 
-    private func downloadAndPersistCoverIfNeeded(
+    private func downloadCoverIfNeeded(
         payload: DownloadRequestPayload,
         folderURL: URL,
-        existingCoverRelativePath: String?,
-        existingDownload: DownloadedGallery
+        existingCoverRelativePath: String?
     ) async throws -> String? {
-        let coverRelativePath = try await downloadCoverImage(
+        try await downloadCoverImage(
             payload: payload,
             temporaryFolderURL: folderURL,
             existingCoverRelativePath: existingCoverRelativePath
         )
-        if coverRelativePath != existingDownload.coverRelativePath {
-            try? await updateDownloadRecord(
-                gid: payload.gallery.gid,
-                createIfMissing: false
-            ) { record in
-                record.coverRelativePath = coverRelativePath
-            }
-        }
-        return coverRelativePath
     }
 
     private func finalizeBatchResult(
