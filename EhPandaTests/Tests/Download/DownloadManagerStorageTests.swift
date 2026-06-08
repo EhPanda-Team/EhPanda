@@ -422,6 +422,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .init(code: .networkingFailed, message: "failed"),
             gid: "820"
         )
+        try insertPersistedDownload(
+            in: container,
+            gid: "820",
+            status: .downloading,
+            completedPageCount: 1,
+            pageCount: 2,
+            lastError: .init(code: .networkingFailed, message: "stale")
+        )
         let activeTask = Task {
             do {
                 try await Task.sleep(for: .seconds(60))
@@ -442,14 +450,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(pausedDownload.status == .paused)
         #expect(pausedDownload.lastError == nil)
 
-        try insertPersistedDownload(
-            in: container,
-            gid: "820",
-            status: .paused,
-            completedPageCount: 1,
-            pageCount: 2,
-            lastError: .init(code: .networkingFailed, message: "stale")
-        )
         await manager.testingInstallActiveTask(gid: "busy", task: Task {})
         let resumeResult = await manager.resume(gid: "820")
 
@@ -469,7 +469,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         request.fetchLimit = 1
         request.predicate = NSPredicate(format: "gid == %@", "820")
         let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.paused.rawValue)
+        #expect(persistedDownload?.status == DownloadStatus.downloading.rawValue)
         #expect(persistedDownload?.lastError != nil)
     }
 

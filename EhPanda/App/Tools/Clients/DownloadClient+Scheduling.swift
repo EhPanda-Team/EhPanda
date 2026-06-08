@@ -198,21 +198,24 @@ extension DownloadManager {
     ) async throws -> Task<Void, Never>? {
         downloadErrors[gid] = nil
         await queueStore.remove(gid)
-        let initialCount = max(
-            download.completedPageCount,
-            temporaryCompletedPageCount(
-                gid: gid,
-                expectedPageCount: max(download.pageCount, 1)
+        let indexedDownloads = await reloadDownloadIndex()
+        if !indexedDownloads.contains(where: { $0.gid == gid }) {
+            let initialCount = max(
+                download.completedPageCount,
+                temporaryCompletedPageCount(
+                    gid: gid,
+                    expectedPageCount: max(download.pageCount, 1)
+                )
             )
-        )
-        try await updateDownloadRecord(
-            gid: gid,
-            createIfMissing: false
-        ) { record in
-            record.status = DownloadStatus.paused.rawValue
-            record.completedPageCount = Int64(initialCount)
-            record.lastError = nil
-            record.lastDownloadedAt = .now
+            try await updateDownloadRecord(
+                gid: gid,
+                createIfMissing: false
+            ) { record in
+                record.status = DownloadStatus.paused.rawValue
+                record.completedPageCount = Int64(initialCount)
+                record.lastError = nil
+                record.lastDownloadedAt = .now
+            }
         }
         await notifyObservers()
         if activeGalleryID == gid {
@@ -231,21 +234,24 @@ extension DownloadManager {
     ) async throws {
         downloadErrors[gid] = nil
         await queueStore.remove(gid)
-        let settledCount = max(
-            download.completedPageCount,
-            temporaryCompletedPageCount(
-                gid: gid,
-                expectedPageCount: max(download.pageCount, 1)
+        let indexedDownloads = await reloadDownloadIndex()
+        if !indexedDownloads.contains(where: { $0.gid == gid }) {
+            let settledCount = max(
+                download.completedPageCount,
+                temporaryCompletedPageCount(
+                    gid: gid,
+                    expectedPageCount: max(download.pageCount, 1)
+                )
             )
-        )
-        try await updateDownloadRecord(
-            gid: gid,
-            createIfMissing: false
-        ) { record in
-            record.status = DownloadStatus.paused.rawValue
-            record.completedPageCount = Int64(settledCount)
-            record.lastError = nil
-            record.lastDownloadedAt = .now
+            try await updateDownloadRecord(
+                gid: gid,
+                createIfMissing: false
+            ) { record in
+                record.status = DownloadStatus.paused.rawValue
+                record.completedPageCount = Int64(settledCount)
+                record.lastError = nil
+                record.lastDownloadedAt = .now
+            }
         }
     }
 
