@@ -74,8 +74,6 @@ struct FavoritesReducer {
         case fetchGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
-        case fetchDownloadBadges([String])
-        case fetchDownloadBadgesDone([String: DownloadBadge])
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
 
@@ -150,10 +148,7 @@ struct FavoritesReducer {
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = fetchResult.sortOrder
-                    return .merge(
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
-                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
-                    )
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }
@@ -195,22 +190,12 @@ struct FavoritesReducer {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.rawLoadingState[targetFavIndex] = .idle
-                        effects.append(.send(.fetchDownloadBadges((state.galleries ?? []).map(\.gid))))
                     }
                     return .merge(effects)
 
                 case .failure(let error):
                     state.rawFooterLoadingState[targetFavIndex] = .failed(error)
                 }
-                return .none
-
-            case .fetchDownloadBadges(let gids):
-                return .run { send in
-                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
-                }
-
-            case .fetchDownloadBadgesDone(let badges):
-                state.downloadBadges.merge(badges, uniquingKeysWith: { _, new in new })
                 return .none
 
             case .observeDownloads:
@@ -222,12 +207,8 @@ struct FavoritesReducer {
                 .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
 
             case .observeDownloadsDone(let downloads):
-                let visibleGIDs = Set((state.galleries ?? []).map(\.gid))
                 state.downloadBadges = Dictionary(
-                    uniqueKeysWithValues: downloads.compactMap { download in
-                        guard visibleGIDs.contains(download.gid) else { return nil }
-                        return (download.gid, download.badge)
-                    }
+                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
                 return .none
 

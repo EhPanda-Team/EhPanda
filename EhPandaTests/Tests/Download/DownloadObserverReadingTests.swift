@@ -35,6 +35,19 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         }
         store.exhaustivity = .off
         let folderURL = download.folderURL
+        defer { try? FileManager.default.removeItem(at: folderURL) }
+        try FileManager.default.createDirectory(
+            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        try Data([0x01]).write(
+            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            options: .atomic
+        )
+        try Data([0x02]).write(
+            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            options: .atomic
+        )
 
         await store.send(.fetchDatabaseInfos(download.gid)) {
             $0.gallery = download.gallery

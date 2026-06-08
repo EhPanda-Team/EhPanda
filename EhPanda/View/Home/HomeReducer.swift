@@ -69,14 +69,6 @@ struct HomeReducer {
                 .removeDuplicates(by: \.trimmedTitle)
         }
 
-        var visibleGalleryIDs: Set<String> {
-            var gids = Set(popularGalleries.map(\.gid))
-            gids.formUnion(frontpageGalleries.map(\.gid))
-            toplistsGalleries.values.flatMap(\.self).forEach {
-                gids.insert($0.gid)
-            }
-            return gids
-        }
     }
 
     enum Action: BindableAction {
@@ -96,8 +88,6 @@ struct HomeReducer {
         case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchToplistsGalleries(Int, Int? = nil)
         case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
-        case fetchDownloadBadges([String])
-        case fetchDownloadBadgesDone([String: DownloadBadge])
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
 

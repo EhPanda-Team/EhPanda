@@ -58,8 +58,6 @@ struct SearchReducer {
         case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
-        case fetchDownloadBadges([String])
-        case fetchDownloadBadgesDone([String: DownloadBadge])
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
 
@@ -134,10 +132,7 @@ struct SearchReducer {
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
-                    return .merge(
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
-                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
-                    )
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
@@ -174,22 +169,12 @@ struct SearchReducer {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.loadingState = .idle
-                        effects.append(.send(.fetchDownloadBadges(state.galleries.map(\.gid))))
                     }
                     return .merge(effects)
 
                 case .failure(let error):
                     state.footerLoadingState = .failed(error)
                 }
-                return .none
-
-            case .fetchDownloadBadges(let gids):
-                return .run { send in
-                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
-                }
-
-            case .fetchDownloadBadgesDone(let badges):
-                state.downloadBadges.merge(badges, uniquingKeysWith: { _, new in new })
                 return .none
 
             case .observeDownloads:
@@ -201,12 +186,8 @@ struct SearchReducer {
                 .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
 
             case .observeDownloadsDone(let downloads):
-                let visibleGIDs = Set(state.galleries.map(\.gid))
                 state.downloadBadges = Dictionary(
-                    uniqueKeysWithValues: downloads.compactMap { download in
-                        guard visibleGIDs.contains(download.gid) else { return nil }
-                        return (download.gid, download.badge)
-                    }
+                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
                 return .none
 

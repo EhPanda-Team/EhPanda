@@ -88,10 +88,7 @@ extension HomeReducer {
                         return .none
                     }
                     state.setPopularGalleries(galleries)
-                    return .merge(
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
-                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
-                    )
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.popularLoadingState = .failed(error)
                 }
@@ -115,10 +112,7 @@ extension HomeReducer {
                         return .none
                     }
                     state.setFrontpageGalleries(galleries)
-                    return .merge(
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
-                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
-                    )
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.frontpageLoadingState = .failed(error)
                 }
@@ -141,10 +135,7 @@ extension HomeReducer {
                         return .none
                     }
                     state.toplistsGalleries[index] = galleries
-                    return .merge(
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) }),
-                        .send(.fetchDownloadBadges(galleries.map(\.gid)))
-                    )
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.toplistsLoadingState[index] = .failed(error)
                 }
@@ -161,15 +152,6 @@ extension HomeReducer {
                 state.rawCardColors[gid] = colors
                 return .none
 
-            case .fetchDownloadBadges(let gids):
-                return .run { send in
-                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
-                }
-
-            case .fetchDownloadBadgesDone(let badges):
-                state.downloadBadges.merge(badges, uniquingKeysWith: { _, new in new })
-                return .none
-
             case .observeDownloads:
                 return .run { send in
                     for await downloads in downloadClient.observeDownloads() {
@@ -179,18 +161,9 @@ extension HomeReducer {
                 .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
 
             case .observeDownloadsDone(let downloads):
-                let visibleGIDs = state.visibleGalleryIDs
-                let downloadedGIDs = Set(downloads.map(\.gid))
-                let newBadges = [String: DownloadBadge](
-                    uniqueKeysWithValues: downloads.compactMap { download in
-                        guard visibleGIDs.contains(download.gid) else { return nil }
-                        return (download.gid, download.badge)
-                    }
+                state.downloadBadges = Dictionary(
+                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
-                state.downloadBadges.merge(newBadges, uniquingKeysWith: { _, new in new })
-                for gid in state.downloadBadges.keys where !downloadedGIDs.contains(gid) {
-                    state.downloadBadges.removeValue(forKey: gid)
-                }
                 return .none
 
             case .frontpage:
