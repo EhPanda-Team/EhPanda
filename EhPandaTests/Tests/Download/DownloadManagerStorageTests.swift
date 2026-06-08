@@ -288,6 +288,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
+        try insertPersistedDownload(
+            in: container,
+            gid: "800",
+            status: .queued,
+            completedPageCount: 0,
+            pageCount: 1
+        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[800_token] Failing",
@@ -319,6 +326,15 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(failedDownload.status == .failed)
         #expect(failedDownload.lastError?.code == .networkingFailed)
         #expect(badges["800"] == .failed)
+
+        let request = NSFetchRequest<DownloadedGalleryMO>(
+            entityName: "DownloadedGalleryMO"
+        )
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "gid == %@", "800")
+        let persistedDownload = try container.viewContext.fetch(request).first
+        #expect(persistedDownload?.status == DownloadStatus.queued.rawValue)
+        #expect(persistedDownload?.lastError == nil)
     }
 
     @Test
