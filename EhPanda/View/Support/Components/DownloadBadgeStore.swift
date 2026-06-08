@@ -30,10 +30,6 @@ final class DownloadBadgeStore {
         }
     }
 
-    func resolvedCoverURL(for gallery: Gallery) -> URL? {
-        downloads[gallery.gid]?.coverURL ?? gallery.coverURL
-    }
-
     private func apply(downloads: [DownloadedGallery]) {
         let resolvedDownloads = Dictionary(uniqueKeysWithValues: downloads.map { ($0.gid, $0) })
         let resolvedBadges = Dictionary(uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) })

@@ -10,7 +10,6 @@ import UIImageColors
 
 struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let downloadStore = DownloadBadgeStore.shared
 
     private let currentID: String
     private let colors: [Color]
@@ -47,7 +46,7 @@ struct GalleryCardCell: View {
     }
 
     private var resolvedCoverURL: URL? {
-        downloadStore.resolvedCoverURL(for: gallery)
+        gallery.coverURL
     }
 
     var body: some View {

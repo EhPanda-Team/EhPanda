@@ -127,8 +127,6 @@ struct CoverWallSection: View {
 }
 
 struct VerticalCoverStack: View {
-    private let downloadStore = DownloadBadgeStore.shared
-
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
     private let navigateAction: (String) -> Void
@@ -150,7 +148,7 @@ struct VerticalCoverStack: View {
         Button {
             navigateAction(gallery.id)
         } label: {
-            KFImage(downloadStore.resolvedCoverURL(for: gallery))
+            KFImage(gallery.coverURL)
                 .placeholder(placeholder)
                 .defaultModifier()
                 .scaledToFill()

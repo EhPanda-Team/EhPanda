@@ -13,7 +13,6 @@ struct GalleryDetailCell: View {
     }
 
     @Environment(\.colorScheme) private var colorScheme
-    private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
     private let coverSource: CoverSource
@@ -38,7 +37,7 @@ struct GalleryDetailCell: View {
     private var resolvedCoverURL: URL? {
         switch coverSource {
         case .dynamic:
-            downloadStore.resolvedCoverURL(for: gallery)
+            gallery.coverURL
         case .static(let url):
             url
         }
