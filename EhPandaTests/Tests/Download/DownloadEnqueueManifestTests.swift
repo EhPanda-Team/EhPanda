@@ -55,6 +55,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         #expect(manifest.gid == gallery.gid)
         #expect(manifest.token == gallery.token)
         #expect(manifest.pageCount == detail.pageCount)
+        #expect(manifest.remoteCoverURL == detail.coverURL)
         #expect(manifest.pages.count == detail.pageCount)
         #expect(manifest.pages[1] == "")
 
@@ -70,6 +71,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
 
         let queuedDownload = await manager.testingFetchDownload(gid: gallery.gid)
         #expect(queuedDownload?.status == .queued)
+        #expect(queuedDownload?.onlineCoverURL == detail.coverURL)
         #expect(queuedDownload?.pageCount == detail.pageCount)
     }
 }

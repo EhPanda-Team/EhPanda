@@ -13,6 +13,7 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let jpnTitle: String?
     let category: Category
     let language: Language
+    let remoteCoverURL: URL?
     let uploader: String?
     let tags: [GalleryTag]
     let postedDate: Date

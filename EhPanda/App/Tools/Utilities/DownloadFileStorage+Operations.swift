@@ -289,6 +289,7 @@ private extension DownloadManifest {
             jpnTitle: jpnTitle,
             category: category,
             language: language,
+            remoteCoverURL: remoteCoverURL,
             uploader: uploader,
             tags: tags,
             postedDate: postedDate,

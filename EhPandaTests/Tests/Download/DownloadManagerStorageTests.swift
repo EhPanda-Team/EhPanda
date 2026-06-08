@@ -939,6 +939,7 @@ private extension DownloadManagerStorageTests {
             jpnTitle: nil,
             category: .doujinshi,
             language: .japanese,
+            remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
             uploader: "Uploader",
             tags: [],
             postedDate: modifiedAt,

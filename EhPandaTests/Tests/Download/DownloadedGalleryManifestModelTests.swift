@@ -50,6 +50,7 @@ struct DownloadedGalleryManifestModelTests {
         #expect(download.gid == "123")
         #expect(download.folderRelativePath == "[123_token] Sample")
         #expect(download.status == .queued)
+        #expect(download.onlineCoverURL == manifest.remoteCoverURL)
         #expect(download.completedPageCount == 2)
         #expect(download.lastDownloadedAt == modifiedAt)
         #expect(download.downloadOptionsSnapshot.threadLimit == 3)
@@ -66,6 +67,7 @@ private extension DownloadedGalleryManifestModelTests {
             jpnTitle: "サンプル",
             category: .doujinshi,
             language: .japanese,
+            remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
             uploader: "Uploader",
             tags: [],
             postedDate: Date(timeIntervalSince1970: 1_000),

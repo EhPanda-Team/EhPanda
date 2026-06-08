@@ -198,6 +198,7 @@ private extension DownloadRetryUpdateFallbackTests {
             jpnTitle: manifest.jpnTitle,
             category: manifest.category,
             language: manifest.language,
+            remoteCoverURL: manifest.remoteCoverURL,
             uploader: manifest.uploader,
             tags: manifest.tags,
             postedDate: manifest.postedDate,

@@ -194,6 +194,8 @@ extension DownloadManager {
             jpnTitle: payload.galleryDetail.jpnTitle,
             category: payload.gallery.category,
             language: payload.galleryDetail.language,
+            remoteCoverURL:
+                payload.galleryDetail.coverURL ?? payload.gallery.coverURL,
             uploader: payload.galleryDetail.uploader,
             tags: payload.gallery.tags,
             postedDate: payload.galleryDetail.postedDate,
