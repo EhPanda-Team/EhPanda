@@ -69,6 +69,12 @@ extension DownloadManager {
 
         guard updateResult.needsUpdate else { return download }
 
+        if downloadIndex[gid] != nil {
+            downloadErrors[gid] = updateResult.lastError
+            await notifyObservers()
+            return await fetchDownload(gid: gid)
+        }
+
         do {
             try await updateDownloadRecord(
                 gid: gid,
