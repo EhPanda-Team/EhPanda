@@ -101,7 +101,6 @@ struct DownloadedGallery: Identifiable, Equatable {
     let lastDownloadedAt: Date?
     let lastError: DownloadFailure?
     let downloadOptionsSnapshot: DownloadOptionsSnapshot
-    let pendingOperation: DownloadStartMode?
 
     init(
         gid: String,
@@ -122,8 +121,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         completedPageCount: Int,
         lastDownloadedAt: Date?,
         lastError: DownloadFailure?,
-        downloadOptionsSnapshot: DownloadOptionsSnapshot,
-        pendingOperation: DownloadStartMode? = nil
+        downloadOptionsSnapshot: DownloadOptionsSnapshot
     ) {
         self.gid = gid
         self.host = host
@@ -144,7 +142,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.lastDownloadedAt = lastDownloadedAt
         self.lastError = lastError
         self.downloadOptionsSnapshot = downloadOptionsSnapshot
-        self.pendingOperation = pendingOperation
     }
 
     init(

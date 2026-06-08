@@ -129,8 +129,8 @@ extension DownloadManager {
             return .failure(.notFound)
         }
 
-        if let pendingMode = download.pendingOperation {
-            return await cancelQueuedWorkItem(download, mode: pendingMode)
+        if let queuedMode = queuedModes[gid] {
+            return await cancelQueuedWorkItem(download, mode: queuedMode)
         }
 
         switch download.status {

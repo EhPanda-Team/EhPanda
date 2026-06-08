@@ -39,7 +39,6 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.status == .queued)
         #expect(stored?.badge == .queued)
-        #expect(stored?.pendingOperation == nil)
         #expect(stored?.lastError == nil)
 
         #expect(FileManager.default.fileExists(
@@ -77,7 +76,6 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.status == .paused)
         #expect(stored?.completedPageCount == 1)
-        #expect(stored?.pendingOperation == nil)
         #expect(stored?.badge == .paused(1, 2))
     }
 
