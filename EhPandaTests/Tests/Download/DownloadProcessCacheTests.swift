@@ -18,7 +18,6 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 402)
         let pageIndex = 42
-        let oldVersionSignature = chainVersionSignature(gid: gid, token: "token")
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -32,7 +31,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
 
         let (cachedKeys, _) = try await prepareCacheTestAssets(
             manager: manager, gid: gid,
-            pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
+            pageIndex: pageIndex
         )
         defer {
             cachedKeys.forEach {
@@ -48,8 +47,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
                 storage: storage,
                 manager: manager,
                 gid: gid,
-                pageIndex: pageIndex,
-                oldVersionSignature: oldVersionSignature
+                pageIndex: pageIndex
             )
         )
 
@@ -84,7 +82,6 @@ private struct CacheTestDownloadSetup {
     let manager: DownloadManager
     let gid: String
     let pageIndex: Int
-    let oldVersionSignature: String
 }
 
 // MARK: - Cache Test Helpers
@@ -196,7 +193,7 @@ private extension DownloadProcessCacheTests {
     @MainActor
     func prepareCacheTestAssets(
         manager: DownloadManager, gid: String,
-        pageIndex: Int, oldVersionSignature: String
+        pageIndex: Int
     ) async throws -> (Set<String>, URL) {
         let currentPageImageURL = try #require(
             Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
@@ -241,15 +238,14 @@ private extension DownloadProcessCacheTests {
 
         try setupCacheTestFinalFolder(
             storage: setup.storage, gid: setup.gid,
-            oldPageCount: oldPageCount,
-            oldVersionSignature: setup.oldVersionSignature
+            oldPageCount: oldPageCount
         )
         return updatedPageCount
     }
 
     func setupCacheTestFinalFolder(
         storage: DownloadFileStorage, gid: String,
-        oldPageCount: Int, oldVersionSignature: String
+        oldPageCount: Int
     ) throws {
         let completedFolderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
         try FileManager.default.createDirectory(
@@ -260,7 +256,7 @@ private extension DownloadProcessCacheTests {
         )
         let staleManifest = try sampleManifest(
             gid: gid, title: "Pause Race",
-            pageCount: oldPageCount, versionSignature: oldVersionSignature
+            pageCount: oldPageCount
         )
         try storage.writeManifest(staleManifest, folderURL: completedFolderURL)
     }

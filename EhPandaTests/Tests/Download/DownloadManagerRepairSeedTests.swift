@@ -168,7 +168,7 @@ private extension DownloadManagerRepairSeedTests {
         )
         let oldManifest = try sampleManifest(
             gid: gid, title: "Mixed Version",
-            pageCount: 2, versionSignature: "hash:v1"
+            pageCount: 2
         )
         try JSONEncoder().encode(oldManifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
