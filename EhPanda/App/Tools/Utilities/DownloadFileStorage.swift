@@ -151,6 +151,36 @@ struct DownloadFileStorage: Sendable {
         folderURL: URL,
         expectedPageCount: Int
     ) -> [Int: String] {
+        var relativePaths = existingLegacyPageRelativePaths(
+            folderURL: folderURL,
+            expectedPageCount: expectedPageCount
+        )
+        guard let finalPageURLs = try? fileManager.operate({
+            try $0.contentsOfDirectory(
+                at: folderURL,
+                includingPropertiesForKeys: nil
+            )
+        }) else {
+            return relativePaths
+        }
+
+        for pageURL in finalPageURLs {
+            guard sanitizeAssetFileIfNeeded(at: pageURL),
+                  let index = finalPageIndex(from: pageURL),
+                  index >= 1,
+                  index <= expectedPageCount
+            else {
+                continue
+            }
+            relativePaths[index] = pageURL.lastPathComponent
+        }
+        return relativePaths
+    }
+
+    private func existingLegacyPageRelativePaths(
+        folderURL: URL,
+        expectedPageCount: Int
+    ) -> [Int: String] {
         let pagesFolderURL = folderURL.appendingPathComponent(
             Defaults.FilePath.downloadPages,
             isDirectory: true
@@ -181,6 +211,15 @@ struct DownloadFileStorage: Sendable {
         return relativePaths
     }
 
+    private func finalPageIndex(from pageURL: URL) -> Int? {
+        let filename = pageURL.deletingPathExtension().lastPathComponent
+        guard let separatorIndex = filename.lastIndex(of: "_") else {
+            return nil
+        }
+        let indexStart = filename.index(after: separatorIndex)
+        return Int(filename[indexStart...])
+    }
+
     func existingCoverRelativePath(folderURL: URL) -> String? {
         guard let fileURLs = try? fileManager.operate({
             try $0.contentsOfDirectory(
@@ -192,8 +231,10 @@ struct DownloadFileStorage: Sendable {
         }
 
         return fileURLs
+            .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
             .first(where: {
-                $0.lastPathComponent.hasPrefix("cover.")
+                let filename = $0.deletingPathExtension().lastPathComponent
+                return (filename == "cover" || filename.hasSuffix("_cover"))
                     && sanitizeAssetFileIfNeeded(at: $0)
             })?
             .lastPathComponent

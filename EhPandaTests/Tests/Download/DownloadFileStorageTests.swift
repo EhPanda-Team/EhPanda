@@ -179,6 +179,27 @@ struct DownloadFileStorageTests {
     }
 
     @Test
+    func testExistingPageRelativePathsDetectsFinalAssetFiles() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: folderURL.appendingPathComponent("123_token_1.webp"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.jpg"), options: .atomic)
+        try Data([0x03]).write(to: folderURL.appendingPathComponent("123_token_27.jpg"), options: .atomic)
+        try Data([0x04]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
+
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
+                1: "123_token_1.webp",
+                2: "123_token_2.jpg"
+            ]
+        )
+    }
+
+    @Test
     func testExistingPageRelativePathsRemovesZeroByteFiles() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -200,6 +221,39 @@ struct DownloadFileStorageTests {
             ]
         )
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+    }
+
+    @Test
+    func testExistingPageRelativePathsRemovesZeroByteFinalAssetFiles() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
+
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
+                2: "123_token_2.png"
+            ]
+        )
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
+    }
+
+    @Test
+    func testExistingCoverRelativePathDetectsFinalAssetFile() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
+
+        #expect(storage.existingCoverRelativePath(folderURL: folderURL) == "123_token_cover.jpg")
     }
 
     @Test
