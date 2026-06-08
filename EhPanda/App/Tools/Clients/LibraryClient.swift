@@ -131,10 +131,7 @@ extension LibraryClient {
         initializeLogger: IssueReporting.unimplemented(placeholder: placeholder()),
         initializeWebImage: IssueReporting.unimplemented(placeholder: placeholder()),
         clearWebImageDiskCache: IssueReporting.unimplemented(placeholder: placeholder()),
-        analyzeImageColors: { _ in
-            reportIssue("Unimplemented: LibraryClient.analyzeImageColors")
-            return .none
-        },
+        analyzeImageColors: IssueReporting.unimplemented(placeholder: placeholder()),
         calculateWebImageDiskCacheSize:
             IssueReporting.unimplemented(placeholder: placeholder())
     )
