@@ -172,6 +172,7 @@ extension DownloadManager {
         let manifestPages = Dictionary(
             uniqueKeysWithValues:
                 (existingManifest?.pages ?? [])
+                .filter { !$0.relativePath.hasSuffix(".pending") }
                 .map { ($0.index, $0.relativePath) }
         )
         return manifestPages.merging(

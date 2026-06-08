@@ -153,13 +153,7 @@ extension DownloadManager {
                 previewURLs: payload.previewURLs,
                 versionMetadata: payload.versionMetadata
             )
-            let folderRelativePath = storage.makeFolderRelativePath(
-                gid: payload.gallery.gid,
-                token: payload.gallery.token,
-                title: payload.galleryDetail.trimmedTitle.isEmpty
-                    ? payload.gallery.title
-                    : payload.galleryDetail.trimmedTitle
-            )
+            let folderRelativePath = folderRelativePath(for: payload)
             try writeInitialManifest(
                 payload: payload,
                 folderRelativePath: folderRelativePath,

@@ -125,9 +125,9 @@ extension DownloadManager {
         download: DownloadedGallery,
         mode: DownloadStartMode
     ) async throws -> ProcessDownloadResult {
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
+        let existingFolderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
         let existingResumeState = try? storage
-            .readResumeState(folderURL: temporaryFolderURL)
+            .readResumeState(folderURL: existingFolderURL)
         let rawPageSelection = existingResumeState?.pageSelection
         let fetchResult = try await fetchLatestPayload(
             for: download,
@@ -141,12 +141,7 @@ extension DownloadManager {
             existingResumeState: existingResumeState,
             rawPageSelection: rawPageSelection
         )
-        let folderRelativePath = storage.makeFolderRelativePath(
-            gid: payload.gallery.gid,
-            title: payload.galleryDetail.trimmedTitle.isEmpty
-                ? payload.gallery.title
-                : payload.galleryDetail.trimmedTitle
-        )
+        let folderRelativePath = folderRelativePath(for: payload)
         let downloadResult = try await performDownload(
             payload: payload,
             versionSignature: fetchResult.versionSignature,

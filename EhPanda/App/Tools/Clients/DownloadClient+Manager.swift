@@ -123,7 +123,6 @@ actor DownloadManager {
     struct DownloadExecutionContext: Sendable {
         let existingDownload: DownloadedGallery
         let versionSignature: String
-        let folderRelativePath: String
     }
 
     struct FinalizeContext: Sendable {

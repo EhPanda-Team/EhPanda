@@ -7,6 +7,16 @@ import Foundation
 
 // MARK: - Execution Support
 extension DownloadManager {
+    func folderRelativePath(for payload: DownloadRequestPayload) -> String {
+        storage.makeFolderRelativePath(
+            gid: payload.gallery.gid,
+            token: payload.gallery.token,
+            title: payload.galleryDetail.trimmedTitle.isEmpty
+                ? payload.gallery.title
+                : payload.galleryDetail.trimmedTitle
+        )
+    }
+
     func downloadCoverImage(
         payload: DownloadRequestPayload,
         temporaryFolderURL: URL,
@@ -177,53 +187,83 @@ extension DownloadManager {
     func prepareWorkingSeed(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
-        temporaryFolderURL: URL,
+        folderURL: URL,
         versionSignature: String
     ) throws -> WorkingSeed {
         let resumeState = try? storage
-            .readResumeState(folderURL: temporaryFolderURL)
-        let shouldReuseTemporaryFolder = resumeState?.matches(
-            mode: payload.mode,
-            versionSignature: versionSignature,
-            pageCount: payload.galleryDetail.pageCount,
-            downloadOptions: payload.options
-        ) == true
-        && fileManager.operate {
-            $0.fileExists(atPath: temporaryFolderURL.path)
-        }
-
+            .readResumeState(folderURL: folderURL)
+        let shouldReuseFolder = shouldReuseWorkingFolder(
+            payload: payload,
+            resumeState: resumeState,
+            folderURL: folderURL,
+            versionSignature: versionSignature
+        )
         let seedContext = RepairSeedContext(
             existingDownload: existingDownload,
             payload: payload,
             versionSignature: versionSignature
         )
-        try setupTemporaryFolder(
-            temporaryFolderURL: temporaryFolderURL,
-            shouldReuse: shouldReuseTemporaryFolder,
+        try setupWorkingFolder(
+            folderURL: folderURL,
+            shouldReuse: shouldReuseFolder,
             seedContext: seedContext
         )
 
         let manifest = validatedManifest(
-            at: temporaryFolderURL,
+            at: folderURL,
             gid: payload.gallery.gid,
             pageCount: payload.galleryDetail.pageCount,
             versionSignature: versionSignature,
             downloadOptions: payload.options
         )
         let existingPages = storage.existingPageRelativePaths(
-            folderURL: temporaryFolderURL,
+            folderURL: folderURL,
             expectedPageCount: payload.galleryDetail.pageCount
         )
         let coverRelativePath = manifest?.coverRelativePath
             ?? storage.existingCoverRelativePath(
-                folderURL: temporaryFolderURL
+                folderURL: folderURL
             )
         return .init(
-            folderURL: temporaryFolderURL,
+            folderURL: folderURL,
             manifest: manifest,
             existingPages: existingPages,
             coverRelativePath: coverRelativePath
         )
+    }
+
+    private func shouldReuseWorkingFolder(
+        payload: DownloadRequestPayload,
+        resumeState: DownloadResumeState?,
+        folderURL: URL,
+        versionSignature: String
+    ) -> Bool {
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
+            return false
+        }
+        if resumeState?.matches(
+            mode: payload.mode,
+            versionSignature: versionSignature,
+            pageCount: payload.galleryDetail.pageCount,
+            downloadOptions: payload.options
+        ) == true {
+            return true
+        }
+        switch payload.mode {
+        case .initial:
+            guard let manifest = try? storage.readManifest(folderURL: folderURL) else {
+                return true
+            }
+            return manifest.gid == payload.gallery.gid
+                && manifest.token == payload.gallery.token
+                && manifest.pageCount == payload.galleryDetail.pageCount
+                && manifest.versionSignature == versionSignature
+                && manifest.downloadOptions == payload.options
+        case .repair:
+            return true
+        case .redownload, .update:
+            return false
+        }
     }
 
     private struct RepairSeedContext {
@@ -232,17 +272,17 @@ extension DownloadManager {
         let versionSignature: String
     }
 
-    private func setupTemporaryFolder(
-        temporaryFolderURL: URL,
+    private func setupWorkingFolder(
+        folderURL: URL,
         shouldReuse: Bool,
         seedContext: RepairSeedContext
     ) throws {
         if !shouldReuse {
             try? fileManager.operate {
-                try $0.removeItem(at: temporaryFolderURL)
+                try $0.removeItem(at: folderURL)
             }
         }
-        if !fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
+        if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {
             if let seed = repairSeed(
                 for: seedContext.existingDownload,
                 payload: seedContext.payload,
@@ -251,18 +291,12 @@ extension DownloadManager {
                 try storage.materializeRepairSeed(
                     from: seed.folderURL,
                     manifest: seed.manifest,
-                    to: temporaryFolderURL
+                    to: folderURL
                 )
             } else {
-                try createDirectory(at: temporaryFolderURL)
+                try createDirectory(at: folderURL)
             }
         }
-        let pagesFolderURL = temporaryFolderURL
-            .appendingPathComponent(
-                Defaults.FilePath.downloadPages,
-                isDirectory: true
-            )
-        try createDirectory(at: pagesFolderURL)
     }
 
     func resolvedImageSource(

@@ -20,17 +20,18 @@ extension DownloadManager {
     ) async throws -> PerformDownloadResult {
         try storage.ensureRootDirectory()
 
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: payload.gallery.gid)
+        let workingFolderURL = storage.folderURL(
+            relativePath: folderRelativePath
+        )
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,
-            temporaryFolderURL: temporaryFolderURL,
+            folderURL: workingFolderURL,
             versionSignature: versionSignature
         )
         let pendingIndices = pendingPageIndices(
             payload: payload,
-            folderURL: temporaryFolderURL,
+            folderURL: workingFolderURL,
             existingPageRelativePaths: workingSeed.existingPages
         )
         try storage.writeResumeState(
@@ -41,20 +42,19 @@ extension DownloadManager {
                 downloadOptions: payload.options,
                 pageSelection: payload.pageSelection?.sorted()
             ),
-            folderURL: temporaryFolderURL
+            folderURL: workingFolderURL
         )
 
         let executionContext = DownloadExecutionContext(
             existingDownload: existingDownload,
-            versionSignature: versionSignature,
-            folderRelativePath: folderRelativePath
+            versionSignature: versionSignature
         )
         do {
             let batchAndCover = try await executePageDownloads(
                 payload: payload,
                 workingSeed: workingSeed,
                 pendingIndices: pendingIndices,
-                temporaryFolderURL: temporaryFolderURL,
+                workingFolderURL: workingFolderURL,
                 executionContext: executionContext
             )
             return batchAndCover
@@ -69,33 +69,32 @@ extension DownloadManager {
         payload: DownloadRequestPayload,
         workingSeed: WorkingSeed,
         pendingIndices: [Int],
-        temporaryFolderURL: URL,
+        workingFolderURL: URL,
         executionContext: DownloadExecutionContext
     ) async throws -> PerformDownloadResult {
         let existingDownload = executionContext.existingDownload
         let versionSignature = executionContext.versionSignature
-        let folderRelativePath = executionContext.folderRelativePath
         let storedGalleryImageState =
             await fetchCachedGalleryImageState(
                 gid: payload.gallery.gid
             )
         let coverRelativePath = try await downloadAndPersistCoverIfNeeded(
             payload: payload,
-            temporaryFolderURL: temporaryFolderURL,
+            folderURL: workingFolderURL,
             existingCoverRelativePath: workingSeed.coverRelativePath,
             existingDownload: existingDownload
         )
         let source = try await resolveSourceIfNeeded(
             payload: payload,
             pendingIndices: pendingIndices,
-            temporaryFolderURL: temporaryFolderURL,
+            folderURL: workingFolderURL,
             existingPages: workingSeed.existingPages,
             storedGalleryImageState: storedGalleryImageState
         )
         let downloadContext = PageDownloadContext(
             payload: payload,
             source: source,
-            temporaryFolderURL: temporaryFolderURL,
+            temporaryFolderURL: workingFolderURL,
             storedGalleryImageState: storedGalleryImageState
         )
         let batchResult = try await downloadPages(
@@ -114,8 +113,7 @@ extension DownloadManager {
         try await finalizeBatchResult(
             context: finalizeCtx,
             payload: payload,
-            temporaryFolderURL: temporaryFolderURL,
-            folderRelativePath: folderRelativePath
+            folderURL: workingFolderURL
         )
         return PerformDownloadResult(
             coverRelativePath: coverRelativePath,
@@ -125,13 +123,13 @@ extension DownloadManager {
 
     private func downloadAndPersistCoverIfNeeded(
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL,
+        folderURL: URL,
         existingCoverRelativePath: String?,
         existingDownload: DownloadedGallery
     ) async throws -> String? {
         let coverRelativePath = try await downloadCoverImage(
             payload: payload,
-            temporaryFolderURL: temporaryFolderURL,
+            temporaryFolderURL: folderURL,
             existingCoverRelativePath: existingCoverRelativePath
         )
         if coverRelativePath != existingDownload.coverRelativePath {
@@ -148,8 +146,7 @@ extension DownloadManager {
     private func finalizeBatchResult(
         context: FinalizeContext,
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL,
-        folderRelativePath: String
+        folderURL: URL
     ) async throws {
         if payload.pageSelection != nil {
             try? storage.writeResumeState(
@@ -159,7 +156,7 @@ extension DownloadManager {
                     pageCount: payload.galleryDetail.pageCount,
                     downloadOptions: payload.options
                 ),
-                folderURL: temporaryFolderURL
+                folderURL: folderURL
             )
         }
         if !context.batchResult.failedPages.isEmpty {
@@ -169,8 +166,7 @@ extension DownloadManager {
         }
         try await finalizeDownload(
             payload: payload,
-            temporaryFolderURL: temporaryFolderURL,
-            folderRelativePath: folderRelativePath,
+            folderURL: folderURL,
             finalizeContext: context
         )
     }
@@ -178,14 +174,14 @@ extension DownloadManager {
     private func resolveSourceIfNeeded(
         payload: DownloadRequestPayload,
         pendingIndices: [Int],
-        temporaryFolderURL: URL,
+        folderURL: URL,
         existingPages: [Int: String],
         storedGalleryImageState: CachedGalleryImageState?
     ) async throws -> ResolvedSource? {
         let canSatisfyFromCache =
             await canSatisfyPendingPageDownloadsFromCache(
                 pendingPageIndices: pendingIndices,
-                temporaryFolderURL: temporaryFolderURL,
+                temporaryFolderURL: folderURL,
                 existingPageRelativePaths: existingPages,
                 storedGalleryImageState: storedGalleryImageState
             )
@@ -200,8 +196,7 @@ extension DownloadManager {
 
     private func finalizeDownload(
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL,
-        folderRelativePath: String,
+        folderURL: URL,
         finalizeContext: FinalizeContext
     ) async throws {
         let versionSignature = finalizeContext.versionSignature
@@ -216,18 +211,14 @@ extension DownloadManager {
         )
         let hashedManifest = try storage.addingCurrentFileHashes(
             to: manifest,
-            folderURL: temporaryFolderURL
+            folderURL: folderURL
         )
         try storage.writeManifest(
             hashedManifest,
-            folderURL: temporaryFolderURL
+            folderURL: folderURL
         )
         try? storage.removeFailedPages(
-            folderURL: temporaryFolderURL
-        )
-        try storage.replaceFolder(
-            relativePath: folderRelativePath,
-            with: temporaryFolderURL
+            folderURL: folderURL
         )
         await cleanupCachedRemoteAssetsAfterSuccessfulDownload(
             payload: payload,
