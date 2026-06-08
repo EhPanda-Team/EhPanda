@@ -35,44 +35,9 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let tags: [GalleryTag]
     let postedDate: Date
     let coverRelativePath: String?
-    let coverFileHash: String?
     let rating: Float
     let downloadOptions: DownloadOptionsSnapshot
     let pages: [Page]
-
-    init(
-        gid: String,
-        host: GalleryHost,
-        token: String,
-        title: String,
-        jpnTitle: String?,
-        category: Category,
-        language: Language,
-        uploader: String?,
-        tags: [GalleryTag],
-        postedDate: Date,
-        coverRelativePath: String?,
-        coverFileHash: String? = nil,
-        rating: Float,
-        downloadOptions: DownloadOptionsSnapshot,
-        pages: [Page]
-    ) {
-        self.gid = gid
-        self.host = host
-        self.token = token
-        self.title = title
-        self.jpnTitle = jpnTitle
-        self.category = category
-        self.language = language
-        self.uploader = uploader
-        self.tags = tags
-        self.postedDate = postedDate
-        self.coverRelativePath = coverRelativePath
-        self.coverFileHash = coverFileHash
-        self.rating = rating
-        self.downloadOptions = downloadOptions
-        self.pages = pages
-    }
 
     func imageURLs(folderURL: URL) -> [Int: URL] {
         Dictionary(uniqueKeysWithValues: pages.map {

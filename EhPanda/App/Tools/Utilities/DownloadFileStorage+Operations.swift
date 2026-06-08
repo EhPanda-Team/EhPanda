@@ -91,18 +91,6 @@ extension DownloadFileStorage {
         to manifest: DownloadManifest,
         folderURL: URL
     ) throws -> DownloadManifest {
-        let coverFileHash: String?
-        if let coverRelativePath = manifest.coverRelativePath,
-           !coverRelativePath.isEmpty {
-            coverFileHash = try hashReadableAsset(
-                folderURL: folderURL,
-                relativePath: coverRelativePath,
-                missingMessage: L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing
-            )
-        } else {
-            coverFileHash = nil
-        }
-
         let pages = try manifest.pages.map { page in
             DownloadManifest.Page(
                 index: page.index,
@@ -116,7 +104,6 @@ extension DownloadFileStorage {
         }
 
         return manifest.replacing(
-            coverFileHash: coverFileHash,
             pages: pages
         )
     }
@@ -186,7 +173,6 @@ extension DownloadFileStorage {
         guard didUpdate else { return manifest }
 
         let refreshedManifest = manifest.replacing(
-            coverFileHash: manifest.coverFileHash,
             pages: pages
         )
         if refreshedManifest != manifest {
@@ -289,13 +275,6 @@ extension DownloadFileStorage {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing)
         }
 
-        if let expectedHash = manifest.coverFileHash,
-           (try? fileHash(at: coverURL)) != expectedHash {
-            return .missingFiles(
-                L10n.Localizable.DownloadFileStorage.Validation.coverImageCorrupted
-            )
-        }
-
         return nil
     }
 
@@ -334,7 +313,6 @@ extension DownloadFileStorage {
 
 private extension DownloadManifest {
     func replacing(
-        coverFileHash: String?,
         pages: [Page]
     ) -> DownloadManifest {
         DownloadManifest(
@@ -349,7 +327,6 @@ private extension DownloadManifest {
             tags: tags,
             postedDate: postedDate,
             coverRelativePath: coverRelativePath,
-            coverFileHash: coverFileHash,
             rating: rating,
             downloadOptions: downloadOptions,
             pages: pages
