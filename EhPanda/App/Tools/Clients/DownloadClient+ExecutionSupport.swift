@@ -113,21 +113,12 @@ extension DownloadManager {
 
     func cleanupCachedRemoteAssetsAfterSuccessfulDownload(
         payload: DownloadRequestPayload,
-        storedGalleryImageState: CachedGalleryImageState?,
         pages: [PageResult],
         existingDownload: DownloadedGallery
     ) async {
-        let previewURLs = (
-            Array(payload.previewURLs.values)
-                + (storedGalleryImageState.map {
-                    Array($0.previewURLs.values)
-                } ?? [])
-        )
-        .flatMap { $0.previewCacheCleanupURLs() }
+        let previewURLs = Array(payload.previewURLs.values)
+            .flatMap { $0.previewCacheCleanupURLs() }
         let pageURLs = pages.compactMap(\.imageURL)
-            + (storedGalleryImageState.map {
-                Array($0.imageURLs.values)
-            } ?? [])
         let coverURLs = [
             payload.galleryDetail.coverURL,
             payload.gallery.coverURL,

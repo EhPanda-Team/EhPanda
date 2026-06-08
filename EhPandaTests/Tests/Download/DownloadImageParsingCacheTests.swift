@@ -12,19 +12,12 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
-    func testCachedKokomadePlaceholderStoredUnderNormalImageURLDoesNotRestoreIntoOfflinePages() async throws {
-        let container = try makeInMemoryContainer()
+    func testCachedKokomadePlaceholderStoredUnderNormalImageURLIsRejected() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 33)
-        let rootURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
+        let manager = makeTestingDownloadManager()
         let normalImageURL = try #require(
             URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key")
         )
-        try insertPersistedGalleryState(in: container, gid: gid, imageURLs: [1: normalImageURL])
 
         let imageData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
         let cacheKeys = normalImageURL.imageCacheKeys(includeStableAlias: true)
@@ -34,13 +27,11 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         defer { cacheKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) } }
         await waitUntilCacheReady(for: cacheKeys)
 
-        let payload = try makeExhentaiPayload(gid: gid)
-        let restoredCount = try await manager.testingRestoreCachedPages(payload: payload)
-        let restoredPageURL = storage.temporaryFolderURL(gid: gid)
-            .appendingPathComponent("pages/0001.jpg")
+        let cachedData = await manager.validatedCachedAssetData(
+            for: [normalImageURL]
+        )
 
-        #expect(restoredCount == 0)
-        #expect(FileManager.default.fileExists(atPath: restoredPageURL.path) == false)
+        #expect(cachedData == nil)
     }
 
     @Test
@@ -103,28 +94,4 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         #expect(error == .authenticationRequired)
     }
 
-}
-
-// MARK: - Payload Factory
-
-private extension DownloadImageParsingCacheTests {
-    func makeExhentaiPayload(gid: String) throws -> DownloadRequestPayload {
-        DownloadRequestPayload(
-            gallery: Gallery(
-                gid: gid, token: "token", title: "Auth Placeholder", rating: 4,
-                tags: [], category: .doujinshi, uploader: "Uploader", pageCount: 1, postedDate: .now,
-                coverURL: URL(string: "https://example.com/cover.jpg"),
-                galleryURL: try #require(URL(string: "https://exhentai.org/g/\(gid)/token") as URL?)
-            ),
-            galleryDetail: GalleryDetail(
-                gid: gid, title: "Auth Placeholder", jpnTitle: nil,
-                isFavorited: false, visibility: .yes, rating: 4, userRating: 0, ratingCount: 0,
-                category: .doujinshi, language: .japanese, uploader: "Uploader", postedDate: .now,
-                coverURL: URL(string: "https://example.com/cover.jpg"),
-                favoritedCount: 0, pageCount: 1, sizeCount: 12, sizeType: "MB", torrentCount: 0
-            ),
-            previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .exhentai, options: DownloadOptionsSnapshot(), mode: .initial
-        )
-    }
 }
