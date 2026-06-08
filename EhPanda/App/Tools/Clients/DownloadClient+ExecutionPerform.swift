@@ -216,7 +216,6 @@ extension DownloadManager {
             uploader: payload.galleryDetail.uploader,
             tags: payload.gallery.tags,
             postedDate: payload.galleryDetail.postedDate,
-            coverRelativePath: coverRelativePath,
             rating: payload.galleryDetail.rating,
             downloadOptions: payload.options,
             pages: batchResult.pages

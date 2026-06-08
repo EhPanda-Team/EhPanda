@@ -34,7 +34,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let uploader: String?
     let tags: [GalleryTag]
     let postedDate: Date
-    let coverRelativePath: String?
     let rating: Float
     let downloadOptions: DownloadOptionsSnapshot
     let pages: [Page]

@@ -41,7 +41,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             withIntermediateDirectories: true
         )
 
-        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg"))
+        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemBlue.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
@@ -92,7 +92,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         let completedFolderURL = try setupCaptureMissingFilesFolder(
             rootURL: rootURL, gid: gid
         )
-        let (imageURL, cacheKey) = try await setupCaptureCachedImage()
+        let (imageURL, cacheKey) = try await setupCaptureCachedImage(gid: gid)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
             KingfisherManager.shared.cache.removeImage(forKey: imageURL.absoluteString)
@@ -145,7 +145,6 @@ private extension DownloadManagerCaptureTests {
             uploader: "Uploader",
             tags: [],
             postedDate: .now,
-            coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             pages: [
@@ -169,8 +168,8 @@ private extension DownloadManagerCaptureTests {
     }
 
     @MainActor
-    func setupCaptureCachedImage() async throws -> (URL, String) {
-        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg"))
+    func setupCaptureCachedImage(gid: String) async throws -> (URL, String) {
+        let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemOrange.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))

@@ -211,10 +211,9 @@ extension DownloadManager {
             folderURL: folderURL,
             expectedPageCount: payload.galleryDetail.pageCount
         )
-        let coverRelativePath = manifest?.coverRelativePath
-            ?? storage.existingCoverRelativePath(
-                folderURL: folderURL
-            )
+        let coverRelativePath = storage.existingCoverRelativePath(
+            folderURL: folderURL
+        )
         return .init(
             folderURL: folderURL,
             manifest: manifest,

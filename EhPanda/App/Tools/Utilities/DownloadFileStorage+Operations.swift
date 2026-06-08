@@ -69,8 +69,7 @@ extension DownloadFileStorage {
             to: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         )
 
-        if let coverRelativePath = manifest.coverRelativePath,
-           !coverRelativePath.isEmpty,
+        if let coverRelativePath = existingCoverRelativePath(folderURL: sourceFolderURL),
            let sourceCoverURL = validatedChildURL(root: sourceFolderURL, relativePath: coverRelativePath),
            let destCoverURL = validatedChildURL(root: temporaryFolderURL, relativePath: coverRelativePath) {
             if sanitizeAssetFileIfNeeded(at: sourceCoverURL) {
@@ -220,12 +219,6 @@ extension DownloadFileStorage {
         guard let manifest = try? readManifest(folderURL: folderURL) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted)
         }
-        if let coverValidationFailure = validateCover(
-            folderURL: folderURL,
-            manifest: manifest
-        ) {
-            return coverValidationFailure
-        }
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
             pages: manifest.pages
@@ -259,23 +252,6 @@ extension DownloadFileStorage {
             throw AppError.fileOperationFailed(missingMessage)
         }
         return try fileHash(at: fileURL)
-    }
-
-    private func validateCover(
-        folderURL: URL,
-        manifest: DownloadManifest
-    ) -> DownloadValidationState? {
-        guard let coverRelativePath = manifest.coverRelativePath,
-              !coverRelativePath.isEmpty
-        else { return nil }
-
-        guard let coverURL = validatedChildURL(root: folderURL, relativePath: coverRelativePath),
-              sanitizeAssetFileIfNeeded(at: coverURL)
-        else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.coverImageMissing)
-        }
-
-        return nil
     }
 
     private func validatePages(
@@ -326,7 +302,6 @@ private extension DownloadManifest {
             uploader: uploader,
             tags: tags,
             postedDate: postedDate,
-            coverRelativePath: coverRelativePath,
             rating: rating,
             downloadOptions: downloadOptions,
             pages: pages

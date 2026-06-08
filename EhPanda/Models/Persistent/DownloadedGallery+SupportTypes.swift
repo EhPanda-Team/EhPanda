@@ -34,15 +34,18 @@ extension DownloadedGallery {
     }
 
     func resolvedLocalCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
-        guard let coverRelativePath,
-              !coverRelativePath.isEmpty
-        else { return nil }
         let folderURL = resolvedFolderURL(rootURL: rootURL)
-        let coverURL = folderURL.appendingPathComponent(coverRelativePath)
-        guard isReadableLocalAssetFile(coverURL) else {
-            return nil
+        if let coverRelativePath,
+           !coverRelativePath.isEmpty {
+            let coverURL = folderURL.appendingPathComponent(coverRelativePath)
+            if isReadableLocalAssetFile(coverURL) {
+                return coverURL
+            }
         }
-        return coverURL
+
+        return DownloadFileStorage(rootURL: rootURL)
+            .existingCoverRelativePath(folderURL: folderURL)
+            .map { folderURL.appendingPathComponent($0) }
     }
 
     func resolvedTemporaryCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
@@ -63,16 +66,9 @@ extension DownloadedGallery {
             }
         }
 
-        guard let fileURLs = try? FileManager.default.contentsOfDirectory(
-            at: temporaryFolderURL,
-            includingPropertiesForKeys: nil
-        ) else {
-            return nil
-        }
-
-        return fileURLs.first(where: {
-            $0.lastPathComponent.hasPrefix("cover.") && isReadableLocalAssetFile($0)
-        })
+        return DownloadFileStorage(rootURL: rootURL)
+            .existingCoverRelativePath(folderURL: temporaryFolderURL)
+            .map { temporaryFolderURL.appendingPathComponent($0) }
     }
 
     func resolvedCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {

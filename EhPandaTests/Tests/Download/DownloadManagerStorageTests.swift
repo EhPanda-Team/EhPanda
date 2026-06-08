@@ -1175,7 +1175,6 @@ private extension DownloadManagerStorageTests {
             uploader: "Uploader",
             tags: [],
             postedDate: modifiedAt,
-            coverRelativePath: nil,
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             pages: pageHashes.enumerated().map { offset, hash in

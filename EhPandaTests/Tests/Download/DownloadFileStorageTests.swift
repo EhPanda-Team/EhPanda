@@ -446,7 +446,6 @@ private extension DownloadFileStorageTests {
             uploader: "Uploader",
             tags: [],
             postedDate: .now,
-            coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             pages: (1...pageCount).map {
