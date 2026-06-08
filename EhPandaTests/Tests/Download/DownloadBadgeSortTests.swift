@@ -99,10 +99,7 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             completedPageCount: 3
         )
 
-        let rootURL = try #require(
-            FileUtil.downloadsDirectoryURL,
-            "Downloads directory is unavailable in the test environment."
-        )
+        let rootURL = FileUtil.downloadsDirectoryURL
 
         let temporaryFolderURL = rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
         try? FileManager.default.removeItem(at: temporaryFolderURL)

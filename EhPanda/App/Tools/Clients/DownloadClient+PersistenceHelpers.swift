@@ -27,9 +27,9 @@ extension DownloadManager {
     func validatedCompletedPageCount(
         _ download: DownloadedGallery
     ) -> Int {
-        guard let folderURL = download
-                .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager
+        let folderURL = download
+            .resolvedFolderURL(rootURL: storage.rootURL)
+        guard fileManager
                 .fileExists(atPath: folderURL.path)
         else {
             return 0
@@ -112,10 +112,9 @@ extension DownloadManager {
     }
 
     private func scanCompletedFolder(download: DownloadedGallery) {
-        guard let completedFolderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager.fileExists(atPath: completedFolderURL.path)
-        else { return }
+        let completedFolderURL = download
+            .resolvedFolderURL(rootURL: storage.rootURL)
+        guard fileManager.fileExists(atPath: completedFolderURL.path) else { return }
         _ = storage.existingPageRelativePaths(
             folderURL: completedFolderURL,
             expectedPageCount: download.pageCount
@@ -273,9 +272,9 @@ extension DownloadManager {
             )
         }
 
-        guard let completedFolderURL = download
-                .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager
+        let completedFolderURL = download
+            .resolvedFolderURL(rootURL: storage.rootURL)
+        guard fileManager
                 .fileExists(atPath: completedFolderURL.path)
         else {
             return nil

@@ -255,11 +255,10 @@ extension DownloadManager {
         } else {
             resolvedDownload = await fetchDownload(gid: gid)
         }
-        guard let download = resolvedDownload,
-              let folderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
-        else {
+        guard let download = resolvedDownload else {
             return .failure(.notFound)
         }
+        let folderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
         switch storage.validate(download: download) {
         case .valid:
             break

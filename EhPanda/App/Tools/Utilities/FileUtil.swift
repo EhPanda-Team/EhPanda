@@ -6,26 +6,22 @@
 import Foundation
 
 struct FileUtil {
-    static var documentDirectory: URL? {
-        url(for: .documentDirectory)
+    static var documentDirectory: URL {
+        .documentsDirectory
     }
-    static var cachesDirectory: URL? {
-        url(for: .cachesDirectory)
+    static var cachesDirectory: URL {
+        .cachesDirectory
     }
-    static var logsDirectoryURL: URL? {
-        documentDirectory?.appendingPathComponent(Defaults.FilePath.logs)
+    static var logsDirectoryURL: URL {
+        documentDirectory.appendingPathComponent(Defaults.FilePath.logs)
     }
-    static var downloadsDirectoryURL: URL? {
-        documentDirectory?.appendingPathComponent(
+    static var downloadsDirectoryURL: URL {
+        documentDirectory.appendingPathComponent(
             Defaults.FilePath.downloads,
             isDirectory: true
         )
     }
     static var temporaryDirectory: URL {
         .init(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    }
-
-    static func url(for searchPathDirectory: FileManager.SearchPathDirectory) -> URL? {
-        try? FileManager.default.url(for: searchPathDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     }
 }

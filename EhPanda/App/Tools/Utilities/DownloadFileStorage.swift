@@ -51,14 +51,10 @@ struct DownloadFileStorage: Sendable {
     let fileManager: DownloadFileManager
 
     init(
-        rootURL: URL? = FileUtil.downloadsDirectoryURL,
+        rootURL: URL = FileUtil.downloadsDirectoryURL,
         fileManager: sending FileManager = .default
     ) {
         self.rootURL = rootURL
-            ?? FileUtil.temporaryDirectory.appendingPathComponent(
-                Defaults.FilePath.downloads,
-                isDirectory: true
-            )
         self.fileManager = DownloadFileManager(fileManager)
     }
 

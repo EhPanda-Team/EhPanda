@@ -79,7 +79,7 @@ struct DownloadClient: Sendable {
 
 extension DownloadClient {
     static func live(
-        rootURL: URL? = FileUtil.downloadsDirectoryURL,
+        rootURL: URL = FileUtil.downloadsDirectoryURL,
         urlSession: URLSession = .shared,
         fileManager: sending FileManager = .default
     ) -> Self {

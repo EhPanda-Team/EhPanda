@@ -24,20 +24,20 @@ extension DownloadedGallery {
         .joined(separator: " ")
     }
 
-    func resolvedFolderURL(rootURL: URL? = FileUtil.downloadsDirectoryURL) -> URL? {
-        rootURL?.appendingPathComponent(folderRelativePath, isDirectory: true)
+    func resolvedFolderURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL {
+        rootURL.appendingPathComponent(folderRelativePath, isDirectory: true)
     }
 
-    func resolvedManifestURL(rootURL: URL? = FileUtil.downloadsDirectoryURL) -> URL? {
-        resolvedFolderURL(rootURL: rootURL)?
+    func resolvedManifestURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL {
+        resolvedFolderURL(rootURL: rootURL)
             .appendingPathComponent(Defaults.FilePath.downloadManifest)
     }
 
-    func resolvedLocalCoverURL(rootURL: URL? = FileUtil.downloadsDirectoryURL) -> URL? {
-        guard let folderURL = resolvedFolderURL(rootURL: rootURL),
-              let coverRelativePath,
+    func resolvedLocalCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
+        guard let coverRelativePath,
               !coverRelativePath.isEmpty
         else { return nil }
+        let folderURL = resolvedFolderURL(rootURL: rootURL)
         let coverURL = folderURL.appendingPathComponent(coverRelativePath)
         guard isReadableLocalAssetFile(coverURL) else {
             return nil
@@ -45,10 +45,8 @@ extension DownloadedGallery {
         return coverURL
     }
 
-    func resolvedTemporaryCoverURL(rootURL: URL? = FileUtil.downloadsDirectoryURL) -> URL? {
-        guard shouldPreserveTemporaryWorkingSet,
-              let rootURL
-        else {
+    func resolvedTemporaryCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
+        guard shouldPreserveTemporaryWorkingSet else {
             return nil
         }
 
@@ -77,17 +75,17 @@ extension DownloadedGallery {
         })
     }
 
-    func resolvedCoverURL(rootURL: URL? = FileUtil.downloadsDirectoryURL) -> URL? {
+    func resolvedCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
         resolvedLocalCoverURL(rootURL: rootURL)
             ?? resolvedTemporaryCoverURL(rootURL: rootURL)
             ?? onlineCoverURL
     }
 
-    var folderURL: URL? {
+    var folderURL: URL {
         resolvedFolderURL()
     }
 
-    var manifestURL: URL? {
+    var manifestURL: URL {
         resolvedManifestURL()
     }
 

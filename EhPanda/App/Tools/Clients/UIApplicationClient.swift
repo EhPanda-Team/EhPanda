@@ -51,8 +51,8 @@ extension UIApplicationClient {
     }
     @MainActor
     func openFileApp() {
-        if let dirPath = FileUtil.logsDirectoryURL?.path,
-           let dirURL = URL(string: "shareddocuments://" + dirPath) {
+        let dirPath = FileUtil.logsDirectoryURL.path
+        if let dirURL = URL(string: "shareddocuments://" + dirPath) {
             return openURL(dirURL)
         }
     }
