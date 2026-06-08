@@ -145,7 +145,6 @@ private extension DownloadManagerCaptureTests {
             uploader: "Uploader",
             tags: [],
             postedDate: .now,
-            pageCount: 2,
             coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),

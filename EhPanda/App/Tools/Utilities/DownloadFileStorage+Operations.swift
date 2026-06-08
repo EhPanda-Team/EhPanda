@@ -234,9 +234,6 @@ extension DownloadFileStorage {
         guard let manifest = try? readManifest(folderURL: folderURL) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted)
         }
-        guard manifest.pageCount == manifest.pages.count else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadedPagesIncomplete)
-        }
         if let coverValidationFailure = validateCover(
             folderURL: folderURL,
             manifest: manifest
@@ -351,7 +348,6 @@ private extension DownloadManifest {
             uploader: uploader,
             tags: tags,
             postedDate: postedDate,
-            pageCount: pageCount,
             coverRelativePath: coverRelativePath,
             coverFileHash: coverFileHash,
             rating: rating,

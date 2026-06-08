@@ -34,7 +34,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let uploader: String?
     let tags: [GalleryTag]
     let postedDate: Date
-    let pageCount: Int
     let coverRelativePath: String?
     let coverFileHash: String?
     let rating: Float
@@ -53,7 +52,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         uploader: String?,
         tags: [GalleryTag],
         postedDate: Date,
-        pageCount: Int,
         coverRelativePath: String?,
         coverFileHash: String? = nil,
         rating: Float,
@@ -71,7 +69,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         self.uploader = uploader
         self.tags = tags
         self.postedDate = postedDate
-        self.pageCount = pageCount
         self.coverRelativePath = coverRelativePath
         self.coverFileHash = coverFileHash
         self.rating = rating
@@ -88,6 +85,10 @@ struct DownloadManifest: Codable, Equatable, Sendable {
 }
 
 extension DownloadManifest {
+    var pageCount: Int {
+        pages.count
+    }
+
     var galleryURL: URL {
         host.url
             .appendingPathComponent("g")

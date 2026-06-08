@@ -17,7 +17,6 @@ extension DownloadManager {
                 .readManifest(folderURL: folderURL),
               manifest.gid == gid,
               manifest.pageCount == pageCount,
-              manifest.pages.count == pageCount,
               manifest.downloadOptions == downloadOptions
         else {
             return nil

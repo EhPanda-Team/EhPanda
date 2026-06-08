@@ -127,7 +127,6 @@ struct DownloadFileStorageHashTests {
             uploader: "Uploader",
             tags: [],
             postedDate: .now,
-            pageCount: pageCount,
             coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
