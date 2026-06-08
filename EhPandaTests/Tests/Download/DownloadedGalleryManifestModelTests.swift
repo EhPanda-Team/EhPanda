@@ -28,6 +28,7 @@ struct DownloadedGalleryManifestModelTests {
         #expect(manifest.galleryURL == URL(string: "https://e-hentai.org/g/123/token"))
         #expect(object["pageCount"] == nil)
         #expect(object["galleryURL"] == nil)
+        #expect(object["coverFileHash"] == nil)
         #expect(object["downloadedAt"] == nil)
     }
 
