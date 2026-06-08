@@ -15,9 +15,9 @@ extension URL {
 
     var stableImageCacheKey: String? {
         let normalizedPath = pathComponents
-            .filter { $0 != "/" && $0.notEmpty }
+            .filter { $0 != "/" && !$0.isEmpty }
             .joined(separator: "/")
-        guard normalizedPath.notEmpty else { return nil }
+        guard !normalizedPath.isEmpty else { return nil }
 
         let queryItems = normalizedStableCacheQueryItems
         guard !queryItems.isEmpty else {
@@ -45,7 +45,7 @@ extension URL {
             resolvingAgainstBaseURL: false
         ),
             let queryItems = components.queryItems?
-                .filter({ ($0.value ?? "").notEmpty })
+                .filter({ !($0.value ?? "").isEmpty })
         else {
             return []
         }

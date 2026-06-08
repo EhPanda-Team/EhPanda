@@ -108,7 +108,7 @@ extension CookieClient {
             )
         }
 
-        if let igneous, igneous.notEmpty {
+        if let igneous, !igneous.isEmpty {
             [Defaults.URL.exhentai, Defaults.URL.sexhentai].forEach { url in
                 setCookie(
                     for: url,

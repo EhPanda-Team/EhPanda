@@ -117,7 +117,7 @@ extension AppError {
             return L10n.Localizable.AppError.Alert.authenticationRequired
         case .fileOperationFailed(let reason):
             return [L10n.Localizable.AppError.Alert.localFileOperationFailed, reason]
-                .filter(\.notEmpty)
+                .filter { !$0.isEmpty }
                 .joined(separator: "\n")
         case .noUpdates, .webImageFailed:
             return ""
@@ -160,7 +160,7 @@ extension BanInterval {
         case .unrecognized(let content):
             params = [content]
         }
-        return params.filter(\.notEmpty).joined(separator: " ")
+        return params.filter { !$0.isEmpty }.joined(separator: " ")
     }
 
     private func daysWithUnit(_ days: Int) -> String {

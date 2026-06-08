@@ -49,7 +49,7 @@ struct QuickSearchWord: Codable, Equatable, Identifiable {
     var content: String
 
     var effectiveSearchText: String {
-        content.notEmpty ? content : name
+        !content.isEmpty ? content : name
     }
 }
 

@@ -115,9 +115,6 @@ extension URL {
 
 // MARK: String
 extension String {
-    var notEmpty: Bool {
-        !isEmpty
-    }
     var nonEmpty: String? {
         isEmpty ? nil : self
     }
@@ -125,7 +122,7 @@ extension String {
         Int(self) != nil
     }
     var isValidGID: Bool {
-        notEmpty && isInteger
+        !isEmpty && isInteger
     }
     var localizedKey: LocalizedStringKey {
         .init(self)
@@ -135,7 +132,7 @@ extension String {
     }
     var stringsBesideColon: (String?, String) {
         let strings = split(separator: ":").map(String.init)
-        if strings.count == 2, strings[0].notEmpty {
+        if strings.count == 2, !strings[0].isEmpty {
             return (strings[0], strings[1])
         }
         return (nil, self)

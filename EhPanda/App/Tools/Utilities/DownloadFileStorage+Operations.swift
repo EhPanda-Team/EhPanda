@@ -60,7 +60,7 @@ extension DownloadFileStorage {
         )
 
         if let coverRelativePath = manifest.coverRelativePath,
-           coverRelativePath.notEmpty,
+           !coverRelativePath.isEmpty,
            let sourceCoverURL = validatedChildURL(root: sourceFolderURL, relativePath: coverRelativePath),
            let destCoverURL = validatedChildURL(root: temporaryFolderURL, relativePath: coverRelativePath) {
             if sanitizeAssetFileIfNeeded(at: sourceCoverURL) {
@@ -83,7 +83,7 @@ extension DownloadFileStorage {
     ) throws -> DownloadManifest {
         let coverFileHash: String?
         if let coverRelativePath = manifest.coverRelativePath,
-           coverRelativePath.notEmpty {
+           !coverRelativePath.isEmpty {
             coverFileHash = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: coverRelativePath,
@@ -244,7 +244,7 @@ extension DownloadFileStorage {
         manifest: DownloadManifest
     ) -> DownloadValidationState? {
         guard let coverRelativePath = manifest.coverRelativePath,
-              coverRelativePath.notEmpty
+              !coverRelativePath.isEmpty
         else { return nil }
 
         guard let coverURL = validatedChildURL(root: folderURL, relativePath: coverRelativePath),
