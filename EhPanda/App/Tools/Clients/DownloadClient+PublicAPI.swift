@@ -159,29 +159,6 @@ extension DownloadManager {
                 folderRelativePath: folderRelativePath,
                 versionSignature: versionSignature
             )
-            try await updateDownloadRecord(gid: payload.gallery.gid) { record in
-                record.gid = payload.gallery.gid
-                record.host = payload.host.rawValue
-                record.token = payload.gallery.token
-                record.title = payload.gallery.title
-                record.jpnTitle = payload.galleryDetail.jpnTitle
-                record.uploader = payload.galleryDetail.uploader
-                record.category = payload.gallery.category.rawValue
-                record.tags = payload.gallery.tags.toData()
-                record.pageCount = Int64(payload.galleryDetail.pageCount)
-                record.postedDate = payload.galleryDetail.postedDate
-                record.rating = payload.galleryDetail.rating
-                record.onlineCoverURL =
-                    payload.galleryDetail.coverURL ?? payload.gallery.coverURL
-                record.folderRelativePath = folderRelativePath
-                record.downloadOptionsSnapshot = payload.options.toData()
-                record.completedPageCount = 0
-                record.lastDownloadedAt = .now
-                record.lastError = nil
-                record.latestRemoteVersionSignature = versionSignature
-                record.pendingOperation = nil
-                record.status = DownloadStatus.queued.rawValue
-            }
             await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
