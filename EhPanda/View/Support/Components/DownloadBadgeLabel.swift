@@ -30,22 +30,9 @@ struct DownloadBadgeLabel: View {
             Text(compactText)
                 .font(.caption2.bold())
         } else {
-            Text(attributedText)
+            Text(badge.text)
+                .font(.caption.bold().monospacedDigit())
         }
-    }
-
-    private var attributedText: AttributedString {
-        let baseFont = Font.caption.bold()
-        let label = badge.labelContent
-        let separator = " "
-        var text = AttributedString(label.text)
-        text.font = baseFont
-        if let numbers = label.numbers {
-            var numberText = AttributedString([separator, numbers].joined())
-            numberText.font = baseFont.monospacedDigit()
-            text += numberText
-        }
-        return text
     }
 
     private var compactText: String {

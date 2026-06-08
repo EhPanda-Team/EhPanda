@@ -33,41 +33,6 @@ extension DownloadBadge {
         }
     }
 
-    var labelContent: DownloadBadgeLabelContent {
-        switch self {
-        case .none:
-            return .text("")
-        case .queued:
-            return .text(L10n.Localizable.Struct.DownloadBadge.Text.queued)
-        case .downloading(let completed, let total):
-            return .progress(
-                L10n.Localizable.Struct.DownloadBadge.Compact.downloading,
-                completed: completed,
-                total: total
-            )
-        case .paused(let completed, let total):
-            return .progress(
-                L10n.Localizable.Struct.DownloadBadge.Compact.paused,
-                completed: completed,
-                total: total
-            )
-        case .partial(let completed, let total):
-            return .progress(
-                L10n.Localizable.Struct.DownloadBadge.Text.needsAttention,
-                completed: completed,
-                total: total
-            )
-        case .downloaded:
-            return .text(L10n.Localizable.Struct.DownloadBadge.Text.downloaded)
-        case .failed:
-            return .text(L10n.Localizable.Struct.DownloadBadge.Text.needsAttention)
-        case .updateAvailable:
-            return .text(L10n.Localizable.Struct.DownloadBadge.Text.updateAvailable)
-        case .missingFiles:
-            return .text(L10n.Localizable.Struct.DownloadBadge.Text.needsRepair)
-        }
-    }
-
     var color: Color {
         switch self {
         case .none:
@@ -89,24 +54,6 @@ extension DownloadBadge {
         case .missingFiles:
             return .pink
         }
-    }
-}
-
-struct DownloadBadgeLabelContent: Equatable {
-    let text: String
-    let numbers: String?
-
-    static func text(_ text: String) -> Self {
-        .init(text: text, numbers: nil)
-    }
-
-    static func progress(_ text: String, completed: Int, total: Int) -> Self {
-        .init(
-            text: text,
-            numbers: [max(completed, 0), max(total, 1)]
-                .map({ $0.formatted(.number) })
-                .joined(separator: "/")
-        )
     }
 }
 
