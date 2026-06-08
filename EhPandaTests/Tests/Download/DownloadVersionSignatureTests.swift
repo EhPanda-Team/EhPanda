@@ -97,7 +97,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 postedDate: .now,
                 pageCount: 1,
                 coverRelativePath: nil,
-                galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
                 rating: 4,
                 downloadOptions: DownloadOptionsSnapshot(),
                 downloadedAt: .now,

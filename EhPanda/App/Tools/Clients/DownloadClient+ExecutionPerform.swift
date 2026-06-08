@@ -218,7 +218,6 @@ extension DownloadManager {
             postedDate: payload.galleryDetail.postedDate,
             pageCount: payload.galleryDetail.pageCount,
             coverRelativePath: coverRelativePath,
-            galleryURL: payload.gallery.galleryURL.forceUnwrapped,
             rating: payload.galleryDetail.rating,
             downloadOptions: payload.options,
             downloadedAt: .now,

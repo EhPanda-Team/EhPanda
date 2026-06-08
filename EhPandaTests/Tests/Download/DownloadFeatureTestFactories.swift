@@ -30,7 +30,6 @@ extension DownloadFeatureTestCase {
             postedDate: .now,
             pageCount: pageCount,
             coverRelativePath: "cover.jpg",
-            galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
             downloadedAt: .now,
