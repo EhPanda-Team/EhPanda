@@ -550,6 +550,93 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerRetryPagesIndexedDownloadUsesQueueIntent() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try insertPersistedDownload(
+            in: container,
+            gid: "460",
+            status: .missingFiles,
+            completedPageCount: 1,
+            pageCount: 2,
+            pendingOperation: .repair
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[460_token] Retry Pages",
+            manifest: indexedManifest(
+                gid: "460",
+                title: "Retry Pages",
+                pageHashes: ["sha256:done", ""]
+            )
+        )
+        let temporaryFolderURL = storage.temporaryFolderURL(gid: "460")
+        try FileManager.default.createDirectory(
+            at: temporaryFolderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeFailedPages(
+            .init(pages: [
+                .init(
+                    index: 2,
+                    relativePath: "460_token_2.jpg",
+                    failure: .init(
+                        code: .networkingFailed,
+                        message: "Network Error"
+                    )
+                )
+            ]),
+            folderURL: temporaryFolderURL
+        )
+        let blockingTask = Task<Void, Never> {
+            do {
+                try await Task.sleep(for: .seconds(60))
+            } catch {}
+        }
+        defer { blockingTask.cancel() }
+        await manager.testingInstallActiveTask(gid: "busy", task: blockingTask)
+
+        let result = await manager.retryPages(gid: "460", pageIndices: [2])
+
+        guard case .success = result else {
+            Issue.record("Retry pages should succeed, got \(result).")
+            return
+        }
+        let download = try #require(await manager.fetchDownload(gid: "460"))
+        let resumeState = try storage.readResumeState(folderURL: temporaryFolderURL)
+        #expect(queueStore.gids == ["460"])
+        #expect(download.displayStatus == .queued)
+        #expect(download.status == .queued)
+        #expect(download.pendingOperation == nil)
+        #expect(resumeState.pageSelection == [2])
+        #expect(FileManager.default.fileExists(
+            atPath: storage.failedPagesURL(folderURL: temporaryFolderURL).path
+        ) == false)
+
+        let request = NSFetchRequest<DownloadedGalleryMO>(
+            entityName: "DownloadedGalleryMO"
+        )
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "gid == %@", "460")
+        let persistedDownload = try container.viewContext.fetch(request).first
+        #expect(persistedDownload?.status == DownloadStatus.missingFiles.rawValue)
+        #expect(persistedDownload?.pendingOperation == DownloadStartMode.repair.rawValue)
+    }
+
+    @Test
     func testDownloadManagerFailureSettlesQueueIntent() async throws {
         let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory

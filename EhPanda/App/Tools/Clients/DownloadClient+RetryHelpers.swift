@@ -156,6 +156,14 @@ extension DownloadManager {
             ),
             folderURL: temporaryFolderURL
         )
+        if downloadIndex[gid] != nil {
+            downloadErrors[gid] = nil
+            validationErrors[gid] = nil
+            await queueStore.enqueue(gid)
+            await notifyObservers()
+            await scheduleNextIfNeeded()
+            return
+        }
         try await updateDownloadRecord(
             gid: gid, createIfMissing: false
         ) { record in
