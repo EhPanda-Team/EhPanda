@@ -67,30 +67,10 @@ extension DownloadManager {
             }
     }
 
-    func buildTemporaryPageURLs(
-        hasTemporaryFolder: Bool,
-        temporaryFolderURL: URL,
-        download: DownloadedGallery
-    ) -> [Int: URL] {
-        let temporaryPageRelativePaths = hasTemporaryFolder
-            ? storage.existingPageRelativePaths(
-                folderURL: temporaryFolderURL,
-                expectedPageCount: download.pageCount
-            )
-            : [:]
-        return temporaryPageRelativePaths
-            .reduce(into: [Int: URL]()) { result, entry in
-                result[entry.key] = temporaryFolderURL
-                    .appendingPathComponent(entry.value)
-            }
-    }
-
     func resolveLocalPageURLs(
         completedValidation: DownloadValidationState,
         completedFolderURL: URL?,
-        completedPageURLs: [Int: URL],
-        temporaryPageURLs: [Int: URL],
-        shouldExposeTemp: Bool
+        completedPageURLs: [Int: URL]
     ) -> Result<[Int: URL], AppError> {
         if completedValidation == .valid,
            let completedFolderURL,
@@ -98,34 +78,9 @@ extension DownloadManager {
            let manifest = try? storage.readManifest(
             folderURL: completedFolderURL
            ) {
-            let completedManifestPageURLs = manifest
+            return .success(manifest
                 .imageURLs(folderURL: completedFolderURL)
-            guard shouldExposeTemp else {
-                return .success(completedManifestPageURLs)
-            }
-            return .success(
-                completedManifestPageURLs.merging(
-                    temporaryPageURLs,
-                    uniquingKeysWith: { _, temporary in temporary }
-                )
             )
-        }
-
-        guard shouldExposeTemp else {
-            return .success(completedPageURLs)
-        }
-
-        if !completedPageURLs.isEmpty, !temporaryPageURLs.isEmpty {
-            return .success(
-                completedPageURLs.merging(
-                    temporaryPageURLs,
-                    uniquingKeysWith: { _, temporary in temporary }
-                )
-            )
-        }
-
-        if !temporaryPageURLs.isEmpty {
-            return .success(temporaryPageURLs)
         }
 
         return .success(completedPageURLs)

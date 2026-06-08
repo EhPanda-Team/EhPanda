@@ -48,32 +48,8 @@ extension DownloadedGallery {
             .map { folderURL.appendingPathComponent($0) }
     }
 
-    func resolvedTemporaryCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
-        guard shouldPreserveTemporaryWorkingSet else {
-            return nil
-        }
-
-        let temporaryFolderURL = rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
-        guard FileManager.default.fileExists(atPath: temporaryFolderURL.path) else {
-            return nil
-        }
-
-        if let coverRelativePath,
-           !coverRelativePath.isEmpty {
-            let coverURL = temporaryFolderURL.appendingPathComponent(coverRelativePath)
-            if isReadableLocalAssetFile(coverURL) {
-                return coverURL
-            }
-        }
-
-        return DownloadFileStorage(rootURL: rootURL)
-            .existingCoverRelativePath(folderURL: temporaryFolderURL)
-            .map { temporaryFolderURL.appendingPathComponent($0) }
-    }
-
     func resolvedCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
         resolvedLocalCoverURL(rootURL: rootURL)
-            ?? resolvedTemporaryCoverURL(rootURL: rootURL)
             ?? onlineCoverURL
     }
 
@@ -194,11 +170,6 @@ extension DownloadedGallery {
 
     var canTogglePause: Bool {
         canPauseOrResume || isPendingQueue
-    }
-
-    var shouldPreserveTemporaryWorkingSet: Bool {
-        pendingOperation != nil
-            || [.queued, .downloading, .paused, .partial].contains(status)
     }
 
     var isPendingQueue: Bool {

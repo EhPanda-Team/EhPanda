@@ -14,7 +14,7 @@ struct DownloadFileStorageStateTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.temporaryFolderURL(gid: "123")
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
 
         let snapshot = DownloadFailedPagesSnapshot(

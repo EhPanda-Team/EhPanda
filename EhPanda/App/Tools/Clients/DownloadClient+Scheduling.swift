@@ -122,18 +122,8 @@ extension DownloadManager {
         await normalizeNeedsAttentionDownloads(downloads)
         await normalizeInterruptedDownloads(downloads)
 
-        let normalizedDownloads = await fetchDownloadsFromStore()
         do {
             try storage.ensureRootDirectory()
-            try storage.cleanupTemporaryFolders(
-                preservingGIDs: Set(
-                    normalizedDownloads.compactMap { download in
-                        download.shouldPreserveTemporaryWorkingSet
-                            ? download.gid
-                            : nil
-                    }
-                )
-            )
         } catch {
             Logger.error(error)
         }

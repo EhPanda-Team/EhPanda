@@ -173,7 +173,6 @@ extension DownloadManager {
             return .failure(.notFound)
         }
         do {
-            try? storage.removeTemporaryFolder(gid: gid)
             try storage.removeFolder(relativePath: download.folderRelativePath)
             await notifyObservers()
             await scheduleNextIfNeeded()
@@ -265,11 +264,6 @@ extension DownloadManager {
                     captureTarget.preferredRelativePath ?? existingPages[index],
                 overwriteExistingFile: true
             ) else { return }
-            if captureTarget.isTemporary {
-                try clearFailedPage(
-                    index: index, folderURL: captureTarget.folderURL
-                )
-            }
             _ = try? storage.refreshManifestPageFileHash(
                 folderURL: captureTarget.folderURL,
                 pageIndex: index,

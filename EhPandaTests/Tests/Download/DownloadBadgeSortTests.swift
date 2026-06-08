@@ -90,41 +90,28 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testInProgressDownloadPrefersTemporaryCoverURL() throws {
+    func testInProgressDownloadUsesFinalCoverURL() throws {
         let gid = "811"
         let download = sampleDownload(
             gid: gid,
-            title: "Temporary Cover Archive",
+            title: "Local Cover Archive",
             status: .downloading,
             completedPageCount: 3
         )
 
         let rootURL = FileUtil.downloadsDirectoryURL
-
-        let temporaryFolderURL = rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
-        try? FileManager.default.removeItem(at: temporaryFolderURL)
-        defer { try? FileManager.default.removeItem(at: temporaryFolderURL) }
-
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL,
-            withIntermediateDirectories: true
+        let folderURL = rootURL.appendingPathComponent(
+            "\(gid) - Local Cover Archive",
+            isDirectory: true
         )
-        let temporaryCoverURL = temporaryFolderURL.appendingPathComponent("cover.jpg")
-        try Data([0xFF, 0xD8, 0xFF]).write(to: temporaryCoverURL, options: .atomic)
+        try? FileManager.default.removeItem(at: folderURL)
+        defer { try? FileManager.default.removeItem(at: folderURL) }
 
-        #expect(download.resolvedCoverURL(rootURL: rootURL) == temporaryCoverURL)
-    }
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let coverURL = folderURL.appendingPathComponent("cover.jpg")
+        try Data([0xFF, 0xD8, 0xFF]).write(to: coverURL, options: .atomic)
 
-    @Test
-    func testQueuedDownloadPreservesTemporaryWorkingSet() {
-        let queuedDownload = sampleDownload(
-            gid: "809",
-            title: "Queued Archive",
-            status: .queued,
-            completedPageCount: 3
-        )
-
-        #expect(queuedDownload.shouldPreserveTemporaryWorkingSet)
+        #expect(download.resolvedCoverURL(rootURL: rootURL) == coverURL)
     }
 
     @Test

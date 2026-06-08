@@ -120,46 +120,12 @@ struct DownloadFileStorageTests {
     }
 
     @Test
-    func testCleanupTemporaryFoldersRemovesOnlyTemporaryArtifacts() throws {
-        let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        try storage.ensureRootDirectory()
-        let temporaryURL = storage.temporaryFolderURL(gid: "123")
-        let regularURL = storage.folderURL(relativePath: "123 - Sample")
-        try FileManager.default.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(at: regularURL, withIntermediateDirectories: true)
-
-        try storage.cleanupTemporaryFolders()
-
-        #expect(FileManager.default.fileExists(atPath: temporaryURL.path) == false)
-        #expect(FileManager.default.fileExists(atPath: regularURL.path))
-    }
-
-    @Test
-    func testCleanupTemporaryFoldersPreservesSpecifiedGalleryFolders() throws {
-        let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        try storage.ensureRootDirectory()
-        let preservedURL = storage.temporaryFolderURL(gid: "123")
-        let removedURL = storage.temporaryFolderURL(gid: "456")
-        try FileManager.default.createDirectory(at: preservedURL, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(at: removedURL, withIntermediateDirectories: true)
-
-        try storage.cleanupTemporaryFolders(preservingGIDs: ["123"])
-
-        #expect(FileManager.default.fileExists(atPath: preservedURL.path))
-        #expect(FileManager.default.fileExists(atPath: removedURL.path) == false)
-    }
-
-    @Test
     func testExistingPageRelativePathsDetectsCompletedPages() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.temporaryFolderURL(gid: "123")
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
         let pagesURL = folderURL.appendingPathComponent(
             Defaults.FilePath.downloadPages,
             isDirectory: true
@@ -227,7 +193,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.temporaryFolderURL(gid: "123")
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
         let pagesURL = folderURL.appendingPathComponent(
             Defaults.FilePath.downloadPages,
             isDirectory: true
@@ -348,7 +314,7 @@ struct DownloadFileStorageTests {
         try storage.ensureRootDirectory()
         let downloadFolderURL = storage.folderURL(relativePath: "[123_token] Sample")
         let ignoredFolderURL = storage.folderURL(relativePath: "[456_token] Missing manifest")
-        let hiddenFolderURL = storage.folderURL(relativePath: ".tmp-789")
+        let hiddenFolderURL = storage.folderURL(relativePath: "[789_token] Missing manifest")
         try FileManager.default.createDirectory(at: downloadFolderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: ignoredFolderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: hiddenFolderURL, withIntermediateDirectories: true)

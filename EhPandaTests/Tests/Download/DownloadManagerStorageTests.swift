@@ -772,7 +772,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
+    func testDownloadManagerLoadInspectionUsesFinalFailedPagesSnapshot() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -785,27 +785,27 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
+        let folderRelativePath = "[\(gid)_token] Inspect"
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[\(gid)_token] Inspect",
+            relativePath: folderRelativePath,
             manifest: indexedManifest(
                 gid: gid,
                 title: "Inspect",
                 pageHashes: ["sha256:done", ""]
             )
         )
-
-        let temporaryFolderURL = rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
+        let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: temporaryFolderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("pages/0001.jpg"),
             options: .atomic
         )
-        try JSONEncoder().encode(
-            DownloadFailedPagesSnapshot(
+        try storage.writeFailedPages(
+            .init(
                 pages: [
                     .init(
                         index: 2,
@@ -813,11 +813,8 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                         failure: .init(code: .networkingFailed, message: "Network Error")
                     )
                 ]
-            )
-        )
-        .write(
-            to: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadFailedPages),
-            options: .atomic
+            ),
+            folderURL: folderURL
         )
 
         let result = await manager.loadInspection(gid: gid)
@@ -866,23 +863,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             options: .atomic
         )
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
-        let temporaryPageURL = temporaryFolderURL.appendingPathComponent("pages/0001.jpg")
-        try Data([0x02]).write(to: temporaryPageURL, options: .atomic)
-
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
         #expect(pageURLs[1] == completedPageURL)
-        #expect(pageURLs[1] != temporaryPageURL)
         #expect(pageURLs[3] == nil)
     }
 
     @Test
-    func testDownloadManagerLoadLocalPageURLsMergesReadableCompletedPagesWithTemporaryPages() async throws {
+    func testDownloadManagerLoadLocalPageURLsUsesReadableCompletedPages() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 12)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -917,18 +905,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             options: .atomic
         )
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
-        let temporaryPageURL = temporaryFolderURL.appendingPathComponent("pages/0002.jpg")
-        try Data([0x02]).write(to: temporaryPageURL, options: .atomic)
-
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
         #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
-        #expect(pageURLs[2] == temporaryPageURL)
+        #expect(pageURLs[2] == completedFolderURL.appendingPathComponent("pages/0002.jpg"))
     }
 
 }

@@ -117,13 +117,6 @@ extension DownloadManager {
         }
     }
 
-    func shouldExposeTemporaryWorkingSet(
-        for download: DownloadedGallery
-    ) -> Bool {
-        download.shouldPreserveTemporaryWorkingSet
-            || download.status == .failed
-    }
-
     func cachedImageData(for url: URL) async -> Data? {
         await cachedImageData(
             for: [url],

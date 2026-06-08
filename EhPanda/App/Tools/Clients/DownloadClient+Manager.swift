@@ -85,7 +85,7 @@ actor DownloadManager {
     struct PageDownloadContext: Sendable {
         let payload: DownloadRequestPayload
         let source: ResolvedSource?
-        let temporaryFolderURL: URL
+        let folderURL: URL
     }
 
     struct CacheRestoreSource: Sendable {
@@ -99,7 +99,6 @@ actor DownloadManager {
     struct CaptureTargetResult: Sendable {
         let folderURL: URL
         let preferredRelativePath: String?
-        let isTemporary: Bool
     }
 
     struct PrepareWorkingSeedResult: Sendable {

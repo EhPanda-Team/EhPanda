@@ -25,29 +25,12 @@ extension DownloadManager {
     func activeInspectionFolderURL(
         for download: DownloadedGallery
     ) -> URL? {
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: download.gid)
         let completedFolderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
-        let temporaryFolderExists = fileManager.operate {
-            $0.fileExists(atPath: temporaryFolderURL.path)
-        }
         let completedFolderExists = fileManager.operate {
             $0.fileExists(atPath: completedFolderURL.path)
         }
-
-        if shouldExposeTemporaryWorkingSet(for: download) {
-            return temporaryFolderExists
-                ? temporaryFolderURL
-                : completedFolderURL
-        }
-        if completedFolderExists {
-            return completedFolderURL
-        }
-        if temporaryFolderExists {
-            return temporaryFolderURL
-        }
-        return nil
+        return completedFolderExists ? completedFolderURL : nil
     }
 
     func sanitizedFailedPages(

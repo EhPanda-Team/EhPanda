@@ -6,20 +6,6 @@
 import Foundation
 
 extension DownloadFileStorage {
-    func replaceFolder(relativePath: String, with temporaryFolderURL: URL) throws {
-        let targetURL = folderURL(relativePath: relativePath)
-        try fileManager.operate {
-            if $0.fileExists(atPath: targetURL.path) {
-                _ = try $0.replaceItemAt(
-                    targetURL,
-                    withItemAt: temporaryFolderURL
-                )
-            } else {
-                try $0.moveItem(at: temporaryFolderURL, to: targetURL)
-            }
-        }
-    }
-
     func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
             throw AppError.fileOperationFailed(
@@ -51,12 +37,12 @@ extension DownloadFileStorage {
     func materializeRepairSeed(
         from sourceFolderURL: URL,
         manifest: DownloadManifest,
-        to temporaryFolderURL: URL
+        to destinationFolderURL: URL
     ) throws {
         try fileManager.operate {
-            try $0.createDirectory(at: temporaryFolderURL, withIntermediateDirectories: true)
+            try $0.createDirectory(at: destinationFolderURL, withIntermediateDirectories: true)
             try $0.createDirectory(
-                at: temporaryFolderURL.appendingPathComponent(
+                at: destinationFolderURL.appendingPathComponent(
                     Defaults.FilePath.downloadPages,
                     isDirectory: true
                 ),
@@ -66,12 +52,12 @@ extension DownloadFileStorage {
 
         try linkOrCopyReadableAsset(
             at: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
-            to: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
+            to: destinationFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         )
 
         if let coverRelativePath = existingCoverRelativePath(folderURL: sourceFolderURL),
            let sourceCoverURL = validatedChildURL(root: sourceFolderURL, relativePath: coverRelativePath),
-           let destCoverURL = validatedChildURL(root: temporaryFolderURL, relativePath: coverRelativePath) {
+           let destCoverURL = validatedChildURL(root: destinationFolderURL, relativePath: coverRelativePath) {
             if sanitizeAssetFileIfNeeded(at: sourceCoverURL) {
                 try linkOrCopyReadableAsset(at: sourceCoverURL, to: destCoverURL)
             }
@@ -79,7 +65,7 @@ extension DownloadFileStorage {
 
         for page in manifest.pages {
             guard let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: page.relativePath),
-                  let destPageURL = validatedChildURL(root: temporaryFolderURL, relativePath: page.relativePath)
+                  let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: page.relativePath)
             else { continue }
             guard sanitizeAssetFileIfNeeded(at: sourcePageURL) else { continue }
             try linkOrCopyReadableAsset(at: sourcePageURL, to: destPageURL)
@@ -185,25 +171,6 @@ extension DownloadFileStorage {
         try fileManager.operate {
             guard $0.fileExists(atPath: targetURL.path) else { return }
             try $0.removeItem(at: targetURL)
-        }
-    }
-
-    func cleanupTemporaryFolders(preservingGIDs: Set<String> = []) throws {
-        let urls = try fileManager.operate {
-            guard $0.fileExists(atPath: rootURL.path) else { return [URL]() }
-            return try $0.contentsOfDirectory(
-                at: rootURL,
-                includingPropertiesForKeys: nil
-            )
-        }
-        for url in urls where url.lastPathComponent.hasPrefix(".tmp-") {
-            let gid = String(url.lastPathComponent.dropFirst(".tmp-".count))
-            if preservingGIDs.contains(gid) {
-                continue
-            }
-            try? fileManager.operate {
-                try $0.removeItem(at: url)
-            }
         }
     }
 

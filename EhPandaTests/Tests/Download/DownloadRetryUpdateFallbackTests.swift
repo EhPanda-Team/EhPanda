@@ -76,13 +76,11 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             manager: immediateManager, sessionID: sessionID, gid: gid,
             pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
         )
-        let updatedVersionSignature = updateResult.versionSignature
         let pageCount = updateResult.pageCount
 
         try setupImmediateUpdateTestState(
             storage: storage,
-            context: DownloadPageContext(gid: gid, pageIndex: pageIndex, pageCount: pageCount),
-            updatedVersionSignature: updatedVersionSignature
+            context: DownloadPageContext(gid: gid, pageIndex: pageIndex, pageCount: pageCount)
         )
         await immediateManager.testingSetUpdatedGalleryIDs([gid])
 
@@ -155,19 +153,9 @@ private extension DownloadRetryUpdateFallbackTests {
 
     func setupImmediateUpdateTestState(
         storage: DownloadFileStorage,
-        context: DownloadPageContext, updatedVersionSignature: String
+        context: DownloadPageContext
     ) throws {
         let oldCount = context.pageCount - 5
-        let manifest = try sampleManifest(
-            gid: context.gid, title: "Pause Race",
-            pageCount: context.pageCount, versionSignature: updatedVersionSignature
-        )
-        try writeTemporaryManifestAndPages(
-            storage: storage, gid: context.gid, manifest: manifest,
-            pageCount: context.pageCount, omittingPage: context.pageIndex,
-            versionSignature: updatedVersionSignature,
-            mode: .update, pageSelection: [context.pageIndex]
-        )
         try writeFinalManifest(
             storage: storage,
             gid: context.gid,
