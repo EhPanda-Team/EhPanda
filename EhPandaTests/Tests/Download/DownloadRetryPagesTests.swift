@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -12,16 +11,18 @@ import Testing
 struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {
-        let container = try makeInMemoryContainer()
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .partial, completedPageCount: 1, pageCount: 2
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        try writeManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Retry Pages",
+            pageHashes: ["sha256:done", ""]
         )
         let temporaryFolderURL = try setupRetryPagesPartialFolder(storage: storage, gid: gid)
 
@@ -51,9 +52,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testCancelQueuedRepairRestoresReadableCountAndClearsPendingOperation() async throws {
-        let container = try makeInMemoryContainer()
-
+    func testCancelQueuedWorkClearsQueueIntent() async throws {
         let gid = "cancel-repair-\(UUID().uuidString)"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -62,45 +61,28 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
-        try insertPersistedDownload(
-            in: container,
+        try writeManifestFolder(
+            storage: storage,
             gid: gid,
-            status: .missingFiles,
-            completedPageCount: 0,
-            pageCount: 2,
-            remoteVersionSignature: "hash:v1",
-            latestRemoteVersionSignature: "hash:v1",
-            pendingOperation: .repair
+            title: "Queued",
+            pageHashes: ["sha256:done", ""]
         )
-
-        let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
-        try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
-        try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("cover.jpg"),
-            options: .atomic
-        )
-        try Data([0x01]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0001.jpg"),
-            options: .atomic
-        )
+        await manager.testingSetQueuedGalleryIDs([gid])
 
         let result = await manager.togglePause(gid: gid)
         guard case .success = result else {
-            Issue.record("Cancelling queued repair should succeed, got \(result)")
+            Issue.record("Cancelling queued work should succeed, got \(result)")
             return
         }
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.status == .missingFiles)
+        #expect(stored?.status == .paused)
         #expect(stored?.completedPageCount == 1)
         #expect(stored?.pendingOperation == nil)
+        #expect(stored?.badge == .paused(1, 2))
     }
 
 }
@@ -108,6 +90,43 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
 // MARK: - Setup Helpers
 
 private extension DownloadRetryPagesTests {
+    func writeManifestFolder(
+        storage: DownloadFileStorage,
+        gid: String,
+        title: String,
+        pageHashes: [String]
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            DownloadManifest(
+                gid: gid,
+                host: .ehentai,
+                token: "token",
+                title: title,
+                jpnTitle: nil,
+                category: .doujinshi,
+                language: .japanese,
+                uploader: "Uploader",
+                tags: [],
+                postedDate: .now,
+                rating: 4,
+                pages: pageHashes.enumerated().map { offset, hash in
+                    .init(
+                        index: offset + 1,
+                        relativePath: "pages/\(String(format: "%04d", offset + 1)).jpg",
+                        fileHash: hash
+                    )
+                }
+            ),
+            folderURL: folderURL
+        )
+    }
+
     @discardableResult
     func setupRetryPagesPartialFolder(
         storage: DownloadFileStorage,

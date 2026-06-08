@@ -11,19 +11,18 @@ import Testing
 struct DownloadSchedulingTests: DownloadFeatureTestCase {
     @Test
     func testConcurrentSchedulingCreatesOnlyOneActiveTask() async throws {
-        let container = try makeInMemoryContainer()
         let gid = "100001"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
+        let storage = DownloadFileStorage(
+            rootURL: rootURL,
+            fileManager: .default
+        )
         let manager = DownloadManager(
-            storage: DownloadFileStorage(
-                rootURL: rootURL,
-                fileManager: .default
-            ),
-            urlSession: .shared,
-            persistenceContainer: container
+            storage: storage,
+            urlSession: .shared
         )
         await manager.testingSetScheduledProcessHook { _ in
             while !Task.isCancelled {
@@ -31,12 +30,36 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             }
         }
 
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .queued,
-            completedPageCount: 0
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Queued")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
         )
+        try storage.writeManifest(
+            DownloadManifest(
+                gid: gid,
+                host: .ehentai,
+                token: "token",
+                title: "Queued",
+                jpnTitle: nil,
+                category: .doujinshi,
+                language: .japanese,
+                uploader: "Uploader",
+                tags: [],
+                postedDate: .now,
+                rating: 4,
+                pages: [
+                    .init(
+                        index: 1,
+                        relativePath: "pages/0001.jpg",
+                        fileHash: ""
+                    )
+                ]
+            ),
+            folderURL: folderURL
+        )
+        await manager.testingSetQueuedGalleryIDs([gid])
 
         let gate = ScheduleFetchGate()
         await manager.testingSetFetchDownloadsFromStoreHook {

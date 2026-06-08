@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import CoreData
 import Foundation
 
 // MARK: - Public API
@@ -174,7 +173,6 @@ extension DownloadManager {
         do {
             try? storage.removeTemporaryFolder(gid: gid)
             try storage.removeFolder(relativePath: download.folderRelativePath)
-            try await deleteDownloadRecord(gid: gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .success(())

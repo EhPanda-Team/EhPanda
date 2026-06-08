@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Kingfisher
 import UIKit
 import Foundation
@@ -13,9 +12,7 @@ import Testing
 @Suite(.serialized)
 struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerCaptureCachedPageRestoresTemporaryPageAndUpdatesCompletedCount() async throws {
-        let container = try makeInMemoryContainer()
-
+    func testDownloadManagerCaptureCachedPageRestoresTemporaryPage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -24,21 +21,43 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .downloading,
-            completedPageCount: 0,
-            pageCount: 2
+
+        let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Capture", isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: completedFolderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(
+                gid: gid,
+                title: "Capture",
+                pageCount: 2
+            ),
+            folderURL: completedFolderURL
         )
 
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
         try FileManager.default.createDirectory(
             at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(
+                gid: gid,
+                title: "Capture",
+                pageCount: 2
+            ),
+            folderURL: temporaryFolderURL
+        )
+        try storage.writeResumeState(
+            .init(
+                mode: .initial,
+                pageCount: 2,
+                downloadOptions: .init()
+            ),
+            folderURL: temporaryFolderURL
         )
 
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
@@ -60,35 +79,20 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             imageURL: imageURL
         )
 
-        let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.completedPageCount == 1)
-
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        let pageRelativePath = storage.makePageRelativePath(
-            gid: gid,
-            token: "token",
-            index: 1,
-            fileExtension: "jpg"
-        )
-        #expect(pageURLs[1] == temporaryFolderURL.appendingPathComponent(pageRelativePath))
+        #expect(pageURLs[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
     }
 
     @MainActor
     @Test
     func testDownloadManagerCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
-        let container = try makeInMemoryContainer()
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .missingFiles, completedPageCount: 1, pageCount: 2,
-            lastError: .init(code: .fileOperationFailed, message: "Page 1 is missing.")
-        )
-
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
         let completedFolderURL = try setupCaptureMissingFilesFolder(
             rootURL: rootURL, gid: gid
         )

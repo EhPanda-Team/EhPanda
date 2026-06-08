@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import CoreData
 import Foundation
 
 // MARK: - Validation & Sanitization
@@ -69,30 +68,11 @@ extension DownloadManager {
 
         guard updateResult.needsUpdate else { return download }
 
-        if downloadIndex[gid] != nil {
-            downloadErrors[gid] = updateResult.lastError
-            if updateResult.lastError == nil {
-                validationErrors[gid] = nil
-            }
-            await notifyObservers()
-            return await fetchDownload(gid: gid)
+        downloadErrors[gid] = updateResult.lastError
+        if updateResult.lastError == nil {
+            validationErrors[gid] = nil
         }
-
-        do {
-            try await updateDownloadRecord(
-                gid: gid,
-                createIfMissing: false
-            ) { record in
-                record.status = updateResult.status.rawValue
-                record.completedPageCount =
-                    Int64(updateResult.completedPageCount)
-                record.lastError =
-                    updateResult.lastError?.toData()
-            }
-            await notifyObservers()
-        } catch {
-            Logger.error(error)
-        }
+        await notifyObservers()
 
         return await fetchDownload(gid: gid)
     }

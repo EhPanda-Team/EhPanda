@@ -265,8 +265,7 @@ struct StubRouteContext: Sendable {
 extension DownloadFeatureTestCase {
     func makeStubbedDownloadManager(
         rootURL: URL,
-        sessionID: String,
-        persistenceContainer: NSPersistentContainer? = nil
+        sessionID: String
     ) -> (DownloadFileStorage, DownloadManager) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -276,11 +275,9 @@ extension DownloadFeatureTestCase {
         let storage = DownloadFileStorage(
             rootURL: rootURL, fileManager: .default
         )
-        let container = persistenceContainer ?? PersistenceController.shared.container
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: container
+            urlSession: URLSession(configuration: configuration)
         )
         return (storage, manager)
     }

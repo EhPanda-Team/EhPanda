@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import CoreData
 import Foundation
 
 actor DownloadManager {
@@ -133,7 +132,6 @@ actor DownloadManager {
     let libraryClient: LibraryClient
     let downloadOptionsProvider: @Sendable () async -> DownloadOptionsSnapshot
     let queueStore: DownloadQueueStore
-    let persistenceContainer: NSPersistentContainer
     var downloadIndex = [String: DownloadFolderRecord]()
     var downloadErrors = [String: DownloadFailure]()
     var validationErrors = [String: DownloadFailure]()
@@ -157,15 +155,13 @@ actor DownloadManager {
         downloadOptionsProvider: @escaping @Sendable () async -> DownloadOptionsSnapshot = {
             DownloadOptionsSnapshot()
         },
-        queueStore: DownloadQueueStore? = nil,
-        persistenceContainer: NSPersistentContainer = PersistenceController.shared.container
+        queueStore: DownloadQueueStore? = nil
     ) {
         self.storage = storage
         self.urlSession = urlSession
         self.libraryClient = libraryClient
         self.downloadOptionsProvider = downloadOptionsProvider
         self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
-        self.persistenceContainer = persistenceContainer
     }
 
     var fileManager: DownloadFileManager {

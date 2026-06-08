@@ -64,7 +64,6 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadManagerBatchesObserverUpdatesDuringProgressFlush() async throws {
-        let container = try makeInMemoryContainer()
         let pageCount = 20
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
         let rootURL = FileManager.default.temporaryDirectory
@@ -72,7 +71,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
 
         let folderRelativePath = "\(gid) - Progress Flush"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)

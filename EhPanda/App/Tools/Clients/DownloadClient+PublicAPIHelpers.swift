@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import CoreData
 import Foundation
 
 // MARK: - Private helpers for public API

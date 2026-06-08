@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import CoreData
 import Foundation
 
 // MARK: - Retry & RetryPages
@@ -49,31 +48,9 @@ extension DownloadManager {
         if !retryParams.shouldResumeExistingWork {
             try? storage.removeTemporaryFolder(gid: gid)
         }
-        if downloadIndex[gid] != nil {
-            downloadErrors[gid] = nil
-            validationErrors[gid] = nil
-            await queueStore.enqueue(gid)
-            if fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
-                writeRetryResumeState(
-                    download: download,
-                    resolvedMode: resolvedMode,
-                    existingResumeState: existingResumeState,
-                    temporaryFolderURL: temporaryFolderURL
-                )
-            }
-            await notifyObservers()
-            await scheduleNextIfNeeded()
-            return
-        }
-        try await updateDownloadRecord(
-            gid: gid, createIfMissing: false
-        ) { record in
-            record.status = retryParams.resumedStatus.rawValue
-            record.completedPageCount = Int64(retryParams.completedPageCount)
-            record.lastDownloadedAt = .now
-            record.lastError = nil
-            record.pendingOperation = retryParams.pendingOperation?.rawValue
-        }
+        downloadErrors[gid] = nil
+        validationErrors[gid] = nil
+        await queueStore.enqueue(gid)
         if fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
             writeRetryResumeState(
                 download: download,
@@ -134,10 +111,6 @@ extension DownloadManager {
             for: download, mode: mode,
             resumeState: existingResumeState
         )
-        let resumedStatus: DownloadStatus =
-            activeTask == nil || activeGalleryID == gid
-            ? .downloading : .queued
-
         clearSelectedFailedPages(
             selectedPageIndices: selectedPageIndices,
             temporaryFolderURL: temporaryFolderURL
@@ -151,22 +124,9 @@ extension DownloadManager {
             ),
             folderURL: temporaryFolderURL
         )
-        if downloadIndex[gid] != nil {
-            downloadErrors[gid] = nil
-            validationErrors[gid] = nil
-            await queueStore.enqueue(gid)
-            await notifyObservers()
-            await scheduleNextIfNeeded()
-            return
-        }
-        try await updateDownloadRecord(
-            gid: gid, createIfMissing: false
-        ) { record in
-            record.status = resumedStatus.rawValue
-            record.lastDownloadedAt = .now
-            record.lastError = nil
-            record.pendingOperation = nil
-        }
+        downloadErrors[gid] = nil
+        validationErrors[gid] = nil
+        await queueStore.enqueue(gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
     }

@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import CoreData
 import ComposableArchitecture
 import Kingfisher
 import UIKit
@@ -22,8 +21,6 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
     @Test
     func testPauseKeepsActiveDownloadPausedWhenDeferredSchedulingRuns() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -31,17 +28,18 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
-            storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: container
+            storage: storage,
+            urlSession: URLSession(configuration: configuration)
         )
 
-        try insertPersistedDownload(
-            in: container,
+        try writeManifestFolder(
+            storage: storage,
             gid: gid,
-            status: .downloading,
-            completedPageCount: 7
+            title: "Pausable",
+            pageHashes: Array(repeating: "sha256:done", count: 7)
+                + Array(repeating: "", count: 19)
         )
 
         let activeTask = Task { [manager] in
@@ -70,9 +68,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testPauseUsesTemporaryWorkingSetProgressWhenCancelling() async throws {
-        let container = try makeInMemoryContainer()
-
+    func testPauseKeepsIndexedManifestProgressWhenCancelling() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 1)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -83,16 +79,14 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: container
+            urlSession: URLSession(configuration: configuration)
         )
 
-        try insertPersistedDownload(
-            in: container,
+        try writeManifestFolder(
+            storage: storage,
             gid: gid,
-            status: .downloading,
-            completedPageCount: 1,
-            pageCount: 2
+            title: "Pausable",
+            pageHashes: ["sha256:done", ""]
         )
 
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
@@ -127,14 +121,13 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.status == .paused)
-        #expect(stored?.completedPageCount == 2)
-        #expect(stored?.badge == .paused(2, 2))
+        #expect(stored?.completedPageCount == 1)
+        #expect(stored?.badge == .paused(1, 2))
+        #expect(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
     }
 
     @Test
-    func testReconcileDownloadsNormalizesLegacyFailedStatusToNeedsAttention() async throws {
-        let container = try makeInMemoryContainer()
-
+    func testReconcileDownloadsKeepsIndexedSessionFailure() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 2)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -142,31 +135,32 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
-            storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: container
+            storage: storage,
+            urlSession: URLSession(configuration: configuration)
         )
 
-        try insertPersistedDownload(
-            in: container,
+        try writeManifestFolder(
+            storage: storage,
             gid: gid,
-            status: .failed,
-            completedPageCount: 0,
-            pageCount: 18
+            title: "Failed",
+            pageHashes: Array(repeating: "", count: 18)
+        )
+        await manager.testingSetDownloadError(
+            .init(code: .networkingFailed, message: "Network Error"),
+            gid: gid
         )
 
         await manager.reconcileDownloads()
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.status == .partial)
-        #expect(stored?.badge == .partial(0, 18))
+        #expect(stored?.status == .failed)
+        #expect(stored?.badge == .failed)
     }
 
     @Test
     func testReconcileDownloadsClearsCancellationLikeGalleryError() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 3)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -174,34 +168,36 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
-            storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: container
+            storage: storage,
+            urlSession: URLSession(configuration: configuration)
         )
 
-        try insertPersistedDownload(
-            in: container,
+        try writeManifestFolder(
+            storage: storage,
             gid: gid,
-            status: .partial,
-            completedPageCount: 4,
-            pageCount: 18,
-            lastError: .init(
+            title: "Cancelled",
+            pageHashes: Array(repeating: "sha256:done", count: 4)
+                + Array(repeating: "", count: 14)
+        )
+        await manager.testingSetDownloadError(
+            .init(
                 code: .fileOperationFailed,
                 message: "The operation could not be completed. (Swift.CancellationError error 1.)"
-            )
+            ),
+            gid: gid
         )
 
         await manager.reconcileDownloads()
 
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.lastError == nil)
-        #expect(stored?.status == .partial)
+        #expect(stored?.status == .paused)
     }
 
     @Test
     func testLoadInspectionFiltersCancellationFailuresIntoPendingPages() async throws {
-        let container = try makeInMemoryContainer()
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 4)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -211,10 +207,13 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
-            storage: storage, urlSession: URLSession(configuration: configuration), persistenceContainer: container
+            storage: storage, urlSession: URLSession(configuration: configuration)
         )
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .partial, completedPageCount: 1, pageCount: 2
+        try writeManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Inspection",
+            pageHashes: ["sha256:done", ""]
         )
         let temporaryFolderURL = try setupCancellationFilterTestFolder(storage: storage, gid: gid)
 
@@ -233,6 +232,43 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 // MARK: - Setup Helpers
 
 private extension DownloadPauseAndReconcileTests {
+    func writeManifestFolder(
+        storage: DownloadFileStorage,
+        gid: String,
+        title: String,
+        pageHashes: [String]
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            DownloadManifest(
+                gid: gid,
+                host: .ehentai,
+                token: "token",
+                title: title,
+                jpnTitle: nil,
+                category: .doujinshi,
+                language: .japanese,
+                uploader: "Uploader",
+                tags: [],
+                postedDate: .now,
+                rating: 4,
+                pages: pageHashes.enumerated().map { offset, hash in
+                    .init(
+                        index: offset + 1,
+                        relativePath: "pages/\(String(format: "%04d", offset + 1)).jpg",
+                        fileHash: hash
+                    )
+                }
+            ),
+            folderURL: folderURL
+        )
+    }
+
     @discardableResult
     func setupCancellationFilterTestFolder(
         storage: DownloadFileStorage,

@@ -159,8 +159,7 @@ extension DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared,
-            persistenceContainer: PersistenceController.shared.container
+            urlSession: .shared
         )
     }
 
