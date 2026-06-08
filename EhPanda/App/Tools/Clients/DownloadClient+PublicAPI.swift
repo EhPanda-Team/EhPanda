@@ -62,7 +62,10 @@ extension DownloadManager {
         guard downloadIndex[gid] != nil else {
             return await updateRemoteSignature(
                 gid: gid,
-                latestSignature: metadata.versionIdentifier
+                latestSignature: DownloadSignatureBuilder.chainVersionIdentifier(
+                    gid: metadata.resolvedCurrentGID,
+                    token: metadata.resolvedCurrentKey
+                )
             )
         }
         guard [.completed, .updateAvailable].contains(download.status) else {

@@ -135,22 +135,15 @@ struct DownloadVersionMetadata: Equatable, Codable, Sendable {
     let firstGID: String?
     let firstKey: String?
 
-    var versionIdentifier: String? {
-        DownloadSignatureBuilder.chainVersionIdentifier(
-            gid: resolvedCurrentGID,
-            token: resolvedCurrentKey
-        )
-    }
-
     func hasUpdate(comparedTo download: DownloadedGallery) -> Bool {
         (download.gid, download.token) != (resolvedCurrentGID, resolvedCurrentKey)
     }
 
-    private var resolvedCurrentGID: String {
+    var resolvedCurrentGID: String {
         currentGID?.nonEmpty ?? gid
     }
 
-    private var resolvedCurrentKey: String {
+    var resolvedCurrentKey: String {
         currentKey?.nonEmpty ?? token
     }
 }
