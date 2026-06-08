@@ -7,66 +7,41 @@ import SwiftUI
 import Kingfisher
 
 struct GalleryDetailCell: View {
+    enum CoverSource {
+        case dynamic
+        case `static`(URL?)
+    }
+
     @Environment(\.colorScheme) private var colorScheme
     private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
-    private let coverURLOverride: URL?
+    private let coverSource: CoverSource
     private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
     private let downloadBadge: DownloadBadge
 
     init(
         gallery: Gallery,
-        coverURLOverride: URL? = nil,
+        coverSource: CoverSource = .dynamic,
         setting: Setting,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
         downloadBadge: DownloadBadge = .none
     ) {
         self.gallery = gallery
-        self.coverURLOverride = coverURLOverride
+        self.coverSource = coverSource
         self.setting = setting
         self.translateAction = translateAction
         self.downloadBadge = downloadBadge
     }
 
     private var resolvedCoverURL: URL? {
-        coverURLOverride ?? downloadStore.resolvedCoverURL(for: gallery)
-    }
-
-    var body: some View {
-        GalleryDetailCellContent(
-            gallery: gallery,
-            resolvedCoverURL: resolvedCoverURL,
-            setting: setting,
-            colorScheme: colorScheme,
-            translateAction: translateAction,
-            downloadBadge: downloadBadge
-        )
-    }
-}
-
-struct StaticGalleryDetailCell: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    private let gallery: Gallery
-    private let resolvedCoverURL: URL?
-    private let setting: Setting
-    private let translateAction: ((String) -> (String, TagTranslation?))?
-    private let downloadBadge: DownloadBadge
-
-    init(
-        gallery: Gallery,
-        resolvedCoverURL: URL?,
-        setting: Setting,
-        translateAction: ((String) -> (String, TagTranslation?))? = nil,
-        downloadBadge: DownloadBadge = .none
-    ) {
-        self.gallery = gallery
-        self.resolvedCoverURL = resolvedCoverURL
-        self.setting = setting
-        self.translateAction = translateAction
-        self.downloadBadge = downloadBadge
+        switch coverSource {
+        case .dynamic:
+            downloadStore.resolvedCoverURL(for: gallery)
+        case .static(let url):
+            url
+        }
     }
 
     var body: some View {

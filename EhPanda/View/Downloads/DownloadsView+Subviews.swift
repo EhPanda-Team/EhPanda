@@ -41,9 +41,9 @@ struct DownloadInspectorView: View {
                 List {
                     if let inspection = store.inspection {
                         Section {
-                            StaticGalleryDetailCell(
+                            GalleryDetailCell(
                                 gallery: inspection.download.gallery,
-                                resolvedCoverURL: inspection.coverURL,
+                                coverSource: .static(inspection.coverURL),
                                 setting: setting,
                                 translateAction: {
                                     tagTranslator.lookup(
@@ -307,9 +307,9 @@ struct DownloadListRow: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            StaticGalleryDetailCell(
+            GalleryDetailCell(
                 gallery: download.gallery,
-                resolvedCoverURL: download.coverURL,
+                coverSource: .static(download.coverURL),
                 setting: setting,
                 translateAction: {
                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
