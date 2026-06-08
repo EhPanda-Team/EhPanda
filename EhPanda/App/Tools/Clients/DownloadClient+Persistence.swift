@@ -295,6 +295,8 @@ extension DownloadManager {
             await testingPersistFailureHook()
         }
 #endif
+        downloadErrors[context.gid] = DownloadFailure(error: error)
+        await queueStore.remove(context.gid)
         let workingCompletedPageCount =
             temporaryCompletedPageCount(
                 gid: context.gid,

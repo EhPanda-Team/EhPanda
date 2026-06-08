@@ -224,6 +224,9 @@ extension DownloadManager {
         coverRelativePath: String?,
         versionSignature: String
     ) async throws {
+        downloadErrors[gid] = nil
+        updatedGalleryIDs.remove(gid)
+        await queueStore.remove(gid)
         try await updateDownloadRecord(
             gid: gid,
             createIfMissing: false
