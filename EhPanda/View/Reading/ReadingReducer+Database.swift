@@ -7,6 +7,63 @@ import ComposableArchitecture
 
 // MARK: - Database & Download Actions
 extension ReadingReducer {
+    var databaseReducer: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .syncReadingProgress(let progress):
+                return .run { [state] _ in
+                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                }
+
+            case .syncPreviewURLs(let previewURLs):
+                guard state.contentSource == .remote else { return .none }
+                return .run { [state] _ in
+                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
+                }
+
+            case .syncThumbnailURLs(let thumbnailURLs):
+                guard state.contentSource == .remote else { return .none }
+                return .run { [state] _ in
+                    await databaseClient.updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs)
+                }
+
+            case .syncImageURLs(let imageURLs, let originalImageURLs):
+                guard state.contentSource == .remote else { return .none }
+                return .run { [state] _ in
+                    await databaseClient.updateImageURLs(
+                        gid: state.gallery.id,
+                        imageURLs: imageURLs,
+                        originalImageURLs: originalImageURLs
+                    )
+                }
+
+            case .fetchDatabaseInfos(let gid):
+                return reduceFetchDatabaseInfos(state: &state, gid: gid)
+
+            case .fetchDatabaseInfosDone(let galleryState):
+                return reduceFetchDatabaseInfosDone(state: &state, galleryState: galleryState)
+
+            case .observeDownloads(let gid):
+                return reduceObserveDownloads(gid: gid)
+
+            case .observeDownloadsDone:
+                guard state.gallery.id.isValidGID else { return .none }
+                return .send(.loadLocalPageURLs(state.gallery.id))
+
+            case .loadLocalPageURLs(let gid):
+                return reduceLoadLocalPageURLs(state: &state, gid: gid)
+
+            case .loadLocalPageURLsDone(let requestID, let localPageURLs):
+                return reduceLoadLocalPageURLsDone(
+                    state: &state, requestID: requestID, localPageURLs: localPageURLs
+                )
+
+            default:
+                return .none
+            }
+        }
+    }
+
     func reduceTeardown() -> Effect<Action> {
         var effects: [Effect<Action>] = [
             .merge(ReadingCancelID.allCases.map(Effect.cancel(id:)))

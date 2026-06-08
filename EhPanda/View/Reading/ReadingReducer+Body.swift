@@ -32,7 +32,25 @@ extension ReadingReducer {
         mainReducer
     }
 
-    var mainReducer: some Reducer<State, Action> {
+    var mainReducer: some ReducerOf<Self> {
+        CombineReducers {
+            lifecycleReducer
+            databaseReducer
+            imageFetchReducer
+        }
+        .haptics(
+            unwrapping: \.route,
+            case: \.readingSetting,
+            hapticsClient: hapticsClient
+        )
+        .haptics(
+            unwrapping: \.route,
+            case: \.share,
+            hapticsClient: hapticsClient
+        )
+    }
+
+    var lifecycleReducer: some ReducerOf<Self> {
         Reduce<State, Action> { state, action in
             switch action {
             case .binding:
@@ -95,118 +113,13 @@ extension ReadingReducer {
             case .fetchImageDone(let action, let result):
                 return reduceFetchImageDone(state: &state, action: action, result: result)
 
-            case .syncReadingProgress(let progress):
-                return .run { [state] _ in
-                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
-                }
-
-            case .syncPreviewURLs(let previewURLs):
-                guard state.contentSource == .remote else { return .none }
-                return .run { [state] _ in
-                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
-                }
-
-            case .syncThumbnailURLs(let thumbnailURLs):
-                guard state.contentSource == .remote else { return .none }
-                return .run { [state] _ in
-                    await databaseClient.updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs)
-                }
-
-            case .syncImageURLs(let imageURLs, let originalImageURLs):
-                guard state.contentSource == .remote else { return .none }
-                return .run { [state] _ in
-                    await databaseClient.updateImageURLs(
-                        gid: state.gallery.id,
-                        imageURLs: imageURLs,
-                        originalImageURLs: originalImageURLs
-                    )
-                }
-
             case .teardown:
                 return reduceTeardown()
 
-            case .fetchDatabaseInfos(let gid):
-                return reduceFetchDatabaseInfos(state: &state, gid: gid)
-
-            case .fetchDatabaseInfosDone(let galleryState):
-                return reduceFetchDatabaseInfosDone(state: &state, galleryState: galleryState)
-
-            case .observeDownloads(let gid):
-                return reduceObserveDownloads(gid: gid)
-
-            case .observeDownloadsDone:
-                guard state.gallery.id.isValidGID else { return .none }
-                return .send(.loadLocalPageURLs(state.gallery.id))
-
-            case .loadLocalPageURLs(let gid):
-                return reduceLoadLocalPageURLs(state: &state, gid: gid)
-
-            case .loadLocalPageURLsDone(let requestID, let localPageURLs):
-                return reduceLoadLocalPageURLsDone(
-                    state: &state, requestID: requestID, localPageURLs: localPageURLs
-                )
-
-            case .fetchPreviewURLs(let index):
-                return reduceFetchPreviewURLs(state: &state, index: index)
-
-            case .fetchPreviewURLsDone(let index, let result):
-                return reduceFetchPreviewURLsDone(state: &state, index: index, result: result)
-
-            case .fetchImageURLs(let index):
-                return reduceFetchImageURLs(state: &state, index: index)
-
-            case .refetchImageURLs(let index):
-                return reduceRefetchImageURLs(state: &state, index: index)
-
-            case .prefetchImages(let index, let prefetchLimit):
-                return reducePrefetchImages(state: &state, index: index, prefetchLimit: prefetchLimit)
-
-            case .fetchThumbnailURLs(let index):
-                return reduceFetchThumbnailURLs(state: &state, index: index)
-
-            case .fetchThumbnailURLsDone(let index, let result):
-                return reduceFetchThumbnailURLsDone(state: &state, index: index, result: result)
-
-            case .fetchNormalImageURLs(let index, let thumbnailURLs):
-                return reduceFetchNormalImageURLs(
-                    state: &state, index: index, thumbnailURLs: thumbnailURLs
-                )
-
-            case .fetchNormalImageURLsDone(let index, let result):
-                return reduceFetchNormalImageURLsDone(state: &state, index: index, result: result)
-
-            case .refetchNormalImageURLs(let index):
-                return reduceRefetchNormalImageURLs(state: &state, index: index)
-
-            case .refetchNormalImageURLsDone(let index, let result):
-                return reduceRefetchNormalImageURLsDone(state: &state, index: index, result: result)
-
-            case .fetchMPVKeys(let index, let mpvURL):
-                return reduceFetchMPVKeys(state: &state, index: index, mpvURL: mpvURL)
-
-            case .fetchMPVKeysDone(let index, let result):
-                return reduceFetchMPVKeysDone(state: &state, index: index, result: result)
-
-            case .fetchMPVImageURL(let index, let isRefresh):
-                return reduceFetchMPVImageURL(state: &state, index: index, isRefresh: isRefresh)
-
-            case .fetchMPVImageURLDone(let index, let result):
-                return reduceFetchMPVImageURLDone(state: &state, index: index, result: result)
-
-            case .captureCachedPage(let index):
-                return reduceCaptureCachedPage(state: &state, index: index)
+            default:
+                return .none
             }
         }
-        .haptics(
-            unwrapping: \.route,
-            case: \.readingSetting,
-            hapticsClient: hapticsClient
-        )
-        .haptics(
-            unwrapping: \.route,
-            case: \.share,
-            hapticsClient: hapticsClient
-        )
     }
 }
 

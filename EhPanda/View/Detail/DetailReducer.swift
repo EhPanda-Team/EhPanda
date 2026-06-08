@@ -154,34 +154,32 @@ struct DetailReducer {
 
 // MARK: - Reducer Body
 extension DetailReducer {
-    func coreReducer(self: Reduce<State, Action>) -> some Reducer<State, Action> {
-        Reduce { state, action in
-            if let effect = handleNavigationActions(state: &state, action: action) { return effect }
-            if let effect = handleUIActions(state: &state, action: action) { return effect }
-            if let effect = handleSyncActions(state: &state, action: action) { return effect }
-            if let effect = handleDownloadActions(state: &state, action: action) { return effect }
-            if let effect = handleFetchActions(state: &state, action: action, self: self) { return effect }
-            if let effect = handleGalleryOpsActions(state: &state, action: action) { return effect }
-            if let effect = handleChildActions(state: &state, action: action, self: self) { return effect }
-            return .none
-        }
-        .ifLet(\.commentsState.wrappedValue, action: \.comments, then: CommentsReducer.init)
-        .ifLet(\.detailSearchState.wrappedValue, action: \.detailSearch, then: DetailSearchReducer.init)
-    }
-
     var detailBody: some Reducer<State, Action> {
         RecurseReducer { (self) in
             BindingReducer()
                 .onChange(of: \.route) { _, state in
                     state.route == nil ? .send(.clearSubStates) : .none
                 }
-            coreReducer(self: self)
+            navigationReducer
+            uiReducer
+            syncReducer
+            downloadReducer
+            fetchReducer(self)
+            galleryOpsReducer
+            childReducer(self)
+            optionalChildReducers
             Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
             Scope(state: \.archivesState, action: \.archives, child: ArchivesReducer.init)
             Scope(state: \.torrentsState, action: \.torrents, child: TorrentsReducer.init)
             Scope(state: \.previewsState, action: \.previews, child: PreviewsReducer.init)
             Scope(state: \.galleryInfosState, action: \.galleryInfos, child: GalleryInfosReducer.init)
         }
+    }
+
+    var optionalChildReducers: some ReducerOf<Self> {
+        Reduce { _, _ in .none }
+            .ifLet(\.commentsState.wrappedValue, action: \.comments, then: CommentsReducer.init)
+            .ifLet(\.detailSearchState.wrappedValue, action: \.detailSearch, then: DetailSearchReducer.init)
     }
 }
 

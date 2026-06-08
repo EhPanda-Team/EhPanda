@@ -7,6 +7,65 @@ import ComposableArchitecture
 
 // MARK: - Image URL Fetch Actions
 extension ReadingReducer {
+    var imageFetchReducer: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .fetchPreviewURLs(let index):
+                return reduceFetchPreviewURLs(state: &state, index: index)
+
+            case .fetchPreviewURLsDone(let index, let result):
+                return reduceFetchPreviewURLsDone(state: &state, index: index, result: result)
+
+            case .fetchImageURLs(let index):
+                return reduceFetchImageURLs(state: &state, index: index)
+
+            case .refetchImageURLs(let index):
+                return reduceRefetchImageURLs(state: &state, index: index)
+
+            case .prefetchImages(let index, let prefetchLimit):
+                return reducePrefetchImages(state: &state, index: index, prefetchLimit: prefetchLimit)
+
+            case .fetchThumbnailURLs(let index):
+                return reduceFetchThumbnailURLs(state: &state, index: index)
+
+            case .fetchThumbnailURLsDone(let index, let result):
+                return reduceFetchThumbnailURLsDone(state: &state, index: index, result: result)
+
+            case .fetchNormalImageURLs(let index, let thumbnailURLs):
+                return reduceFetchNormalImageURLs(
+                    state: &state, index: index, thumbnailURLs: thumbnailURLs
+                )
+
+            case .fetchNormalImageURLsDone(let index, let result):
+                return reduceFetchNormalImageURLsDone(state: &state, index: index, result: result)
+
+            case .refetchNormalImageURLs(let index):
+                return reduceRefetchNormalImageURLs(state: &state, index: index)
+
+            case .refetchNormalImageURLsDone(let index, let result):
+                return reduceRefetchNormalImageURLsDone(state: &state, index: index, result: result)
+
+            case .fetchMPVKeys(let index, let mpvURL):
+                return reduceFetchMPVKeys(state: &state, index: index, mpvURL: mpvURL)
+
+            case .fetchMPVKeysDone(let index, let result):
+                return reduceFetchMPVKeysDone(state: &state, index: index, result: result)
+
+            case .fetchMPVImageURL(let index, let isRefresh):
+                return reduceFetchMPVImageURL(state: &state, index: index, isRefresh: isRefresh)
+
+            case .fetchMPVImageURLDone(let index, let result):
+                return reduceFetchMPVImageURLDone(state: &state, index: index, result: result)
+
+            case .captureCachedPage(let index):
+                return reduceCaptureCachedPage(state: &state, index: index)
+
+            default:
+                return .none
+            }
+        }
+    }
+
     func reduceFetchPreviewURLs(state: inout State, index: Int) -> Effect<Action> {
         guard state.contentSource == .remote else {
             state.previewLoadingStates[index] = .idle
