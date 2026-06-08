@@ -48,8 +48,6 @@ struct HistoryReducer {
 
         case fetchGalleries
         case fetchGalleriesDone([Gallery])
-        case fetchDownloadBadges([String])
-        case fetchDownloadBadgesDone([String: DownloadBadge])
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
 
@@ -106,15 +104,6 @@ struct HistoryReducer {
                 } else {
                     state.galleries = galleries
                 }
-                return .send(.fetchDownloadBadges(galleries.map(\.gid)))
-
-            case .fetchDownloadBadges(let gids):
-                return .run { send in
-                    await send(.fetchDownloadBadgesDone(await downloadClient.badges(gids)))
-                }
-
-            case .fetchDownloadBadgesDone(let badges):
-                state.downloadBadges = badges
                 return .none
 
             case .observeDownloads:
@@ -126,12 +115,8 @@ struct HistoryReducer {
                 .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
 
             case .observeDownloadsDone(let downloads):
-                let visibleGIDs = Set(state.galleries.map(\.gid))
                 state.downloadBadges = Dictionary(
-                    uniqueKeysWithValues: downloads.compactMap { download in
-                        guard visibleGIDs.contains(download.gid) else { return nil }
-                        return (download.gid, download.badge)
-                    }
+                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
                 return .none
 
