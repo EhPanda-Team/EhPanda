@@ -169,35 +169,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadsFilterMatchesGalleryFilterCriteria() {
-        let qualifyingDownload = sampleDownload(
-            gid: "466",
-            title: "Chinese Archive",
-            status: .completed,
-            pageCount: 28
-        )
-        let filteredOutDownload = sampleDownload(
-            gid: "477",
-            title: "Low Rated Archive",
-            status: .completed,
-            pageCount: 8
-        )
-
-        var state = DownloadsReducer.State()
-        state.downloads = [
-            qualifyingDownload,
-            filteredOutDownload
-        ]
-        state.galleryFilter.minimumRatingActivated = true
-        state.galleryFilter.minimumRating = 4
-        state.galleryFilter.pageRangeActivated = true
-        state.galleryFilter.pageLowerBound = "20"
-        state.galleryFilter.pageUpperBound = "40"
-
-        #expect(state.filteredDownloads == [qualifyingDownload])
-    }
-
-    @Test
     func testSearchPageRangeFilterOmitsInvertedBounds() {
         var filter = Filter()
         filter.advanced = true
@@ -248,28 +219,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         #expect(upperOnlyQueryItems["f_sp"] == "on")
         #expect(upperOnlyQueryItems["f_spf"] == nil)
         #expect(upperOnlyQueryItems["f_spt"] == "50")
-    }
-
-    @Test
-    func testDownloadsFilterExcludesSelectedCategoriesLikeSearchFilter() {
-        let nonHDownload = sampleDownload(
-            gid: "478",
-            title: "Healthy Archive",
-            status: .completed,
-            category: .nonH
-        )
-        let mangaDownload = sampleDownload(
-            gid: "479",
-            title: "Comic Archive",
-            status: .completed,
-            category: .manga
-        )
-
-        var state = DownloadsReducer.State()
-        state.downloads = [nonHDownload, mangaDownload]
-        state.galleryFilter.excludedCategories = [.nonH]
-
-        #expect(state.filteredDownloads == [mangaDownload])
     }
 
     @Test

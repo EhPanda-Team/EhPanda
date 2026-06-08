@@ -240,26 +240,6 @@ extension DownloadedGallery {
         }
     }
 
-    func matches(queryFilter: DownloadGalleryFilter) -> Bool {
-        if queryFilter.excludedCategories.contains(category) {
-            return false
-        }
-
-        if queryFilter.minimumRatingActivated && rating < Float(queryFilter.minimumRating) {
-            return false
-        }
-
-        guard queryFilter.pageRangeActivated else { return true }
-
-        if let lowerBound = Int(queryFilter.pageLowerBound), pageCount < lowerBound {
-            return false
-        }
-        if let upperBound = Int(queryFilter.pageUpperBound), pageCount > upperBound {
-            return false
-        }
-
-        return true
-    }
 }
 
 extension DownloadedGallery {

@@ -83,37 +83,6 @@ enum DownloadListFilter: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - DownloadGalleryFilter
-struct DownloadGalleryFilter: Equatable {
-    var excludedCategories = Set<Category>()
-    var minimumRatingActivated = false
-    var minimumRating = 2
-    var pageRangeActivated = false
-    var pageLowerBound = ""
-    var pageUpperBound = ""
-
-    mutating func fixInvalidData() {
-        if !pageLowerBound.isEmpty && Int(pageLowerBound) == nil {
-            pageLowerBound = ""
-        }
-        if !pageUpperBound.isEmpty && Int(pageUpperBound) == nil {
-            pageUpperBound = ""
-        }
-    }
-
-    mutating func reset() {
-        self = .init()
-    }
-
-    var hasActiveValues: Bool {
-        !excludedCategories.isEmpty
-            || minimumRatingActivated
-            || pageRangeActivated
-            || !pageLowerBound.isEmpty
-            || !pageUpperBound.isEmpty
-    }
-}
-
 // MARK: - DownloadRequestPayload
 struct DownloadRequestPayload: Equatable, @unchecked Sendable {
     let gallery: Gallery
