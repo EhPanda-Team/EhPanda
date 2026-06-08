@@ -45,8 +45,7 @@ protocol DownloadFeatureTestCase: TestHelper {
     func sampleManifest(
         gid: String,
         title: String,
-        pageCount: Int,
-        versionSignature: String
+        pageCount: Int
     ) throws -> DownloadManifest
     func sampleInspection(download: DownloadedGallery) -> DownloadInspection
     func prepareLocalDownloadFiles(
@@ -66,10 +65,6 @@ protocol DownloadFeatureTestCase: TestHelper {
 // MARK: - Default Implementations
 
 extension DownloadFeatureTestCase {
-    func chainVersionSignature(gid: String, token: String) -> String {
-        "chain:\(gid):\(token)"
-    }
-
     func waitUntilCacheReady<Keys: Sequence>(
         for keys: Keys,
         timeout: Duration = .seconds(1)

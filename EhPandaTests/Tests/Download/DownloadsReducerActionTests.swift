@@ -151,8 +151,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         let manifest = try sampleManifest(
             gid: download.gid,
             title: download.title,
-            pageCount: 2,
-            versionSignature: "hash:v1"
+            pageCount: 2
         )
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]

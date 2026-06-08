@@ -14,8 +14,7 @@ extension DownloadFeatureTestCase {
     func sampleManifest(
         gid: String,
         title: String,
-        pageCount: Int = 2,
-        versionSignature _: String = "hash:v1"
+        pageCount: Int = 2
     ) throws -> DownloadManifest {
         DownloadManifest(
             gid: gid,

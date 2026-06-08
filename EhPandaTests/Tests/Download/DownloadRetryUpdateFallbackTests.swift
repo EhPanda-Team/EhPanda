@@ -14,7 +14,6 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
-        let oldVersionSignature = chainVersionSignature(gid: gid, token: "token")
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -26,7 +25,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
 
         let fallbackResult = try await fetchUpdateFallbackPayload(
             manager: queueingManager, sessionID: sessionID, gid: gid,
-            pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
+            pageIndex: pageIndex
         )
         let pageCount = fallbackResult.pageCount
         let oldCount = pageCount - 5
@@ -61,7 +60,6 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
-        let oldVersionSignature = chainVersionSignature(gid: gid, token: "token")
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -73,7 +71,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
 
         let updateResult = try await fetchUpdateFallbackPayload(
             manager: immediateManager, sessionID: sessionID, gid: gid,
-            pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
+            pageIndex: pageIndex
         )
         let pageCount = updateResult.pageCount
 
@@ -104,7 +102,6 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
 // MARK: - Update Fallback Payload Result
 
 private struct UpdateFallbackPayloadResult {
-    let versionSignature: String
     let pageCount: Int
 }
 
@@ -121,7 +118,7 @@ private struct DownloadPageContext {
 private extension DownloadRetryUpdateFallbackTests {
     func fetchUpdateFallbackPayload(
         manager: DownloadManager, sessionID: String, gid: String,
-        pageIndex: Int, oldVersionSignature: String
+        pageIndex: Int
     ) async throws -> UpdateFallbackPayloadResult {
         let stubContent = StubHandlerContent(
             detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
@@ -141,10 +138,7 @@ private extension DownloadRetryUpdateFallbackTests {
         let pageCount = fetchedPayload.galleryDetail.pageCount
         #expect(pageCount > pageIndex)
         #expect(pageCount > 5)
-        return UpdateFallbackPayloadResult(
-            versionSignature: chainVersionSignature(gid: gid, token: "updated-key"),
-            pageCount: pageCount
-        )
+        return UpdateFallbackPayloadResult(pageCount: pageCount)
     }
 
     func setupImmediateUpdateTestState(

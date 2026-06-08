@@ -28,7 +28,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
 
         let manifest = try sampleManifest(
             gid: gid, title: "Pause Race",
-            pageCount: setup.pageCount, versionSignature: setup.versionSignature
+            pageCount: setup.pageCount
         )
         try writeFinalManifest(storage: storage, gid: gid, manifest: manifest)
         let blocker = Task<Void, Never> {
@@ -66,7 +66,6 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
 
 private struct MinimalSourceTestResult {
     let recorder: RequestRecorder
-    let versionSignature: String
     let pageCount: Int
 }
 
@@ -145,7 +144,6 @@ private extension DownloadRetryMinimalSourceTests {
         recorder.reset()
         return MinimalSourceTestResult(
             recorder: recorder,
-            versionSignature: chainVersionSignature(gid: gid, token: "token"),
             pageCount: fetchedPayload.galleryDetail.pageCount
         )
     }

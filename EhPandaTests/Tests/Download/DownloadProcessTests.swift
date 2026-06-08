@@ -72,7 +72,6 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
         let pageIndex = 42
-        let oldVersionSignature = chainVersionSignature(gid: gid, token: "token")
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -84,13 +83,13 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
 
         let updatedPageCount = try await fetchAndInstallStub(
             manager: manager, sessionID: sessionID, gid: gid,
-            pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
+            pageIndex: pageIndex
         )
         let oldPageCount = updatedPageCount - 5
 
         let staleFolderURL = try prepareStaleExistingFolder(
             storage: storage, gid: gid, pageIndex: pageIndex,
-            oldPageCount: oldPageCount, oldVersionSignature: oldVersionSignature
+            oldPageCount: oldPageCount
         )
         let beforeProcess = await manager.testingFetchDownload(gid: gid)
         #expect(beforeProcess?.hasUpdate ?? true == false)
@@ -174,7 +173,7 @@ private extension DownloadProcessTests {
 
     func fetchAndInstallStub(
         manager: DownloadManager, sessionID: String, gid: String,
-        pageIndex: Int, oldVersionSignature: String
+        pageIndex: Int
     ) async throws -> Int {
         let stubContent = StubHandlerContent(
             detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
@@ -208,11 +207,11 @@ private extension DownloadProcessTests {
 
     func prepareStaleExistingFolder(
         storage: DownloadFileStorage, gid: String, pageIndex: Int,
-        oldPageCount: Int, oldVersionSignature: String
+        oldPageCount: Int
     ) throws -> URL {
         let staleManifest = try sampleManifest(
             gid: gid, title: "Pause Race",
-            pageCount: oldPageCount, versionSignature: oldVersionSignature
+            pageCount: oldPageCount
         )
         let folderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
         try? FileManager.default.removeItem(at: folderURL)
