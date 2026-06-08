@@ -84,6 +84,11 @@ actor DownloadManager {
         let latestSignature: String?
     }
 
+    struct ProgressFlushContext: Sendable {
+        let gid: String
+        let folderURL: URL
+    }
+
     struct PageDownloadContext: Sendable {
         let payload: DownloadRequestPayload
         let source: ResolvedSource?

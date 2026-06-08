@@ -140,12 +140,38 @@ extension DownloadFileStorage {
         pageIndex: Int,
         relativePath: String? = nil
     ) throws -> DownloadManifest {
+        if let relativePath {
+            return try refreshManifestPageFileHashes(
+                folderURL: folderURL,
+                pageRelativePaths: [pageIndex: relativePath]
+            )
+        }
         let manifest = try readManifest(folderURL: folderURL)
+        guard let page = manifest.pages.first(
+            where: { $0.index == pageIndex }
+        ) else {
+            return manifest
+        }
+        return try refreshManifestPageFileHashes(
+            folderURL: folderURL,
+            pageRelativePaths: [pageIndex: page.relativePath]
+        )
+    }
+
+    @discardableResult
+    func refreshManifestPageFileHashes(
+        folderURL: URL,
+        pageRelativePaths: [Int: String]
+    ) throws -> DownloadManifest {
+        let manifest = try readManifest(folderURL: folderURL)
+        guard !pageRelativePaths.isEmpty else { return manifest }
         var didUpdate = false
         let pages = try manifest.pages.map { page in
-            guard page.index == pageIndex else { return page }
+            guard let refreshedRelativePath =
+                    pageRelativePaths[page.index] else {
+                return page
+            }
             didUpdate = true
-            let refreshedRelativePath = relativePath ?? page.relativePath
             return DownloadManifest.Page(
                 index: page.index,
                 relativePath: refreshedRelativePath,

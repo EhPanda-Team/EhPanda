@@ -404,7 +404,7 @@ extension DownloadManager {
     }
 
     func flushDownloadProgress(
-        gid: String,
+        context: ProgressFlushContext,
         pendingResolvedPages: inout [PageResult],
         completedCount: Int,
         lastFlushDate: inout Date,
@@ -418,14 +418,18 @@ extension DownloadManager {
         guard shouldFlush else { return }
 
         let resolvedPages = pendingResolvedPages
+        try flushManifestPageProgress(
+            folderURL: context.folderURL,
+            pages: resolvedPages
+        )
         pendingResolvedPages
             .removeAll(keepingCapacity: true)
         await persistResolvedImageURLs(
-            gid: gid,
+            gid: context.gid,
             entries: resolvedPages
         )
         try await updateDownloadRecord(
-            gid: gid,
+            gid: context.gid,
             createIfMissing: false
         ) { record in
             record.completedPageCount =
@@ -433,6 +437,27 @@ extension DownloadManager {
         }
         lastFlushDate = Date()
         await notifyObservers()
+    }
+
+    func flushManifestPageProgress(
+        folderURL: URL,
+        pages: [PageResult]
+    ) throws {
+        guard !pages.isEmpty else { return }
+        let manifestURL = folderURL
+            .appendingPathComponent(Defaults.FilePath.downloadManifest)
+        guard fileManager.operate({
+            $0.fileExists(atPath: manifestURL.path)
+        }) else {
+            return
+        }
+        let pageRelativePaths = pages.reduce(into: [Int: String]()) { result, page in
+            result[page.index] = page.relativePath
+        }
+        try storage.refreshManifestPageFileHashes(
+            folderURL: folderURL,
+            pageRelativePaths: pageRelativePaths
+        )
     }
 
     func persistResolvedImageURLs(

@@ -64,7 +64,10 @@ extension DownloadManager {
             throw CancellationError()
         }
         try await flushDownloadProgress(
-            gid: context.payload.gallery.gid,
+            context: .init(
+                gid: context.payload.gallery.gid,
+                folderURL: context.temporaryFolderURL
+            ),
             pendingResolvedPages: &progress.pendingResolvedPages,
             completedCount: progress.completedCount,
             lastFlushDate: &progress.lastFlushDate,
@@ -94,6 +97,10 @@ extension DownloadManager {
         progress.completedCount = progress.results.count
         guard progress.completedCount > 0 else { return }
         let completedCount = progress.completedCount
+        try flushManifestPageProgress(
+            folderURL: context.temporaryFolderURL,
+            pages: progress.results
+        )
         try await updateDownloadRecord(
             gid: payload.gallery.gid,
             createIfMissing: false
@@ -128,7 +135,10 @@ extension DownloadManager {
         progress.pendingResolvedPages
             .append(contentsOf: restoredCachedPages)
         try await flushDownloadProgress(
-            gid: payload.gallery.gid,
+            context: .init(
+                gid: payload.gallery.gid,
+                folderURL: context.temporaryFolderURL
+            ),
             pendingResolvedPages: &progress.pendingResolvedPages,
             completedCount: progress.completedCount,
             lastFlushDate: &progress.lastFlushDate,
@@ -243,7 +253,10 @@ extension DownloadManager {
                 )
                 guard !wasCancelled else { continue }
                 try? await flushDownloadProgress(
-                    gid: payload.gallery.gid,
+                    context: .init(
+                        gid: payload.gallery.gid,
+                        folderURL: context.temporaryFolderURL
+                    ),
                     pendingResolvedPages:
                         &progress.pendingResolvedPages,
                     completedCount: progress.completedCount,

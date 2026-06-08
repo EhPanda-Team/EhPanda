@@ -512,6 +512,69 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerFlushProgressUpdatesManifestPageHash() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        let folderRelativePath = "[840_token] Progress"
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: folderRelativePath,
+            manifest: indexedManifest(
+                gid: "840",
+                title: "Progress",
+                pageHashes: ["", ""],
+                pageRelativePaths: [
+                    "840_token_1.pending",
+                    "840_token_2.pending"
+                ]
+            )
+        )
+        let folderURL = storage.folderURL(relativePath: folderRelativePath)
+        let pageRelativePath = "840_token_1.jpg"
+        try Data([0x01, 0x02, 0x03]).write(
+            to: folderURL.appendingPathComponent(pageRelativePath),
+            options: .atomic
+        )
+        var pendingResolvedPages = [
+            DownloadManager.PageResult(
+                index: 1,
+                relativePath: pageRelativePath,
+                imageURL: nil
+            )
+        ]
+        var lastFlushDate = Date.distantPast
+
+        try await manager.flushDownloadProgress(
+            context: .init(gid: "840", folderURL: folderURL),
+            pendingResolvedPages: &pendingResolvedPages,
+            completedCount: 1,
+            lastFlushDate: &lastFlushDate,
+            force: true
+        )
+
+        let manifest = try storage.readManifest(folderURL: folderURL)
+        let download = try #require(await manager.fetchDownload(gid: "840"))
+
+        #expect(pendingResolvedPages.isEmpty)
+        #expect(manifest.pages[0].relativePath == pageRelativePath)
+        #expect(manifest.pages[0].fileHash?.hasPrefix("sha256:") == true)
+        #expect(manifest.pages[1].relativePath == "840_token_2.pending")
+        #expect(manifest.pages[1].fileHash == "")
+        #expect(download.completedPageCount == 1)
+    }
+
+    @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
         let container = try makeInMemoryContainer()
 
@@ -712,7 +775,8 @@ private extension DownloadManagerStorageTests {
         gid: String,
         title: String,
         pageHashes: [String],
-        downloadedAt: Date = .now
+        downloadedAt: Date = .now,
+        pageRelativePaths: [String]? = nil
     ) throws -> DownloadManifest {
         DownloadManifest(
             gid: gid,
@@ -735,7 +799,8 @@ private extension DownloadManagerStorageTests {
             pages: pageHashes.enumerated().map { offset, hash in
                 DownloadManifest.Page(
                     index: offset + 1,
-                    relativePath: "\(gid)_token_\(offset + 1).jpg",
+                    relativePath: pageRelativePaths?[offset]
+                        ?? "\(gid)_token_\(offset + 1).jpg",
                     fileHash: hash
                 )
             }
