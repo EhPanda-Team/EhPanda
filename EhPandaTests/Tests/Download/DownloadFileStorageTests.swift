@@ -237,6 +237,70 @@ struct DownloadFileStorageTests {
         #expect(relativePath.hasSuffix(".") == false)
         #expect(relativePath.count <= "123 - ".count + 96)
     }
+
+    @Test
+    func testFinalFolderRelativePathUsesIdentityPrefixAndSanitizedTitle() {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta.  "
+        let relativePath = storage.makeFolderRelativePath(gid: "123", token: "tok/en", title: unsafeTitle)
+
+        #expect(relativePath == "[123_tok_en] Alpha Beta Gamma Delta")
+    }
+
+    @Test
+    func testFinalAssetRelativePathsUseIdentityAndUnpaddedPageIndex() {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        #expect(
+            storage.makePageRelativePath(gid: "123", token: "token", index: 7, fileExtension: "JPG")
+                == "123_token_7.jpg"
+        )
+        #expect(
+            storage.makeCoverRelativePath(gid: "123", token: "token", fileExtension: "PNG")
+                == "123_token_cover.png"
+        )
+    }
+
+    @Test
+    func testScanDownloadFoldersReadsOnlyFoldersWithManifests() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let downloadFolderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let ignoredFolderURL = storage.folderURL(relativePath: "[456_token] Missing manifest")
+        let hiddenFolderURL = storage.folderURL(relativePath: ".tmp-789")
+        try FileManager.default.createDirectory(at: downloadFolderURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: ignoredFolderURL, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: hiddenFolderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageCount: 2), folderURL: downloadFolderURL)
+
+        let records = try storage.scanDownloadFolders()
+
+        #expect(records.map(\.relativePath) == ["[123_token] Sample"])
+        #expect(records.first?.manifest.gid == "123")
+        #expect(records.first?.folderURL == downloadFolderURL)
+    }
+
+    @Test
+    func testExistingFinalAssetFileURLsUseIdentityPrefix() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        let pageURL = folderURL.appendingPathComponent("123_token_2.webp")
+        let coverURL = folderURL.appendingPathComponent("123_token_cover.jpg")
+        try Data([0x01]).write(to: pageURL, options: .atomic)
+        try Data([0x02]).write(to: coverURL, options: .atomic)
+
+        #expect(storage.existingPageFileURL(folderURL: folderURL, gid: "123", token: "token", index: 2) == pageURL)
+        #expect(storage.existingCoverFileURL(folderURL: folderURL, gid: "123", token: "token") == coverURL)
+    }
 }
 
 private final class ThrowingAttributesFileManager: FileManager {
