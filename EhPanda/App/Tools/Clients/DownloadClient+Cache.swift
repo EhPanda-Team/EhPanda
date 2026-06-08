@@ -60,7 +60,7 @@ extension DownloadManager {
                 existingPageRelativePaths[index] {
                 let fileURL = temporaryFolderURL
                     .appendingPathComponent(relativePath)
-                if fileManager()
+                if fileManager
                     .fileExists(atPath: fileURL.path) {
                     continue
                 }
@@ -149,7 +149,7 @@ extension DownloadManager {
         let fileURL = folderURL
             .appendingPathComponent(relativePath)
         if overwriteExistingFile
-            || !fileManager()
+            || !fileManager
             .fileExists(atPath: fileURL.path) {
             try write(data: cachedData, to: fileURL)
         }

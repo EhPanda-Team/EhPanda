@@ -13,7 +13,7 @@ extension DownloadManager {
         expectedPageCount: Int
     ) -> Int {
         let folderURL = storage.temporaryFolderURL(gid: gid)
-        guard fileManager()
+        guard fileManager
                 .fileExists(atPath: folderURL.path) else {
             return 0
         }
@@ -29,7 +29,7 @@ extension DownloadManager {
     ) -> Int {
         guard let folderURL = download
                 .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager()
+              fileManager
                 .fileExists(atPath: folderURL.path)
         else {
             return 0
@@ -95,7 +95,7 @@ extension DownloadManager {
         download: DownloadedGallery
     ) -> (hasTemporaryFolder: Bool, temporaryCompletedCount: Int) {
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let hasTemporaryFolder = fileManager()
+        let hasTemporaryFolder = fileManager
             .fileExists(atPath: temporaryFolderURL.path)
         let temporaryCompletedCount = hasTemporaryFolder
             ? storage.existingPageRelativePaths(
@@ -114,7 +114,7 @@ extension DownloadManager {
     private func scanCompletedFolder(download: DownloadedGallery) {
         guard let completedFolderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager().fileExists(atPath: completedFolderURL.path)
+              fileManager.fileExists(atPath: completedFolderURL.path)
         else { return }
         _ = storage.existingPageRelativePaths(
             folderURL: completedFolderURL,
@@ -250,7 +250,7 @@ extension DownloadManager {
         let temporaryFolderURL = storage
             .temporaryFolderURL(gid: download.gid)
         if shouldExposeTemporaryWorkingSet(for: download),
-           fileManager()
+           fileManager
             .fileExists(atPath: temporaryFolderURL.path) {
             let temporaryPages =
                 storage.existingPageRelativePaths(
@@ -275,7 +275,7 @@ extension DownloadManager {
 
         guard let completedFolderURL = download
                 .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager()
+              fileManager
                 .fileExists(atPath: completedFolderURL.path)
         else {
             return nil

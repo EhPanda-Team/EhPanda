@@ -124,7 +124,7 @@ extension DownloadManager {
 
         let temporaryFolderURL = storage
             .temporaryFolderURL(gid: download.gid)
-        guard fileManager()
+        guard fileManager
                 .fileExists(atPath: temporaryFolderURL.path) else {
             return download.pageCount
         }
