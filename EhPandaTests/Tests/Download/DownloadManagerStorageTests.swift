@@ -272,6 +272,64 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerReconcileClearsIndexedCancellationError() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+        let cancellationFailure = DownloadFailure(
+            code: .fileOperationFailed,
+            message: "The operation was cancelled."
+        )
+
+        try storage.ensureRootDirectory()
+        try insertPersistedDownload(
+            in: container,
+            gid: "410",
+            status: .failed,
+            completedPageCount: 0,
+            pageCount: 1,
+            lastError: cancellationFailure
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[410_token] Cancelled",
+            manifest: indexedManifest(
+                gid: "410",
+                title: "Cancelled",
+                pageHashes: [""]
+            )
+        )
+        await manager.testingSetDownloadError(
+            cancellationFailure,
+            gid: "410"
+        )
+
+        await manager.reconcileDownloads()
+
+        let download = try #require(await manager.fetchDownload(gid: "410"))
+        #expect(download.displayStatus == .inactive)
+        #expect(download.status == .paused)
+        #expect(download.lastError == nil)
+
+        let request = NSFetchRequest<DownloadedGalleryMO>(
+            entityName: "DownloadedGalleryMO"
+        )
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "gid == %@", "410")
+        let persistedDownload = try container.viewContext.fetch(request).first
+        #expect(persistedDownload?.status == DownloadStatus.failed.rawValue)
+        #expect(persistedDownload?.lastError != nil)
+    }
+
+    @Test
     func testDownloadManagerFailureSettlesQueueIntent() async throws {
         let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory

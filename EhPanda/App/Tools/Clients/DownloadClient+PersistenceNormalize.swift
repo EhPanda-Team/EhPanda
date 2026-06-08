@@ -96,6 +96,12 @@ extension DownloadManager {
                     || shouldClearCancellationError else {
                 continue
             }
+            if downloadIndex[download.gid] != nil {
+                if shouldClearCancellationError {
+                    downloadErrors[download.gid] = nil
+                }
+                continue
+            }
 
             let normalizedCompletedPageCount = max(
                 download.completedPageCount,
