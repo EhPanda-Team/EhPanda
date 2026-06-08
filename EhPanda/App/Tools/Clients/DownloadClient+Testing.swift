@@ -55,7 +55,9 @@ extension DownloadManager {
         try storage.ensureRootDirectory()
         let temporaryFolderURL = storage
             .temporaryFolderURL(gid: payload.gallery.gid)
-        try? fileManager.removeItem(at: temporaryFolderURL)
+        try? fileManager.operate {
+            try $0.removeItem(at: temporaryFolderURL)
+        }
         try createDirectory(at: temporaryFolderURL)
         try createDirectory(
             at: temporaryFolderURL.appendingPathComponent(
@@ -105,7 +107,9 @@ extension DownloadManager {
     ) throws -> PrepareWorkingSeedResult {
         let temporaryFolderURL = storage
             .temporaryFolderURL(gid: payload.gallery.gid)
-        try? fileManager.removeItem(at: temporaryFolderURL)
+        try? fileManager.operate {
+            try $0.removeItem(at: temporaryFolderURL)
+        }
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,

@@ -5,7 +5,6 @@
 
 import Foundation
 import CryptoKit
-import Synchronization
 
 enum DownloadValidationState: Equatable, Sendable {
     case valid
@@ -59,7 +58,9 @@ struct DownloadFileStorage: Sendable {
     }
 
     func ensureRootDirectory() throws {
-        try fileManager.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        try fileManager.operate {
+            try $0.createDirectory(at: rootURL, withIntermediateDirectories: true)
+        }
         var resourceValues = URLResourceValues()
         resourceValues.isExcludedFromBackup = true
         var mutableRootURL = rootURL
@@ -92,13 +93,15 @@ struct DownloadFileStorage: Sendable {
     }
 
     func temporaryFolderExists(gid: String) -> Bool {
-        fileManager.fileExists(atPath: temporaryFolderURL(gid: gid).path)
+        fileManager.operate { $0.fileExists(atPath: temporaryFolderURL(gid: gid).path) }
     }
 
     func removeTemporaryFolder(gid: String) throws {
         let targetURL = temporaryFolderURL(gid: gid)
-        guard fileManager.fileExists(atPath: targetURL.path) else { return }
-        try fileManager.removeItem(at: targetURL)
+        try fileManager.operate {
+            guard $0.fileExists(atPath: targetURL.path) else { return }
+            try $0.removeItem(at: targetURL)
+        }
     }
 
     func resumeStateURL(folderURL: URL) -> URL {
@@ -127,8 +130,10 @@ struct DownloadFileStorage: Sendable {
 
     func removeFailedPages(folderURL: URL) throws {
         let url = failedPagesURL(folderURL: folderURL)
-        guard fileManager.fileExists(atPath: url.path) else { return }
-        try fileManager.removeItem(at: url)
+        try fileManager.operate {
+            guard $0.fileExists(atPath: url.path) else { return }
+            try $0.removeItem(at: url)
+        }
     }
 
     func existingPageRelativePaths(
@@ -139,10 +144,12 @@ struct DownloadFileStorage: Sendable {
             Defaults.FilePath.downloadPages,
             isDirectory: true
         )
-        guard let pageURLs = try? fileManager.contentsOfDirectory(
-            at: pagesFolderURL,
-            includingPropertiesForKeys: nil
-        ) else {
+        guard let pageURLs = try? fileManager.operate({
+            try $0.contentsOfDirectory(
+                at: pagesFolderURL,
+                includingPropertiesForKeys: nil
+            )
+        }) else {
             return [:]
         }
 
@@ -164,10 +171,12 @@ struct DownloadFileStorage: Sendable {
     }
 
     func existingCoverRelativePath(folderURL: URL) -> String? {
-        guard let fileURLs = try? fileManager.contentsOfDirectory(
-            at: folderURL,
-            includingPropertiesForKeys: nil
-        ) else {
+        guard let fileURLs = try? fileManager.operate({
+            try $0.contentsOfDirectory(
+                at: folderURL,
+                includingPropertiesForKeys: nil
+            )
+        }) else {
             return nil
         }
 
@@ -245,23 +254,23 @@ struct DownloadFileStorage: Sendable {
 
     @discardableResult
     func sanitizeAssetFileIfNeeded(at url: URL) -> Bool {
-        guard fileManager.fileExists(atPath: url.path) else { return false }
+        guard fileManager.operate({ $0.fileExists(atPath: url.path) }) else { return false }
 
         let attributes: [FileAttributeKey: Any]
         do {
-            attributes = try fileManager.attributesOfItem(atPath: url.path)
+            attributes = try fileManager.operate { try $0.attributesOfItem(atPath: url.path) }
         } catch {
             return canReadNonEmptyFile(at: url)
         }
 
         let isRegularFile = (attributes[.type] as? FileAttributeType).map { $0 == .typeRegular } ?? true
         guard isRegularFile else {
-            try? fileManager.removeItem(at: url)
+            try? fileManager.operate { try $0.removeItem(at: url) }
             return false
         }
         guard let fileSize = (attributes[.size] as? NSNumber)?.intValue else { return false }
         guard fileSize > 0 else {
-            try? fileManager.removeItem(at: url)
+            try? fileManager.operate { try $0.removeItem(at: url) }
             return false
         }
 
@@ -275,78 +284,6 @@ struct DownloadFileStorage: Sendable {
             return try handle.read(upToCount: 1)?.isEmpty == false
         } catch {
             return false
-        }
-    }
-}
-
-final class DownloadFileManager: Sendable {
-    private let fileManager: Mutex<FileManager>
-
-    init(_ fileManager: sending FileManager) {
-        self.fileManager = Mutex(fileManager)
-    }
-
-    func createDirectory(
-        at url: URL,
-        withIntermediateDirectories createIntermediates: Bool
-    ) throws {
-        try fileManager.withLock {
-            try $0.createDirectory(
-                at: url,
-                withIntermediateDirectories: createIntermediates
-            )
-        }
-    }
-
-    func fileExists(atPath path: String) -> Bool {
-        fileManager.withLock { $0.fileExists(atPath: path) }
-    }
-
-    func removeItem(at url: URL) throws {
-        try fileManager.withLock {
-            try $0.removeItem(at: url)
-        }
-    }
-
-    func contentsOfDirectory(
-        at url: URL,
-        includingPropertiesForKeys keys: [URLResourceKey]?
-    ) throws -> [URL] {
-        try fileManager.withLock {
-            try $0.contentsOfDirectory(
-                at: url,
-                includingPropertiesForKeys: keys
-            )
-        }
-    }
-
-    func attributesOfItem(atPath path: String) throws -> [FileAttributeKey: Any] {
-        try fileManager.withLock {
-            try $0.attributesOfItem(atPath: path)
-        }
-    }
-
-    func replaceItemAt(_ originalItemURL: URL, withItemAt newItemURL: URL) throws -> URL? {
-        try fileManager.withLock {
-            try $0.replaceItemAt(originalItemURL, withItemAt: newItemURL)
-        }
-    }
-
-    func moveItem(at sourceURL: URL, to destinationURL: URL) throws {
-        try fileManager.withLock {
-            try $0.moveItem(at: sourceURL, to: destinationURL)
-        }
-    }
-
-    func linkItem(at sourceURL: URL, to destinationURL: URL) throws {
-        try fileManager.withLock {
-            try $0.linkItem(at: sourceURL, to: destinationURL)
-        }
-    }
-
-    func copyItem(at sourceURL: URL, to destinationURL: URL) throws {
-        try fileManager.withLock {
-            try $0.copyItem(at: sourceURL, to: destinationURL)
         }
     }
 }

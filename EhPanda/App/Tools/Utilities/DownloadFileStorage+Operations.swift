@@ -8,13 +8,15 @@ import Foundation
 extension DownloadFileStorage {
     func replaceFolder(relativePath: String, with temporaryFolderURL: URL) throws {
         let targetURL = folderURL(relativePath: relativePath)
-        if fileManager.fileExists(atPath: targetURL.path) {
-            _ = try fileManager.replaceItemAt(
-                targetURL,
-                withItemAt: temporaryFolderURL
-            )
-        } else {
-            try fileManager.moveItem(at: temporaryFolderURL, to: targetURL)
+        try fileManager.operate {
+            if $0.fileExists(atPath: targetURL.path) {
+                _ = try $0.replaceItemAt(
+                    targetURL,
+                    withItemAt: temporaryFolderURL
+                )
+            } else {
+                try $0.moveItem(at: temporaryFolderURL, to: targetURL)
+            }
         }
     }
 
@@ -25,18 +27,24 @@ extension DownloadFileStorage {
             )
         }
 
-        try fileManager.createDirectory(
-            at: destinationURL.deletingLastPathComponent(),
-            withIntermediateDirectories: true
-        )
-        if fileManager.fileExists(atPath: destinationURL.path) {
-            try fileManager.removeItem(at: destinationURL)
+        try fileManager.operate {
+            try $0.createDirectory(
+                at: destinationURL.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            if $0.fileExists(atPath: destinationURL.path) {
+                try $0.removeItem(at: destinationURL)
+            }
         }
 
         do {
-            try fileManager.linkItem(at: sourceURL, to: destinationURL)
+            try fileManager.operate {
+                try $0.linkItem(at: sourceURL, to: destinationURL)
+            }
         } catch {
-            try fileManager.copyItem(at: sourceURL, to: destinationURL)
+            try fileManager.operate {
+                try $0.copyItem(at: sourceURL, to: destinationURL)
+            }
         }
     }
 
@@ -45,14 +53,16 @@ extension DownloadFileStorage {
         manifest: DownloadManifest,
         to temporaryFolderURL: URL
     ) throws {
-        try fileManager.createDirectory(at: temporaryFolderURL, withIntermediateDirectories: true)
-        try fileManager.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages,
-                isDirectory: true
-            ),
-            withIntermediateDirectories: true
-        )
+        try fileManager.operate {
+            try $0.createDirectory(at: temporaryFolderURL, withIntermediateDirectories: true)
+            try $0.createDirectory(
+                at: temporaryFolderURL.appendingPathComponent(
+                    Defaults.FilePath.downloadPages,
+                    isDirectory: true
+                ),
+                withIntermediateDirectories: true
+            )
+        }
 
         try linkOrCopyReadableAsset(
             at: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
@@ -161,32 +171,38 @@ extension DownloadFileStorage {
 
     func removeFolder(relativePath: String) throws {
         let targetURL = folderURL(relativePath: relativePath)
-        guard fileManager.fileExists(atPath: targetURL.path) else { return }
-        try fileManager.removeItem(at: targetURL)
+        try fileManager.operate {
+            guard $0.fileExists(atPath: targetURL.path) else { return }
+            try $0.removeItem(at: targetURL)
+        }
     }
 
     func cleanupTemporaryFolders(preservingGIDs: Set<String> = []) throws {
-        guard fileManager.fileExists(atPath: rootURL.path) else { return }
-        let urls = try fileManager.contentsOfDirectory(
-            at: rootURL,
-            includingPropertiesForKeys: nil
-        )
+        let urls = try fileManager.operate {
+            guard $0.fileExists(atPath: rootURL.path) else { return [URL]() }
+            return try $0.contentsOfDirectory(
+                at: rootURL,
+                includingPropertiesForKeys: nil
+            )
+        }
         for url in urls where url.lastPathComponent.hasPrefix(".tmp-") {
             let gid = String(url.lastPathComponent.dropFirst(".tmp-".count))
             if preservingGIDs.contains(gid) {
                 continue
             }
-            try? fileManager.removeItem(at: url)
+            try? fileManager.operate {
+                try $0.removeItem(at: url)
+            }
         }
     }
 
     func validate(download: DownloadedGallery) -> DownloadValidationState {
         let folderURL = download.resolvedFolderURL(rootURL: rootURL)
-        guard fileManager.fileExists(atPath: folderURL.path) else {
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadFolderMissing)
         }
         let manifestURL = download.resolvedManifestURL(rootURL: rootURL)
-        guard fileManager.fileExists(atPath: manifestURL.path) else {
+        guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestMissing)
         }
         guard let manifest = try? readManifest(folderURL: folderURL) else {
