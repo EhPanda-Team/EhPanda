@@ -125,6 +125,105 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerFetchesDownloadsFromManifestIndex() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        try insertPersistedDownload(
+            in: container,
+            gid: "600",
+            status: .failed,
+            completedPageCount: 0,
+            pageCount: 1
+        )
+        try insertPersistedDownload(
+            in: container,
+            gid: "601",
+            status: .completed,
+            completedPageCount: 1,
+            pageCount: 1
+        )
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[600_token] Disk",
+            manifest: indexedManifest(
+                gid: "600",
+                title: "Disk",
+                pageHashes: [""]
+            )
+        )
+        await manager.testingSetQueuedGalleryIDs(["600"])
+
+        let downloads = await manager.fetchDownloads()
+        let indexedDownload = try #require(await manager.fetchDownload(gid: "600"))
+        let fallbackDownload = try #require(await manager.fetchDownload(gid: "601"))
+        let badges = await manager.badges(for: ["600", "601"])
+
+        #expect(downloads.map(\.gid) == ["600"])
+        #expect(indexedDownload.title == "Disk")
+        #expect(indexedDownload.displayStatus == .queued)
+        #expect(indexedDownload.status == .queued)
+        #expect(fallbackDownload.gid == "601")
+        #expect(fallbackDownload.status == .completed)
+        #expect(badges["600"] == .queued)
+        #expect(badges["601"] == .downloaded)
+    }
+
+    @Test
+    func testDownloadManagerObserverInitialSnapshotUsesManifestIndex() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[700_token] Observed",
+            manifest: indexedManifest(
+                gid: "700",
+                title: "Observed",
+                pageHashes: ["sha256:1"]
+            )
+        )
+
+        let stream = await manager.observeDownloads()
+        let initialSnapshotTask = Task<[DownloadedGallery]?, Never> {
+            var iterator = stream.makeAsyncIterator()
+            return await iterator.next()
+        }
+
+        let snapshot = try await waitForTaskValue(
+            initialSnapshotTask,
+            timeout: .seconds(1),
+            description: "initial download observer snapshot"
+        )
+        let downloads = try #require(snapshot)
+        let download = try #require(downloads.first)
+
+        #expect(downloads.map(\.gid) == ["700"])
+        #expect(download.title == "Observed")
+        #expect(download.displayStatus == .completed)
+    }
+
+    @Test
     func testDownloadManagerIndexAppliesSessionOnlyFlags() async throws {
         let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
@@ -257,7 +356,11 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
+        let manifest = try indexedManifest(
+            gid: gid,
+            title: "Pause Race",
+            pageHashes: ["sha256:1", "sha256:2"]
+        )
         try JSONEncoder().encode(manifest).write(
             to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
@@ -266,10 +369,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             to: completedFolderURL.appendingPathComponent("cover.jpg"),
             options: .atomic
         )
-        let completedPageURL = completedFolderURL.appendingPathComponent("pages/0001.jpg")
+        let completedPageURL = completedFolderURL.appendingPathComponent("\(gid)_token_1.jpg")
         try Data([0x01]).write(to: completedPageURL, options: .atomic)
         try Data([0x02]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0002.jpg"),
+            to: completedFolderURL.appendingPathComponent("\(gid)_token_2.jpg"),
             options: .atomic
         )
 

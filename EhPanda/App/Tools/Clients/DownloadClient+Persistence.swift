@@ -112,6 +112,42 @@ extension DownloadManager {
     func fetchDownload(
         gid: String
     ) async -> DownloadedGallery? {
+        _ = await reloadDownloadIndex()
+        if let indexedDownload = indexedDownload(gid: gid) {
+            return indexedDownload
+        }
+        return await fetchDownloadFromCoreData(gid: gid)
+    }
+
+    func fetchDownloadsFromStore() async -> [DownloadedGallery] {
+#if DEBUG
+        if let testingFetchDownloadsFromStoreHook {
+            await testingFetchDownloadsFromStoreHook()
+        }
+#endif
+        let downloads = await reloadDownloadIndex()
+        guard downloads.isEmpty else { return downloads }
+        return sortDownloads(await fetchDownloadsFromCoreData())
+    }
+
+    func fetchDownloadsFromStore(
+        gids: [String]
+    ) async -> [DownloadedGallery] {
+        let gidSet = Set(gids)
+        let indexedDownloads = await reloadDownloadIndex()
+            .filter { gidSet.contains($0.gid) }
+        let indexedGIDs = Set(indexedDownloads.map(\.gid))
+        let missingGIDs = gids.filter { !indexedGIDs.contains($0) }
+        guard !missingGIDs.isEmpty else { return indexedDownloads }
+        let persistedDownloads = await fetchDownloadsFromCoreData(
+            gids: missingGIDs
+        )
+        return sortDownloads(indexedDownloads + persistedDownloads)
+    }
+
+    private func fetchDownloadFromCoreData(
+        gid: String
+    ) async -> DownloadedGallery? {
         await MainActor.run {
             let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
@@ -126,12 +162,7 @@ extension DownloadManager {
         }
     }
 
-    func fetchDownloadsFromStore() async -> [DownloadedGallery] {
-#if DEBUG
-        if let testingFetchDownloadsFromStoreHook {
-            await testingFetchDownloadsFromStoreHook()
-        }
-#endif
+    private func fetchDownloadsFromCoreData() async -> [DownloadedGallery] {
         return await MainActor.run {
             let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
@@ -149,7 +180,7 @@ extension DownloadManager {
         }
     }
 
-    func fetchDownloadsFromStore(
+    private func fetchDownloadsFromCoreData(
         gids: [String]
     ) async -> [DownloadedGallery] {
         await MainActor.run {
