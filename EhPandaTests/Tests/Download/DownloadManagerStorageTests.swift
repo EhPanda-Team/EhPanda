@@ -272,6 +272,125 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerFailureSettlesQueueIntent() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[800_token] Failing",
+            manifest: indexedManifest(
+                gid: "800",
+                title: "Failing",
+                pageHashes: [""]
+            )
+        )
+        await queueStore.enqueue("800")
+        let download = try #require(await manager.fetchDownload(gid: "800"))
+
+        await manager.persistFailure(
+            error: .networkingFailed,
+            context: .init(
+                gid: "800",
+                originalDownload: download,
+                mode: .initial,
+                hadReadableFiles: false,
+                latestSignature: nil
+            )
+        )
+
+        let failedDownload = try #require(await manager.fetchDownload(gid: "800"))
+        let badges = await manager.badges(for: ["800"])
+
+        #expect(queueStore.gids == [])
+        #expect(failedDownload.displayStatus == .error)
+        #expect(failedDownload.status == .failed)
+        #expect(failedDownload.lastError?.code == .networkingFailed)
+        #expect(badges["800"] == .failed)
+    }
+
+    @Test
+    func testDownloadManagerCompletionSettlesQueueIntent() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore,
+            persistenceContainer: container
+        )
+
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: "Complete")
+        let folderRelativePath = storage.makeFolderRelativePath(
+            gid: gallery.gid,
+            token: gallery.token,
+            title: detail.trimmedTitle
+        )
+        let payload = DownloadRequestPayload(
+            gallery: gallery,
+            galleryDetail: detail,
+            previewURLs: [:],
+            previewConfig: .normal(rows: 4),
+            host: .ehentai,
+            options: .init(),
+            mode: .initial
+        )
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: folderRelativePath,
+            manifest: indexedManifest(
+                gid: gallery.gid,
+                title: "Complete",
+                pageHashes: Array(
+                    repeating: "sha256:done",
+                    count: detail.pageCount
+                )
+            )
+        )
+        await queueStore.enqueue(gallery.gid)
+        await manager.testingSetDownloadError(
+            .init(code: .networkingFailed, message: "failed"),
+            gid: gallery.gid
+        )
+
+        try await manager.persistCompletedDownload(
+            gid: gallery.gid,
+            payload: payload,
+            folderRelativePath: folderRelativePath,
+            coverRelativePath: nil,
+            versionSignature: "hash:v1"
+        )
+
+        let completedDownload = try #require(
+            await manager.fetchDownload(gid: gallery.gid)
+        )
+
+        #expect(queueStore.gids == [])
+        #expect(completedDownload.displayStatus == .completed)
+        #expect(completedDownload.lastError == nil)
+    }
+
+    @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
         let container = try makeInMemoryContainer()
 
