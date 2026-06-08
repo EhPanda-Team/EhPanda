@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import CoreData
 import Foundation
 
 // MARK: - Disk Index
@@ -122,16 +121,13 @@ private extension DownloadFolderRecord {
     }
 }
 
-// MARK: - Core Data Operations
+// MARK: - Store Operations
 extension DownloadManager {
     func fetchDownload(
         gid: String
     ) async -> DownloadedGallery? {
         _ = await reloadDownloadIndex()
-        if let indexedDownload = await indexedDownload(gid: gid) {
-            return indexedDownload
-        }
-        return await fetchDownloadFromCoreData(gid: gid)
+        return await indexedDownload(gid: gid)
     }
 
     func fetchDownloadsFromStore() async -> [DownloadedGallery] {
@@ -140,162 +136,20 @@ extension DownloadManager {
             await testingFetchDownloadsFromStoreHook()
         }
 #endif
-        let downloads = await reloadDownloadIndex()
-        guard downloads.isEmpty else { return downloads }
-        return sortDownloads(await fetchDownloadsFromCoreData())
+        return await reloadDownloadIndex()
     }
 
     func fetchDownloadsFromStore(
         gids: [String]
     ) async -> [DownloadedGallery] {
+#if DEBUG
+        if let testingFetchDownloadsFromStoreHook {
+            await testingFetchDownloadsFromStoreHook()
+        }
+#endif
         let gidSet = Set(gids)
-        let indexedDownloads = await reloadDownloadIndex()
+        return await reloadDownloadIndex()
             .filter { gidSet.contains($0.gid) }
-        let indexedGIDs = Set(indexedDownloads.map(\.gid))
-        let missingGIDs = gids.filter { !indexedGIDs.contains($0) }
-        guard !missingGIDs.isEmpty else { return indexedDownloads }
-        let persistedDownloads = await fetchDownloadsFromCoreData(
-            gids: missingGIDs
-        )
-        return sortDownloads(indexedDownloads + persistedDownloads)
-    }
-
-    private func fetchDownloadFromCoreData(
-        gid: String
-    ) async -> DownloadedGallery? {
-        await MainActor.run {
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<DownloadedGalleryMO>(
-                entityName: "DownloadedGalleryMO"
-            )
-            request.fetchLimit = 1
-            request.predicate = NSPredicate(
-                format: "gid == %@",
-                gid
-            )
-            return try? context.fetch(request).first?.toEntity()
-        }
-    }
-
-    private func fetchDownloadsFromCoreData() async -> [DownloadedGallery] {
-        return await MainActor.run {
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<DownloadedGalleryMO>(
-                entityName: "DownloadedGalleryMO"
-            )
-            request.sortDescriptors = [
-                NSSortDescriptor(
-                    keyPath: \DownloadedGalleryMO
-                        .lastDownloadedAt,
-                    ascending: false
-                )
-            ]
-            let objects = (try? context.fetch(request)) ?? []
-            return objects.map { $0.toEntity() }
-        }
-    }
-
-    private func fetchDownloadsFromCoreData(
-        gids: [String]
-    ) async -> [DownloadedGallery] {
-        await MainActor.run {
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<DownloadedGalleryMO>(
-                entityName: "DownloadedGalleryMO"
-            )
-            request.predicate = NSPredicate(
-                format: "gid IN %@",
-                gids
-            )
-            request.sortDescriptors = [
-                NSSortDescriptor(
-                    keyPath: \DownloadedGalleryMO
-                        .lastDownloadedAt,
-                    ascending: false
-                )
-            ]
-            let objects = (try? context.fetch(request)) ?? []
-            return objects.map { $0.toEntity() }
-        }
-    }
-
-    func updateDownloadRecord(
-        gid: String,
-        createIfMissing: Bool = true,
-        update: @MainActor @Sendable @escaping (DownloadedGalleryMO) -> Void
-    ) async throws {
-        try await MainActor.run {
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<DownloadedGalleryMO>(
-                entityName: "DownloadedGalleryMO"
-            )
-            request.fetchLimit = 1
-            request.predicate = NSPredicate(
-                format: "gid == %@",
-                gid
-            )
-
-            let object: DownloadedGalleryMO
-            if let storedObject =
-                try context.fetch(request).first {
-                object = storedObject
-            } else if !createIfMissing {
-                return
-            } else {
-                object = DownloadedGalleryMO(context: context)
-                object.gid = gid
-                object.host = GalleryHost.ehentai.rawValue
-                object.token = ""
-                object.title = ""
-                object.category =
-                    Category.private.rawValue
-                object.pageCount = 0
-                object.postedDate = .now
-                object.rating = 0
-                object.folderRelativePath = gid
-                object.status =
-                    DownloadStatus.queued.rawValue
-                object.remoteVersionSignature = ""
-                object.completedPageCount = 0
-            }
-
-            update(object)
-            guard context.hasChanges else { return }
-            do {
-                try context.save()
-            } catch {
-                throw AppError.databaseCorrupted(
-                    error.localizedDescription
-                )
-            }
-        }
-    }
-
-    func deleteDownloadRecord(gid: String) async throws {
-        try await MainActor.run {
-            let context = persistenceContainer.viewContext
-            let request = NSFetchRequest<DownloadedGalleryMO>(
-                entityName: "DownloadedGalleryMO"
-            )
-            request.fetchLimit = 1
-            request.predicate = NSPredicate(
-                format: "gid == %@",
-                gid
-            )
-            guard let object =
-                    try context.fetch(request).first else {
-                return
-            }
-            context.delete(object)
-            guard context.hasChanges else { return }
-            do {
-                try context.save()
-            } catch {
-                throw AppError.databaseCorrupted(
-                    error.localizedDescription
-                )
-            }
-        }
     }
 }
 
@@ -312,120 +166,7 @@ extension DownloadManager {
 #endif
         downloadErrors[context.gid] = DownloadFailure(error: error)
         await queueStore.remove(context.gid)
-        let indexedDownloads = await reloadDownloadIndex()
-        guard indexedDownloads.contains(where: { $0.gid == context.gid })
-        else {
-            await persistLegacyFailure(
-                error: error,
-                context: context
-            )
-            return
-        }
-    }
-
-    private func persistLegacyFailure(
-        error: AppError,
-        context: FailureContext
-    ) async {
-        let workingCompletedPageCount =
-            temporaryCompletedPageCount(
-                gid: context.gid,
-                expectedPageCount:
-                    context.originalDownload.pageCount
-            )
-        let hasTemporaryWorkingSet = storage
-            .temporaryFolderExists(gid: context.gid)
-        let recoveredCompletedPageCount =
-            hasTemporaryWorkingSet
-            ? workingCompletedPageCount
-            : max(
-                context.originalDownload
-                    .completedPageCount,
-                workingCompletedPageCount
-            )
-        do {
-            try await updateDownloadRecord(
-                gid: context.gid,
-                createIfMissing: false
-            ) { record in
-                record.lastError =
-                    DownloadFailure(error: error).toData()
-                record.pendingOperation = nil
-                self.applyFailureStatus(
-                    to: record,
-                    context: context,
-                    workingCompletedPageCount:
-                        workingCompletedPageCount,
-                    recoveredCompletedPageCount:
-                        recoveredCompletedPageCount
-                )
-            }
-        } catch {
-            Logger.error(error)
-        }
-    }
-
-    nonisolated private func applyFailureStatus(
-        to record: DownloadedGalleryMO,
-        context: FailureContext,
-        workingCompletedPageCount: Int,
-        recoveredCompletedPageCount: Int
-    ) {
-        if context.mode == .repair {
-            applyRepairFailureStatus(to: record, context: context)
-        } else if context.hadReadableFiles,
-                  [.update, .redownload].contains(context.mode) {
-            applyFallbackFailureStatus(to: record, context: context)
-        } else if workingCompletedPageCount > 0 {
-            record.status = DownloadStatus.partial.rawValue
-            record.completedPageCount = Int64(workingCompletedPageCount)
-            record.latestRemoteVersionSignature =
-                context.originalDownload.latestRemoteVersionSignature
-        } else {
-            record.status = DownloadStatus.partial.rawValue
-            record.completedPageCount = Int64(recoveredCompletedPageCount)
-            record.latestRemoteVersionSignature =
-                context.originalDownload.latestRemoteVersionSignature
-        }
-    }
-
-    nonisolated private func applyRepairFailureStatus(
-        to record: DownloadedGalleryMO,
-        context: FailureContext
-    ) {
-        record.status = DownloadStatus.missingFiles.rawValue
-        record.completedPageCount = Int64(
-            context.originalDownload.completedPageCount
-        )
-        record.folderRelativePath =
-            context.originalDownload.folderRelativePath
-        record.coverRelativePath =
-            context.originalDownload.coverRelativePath
-        record.remoteVersionSignature =
-            context.originalDownload.remoteVersionSignature
-        record.latestRemoteVersionSignature =
-            context.originalDownload.latestRemoteVersionSignature
-    }
-
-    nonisolated private func applyFallbackFailureStatus(
-        to record: DownloadedGalleryMO,
-        context: FailureContext
-    ) {
-        record.status = self.fallbackStatus(
-            for: context.originalDownload,
-            mode: context.mode
-        ).rawValue
-        record.completedPageCount = Int64(
-            context.originalDownload.pageCount
-        )
-        record.folderRelativePath =
-            context.originalDownload.folderRelativePath
-        record.coverRelativePath =
-            context.originalDownload.coverRelativePath
-        record.remoteVersionSignature =
-            context.originalDownload.remoteVersionSignature
-        record.latestRemoteVersionSignature =
-            context.originalDownload.latestRemoteVersionSignature
+        _ = await reloadDownloadIndex()
     }
 
     func flushDownloadProgress(

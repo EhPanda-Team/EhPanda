@@ -91,39 +91,8 @@ extension DownloadManager {
                     || shouldClearCancellationError else {
                 continue
             }
-            if downloadIndex[download.gid] != nil {
-                if shouldClearCancellationError {
-                    downloadErrors[download.gid] = nil
-                }
-                continue
-            }
-
-            let normalizedCompletedPageCount = max(
-                download.completedPageCount,
-                temporaryCompletedPageCount(
-                    gid: download.gid,
-                    expectedPageCount:
-                        max(download.pageCount, 1)
-                )
-            )
-            do {
-                try await updateDownloadRecord(
-                    gid: download.gid,
-                    createIfMissing: false
-                ) { record in
-                    if download.status == .failed {
-                        record.status =
-                            DownloadStatus.partial.rawValue
-                        record.completedPageCount = Int64(
-                            normalizedCompletedPageCount
-                        )
-                    }
-                    if shouldClearCancellationError {
-                        record.lastError = nil
-                    }
-                }
-            } catch {
-                Logger.error(error)
+            if shouldClearCancellationError {
+                downloadErrors[download.gid] = nil
             }
         }
     }
@@ -138,22 +107,8 @@ extension DownloadManager {
             activeGalleryID: activeGalleryID,
             hasActiveTask: hasActiveTask
         ) {
-            if downloadIndex[download.gid] != nil {
-                if activeGalleryID == download.gid, !hasActiveTask {
-                    self.activeGalleryID = nil
-                }
-                continue
-            }
-            do {
-                try await updateDownloadRecord(
-                    gid: download.gid,
-                    createIfMissing: false
-                ) { record in
-                    record.status =
-                        DownloadStatus.paused.rawValue
-                }
-            } catch {
-                Logger.error(error)
+            if activeGalleryID == download.gid, !hasActiveTask {
+                self.activeGalleryID = nil
             }
         }
     }
@@ -161,24 +116,10 @@ extension DownloadManager {
     func reconcileActiveDownloadState() async {
         guard activeTask != nil,
               let activeGalleryID,
-              let activeDownload = await fetchDownload(
-                gid: activeGalleryID
-              ),
-              activeDownload.status != .downloading
+              await fetchDownload(gid: activeGalleryID) != nil
         else { return }
 
-        do {
-            try await updateDownloadRecord(
-                gid: activeGalleryID,
-                createIfMissing: false
-            ) { record in
-                record.status =
-                    DownloadStatus.downloading.rawValue
-                record.lastError = nil
-            }
-        } catch {
-            Logger.error(error)
-        }
+        downloadErrors[activeGalleryID] = nil
     }
 
     func validateDownloads() async {
@@ -199,50 +140,17 @@ extension DownloadManager {
 
     private func validateDownload(_ download: DownloadedGallery) async -> DownloadValidationState {
         let validation = storage.validate(download: download)
-        let isIndexedDownload = downloadIndex[download.gid] != nil
         switch validation {
         case .valid:
             refreshMissingManifestHashesIfNeeded(download: download)
-            if isIndexedDownload {
-                validationErrors[download.gid] = nil
-                return validation
-            }
-            let expectedStatus: DownloadStatus =
-                download.hasUpdate
-                ? .updateAvailable : .completed
-            guard download.status != expectedStatus
-            else { return validation }
-            do {
-                try await updateDownloadRecord(
-                    gid: download.gid,
-                    createIfMissing: false
-                ) { record in
-                    record.status = expectedStatus.rawValue
-                }
-            } catch {
-                Logger.error(error)
-            }
+            validationErrors[download.gid] = nil
 
         case .missingFiles(let message):
             let failure = DownloadFailure(
                 code: .fileOperationFailed,
                 message: message
             )
-            if isIndexedDownload {
-                validationErrors[download.gid] = failure
-                return validation
-            }
-            do {
-                try await updateDownloadRecord(
-                    gid: download.gid,
-                    createIfMissing: false
-                ) { record in
-                    record.status = DownloadStatus.missingFiles.rawValue
-                    record.lastError = failure.toData()
-                }
-            } catch {
-                Logger.error(error)
-            }
+            validationErrors[download.gid] = failure
         }
         return validation
     }

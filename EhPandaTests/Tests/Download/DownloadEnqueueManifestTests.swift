@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -17,12 +16,10 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let container = try makeInMemoryContainer()
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
         await manager.testingInstallActiveTask(gid: "busy", task: Task {})
 
@@ -71,9 +68,8 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         )
         #expect(manifestObject["downloadOptions"] == nil)
 
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        #expect(try container.viewContext.count(for: request) == 0)
+        let queuedDownload = await manager.testingFetchDownload(gid: gallery.gid)
+        #expect(queuedDownload?.status == .queued)
+        #expect(queuedDownload?.pageCount == detail.pageCount)
     }
 }

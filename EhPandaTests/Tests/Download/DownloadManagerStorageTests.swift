@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Kingfisher
 import UIKit
 import Foundation
@@ -14,7 +13,6 @@ import Testing
 struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     @Test
     func testDownloadManagerReloadDownloadIndexScansManifestFolders() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -22,8 +20,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         try storage.ensureRootDirectory()
@@ -68,7 +65,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerReloadDownloadIndexKeepsNewestDuplicateFolder() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -76,8 +72,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         let olderDate = Date(timeIntervalSince1970: 100)
@@ -126,7 +121,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerFetchesDownloadsFromManifestIndex() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -134,24 +128,9 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
-        try insertPersistedDownload(
-            in: container,
-            gid: "600",
-            status: .failed,
-            completedPageCount: 0,
-            pageCount: 1
-        )
-        try insertPersistedDownload(
-            in: container,
-            gid: "601",
-            status: .completed,
-            completedPageCount: 1,
-            pageCount: 1
-        )
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
@@ -166,22 +145,19 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let downloads = await manager.fetchDownloads()
         let indexedDownload = try #require(await manager.fetchDownload(gid: "600"))
-        let fallbackDownload = try #require(await manager.fetchDownload(gid: "601"))
         let badges = await manager.badges(for: ["600", "601"])
 
         #expect(downloads.map(\.gid) == ["600"])
         #expect(indexedDownload.title == "Disk")
         #expect(indexedDownload.displayStatus == .queued)
         #expect(indexedDownload.status == .queued)
-        #expect(fallbackDownload.gid == "601")
-        #expect(fallbackDownload.status == .completed)
+        #expect(await manager.fetchDownload(gid: "601") == nil)
         #expect(badges["600"] == .queued)
-        #expect(badges["601"] == .downloaded)
+        #expect(badges["601"] == nil)
     }
 
     @Test
     func testDownloadManagerObserverInitialSnapshotUsesManifestIndex() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -189,8 +165,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         try storage.ensureRootDirectory()
@@ -225,7 +200,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerIndexAppliesSessionOnlyFlags() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -233,8 +207,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         try storage.ensureRootDirectory()
@@ -273,7 +246,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerReconcileClearsIndexedCancellationError() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -281,8 +253,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
         let cancellationFailure = DownloadFailure(
             code: .fileOperationFailed,
@@ -290,14 +261,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "410",
-            status: .failed,
-            completedPageCount: 0,
-            pageCount: 1,
-            lastError: cancellationFailure
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[410_token] Cancelled",
@@ -318,20 +281,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(download.displayStatus == .inactive)
         #expect(download.status == .paused)
         #expect(download.lastError == nil)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "410")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.failed.rawValue)
-        #expect(persistedDownload?.lastError != nil)
     }
 
     @Test
     func testDownloadManagerReconcileClearsIndexedInterruptedActiveFlag() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -339,18 +292,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "420",
-            status: .downloading,
-            completedPageCount: 0,
-            pageCount: 1
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[420_token] Interrupted",
@@ -368,19 +313,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(download.displayStatus == .inactive)
         #expect(download.status == .paused)
         #expect(await manager.testingActiveGalleryID() == nil)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "420")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.downloading.rawValue)
     }
 
     @Test
     func testDownloadManagerSanitizeClearsIndexedError() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -388,8 +324,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
         let failure = DownloadFailure(
             code: .fileOperationFailed,
@@ -397,14 +332,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "430",
-            status: .failed,
-            completedPageCount: 0,
-            pageCount: 1,
-            lastError: failure
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[430_token] Sanitize",
@@ -424,20 +351,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(sanitizedDownload?.displayStatus == .inactive)
         #expect(sanitizedDownload?.status == .paused)
         #expect(sanitizedDownload?.lastError == nil)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "430")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.failed.rawValue)
-        #expect(persistedDownload?.lastError != nil)
     }
 
     @Test
     func testDownloadManagerValidateIndexedMissingFileUsesSessionError() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -445,18 +362,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "440",
-            status: .completed,
-            completedPageCount: 1,
-            pageCount: 1
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[440_token] Missing",
@@ -475,20 +384,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(download.status == .failed)
         #expect(download.lastError?.code == .fileOperationFailed)
         #expect(download.badge == .failed)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "440")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.completed.rawValue)
-        #expect(persistedDownload?.lastError == nil)
     }
 
     @Test
     func testDownloadManagerRetryIndexedDownloadUsesQueueIntent() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -498,18 +397,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "450",
-            status: .completed,
-            completedPageCount: 1,
-            pageCount: 1
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[450_token] Retry",
@@ -538,20 +429,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(download.displayStatus == .queued)
         #expect(download.status == .queued)
         #expect(download.pendingOperation == nil)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "450")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.completed.rawValue)
-        #expect(persistedDownload?.pendingOperation == nil)
     }
 
     @Test
     func testDownloadManagerRetryPagesIndexedDownloadUsesQueueIntent() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -561,19 +442,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "460",
-            status: .missingFiles,
-            completedPageCount: 1,
-            pageCount: 2,
-            pendingOperation: .repair
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[460_token] Retry Pages",
@@ -625,20 +497,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(FileManager.default.fileExists(
             atPath: storage.failedPagesURL(folderURL: temporaryFolderURL).path
         ) == false)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "460")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.missingFiles.rawValue)
-        #expect(persistedDownload?.pendingOperation == DownloadStartMode.repair.rawValue)
     }
 
     @Test
     func testDownloadManagerFailureSettlesQueueIntent() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -648,18 +510,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
 
         try storage.ensureRootDirectory()
-        try insertPersistedDownload(
-            in: container,
-            gid: "800",
-            status: .queued,
-            completedPageCount: 0,
-            pageCount: 1
-        )
         try writeIndexedManifest(
             storage: storage,
             relativePath: "[800_token] Failing",
@@ -690,20 +544,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(failedDownload.status == .failed)
         #expect(failedDownload.lastError?.code == .networkingFailed)
         #expect(badges["800"] == .failed)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "800")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.queued.rawValue)
-        #expect(persistedDownload?.lastError == nil)
     }
 
     @Test
     func testDownloadManagerCompletionSettlesQueueIntent() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -713,8 +557,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
 
         let gallery = sampleGallery()
@@ -757,7 +600,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerPauseAndResumeMutateQueueIntent() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -767,8 +609,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
 
         try storage.ensureRootDirectory()
@@ -785,14 +626,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         await manager.testingSetDownloadError(
             .init(code: .networkingFailed, message: "failed"),
             gid: "820"
-        )
-        try insertPersistedDownload(
-            in: container,
-            gid: "820",
-            status: .downloading,
-            completedPageCount: 1,
-            pageCount: 2,
-            lastError: .init(code: .networkingFailed, message: "stale")
         )
         let activeTask = Task {
             do {
@@ -826,20 +659,10 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(resumedDownload.displayStatus == .queued)
         #expect(resumedDownload.status == .queued)
         #expect(resumedDownload.lastError == nil)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", "820")
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.downloading.rawValue)
-        #expect(persistedDownload?.lastError != nil)
     }
 
     @Test
     func testDownloadManagerSchedulesManifestQueueOrder() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -849,8 +672,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore,
-            persistenceContainer: container
+            queueStore: queueStore
         )
         await manager.testingSetScheduledProcessHook { _ in
             while !Task.isCancelled {
@@ -896,7 +718,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerFlushProgressUpdatesManifestPageHash() async throws {
-        let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -904,8 +725,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
+            urlSession: .shared
         )
 
         try storage.ensureRootDirectory()
@@ -958,25 +778,26 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
-            storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared,
-            persistenceContainer: container
+            storage: storage,
+            urlSession: .shared
         )
 
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .failed,
-            completedPageCount: 1,
-            pageCount: 2
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[\(gid)_token] Inspect",
+            manifest: indexedManifest(
+                gid: gid,
+                title: "Inspect",
+                pageHashes: ["sha256:done", ""]
+            )
         )
 
         let temporaryFolderURL = rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
@@ -1014,8 +835,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerLoadLocalPageURLsPrefersCompletedFolderForCompletedDownload() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 11)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -1024,16 +843,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
-        )
-
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .completed,
-            completedPageCount: 2,
-            pageCount: 2
+            urlSession: .shared
         )
 
         let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
@@ -1078,8 +888,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerLoadLocalPageURLsMergesReadableCompletedPagesWithTemporaryPages() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 12)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -1088,16 +896,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
-        )
-
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .downloading,
-            completedPageCount: 2,
-            pageCount: 2
+            urlSession: .shared
         )
 
         let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)

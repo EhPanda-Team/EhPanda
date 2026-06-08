@@ -199,25 +199,7 @@ extension DownloadManager {
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
         await queueStore.remove(gid)
-        let indexedDownloads = await reloadDownloadIndex()
-        if !indexedDownloads.contains(where: { $0.gid == gid }) {
-            let initialCount = max(
-                download.completedPageCount,
-                temporaryCompletedPageCount(
-                    gid: gid,
-                    expectedPageCount: max(download.pageCount, 1)
-                )
-            )
-            try await updateDownloadRecord(
-                gid: gid,
-                createIfMissing: false
-            ) { record in
-                record.status = DownloadStatus.paused.rawValue
-                record.completedPageCount = Int64(initialCount)
-                record.lastError = nil
-                record.lastDownloadedAt = .now
-            }
-        }
+        _ = await reloadDownloadIndex()
         await notifyObservers()
         if activeGalleryID == gid {
             let task = activeTask
@@ -236,25 +218,7 @@ extension DownloadManager {
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
         await queueStore.remove(gid)
-        let indexedDownloads = await reloadDownloadIndex()
-        if !indexedDownloads.contains(where: { $0.gid == gid }) {
-            let settledCount = max(
-                download.completedPageCount,
-                temporaryCompletedPageCount(
-                    gid: gid,
-                    expectedPageCount: max(download.pageCount, 1)
-                )
-            )
-            try await updateDownloadRecord(
-                gid: gid,
-                createIfMissing: false
-            ) { record in
-                record.status = DownloadStatus.paused.rawValue
-                record.completedPageCount = Int64(settledCount)
-                record.lastError = nil
-                record.lastDownloadedAt = .now
-            }
-        }
+        _ = await reloadDownloadIndex()
     }
 
     func cancelQueuedWorkItem(
@@ -268,28 +232,8 @@ extension DownloadManager {
             break
         }
 
-        let restoredStatus = download.status
-        let restoredCompletedPageCount =
-            validatedCompletedPageCount(download)
-        do {
-            try await updateDownloadRecord(
-                gid: download.gid,
-                createIfMissing: false
-            ) { record in
-                record.status = restoredStatus.rawValue
-                record.completedPageCount =
-                    Int64(restoredCompletedPageCount)
-                record.lastDownloadedAt = .now
-                record.pendingOperation = nil
-            }
-            await notifyObservers()
-            return .success(())
-        } catch let error as AppError {
-            return .failure(error)
-        } catch {
-            Logger.error(error)
-            return .failure(.unknown)
-        }
+        await notifyObservers()
+        return .success(())
     }
 
     func resume(gid: String) async -> Result<Void, AppError> {
@@ -297,49 +241,13 @@ extension DownloadManager {
             return .failure(.notFound)
         }
 
-        do {
-            downloadErrors[gid] = nil
-            validationErrors[gid] = nil
-            await queueStore.enqueue(gid)
-            let indexedDownloads = await reloadDownloadIndex()
-            if indexedDownloads.contains(where: { $0.gid == gid }) {
-                await notifyObservers()
-                await scheduleNextIfNeeded()
-                return .success(())
-            }
-            let resumedStatus: DownloadStatus =
-                activeTask == nil ? .downloading : .queued
-            try await updateDownloadRecord(
-                gid: gid,
-                createIfMissing: false
-            ) { record in
-                record.status = resumedStatus.rawValue
-                record.lastError = nil
-                record.lastDownloadedAt = .now
-                record.pendingOperation = nil
-            }
-            await notifyObservers()
-            await scheduleNextIfNeeded()
-            return .success(())
-        } catch let error as AppError {
-            return .failure(error)
-        } catch {
-            Logger.error(error)
-            return .failure(.unknown)
-        }
+        downloadErrors[gid] = nil
+        validationErrors[gid] = nil
+        await queueStore.enqueue(gid)
+        _ = await reloadDownloadIndex()
+        await notifyObservers()
+        await scheduleNextIfNeeded()
+        return .success(())
     }
 
-    func sortDownloads(
-        _ downloads: [DownloadedGallery]
-    ) -> [DownloadedGallery] {
-        downloads.sorted { lhs, rhs in
-            let lhsPriority = lhs.sortPriority
-            let rhsPriority = rhs.sortPriority
-            if lhsPriority != rhsPriority {
-                return lhsPriority < rhsPriority
-            }
-            return (lhs.lastDownloadedAt ?? .distantPast)
-                > (rhs.lastDownloadedAt ?? .distantPast)
-        }
-    }
 }

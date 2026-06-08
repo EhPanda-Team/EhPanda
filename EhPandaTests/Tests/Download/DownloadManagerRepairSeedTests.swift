@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Kingfisher
 import SDWebImage
 import UIKit
@@ -59,20 +58,13 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
 
     @Test
     func testDownloadManagerLoadLocalPageURLsRemovesZeroBytePage() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
-
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .completed,
-            completedPageCount: 2, pageCount: 2
-        )
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
 
         let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
             rootURL: rootURL, gid: gid, storage: storage

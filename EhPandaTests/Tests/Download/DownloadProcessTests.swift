@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -12,30 +11,28 @@ import Testing
 struct DownloadProcessTests: DownloadFeatureTestCase {
     @Test
     func testFailurePersistenceCompletesBeforeRescheduling() async throws {
-        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
         let gid = "100010"
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (_, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadManager(
             rootURL: rootURL,
-            sessionID: sessionID,
-            persistenceContainer: container
+            sessionID: sessionID
         )
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
             throw URLError(.notConnectedToInternet)
         }
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
-        try insertPersistedDownload(
-            in: container,
+        try writeProcessManifestFolder(
+            storage: storage,
             gid: gid,
-            status: .queued,
-            completedPageCount: 0,
+            title: "Queued Failure",
             pageCount: 2
         )
+        await manager.testingSetQueuedGalleryIDs([gid])
 
         let persistenceGate = FailurePersistenceGate()
         await manager.testingSetPersistFailureHook {
@@ -61,7 +58,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await manager.testingSetPersistFailureHook(nil)
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.status == .partial)
+        #expect(stored?.status == .failed)
         #expect(stored?.lastError?.code == .networkingFailed)
 
         await manager.testingScheduleNextIfNeeded()
@@ -72,7 +69,6 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
 
     @Test
     func testProcessDownloadClearsStalePageSelectionWhenLatestPayloadRevealsUpdate() async throws {
-        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 401)
         let pageIndex = 42
@@ -82,7 +78,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadManager(
-            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+            rootURL: rootURL, sessionID: sessionID
         )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
@@ -92,19 +88,12 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         )
         let oldPageCount = updatedPageCount - 5
 
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .partial,
-            completedPageCount: oldPageCount - 1, pageCount: oldPageCount,
-            remoteVersionSignature: oldVersionSignature,
-            latestRemoteVersionSignature: oldVersionSignature
-        )
-        let beforeProcess = await manager.testingFetchDownload(gid: gid)
-        #expect(beforeProcess?.hasUpdate ?? true == false)
-
         let staleFolderURL = try prepareStaleExistingFolder(
             storage: storage, gid: gid, pageIndex: pageIndex,
             oldPageCount: oldPageCount, oldVersionSignature: oldVersionSignature
         )
+        let beforeProcess = await manager.testingFetchDownload(gid: gid)
+        #expect(beforeProcess?.hasUpdate ?? true == false)
 
         await manager.testingProcessDownload(gid: gid)
 
@@ -165,6 +154,24 @@ private struct ProcessVerificationContext {
 }
 
 private extension DownloadProcessTests {
+    func writeProcessManifestFolder(
+        storage: DownloadFileStorage,
+        gid: String,
+        title: String,
+        pageCount: Int
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(gid: gid, title: title, pageCount: pageCount),
+            folderURL: folderURL
+        )
+    }
+
     func fetchAndInstallStub(
         manager: DownloadManager, sessionID: String, gid: String,
         pageIndex: Int, oldVersionSignature: String

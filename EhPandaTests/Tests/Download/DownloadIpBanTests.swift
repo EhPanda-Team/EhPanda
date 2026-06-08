@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -22,8 +21,7 @@ struct DownloadIpBanTests: DownloadFeatureTestCase {
                     .appendingPathComponent(UUID().uuidString, isDirectory: true),
                 fileManager: .default
             ),
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: PersistenceController.shared.container
+            urlSession: URLSession(configuration: configuration)
         )
         let recorder = RequestRecorder()
         let ipBannedHTML = try fixtureData(resource: HTMLFilename.ipBanned.rawValue, pathExtension: "html")

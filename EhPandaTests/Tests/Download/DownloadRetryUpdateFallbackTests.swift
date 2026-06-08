@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -12,7 +11,6 @@ import Testing
 struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesQueuesFullUpdateWhenGalleryHasUpdate() async throws {
-        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
@@ -22,7 +20,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let (storage, queueingManager) = makeStubbedDownloadManager(
-            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+            rootURL: rootURL, sessionID: sessionID
         )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
@@ -30,17 +28,15 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             manager: queueingManager, sessionID: sessionID, gid: gid,
             pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
         )
-        let updatedVersionSignature = fallbackResult.versionSignature
         let pageCount = fallbackResult.pageCount
         let oldCount = pageCount - 5
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
 
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .updateAvailable,
-            completedPageCount: oldCount - 1, pageCount: oldCount,
-            remoteVersionSignature: oldVersionSignature,
-            latestRemoteVersionSignature: updatedVersionSignature
+        try writeFinalManifest(
+            storage: storage,
+            gid: gid,
+            pageCount: oldCount
         )
+        await queueingManager.testingSetUpdatedGalleryIDs([gid])
         let queuedCandidate = await queueingManager.testingFetchDownload(gid: gid)
         #expect(queuedCandidate?.hasUpdate == true)
 
@@ -55,19 +51,14 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         }
 
         let queued = await queueingManager.testingFetchDownload(gid: gid)
-        #expect(queued?.status == .updateAvailable)
-        #expect(queued?.pendingOperation == .update)
+        #expect(queued?.status == .queued)
+        #expect(queued?.badge == .queued)
+        #expect(queued?.pendingOperation == nil)
         #expect(queued?.lastError == nil)
-        if FileManager.default.fileExists(atPath: temporaryFolderURL.path) {
-            let queuedResumeState = try storage.readResumeState(folderURL: temporaryFolderURL)
-            #expect(queuedResumeState.mode == .update)
-            #expect(queuedResumeState.pageSelection == nil)
-        }
     }
 
     @Test
     func testRetryPagesNormalizesImmediateUpdateWhenGalleryHasUpdate() async throws {
-        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 400)
         let pageIndex = 42
@@ -77,7 +68,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let (storage, immediateManager) = makeStubbedDownloadManager(
-            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+            rootURL: rootURL, sessionID: sessionID
         )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
@@ -89,10 +80,11 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         let pageCount = updateResult.pageCount
 
         try setupImmediateUpdateTestState(
-            container: container, storage: storage,
+            storage: storage,
             context: DownloadPageContext(gid: gid, pageIndex: pageIndex, pageCount: pageCount),
-            signatures: VersionSignaturePair(old: oldVersionSignature, updated: updatedVersionSignature)
+            updatedVersionSignature: updatedVersionSignature
         )
+        await immediateManager.testingSetUpdatedGalleryIDs([gid])
 
         let immediateBlockerTask = Task<Void, Never> {
             try? await Task.sleep(nanoseconds: 5_000_000_000)
@@ -123,13 +115,6 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
 private struct UpdateFallbackPayloadResult {
     let versionSignature: String
     let pageCount: Int
-}
-
-// MARK: - Version Signature Pair
-
-private struct VersionSignaturePair {
-    let old: String
-    let updated: String
 }
 
 // MARK: - Download Page Context
@@ -174,25 +159,73 @@ private extension DownloadRetryUpdateFallbackTests {
     }
 
     func setupImmediateUpdateTestState(
-        container: NSPersistentContainer, storage: DownloadFileStorage,
-        context: DownloadPageContext, signatures: VersionSignaturePair
+        storage: DownloadFileStorage,
+        context: DownloadPageContext, updatedVersionSignature: String
     ) throws {
         let oldCount = context.pageCount - 5
         let manifest = try sampleManifest(
             gid: context.gid, title: "Pause Race",
-            pageCount: context.pageCount, versionSignature: signatures.updated
+            pageCount: context.pageCount, versionSignature: updatedVersionSignature
         )
         try writeTemporaryManifestAndPages(
             storage: storage, gid: context.gid, manifest: manifest,
             pageCount: context.pageCount, omittingPage: context.pageIndex,
-            versionSignature: signatures.updated,
+            versionSignature: updatedVersionSignature,
             mode: .update, pageSelection: [context.pageIndex]
         )
-        try insertPersistedDownload(
-            in: container, gid: context.gid, status: .updateAvailable,
-            completedPageCount: oldCount - 1, pageCount: oldCount,
-            remoteVersionSignature: signatures.old,
-            latestRemoteVersionSignature: signatures.updated
+        try writeFinalManifest(
+            storage: storage,
+            gid: context.gid,
+            pageCount: oldCount
+        )
+    }
+
+    func writeFinalManifest(
+        storage: DownloadFileStorage,
+        gid: String,
+        pageCount: Int
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pause Race")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            completeManifest(gid: gid, title: "Pause Race", pageCount: pageCount),
+            folderURL: folderURL
+        )
+    }
+
+    func completeManifest(
+        gid: String,
+        title: String,
+        pageCount: Int
+    ) throws -> DownloadManifest {
+        let manifest = try sampleManifest(
+            gid: gid,
+            title: title,
+            pageCount: pageCount
+        )
+        return DownloadManifest(
+            gid: manifest.gid,
+            host: manifest.host,
+            token: manifest.token,
+            title: manifest.title,
+            jpnTitle: manifest.jpnTitle,
+            category: manifest.category,
+            language: manifest.language,
+            uploader: manifest.uploader,
+            tags: manifest.tags,
+            postedDate: manifest.postedDate,
+            rating: manifest.rating,
+            pages: manifest.pages.map {
+                DownloadManifest.Page(
+                    index: $0.index,
+                    relativePath: $0.relativePath,
+                    fileHash: "sha256:\($0.index)"
+                )
+            }
         )
     }
 }

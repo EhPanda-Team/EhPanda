@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Kingfisher
 import SDWebImage
 import UIKit
@@ -16,7 +15,6 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {
-        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 402)
         let pageIndex = 42
@@ -26,8 +24,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let cacheTestManager = try makeCacheTestManager(
-            rootURL: rootURL, sessionID: sessionID, gid: gid, pageIndex: pageIndex,
-            persistenceContainer: container
+            rootURL: rootURL, sessionID: sessionID, gid: gid, pageIndex: pageIndex
         )
         let storage = cacheTestManager.storage
         let manager = cacheTestManager.manager
@@ -44,11 +41,10 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
             }
         }
 
-        await waitUntilCacheReady(for: cachedKeys)
+        await waitUntilCacheReady(for: cachedKeys, timeout: .seconds(3))
 
         let updatedPageCount = try await setupCacheTestDownload(
             .init(
-                container: container,
                 storage: storage,
                 manager: manager,
                 gid: gid,
@@ -84,7 +80,6 @@ struct CacheTestManagerResult {
 }
 
 private struct CacheTestDownloadSetup {
-    let container: NSPersistentContainer
     let storage: DownloadFileStorage
     let manager: DownloadManager
     let gid: String
@@ -96,8 +91,7 @@ private struct CacheTestDownloadSetup {
 
 private extension DownloadProcessCacheTests {
     func makeCacheTestManager(
-        rootURL: URL, sessionID: String, gid: String, pageIndex: Int,
-        persistenceContainer: NSPersistentContainer = PersistenceController.shared.container
+        rootURL: URL, sessionID: String, gid: String, pageIndex: Int
     ) throws -> CacheTestManagerResult {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -105,8 +99,7 @@ private extension DownloadProcessCacheTests {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration),
-            persistenceContainer: persistenceContainer
+            urlSession: URLSession(configuration: configuration)
         )
         let content = StubHandlerContent(
             detailHTML: try makeUniqueDetailHTML(gid: gid),
@@ -220,16 +213,12 @@ private extension DownloadProcessCacheTests {
         let coverURL = try #require(
             latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL
         )
-        let previewCleanupURLs = latestPayload.previewURLs.values
-            .flatMap { $0.previewCacheCleanupURLs() }
-
         let cachedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { ctx in
             UIColor.systemTeal.setFill()
             ctx.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let cachedImageData = try #require(cachedImage.jpegData(compressionQuality: 1))
-        let cachedURLs = previewCleanupURLs
-            + [currentPageImageURL, coverURL]
+        let cachedURLs = [currentPageImageURL, coverURL]
         let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
         for cacheKey in cachedKeys {
             try await KingfisherManager.shared.cache.storeToDisk(cachedImageData, forKey: cacheKey)
@@ -254,20 +243,35 @@ private extension DownloadProcessCacheTests {
         #expect(updatedPageCount > setup.pageIndex)
         #expect(oldPageCount > 0)
 
-        try await MainActor.run {
-            try insertPersistedDownload(
-                in: setup.container, gid: setup.gid, status: .partial,
-                completedPageCount: oldPageCount - 1, pageCount: oldPageCount,
-                remoteVersionSignature: setup.oldVersionSignature,
-                latestRemoteVersionSignature: setup.oldVersionSignature
-            )
-        }
+        try setupCacheTestFinalFolder(
+            storage: setup.storage, gid: setup.gid,
+            oldPageCount: oldPageCount,
+            oldVersionSignature: setup.oldVersionSignature
+        )
         try setupCacheTestTemporaryFolder(
             storage: setup.storage, gid: setup.gid,
             pageIndex: setup.pageIndex, oldPageCount: oldPageCount,
             oldVersionSignature: setup.oldVersionSignature
         )
         return updatedPageCount
+    }
+
+    func setupCacheTestFinalFolder(
+        storage: DownloadFileStorage, gid: String,
+        oldPageCount: Int, oldVersionSignature: String
+    ) throws {
+        let completedFolderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
+        try FileManager.default.createDirectory(
+            at: completedFolderURL.appendingPathComponent(
+                Defaults.FilePath.downloadPages, isDirectory: true
+            ),
+            withIntermediateDirectories: true
+        )
+        let staleManifest = try sampleManifest(
+            gid: gid, title: "Pause Race",
+            pageCount: oldPageCount, versionSignature: oldVersionSignature
+        )
+        try storage.writeManifest(staleManifest, folderURL: completedFolderURL)
     }
 
     func setupCacheTestTemporaryFolder(

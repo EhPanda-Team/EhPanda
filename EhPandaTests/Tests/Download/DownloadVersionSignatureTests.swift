@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -11,23 +10,23 @@ import Testing
 @Suite(.serialized)
 struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerReconcileNormalizesFailedDownloadBeforeTempCleanup() async throws {
-        let container = try makeInMemoryContainer()
-
+    func testDownloadManagerReconcilePreservesIndexedTemporaryFolder() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 31)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared, persistenceContainer: container)
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .failed,
-            completedPageCount: 0,
-            pageCount: 2,
-            lastError: .init(code: .networkingFailed, message: "Network Error")
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Indexed")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(gid: gid, title: "Indexed", pageCount: 2),
+            folderURL: folderURL
         )
 
         let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
@@ -45,8 +44,8 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         let stored = await manager.testingFetchDownload(gid: gid)
         let localPages = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        #expect(stored?.status == .partial)
-        #expect(stored?.completedPageCount == 1)
+        #expect(stored?.status == .paused)
+        #expect(stored?.completedPageCount == 0)
         #expect(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
         #expect(localPages[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
     }
@@ -54,8 +53,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testUpdateRemoteVersionUsesIndexedSessionFlag() async throws {
-        let container = try makeInMemoryContainer()
-
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -64,18 +61,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared,
-            persistenceContainer: container
-        )
-        try insertPersistedDownload(
-            in: container,
-            gid: gid,
-            status: .completed,
-            completedPageCount: 1,
-            pageCount: 1,
-            token: "token",
-            remoteVersionSignature: "hash:old",
-            latestRemoteVersionSignature: "hash:old"
+            urlSession: .shared
         )
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Indexed")
@@ -144,16 +130,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         #expect(currentBadge == .downloaded)
         #expect(currentDownload?.displayStatus == .completed)
         #expect(currentDownload?.status == .completed)
-
-        let request = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", gid)
-        let persistedDownload = try container.viewContext.fetch(request).first
-        #expect(persistedDownload?.status == DownloadStatus.completed.rawValue)
-        #expect(persistedDownload?.remoteVersionSignature == "hash:old")
-        #expect(persistedDownload?.latestRemoteVersionSignature == "hash:old")
     }
 
 }

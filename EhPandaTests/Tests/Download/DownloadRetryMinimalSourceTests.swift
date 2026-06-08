@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import CoreData
 import Foundation
 import Testing
 @testable import EhPanda
@@ -12,7 +11,6 @@ import Testing
 struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {
-        let container = try makeInMemoryContainer()
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 200)
         let pageIndex = 42
@@ -21,7 +19,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let (storage, manager) = makeStubbedDownloadManager(
-            rootURL: rootURL, sessionID: sessionID, persistenceContainer: container
+            rootURL: rootURL, sessionID: sessionID
         )
         let setup = try await setupMinimalSourceTest(
             manager: manager, sessionID: sessionID, gid: gid, pageIndex: pageIndex
@@ -32,12 +30,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             gid: gid, title: "Pause Race",
             pageCount: setup.pageCount, versionSignature: setup.versionSignature
         )
-        try insertPersistedDownload(
-            in: container, gid: gid, status: .partial,
-            completedPageCount: setup.pageCount - 1, pageCount: setup.pageCount,
-            remoteVersionSignature: setup.versionSignature,
-            latestRemoteVersionSignature: setup.versionSignature
-        )
+        try writeFinalManifest(storage: storage, gid: gid, manifest: manifest)
         try writeTemporaryManifestAndPages(
             storage: storage, gid: gid, manifest: manifest,
             pageCount: setup.pageCount, omittingPage: pageIndex,
@@ -52,7 +45,6 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
         setup.recorder.reset()
         try await assertRetrySkipsCompletedSelection(
             .init(
-                container: container,
                 storage: storage,
                 manager: manager,
                 gid: gid,
@@ -73,7 +65,6 @@ private struct MinimalSourceTestResult {
 }
 
 private struct MinimalSourceRetrySkipContext {
-    let container: NSPersistentContainer
     let storage: DownloadFileStorage
     let manager: DownloadManager
     let gid: String
@@ -88,14 +79,6 @@ private extension DownloadRetryMinimalSourceTests {
     func assertRetrySkipsCompletedSelection(
         _ context: MinimalSourceRetrySkipContext
     ) async throws {
-        try clearPersistedDownloads(in: context.container)
-        try insertPersistedDownload(
-            in: context.container, gid: context.gid, status: .partial,
-            completedPageCount: context.setup.pageCount,
-            pageCount: context.setup.pageCount,
-            remoteVersionSignature: context.setup.versionSignature,
-            latestRemoteVersionSignature: context.setup.versionSignature
-        )
         try writeTemporaryManifestAndPages(
             storage: context.storage, gid: context.gid,
             manifest: context.manifest,
@@ -108,6 +91,20 @@ private extension DownloadRetryMinimalSourceTests {
         #expect(snapshot.previewPageNumbers.isEmpty)
         #expect(snapshot.mpvRequests == 0)
         #expect(snapshot.imageDispatchRequests == 0)
+    }
+
+    func writeFinalManifest(
+        storage: DownloadFileStorage,
+        gid: String,
+        manifest: DownloadManifest
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pause Race")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(manifest, folderURL: folderURL)
     }
 
     func setupMinimalSourceTest(
