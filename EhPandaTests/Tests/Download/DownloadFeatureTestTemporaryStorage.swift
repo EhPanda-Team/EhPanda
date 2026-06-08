@@ -14,7 +14,7 @@ extension DownloadFeatureTestCase {
         storage: DownloadFileStorage, gid: String,
         manifest: DownloadManifest, pageCount: Int,
         omittingPage pageToOmit: Int? = nil,
-        versionSignature: String,
+        versionSignature _: String,
         mode: DownloadStartMode = .redownload,
         pageSelection: [Int]? = nil
     ) throws {
@@ -46,8 +46,7 @@ extension DownloadFeatureTestCase {
         }
         try storage.writeResumeState(
             .init(
-                mode: mode, versionSignature: versionSignature,
-                pageCount: pageCount, downloadOptions: .init(),
+                mode: mode, pageCount: pageCount, downloadOptions: .init(),
                 pageSelection: pageSelection
             ),
             folderURL: folderURL

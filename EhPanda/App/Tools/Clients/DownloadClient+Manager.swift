@@ -121,7 +121,6 @@ actor DownloadManager {
 
     struct DownloadExecutionContext: Sendable {
         let existingDownload: DownloadedGallery
-        let versionSignature: String
     }
 
     struct FinalizeContext: Sendable {

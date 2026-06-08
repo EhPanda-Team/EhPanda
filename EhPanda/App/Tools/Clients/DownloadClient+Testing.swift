@@ -102,7 +102,7 @@ extension DownloadManager {
     func testingPrepareWorkingSeed(
         payload: DownloadRequestPayload,
         existingDownload: DownloadedGallery,
-        versionSignature: String
+        versionSignature _: String
     ) throws -> PrepareWorkingSeedResult {
         let folderURL = storage.folderURL(
             relativePath: folderRelativePath(for: payload)
@@ -113,8 +113,7 @@ extension DownloadManager {
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,
-            folderURL: folderURL,
-            versionSignature: versionSignature
+            folderURL: folderURL
         )
         return PrepareWorkingSeedResult(
             folderURL: workingSeed.folderURL,

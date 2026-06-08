@@ -14,7 +14,7 @@ extension DownloadManager {
 
     func performDownload(
         payload: DownloadRequestPayload,
-        versionSignature: String,
+        versionSignature _: String,
         folderRelativePath: String,
         existingDownload: DownloadedGallery
     ) async throws -> PerformDownloadResult {
@@ -26,8 +26,7 @@ extension DownloadManager {
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,
-            folderURL: workingFolderURL,
-            versionSignature: versionSignature
+            folderURL: workingFolderURL
         )
         let pendingIndices = pendingPageIndices(
             payload: payload,
@@ -37,7 +36,6 @@ extension DownloadManager {
         try storage.writeResumeState(
             .init(
                 mode: payload.mode,
-                versionSignature: versionSignature,
                 pageCount: payload.galleryDetail.pageCount,
                 downloadOptions: payload.options,
                 pageSelection: payload.pageSelection?.sorted()
@@ -46,8 +44,7 @@ extension DownloadManager {
         )
 
         let executionContext = DownloadExecutionContext(
-            existingDownload: existingDownload,
-            versionSignature: versionSignature
+            existingDownload: existingDownload
         )
         do {
             let batchAndCover = try await executePageDownloads(
@@ -73,7 +70,6 @@ extension DownloadManager {
         executionContext: DownloadExecutionContext
     ) async throws -> PerformDownloadResult {
         let existingDownload = executionContext.existingDownload
-        let versionSignature = executionContext.versionSignature
         let coverRelativePath = try await downloadCoverIfNeeded(
             payload: payload,
             folderURL: workingFolderURL,
@@ -104,8 +100,7 @@ extension DownloadManager {
         try await finalizeBatchResult(
             context: finalizeCtx,
             payload: payload,
-            folderURL: workingFolderURL,
-            versionSignature: versionSignature
+            folderURL: workingFolderURL
         )
         return PerformDownloadResult(
             coverRelativePath: coverRelativePath,
@@ -128,14 +123,12 @@ extension DownloadManager {
     private func finalizeBatchResult(
         context: FinalizeContext,
         payload: DownloadRequestPayload,
-        folderURL: URL,
-        versionSignature: String
+        folderURL: URL
     ) async throws {
         if payload.pageSelection != nil {
             try? storage.writeResumeState(
                 .init(
                     mode: payload.mode,
-                    versionSignature: versionSignature,
                     pageCount: payload.galleryDetail.pageCount,
                     downloadOptions: payload.options
                 ),

@@ -196,21 +196,14 @@ extension DownloadManager {
         temporaryFolderURL: URL
     ) {
         let downloadOptions = download.downloadOptionsSnapshot
-        let versionSignature = preferredVersionSignature(
-            for: download,
-            mode: resolvedMode,
-            resumeState: existingResumeState
-        )
         let pageCount = preferredWorkingPageCount(
             for: download,
             mode: resolvedMode,
-            versionSignature: versionSignature,
             resumeState: existingResumeState
         )
         try? storage.writeResumeState(
             .init(
                 mode: resolvedMode,
-                versionSignature: versionSignature,
                 pageCount: pageCount,
                 downloadOptions: downloadOptions
             ),

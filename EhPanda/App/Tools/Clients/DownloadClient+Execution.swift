@@ -101,8 +101,11 @@ extension DownloadManager {
         mode: DownloadStartMode
     ) async throws -> ProcessDownloadResult {
         let existingFolderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
-        let existingResumeState = try? storage
+        let existingResumeState = (try? storage
             .readResumeState(folderURL: existingFolderURL)
+        ) ?? (try? storage.readResumeState(
+            folderURL: storage.temporaryFolderURL(gid: gid)
+        ))
         let rawPageSelection = existingResumeState?.pageSelection
         let fetchResult = try await fetchLatestPayload(
             for: download,

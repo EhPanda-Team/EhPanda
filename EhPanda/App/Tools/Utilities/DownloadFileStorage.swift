@@ -20,20 +20,17 @@ struct DownloadFolderRecord: Equatable, Sendable {
 
 struct DownloadResumeState: Codable, Equatable {
     let mode: DownloadStartMode
-    let versionSignature: String
     let pageCount: Int
     let downloadOptions: DownloadOptionsSnapshot
     let pageSelection: [Int]?
 
     init(
         mode: DownloadStartMode,
-        versionSignature: String,
         pageCount: Int,
         downloadOptions: DownloadOptionsSnapshot,
         pageSelection: [Int]? = nil
     ) {
         self.mode = mode
-        self.versionSignature = versionSignature
         self.pageCount = pageCount
         self.downloadOptions = downloadOptions
         self.pageSelection = pageSelection
@@ -41,12 +38,10 @@ struct DownloadResumeState: Codable, Equatable {
 
     func matches(
         mode: DownloadStartMode,
-        versionSignature: String,
         pageCount: Int,
         downloadOptions: DownloadOptionsSnapshot
     ) -> Bool {
         self.mode == mode
-            && self.versionSignature == versionSignature
             && self.pageCount == pageCount
             && self.downloadOptions == downloadOptions
     }

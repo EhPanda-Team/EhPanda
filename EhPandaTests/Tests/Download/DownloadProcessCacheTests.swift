@@ -300,7 +300,7 @@ private extension DownloadProcessCacheTests {
         )
         try storage.writeResumeState(
             .init(
-                mode: .redownload, versionSignature: oldVersionSignature,
+                mode: .redownload,
                 pageCount: oldPageCount, downloadOptions: .init(), pageSelection: [pageIndex]
             ),
             folderURL: temporaryFolderURL
