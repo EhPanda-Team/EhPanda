@@ -99,7 +99,7 @@ extension DownloadManager {
             encoding: .utf8
         ) ?? ""
         if !looksLikeHTML {
-            return Parser.parseDownloadPageError(
+            return Parser.parseResponseError(
                 content: rawContent
             )
         }
@@ -108,7 +108,7 @@ extension DownloadManager {
             html: normalizedData,
             encoding: .utf8
         ),
-        let error = Parser.parseDownloadPageError(
+        let error = Parser.parseResponseError(
             doc: document
         ) {
             return error
@@ -117,7 +117,7 @@ extension DownloadManager {
         guard rawContent.count <= 1024 else {
             return nil
         }
-        return Parser.parseDownloadPageError(
+        return Parser.parseResponseError(
             content: rawContent
         )
     }

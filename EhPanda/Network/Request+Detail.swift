@@ -23,25 +23,15 @@ struct GalleryDetailRequest: Request {
     var publisher: AnyPublisher<GalleryDetailResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.galleryDetail(url: galleryURL))
             .genericRetry()
-            .tryMap { resp -> HTMLDocument in
-                do {
-                    return try Kanna.HTML(html: resp.data, encoding: .utf8)
-                } catch {
-                    guard let parseError = error as? ParseError, parseError == .EncodingMismatch
-                    else { throw error }
-
-                    guard let htmlDocument = try? Kanna.HTML(
-                        html: resp.data.utf8InvalidCharactersRipped,
-                        encoding: .utf8
-                    ) else {
-                        throw error
-                    }
-                    return htmlDocument
-                }
-            }
+            .tryMap { try htmlDocumentWithUTF8Fallback(data: $0.data) }
             .tryMap { doc in
-                let (detail, state) = try Parser.parseGalleryDetail(doc: doc, gid: gid)
-                return (doc, detail, state, try Parser.parseAPIKey(doc: doc))
+                try parseResponse(doc: doc) {
+                    let (detail, state) = try Parser.parseGalleryDetail(
+                        doc: $0,
+                        gid: gid
+                    )
+                    return (doc, detail, state, try Parser.parseAPIKey(doc: $0))
+                }
             }
             .mapError(mapAppError)
             .map { doc, detail, state, apiKey in
@@ -172,8 +162,8 @@ struct GalleryReverseRequest: Request {
         switch isGalleryImageURL {
         case true:
             return URLSession.shared.dataTaskPublisher(for: url)
-                .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-                .tryMap(Parser.parseGalleryURL)
+                .tryMap { try htmlDocument(data: $0.data) }
+                .tryMap { try parseResponse(doc: $0, Parser.parseGalleryURL) }
                 .mapError(mapAppError)
                 .eraseToAnyPublisher()
 
@@ -186,12 +176,17 @@ struct GalleryReverseRequest: Request {
 
     func gallery(url: URL) -> AnyPublisher<Gallery, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .compactMap {
-                guard let (detail, _) = try? Parser.parseGalleryDetail(doc: $0, gid: url.pathComponents[2])
-                else { return nil }
-
-                return getGallery(from: detail, and: url)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { doc in
+                try parseResponse(doc: doc) {
+                    let (detail, _) = try Parser.parseGalleryDetail(
+                        doc: $0,
+                        gid: url.pathComponents[2]
+                    )
+                    guard let gallery = getGallery(from: detail, and: url)
+                    else { throw AppError.parseFailed }
+                    return gallery
+                }
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -204,10 +199,12 @@ struct GalleryArchiveRequest: Request {
     var publisher: AnyPublisher<GalleryArchiveResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: archiveURL)
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { (html: HTMLDocument) -> (HTMLDocument, GalleryArchive) in
-                let archive = try Parser.parseGalleryArchive(doc: html)
-                return (html, archive)
+                try parseResponse(doc: html) {
+                    let archive = try Parser.parseGalleryArchive(doc: $0)
+                    return (html, archive)
+                }
             }
             .map { html, archive in
                 guard let (currentGP, currentCredits) = try? Parser.parseCurrentFunds(doc: html)
@@ -232,16 +229,25 @@ struct GalleryArchiveFundsRequest: Request {
 
     func archiveURL(url: URL) -> AnyPublisher<URL, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .compactMap { try? Parser.parseGalleryDetail(doc: $0, gid: gid).0.archiveURL }
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { doc in
+                try parseResponse(doc: doc) {
+                    guard let archiveURL = try Parser
+                        .parseGalleryDetail(doc: $0, gid: gid)
+                        .0
+                        .archiveURL
+                    else { throw AppError.parseFailed }
+                    return archiveURL
+                }
+            }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 
     func funds(url: URL) -> AnyPublisher<(String, String), AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseCurrentFunds)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parseCurrentFunds) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -254,7 +260,7 @@ struct GalleryTorrentsRequest: Request {
     var publisher: AnyPublisher<[GalleryTorrent], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.galleryTorrents(gid: gid, token: token))
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap { try htmlDocument(data: $0.data) }
             .map(Parser.parseGalleryTorrents)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -268,8 +274,8 @@ struct GalleryPreviewURLsRequest: Request {
     var publisher: AnyPublisher<[Int: URL], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
             .genericRetry()
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parsePreviewURLs)
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap { try parseResponse(doc: $0, Parser.parsePreviewURLs) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
