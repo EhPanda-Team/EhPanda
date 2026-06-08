@@ -274,7 +274,7 @@ struct DownloadedGallery: Identifiable, Equatable {
             pageCount: manifest.pageCount,
             postedDate: manifest.postedDate,
             rating: manifest.rating,
-            onlineCoverURL: nil,
+            onlineCoverURL: manifest.remoteCoverURL,
             folderRelativePath: folderRelativePath,
             coverRelativePath: nil,
             status: displayStatus.downloadStatus,
