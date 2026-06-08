@@ -10,14 +10,12 @@ extension DownloadManager {
     func validatedManifest(
         at folderURL: URL,
         gid: String,
-        pageCount: Int,
-        downloadOptions: DownloadOptionsSnapshot
+        pageCount: Int
     ) -> DownloadManifest? {
         guard let manifest = try? storage
                 .readManifest(folderURL: folderURL),
               manifest.gid == gid,
-              manifest.pageCount == pageCount,
-              manifest.downloadOptions == downloadOptions
+              manifest.pageCount == pageCount
         else {
             return nil
         }

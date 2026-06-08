@@ -113,7 +113,7 @@ private extension DownloadFileStorageRepairTests {
             gid: "123", host: .ehentai, token: "token", title: "Sample", jpnTitle: nil,
             category: .doujinshi, language: .japanese, uploader: "Uploader", tags: [],
             postedDate: .now,
-            rating: 4, downloadOptions: DownloadOptionsSnapshot(),
+            rating: 4,
             pages: [
                 .init(index: 1, relativePath: "pages/0001.jpg"),
                 .init(index: 2, relativePath: "../escape.jpg")
@@ -205,7 +205,6 @@ private extension DownloadFileStorageRepairTests {
             tags: [],
             postedDate: .now,
             rating: 4,
-            downloadOptions: DownloadOptionsSnapshot(),
             pages: (1...pageCount).map {
                 .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
             }

@@ -131,6 +131,7 @@ actor DownloadManager {
     let storage: DownloadFileStorage
     let urlSession: URLSession
     let libraryClient: LibraryClient
+    let downloadOptionsProvider: @Sendable () async -> DownloadOptionsSnapshot
     let queueStore: DownloadQueueStore
     let persistenceContainer: NSPersistentContainer
     var downloadIndex = [String: DownloadFolderRecord]()
@@ -153,12 +154,16 @@ actor DownloadManager {
         storage: DownloadFileStorage,
         urlSession: URLSession,
         libraryClient: LibraryClient = .live,
+        downloadOptionsProvider: @escaping @Sendable () async -> DownloadOptionsSnapshot = {
+            DownloadOptionsSnapshot()
+        },
         queueStore: DownloadQueueStore? = nil,
         persistenceContainer: NSPersistentContainer = PersistenceController.shared.container
     ) {
         self.storage = storage
         self.urlSession = urlSession
         self.libraryClient = libraryClient
+        self.downloadOptionsProvider = downloadOptionsProvider
         self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
         self.persistenceContainer = persistenceContainer
     }

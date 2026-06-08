@@ -96,7 +96,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 tags: [],
                 postedDate: .now,
                 rating: 4,
-                downloadOptions: DownloadOptionsSnapshot(),
                 pages: [
                     .init(
                         index: 1,

@@ -303,7 +303,6 @@ private extension DownloadManifest {
             tags: tags,
             postedDate: postedDate,
             rating: rating,
-            downloadOptions: downloadOptions,
             pages: pages
         )
     }

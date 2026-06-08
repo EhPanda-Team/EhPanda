@@ -259,6 +259,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         folderRelativePath: String,
         modifiedAt: Date?,
         displayStatus: DownloadDisplayStatus,
+        downloadOptionsSnapshot: DownloadOptionsSnapshot,
         lastError: DownloadFailure? = nil
     ) {
         self.init(
@@ -280,7 +281,7 @@ struct DownloadedGallery: Identifiable, Equatable {
             completedPageCount: manifest.completedPageCount,
             lastDownloadedAt: modifiedAt,
             lastError: lastError,
-            downloadOptionsSnapshot: manifest.downloadOptions,
+            downloadOptionsSnapshot: downloadOptionsSnapshot,
             remoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)",
             latestRemoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)"
         )

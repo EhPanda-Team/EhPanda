@@ -127,7 +127,6 @@ extension DownloadManager {
                 tags: payload.gallery.tags,
                 postedDate: payload.galleryDetail.postedDate,
                 rating: payload.galleryDetail.rating,
-                downloadOptions: payload.options,
                 pages: pages
             ),
             folderURL: folderURL

@@ -447,7 +447,6 @@ private extension DownloadFileStorageTests {
             tags: [],
             postedDate: .now,
             rating: 4,
-            downloadOptions: DownloadOptionsSnapshot(),
             pages: (1...pageCount).map {
                 .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
             }

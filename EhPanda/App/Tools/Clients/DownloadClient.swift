@@ -86,7 +86,10 @@ extension DownloadClient {
     ) -> Self {
         let manager = DownloadManager(
             storage: .init(rootURL: rootURL, fileManager: fileManager),
-            urlSession: urlSession
+            urlSession: urlSession,
+            downloadOptionsProvider: {
+                await DatabaseClient.live.fetchAppEnv().setting.downloadOptionsSnapshot
+            }
         )
         Task {
             await manager.reconcileDownloads()

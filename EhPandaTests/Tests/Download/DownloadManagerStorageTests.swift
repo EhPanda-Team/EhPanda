@@ -1176,7 +1176,6 @@ private extension DownloadManagerStorageTests {
             tags: [],
             postedDate: modifiedAt,
             rating: 4,
-            downloadOptions: DownloadOptionsSnapshot(),
             pages: pageHashes.enumerated().map { offset, hash in
                 DownloadManifest.Page(
                     index: offset + 1,

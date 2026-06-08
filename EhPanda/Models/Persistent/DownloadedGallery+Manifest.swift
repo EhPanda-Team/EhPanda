@@ -35,7 +35,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let tags: [GalleryTag]
     let postedDate: Date
     let rating: Float
-    let downloadOptions: DownloadOptionsSnapshot
     let pages: [Page]
 
     func imageURLs(folderURL: URL) -> [Int: URL] {
