@@ -62,7 +62,6 @@ extension DownloadManager {
                 folderURL: context.temporaryFolderURL
             ),
             pendingResolvedPages: &progress.pendingResolvedPages,
-            completedCount: progress.completedCount,
             lastFlushDate: &progress.lastFlushDate,
             force: true
         )
@@ -78,8 +77,9 @@ extension DownloadManager {
         existingPages: [Int: String],
         progress: inout PageDownloadProgress
     ) async throws {
-        let payload = context.payload
-        let pageIndices = Array(1...payload.galleryDetail.pageCount)
+        let pageIndices = Array(
+            1...context.payload.galleryDetail.pageCount
+        )
         collectExistingPages(
             pageIndices: pageIndices,
             existingPages: existingPages,
@@ -89,17 +89,10 @@ extension DownloadManager {
         )
         progress.completedCount = progress.results.count
         guard progress.completedCount > 0 else { return }
-        let completedCount = progress.completedCount
         try flushManifestPageProgress(
             folderURL: context.temporaryFolderURL,
             pages: progress.results
         )
-        try await updateDownloadRecord(
-            gid: payload.gallery.gid,
-            createIfMissing: false
-        ) { record in
-            record.completedPageCount = Int64(completedCount)
-        }
         await notifyObservers()
     }
 
@@ -215,7 +208,6 @@ extension DownloadManager {
                     ),
                     pendingResolvedPages:
                         &progress.pendingResolvedPages,
-                    completedCount: progress.completedCount,
                     lastFlushDate: &progress.lastFlushDate,
                     force: false
                 )

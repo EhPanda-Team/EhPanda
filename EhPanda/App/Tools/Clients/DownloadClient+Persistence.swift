@@ -406,7 +406,6 @@ extension DownloadManager {
     func flushDownloadProgress(
         context: ProgressFlushContext,
         pendingResolvedPages: inout [PageResult],
-        completedCount: Int,
         lastFlushDate: inout Date,
         force: Bool
     ) async throws {
@@ -424,13 +423,6 @@ extension DownloadManager {
         )
         pendingResolvedPages
             .removeAll(keepingCapacity: true)
-        try await updateDownloadRecord(
-            gid: context.gid,
-            createIfMissing: false
-        ) { record in
-            record.completedPageCount =
-                Int64(completedCount)
-        }
         lastFlushDate = Date()
         await notifyObservers()
     }
