@@ -15,6 +15,7 @@ struct ImageClient: Sendable {
     let saveImageToPhotoLibrary: @Sendable (UIImage, Bool) async -> Bool
     let downloadImage: @Sendable (URL) async -> Result<UIImage, Error>
     let retrieveImage: @Sendable (String) async -> Result<UIImage, Error>
+    let isCached: @Sendable (String) -> Bool
 }
 
 extension ImageClient {
@@ -88,21 +89,12 @@ extension ImageClient {
             return result
         },
         retrieveImage: { key in
-            await withCheckedContinuation { continuation in
-                KingfisherManager.shared.cache.retrieveImage(forKey: key) { result in
-                    switch result {
-                    case .success(let result):
-                        if let image = result.image {
-                            continuation.resume(returning: .success(image))
-                        } else {
-                            continuation.resume(returning: .failure(AppError.notFound))
-                        }
-                    case .failure(let error):
-                        continuation.resume(returning: .failure(error))
-                    }
-                }
+            guard let image = await LibraryClient.live.cachedImage(key) else {
+                return .failure(AppError.notFound)
             }
-        }
+            return .success(image)
+        },
+        isCached: LibraryClient.live.isCached
     )
 
     func fetchImage(url: URL) async -> Result<UIImage, Error> {
@@ -117,7 +109,7 @@ extension ImageClient {
             return .failure(AppError.notFound)
         }
         for key in url.imageCacheKeys(includeStableAlias: true)
-        where KingfisherManager.shared.cache.isCached(forKey: key) {
+        where isCached(key) {
             return await retrieveImage(key)
         }
         return await downloadImage(url)
@@ -144,7 +136,8 @@ extension ImageClient {
         prefetchImages: { _ in },
         saveImageToPhotoLibrary: { _, _ in false },
         downloadImage: { _ in .success(UIImage()) },
-        retrieveImage: { _ in .success(UIImage()) }
+        retrieveImage: { _ in .success(UIImage()) },
+        isCached: { _ in false }
     )
 
     static func placeholder<Result>() -> Result { fatalError() }
@@ -153,6 +146,7 @@ extension ImageClient {
         prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
         saveImageToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
         downloadImage: IssueReporting.unimplemented(placeholder: placeholder()),
-        retrieveImage: IssueReporting.unimplemented(placeholder: placeholder())
+        retrieveImage: IssueReporting.unimplemented(placeholder: placeholder()),
+        isCached: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

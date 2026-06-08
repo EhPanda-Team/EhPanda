@@ -5,6 +5,7 @@
 
 import CoreData
 import Kingfisher
+import SDWebImage
 import UIKit
 import Foundation
 import Testing
@@ -108,11 +109,61 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         #expect(fetchedImage.size == image.size)
     }
 
+    @MainActor
+    @Test
+    func testImageClientFetchImageUsesSDWebImageStableAliasCacheKey() async throws {
+        let url = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-1234567890.webp?download=1")
+        )
+        let stableCacheKey = try #require(url.stableImageCacheKey)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let image = UIGraphicsImageRenderer(
+            size: .init(width: 1, height: 1),
+            format: format
+        )
+        .image { context in
+            UIColor.systemGreen.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
+        let imageData = try #require(image.pngData())
+
+        await storeSDWebImageData(imageData, forKey: stableCacheKey)
+        defer {
+            SDImageCache.shared.removeImage(forKey: stableCacheKey) {}
+            SDImageCache.shared.removeImage(forKey: url.absoluteString) {}
+        }
+
+        let client = ImageClient(
+            prefetchImages: { _ in },
+            saveImageToPhotoLibrary: { _, _ in false },
+            downloadImage: { _ in
+                Issue.record("Expected ImageClient to use the cached SDWebImage data.")
+                return .failure(AppError.notFound)
+            },
+            retrieveImage: ImageClient.live.retrieveImage,
+            isCached: LibraryClient.live.isCached
+        )
+
+        let result = await client.fetchImage(url: url)
+        let fetchedImage = try result.get()
+
+        #expect(fetchedImage.size == image.size)
+    }
+
 }
 
 // MARK: - Repair Seed Helpers
 
 private extension DownloadManagerRepairSeedTests {
+    func storeSDWebImageData(_ data: Data, forKey key: String) async {
+        await withCheckedContinuation { continuation in
+            SDImageCache.shared.storeImageData(data, forKey: key) {
+                continuation.resume()
+            }
+        }
+    }
+
     func setupRepairSeedFiles(
         storage: DownloadFileStorage, rootURL: URL, gid: String
     ) throws {

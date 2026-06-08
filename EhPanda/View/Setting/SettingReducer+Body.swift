@@ -265,7 +265,7 @@ extension SettingReducer {
                     .send(.syncUser),
                     .run(operation: { _ in cookieClient.clearAll() }),
                     .run(operation: { _ in await databaseClient.removeImageURLs() }),
-                    .run(operation: { _ in libraryClient.clearWebImageDiskCache() })
+                    .run(operation: { _ in await libraryClient.removeAllCachedImages() })
                 )
 
             case .account:

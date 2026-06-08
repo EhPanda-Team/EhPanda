@@ -16,7 +16,11 @@ import ComposableArchitecture
 struct LibraryClient: Sendable {
     let initializeLogger: @Sendable () -> Void
     let initializeWebImage: @Sendable () -> Void
-    let clearWebImageDiskCache: @Sendable () -> Void
+    let removeAllCachedImages: @Sendable () async -> Void
+    let cachedImage: @Sendable (String) async -> UIImage?
+    let cachedImageData: @Sendable (String) async -> Data?
+    let removeCachedImage: @Sendable (String) async -> Void
+    let isCached: @Sendable (String) -> Bool
     let analyzeImageColors: @Sendable (UIImage) async -> [Color]?
     let calculateWebImageDiskCacheSize: @Sendable () async -> UInt?
 }
@@ -66,9 +70,50 @@ extension LibraryClient {
             )
             SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
         },
-        clearWebImageDiskCache: {
-            KingfisherManager.shared.cache.clearDiskCache()
-            SDImageCache.shared.clearDisk(onCompletion: nil)
+        removeAllCachedImages: {
+            KingfisherManager.shared.cache.clearMemoryCache()
+            SDImageCache.shared.clearMemory()
+            async let kingfisherClear: Void = withCheckedContinuation { continuation in
+                KingfisherManager.shared.cache.clearDiskCache {
+                    continuation.resume()
+                }
+            }
+            async let sdWebImageClear: Void = withCheckedContinuation { continuation in
+                SDImageCache.shared.clearDisk {
+                    continuation.resume()
+                }
+            }
+            _ = await (kingfisherClear, sdWebImageClear)
+        },
+        cachedImage: { key in
+            if let image = await kingfisherCachedImage(forKey: key) {
+                return image
+            }
+            return await sdWebImageCachedImage(forKey: key)
+        },
+        cachedImageData: { key in
+            if let data = await kingfisherCachedImageData(forKey: key) {
+                return data
+            }
+            return await sdWebImageCachedImageData(forKey: key)
+        },
+        removeCachedImage: { key in
+            async let kingfisherRemove: Void = withCheckedContinuation { continuation in
+                KingfisherManager.shared.cache.removeImage(forKey: key) {
+                    continuation.resume()
+                }
+            }
+            async let sdWebImageRemove: Void = withCheckedContinuation { continuation in
+                SDImageCache.shared.removeImage(forKey: key) {
+                    continuation.resume()
+                }
+            }
+            _ = await (kingfisherRemove, sdWebImageRemove)
+        },
+        isCached: { key in
+            KingfisherManager.shared.cache.isCached(forKey: key)
+                || SDImageCache.shared.imageFromMemoryCache(forKey: key) != nil
+                || SDImageCache.shared.diskImageDataExists(withKey: key)
         },
         analyzeImageColors: { image in
             await withCheckedContinuation { continuation in
@@ -101,6 +146,92 @@ extension LibraryClient {
     )
 }
 
+private func kingfisherCachedImage(forKey key: String) async -> UIImage? {
+    if let image = KingfisherManager.shared.cache
+        .retrieveImageInMemoryCache(forKey: key) {
+        return image
+    }
+
+    return await withCheckedContinuation { continuation in
+        KingfisherManager.shared.cache
+            .retrieveImage(forKey: key) { result in
+                switch result {
+                case .success(let value):
+                    continuation.resume(returning: value.image)
+
+                case .failure:
+                    continuation.resume(returning: nil)
+                }
+            }
+    }
+}
+
+private func kingfisherCachedImageData(forKey key: String) async -> Data? {
+    if let image = KingfisherManager.shared.cache
+        .retrieveImageInMemoryCache(forKey: key),
+       let data = image.kf.data(format: .unknown) {
+        return data
+    }
+
+    if let data = try? KingfisherManager.shared.cache
+        .diskStorage.value(forKey: key) {
+        return data
+    }
+
+    return await withCheckedContinuation { continuation in
+        KingfisherManager.shared.cache
+            .retrieveImage(forKey: key) { result in
+                switch result {
+                case .success(let value):
+                    continuation.resume(
+                        returning: value.image.flatMap {
+                            $0.kf.data(format: .unknown)
+                        }
+                    )
+
+                case .failure:
+                    continuation.resume(returning: nil)
+                }
+            }
+    }
+}
+
+private func sdWebImageCachedImage(forKey key: String) async -> UIImage? {
+    if let image = SDImageCache.shared.imageFromCache(forKey: key) {
+        return image
+    }
+
+    guard let data = await sdWebImageCachedImageData(forKey: key) else {
+        return nil
+    }
+    return image(from: data)
+}
+
+private func sdWebImageCachedImageData(forKey key: String) async -> Data? {
+    if let image = SDImageCache.shared.imageFromMemoryCache(forKey: key),
+       let data = image.animatedSourceData ?? image.sd_imageData() {
+        return data
+    }
+
+    if let data = SDImageCache.shared.diskImageData(forKey: key) {
+        return data
+    }
+
+    return await withCheckedContinuation { continuation in
+        SDImageCache.shared.diskImageDataQuery(forKey: key) { data in
+            continuation.resume(returning: data)
+        }
+    }
+}
+
+private func image(from data: Data) -> UIImage? {
+    if data.animatedImagePasteboardType != nil,
+       let animatedImage = SDAnimatedImage(data: data) {
+        return animatedImage
+    }
+    return UIImage(data: data)
+}
+
 // MARK: API
 enum LibraryClientKey: DependencyKey {
     static let liveValue = LibraryClient.live
@@ -120,7 +251,11 @@ extension LibraryClient {
     static let noop: Self = .init(
         initializeLogger: {},
         initializeWebImage: {},
-        clearWebImageDiskCache: {},
+        removeAllCachedImages: {},
+        cachedImage: { _ in nil },
+        cachedImageData: { _ in nil },
+        removeCachedImage: { _ in },
+        isCached: { _ in false },
         analyzeImageColors: { _ in .none },
         calculateWebImageDiskCacheSize: { .none }
     )
@@ -130,7 +265,11 @@ extension LibraryClient {
     static let unimplemented: Self = .init(
         initializeLogger: IssueReporting.unimplemented(placeholder: placeholder()),
         initializeWebImage: IssueReporting.unimplemented(placeholder: placeholder()),
-        clearWebImageDiskCache: IssueReporting.unimplemented(placeholder: placeholder()),
+        removeAllCachedImages: IssueReporting.unimplemented(placeholder: placeholder()),
+        cachedImage: IssueReporting.unimplemented(placeholder: placeholder()),
+        cachedImageData: IssueReporting.unimplemented(placeholder: placeholder()),
+        removeCachedImage: IssueReporting.unimplemented(placeholder: placeholder()),
+        isCached: IssueReporting.unimplemented(placeholder: placeholder()),
         analyzeImageColors: IssueReporting.unimplemented(placeholder: placeholder()),
         calculateWebImageDiskCacheSize:
             IssueReporting.unimplemented(placeholder: placeholder())

@@ -5,6 +5,7 @@
 
 import CoreData
 import Kingfisher
+import SDWebImage
 import UIKit
 import Foundation
 import Testing
@@ -38,7 +39,12 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
             manager: manager, gid: gid,
             pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
         )
-        defer { cachedKeys.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0) } }
+        defer {
+            cachedKeys.forEach {
+                KingfisherManager.shared.cache.removeImage(forKey: $0)
+                SDImageCache.shared.removeImage(forKey: $0) {}
+            }
+        }
 
         await waitUntilCacheReady(for: cachedKeys)
 
@@ -62,7 +68,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
 
         for cacheKey in cachedKeys {
             #expect(
-                KingfisherManager.shared.cache.isCached(forKey: cacheKey) == false,
+                LibraryClient.live.isCached(cacheKey) == false,
                 "Expected cache key to be removed after successful download: \(cacheKey)"
             )
         }
@@ -237,6 +243,7 @@ private extension DownloadProcessCacheTests {
         let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
         for cacheKey in cachedKeys {
             try await KingfisherManager.shared.cache.storeToDisk(cachedImageData, forKey: cacheKey)
+            await storeSDWebImageData(cachedImageData, forKey: cacheKey)
         }
         return (cachedKeys, coverURL)
     }
@@ -327,9 +334,17 @@ private extension DownloadProcessCacheTests {
     func waitUntilCacheCleared(cachedKeys: Set<String>) async throws {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: .seconds(1))
-        while cachedKeys.contains(where: { KingfisherManager.shared.cache.isCached(forKey: $0) }),
+        while cachedKeys.contains(where: LibraryClient.live.isCached),
               clock.now < deadline {
             try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
+
+    func storeSDWebImageData(_ data: Data, forKey key: String) async {
+        await withCheckedContinuation { continuation in
+            SDImageCache.shared.storeImageData(data, forKey: key) {
+                continuation.resume()
+            }
         }
     }
 }
