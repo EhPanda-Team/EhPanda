@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import Kanna
 import Foundation
 
 // MARK: - Fetch & Normalize Payload
@@ -20,25 +19,16 @@ extension DownloadManager {
     ) async throws -> FetchLatestPayloadResult {
         let galleryURL = download.gallery.galleryURL
         guard let galleryURL else { throw AppError.notFound }
-        let (detail, galleryState) = try await withRetry(
-            operation: "fetchLatestPayload",
-            context: [
-                "gid": download.gid,
-                "mode": mode.rawValue,
-                "galleryURL": galleryURL.absoluteString
-            ]
-        ) {
-            let doc = try await htmlDocument(
-                url: URLUtil.galleryDetail(url: galleryURL),
-                allowsCellular:
-                    download.downloadOptionsSnapshot.allowCellular,
-                retriesRequest: false
-            )
-            return try Parser.parseGalleryDetail(
-                doc: doc,
-                gid: download.gid
-            )
-        }
+        let detailResponse = try await GalleryDetailRequest(
+            gid: download.gid,
+            galleryURL: galleryURL,
+            urlSession: urlSession,
+            allowsCellular: download.downloadOptionsSnapshot.allowCellular
+        )
+        .response()
+        .get()
+        let detail = detailResponse.galleryDetail
+        let galleryState = detailResponse.galleryState
         let components = buildGalleryComponents(
             download: download,
             detail: detail,

@@ -62,8 +62,7 @@ extension DownloadManager {
         let resolved = try await resolvedImageSource(
             index: index,
             payload: payload,
-            source: source,
-            retriesRequest: false
+            source: source
         )
         if let result = try await attemptResolvedCacheRestore(
             index: index,

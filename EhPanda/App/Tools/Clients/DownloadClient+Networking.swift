@@ -3,45 +3,10 @@
 //  EhPanda
 //
 
-import Kanna
 import Foundation
 
-// MARK: - HTML & Network
+// MARK: - Network
 extension DownloadManager {
-    func htmlDocument(
-        url: URL,
-        allowsCellular: Bool,
-        retriesRequest: Bool = true
-    ) async throws -> HTMLDocument {
-        var request = URLRequest(url: url)
-        request.allowsCellularAccess = allowsCellular
-        let (data, response) = try await dataResponse(
-            for: request,
-            retriesRequest: retriesRequest
-        )
-        if let error = detectResponseError(
-            data: data,
-            response: response,
-            requestURL: request.url,
-            expectsHTML: true
-        ) {
-            throw error
-        }
-        if let document = try? Kanna.HTML(
-            html: data,
-            encoding: .utf8
-        ) {
-            return document
-        }
-        if let document = try? Kanna.HTML(
-            html: data.utf8InvalidCharactersRipped,
-            encoding: .utf8
-        ) {
-            return document
-        }
-        throw AppError.parseFailed
-    }
-
     func downloadResponse(
         url: URL,
         allowsCellular: Bool,
@@ -196,111 +161,6 @@ extension DownloadManager {
                 attempt += 1
             }
         }
-    }
-
-    func fetchThumbnailURLs(
-        galleryURL: URL,
-        pageNum: Int,
-        allowsCellular: Bool
-    ) async throws -> [Int: URL] {
-        let detailPageURL = URLUtil.detailPage(
-            url: galleryURL,
-            pageNum: pageNum
-        )
-        let urls = try await withRetry(
-            operation: "fetchThumbnailURLs",
-            context: [
-                "galleryURL": galleryURL.absoluteString,
-                "detailPageURL": detailPageURL.absoluteString,
-                "pageNum": pageNum
-            ]
-        ) {
-            let doc = try await htmlDocument(
-                url: detailPageURL,
-                allowsCellular: allowsCellular,
-                retriesRequest: false
-            )
-            return try Parser.parseThumbnailURLs(doc: doc)
-        }
-        guard !urls.isEmpty else { throw AppError.notFound }
-        return urls
-    }
-
-    struct MPVKeysResult: Sendable {
-        let mpvKey: String
-        let imageKeys: [Int: String]
-    }
-
-    func fetchMPVKeys(
-        mpvURL: URL,
-        allowsCellular: Bool
-    ) async throws -> MPVKeysResult {
-        let (mpvKey, imageKeys) = try await withRetry(
-            operation: "fetchMPVKeys",
-            context: [
-                "mpvURL": mpvURL.absoluteString
-            ]
-        ) {
-            let doc = try await htmlDocument(
-                url: mpvURL,
-                allowsCellular: allowsCellular,
-                retriesRequest: false
-            )
-            return try Parser.parseMPVKeys(doc: doc)
-        }
-        return MPVKeysResult(
-            mpvKey: mpvKey,
-            imageKeys: imageKeys
-        )
-    }
-
-    func fetchMPVImageURL(
-        payload: DownloadRequestPayload,
-        index: Int,
-        mpvKey: String,
-        imageKey: String,
-        retriesRequest: Bool = true
-    ) async throws -> URL {
-        guard let gidInteger = Int(payload.gallery.gid) else {
-            throw AppError.notFound
-        }
-        let params: [String: Any] = [
-            "method": "imagedispatch",
-            "gid": gidInteger,
-            "page": index,
-            "imgkey": imageKey,
-            "mpvkey": mpvKey
-        ]
-
-        var request = URLRequest(
-            url: payload.host.url
-                .appendingPathComponent("api.php")
-        )
-        request.httpMethod = "POST"
-        request.httpBody = try JSONSerialization
-            .data(withJSONObject: params)
-        request.allowsCellularAccess =
-            payload.options.allowCellular
-
-        let (data, response) = try await dataResponse(
-            for: request,
-            retriesRequest: retriesRequest
-        )
-        if let error = detectResponseError(
-            data: data,
-            response: response,
-            requestURL: request.url
-        ) {
-            throw error
-        }
-        guard let dictionary = try JSONSerialization
-                .jsonObject(with: data) as? [String: Any],
-              let imageURLString = dictionary["i"] as? String,
-              let imageURL = URL(string: imageURLString)
-        else {
-            throw AppError.parseFailed
-        }
-        return imageURL
     }
 }
 

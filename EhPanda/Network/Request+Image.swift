@@ -17,9 +17,13 @@ struct GalleryMPVImageURLResponse {
 // MARK: Image Requests
 struct MPVKeysRequest: Request {
     let mpvURL: URL
+    var urlSession: URLSession = .shared
+    var allowsCellular = true
 
     var publisher: AnyPublisher<(String, [Int: String]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: mpvURL)
+        urlSession.dataTaskPublisher(
+            for: urlRequest(url: mpvURL, allowsCellular: allowsCellular)
+        )
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseMPVKeys) }
@@ -31,10 +35,15 @@ struct MPVKeysRequest: Request {
 struct ThumbnailURLsRequest: Request {
     let galleryURL: URL
     let pageNum: Int
+    var urlSession: URLSession = .shared
+    var allowsCellular = true
 
     var publisher: AnyPublisher<[Int: URL], AppError> {
-        URLSession.shared.dataTaskPublisher(
-            for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum)
+        urlSession.dataTaskPublisher(
+            for: urlRequest(
+                url: URLUtil.detailPage(url: galleryURL, pageNum: pageNum),
+                allowsCellular: allowsCellular
+            )
         )
         .genericRetry()
         .tryMap { try htmlDocument(data: $0.data) }
@@ -46,11 +55,18 @@ struct ThumbnailURLsRequest: Request {
 
 struct GalleryNormalImageURLsRequest: Request {
     let thumbnailURLs: [Int: URL]
+    var urlSession: URLSession = .shared
+    var allowsCellular = true
 
     var publisher: AnyPublisher<([Int: URL], [Int: URL]), AppError> {
         thumbnailURLs.publisher
             .flatMap { index, url in
-                URLSession.shared.dataTaskPublisher(for: url)
+                urlSession.dataTaskPublisher(
+                    for: urlRequest(
+                        url: url,
+                        allowsCellular: allowsCellular
+                    )
+                )
                     .genericRetry()
                     .tryMap { try htmlDocument(data: $0.data) }
                     .tryMap { doc in
@@ -89,6 +105,8 @@ struct GalleryNormalImageURLRefetchRequest: Request {
     let galleryURL: URL
     let thumbnailURL: URL?
     let storedImageURL: URL
+    var urlSession: URLSession = .shared
+    var allowsCellular = true
 
     var publisher: AnyPublisher<([Int: URL], HTTPURLResponse?), AppError> {
         storedThumbnailURL()
@@ -111,8 +129,11 @@ struct GalleryNormalImageURLRefetchRequest: Request {
                 .setFailureType(to: AppError.self)
                 .eraseToAnyPublisher()
         } else {
-            return URLSession.shared.dataTaskPublisher(
-                for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum)
+            return urlSession.dataTaskPublisher(
+                for: urlRequest(
+                    url: URLUtil.detailPage(url: galleryURL, pageNum: pageNum),
+                    allowsCellular: allowsCellular
+                )
             )
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseThumbnailURLs) }
@@ -124,7 +145,9 @@ struct GalleryNormalImageURLRefetchRequest: Request {
 
     func renewThumbnailURL(stored: URL)
     -> AnyPublisher<(URL, URL), AppError> {
-        URLSession.shared.dataTaskPublisher(for: stored)
+        urlSession.dataTaskPublisher(
+            for: urlRequest(url: stored, allowsCellular: allowsCellular)
+        )
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { doc in
                 try parseResponse(doc: doc) {
@@ -146,7 +169,9 @@ struct GalleryNormalImageURLRefetchRequest: Request {
 
     func imageURL(thumbnailURL: URL, anotherImageURL: URL)
     -> AnyPublisher<ImageURLRefetchResult, AppError> {
-        URLSession.shared.dataTaskPublisher(for: thumbnailURL)
+        urlSession.dataTaskPublisher(
+            for: urlRequest(url: thumbnailURL, allowsCellular: allowsCellular)
+        )
             .tryMap {
                 (
                     try htmlDocument(data: $0.data),
@@ -182,6 +207,10 @@ struct GalleryMPVImageURLRequest: Request {
     let mpvKey: String
     let mpvImageKey: String
     let skipServerIdentifier: String?
+    var apiURL: URL = Defaults.URL.api
+    var urlSession: URLSession = .shared
+    var allowsCellular = true
+    var requiresSkipServerIdentifier = true
 
     var publisher: AnyPublisher<GalleryMPVImageURLResponse, AppError> {
         var params: [String: Any] = [
@@ -195,47 +224,54 @@ struct GalleryMPVImageURLRequest: Request {
             params["nl"] = skipServerIdentifier
         }
 
-        var request = URLRequest(url: Defaults.URL.api)
+        var request = urlRequest(
+            url: apiURL,
+            allowsCellular: allowsCellular
+        )
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(
             withJSONObject: params, options: []
         )
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map(\.data)
             .tryMap { data in
-                guard let dict = try JSONSerialization
-                        .jsonObject(with: data) as? [String: Any],
-                      let imageURLString = dict["i"] as? String,
-                      let imageURL = URL(string: imageURLString)
-                else { throw AppError.parseFailed }
+                try parseResponse(data: data) {
+                    guard let dict = try JSONSerialization
+                            .jsonObject(with: $0) as? [String: Any],
+                          let imageURLString = dict["i"] as? String,
+                          let imageURL = URL(string: imageURLString)
+                    else { throw AppError.parseFailed }
 
-                var skipServerIdentifier: String?
+                    var skipServerIdentifier: String?
 
-                if let integerIdentifier = dict["s"] as? Int {
-                    skipServerIdentifier = integerIdentifier.description
-                } else if let stringIdentifier = dict["s"] as? String {
-                    skipServerIdentifier = stringIdentifier
-                }
+                    if let integerIdentifier = dict["s"] as? Int {
+                        skipServerIdentifier = integerIdentifier.description
+                    } else if let stringIdentifier = dict["s"] as? String {
+                        skipServerIdentifier = stringIdentifier
+                    }
 
-                guard let skipServerIdentifier
-                else { throw AppError.parseFailed }
+                    if skipServerIdentifier == nil,
+                       requiresSkipServerIdentifier {
+                        throw AppError.parseFailed
+                    }
 
-                if let originalSlice = dict["lf"] as? String {
-                    let originalImageURL = Defaults.URL.host
-                        .appendingPathComponent(originalSlice)
-                    return GalleryMPVImageURLResponse(
-                        imageURL: imageURL,
-                        originalImageURL: originalImageURL,
-                        skipServerIdentifier: skipServerIdentifier
-                    )
-                } else {
-                    return GalleryMPVImageURLResponse(
-                        imageURL: imageURL,
-                        originalImageURL: nil,
-                        skipServerIdentifier: skipServerIdentifier
-                    )
+                    if let originalSlice = dict["lf"] as? String {
+                        let originalImageURL = Defaults.URL.host
+                            .appendingPathComponent(originalSlice)
+                        return GalleryMPVImageURLResponse(
+                            imageURL: imageURL,
+                            originalImageURL: originalImageURL,
+                            skipServerIdentifier: skipServerIdentifier ?? ""
+                        )
+                    } else {
+                        return GalleryMPVImageURLResponse(
+                            imageURL: imageURL,
+                            originalImageURL: nil,
+                            skipServerIdentifier: skipServerIdentifier ?? ""
+                        )
+                    }
                 }
             }
             .mapError(mapAppError)
