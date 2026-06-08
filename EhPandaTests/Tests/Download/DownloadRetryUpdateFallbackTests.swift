@@ -168,7 +168,8 @@ private extension DownloadRetryUpdateFallbackTests {
         #expect(pageCount > pageIndex)
         #expect(pageCount > 5)
         return UpdateFallbackPayloadResult(
-            versionSignature: fetchResult.versionSignature, pageCount: pageCount
+            versionSignature: chainVersionSignature(gid: gid, token: "updated-key"),
+            pageCount: pageCount
         )
     }
 

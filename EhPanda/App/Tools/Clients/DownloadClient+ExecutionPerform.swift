@@ -14,7 +14,6 @@ extension DownloadManager {
 
     func performDownload(
         payload: DownloadRequestPayload,
-        versionSignature _: String,
         folderRelativePath: String,
         existingDownload: DownloadedGallery
     ) async throws -> PerformDownloadResult {

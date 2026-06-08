@@ -133,7 +133,7 @@ private extension DownloadRetryMinimalSourceTests {
         recorder.reset()
         return MinimalSourceTestResult(
             recorder: recorder,
-            versionSignature: fetchResult.versionSignature,
+            versionSignature: chainVersionSignature(gid: gid, token: "token"),
             pageCount: fetchResult.payload.galleryDetail.pageCount
         )
     }

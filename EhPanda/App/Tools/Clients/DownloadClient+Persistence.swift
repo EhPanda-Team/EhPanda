@@ -368,14 +368,12 @@ extension DownloadManager {
             record.status = DownloadStatus.partial.rawValue
             record.completedPageCount = Int64(workingCompletedPageCount)
             record.latestRemoteVersionSignature =
-                context.latestSignature
-                ?? context.originalDownload.latestRemoteVersionSignature
+                context.originalDownload.latestRemoteVersionSignature
         } else {
             record.status = DownloadStatus.partial.rawValue
             record.completedPageCount = Int64(recoveredCompletedPageCount)
             record.latestRemoteVersionSignature =
-                context.latestSignature
-                ?? context.originalDownload.latestRemoteVersionSignature
+                context.originalDownload.latestRemoteVersionSignature
         }
     }
 
@@ -394,8 +392,7 @@ extension DownloadManager {
         record.remoteVersionSignature =
             context.originalDownload.remoteVersionSignature
         record.latestRemoteVersionSignature =
-            context.latestSignature
-            ?? context.originalDownload.latestRemoteVersionSignature
+            context.originalDownload.latestRemoteVersionSignature
     }
 
     nonisolated private func applyFallbackFailureStatus(
@@ -416,8 +413,7 @@ extension DownloadManager {
         record.remoteVersionSignature =
             context.originalDownload.remoteVersionSignature
         record.latestRemoteVersionSignature =
-            context.latestSignature
-            ?? context.originalDownload.latestRemoteVersionSignature
+            context.originalDownload.latestRemoteVersionSignature
     }
 
     func flushDownloadProgress(

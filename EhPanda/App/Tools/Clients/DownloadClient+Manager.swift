@@ -76,7 +76,6 @@ actor DownloadManager {
         let originalDownload: DownloadedGallery
         let mode: DownloadStartMode
         let hadReadableFiles: Bool
-        let latestSignature: String?
     }
 
     struct ProgressFlushContext: Sendable {
