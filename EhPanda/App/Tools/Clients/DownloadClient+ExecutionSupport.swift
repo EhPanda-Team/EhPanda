@@ -32,11 +32,13 @@ extension DownloadManager {
             return try saveCoverFromCache(
                 cachedData: cachedData,
                 coverURL: coverURL,
+                payload: payload,
                 temporaryFolderURL: temporaryFolderURL
             )
         }
         return try await downloadCoverFromNetwork(
             coverURL: coverURL,
+            payload: payload,
             temporaryFolderURL: temporaryFolderURL,
             allowsCellular: payload.options.allowCellular
         )
@@ -45,6 +47,7 @@ extension DownloadManager {
     private func saveCoverFromCache(
         cachedData: Data,
         coverURL: URL,
+        payload: DownloadRequestPayload,
         temporaryFolderURL: URL
     ) throws -> String {
         let ext = fileExtension(
@@ -53,7 +56,11 @@ extension DownloadManager {
             prefixData: cachedData
         )
         let relativePath = storage
-            .makeCoverRelativePath(fileExtension: ext)
+            .makeCoverRelativePath(
+                gid: payload.gallery.gid,
+                token: payload.gallery.token,
+                fileExtension: ext
+            )
         let fileURL = temporaryFolderURL
             .appendingPathComponent(relativePath)
         try write(data: cachedData, to: fileURL)
@@ -62,6 +69,7 @@ extension DownloadManager {
 
     private func downloadCoverFromNetwork(
         coverURL: URL,
+        payload: DownloadRequestPayload,
         temporaryFolderURL: URL,
         allowsCellular: Bool
     ) async throws -> String {
@@ -79,7 +87,11 @@ extension DownloadManager {
             prefixData: prefixData
         )
         let relativePath = storage
-            .makeCoverRelativePath(fileExtension: ext)
+            .makeCoverRelativePath(
+                gid: payload.gallery.gid,
+                token: payload.gallery.token,
+                fileExtension: ext
+            )
         let fileURL = temporaryFolderURL
             .appendingPathComponent(relativePath)
         try moveDownloadedFile(

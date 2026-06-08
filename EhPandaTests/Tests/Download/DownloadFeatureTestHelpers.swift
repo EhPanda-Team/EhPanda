@@ -75,15 +75,15 @@ extension DownloadFeatureTestCase {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: timeout)
 
-        while !cacheKeys.allSatisfy({ KingfisherManager.shared.cache.isCached(forKey: $0) }),
+        while !cacheKeys.allSatisfy(LibraryClient.live.isCached),
               clock.now < deadline {
             try? await clock.sleep(until: clock.now.advanced(by: .milliseconds(10)), tolerance: .zero)
         }
 
-        let missingKeys = cacheKeys.filter { !KingfisherManager.shared.cache.isCached(forKey: $0) }
+        let missingKeys = cacheKeys.filter { !LibraryClient.live.isCached($0) }
         #expect(
             missingKeys.isEmpty,
-            "Timed out waiting for Kingfisher cache visibility for keys: \(missingKeys)"
+            "Timed out waiting for cache visibility for keys: \(missingKeys)"
         )
     }
 

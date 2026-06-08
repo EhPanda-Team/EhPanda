@@ -77,6 +77,7 @@ extension DownloadManager {
     }
 
     func restorePendingPagesFromStoredCache(
+        payload: DownloadRequestPayload,
         indices: [Int],
         temporaryFolderURL: URL,
         existingPages: [Int: String],
@@ -91,6 +92,8 @@ extension DownloadManager {
                     storedGalleryImageState
             )
             let cacheSource = CacheRestoreSource(
+                gid: payload.gallery.gid,
+                token: payload.gallery.token,
                 cacheURLs: cacheURLs,
                 referenceURL: cacheURLs
                     .compactMap(\.self).first,
@@ -136,6 +139,8 @@ extension DownloadManager {
                 prefixData: cachedData
             )
             relativePath = storage.makePageRelativePath(
+                gid: source.gid,
+                token: source.token,
                 index: index,
                 fileExtension: ext
             )

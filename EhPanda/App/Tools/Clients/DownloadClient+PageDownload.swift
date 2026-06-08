@@ -112,6 +112,7 @@ extension DownloadManager {
         let payload = context.payload
         let restoredCachedPages =
             try await restorePendingPagesFromStoredCache(
+                payload: payload,
                 indices: pendingPageIndices,
                 temporaryFolderURL: context.temporaryFolderURL,
                 existingPages: existingPages,
