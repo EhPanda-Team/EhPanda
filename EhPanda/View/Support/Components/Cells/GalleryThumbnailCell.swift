@@ -8,7 +8,6 @@ import Kingfisher
 
 struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let downloadStore = DownloadBadgeStore.shared
 
     private let gallery: Gallery
     private let setting: Setting
@@ -35,7 +34,7 @@ struct GalleryThumbnailCell: View {
     }
 
     private var resolvedCoverURL: URL? {
-        downloadStore.resolvedCoverURL(for: gallery)
+        gallery.coverURL
     }
 
     var body: some View {

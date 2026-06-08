@@ -8,8 +8,6 @@ import Kingfisher
 
 // MARK: HeaderSection
 struct HeaderSection: View {
-    private let downloadStore = DownloadBadgeStore.shared
-
     let gallery: Gallery
     let galleryDetail: GalleryDetail
     let user: User
@@ -215,7 +213,7 @@ struct HeaderSection: View {
         default: return "icloud.and.arrow.down"
         }
     }
-    private var resolvedCoverURL: URL? { downloadStore.resolvedCoverURL(for: gallery) }
+    private var resolvedCoverURL: URL? { gallery.coverURL }
 
     var body: some View {
         HStack {

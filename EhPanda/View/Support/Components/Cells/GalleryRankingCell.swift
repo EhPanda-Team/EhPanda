@@ -7,8 +7,6 @@ import SwiftUI
 import Kingfisher
 
 struct GalleryRankingCell: View {
-    private let downloadStore = DownloadBadgeStore.shared
-
     private let gallery: Gallery
     private let ranking: Int
     private let downloadBadge: DownloadBadge
@@ -20,7 +18,7 @@ struct GalleryRankingCell: View {
     }
 
     private var resolvedCoverURL: URL? {
-        downloadStore.resolvedCoverURL(for: gallery)
+        gallery.coverURL
     }
 
     var body: some View {
