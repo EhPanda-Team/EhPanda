@@ -124,23 +124,6 @@ extension ImageClient {
     }
 }
 
-private final class ImageSaver: NSObject {
-    private let completion: (Bool) -> Void
-
-    init(completion: @escaping @Sendable (Bool) -> Void) {
-        self.completion = completion
-    }
-
-    func saveImage(_ image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage), nil)
-    }
-    @objc func didFinishSavingImage(
-        _ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer
-    ) {
-        completion(error == nil)
-    }
-}
-
 // MARK: API
 enum ImageClientKey: DependencyKey {
     static let liveValue = ImageClient.live
