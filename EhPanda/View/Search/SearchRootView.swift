@@ -224,7 +224,7 @@ private struct QuickSearchWordsSection: View {
             .map {
                 .init(
                     keyword: $0.effectiveSearchText,
-                    displayText: $0.content.notEmpty ? $0.name : ""
+                    displayText: !$0.content.isEmpty ? $0.name : ""
                 )
             }
             .removeDuplicates()

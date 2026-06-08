@@ -87,7 +87,7 @@ extension Dictionary where Key == String, Value == String {
 
 private extension URL {
     var galleryToken: String? {
-        let filteredComponents = pathComponents.filter { $0 != "/" && $0.notEmpty }
+        let filteredComponents = pathComponents.filter { $0 != "/" && !$0.isEmpty }
         guard filteredComponents.count >= 3 else { return nil }
         return filteredComponents[2]
     }

@@ -309,7 +309,7 @@ extension DownloadManager {
         response: URLResponse?,
         prefixData: Data
     ) -> String {
-        if url.pathExtension.notEmpty {
+        if !url.pathExtension.isEmpty {
             return url.pathExtension.lowercased()
         }
         if let ext = extensionFromMimeType(response) {

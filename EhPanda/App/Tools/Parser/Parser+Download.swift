@@ -21,7 +21,7 @@ extension Parser {
 
     static func parseDownloadPageError(content: String) -> AppError? {
         let normalizedContent = content.lowercased()
-        guard normalizedContent.notEmpty else { return nil }
+        guard !normalizedContent.isEmpty else { return nil }
 
         // Ex login failures commonly surface as a kokomade placeholder wall when `igneous` is missing.
         // Reference: https://github.com/OpportunityLiu/E-Viewer/issues/124
@@ -78,19 +78,19 @@ private extension Parser {
         ]
         for candidate in directCandidates.compactMap(\.self) {
             let trimmedCandidate = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard trimmedCandidate.notEmpty, !candidates.contains(trimmedCandidate) else { continue }
+            guard !trimmedCandidate.isEmpty, !candidates.contains(trimmedCandidate) else { continue }
             candidates.append(trimmedCandidate)
         }
 
         if let bodyText = doc.body?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-           bodyText.notEmpty,
+           !bodyText.isEmpty,
            bodyText.count <= 1024,
            !candidates.contains(bodyText) {
             candidates.append(bodyText)
         }
 
         if let bodyContent = doc.body?.innerHTML?.trimmingCharacters(in: .whitespacesAndNewlines),
-           bodyContent.notEmpty,
+           !bodyContent.isEmpty,
            bodyContent.count <= 2048,
            !candidates.contains(bodyContent) {
             candidates.append(bodyContent)

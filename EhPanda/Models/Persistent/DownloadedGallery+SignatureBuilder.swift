@@ -57,12 +57,12 @@ enum DownloadSignatureBuilder {
     }
 
     static func chainVersionIdentifier(gid: String, token: String) -> String? {
-        guard gid.notEmpty, token.notEmpty else { return nil }
+        guard !gid.isEmpty, !token.isEmpty else { return nil }
         return "chain:\(gid):\(token)"
     }
 
     static func parse(_ value: String?) -> SignatureKind? {
-        guard let value, value.notEmpty else { return nil }
+        guard let value, !value.isEmpty else { return nil }
 
         if value.hasPrefix("chain:") {
             let components = value.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false)
@@ -77,7 +77,7 @@ enum DownloadSignatureBuilder {
 
         if value.hasPrefix("hash:") {
             let hash = String(value.dropFirst("hash:".count))
-            guard hash.notEmpty else { return nil }
+            guard !hash.isEmpty else { return nil }
             return .hash(hash)
         }
 
@@ -144,7 +144,7 @@ enum DownloadSignatureBuilder {
 
     private static func normalizedPreviewSignatureValue(url: URL) -> String {
         let lastPathComponent = url.lastPathComponent
-        guard lastPathComponent.notEmpty else {
+        guard !lastPathComponent.isEmpty else {
             return normalizedCoverSignatureValue(url: url)
         }
         return lastPathComponent
@@ -153,7 +153,7 @@ enum DownloadSignatureBuilder {
     private static func normalizedCoverSignatureValue(url: URL?) -> String {
         guard let url else { return "" }
         let stablePathComponents = url.pathComponents
-            .filter { $0 != "/" && $0.notEmpty }
+            .filter { $0 != "/" && !$0.isEmpty }
         return stablePathComponents.joined(separator: "/")
     }
 }

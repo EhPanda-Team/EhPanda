@@ -109,8 +109,8 @@ struct DownloadGalleryFilter: Equatable {
         !excludedCategories.isEmpty
             || minimumRatingActivated
             || pageRangeActivated
-            || pageLowerBound.notEmpty
-            || pageUpperBound.notEmpty
+            || !pageLowerBound.isEmpty
+            || !pageUpperBound.isEmpty
     }
 }
 

@@ -34,7 +34,7 @@ extension DownloadedGallery {
     func resolvedLocalCoverURL(rootURL: URL? = FileUtil.downloadsDirectoryURL) -> URL? {
         guard let folderURL = resolvedFolderURL(rootURL: rootURL),
               let coverRelativePath,
-              coverRelativePath.notEmpty
+              !coverRelativePath.isEmpty
         else { return nil }
         let coverURL = folderURL.appendingPathComponent(coverRelativePath)
         guard isReadableLocalAssetFile(coverURL) else {
@@ -56,7 +56,7 @@ extension DownloadedGallery {
         }
 
         if let coverRelativePath,
-           coverRelativePath.notEmpty {
+           !coverRelativePath.isEmpty {
             let coverURL = temporaryFolderURL.appendingPathComponent(coverRelativePath)
             if isReadableLocalAssetFile(coverURL) {
                 return coverURL

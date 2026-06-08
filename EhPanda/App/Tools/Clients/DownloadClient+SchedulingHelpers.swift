@@ -93,7 +93,7 @@ extension DownloadManager {
         case .update:
             if let latestSignature =
                 download.latestRemoteVersionSignature,
-               latestSignature.notEmpty {
+               !latestSignature.isEmpty {
                 return latestSignature
             }
         case .initial, .redownload, .repair:
@@ -101,11 +101,11 @@ extension DownloadManager {
         }
 
         if let resumeState,
-           resumeState.versionSignature.notEmpty {
+           !resumeState.versionSignature.isEmpty {
             return resumeState.versionSignature
         }
 
-        if download.remoteVersionSignature.notEmpty {
+        if !download.remoteVersionSignature.isEmpty {
             return download.remoteVersionSignature
         }
 

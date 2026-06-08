@@ -14,7 +14,7 @@ extension DownloadManager {
         _ response: URLResponse
     ) -> String? {
         if let mimeType = response.mimeType?.lowercased(),
-           mimeType.notEmpty {
+           !mimeType.isEmpty {
             return mimeType
         }
         if let httpResponse = response as? HTTPURLResponse,
@@ -57,7 +57,7 @@ extension DownloadManager {
         )?
         .trimmingCharacters(in: .whitespacesAndNewlines)
         .lowercased() ?? ""
-        guard prefix.notEmpty else { return false }
+        guard !prefix.isEmpty else { return false }
 
         let htmlMarkers = [
             "<html",
@@ -214,11 +214,11 @@ extension DownloadManager {
         )
         let hasYay = cookies.contains {
             $0.name == Defaults.Cookie.yay
-                && $0.value.notEmpty
+                && !$0.value.isEmpty
         }
         let hasValidIgneous = cookies.contains {
             $0.name == Defaults.Cookie.igneous
-                && $0.value.notEmpty
+                && !$0.value.isEmpty
                 && $0.value != Defaults.Cookie.mystery
         }
         return hasYay && !hasValidIgneous

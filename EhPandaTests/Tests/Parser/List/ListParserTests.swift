@@ -17,7 +17,7 @@ struct ListParserTests: TestHelper {
 
         try tuples.forEach { type, document in
             let galleries = try Parser.parseGalleries(doc: document)
-            let uploaders = galleries.compactMap(\.uploader).filter(\.notEmpty)
+            let uploaders = galleries.compactMap(\.uploader).filter { !$0.isEmpty }
             #expect(galleries.count == type.assertCount, "\(type)")
             if type.hasUploader {
                 #expect(uploaders.count == type.assertCount, "\(type)")

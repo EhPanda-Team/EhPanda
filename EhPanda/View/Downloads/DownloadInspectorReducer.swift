@@ -65,7 +65,7 @@ struct DownloadInspectorReducer {
                 return .none
 
             case .onAppear:
-                guard state.gid.notEmpty else { return .none }
+                guard !state.gid.isEmpty else { return .none }
                 return .merge(
                     .send(.loadInspection),
                     .send(.observeDownloads)
@@ -78,7 +78,7 @@ struct DownloadInspectorReducer {
                 )
 
             case .loadInspection:
-                guard state.gid.notEmpty else { return .none }
+                guard !state.gid.isEmpty else { return .none }
                 if state.inspection == nil {
                     state.loadingState = .loading
                 }
@@ -110,7 +110,7 @@ struct DownloadInspectorReducer {
                 return .none
 
             case .observeDownloads:
-                guard state.gid.notEmpty else { return .none }
+                guard !state.gid.isEmpty else { return .none }
                 return .run { [gid = state.gid] send in
                     var hadRelevantDownloads = false
                     for await downloads in downloadClient.observeDownloads() {
@@ -145,7 +145,7 @@ struct DownloadInspectorReducer {
                 return .send(.loadInspection)
 
             case .retryPage(let index):
-                guard state.gid.notEmpty else { return .none }
+                guard !state.gid.isEmpty else { return .none }
                 state.inspectionRequestID = UUID()
                 state.retryingPageIndices.insert(index)
                 state.stableInspection = state.inspection ?? state.stableInspection
@@ -234,7 +234,7 @@ struct DownloadInspectorReducer {
                 return .none
 
             case .validateImageData:
-                guard state.gid.notEmpty,
+                guard !state.gid.isEmpty,
                       state.inspection?.canValidateImageData == true,
                       !state.isValidatingImageData
                 else { return .none }
