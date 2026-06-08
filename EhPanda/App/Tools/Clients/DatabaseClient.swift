@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct DatabaseClient: Sendable {
     let prepareDatabase: @Sendable () async -> Result<Void, AppError>
     let dropDatabase: @Sendable () async -> Result<Void, AppError>
+    private let viewContext: @Sendable () -> NSManagedObjectContext
     private let saveContext: @Sendable () -> Void
     private let materializedObjects:
         @Sendable (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
@@ -32,6 +33,9 @@ extension DatabaseClient {
                 }
             }
         },
+        viewContext: {
+            PersistenceController.shared.container.viewContext
+        },
         saveContext: {
             let context = PersistenceController.shared.container.viewContext
             AppUtil.dispatchMainSync {
@@ -44,17 +48,43 @@ extension DatabaseClient {
                 }
             }
         },
-        materializedObjects: { context, predicate in
-            var objects = [NSManagedObject]()
-            for object in context.registeredObjects where !object.isFault {
-                guard object.entity.attributesByName.keys.contains("gid"),
-                      predicate.evaluate(with: object)
-                else { continue }
-                objects.append(object)
-            }
-            return objects
-        }
+        materializedObjects: materializedObjectsFromContext
     )
+
+    static func live(persistenceContainer container: NSPersistentContainer) -> Self {
+        .init(
+            prepareDatabase: { .success(()) },
+            dropDatabase: { .success(()) },
+            viewContext: {
+                container.viewContext
+            },
+            saveContext: {
+                let context = container.viewContext
+                AppUtil.dispatchMainSync {
+                    guard context.hasChanges else { return }
+                    do {
+                        try context.save()
+                    } catch {
+                        Logger.error(error)
+                        fatalError("Unresolved error \(error)")
+                    }
+                }
+            },
+            materializedObjects: materializedObjectsFromContext
+        )
+    }
+
+    private static let materializedObjectsFromContext:
+        @Sendable (NSManagedObjectContext, NSPredicate) -> [NSManagedObject] = { context, predicate in
+        var objects = [NSManagedObject]()
+        for object in context.registeredObjects where !object.isFault {
+            guard object.entity.attributesByName.keys.contains("gid"),
+                  predicate.evaluate(with: object)
+            else { continue }
+            objects.append(object)
+        }
+        return objects
+    }
 }
 
 // MARK: Foundation
@@ -64,7 +94,7 @@ extension DatabaseClient {
         findBeforeFetch: Bool = true, sortDescriptors: [NSSortDescriptor]? = nil
     ) -> [MO] {
         var results = [MO]()
-        let context = PersistenceController.shared.container.viewContext
+        let context = viewContext()
         AppUtil.dispatchMainSync {
             if findBeforeFetch, let predicate = predicate {
                 if let objects = materializedObjects(context, predicate) as? [MO], !objects.isEmpty {
@@ -104,7 +134,7 @@ extension DatabaseClient {
         ) {
             return storedMO
         } else {
-            let newMO = MO(context: PersistenceController.shared.container.viewContext)
+            let newMO = MO(context: viewContext())
             commitChanges?(newMO)
             saveContext()
             return newMO
@@ -181,8 +211,11 @@ extension DatabaseClient {
 
 // MARK: GalleryState Helpers
 extension DatabaseClient {
-    func update<T: Encodable>(gid: String, storedData: inout Data?, new: T) {
-        storedData = new.toData()
+    func update<T: Codable>(gid: String, storedData: inout Data?, new: [Int: T]) {
+        guard !new.isEmpty, gid.isValidGID else { return }
+        storedData = ((storedData?.toObject() as [Int: T]?) ?? [:])
+            .merging(new, uniquingKeysWith: { _, new in new })
+            .toData()
     }
 }
 
@@ -292,7 +325,7 @@ extension DatabaseClient {
                 }
             }
             if storedMO == nil {
-                gallery.toManagedObject(in: PersistenceController.shared.container.viewContext)
+                gallery.toManagedObject(in: viewContext())
             }
         }
         saveContext()
@@ -327,7 +360,7 @@ extension DatabaseClient {
             managedObject?.uploader = detail.uploader
         }
         if storedMO == nil {
-            detail.toManagedObject(in: PersistenceController.shared.container.viewContext)
+            detail.toManagedObject(in: viewContext())
         }
         saveContext()
     }
@@ -354,6 +387,9 @@ extension DatabaseClient {
     static let noop: Self = .init(
         prepareDatabase: { .success(()) },
         dropDatabase: { .success(()) },
+        viewContext: {
+            PersistenceController.shared.container.viewContext
+        },
         saveContext: {},
         materializedObjects: { _, _ in .init() }
     )
@@ -363,6 +399,7 @@ extension DatabaseClient {
     static let unimplemented: Self = .init(
         prepareDatabase: IssueReporting.unimplemented(placeholder: placeholder()),
         dropDatabase: IssueReporting.unimplemented(placeholder: placeholder()),
+        viewContext: IssueReporting.unimplemented(placeholder: placeholder()),
         saveContext: IssueReporting.unimplemented(placeholder: placeholder()),
         materializedObjects: IssueReporting.unimplemented(placeholder: placeholder())
     )
