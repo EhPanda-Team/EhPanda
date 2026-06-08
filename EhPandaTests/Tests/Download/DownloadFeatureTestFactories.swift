@@ -109,16 +109,7 @@ extension DownloadFeatureTestCase {
         download: DownloadedGallery,
         manifest: DownloadManifest
     ) throws -> URL {
-        guard let folderURL = download.folderURL else {
-            throw NSError(
-                domain: "DownloadFeatureReducerTests",
-                code: 1,
-                userInfo: [
-                    NSLocalizedDescriptionKey:
-                        "Downloads directory is unavailable in the test environment."
-                ]
-            )
-        }
+        let folderURL = download.folderURL
         try? FileManager.default.removeItem(at: folderURL)
         try FileManager.default.createDirectory(
             at: folderURL.appendingPathComponent(

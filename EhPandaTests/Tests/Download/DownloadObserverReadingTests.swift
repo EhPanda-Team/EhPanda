@@ -34,8 +34,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.urlClient = .noop
         }
         store.exhaustivity = .off
-        let folderURL = download.folderURL ?? FileManager.default.temporaryDirectory
-            .appendingPathComponent(download.folderRelativePath, isDirectory: true)
+        let folderURL = download.folderURL
 
         await store.send(.fetchDatabaseInfos(download.gid)) {
             $0.gallery = download.gallery

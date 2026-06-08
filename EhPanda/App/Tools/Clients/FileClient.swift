@@ -21,8 +21,7 @@ extension FileClient {
         },
         fetchLogs: {
             await withCheckedContinuation { continuation in
-                guard let path = FileUtil.logsDirectoryURL?.path,
-                      let enumerator = FileManager.default.enumerator(atPath: path),
+                guard let enumerator = FileManager.default.enumerator(atPath: FileUtil.logsDirectoryURL.path),
                       let fileNames = (enumerator.allObjects as? [String])?
                         .filter({ $0.contains(Defaults.FilePath.ehpandaLog) })
                 else {
@@ -31,8 +30,8 @@ extension FileClient {
                 }
 
                 let logs: [Log] = fileNames.compactMap { name in
-                    guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name),
-                          let content = try? String(contentsOf: fileURL, encoding: .utf8)
+                    let fileURL = FileUtil.logsDirectoryURL.appendingPathComponent(name)
+                    guard let content = try? String(contentsOf: fileURL, encoding: .utf8)
                     else { return nil }
 
                     return Log(
@@ -47,11 +46,7 @@ extension FileClient {
         },
         deleteLog: { fileName in
             await withCheckedContinuation { continuation in
-                guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(fileName)
-                else {
-                    continuation.resume(returning: .failure(.notFound))
-                    return
-                }
+                let fileURL = FileUtil.logsDirectoryURL.appendingPathComponent(fileName)
 
                 try? FileManager.default.removeItem(at: fileURL)
 
@@ -81,12 +76,8 @@ extension FileClient {
     )
 
     func saveTorrent(hash: String, data: Data) -> URL? {
-        if let cachesDirectory = FileUtil.cachesDirectory {
-            let torrentDirectory = cachesDirectory.appendingPathComponent("\(hash).torrent")
-            return createFile(torrentDirectory.path, data) ? torrentDirectory : nil
-        } else {
-            return nil
-        }
+        let torrentDirectory = FileUtil.cachesDirectory.appendingPathComponent("\(hash).torrent")
+        return createFile(torrentDirectory.path, data) ? torrentDirectory : nil
     }
 }
 

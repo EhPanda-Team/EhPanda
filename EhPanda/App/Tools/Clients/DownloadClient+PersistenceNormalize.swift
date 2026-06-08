@@ -36,10 +36,8 @@ extension DownloadManager {
             .resolvedFolderURL(rootURL: storage.rootURL)
         let temporaryFolderExists = fileManager
             .fileExists(atPath: temporaryFolderURL.path)
-        let completedFolderExists = completedFolderURL
-            .map {
-                fileManager.fileExists(atPath: $0.path)
-            } ?? false
+        let completedFolderExists = fileManager
+            .fileExists(atPath: completedFolderURL.path)
 
         if shouldExposeTemporaryWorkingSet(for: download) {
             return temporaryFolderExists
@@ -234,9 +232,9 @@ extension DownloadManager {
     private func refreshMissingManifestHashesIfNeeded(
         download: DownloadedGallery
     ) {
-        guard let folderURL = download
-                .resolvedFolderURL(rootURL: storage.rootURL),
-              let manifest = try? storage.readManifest(folderURL: folderURL),
+        let folderURL = download
+            .resolvedFolderURL(rootURL: storage.rootURL)
+        guard let manifest = try? storage.readManifest(folderURL: folderURL),
               manifest.needsFileHashRefresh
         else {
             return

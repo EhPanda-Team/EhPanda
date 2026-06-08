@@ -291,9 +291,9 @@ extension DownloadManager {
         payload: DownloadRequestPayload,
         versionSignature: String
     ) -> RepairSeed? {
+        let folderURL = download
+            .resolvedFolderURL(rootURL: storage.rootURL)
         guard payload.mode == .repair,
-              let folderURL = download
-                .resolvedFolderURL(rootURL: storage.rootURL),
               fileManager
                 .fileExists(atPath: folderURL.path),
               let manifest = try? storage

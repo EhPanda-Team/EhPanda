@@ -181,15 +181,12 @@ extension DownloadFileStorage {
     }
 
     func validate(download: DownloadedGallery) -> DownloadValidationState {
-        guard let folderURL = download.resolvedFolderURL(rootURL: rootURL) else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadFolderUnresolved)
-        }
+        let folderURL = download.resolvedFolderURL(rootURL: rootURL)
         guard fileManager.fileExists(atPath: folderURL.path) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadFolderMissing)
         }
-        guard let manifestURL = download.resolvedManifestURL(rootURL: rootURL),
-              fileManager.fileExists(atPath: manifestURL.path)
-        else {
+        let manifestURL = download.resolvedManifestURL(rootURL: rootURL)
+        guard fileManager.fileExists(atPath: manifestURL.path) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestMissing)
         }
         guard let manifest = try? readManifest(folderURL: folderURL) else {

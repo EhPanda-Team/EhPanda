@@ -118,7 +118,7 @@ extension ReadingReducer {
         download: DownloadedGallery,
         manifest: DownloadManifest
     ) {
-        guard let folderURL = download.folderURL else { return }
+        let folderURL = download.folderURL
 
         state.gallery = download.gallery
         state.language = manifest.language

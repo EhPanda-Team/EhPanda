@@ -35,7 +35,7 @@ extension LibraryClient {
             file.format = format
             file.logFileAmount = 10
             file.calendar = Calendar(identifier: .gregorian)
-            file.logFileURL = FileUtil.logsDirectoryURL?
+            file.logFileURL = FileUtil.logsDirectoryURL
                 .appendingPathComponent(Defaults.FilePath.ehpandaLog)
 
             console.format = format
