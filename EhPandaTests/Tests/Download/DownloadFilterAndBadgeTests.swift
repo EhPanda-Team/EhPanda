@@ -159,7 +159,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         let completedUpdate = sampleDownload(
             gid: "458",
             title: "Completed Update",
-            status: .completed,
+            status: .updateAvailable,
             latestRemoteVersionSignature: "hash:v2"
         )
 
