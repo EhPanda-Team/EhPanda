@@ -404,8 +404,7 @@ extension DownloadManager {
     ) {
         record.status = self.fallbackStatus(
             for: context.originalDownload,
-            mode: context.mode,
-            latestSignature: context.latestSignature
+            mode: context.mode
         ).rawValue
         record.completedPageCount = Int64(
             context.originalDownload.pageCount
