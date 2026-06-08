@@ -487,6 +487,69 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerRetryIndexedDownloadUsesQueueIntent() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try insertPersistedDownload(
+            in: container,
+            gid: "450",
+            status: .completed,
+            completedPageCount: 1,
+            pageCount: 1
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[450_token] Retry",
+            manifest: indexedManifest(
+                gid: "450",
+                title: "Retry",
+                pageHashes: ["sha256:done"]
+            )
+        )
+        let blockingTask = Task<Void, Never> {
+            do {
+                try await Task.sleep(for: .seconds(60))
+            } catch {}
+        }
+        defer { blockingTask.cancel() }
+        await manager.testingInstallActiveTask(gid: "busy", task: blockingTask)
+
+        let result = await manager.retry(gid: "450", mode: .redownload)
+
+        guard case .success = result else {
+            Issue.record("Retry should succeed, got \(result).")
+            return
+        }
+        let download = try #require(await manager.fetchDownload(gid: "450"))
+        #expect(queueStore.gids == ["450"])
+        #expect(download.displayStatus == .queued)
+        #expect(download.status == .queued)
+        #expect(download.pendingOperation == nil)
+
+        let request = NSFetchRequest<DownloadedGalleryMO>(
+            entityName: "DownloadedGalleryMO"
+        )
+        request.fetchLimit = 1
+        request.predicate = NSPredicate(format: "gid == %@", "450")
+        let persistedDownload = try container.viewContext.fetch(request).first
+        #expect(persistedDownload?.status == DownloadStatus.completed.rawValue)
+        #expect(persistedDownload?.pendingOperation == nil)
+    }
+
+    @Test
     func testDownloadManagerFailureSettlesQueueIntent() async throws {
         let container = try makeInMemoryContainer()
         let rootURL = FileManager.default.temporaryDirectory

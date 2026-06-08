@@ -82,11 +82,6 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        let manifest = try sampleManifest(gid: gid, title: "Pause Race")
-        try JSONEncoder().encode(manifest).write(
-            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
-            options: .atomic
-        )
         try Data([0x00]).write(
             to: completedFolderURL.appendingPathComponent("cover.jpg"),
             options: .atomic
