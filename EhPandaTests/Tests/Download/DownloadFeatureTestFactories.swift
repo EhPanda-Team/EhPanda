@@ -162,22 +162,24 @@ extension DownloadFeatureTestCase {
         in container: NSPersistentContainer
     ) throws {
         let context = container.viewContext
-        let downloadRequest = NSFetchRequest<DownloadedGalleryMO>(
-            entityName: "DownloadedGalleryMO"
-        )
-        let downloads = try context.fetch(downloadRequest)
-        for object in downloads {
-            context.delete(object)
+        try performAndWait(in: context) {
+            let downloadRequest = NSFetchRequest<DownloadedGalleryMO>(
+                entityName: "DownloadedGalleryMO"
+            )
+            let downloads = try context.fetch(downloadRequest)
+            for object in downloads {
+                context.delete(object)
+            }
+            let stateRequest = NSFetchRequest<GalleryStateMO>(
+                entityName: "GalleryStateMO"
+            )
+            let states = try context.fetch(stateRequest)
+            for object in states {
+                context.delete(object)
+            }
+            guard context.hasChanges else { return }
+            try context.save()
         }
-        let stateRequest = NSFetchRequest<GalleryStateMO>(
-            entityName: "GalleryStateMO"
-        )
-        let states = try context.fetch(stateRequest)
-        for object in states {
-            context.delete(object)
-        }
-        guard context.hasChanges else { return }
-        try context.save()
     }
 
     func insertPersistedDownload(
@@ -193,30 +195,32 @@ extension DownloadFeatureTestCase {
         pendingOperation: DownloadStartMode? = nil
     ) throws {
         let context = container.viewContext
-        let object = DownloadedGalleryMO(context: context)
-        object.gid = gid
-        object.host = GalleryHost.ehentai.rawValue
-        object.token = token
-        object.title = "Pause Race"
-        object.jpnTitle = nil
-        object.uploader = "Uploader"
-        object.category = Category.doujinshi.rawValue
-        object.tags = [GalleryTag]().toData()
-        object.pageCount = Int64(pageCount)
-        object.postedDate = .now
-        object.rating = 4
-        object.onlineCoverURL = URL(string: "https://example.com/cover.jpg")
-        object.folderRelativePath = "\(gid) - Pause Race"
-        object.coverRelativePath = nil
-        object.status = status.rawValue
-        object.completedPageCount = Int64(completedPageCount)
-        object.lastDownloadedAt = .now
-        object.lastError = lastError?.toData()
-        object.downloadOptionsSnapshot = DownloadOptionsSnapshot().toData()
-        object.remoteVersionSignature = remoteVersionSignature
-        object.latestRemoteVersionSignature = latestRemoteVersionSignature
-        object.pendingOperation = pendingOperation?.rawValue
-        try context.save()
+        try performAndWait(in: context) {
+            let object = DownloadedGalleryMO(context: context)
+            object.gid = gid
+            object.host = GalleryHost.ehentai.rawValue
+            object.token = token
+            object.title = "Pause Race"
+            object.jpnTitle = nil
+            object.uploader = "Uploader"
+            object.category = Category.doujinshi.rawValue
+            object.tags = [GalleryTag]().toData()
+            object.pageCount = Int64(pageCount)
+            object.postedDate = .now
+            object.rating = 4
+            object.onlineCoverURL = URL(string: "https://example.com/cover.jpg")
+            object.folderRelativePath = "\(gid) - Pause Race"
+            object.coverRelativePath = nil
+            object.status = status.rawValue
+            object.completedPageCount = Int64(completedPageCount)
+            object.lastDownloadedAt = .now
+            object.lastError = lastError?.toData()
+            object.downloadOptionsSnapshot = DownloadOptionsSnapshot().toData()
+            object.remoteVersionSignature = remoteVersionSignature
+            object.latestRemoteVersionSignature = latestRemoteVersionSignature
+            object.pendingOperation = pendingOperation?.rawValue
+            try context.save()
+        }
     }
 
     func insertPersistedGalleryState(
@@ -227,12 +231,21 @@ extension DownloadFeatureTestCase {
         originalImageURLs: [Int: URL] = [:]
     ) throws {
         let context = container.viewContext
-        let object = GalleryStateMO(context: context)
-        object.gid = gid
-        object.previewURLs = previewURLs.toData()
-        object.imageURLs = imageURLs.toData()
-        object.originalImageURLs = originalImageURLs.toData()
-        try context.save()
+        try performAndWait(in: context) {
+            let object = GalleryStateMO(context: context)
+            object.gid = gid
+            object.previewURLs = previewURLs.toData()
+            object.imageURLs = imageURLs.toData()
+            object.originalImageURLs = originalImageURLs.toData()
+            try context.save()
+        }
+    }
+
+    private func performAndWait(
+        in context: NSManagedObjectContext,
+        operation: @Sendable () throws -> Void
+    ) throws {
+        try context.performAndWait(operation)
     }
 }
 
