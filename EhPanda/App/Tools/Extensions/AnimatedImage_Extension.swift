@@ -91,8 +91,7 @@ extension UIImage {
         }
 
         // `sd_imageData()` can preserve animated formats that SDWebImage knows how to export.
-        let sdData = sd_imageData()
-        if let data = sdData, data.animatedImagePasteboardType != nil {
+        if let data = sd_imageData(), data.animatedImagePasteboardType != nil {
             return data
         }
 
