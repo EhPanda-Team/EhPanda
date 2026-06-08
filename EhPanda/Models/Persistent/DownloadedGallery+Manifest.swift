@@ -38,7 +38,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let coverFileHash: String?
     let rating: Float
     let downloadOptions: DownloadOptionsSnapshot
-    let downloadedAt: Date
     let pages: [Page]
 
     init(
@@ -56,7 +55,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         coverFileHash: String? = nil,
         rating: Float,
         downloadOptions: DownloadOptionsSnapshot,
-        downloadedAt: Date,
         pages: [Page]
     ) {
         self.gid = gid
@@ -73,7 +71,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         self.coverFileHash = coverFileHash
         self.rating = rating
         self.downloadOptions = downloadOptions
-        self.downloadedAt = downloadedAt
         self.pages = pages
     }
 

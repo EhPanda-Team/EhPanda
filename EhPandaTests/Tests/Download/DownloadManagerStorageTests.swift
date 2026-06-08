@@ -34,7 +34,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "100",
                 title: "Complete",
                 pageHashes: ["sha256:1", "sha256:2"],
-                downloadedAt: Date(timeIntervalSince1970: 100)
+                modifiedAt: Date(timeIntervalSince1970: 100)
             )
         )
         try writeIndexedManifest(
@@ -44,7 +44,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "200",
                 title: "Queued",
                 pageHashes: ["sha256:1", ""],
-                downloadedAt: Date(timeIntervalSince1970: 200)
+                modifiedAt: Date(timeIntervalSince1970: 200)
             )
         )
         try FileManager.default.createDirectory(
@@ -90,7 +90,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "500",
                 title: "Old",
                 pageHashes: ["sha256:old"],
-                downloadedAt: olderDate
+                modifiedAt: olderDate
             )
         )
         try setFolderModificationDate(
@@ -105,7 +105,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "500",
                 title: "New",
                 pageHashes: ["sha256:new"],
-                downloadedAt: newerDate
+                modifiedAt: newerDate
             )
         )
         try setFolderModificationDate(
@@ -866,7 +866,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "830",
                 title: "First",
                 pageHashes: [""],
-                downloadedAt: Date(timeIntervalSince1970: 100)
+                modifiedAt: Date(timeIntervalSince1970: 100)
             )
         )
         try writeIndexedManifest(
@@ -876,7 +876,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "831",
                 title: "Newer",
                 pageHashes: [""],
-                downloadedAt: Date(timeIntervalSince1970: 200)
+                modifiedAt: Date(timeIntervalSince1970: 200)
             )
         )
         await queueStore.enqueue("830")
@@ -1151,13 +1151,17 @@ private extension DownloadManagerStorageTests {
             withIntermediateDirectories: true
         )
         try storage.writeManifest(manifest, folderURL: folderURL)
+        try FileManager.default.setAttributes(
+            [.modificationDate: manifest.postedDate],
+            ofItemAtPath: folderURL.path
+        )
     }
 
     func indexedManifest(
         gid: String,
         title: String,
         pageHashes: [String],
-        downloadedAt: Date = .now,
+        modifiedAt: Date = .now,
         pageRelativePaths: [String]? = nil
     ) throws -> DownloadManifest {
         DownloadManifest(
@@ -1170,11 +1174,10 @@ private extension DownloadManagerStorageTests {
             language: .japanese,
             uploader: "Uploader",
             tags: [],
-            postedDate: downloadedAt,
+            postedDate: modifiedAt,
             coverRelativePath: nil,
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            downloadedAt: downloadedAt,
             pages: pageHashes.enumerated().map { offset, hash in
                 DownloadManifest.Page(
                     index: offset + 1,

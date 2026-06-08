@@ -114,7 +114,6 @@ private extension DownloadFileStorageRepairTests {
             category: .doujinshi, language: .japanese, uploader: "Uploader", tags: [],
             postedDate: .now, coverRelativePath: "cover.jpg",
             rating: 4, downloadOptions: DownloadOptionsSnapshot(),
-            downloadedAt: .now,
             pages: [
                 .init(index: 1, relativePath: "pages/0001.jpg"),
                 .init(index: 2, relativePath: "../escape.jpg")
@@ -208,7 +207,6 @@ private extension DownloadFileStorageRepairTests {
             coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            downloadedAt: .now,
             pages: (1...pageCount).map {
                 .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
             }

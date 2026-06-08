@@ -31,7 +31,6 @@ extension DownloadFeatureTestCase {
             coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            downloadedAt: .now,
             pages: (1...pageCount).map {
                 .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
             }

@@ -106,7 +106,7 @@ extension DownloadManager {
 
 private extension DownloadFolderRecord {
     var displayDate: Date {
-        modifiedAt ?? manifest.downloadedAt
+        modifiedAt ?? .distantPast
     }
 }
 

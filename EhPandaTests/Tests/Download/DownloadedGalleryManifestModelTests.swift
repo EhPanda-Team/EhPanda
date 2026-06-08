@@ -28,6 +28,7 @@ struct DownloadedGalleryManifestModelTests {
         #expect(manifest.galleryURL == URL(string: "https://e-hentai.org/g/123/token"))
         #expect(object["pageCount"] == nil)
         #expect(object["galleryURL"] == nil)
+        #expect(object["downloadedAt"] == nil)
     }
 
     @Test
@@ -67,7 +68,6 @@ private extension DownloadedGalleryManifestModelTests {
             coverRelativePath: "123_token_cover.jpg",
             rating: 4,
             downloadOptions: .init(threadLimit: 3),
-            downloadedAt: Date(timeIntervalSince1970: 1_111),
             pages: pageHashes.sorted(by: { $0.key < $1.key }).map { index, hash in
                 .init(
                     index: index,

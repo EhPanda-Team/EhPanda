@@ -129,7 +129,6 @@ extension DownloadManager {
                 coverRelativePath: nil,
                 rating: payload.galleryDetail.rating,
                 downloadOptions: payload.options,
-                downloadedAt: .now,
                 pages: pages
             ),
             folderURL: folderURL

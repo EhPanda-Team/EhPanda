@@ -148,7 +148,6 @@ private extension DownloadManagerCaptureTests {
             coverRelativePath: "cover.jpg",
             rating: 4,
             downloadOptions: DownloadOptionsSnapshot(),
-            downloadedAt: .now,
             pages: [
                 .init(
                     index: 1,

@@ -278,7 +278,7 @@ struct DownloadedGallery: Identifiable, Equatable {
             coverRelativePath: manifest.coverRelativePath,
             status: displayStatus.downloadStatus,
             completedPageCount: manifest.completedPageCount,
-            lastDownloadedAt: modifiedAt ?? manifest.downloadedAt,
+            lastDownloadedAt: modifiedAt,
             lastError: lastError,
             downloadOptionsSnapshot: manifest.downloadOptions,
             remoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)",
