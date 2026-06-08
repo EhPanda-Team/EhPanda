@@ -103,7 +103,7 @@ extension DownloadManager {
            canonicalized != download.remoteVersionSignature {
             record.remoteVersionSignature = canonicalized
         }
-        guard latestSignature?.notEmpty == true,
+        guard latestSignature?.nonEmpty != nil,
               [.completed, .updateAvailable].contains(download.status)
         else { return }
         let desiredStatus: DownloadStatus?
@@ -129,7 +129,7 @@ extension DownloadManager {
            canonicalized != download.remoteVersionSignature {
             return true
         }
-        guard latestSignature?.notEmpty == true,
+        guard latestSignature?.nonEmpty != nil,
               [.completed, .updateAvailable].contains(download.status)
         else { return false }
         let desiredStatus: DownloadStatus?

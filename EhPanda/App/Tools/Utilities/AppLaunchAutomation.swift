@@ -103,12 +103,6 @@ struct AppLaunchAutomation {
     ) -> String? {
         environment[key]
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .flatMap(\.nilIfEmpty)
-    }
-}
-
-private extension String {
-    var nilIfEmpty: String? {
-        isEmpty ? nil : self
+            .flatMap(\.nonEmpty)
     }
 }
