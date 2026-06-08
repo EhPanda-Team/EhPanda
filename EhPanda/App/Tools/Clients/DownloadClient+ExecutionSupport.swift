@@ -130,12 +130,14 @@ extension DownloadManager {
         .sorted()
         var thumbnailURLs = [Int: URL]()
         for pageNumber in requiredPageNumbers {
-            let pageURLs = try await fetchThumbnailURLs(
-                galleryURL:
-                    payload.gallery.galleryURL.forceUnwrapped,
+            let pageURLs = try await ThumbnailURLsRequest(
+                galleryURL: payload.gallery.galleryURL.forceUnwrapped,
                 pageNum: pageNumber,
+                urlSession: urlSession,
                 allowsCellular: payload.options.allowCellular
             )
+            .response()
+            .get()
             thumbnailURLs
                 .merge(pageURLs, uniquingKeysWith: { _, new in new })
         }
@@ -147,11 +149,14 @@ extension DownloadManager {
         }
         if firstURL.pathComponents.count > 1,
            firstURL.pathComponents[1] == "mpv" {
-            let mpvResult = try await fetchMPVKeys(
+            let (mpvKey, imageKeys) = try await MPVKeysRequest(
                 mpvURL: firstURL,
+                urlSession: urlSession,
                 allowsCellular: payload.options.allowCellular
             )
-            return .mpv(mpvResult.mpvKey, mpvResult.imageKeys)
+            .response()
+            .get()
+            return .mpv(mpvKey, imageKeys)
         } else {
             return .normal(thumbnailURLs)
         }
@@ -251,38 +256,46 @@ extension DownloadManager {
     func resolvedImageSource(
         index: Int,
         payload: DownloadRequestPayload,
-        source: ResolvedSource,
-        retriesRequest: Bool
+        source: ResolvedSource
     ) async throws -> ResolvedImageSource {
         switch source {
         case .normal(let thumbnailURLs):
             guard let thumbnailURL = thumbnailURLs[index] else {
                 throw AppError.notFound
             }
-            let doc = try await htmlDocument(
-                url: thumbnailURL,
-                allowsCellular: payload.options.allowCellular,
-                retriesRequest: retriesRequest
+            let (imageURLs, _) = try await GalleryNormalImageURLsRequest(
+                thumbnailURLs: [index: thumbnailURL],
+                urlSession: urlSession,
+                allowsCellular: payload.options.allowCellular
             )
-            let imageInfo =
-                try Parser.parseGalleryNormalImageURL(
-                    doc: doc,
-                    index: index
-                )
-            return .init(imageURL: imageInfo.imageURL)
+            .response()
+            .get()
+            guard let imageURL = imageURLs[index] else {
+                throw AppError.notFound
+            }
+            return .init(imageURL: imageURL)
 
         case .mpv(let mpvKey, let imageKeys):
+            guard let gid = Int(payload.gallery.gid) else {
+                throw AppError.notFound
+            }
             guard let imageKey = imageKeys[index] else {
                 throw AppError.notFound
             }
-            let imageURL = try await fetchMPVImageURL(
-                payload: payload,
+            let response = try await GalleryMPVImageURLRequest(
+                gid: gid,
                 index: index,
                 mpvKey: mpvKey,
-                imageKey: imageKey,
-                retriesRequest: retriesRequest
+                mpvImageKey: imageKey,
+                skipServerIdentifier: nil,
+                apiURL: payload.host.url.appendingPathComponent("api.php"),
+                urlSession: urlSession,
+                allowsCellular: payload.options.allowCellular,
+                requiresSkipServerIdentifier: false
             )
-            return .init(imageURL: imageURL)
+            .response()
+            .get()
+            return .init(imageURL: response.imageURL)
         }
     }
 

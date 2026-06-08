@@ -19,9 +19,16 @@ struct GalleryDetailResponse {
 struct GalleryDetailRequest: Request {
     let gid: String
     let galleryURL: URL
+    var urlSession: URLSession = .shared
+    var allowsCellular = true
 
     var publisher: AnyPublisher<GalleryDetailResponse, AppError> {
-        URLSession.shared.dataTaskPublisher(for: URLUtil.galleryDetail(url: galleryURL))
+        urlSession.dataTaskPublisher(
+            for: urlRequest(
+                url: URLUtil.galleryDetail(url: galleryURL),
+                allowsCellular: allowsCellular
+            )
+        )
             .genericRetry()
             .tryMap { try htmlDocumentWithUTF8Fallback(data: $0.data) }
             .tryMap { doc in
@@ -116,11 +123,14 @@ struct GalleryVersionMetadataRequest: Request {
             .genericRetry()
             .map(\.data)
             .tryMap { data in
-                let response = try JSONDecoder().decode(GalleryVersionMetadataAPIResponse.self, from: data)
-                guard let metadata = response.gmetadata.first?.versionMetadata else {
-                    throw AppError.notFound
+                try parseResponse(data: data) {
+                    let response = try JSONDecoder()
+                        .decode(GalleryVersionMetadataAPIResponse.self, from: $0)
+                    guard let metadata = response.gmetadata.first?.versionMetadata else {
+                        throw AppError.notFound
+                    }
+                    return metadata
                 }
-                return metadata
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()

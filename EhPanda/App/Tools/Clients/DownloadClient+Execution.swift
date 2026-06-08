@@ -3,7 +3,6 @@
 //  EhPanda
 //
 
-import Kanna
 import Foundation
 
 // MARK: - Process Download

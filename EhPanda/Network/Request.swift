@@ -23,6 +23,15 @@ extension Request {
         await publisher.receive(on: DispatchQueue.main).async()
     }
 
+    func urlRequest(
+        url: URL,
+        allowsCellular: Bool
+    ) -> URLRequest {
+        var request = URLRequest(url: url)
+        request.allowsCellularAccess = allowsCellular
+        return request
+    }
+
     func htmlDocument(data: Data) throws -> HTMLDocument {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
@@ -76,6 +85,26 @@ extension Request {
             throw ResponseParsingError(
                 underlyingError: error,
                 responseError: Parser.parseResponseError(doc: doc)
+            )
+        }
+    }
+
+    func parseResponse<T>(
+        data: Data,
+        _ parser: (Data) throws -> T
+    ) throws -> T {
+        do {
+            return try parser(data)
+        } catch {
+            let content = String(
+                data: data.utf8InvalidCharactersRipped,
+                encoding: .utf8
+            )
+            throw ResponseParsingError(
+                underlyingError: error,
+                responseError: content.flatMap(
+                    Parser.parseResponseError(content:)
+                )
             )
         }
     }
