@@ -79,7 +79,6 @@ struct DownloadedGallery: Identifiable, Equatable {
     let rating: Float
     let onlineCoverURL: URL?
     let folderRelativePath: String
-    let coverRelativePath: String?
     let status: DownloadStatus
     let completedPageCount: Int
     let lastDownloadedAt: Date?
@@ -100,7 +99,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         rating: Float,
         onlineCoverURL: URL?,
         folderRelativePath: String,
-        coverRelativePath: String?,
         status: DownloadStatus,
         completedPageCount: Int,
         lastDownloadedAt: Date?,
@@ -120,7 +118,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.rating = rating
         self.onlineCoverURL = onlineCoverURL
         self.folderRelativePath = folderRelativePath
-        self.coverRelativePath = coverRelativePath
         self.status = status
         self.completedPageCount = completedPageCount
         self.lastDownloadedAt = lastDownloadedAt
@@ -150,7 +147,6 @@ struct DownloadedGallery: Identifiable, Equatable {
             rating: manifest.rating,
             onlineCoverURL: manifest.remoteCoverURL,
             folderRelativePath: folderRelativePath,
-            coverRelativePath: nil,
             status: displayStatus.downloadStatus,
             completedPageCount: manifest.completedPageCount,
             lastDownloadedAt: modifiedAt,

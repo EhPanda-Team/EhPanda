@@ -402,7 +402,6 @@ private extension DownloadFileStorageTests {
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
             folderRelativePath: folderRelativePath,
-            coverRelativePath: "cover.jpg",
             status: status,
             completedPageCount: status == .completed ? 2 : 0,
             lastDownloadedAt: .now,
