@@ -32,6 +32,37 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testSearchableTextDropsNilAndBlankFields() {
+        let download = DownloadedGallery(
+            gid: "111",
+            host: .ehentai,
+            token: "token",
+            title: "Solo Title",
+            jpnTitle: nil,
+            uploader: nil,
+            category: .doujinshi,
+            tags: [],
+            pageCount: 1,
+            postedDate: .now,
+            rating: 4,
+            onlineCoverURL: nil,
+            folderRelativePath: "111 - Solo Title",
+            coverRelativePath: nil,
+            status: .completed,
+            completedPageCount: 1,
+            lastDownloadedAt: .now,
+            lastError: nil,
+            downloadOptionsSnapshot: DownloadOptionsSnapshot(),
+            remoteVersionSignature: "hash:v1",
+            latestRemoteVersionSignature: "hash:v1"
+        )
+
+        #expect(download.searchableText == ["Solo Title", Category.doujinshi.value].joined(separator: " "))
+        #expect(!download.searchableText.contains("  "))
+        #expect(download.searchableText == download.searchableText.trimmingCharacters(in: .whitespaces))
+    }
+
+    @Test
     func testQueuedRetryWorkAppearsAsActiveDownloadBadge() {
         let queuedRedownload = sampleDownload(
             gid: "303",
