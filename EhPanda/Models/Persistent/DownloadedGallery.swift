@@ -101,8 +101,6 @@ struct DownloadedGallery: Identifiable, Equatable {
     let lastDownloadedAt: Date?
     let lastError: DownloadFailure?
     let downloadOptionsSnapshot: DownloadOptionsSnapshot
-    let remoteVersionSignature: String
-    let latestRemoteVersionSignature: String?
     let pendingOperation: DownloadStartMode?
 
     init(
@@ -125,8 +123,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         lastDownloadedAt: Date?,
         lastError: DownloadFailure?,
         downloadOptionsSnapshot: DownloadOptionsSnapshot,
-        remoteVersionSignature: String,
-        latestRemoteVersionSignature: String?,
         pendingOperation: DownloadStartMode? = nil
     ) {
         self.gid = gid
@@ -148,8 +144,6 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.lastDownloadedAt = lastDownloadedAt
         self.lastError = lastError
         self.downloadOptionsSnapshot = downloadOptionsSnapshot
-        self.remoteVersionSignature = remoteVersionSignature
-        self.latestRemoteVersionSignature = latestRemoteVersionSignature
         self.pendingOperation = pendingOperation
     }
 
@@ -180,9 +174,7 @@ struct DownloadedGallery: Identifiable, Equatable {
             completedPageCount: manifest.completedPageCount,
             lastDownloadedAt: modifiedAt,
             lastError: lastError,
-            downloadOptionsSnapshot: downloadOptionsSnapshot,
-            remoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)",
-            latestRemoteVersionSignature: "chain:\(manifest.gid):\(manifest.token)"
+            downloadOptionsSnapshot: downloadOptionsSnapshot
         )
     }
 }

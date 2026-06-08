@@ -69,8 +69,6 @@ extension DownloadFeatureTestCase {
         pageCount: Int = 12,
         completedPageCount: Int? = nil,
         lastDownloadedAt: Date? = .now,
-        remoteVersionSignature: String = "hash:v1",
-        latestRemoteVersionSignature: String = "hash:v1",
         lastError: DownloadFailure? = nil,
         pendingOperation: DownloadStartMode? = nil
     ) -> DownloadedGallery {
@@ -94,8 +92,6 @@ extension DownloadFeatureTestCase {
             lastDownloadedAt: lastDownloadedAt,
             lastError: lastError,
             downloadOptionsSnapshot: DownloadOptionsSnapshot(),
-            remoteVersionSignature: remoteVersionSignature,
-            latestRemoteVersionSignature: latestRemoteVersionSignature,
             pendingOperation: pendingOperation
         )
     }

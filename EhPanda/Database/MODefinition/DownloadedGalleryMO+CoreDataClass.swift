@@ -29,8 +29,6 @@ extension DownloadedGalleryMO: ManagedObjectProtocol {
             lastDownloadedAt: lastDownloadedAt,
             lastError: lastError?.toObject(),
             downloadOptionsSnapshot: downloadOptionsSnapshot?.toObject() ?? .init(),
-            remoteVersionSignature: remoteVersionSignature,
-            latestRemoteVersionSignature: latestRemoteVersionSignature,
             pendingOperation: pendingOperation.flatMap(DownloadStartMode.init(rawValue:))
         )
     }

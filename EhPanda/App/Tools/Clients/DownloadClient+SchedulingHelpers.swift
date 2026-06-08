@@ -37,16 +37,14 @@ extension DownloadManager {
         case .failed:
             return effectiveRetryMode(
                 for: download,
-                requestedMode: download.remoteVersionSignature.isEmpty
-                    ? .initial : .redownload
+                requestedMode: initialOrRedownloadMode(for: download)
             )
         case .paused:
             return resumeMode(for: download)
         case .queued, .downloading:
             return effectiveRetryMode(
                 for: download,
-                requestedMode: download.remoteVersionSignature.isEmpty
-                    ? .initial : .redownload
+                requestedMode: initialOrRedownloadMode(for: download)
             )
         }
     }
@@ -54,23 +52,25 @@ extension DownloadManager {
     func resumeMode(
         for download: DownloadedGallery
     ) -> DownloadStartMode {
-        if download.remoteVersionSignature.isEmpty {
-            return .initial
-        }
         if download.hasUpdate {
             return .update
         }
         if download.status == .partial {
             return effectiveRetryMode(
                 for: download,
-                requestedMode: download.remoteVersionSignature.isEmpty
-                    ? .initial : .redownload
+                requestedMode: .redownload
             )
         }
         if case .missingFiles = storage.validate(download: download) {
             return .repair
         }
         return .redownload
+    }
+
+    private func initialOrRedownloadMode(
+        for download: DownloadedGallery
+    ) -> DownloadStartMode {
+        download.completedPageCount == 0 ? .initial : .redownload
     }
 
     func effectiveRetryMode(
