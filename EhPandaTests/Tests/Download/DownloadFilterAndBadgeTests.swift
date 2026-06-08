@@ -167,6 +167,59 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testSearchPageRangeFilterOmitsInvertedBounds() {
+        var filter = Filter()
+        filter.advanced = true
+        filter.pageRangeActivated = true
+        filter.pageLowerBound = "50"
+        filter.pageUpperBound = "10"
+
+        let queryItems = queryItems(for: URLUtil.frontpageList(filter: filter))
+
+        #expect(queryItems["f_sp"] == "on")
+        #expect(queryItems["f_spf"] == nil)
+        #expect(queryItems["f_spt"] == nil)
+    }
+
+    @Test
+    func testSearchPageRangeFilterKeepsValidBounds() {
+        var filter = Filter()
+        filter.advanced = true
+        filter.pageRangeActivated = true
+        filter.pageLowerBound = "10"
+        filter.pageUpperBound = "50"
+
+        let queryItems = queryItems(for: URLUtil.frontpageList(filter: filter))
+
+        #expect(queryItems["f_sp"] == "on")
+        #expect(queryItems["f_spf"] == "10")
+        #expect(queryItems["f_spt"] == "50")
+    }
+
+    @Test
+    func testSearchPageRangeFilterKeepsSingleBounds() {
+        var lowerOnlyFilter = Filter()
+        lowerOnlyFilter.advanced = true
+        lowerOnlyFilter.pageRangeActivated = true
+        lowerOnlyFilter.pageLowerBound = "10"
+
+        var upperOnlyFilter = Filter()
+        upperOnlyFilter.advanced = true
+        upperOnlyFilter.pageRangeActivated = true
+        upperOnlyFilter.pageUpperBound = "50"
+
+        let lowerOnlyQueryItems = queryItems(for: URLUtil.frontpageList(filter: lowerOnlyFilter))
+        let upperOnlyQueryItems = queryItems(for: URLUtil.frontpageList(filter: upperOnlyFilter))
+
+        #expect(lowerOnlyQueryItems["f_sp"] == "on")
+        #expect(lowerOnlyQueryItems["f_spf"] == "10")
+        #expect(lowerOnlyQueryItems["f_spt"] == nil)
+        #expect(upperOnlyQueryItems["f_sp"] == "on")
+        #expect(upperOnlyQueryItems["f_spf"] == nil)
+        #expect(upperOnlyQueryItems["f_spt"] == "50")
+    }
+
+    @Test
     func testDownloadsFilterExcludesSelectedCategoriesLikeSearchFilter() {
         let nonHDownload = sampleDownload(
             gid: "478",
@@ -200,5 +253,13 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
 
         #expect(partialDownload.badge.text == "Needs Attention 5/12")
         #expect(DownloadListFilter.failed.title == "Needs Attention")
+    }
+
+    private func queryItems(for url: URL) -> [String: String] {
+        URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?
+            .reduce(into: [String: String]()) { result, item in
+                result[item.name] = item.value
+            } ?? [:]
     }
 }

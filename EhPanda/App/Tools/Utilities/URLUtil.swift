@@ -213,10 +213,13 @@ private extension URL {
         queryItems2[.fSp] = .filterOn
         let minPages = Int(filter.pageLowerBound)
         let maxPages = Int(filter.pageUpperBound)
-        if let minPages, minPages > 0 {
+        if let minPages, let maxPages {
+            guard minPages > 0, maxPages > 0, minPages <= maxPages else { return }
             queryItems1[.fSpf] = String(minPages)
-        }
-        if let maxPages, maxPages > 0 {
+            queryItems1[.fSpt] = String(maxPages)
+        } else if let minPages, minPages > 0 {
+            queryItems1[.fSpf] = String(minPages)
+        } else if let maxPages, maxPages > 0 {
             queryItems1[.fSpt] = String(maxPages)
         }
     }
