@@ -14,11 +14,13 @@ extension DownloadedGallery {
     var searchableText: String {
         [
             title,
-            jpnTitle ?? "",
-            uploader ?? "",
+            jpnTitle,
+            uploader,
             category.value,
             tags.flatMap(\.contents).map(\.text).joined(separator: " ")
         ]
+        .compactMap { $0 }
+        .filter { !$0.isEmpty }
         .joined(separator: " ")
     }
 
