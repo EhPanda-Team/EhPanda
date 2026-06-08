@@ -5,13 +5,15 @@
 
 import SwiftUI
 
+extension EhSettingView {
+
 // MARK: CoverScalingSection
 struct CoverScalingSection: View {
     @Binding var ehSetting: EhSetting
 
     var body: some View {
         Section {
-            EhSettingValuePicker(
+            ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.scaleFactor,
                 value: $ehSetting.coverScaleFactor,
                 range: 75...150,
@@ -32,7 +34,7 @@ struct TagFilteringThresholdSection: View {
 
     var body: some View {
         Section {
-            EhSettingValuePicker(
+            ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.tagFilteringThreshold,
                 value: $ehSetting.tagFilteringThreshold, range: -9999...0
             )
@@ -51,7 +53,7 @@ struct TagWatchingThresholdSection: View {
 
     var body: some View {
         Section {
-            EhSettingValuePicker(
+            ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.tagWatchingThreshold,
                 value: $ehSetting.tagWatchingThreshold, range: 0...9999
             )
@@ -208,7 +210,7 @@ struct ViewportOverrideSection: View {
 
     var body: some View {
         Section {
-            EhSettingValuePicker(
+            ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.virtualWidth,
                 value: $ehSetting.viewportVirtualWidth,
                 range: 0...9999,
@@ -335,6 +337,8 @@ struct MultiplePageViewerSection: View {
             }
         }
     }
+}
+
 }
 
 extension String {

@@ -6,6 +6,8 @@
 import SwiftUI
 import ComposableArchitecture
 
+extension EhSettingView {
+
 // MARK: EhProfileSection
 struct EhProfileSection: View {
     @Binding var route: EhSettingReducer.Route?
@@ -153,12 +155,12 @@ struct ImageSizeSettingsSection: View {
         Section {
             Text(L10n.Localizable.EhSettingView.Title.imageSize)
 
-            EhSettingValuePicker(
+            ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.horizontal,
                 value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px"
             )
 
-            EhSettingValuePicker(
+            ValuePicker(
                 title: L10n.Localizable.EhSettingView.Title.vertical,
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
@@ -257,7 +259,7 @@ struct FrontPageSettingsSection: View {
 }
 
 // MARK: Shared Helpers
-struct EhSettingValuePicker: View {
+struct ValuePicker: View {
     private let title: String
     @Binding var value: Float
     private let range: ClosedRange<Float>
@@ -292,6 +294,8 @@ struct EhSettingValuePicker: View {
             }
         )
     }
+}
+
 }
 
 extension Text {

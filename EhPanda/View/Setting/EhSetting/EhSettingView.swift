@@ -82,7 +82,7 @@ struct EhSettingView: View {
                 ArchiverSettingsSection(ehSetting: ehSetting)
                 FrontPageSettingsSection(ehSetting: ehSetting)
                 OptionalUIElementsSection(ehSetting: ehSetting)
-                EhSettingFavoritesSection(ehSetting: ehSetting)
+                FavoritesSection(ehSetting: ehSetting)
                 SearchResultCountSection(ehSetting: ehSetting)
                 ThumbnailSettingsSection(ehSetting: ehSetting)
             }

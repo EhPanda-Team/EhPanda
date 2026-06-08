@@ -5,6 +5,8 @@
 
 import SwiftUI
 
+extension EhSettingView {
+
 // MARK: OptionalUIElementsSection
 struct OptionalUIElementsSection: View {
     @Binding var ehSetting: EhSetting
@@ -25,7 +27,7 @@ struct OptionalUIElementsSection: View {
 }
 
 // MARK: FavoritesSection
-struct EhSettingFavoritesSection: View {
+struct FavoritesSection: View {
     @Binding var ehSetting: EhSetting
     @FocusState private var isFocused
 
@@ -95,6 +97,8 @@ struct RatingsSection: View {
             )
         }
     }
+}
+
 }
 
 // MARK: SearchResultCountSection
