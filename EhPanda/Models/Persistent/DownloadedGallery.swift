@@ -254,4 +254,54 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.pendingOperation = pendingOperation
     }
 
+    init(
+        manifest: DownloadManifest,
+        folderRelativePath: String,
+        modifiedAt: Date?,
+        displayStatus: DownloadDisplayStatus,
+        lastError: DownloadFailure? = nil
+    ) {
+        self.init(
+            gid: manifest.gid,
+            host: manifest.host,
+            token: manifest.token,
+            title: manifest.title,
+            jpnTitle: manifest.jpnTitle,
+            uploader: manifest.uploader,
+            category: manifest.category,
+            tags: manifest.tags,
+            pageCount: manifest.pageCount,
+            postedDate: manifest.postedDate,
+            rating: manifest.rating,
+            onlineCoverURL: nil,
+            folderRelativePath: folderRelativePath,
+            coverRelativePath: manifest.coverRelativePath,
+            status: displayStatus.downloadStatus,
+            completedPageCount: manifest.completedPageCount,
+            lastDownloadedAt: modifiedAt ?? manifest.downloadedAt,
+            lastError: lastError,
+            downloadOptionsSnapshot: manifest.downloadOptions,
+            remoteVersionSignature: manifest.versionSignature,
+            latestRemoteVersionSignature: manifest.versionSignature
+        )
+    }
+}
+
+private extension DownloadDisplayStatus {
+    var downloadStatus: DownloadStatus {
+        switch self {
+        case .active:
+            return .downloading
+        case .queued:
+            return .queued
+        case .updateAvailable:
+            return .updateAvailable
+        case .error:
+            return .failed
+        case .inactive:
+            return .paused
+        case .completed:
+            return .completed
+        }
+    }
 }
