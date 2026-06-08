@@ -24,7 +24,7 @@ extension DownloadManager {
     }
 
     func fetchDownloads() async -> [DownloadedGallery] {
-        sortDownloads(await fetchDownloadsFromStore())
+        await fetchDownloadsFromStore()
     }
 
     func reconcileDownloads() async {
