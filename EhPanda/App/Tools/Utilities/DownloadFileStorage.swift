@@ -95,6 +95,10 @@ struct DownloadFileStorage: Sendable {
             .appendingPathComponent(Defaults.FilePath.downloadManifest)
     }
 
+    func queueURL() -> URL {
+        rootURL.appendingPathComponent(".queue.json")
+    }
+
     func temporaryFolderURL(gid: String) -> URL {
         rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
     }

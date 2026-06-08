@@ -135,6 +135,7 @@ actor DownloadManager {
     let storage: DownloadFileStorage
     let urlSession: URLSession
     let libraryClient: LibraryClient
+    let queueStore: DownloadQueueStore
     let persistenceContainer: NSPersistentContainer
     var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
     var lastObservedDownloads = [DownloadedGallery]()
@@ -151,11 +152,13 @@ actor DownloadManager {
         storage: DownloadFileStorage,
         urlSession: URLSession,
         libraryClient: LibraryClient = .live,
+        queueStore: DownloadQueueStore? = nil,
         persistenceContainer: NSPersistentContainer = PersistenceController.shared.container
     ) {
         self.storage = storage
         self.urlSession = urlSession
         self.libraryClient = libraryClient
+        self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
         self.persistenceContainer = persistenceContainer
     }
 
