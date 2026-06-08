@@ -35,6 +35,24 @@ extension DownloadManager {
         testingScheduledGalleryIDHistory
     }
 
+    func testingSetQueuedGalleryIDs(_ gids: [String]) async {
+        await queueStore.removeAll()
+        for gid in gids {
+            await queueStore.enqueue(gid)
+        }
+    }
+
+    func testingSetDownloadError(
+        _ failure: DownloadFailure?,
+        gid: String
+    ) {
+        downloadErrors[gid] = failure
+    }
+
+    func testingSetUpdatedGalleryIDs(_ gids: Set<String>) {
+        updatedGalleryIDs = gids
+    }
+
     func testingHasActiveTask() -> Bool {
         activeTask != nil
     }

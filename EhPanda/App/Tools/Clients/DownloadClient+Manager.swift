@@ -138,6 +138,9 @@ actor DownloadManager {
     let libraryClient: LibraryClient
     let queueStore: DownloadQueueStore
     let persistenceContainer: NSPersistentContainer
+    var downloadIndex = [String: DownloadFolderRecord]()
+    var downloadErrors = [String: DownloadFailure]()
+    var updatedGalleryIDs = Set<String>()
     var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
     var lastObservedDownloads = [DownloadedGallery]()
     var activeGalleryID: String?

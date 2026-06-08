@@ -13,6 +13,166 @@ import Testing
 @Suite(.serialized)
 struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     @Test
+    func testDownloadManagerReloadDownloadIndexScansManifestFolders() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[100_token] Complete",
+            manifest: indexedManifest(
+                gid: "100",
+                title: "Complete",
+                pageHashes: ["sha256:1", "sha256:2"],
+                downloadedAt: Date(timeIntervalSince1970: 100)
+            )
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[200_token] Queued",
+            manifest: indexedManifest(
+                gid: "200",
+                title: "Queued",
+                pageHashes: ["sha256:1", ""],
+                downloadedAt: Date(timeIntervalSince1970: 200)
+            )
+        )
+        try FileManager.default.createDirectory(
+            at: rootURL.appendingPathComponent("No Manifest", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        await manager.testingSetQueuedGalleryIDs(["200"])
+
+        let downloads = await manager.reloadDownloadIndex()
+
+        #expect(downloads.map(\.gid) == ["200", "100"])
+        let queuedDownload = try #require(downloads.first { $0.gid == "200" })
+        let completedDownload = try #require(downloads.first { $0.gid == "100" })
+        #expect(queuedDownload.displayStatus == .queued)
+        #expect(queuedDownload.completedPageCount == 1)
+        #expect(completedDownload.displayStatus == .completed)
+        #expect(completedDownload.completedPageCount == 2)
+        #expect((await manager.indexedDownload(gid: "100")) == completedDownload)
+        #expect(await manager.indexedDownload(gid: "missing") == nil)
+    }
+
+    @Test
+    func testDownloadManagerReloadDownloadIndexKeepsNewestDuplicateFolder() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        let olderDate = Date(timeIntervalSince1970: 100)
+        let newerDate = Date(timeIntervalSince1970: 200)
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[500_token] Old",
+            manifest: indexedManifest(
+                gid: "500",
+                title: "Old",
+                pageHashes: ["sha256:old"],
+                downloadedAt: olderDate
+            )
+        )
+        try setFolderModificationDate(
+            olderDate,
+            storage: storage,
+            relativePath: "[500_token] Old"
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[500_token] New",
+            manifest: indexedManifest(
+                gid: "500",
+                title: "New",
+                pageHashes: ["sha256:new"],
+                downloadedAt: newerDate
+            )
+        )
+        try setFolderModificationDate(
+            newerDate,
+            storage: storage,
+            relativePath: "[500_token] New"
+        )
+
+        let downloads = await manager.reloadDownloadIndex()
+
+        #expect(downloads.map(\.gid) == ["500"])
+        let download = try #require(downloads.first)
+        #expect(download.title == "New")
+        #expect(download.folderRelativePath == "[500_token] New")
+        #expect(download.lastDownloadedAt == newerDate)
+        #expect((await manager.indexedDownload(gid: "500")) == download)
+    }
+
+    @Test
+    func testDownloadManagerIndexAppliesSessionOnlyFlags() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[300_token] Updated",
+            manifest: indexedManifest(
+                gid: "300",
+                title: "Updated",
+                pageHashes: ["sha256:1"]
+            )
+        )
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[400_token] Failed",
+            manifest: indexedManifest(
+                gid: "400",
+                title: "Failed",
+                pageHashes: [""]
+            )
+        )
+        await manager.testingSetUpdatedGalleryIDs(["300"])
+        await manager.testingSetDownloadError(
+            .init(code: .networkingFailed, message: "Network Error"),
+            gid: "400"
+        )
+
+        let downloads = await manager.reloadDownloadIndex()
+
+        let updatedDownload = try #require(downloads.first { $0.gid == "300" })
+        let failedDownload = try #require(downloads.first { $0.gid == "400" })
+        #expect(updatedDownload.displayStatus == .updateAvailable)
+        #expect(failedDownload.displayStatus == .error)
+        #expect(failedDownload.lastError?.code == .networkingFailed)
+    }
+
+    @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
         let container = try makeInMemoryContainer()
 
@@ -189,4 +349,64 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(pageURLs[2] == temporaryPageURL)
     }
 
+}
+
+private extension DownloadManagerStorageTests {
+    func writeIndexedManifest(
+        storage: DownloadFileStorage,
+        relativePath: String,
+        manifest: DownloadManifest
+    ) throws {
+        let folderURL = storage.folderURL(relativePath: relativePath)
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(manifest, folderURL: folderURL)
+    }
+
+    func indexedManifest(
+        gid: String,
+        title: String,
+        pageHashes: [String],
+        downloadedAt: Date = .now
+    ) throws -> DownloadManifest {
+        DownloadManifest(
+            gid: gid,
+            host: .ehentai,
+            token: "token",
+            title: title,
+            jpnTitle: nil,
+            category: .doujinshi,
+            language: .japanese,
+            uploader: "Uploader",
+            tags: [],
+            postedDate: downloadedAt,
+            pageCount: pageHashes.count,
+            coverRelativePath: nil,
+            galleryURL: try #require(URL(string: "https://e-hentai.org/g/\(gid)/token")),
+            rating: 4,
+            downloadOptions: DownloadOptionsSnapshot(),
+            versionSignature: "hash:v1",
+            downloadedAt: downloadedAt,
+            pages: pageHashes.enumerated().map { offset, hash in
+                DownloadManifest.Page(
+                    index: offset + 1,
+                    relativePath: "\(gid)_token_\(offset + 1).jpg",
+                    fileHash: hash
+                )
+            }
+        )
+    }
+
+    func setFolderModificationDate(
+        _ date: Date,
+        storage: DownloadFileStorage,
+        relativePath: String
+    ) throws {
+        try FileManager.default.setAttributes(
+            [.modificationDate: date],
+            ofItemAtPath: storage.folderURL(relativePath: relativePath).path
+        )
+    }
 }
