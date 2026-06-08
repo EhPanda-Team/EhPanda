@@ -124,6 +124,27 @@ final class FailFastURLProtocol: URLProtocol {
     override func stopLoading() {}
 }
 
+final class HangingURLProtocol: URLProtocol {
+    override static func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override static func canonicalRequest(
+        for request: URLRequest
+    ) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {}
+
+    override func stopLoading() {
+        client?.urlProtocol(
+            self,
+            didFailWithError: URLError(.cancelled)
+        )
+    }
+}
+
 final class SharedSessionStubURLProtocol: URLProtocol {
     static let headerKey = "X-TestSession-ID"
 

@@ -26,7 +26,12 @@ extension DownloadManager {
     }
 
     func fetchDownloadsFromStore() async -> [DownloadedGallery] {
-        await MainActor.run {
+#if DEBUG
+        if let testingFetchDownloadsFromStoreHook {
+            await testingFetchDownloadsFromStoreHook()
+        }
+#endif
+        return await MainActor.run {
             let context = persistenceContainer.viewContext
             let request = NSFetchRequest<DownloadedGalleryMO>(
                 entityName: "DownloadedGalleryMO"

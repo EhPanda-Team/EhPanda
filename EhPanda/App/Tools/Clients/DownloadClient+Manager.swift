@@ -140,6 +140,10 @@ actor DownloadManager {
     var activeGalleryID: String?
     var activeTask: Task<Void, Never>?
     var schedulingBlockedGalleryIDs = Set<String>()
+#if DEBUG
+    var testingFetchDownloadsFromStoreHook: (@Sendable () async -> Void)?
+    var testingScheduledGalleryIDHistory = [String]()
+#endif
 
     init(
         storage: DownloadFileStorage,

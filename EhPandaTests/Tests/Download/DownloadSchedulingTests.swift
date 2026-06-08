@@ -1,0 +1,95 @@
+//
+//  DownloadSchedulingTests.swift
+//  EhPandaTests
+//
+
+import Foundation
+import Testing
+@testable import EhPanda
+
+@Suite
+struct DownloadSchedulingTests: DownloadFeatureTestCase {
+    @Test
+    func testConcurrentSchedulingCreatesOnlyOneActiveTask() async throws {
+        let container = try makeInMemoryContainer()
+        let gid = "100001"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingURLProtocol.self]
+        let manager = DownloadManager(
+            storage: DownloadFileStorage(
+                rootURL: rootURL,
+                fileManager: .default
+            ),
+            urlSession: URLSession(configuration: configuration),
+            persistenceContainer: container
+        )
+
+        try insertPersistedDownload(
+            in: container,
+            gid: gid,
+            status: .queued,
+            completedPageCount: 0
+        )
+
+        let gate = ScheduleFetchGate()
+        await manager.testingSetFetchDownloadsFromStoreHook {
+            await gate.waitAtGate()
+        }
+
+        async let firstSchedule: Void =
+            manager.testingScheduleNextIfNeeded()
+        async let secondSchedule: Void =
+            manager.testingScheduleNextIfNeeded()
+
+        await gate.waitForBothArrivals()
+        await gate.releaseAll()
+        _ = await (firstSchedule, secondSchedule)
+        await manager.testingSetFetchDownloadsFromStoreHook(nil)
+
+        let scheduledGalleryIDs = await manager
+            .testingScheduledGalleryIDs()
+        let hasActiveTask = await manager.testingHasActiveTask()
+        let activeGalleryID = await manager.testingActiveGalleryID()
+        #expect(scheduledGalleryIDs.count == 1)
+        #expect(hasActiveTask)
+        #expect(scheduledGalleryIDs.first == activeGalleryID)
+
+        guard case .success = await manager.pause(gid: gid) else {
+            Issue.record("Pause should succeed for the active test download.")
+            return
+        }
+    }
+}
+
+private actor ScheduleFetchGate {
+    private var arrivalCount = 0
+    private var bothArrivedContinuation: CheckedContinuation<Void, Never>?
+    private var releaseContinuations = [CheckedContinuation<Void, Never>]()
+
+    func waitAtGate() async {
+        arrivalCount += 1
+        if arrivalCount == 2 {
+            bothArrivedContinuation?.resume()
+            bothArrivedContinuation = nil
+        }
+        await withCheckedContinuation { continuation in
+            releaseContinuations.append(continuation)
+        }
+    }
+
+    func waitForBothArrivals() async {
+        guard arrivalCount < 2 else { return }
+        await withCheckedContinuation { continuation in
+            bothArrivedContinuation = continuation
+        }
+    }
+
+    func releaseAll() {
+        releaseContinuations.forEach { $0.resume() }
+        releaseContinuations.removeAll()
+    }
+}
