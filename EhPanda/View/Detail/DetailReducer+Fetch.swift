@@ -137,12 +137,12 @@ extension DetailReducer {
     private func handleFetchVersionMetadataIfNeeded(state: inout State) -> Effect<Action> {
         guard state.shouldCheckForRemoteUpdates,
               !state.didRequestVersionMetadata,
-              let detail = state.galleryDetail
+              state.galleryDetail != nil
         else {
             return .none
         }
         state.didRequestVersionMetadata = true
-        return .run { [gallery = state.gallery, previewURLs = state.galleryPreviewURLs, detail] send in
+        return .run { [gallery = state.gallery] send in
             let metadata: DownloadVersionMetadata?
             switch await downloadClient.fetchVersionMetadata(gallery.gid, gallery.token) {
             case .success(let fetchedMetadata):
@@ -152,16 +152,9 @@ extension DetailReducer {
             }
             await send(.fetchVersionMetadataDone(.success(metadata)))
             guard let metadata else { return }
-            let latestSignature = DownloadSignatureBuilder.make(
-                gallery: gallery,
-                detail: detail,
-                host: AppUtil.galleryHost,
-                previewURLs: previewURLs,
-                versionMetadata: metadata
-            )
-            let badge = await downloadClient.updateRemoteSignature(
+            let badge = await downloadClient.updateRemoteVersion(
                 gallery.gid,
-                latestSignature
+                metadata
             )
             await send(.fetchDownloadBadgeDone(badge))
         }

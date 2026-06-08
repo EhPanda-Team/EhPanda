@@ -52,6 +52,36 @@ extension DownloadManager {
         let canonicalizedSignature: String?
     }
 
+    func updateRemoteVersion(
+        gid: String,
+        metadata: DownloadVersionMetadata
+    ) async -> DownloadBadge {
+        guard let download = await fetchDownload(gid: gid) else {
+            return .none
+        }
+        guard downloadIndex[gid] != nil else {
+            return await updateRemoteSignature(
+                gid: gid,
+                latestSignature: metadata.versionIdentifier
+            )
+        }
+        guard [.completed, .updateAvailable].contains(download.status) else {
+            return download.badge
+        }
+
+        let hadUpdate = updatedGalleryIDs.contains(gid)
+        let hasUpdate = metadata.hasUpdate(comparedTo: download)
+        if hasUpdate {
+            updatedGalleryIDs.insert(gid)
+        } else {
+            updatedGalleryIDs.remove(gid)
+        }
+        if hadUpdate != hasUpdate {
+            await notifyObservers()
+        }
+        return (await fetchDownload(gid: gid))?.badge ?? .none
+    }
+
     func updateRemoteSignature(
         gid: String,
         latestSignature: String?

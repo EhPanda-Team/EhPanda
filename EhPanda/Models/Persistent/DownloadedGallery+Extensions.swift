@@ -142,6 +142,10 @@ struct DownloadVersionMetadata: Equatable, Codable, Sendable {
         )
     }
 
+    func hasUpdate(comparedTo download: DownloadedGallery) -> Bool {
+        (download.gid, download.token) != (resolvedCurrentGID, resolvedCurrentKey)
+    }
+
     private var resolvedCurrentGID: String {
         currentGID?.nonEmpty ?? gid
     }

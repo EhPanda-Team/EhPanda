@@ -16,6 +16,7 @@ struct DownloadClient: Sendable {
     let resumeQueue: @Sendable () async -> Void
     let badges: @Sendable ([String]) async -> [String: DownloadBadge]
     let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
+    let updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge
     let updateRemoteSignature: @Sendable (String, String?) async -> DownloadBadge
     let enqueue: @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
     let togglePause: @Sendable (String) async -> Result<Void, AppError>
@@ -38,6 +39,8 @@ struct DownloadClient: Sendable {
         badges: @escaping @Sendable ([String]) async -> [String: DownloadBadge],
         fetchVersionMetadata: @escaping @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
         = { _, _ in .failure(.notFound) },
+        updateRemoteVersion: @escaping @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge =
+        { _, _ in .none },
         updateRemoteSignature: @escaping @Sendable (String, String?) async -> DownloadBadge,
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>,
         togglePause: @escaping @Sendable (String) async -> Result<Void, AppError>,
@@ -64,6 +67,7 @@ struct DownloadClient: Sendable {
         self.resumeQueue = resumeQueue
         self.badges = badges
         self.fetchVersionMetadata = fetchVersionMetadata
+        self.updateRemoteVersion = updateRemoteVersion
         self.updateRemoteSignature = updateRemoteSignature
         self.enqueue = enqueue
         self.togglePause = togglePause
@@ -126,6 +130,9 @@ extension DownloadClient {
             fetchVersionMetadata: { gid, token in
                 await manager.fetchVersionMetadata(gid: gid, token: token)
             },
+            updateRemoteVersion: { gid, metadata in
+                await manager.updateRemoteVersion(gid: gid, metadata: metadata)
+            },
             updateRemoteSignature: { gid, signature in
                 await manager.updateRemoteSignature(gid: gid, latestSignature: signature)
             },
@@ -177,6 +184,7 @@ extension DownloadClient {
         resumeQueue: {},
         badges: { _ in [:] },
         fetchVersionMetadata: { _, _ in .failure(.notFound) },
+        updateRemoteVersion: { _, _ in .none },
         updateRemoteSignature: { _, _ in .none },
         enqueue: { _ in .success(()) },
         togglePause: { _ in .success(()) },
@@ -201,6 +209,7 @@ extension DownloadClient {
         resumeQueue: IssueReporting.unimplemented(placeholder: placeholder()),
         badges: IssueReporting.unimplemented(placeholder: placeholder()),
         fetchVersionMetadata: IssueReporting.unimplemented(placeholder: placeholder()),
+        updateRemoteVersion: IssueReporting.unimplemented(placeholder: placeholder()),
         updateRemoteSignature: IssueReporting.unimplemented(placeholder: placeholder()),
         enqueue: IssueReporting.unimplemented(placeholder: placeholder()),
         togglePause: IssueReporting.unimplemented(placeholder: placeholder()),
