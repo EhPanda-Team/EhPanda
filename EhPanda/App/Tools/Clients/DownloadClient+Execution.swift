@@ -25,10 +25,7 @@ extension DownloadManager {
         var fetchedVersionSignature: String?
 
         do {
-            try await markDownloadAsDownloading(
-                gid: gid,
-                completedPageCount: download.completedPageCount
-            )
+            downloadErrors[gid] = nil
             await notifyObservers()
             let result = try await fetchNormalizeAndDownload(
                 gid: gid,
@@ -95,21 +92,6 @@ extension DownloadManager {
     private struct ProcessDownloadResult {
         let folderRelativePath: String
         let versionSignature: String
-    }
-
-    private func markDownloadAsDownloading(
-        gid: String,
-        completedPageCount: Int
-    ) async throws {
-        try await updateDownloadRecord(
-            gid: gid,
-            createIfMissing: false
-        ) { record in
-            record.status = DownloadStatus.downloading.rawValue
-            record.completedPageCount = Int64(completedPageCount)
-            record.lastError = nil
-            record.pendingOperation = nil
-        }
     }
 
     private func fetchNormalizeAndDownload(
