@@ -54,7 +54,6 @@ protocol DownloadFeatureTestCase: TestHelper {
         manifest: DownloadManifest
     ) throws -> URL
     func makeInMemoryContainer() throws -> NSPersistentContainer
-    func clearPersistedDownloads(in container: NSPersistentContainer) throws
     func insertPersistedGalleryState(
         in container: NSPersistentContainer,
         gid: String,
