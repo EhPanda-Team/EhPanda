@@ -143,6 +143,12 @@ extension DownloadManager {
             activeGalleryID: activeGalleryID,
             hasActiveTask: hasActiveTask
         ) {
+            if downloadIndex[download.gid] != nil {
+                if activeGalleryID == download.gid, !hasActiveTask {
+                    self.activeGalleryID = nil
+                }
+                continue
+            }
             do {
                 try await updateDownloadRecord(
                     gid: download.gid,

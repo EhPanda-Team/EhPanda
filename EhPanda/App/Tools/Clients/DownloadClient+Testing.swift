@@ -15,6 +15,10 @@ extension DownloadManager {
         activeTask = task
     }
 
+    func testingSetActiveGalleryID(_ gid: String?) {
+        activeGalleryID = gid
+    }
+
     func testingScheduleNextIfNeeded() async {
         await scheduleNextIfNeeded()
     }
