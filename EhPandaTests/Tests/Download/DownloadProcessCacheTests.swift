@@ -216,7 +216,7 @@ private extension DownloadProcessCacheTests {
         )
         let latestPayload = try await manager.testingFetchLatestPayload(
             for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
-        ).payload
+        )
         let coverURL = try #require(
             latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL
         )
@@ -248,7 +248,7 @@ private extension DownloadProcessCacheTests {
         let latestPayload = try await setup.manager.testingFetchLatestPayload(
             for: scaffoldDownload, mode: .redownload,
             pageSelection: [setup.pageIndex]
-        ).payload
+        )
         let updatedPageCount = latestPayload.galleryDetail.pageCount
         let oldPageCount = updatedPageCount - 5
         #expect(updatedPageCount > setup.pageIndex)

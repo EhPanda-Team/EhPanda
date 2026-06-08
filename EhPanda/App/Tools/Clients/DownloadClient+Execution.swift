@@ -103,13 +103,13 @@ extension DownloadManager {
             folderURL: storage.temporaryFolderURL(gid: gid)
         ))
         let rawPageSelection = existingResumeState?.pageSelection
-        let fetchResult = try await fetchLatestPayload(
+        let fetchedPayload = try await fetchLatestPayload(
             for: download,
             mode: mode,
             pageSelection: rawPageSelection
         )
         let payload = normalizeFetchedPayload(
-            fetchResult.payload,
+            fetchedPayload,
             mode: mode,
             existingResumeState: existingResumeState,
             rawPageSelection: rawPageSelection

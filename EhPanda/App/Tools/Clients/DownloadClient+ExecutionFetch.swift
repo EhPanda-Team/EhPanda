@@ -7,15 +7,11 @@ import Foundation
 
 // MARK: - Fetch & Normalize Payload
 extension DownloadManager {
-    struct FetchLatestPayloadResult: Sendable {
-        let payload: DownloadRequestPayload
-    }
-
     func fetchLatestPayload(
         for download: DownloadedGallery,
         mode: DownloadStartMode,
         pageSelection: [Int]?
-    ) async throws -> FetchLatestPayloadResult {
+    ) async throws -> DownloadRequestPayload {
         let galleryURL = download.gallery.galleryURL
         guard let galleryURL else { throw AppError.notFound }
         let detailResponse = try await GalleryDetailRequest(
@@ -43,7 +39,7 @@ extension DownloadManager {
             detail: detail,
             versionMetadata: versionMetadata
         )
-        return buildFetchResult(
+        return buildPayload(
             fetchedData: fetchedData,
             components: components,
             mode: mode,
@@ -57,27 +53,25 @@ extension DownloadManager {
         let versionMetadata: DownloadVersionMetadata?
     }
 
-    private func buildFetchResult(
+    private func buildPayload(
         fetchedData: FetchedGalleryData,
         components: GalleryComponents,
         mode: DownloadStartMode,
         pageSelection: [Int]?
-    ) -> FetchLatestPayloadResult {
+    ) -> DownloadRequestPayload {
         let download = fetchedData.download
         let detail = fetchedData.detail
         let versionMetadata = fetchedData.versionMetadata
-        return FetchLatestPayloadResult(
-            payload: .init(
-                gallery: components.gallery,
-                galleryDetail: detail,
-                previewURLs: components.previewURLs,
-                previewConfig: components.previewConfig,
-                host: download.host,
-                versionMetadata: versionMetadata,
-                options: download.downloadOptionsSnapshot,
-                mode: mode,
-                pageSelection: pageSelection.map(Set.init)
-            )
+        return .init(
+            gallery: components.gallery,
+            galleryDetail: detail,
+            previewURLs: components.previewURLs,
+            previewConfig: components.previewConfig,
+            host: download.host,
+            versionMetadata: versionMetadata,
+            options: download.downloadOptionsSnapshot,
+            mode: mode,
+            pageSelection: pageSelection.map(Set.init)
         )
     }
 
