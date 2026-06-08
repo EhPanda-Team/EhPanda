@@ -103,7 +103,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let beforeProcess = await manager.testingFetchDownload(gid: gid)
         #expect(beforeProcess?.hasUpdate ?? true == false)
 
-        let temporaryFolderURL = try prepareStaleTemporaryFolder(
+        let staleFolderURL = try prepareStaleExistingFolder(
             storage: storage, gid: gid, pageIndex: pageIndex,
             oldPageCount: oldPageCount, oldVersionSignature: oldVersionSignature
         )
@@ -116,7 +116,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
                 gid: gid,
                 updatedPageCount: updatedPageCount,
                 updatedVersionSignature: updatedVersionSignature,
-                temporaryFolderURL: temporaryFolderURL
+                staleFolderURL: staleFolderURL
             )
         )
     }
@@ -165,7 +165,7 @@ private struct ProcessVerificationContext {
     let gid: String
     let updatedPageCount: Int
     let updatedVersionSignature: String
-    let temporaryFolderURL: URL
+    let staleFolderURL: URL
 }
 
 private extension DownloadProcessTests {
@@ -207,7 +207,7 @@ private extension DownloadProcessTests {
         return (updatedPageCount, updatedVersionSignature)
     }
 
-    func prepareStaleTemporaryFolder(
+    func prepareStaleExistingFolder(
         storage: DownloadFileStorage, gid: String, pageIndex: Int,
         oldPageCount: Int, oldVersionSignature: String
     ) throws -> URL {
@@ -215,19 +215,36 @@ private extension DownloadProcessTests {
             gid: gid, title: "Pause Race",
             pageCount: oldPageCount, versionSignature: oldVersionSignature
         )
-        try writeTemporaryManifestAndPages(
-            storage: storage, gid: gid, manifest: staleManifest,
-            pageCount: 0, versionSignature: oldVersionSignature,
-            pageSelection: [pageIndex]
+        let folderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
+        try? FileManager.default.removeItem(at: folderURL)
+        try FileManager.default.createDirectory(
+            at: folderURL.appendingPathComponent(
+                Defaults.FilePath.downloadPages, isDirectory: true
+            ),
+            withIntermediateDirectories: true
         )
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
+        try storage.writeManifest(staleManifest, folderURL: folderURL)
+        try Data([0x00]).write(
+            to: folderURL.appendingPathComponent("cover.jpg"),
+            options: .atomic
+        )
         try Data([UInt8(pageIndex % 255)]).write(
-            to: temporaryFolderURL.appendingPathComponent(
+            to: folderURL.appendingPathComponent(
                 "pages/\(String(format: "%04d", pageIndex)).jpg"
             ),
             options: .atomic
         )
-        return temporaryFolderURL
+        try storage.writeResumeState(
+            .init(
+                mode: .redownload,
+                versionSignature: oldVersionSignature,
+                pageCount: oldPageCount,
+                downloadOptions: .init(),
+                pageSelection: [pageIndex]
+            ),
+            folderURL: folderURL
+        )
+        return folderURL
     }
 
     func verifyCompletedProcess(
@@ -250,8 +267,13 @@ private extension DownloadProcessTests {
         #expect(manifest.pages.count == context.updatedPageCount)
         #expect(
             FileManager.default.fileExists(
-                atPath: completedFolderURL.appendingPathComponent("pages/0001.jpg").path
+                atPath: completedFolderURL.appendingPathComponent("\(context.gid)_token_1.jpg").path
             )
+        )
+        #expect(
+            FileManager.default.fileExists(
+                atPath: completedFolderURL.appendingPathComponent("pages/0001.jpg").path
+            ) == false
         )
 
         let resumeState = try storage.readResumeState(folderURL: completedFolderURL)
@@ -259,6 +281,11 @@ private extension DownloadProcessTests {
         #expect(resumeState.versionSignature == context.updatedVersionSignature)
         #expect(resumeState.pageCount == context.updatedPageCount)
         #expect(resumeState.pageSelection == nil)
-        #expect(FileManager.default.fileExists(atPath: context.temporaryFolderURL.path) == false)
+        #expect(FileManager.default.fileExists(atPath: context.staleFolderURL.path) == false)
+        #expect(
+            FileManager.default.fileExists(
+                atPath: storage.temporaryFolderURL(gid: context.gid).path
+            ) == false
+        )
     }
 }

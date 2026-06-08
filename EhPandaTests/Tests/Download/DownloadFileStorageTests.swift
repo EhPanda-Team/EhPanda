@@ -200,6 +200,28 @@ struct DownloadFileStorageTests {
     }
 
     @Test
+    func testExistingPageRelativePathsPreservesLegacyPagesFolderWhenScanningFinalAssets() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let pagesFolderURL = folderURL.appendingPathComponent(
+            Defaults.FilePath.downloadPages,
+            isDirectory: true
+        )
+        try FileManager.default.createDirectory(at: pagesFolderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: pagesFolderURL.appendingPathComponent("0001.jpg"), options: .atomic)
+
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 1) == [
+                1: "pages/0001.jpg"
+            ]
+        )
+        #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path))
+    }
+
+    @Test
     func testExistingPageRelativePathsRemovesZeroByteFiles() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }

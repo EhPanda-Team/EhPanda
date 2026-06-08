@@ -165,10 +165,10 @@ struct DownloadFileStorage: Sendable {
         }
 
         for pageURL in finalPageURLs {
-            guard sanitizeAssetFileIfNeeded(at: pageURL),
-                  let index = finalPageIndex(from: pageURL),
+            guard let index = finalPageIndex(from: pageURL),
                   index >= 1,
-                  index <= expectedPageCount
+                  index <= expectedPageCount,
+                  sanitizeAssetFileIfNeeded(at: pageURL)
             else {
                 continue
             }

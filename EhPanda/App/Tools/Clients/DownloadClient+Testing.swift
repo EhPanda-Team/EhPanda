@@ -105,15 +105,16 @@ extension DownloadManager {
         existingDownload: DownloadedGallery,
         versionSignature: String
     ) throws -> PrepareWorkingSeedResult {
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: payload.gallery.gid)
+        let folderURL = storage.folderURL(
+            relativePath: folderRelativePath(for: payload)
+        )
         try? fileManager.operate {
-            try $0.removeItem(at: temporaryFolderURL)
+            try $0.removeItem(at: folderURL)
         }
         let workingSeed = try prepareWorkingSeed(
             payload: payload,
             existingDownload: existingDownload,
-            temporaryFolderURL: temporaryFolderURL,
+            folderURL: folderURL,
             versionSignature: versionSignature
         )
         return PrepareWorkingSeedResult(
