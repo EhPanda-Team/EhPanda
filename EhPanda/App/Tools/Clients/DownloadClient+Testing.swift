@@ -25,6 +25,12 @@ extension DownloadManager {
         testingFetchDownloadsFromStoreHook = hook
     }
 
+    func testingSetPersistFailureHook(
+        _ hook: (@Sendable () async -> Void)?
+    ) {
+        testingPersistFailureHook = hook
+    }
+
     func testingScheduledGalleryIDs() -> [String] {
         testingScheduledGalleryIDHistory
     }

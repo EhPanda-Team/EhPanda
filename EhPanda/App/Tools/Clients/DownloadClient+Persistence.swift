@@ -158,6 +158,11 @@ extension DownloadManager {
         error: AppError,
         context: FailureContext
     ) async {
+#if DEBUG
+        if let testingPersistFailureHook {
+            await testingPersistFailureHook()
+        }
+#endif
         let workingCompletedPageCount =
             temporaryCompletedPageCount(
                 gid: context.gid,

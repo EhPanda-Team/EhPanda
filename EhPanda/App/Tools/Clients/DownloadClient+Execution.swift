@@ -53,7 +53,7 @@ extension DownloadManager {
                 hadReadableFiles: hadReadableFiles,
                 latestSignature: fetchedVersionSignature
             )
-            handleProcessDownloadError(error: error, context: context)
+            await handleProcessDownloadError(error: error, context: context)
         }
     }
 
@@ -80,13 +80,22 @@ extension DownloadManager {
     private func handleProcessDownloadError(
         error: Error,
         context: FailureContext
-    ) {
+    ) async {
         if let appError = error as? AppError {
-            handleProcessDownloadAppError(error: appError, context: context)
+            await handleProcessDownloadAppError(
+                error: appError,
+                context: context
+            )
         } else if let partialError = error as? PartialDownloadError {
-            handleProcessDownloadPartialError(error: partialError, context: context)
+            await handleProcessDownloadPartialError(
+                error: partialError,
+                context: context
+            )
         } else {
-            handleProcessDownloadGenericError(error: error, context: context)
+            await handleProcessDownloadGenericError(
+                error: error,
+                context: context
+            )
         }
     }
 
@@ -156,7 +165,7 @@ extension DownloadManager {
     private func handleProcessDownloadAppError(
         error: AppError,
         context: FailureContext
-    ) {
+    ) async {
         guard !isCancellationLikeAppError(error) else { return }
         guard !shouldSuppressFailurePersistence(for: context.gid) else {
             return
@@ -169,16 +178,14 @@ extension DownloadManager {
                 "error": error.localizedDescription
             ]
         )
-        Task {
-            await persistFailure(error: error, context: context)
-            await notifyObservers()
-        }
+        await persistFailure(error: error, context: context)
+        await notifyObservers()
     }
 
     private func handleProcessDownloadPartialError(
         error: PartialDownloadError,
         context: FailureContext
-    ) {
+    ) async {
         let pageError =
             error.failedPages.first?.failure.appError ?? .unknown
         guard !isCancellationLikeAppError(pageError) else { return }
@@ -193,16 +200,14 @@ extension DownloadManager {
                 "failedPages": error.failedPages.map(\.index)
             ]
         )
-        Task {
-            await persistFailure(error: pageError, context: context)
-            await notifyObservers()
-        }
+        await persistFailure(error: pageError, context: context)
+        await notifyObservers()
     }
 
     private func handleProcessDownloadGenericError(
         error: Error,
         context: FailureContext
-    ) {
+    ) async {
         let appError = AppError.fileOperationFailed(
             error.localizedDescription
         )
@@ -211,13 +216,11 @@ extension DownloadManager {
             return
         }
         Logger.error(error)
-        Task {
-            await persistFailure(
-                error: appError,
-                context: context
-            )
-            await notifyObservers()
-        }
+        await persistFailure(
+            error: appError,
+            context: context
+        )
+        await notifyObservers()
     }
 
     func persistCompletedDownload(
