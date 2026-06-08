@@ -73,13 +73,15 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDetailReducerDeleteDownloadResetsDownloadContext() async {
+    func testDetailReducerDeleteDownloadResetsMetadataState() async {
         let download = sampleDownload(gid: "7733", title: "Reset Context", status: .completed)
-        var initialState = DetailReducer.State(download: download)
+        var initialState = DetailReducer.State()
+        initialState.gallery = download.gallery
         initialState.galleryVersionMetadata = sampleVersionMetadata(
             gid: download.gid, token: download.token
         )
         initialState.didRequestVersionMetadata = true
+        initialState.shouldCheckForRemoteUpdates = true
 
         let store = TestStore(initialState: initialState) {
             DetailReducer()
@@ -94,12 +96,10 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
         await store.send(.deleteDownloadDone(.success(()))) {
             $0.galleryVersionMetadata = nil
             $0.didRequestVersionMetadata = false
-            $0.isDownloadContext = false
             $0.shouldCheckForRemoteUpdates = false
         }
         await store.skipReceivedActions(strict: false)
 
-        #expect(store.state.isDownloadContext == false)
         #expect(store.state.shouldCheckForRemoteUpdates == false)
         #expect(store.state.didRequestVersionMetadata == false)
         #expect(store.state.galleryVersionMetadata == nil)

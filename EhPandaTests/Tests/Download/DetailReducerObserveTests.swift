@@ -69,7 +69,8 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
     func testDetailReducerOpenReadingUsesLocalManifestWhenAvailable() async throws {
         let download = sampleDownload(gid: "888", title: "Offline Archive", status: .completed, pageCount: 2)
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
-        var initialState = DetailReducer.State(download: download)
+        var initialState = DetailReducer.State()
+        initialState.gallery = download.gallery
         initialState.galleryDetail = sampleGalleryDetail(gid: download.gid, title: download.title)
 
         let store = TestStore(initialState: initialState) {
