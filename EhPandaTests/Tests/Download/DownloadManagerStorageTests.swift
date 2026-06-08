@@ -391,6 +391,70 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testDownloadManagerPauseAndResumeMutateQueueIntent() async throws {
+        let container = try makeInMemoryContainer()
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            queueStore: queueStore,
+            persistenceContainer: container
+        )
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "[820_token] Pausable",
+            manifest: indexedManifest(
+                gid: "820",
+                title: "Pausable",
+                pageHashes: ["sha256:1", ""]
+            )
+        )
+        await queueStore.enqueue("820")
+        await manager.testingSetDownloadError(
+            .init(code: .networkingFailed, message: "failed"),
+            gid: "820"
+        )
+        let activeTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(60))
+            } catch {}
+        }
+        await manager.testingInstallActiveTask(gid: "820", task: activeTask)
+
+        let pauseResult = await manager.pause(gid: "820")
+
+        guard case .success = pauseResult else {
+            Issue.record("Pause should succeed, got \(pauseResult).")
+            return
+        }
+        let pausedDownload = try #require(await manager.fetchDownload(gid: "820"))
+        #expect(queueStore.gids == [])
+        #expect(await manager.testingActiveGalleryID() == nil)
+        #expect(pausedDownload.displayStatus == .inactive)
+        #expect(pausedDownload.status == .paused)
+        #expect(pausedDownload.lastError == nil)
+
+        await manager.testingInstallActiveTask(gid: "busy", task: Task {})
+        let resumeResult = await manager.resume(gid: "820")
+
+        guard case .success = resumeResult else {
+            Issue.record("Resume should succeed, got \(resumeResult).")
+            return
+        }
+        let resumedDownload = try #require(await manager.fetchDownload(gid: "820"))
+        #expect(queueStore.gids == ["820"])
+        #expect(resumedDownload.displayStatus == .queued)
+        #expect(resumedDownload.status == .queued)
+    }
+
+    @Test
     func testDownloadManagerLoadInspectionUsesTemporaryFailedPagesSnapshot() async throws {
         let container = try makeInMemoryContainer()
 

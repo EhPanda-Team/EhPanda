@@ -152,6 +152,8 @@ extension DownloadManager {
         gid: String,
         download: DownloadedGallery
     ) async throws -> Task<Void, Never>? {
+        downloadErrors[gid] = nil
+        await queueStore.remove(gid)
         let initialCount = max(
             download.completedPageCount,
             temporaryCompletedPageCount(
@@ -183,6 +185,8 @@ extension DownloadManager {
         gid: String,
         download: DownloadedGallery
     ) async throws {
+        downloadErrors[gid] = nil
+        await queueStore.remove(gid)
         let settledCount = max(
             download.completedPageCount,
             temporaryCompletedPageCount(
@@ -242,6 +246,8 @@ extension DownloadManager {
         }
 
         do {
+            downloadErrors[gid] = nil
+            await queueStore.enqueue(gid)
             let resumedStatus: DownloadStatus =
                 activeTask == nil ? .downloading : .queued
             try await updateDownloadRecord(
