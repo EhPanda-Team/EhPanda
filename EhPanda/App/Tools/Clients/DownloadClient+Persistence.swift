@@ -297,6 +297,21 @@ extension DownloadManager {
 #endif
         downloadErrors[context.gid] = DownloadFailure(error: error)
         await queueStore.remove(context.gid)
+        let indexedDownloads = await reloadDownloadIndex()
+        guard indexedDownloads.contains(where: { $0.gid == context.gid })
+        else {
+            await persistLegacyFailure(
+                error: error,
+                context: context
+            )
+            return
+        }
+    }
+
+    private func persistLegacyFailure(
+        error: AppError,
+        context: FailureContext
+    ) async {
         let workingCompletedPageCount =
             temporaryCompletedPageCount(
                 gid: context.gid,
