@@ -82,7 +82,7 @@ extension DownloadManager {
             response: response.1,
             requestURL: request.url
         ) {
-            try? fileManager().removeItem(at: response.0)
+            try? fileManager.removeItem(at: response.0)
             throw error
         }
 
@@ -340,7 +340,7 @@ extension DownloadManager {
     }
 
     func createDirectory(at url: URL) throws {
-        try fileManager().createDirectory(
+        try fileManager.createDirectory(
             at: url,
             withIntermediateDirectories: true
         )
@@ -358,11 +358,11 @@ extension DownloadManager {
         try createDirectory(
             at: destinationURL.deletingLastPathComponent()
         )
-        if fileManager()
+        if fileManager
             .fileExists(atPath: destinationURL.path) {
-            try fileManager().removeItem(at: destinationURL)
+            try fileManager.removeItem(at: destinationURL)
         }
-        try fileManager()
+        try fileManager
             .moveItem(at: sourceURL, to: destinationURL)
     }
 

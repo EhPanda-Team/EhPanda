@@ -16,7 +16,7 @@ extension DownloadManager {
            !coverRelativePath.isEmpty {
             let localCoverURL = temporaryFolderURL
                 .appendingPathComponent(coverRelativePath)
-            if fileManager()
+            if fileManager
                 .fileExists(atPath: localCoverURL.path) {
                 return coverRelativePath
             }
@@ -164,7 +164,7 @@ extension DownloadManager {
         temporaryFolderURL: URL,
         versionSignature: String
     ) throws -> WorkingSeed {
-        let localFileManager = fileManager()
+        let localFileManager = fileManager
         let resumeState = try? storage
             .readResumeState(folderURL: temporaryFolderURL)
         let shouldReuseTemporaryFolder = resumeState?.matches(
@@ -294,7 +294,7 @@ extension DownloadManager {
         guard payload.mode == .repair,
               let folderURL = download
                 .resolvedFolderURL(rootURL: storage.rootURL),
-              fileManager()
+              fileManager
                 .fileExists(atPath: folderURL.path),
               let manifest = try? storage
                 .readManifest(folderURL: folderURL),
@@ -326,7 +326,7 @@ extension DownloadManager {
             }
             let fileURL = folderURL
                 .appendingPathComponent(relativePath)
-            return !fileManager()
+            return !fileManager
                 .fileExists(atPath: fileURL.path)
         }
     }
