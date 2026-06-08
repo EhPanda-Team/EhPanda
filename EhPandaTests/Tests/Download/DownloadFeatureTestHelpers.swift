@@ -67,6 +67,10 @@ protocol DownloadFeatureTestCase: TestHelper {
 // MARK: - Default Implementations
 
 extension DownloadFeatureTestCase {
+    func chainVersionSignature(gid: String, token: String) -> String {
+        "chain:\(gid):\(token)"
+    }
+
     func waitUntilCacheReady<Keys: Sequence>(
         for keys: Keys,
         timeout: Duration = .seconds(1)
