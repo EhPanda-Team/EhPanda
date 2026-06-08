@@ -84,7 +84,6 @@ extension DownloadFeatureTestCase {
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
             folderRelativePath: "\(gid) - \(title)",
-            coverRelativePath: "cover.jpg",
             status: status,
             completedPageCount: completedPageCount ?? (status == .completed ? pageCount : 0),
             lastDownloadedAt: lastDownloadedAt,

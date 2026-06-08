@@ -35,14 +35,6 @@ extension DownloadedGallery {
 
     func resolvedLocalCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
         let folderURL = resolvedFolderURL(rootURL: rootURL)
-        if let coverRelativePath,
-           !coverRelativePath.isEmpty {
-            let coverURL = folderURL.appendingPathComponent(coverRelativePath)
-            if isReadableLocalAssetFile(coverURL) {
-                return coverURL
-            }
-        }
-
         return DownloadFileStorage(rootURL: rootURL)
             .existingCoverRelativePath(folderURL: folderURL)
             .map { folderURL.appendingPathComponent($0) }
@@ -194,16 +186,6 @@ extension DownloadedGallery {
         }
     }
 
-}
-
-extension DownloadedGallery {
-    func isReadableLocalAssetFile(_ url: URL) -> Bool {
-        guard FileManager.default.fileExists(atPath: url.path) else { return false }
-        let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
-        let isRegularFile = values?.isRegularFile ?? true
-        let fileSize = values?.fileSize ?? 0
-        return isRegularFile && fileSize > 0
-    }
 }
 
 extension DownloadInspection {
