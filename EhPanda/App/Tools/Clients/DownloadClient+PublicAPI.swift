@@ -366,6 +366,8 @@ extension DownloadManager {
         do {
             let cacheURLs = pageImageCacheURLs(imageURL: imageURL)
             let cacheSource = CacheRestoreSource(
+                gid: download.gid,
+                token: download.token,
                 cacheURLs: cacheURLs,
                 referenceURL: preferredPageReferenceURL(imageURL: imageURL),
                 imageURL: imageURL

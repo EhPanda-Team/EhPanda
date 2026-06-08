@@ -92,6 +92,8 @@ actor DownloadManager {
     }
 
     struct CacheRestoreSource: Sendable {
+        let gid: String
+        let token: String
         let cacheURLs: [URL?]
         let referenceURL: URL?
         let imageURL: URL?

@@ -46,12 +46,10 @@ extension DownloadManager {
     ) async throws -> PageResult {
         let payload = context.payload
         let temporaryFolderURL = context.temporaryFolderURL
-        let storedGalleryImageState = context.storedGalleryImageState
 
         if let result = try await attemptCacheRestore(
             index: index,
-            storedGalleryImageState: storedGalleryImageState,
-            temporaryFolderURL: temporaryFolderURL,
+            context: context,
             preferredRelativePath: preferredRelativePath
         ) {
             return result
@@ -67,8 +65,7 @@ extension DownloadManager {
         if let result = try await attemptResolvedCacheRestore(
             index: index,
             resolvedImageSource: resolved,
-            storedGalleryImageState: storedGalleryImageState,
-            temporaryFolderURL: temporaryFolderURL,
+            context: context,
             preferredRelativePath: preferredRelativePath
         ) {
             return result
@@ -84,16 +81,19 @@ extension DownloadManager {
 
     private func attemptCacheRestore(
         index: Int,
-        storedGalleryImageState: CachedGalleryImageState?,
-        temporaryFolderURL: URL,
+        context: PageDownloadContext,
         preferredRelativePath: String?
     ) async throws -> PageResult? {
+        let payload = context.payload
+        let storedGalleryImageState = context.storedGalleryImageState
         let storedCacheURLs = pageImageCacheURLs(
             resolvedImageSource: nil,
             index: index,
             storedGalleryImageState: storedGalleryImageState
         )
         let storedSource = CacheRestoreSource(
+            gid: payload.gallery.gid,
+            token: payload.gallery.token,
             cacheURLs: storedCacheURLs,
             referenceURL: storedCacheURLs
                 .compactMap(\.self).first,
@@ -103,7 +103,7 @@ extension DownloadManager {
         return try await restorePageFromCache(
             index: index,
             source: storedSource,
-            folderURL: temporaryFolderURL,
+            folderURL: context.temporaryFolderURL,
             preferredRelativePath: preferredRelativePath
         )
     }
@@ -111,16 +111,19 @@ extension DownloadManager {
     private func attemptResolvedCacheRestore(
         index: Int,
         resolvedImageSource: ResolvedImageSource,
-        storedGalleryImageState: CachedGalleryImageState?,
-        temporaryFolderURL: URL,
+        context: PageDownloadContext,
         preferredRelativePath: String?
     ) async throws -> PageResult? {
+        let payload = context.payload
+        let storedGalleryImageState = context.storedGalleryImageState
         let resolvedCacheURLs = pageImageCacheURLs(
             resolvedImageSource: resolvedImageSource,
             index: index,
             storedGalleryImageState: storedGalleryImageState
         )
         let resolvedSource = CacheRestoreSource(
+            gid: payload.gallery.gid,
+            token: payload.gallery.token,
             cacheURLs: resolvedCacheURLs,
             referenceURL: preferredPageReferenceURL(
                 resolvedImageSource: resolvedImageSource
@@ -130,7 +133,7 @@ extension DownloadManager {
         return try await restorePageFromCache(
             index: index,
             source: resolvedSource,
-            folderURL: temporaryFolderURL,
+            folderURL: context.temporaryFolderURL,
             preferredRelativePath: preferredRelativePath
         )
     }
@@ -162,6 +165,8 @@ extension DownloadManager {
                 prefixData: prefixData
             )
             relativePath = storage.makePageRelativePath(
+                gid: payload.gallery.gid,
+                token: payload.gallery.token,
                 index: index,
                 fileExtension: ext
             )
