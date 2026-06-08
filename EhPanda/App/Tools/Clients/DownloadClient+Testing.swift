@@ -59,6 +59,15 @@ extension DownloadManager {
         downloadErrors[gid] = failure
     }
 
+    func testingSetFailedPageErrors(
+        _ failures: [PageFailure],
+        gid: String
+    ) {
+        failedPageErrors[gid] = Dictionary(
+            uniqueKeysWithValues: failures.map { ($0.index, $0) }
+        )
+    }
+
     func testingSanitizeLocalFilesIfNeeded(
         gid: String,
         clearingLastError: Bool = false

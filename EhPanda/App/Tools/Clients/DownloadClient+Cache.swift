@@ -94,29 +94,6 @@ extension DownloadManager {
         imageURL
     }
 
-    func clearFailedPage(
-        index: Int,
-        folderURL: URL
-    ) throws {
-        guard let failedSnapshot = try? storage
-                .readFailedPages(folderURL: folderURL) else {
-            return
-        }
-        let remainingPages = failedSnapshot.pages
-            .filter { $0.index != index }
-        if remainingPages.count == failedSnapshot.pages.count {
-            return
-        }
-        if remainingPages.isEmpty {
-            try? storage.removeFailedPages(folderURL: folderURL)
-        } else {
-            try storage.writeFailedPages(
-                .init(pages: remainingPages),
-                folderURL: folderURL
-            )
-        }
-    }
-
     func cachedImageData(for url: URL) async -> Data? {
         await cachedImageData(
             for: [url],

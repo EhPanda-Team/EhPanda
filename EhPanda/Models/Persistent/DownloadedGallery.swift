@@ -63,22 +63,6 @@ enum DownloadStartMode: String, Codable, Equatable, Sendable {
     case repair
 }
 
-struct DownloadFailedPagesSnapshot: Codable, Equatable, Sendable {
-    struct Page: Codable, Equatable, Identifiable, Sendable {
-        var id: Int { index }
-
-        let index: Int
-        let relativePath: String?
-        let failure: DownloadFailure
-    }
-
-    var pages: [Page]
-
-    var map: [Int: Page] {
-        Dictionary(uniqueKeysWithValues: pages.map { ($0.index, $0) })
-    }
-}
-
 struct DownloadedGallery: Identifiable, Equatable {
     var id: String { gid }
 

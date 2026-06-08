@@ -171,9 +171,6 @@ extension DownloadManager {
             hashedManifest,
             folderURL: folderURL
         )
-        try? storage.removeFailedPages(
-            folderURL: folderURL
-        )
         await cleanupCachedRemoteAssetsAfterSuccessfulDownload(
             payload: payload,
             pages: batchResult.pages,

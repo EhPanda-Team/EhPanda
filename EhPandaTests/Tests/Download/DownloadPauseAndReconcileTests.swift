@@ -215,7 +215,19 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             title: "Inspection",
             pageHashes: ["sha256:done", ""]
         )
-        let folderURL = try setupCancellationFilterTestFolder(storage: storage, gid: gid)
+        try setupCancellationFilterTestFolder(storage: storage, gid: gid)
+        await manager.testingSetFailedPageErrors(
+            [
+                .init(
+                    index: 2,
+                    relativePath: "pages/0002.jpg",
+                    error: .fileOperationFailed(
+                        "The operation could not be completed. (Swift.CancellationError error 1.)"
+                    )
+                )
+            ],
+            gid: gid
+        )
 
         let result = await manager.loadInspection(gid: gid)
         guard case .success(let inspection) = result else {
@@ -225,7 +237,6 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         #expect(inspection.pages[0].status == .downloaded)
         #expect(inspection.pages[1].status == .pending)
-        #expect((try? storage.readFailedPages(folderURL: folderURL).pages.isEmpty) ?? true)
     }
 }
 
@@ -267,11 +278,10 @@ private extension DownloadPauseAndReconcileTests {
         )
     }
 
-    @discardableResult
     func setupCancellationFilterTestFolder(
         storage: DownloadFileStorage,
         gid: String
-    ) throws -> URL {
+    ) throws {
         let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Inspection")
         try FileManager.default.createDirectory(
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
@@ -281,19 +291,5 @@ private extension DownloadPauseAndReconcileTests {
             to: folderURL.appendingPathComponent("pages/0001.jpg"),
             options: .atomic
         )
-        try storage.writeFailedPages(
-            .init(pages: [
-                .init(
-                    index: 2,
-                    relativePath: "pages/0002.jpg",
-                    failure: .init(
-                        code: .fileOperationFailed,
-                        message: "The operation could not be completed. (Swift.CancellationError error 1.)"
-                    )
-                )
-            ]),
-            folderURL: folderURL
-        )
-        return folderURL
     }
 }
