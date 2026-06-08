@@ -57,38 +57,8 @@
         <attribute name="tags" optional="YES" attributeType="Binary"/>
         <attribute name="thumbnailURLs" optional="YES" attributeType="Binary"/>
     </entity>
-    <entity name="DownloadedGalleryMO" representedClassName=".DownloadedGalleryMO" syncable="NO">
-        <attribute name="category" attributeType="String" defaultValueString=""/>
-        <attribute name="completedPageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="coverRelativePath" optional="YES" attributeType="String"/>
-        <attribute name="downloadOptionsSnapshot" optional="YES" attributeType="Binary"/>
-        <attribute name="folderRelativePath" attributeType="String" defaultValueString=""/>
-        <attribute name="gid" attributeType="String" defaultValueString=""/>
-        <attribute name="host" attributeType="String" defaultValueString=""/>
-        <attribute name="jpnTitle" optional="YES" attributeType="String"/>
-        <attribute name="lastDownloadedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="lastError" optional="YES" attributeType="Binary"/>
-        <attribute name="latestRemoteVersionSignature" optional="YES" attributeType="String"/>
-        <attribute name="onlineCoverURL" optional="YES" attributeType="URI"/>
-        <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="pendingOperation" optional="YES" attributeType="String"/>
-        <attribute name="postedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
-        <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="remoteVersionSignature" attributeType="String" defaultValueString=""/>
-        <attribute name="status" attributeType="String" defaultValueString=""/>
-        <attribute name="tags" optional="YES" attributeType="Binary"/>
-        <attribute name="title" attributeType="String" defaultValueString=""/>
-        <attribute name="token" attributeType="String" defaultValueString=""/>
-        <attribute name="uploader" optional="YES" attributeType="String"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="gid"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
-    </entity>
     <elements>
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="149"/>
-        <element name="DownloadedGalleryMO" positionX="180" positionY="36" width="128" height="329"/>
         <element name="GalleryDetailMO" positionX="-54" positionY="9" width="128" height="329"/>
         <element name="GalleryMO" positionX="-63" positionY="-18" width="128" height="209"/>
         <element name="GalleryStateMO" positionX="-36" positionY="18" width="128" height="164"/>
