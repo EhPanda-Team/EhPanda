@@ -41,7 +41,7 @@ struct CommentsView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List(comments) { comment in
-                CommentsCommentCell(
+                CommentCell(
                     gid: gid, comment: comment,
                     linkAction: { store.send(.handleCommentLink($0)) }
                 )
@@ -149,108 +149,109 @@ private extension CommentsView {
     }
 }
 
-// MARK: CommentsCommentCell
-private struct CommentsCommentCell: View {
-    private let gid: String
-    private var comment: GalleryComment
-    private let linkAction: (URL) -> Void
+extension CommentsView {
+    struct CommentCell: View {
+        private let gid: String
+        private var comment: GalleryComment
+        private let linkAction: (URL) -> Void
 
-    init(gid: String, comment: GalleryComment, linkAction: @escaping (URL) -> Void) {
-        self.gid = gid
-        self.comment = comment
-        self.linkAction = linkAction
-    }
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text(comment.author).font(.subheadline.bold())
-                Spacer()
-                Group {
-                    ZStack {
-                        Image(systemSymbol: .handThumbsupFill)
-                            .opacity(comment.votedUp ? 1 : 0)
-                        Image(systemSymbol: .handThumbsdownFill)
-                            .opacity(comment.votedDown ? 1 : 0)
-                    }
-                    Text(comment.score ?? "")
-                    Text(comment.formattedDateString)
-                }
-                .font(.footnote).foregroundStyle(.secondary)
-            }
-            .minimumScaleFactor(0.75).lineLimit(1)
-            ForEach(comment.contents) { content in
-                switch content.type {
-                case .plainText:
-                    if let text = content.text {
-                        LinkedText(text: text, action: linkAction)
-                    }
-                case .linkedText:
-                    if let text = content.text, let link = content.link {
-                        Text(text).foregroundStyle(.tint)
-                            .onTapGesture { linkAction(link) }
-                    }
-                case .singleLink:
-                    if let link = content.link {
-                        Text(link.absoluteString).foregroundStyle(.tint)
-                            .onTapGesture { linkAction(link) }
-                    }
-                case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
-                    generateWebImages(
-                        imgURL: content.imgURL, secondImgURL: content.secondImgURL,
-                        link: content.link, secondLink: content.secondLink
-                    )
-                }
-            }
-            .fixedSize(horizontal: false, vertical: true)
+        init(gid: String, comment: GalleryComment, linkAction: @escaping (URL) -> Void) {
+            self.gid = gid
+            self.comment = comment
+            self.linkAction = linkAction
         }
-        .padding()
-    }
 
-    @ViewBuilder private func generateWebImages(
-        imgURL: URL?, secondImgURL: URL?,
-        link: URL?, secondLink: URL?
-    ) -> some View {
-        // Double
-        if let imgURL = imgURL, let secondImgURL = secondImgURL {
-            HStack(spacing: 0) {
-                if let link = link, let secondLink = secondLink {
-                    imageContainer(url: imgURL, widthFactor: 4) {
+        var body: some View {
+            VStack(alignment: .leading) {
+                HStack {
+                    Text(comment.author).font(.subheadline.bold())
+                    Spacer()
+                    Group {
+                        ZStack {
+                            Image(systemSymbol: .handThumbsupFill)
+                                .opacity(comment.votedUp ? 1 : 0)
+                            Image(systemSymbol: .handThumbsdownFill)
+                                .opacity(comment.votedDown ? 1 : 0)
+                        }
+                        Text(comment.score ?? "")
+                        Text(comment.formattedDateString)
+                    }
+                    .font(.footnote).foregroundStyle(.secondary)
+                }
+                .minimumScaleFactor(0.75).lineLimit(1)
+                ForEach(comment.contents) { content in
+                    switch content.type {
+                    case .plainText:
+                        if let text = content.text {
+                            LinkedText(text: text, action: linkAction)
+                        }
+                    case .linkedText:
+                        if let text = content.text, let link = content.link {
+                            Text(text).foregroundStyle(.tint)
+                                .onTapGesture { linkAction(link) }
+                        }
+                    case .singleLink:
+                        if let link = content.link {
+                            Text(link.absoluteString).foregroundStyle(.tint)
+                                .onTapGesture { linkAction(link) }
+                        }
+                    case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
+                        generateWebImages(
+                            imgURL: content.imgURL, secondImgURL: content.secondImgURL,
+                            link: content.link, secondLink: content.secondLink
+                        )
+                    }
+                }
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding()
+        }
+
+        @ViewBuilder private func generateWebImages(
+            imgURL: URL?, secondImgURL: URL?,
+            link: URL?, secondLink: URL?
+        ) -> some View {
+            // Double
+            if let imgURL = imgURL, let secondImgURL = secondImgURL {
+                HStack(spacing: 0) {
+                    if let link = link, let secondLink = secondLink {
+                        imageContainer(url: imgURL, widthFactor: 4) {
+                            linkAction(link)
+                        }
+                        imageContainer(url: secondImgURL, widthFactor: 4) {
+                            linkAction(secondLink)
+                        }
+                    } else {
+                        imageContainer(url: imgURL, widthFactor: 4)
+                        imageContainer(url: secondImgURL, widthFactor: 4)
+                    }
+                }
+            }
+            // Single
+            else if let imgURL = imgURL {
+                if let link = link {
+                    imageContainer(url: imgURL, widthFactor: 2) {
                         linkAction(link)
                     }
-                    imageContainer(url: secondImgURL, widthFactor: 4) {
-                        linkAction(secondLink)
-                    }
                 } else {
-                    imageContainer(url: imgURL, widthFactor: 4)
-                    imageContainer(url: secondImgURL, widthFactor: 4)
+                    imageContainer(url: imgURL, widthFactor: 2)
                 }
             }
         }
-        // Single
-        else if let imgURL = imgURL {
-            if let link = link {
-                imageContainer(url: imgURL, widthFactor: 2) {
-                    linkAction(link)
+        @ViewBuilder func imageContainer(
+            url: URL, widthFactor: Double, action: (() -> Void)? = nil
+        ) -> some View {
+            let image = KFImage(url)
+                .commentDefaultModifier().scaledToFit()
+                .frame(width: DeviceUtil.windowW / widthFactor)
+            if let action = action {
+                Button(action: action) {
+                    image
                 }
+                .buttonStyle(.plain)
             } else {
-                imageContainer(url: imgURL, widthFactor: 2)
-            }
-        }
-    }
-    @ViewBuilder func imageContainer(
-        url: URL, widthFactor: Double, action: (() -> Void)? = nil
-    ) -> some View {
-        let image = KFImage(url)
-            .commentDefaultModifier().scaledToFit()
-            .frame(width: DeviceUtil.windowW / widthFactor)
-        if let action = action {
-            Button(action: action) {
                 image
             }
-            .buttonStyle(.plain)
-        } else {
-            image
         }
     }
 }

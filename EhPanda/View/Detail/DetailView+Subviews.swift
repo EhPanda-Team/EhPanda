@@ -331,7 +331,7 @@ struct CommentsSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(min(comments.count, 6))) { comment in
-                        CommentCell(comment: comment, backgroundColor: backgroundColor)
+                        DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor)
                     }
                     .withHorizontalSpacing()
                 }
