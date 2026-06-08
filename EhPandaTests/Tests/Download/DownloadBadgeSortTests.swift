@@ -75,14 +75,14 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         )
 
         let sortedDownloads = [completedDownload, queuedRedownload].sorted { lhs, rhs in
-            if lhs.sortPriority != rhs.sortPriority {
-                return lhs.sortPriority < rhs.sortPriority
+            if lhs.displayStatus != rhs.displayStatus {
+                return lhs.displayStatus.rawValue < rhs.displayStatus.rawValue
             }
             return (lhs.lastDownloadedAt ?? .distantPast) > (rhs.lastDownloadedAt ?? .distantPast)
         }
 
-        #expect(queuedRedownload.sortPriority == 1)
-        #expect(completedDownload.sortPriority == 7)
+        #expect(queuedRedownload.displayStatus == .queued)
+        #expect(completedDownload.displayStatus == .completed)
         #expect(sortedDownloads.map(\.gid) == [queuedRedownload.gid, completedDownload.gid])
     }
 
