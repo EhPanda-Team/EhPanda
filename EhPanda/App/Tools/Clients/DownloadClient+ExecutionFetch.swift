@@ -148,7 +148,7 @@ extension DownloadManager {
     func normalizeFetchedPayload(
         _ payload: DownloadRequestPayload,
         mode: DownloadStartMode,
-        versionSignature: String,
+        versionSignature _: String,
         existingResumeState: DownloadResumeState?,
         rawPageSelection: [Int]?
     ) -> DownloadRequestPayload {
@@ -156,7 +156,6 @@ extension DownloadManager {
             rawPageSelection?.isEmpty == false
             && existingResumeState?.matches(
                 mode: mode,
-                versionSignature: versionSignature,
                 pageCount: payload.galleryDetail.pageCount,
                 downloadOptions: payload.options
             ) == true

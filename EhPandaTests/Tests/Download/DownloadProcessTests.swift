@@ -86,7 +86,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
-        let (updatedPageCount, updatedVersionSignature) = try await fetchAndInstallStub(
+        let updatedPageCount = try await fetchAndInstallStub(
             manager: manager, sessionID: sessionID, gid: gid,
             pageIndex: pageIndex, oldVersionSignature: oldVersionSignature
         )
@@ -113,7 +113,6 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             context: ProcessVerificationContext(
                 gid: gid,
                 updatedPageCount: updatedPageCount,
-                updatedVersionSignature: updatedVersionSignature,
                 staleFolderURL: staleFolderURL
             )
         )
@@ -162,7 +161,6 @@ private actor ProcessCompletionProbe {
 private struct ProcessVerificationContext {
     let gid: String
     let updatedPageCount: Int
-    let updatedVersionSignature: String
     let staleFolderURL: URL
 }
 
@@ -170,7 +168,7 @@ private extension DownloadProcessTests {
     func fetchAndInstallStub(
         manager: DownloadManager, sessionID: String, gid: String,
         pageIndex: Int, oldVersionSignature: String
-    ) async throws -> (Int, String) {
+    ) async throws -> Int {
         let stubContent = StubHandlerContent(
             detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
             mpvHTML: try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html"),
@@ -191,7 +189,6 @@ private extension DownloadProcessTests {
             for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
         )
         let latestPayload = fetchResult.payload
-        let updatedVersionSignature = fetchResult.versionSignature
         if let coverURL = latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL {
             allowedImageURLs.insert(coverURL.absoluteString)
             installDownloadStubHandler(
@@ -202,7 +199,7 @@ private extension DownloadProcessTests {
         let updatedPageCount = latestPayload.galleryDetail.pageCount
         #expect(updatedPageCount > pageIndex)
         #expect(updatedPageCount > 5)
-        return (updatedPageCount, updatedVersionSignature)
+        return updatedPageCount
     }
 
     func prepareStaleExistingFolder(
@@ -235,7 +232,6 @@ private extension DownloadProcessTests {
         try storage.writeResumeState(
             .init(
                 mode: .redownload,
-                versionSignature: oldVersionSignature,
                 pageCount: oldPageCount,
                 downloadOptions: .init(),
                 pageSelection: [pageIndex]
@@ -272,7 +268,6 @@ private extension DownloadProcessTests {
         )
 
         let resumeState = try storage.readResumeState(folderURL: completedFolderURL)
-        #expect(resumeState.versionSignature == context.updatedVersionSignature)
         #expect(resumeState.pageCount == context.updatedPageCount)
         #expect(resumeState.pageSelection == nil)
         #expect(FileManager.default.fileExists(atPath: context.staleFolderURL.path) == false)

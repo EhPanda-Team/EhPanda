@@ -19,7 +19,6 @@ struct DownloadFileStorageStateTests {
 
         let resumeState = DownloadResumeState(
             mode: .update,
-            versionSignature: "hash:v2",
             pageCount: 27,
             downloadOptions: .init(
                 threadLimit: 4,

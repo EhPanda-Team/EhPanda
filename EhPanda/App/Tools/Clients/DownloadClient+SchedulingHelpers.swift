@@ -100,11 +100,6 @@ extension DownloadManager {
             break
         }
 
-        if let resumeState,
-           !resumeState.versionSignature.isEmpty {
-            return resumeState.versionSignature
-        }
-
         if !download.remoteVersionSignature.isEmpty {
             return download.remoteVersionSignature
         }
@@ -115,7 +110,6 @@ extension DownloadManager {
     func preferredWorkingPageCount(
         for download: DownloadedGallery,
         mode: DownloadStartMode,
-        versionSignature: String,
         resumeState: DownloadResumeState?
     ) -> Int {
         guard mode == .update else {
@@ -136,8 +130,7 @@ extension DownloadManager {
             return manifest.pageCount
         }
 
-        if let resumeState,
-           resumeState.versionSignature == versionSignature {
+        if let resumeState {
             return resumeState.pageCount
         }
 
@@ -156,20 +149,13 @@ extension DownloadManager {
             return false
         }
 
-        let versionSignature = preferredVersionSignature(
-            for: download,
-            mode: mode,
-            resumeState: resumeState
-        )
         let pageCount = preferredWorkingPageCount(
             for: download,
             mode: mode,
-            versionSignature: versionSignature,
             resumeState: resumeState
         )
 
         guard resumeState.mode == mode,
-              resumeState.versionSignature == versionSignature,
               resumeState.downloadOptions ==
                 download.downloadOptionsSnapshot
         else {

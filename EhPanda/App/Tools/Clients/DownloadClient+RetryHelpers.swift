@@ -130,12 +130,8 @@ extension DownloadManager {
         let existingResumeState = try? storage.readResumeState(
             folderURL: temporaryFolderURL
         )
-        let versionSignature = preferredVersionSignature(
-            for: download, mode: mode, resumeState: existingResumeState
-        )
         let pageCount = preferredWorkingPageCount(
             for: download, mode: mode,
-            versionSignature: versionSignature,
             resumeState: existingResumeState
         )
         let resumedStatus: DownloadStatus =
@@ -149,7 +145,6 @@ extension DownloadManager {
         try storage.writeResumeState(
             .init(
                 mode: mode,
-                versionSignature: versionSignature,
                 pageCount: pageCount,
                 downloadOptions: download.downloadOptionsSnapshot,
                 pageSelection: selectedPageIndices
