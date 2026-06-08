@@ -50,8 +50,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             status: .completed,
             completedPageCount: 1,
             lastDownloadedAt: .now,
-            lastError: nil,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot()
+            lastError: nil
         )
 
         #expect(download.searchableText == ["Solo Title", Category.doujinshi.value].joined(separator: " "))

@@ -87,8 +87,7 @@ extension DownloadFeatureTestCase {
             status: status,
             completedPageCount: completedPageCount ?? (status == .completed ? pageCount : 0),
             lastDownloadedAt: lastDownloadedAt,
-            lastError: lastError,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot()
+            lastError: lastError
         )
     }
 
@@ -193,7 +192,10 @@ struct StubRouteContext: Sendable {
 extension DownloadFeatureTestCase {
     func makeStubbedDownloadManager(
         rootURL: URL,
-        sessionID: String
+        sessionID: String,
+        downloadOptionsProvider: @escaping @Sendable () async -> DownloadOptionsSnapshot = {
+            DownloadOptionsSnapshot()
+        }
     ) -> (DownloadFileStorage, DownloadManager) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -205,7 +207,8 @@ extension DownloadFeatureTestCase {
         )
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            downloadOptionsProvider: downloadOptionsProvider
         )
         return (storage, manager)
     }

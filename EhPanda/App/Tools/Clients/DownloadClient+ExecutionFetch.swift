@@ -14,11 +14,12 @@ extension DownloadManager {
     ) async throws -> DownloadRequestPayload {
         let galleryURL = download.gallery.galleryURL
         guard let galleryURL else { throw AppError.notFound }
+        let options = await downloadOptionsProvider()
         let detailResponse = try await GalleryDetailRequest(
             gid: download.gid,
             galleryURL: galleryURL,
             urlSession: urlSession,
-            allowsCellular: download.downloadOptionsSnapshot.allowCellular
+            allowsCellular: options.allowCellular
         )
         .response()
         .get()
@@ -43,6 +44,7 @@ extension DownloadManager {
             fetchedData: fetchedData,
             components: components,
             mode: mode,
+            options: options,
             pageSelection: pageSelection
         )
     }
@@ -57,6 +59,7 @@ extension DownloadManager {
         fetchedData: FetchedGalleryData,
         components: GalleryComponents,
         mode: DownloadStartMode,
+        options: DownloadOptionsSnapshot,
         pageSelection: [Int]?
     ) -> DownloadRequestPayload {
         let download = fetchedData.download
@@ -69,7 +72,7 @@ extension DownloadManager {
             previewConfig: components.previewConfig,
             host: download.host,
             versionMetadata: versionMetadata,
-            options: download.downloadOptionsSnapshot,
+            options: options,
             mode: mode,
             pageSelection: pageSelection.map(Set.init)
         )

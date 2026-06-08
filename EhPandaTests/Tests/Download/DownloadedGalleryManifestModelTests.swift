@@ -43,8 +43,7 @@ struct DownloadedGalleryManifestModelTests {
             manifest: manifest,
             folderRelativePath: "[123_token] Sample",
             modifiedAt: modifiedAt,
-            displayStatus: .queued,
-            downloadOptionsSnapshot: .init(threadLimit: 3)
+            displayStatus: .queued
         )
 
         #expect(download.gid == "123")
@@ -53,7 +52,6 @@ struct DownloadedGalleryManifestModelTests {
         #expect(download.onlineCoverURL == manifest.remoteCoverURL)
         #expect(download.completedPageCount == 2)
         #expect(download.lastDownloadedAt == modifiedAt)
-        #expect(download.downloadOptionsSnapshot.threadLimit == 3)
     }
 }
 
