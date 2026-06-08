@@ -138,7 +138,6 @@ private extension DetailReducerMetadataTests {
                     updateCheckCount.value += 1
                     return .none
                 },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },
@@ -177,7 +176,6 @@ private extension DetailReducerMetadataTests {
                     updateCheckCount.value += 1
                     return .downloaded
                 },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },
