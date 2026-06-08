@@ -10,8 +10,6 @@ import ComposableArchitecture
 struct DownloadsReducer {
     @CasePathable
     enum Route: Equatable {
-        case quickSearch(EquatableVoid = .init())
-        case filters(EquatableVoid = .init())
         case inspector(String)
         case detail(String)
         case reading(String)
@@ -26,7 +24,6 @@ struct DownloadsReducer {
         var route: Route?
         var keyword = ""
         var filter: DownloadListFilter = .all
-        var galleryFilter = DownloadGalleryFilter()
         var downloads = [DownloadedGallery]()
         var loadingState: LoadingState = .loading
         var hasLoadedInitialDownloads = false
@@ -34,7 +31,6 @@ struct DownloadsReducer {
         var detailState: Heap<DetailReducer.State?>
         var readingState = ReadingReducer.State()
         var inspectorState = DownloadInspectorReducer.State()
-        var quickSearchState = QuickSearchReducer.State()
         var readingRequestID = UUID()
 
         init() {
@@ -44,7 +40,6 @@ struct DownloadsReducer {
         var filteredDownloads: [DownloadedGallery] {
             downloads.filter {
                 $0.matches(filter: filter)
-                    && $0.matches(queryFilter: galleryFilter)
                     && (
                         keyword.isEmpty
                             || $0.searchableText.caseInsensitiveContains(keyword)
@@ -79,7 +74,6 @@ struct DownloadsReducer {
         case detail(DetailReducer.Action)
         case reading(ReadingReducer.Action)
         case inspector(DownloadInspectorReducer.Action)
-        case quickSearch(QuickSearchReducer.Action)
     }
 
     @Dependency(\.downloadClient) private var downloadClient
@@ -88,10 +82,6 @@ struct DownloadsReducer {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none
-            }
-            .onChange(of: \.galleryFilter) { _, state in
-                state.galleryFilter.fixInvalidData()
-                return .none
             }
 
         Reduce { state, action in
@@ -113,12 +103,10 @@ struct DownloadsReducer {
                 state.detailState.wrappedValue = .init()
                 state.readingState = .init()
                 state.inspectorState = .init()
-                state.quickSearchState = .init()
                 return .merge(
                     .send(.detail(.teardown)),
                     .send(.reading(.teardown)),
-                    .send(.inspector(.teardown)),
-                    .send(.quickSearch(.teardown))
+                    .send(.inspector(.teardown))
                 )
 
             case .onAppear:
@@ -235,9 +223,6 @@ struct DownloadsReducer {
 
             case .inspector:
                 return .none
-
-            case .quickSearch:
-                return .none
             }
         }
 
@@ -250,7 +235,6 @@ struct DownloadsReducer {
         Scope(state: \.inspectorState, action: \.inspector) {
             DownloadInspectorReducer()
         }
-        Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
     }
 }
 

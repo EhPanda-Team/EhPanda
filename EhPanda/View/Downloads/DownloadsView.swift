@@ -88,16 +88,6 @@ struct DownloadsView: View {
             placement: .navigationBarDrawer(displayMode: .automatic),
             prompt: L10n.Localizable.DownloadsView.Search.Prompt.downloads
         )
-        .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
-            QuickSearchView(
-                store: store.scope(state: \.quickSearchState, action: \.quickSearch)
-            ) { keyword in
-                store.keyword = keyword
-                store.send(.setNavigation(nil))
-            }
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
-        }
         .sheet(item: $store.route.sending(\.setNavigation).inspector, id: \.self) { _ in
             NavigationView {
                 DownloadInspectorView(
@@ -109,16 +99,6 @@ struct DownloadsView: View {
             }
             .autoBlur(radius: blurRadius)
             .navigationViewStyle(.stack)
-        }
-        .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
-            DownloadFiltersView(
-                filter: $store.galleryFilter,
-                resetAction: {
-                    store.galleryFilter.reset()
-                }
-            )
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
         }
         .fullScreenCover(item: $store.route.sending(\.setNavigation).reading, id: \.self) { route in
             ReadingView(
@@ -327,7 +307,6 @@ private extension DownloadsView {
                 AlertViewButton(title: L10n.Localizable.DownloadsView.Button.clearFilters) {
                     store.keyword = ""
                     store.filter = .all
-                    store.galleryFilter.reset()
                 }
             }
         }
