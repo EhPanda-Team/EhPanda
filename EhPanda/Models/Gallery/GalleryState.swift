@@ -40,8 +40,8 @@ extension GalleryState: CustomStringConvertible {
     }
 }
 
-struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
-    struct Content: Codable, Equatable, Hashable, Identifiable {
+struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
+    struct Content: Codable, Equatable, Hashable, Identifiable, Sendable {
         var id: String { rawNamespace + text }
         var firstLetterCapitalizedText: String {
             text.firstLetterCapitalized
@@ -73,7 +73,7 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
     let contents: [Content]
 }
 
-enum PreviewConfig: Codable, Equatable {
+enum PreviewConfig: Codable, Equatable, Sendable {
     case normal(rows: Int)
     case large(rows: Int)
 }

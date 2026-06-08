@@ -68,7 +68,7 @@ extension Setting {
     }
 }
 
-enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable {
+enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable, Sendable {
     case ehentai = "E-Hentai"
     case exhentai = "ExHentai"
 

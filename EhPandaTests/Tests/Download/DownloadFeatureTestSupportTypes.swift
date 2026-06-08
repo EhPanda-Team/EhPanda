@@ -9,11 +9,16 @@ import Synchronization
 
 // MARK: - Supporting Types
 
-final class UncheckedBox<Value>: @unchecked Sendable {
-    var value: Value
+final class UncheckedBox<Value: Sendable>: Sendable {
+    private let storage: Mutex<Value>
 
     init(_ value: Value) {
-        self.value = value
+        storage = Mutex(value)
+    }
+
+    var value: Value {
+        get { storage.withLock { $0 } }
+        set { storage.withLock { $0 = newValue } }
     }
 }
 
@@ -26,50 +31,39 @@ struct RequestRecorderSnapshot: Equatable {
     var previewPageNumbers = [Int]()
 }
 
-final class RequestRecorder: @unchecked Sendable {
-    private let lock = NSLock()
-    private var state = RequestRecorderSnapshot()
+final class RequestRecorder: Sendable {
+    private let state = Mutex(RequestRecorderSnapshot())
 
     func recordDetail() {
-        mutate { $0.detailRequests += 1 }
+        state.withLock { $0.detailRequests += 1 }
     }
 
     func recordMetadata() {
-        mutate { $0.metadataRequests += 1 }
+        state.withLock { $0.metadataRequests += 1 }
     }
 
     func recordPreview(_ pageNumber: Int) {
-        mutate { $0.previewPageNumbers.append(pageNumber) }
+        state.withLock { $0.previewPageNumbers.append(pageNumber) }
     }
 
     func recordMPV() {
-        mutate { $0.mpvRequests += 1 }
+        state.withLock { $0.mpvRequests += 1 }
     }
 
     func recordImageDispatch() {
-        mutate { $0.imageDispatchRequests += 1 }
+        state.withLock { $0.imageDispatchRequests += 1 }
     }
 
     func recordImageDownload() {
-        mutate { $0.imageDownloads += 1 }
+        state.withLock { $0.imageDownloads += 1 }
     }
 
     func reset() {
-        mutate { $0 = .init() }
+        state.withLock { $0 = .init() }
     }
 
     func snapshot() -> RequestRecorderSnapshot {
-        lock.lock()
-        defer { lock.unlock() }
-        return state
-    }
-
-    private func mutate(
-        _ update: (inout RequestRecorderSnapshot) -> Void
-    ) {
-        lock.lock()
-        defer { lock.unlock() }
-        update(&state)
+        state.withLock { $0 }
     }
 }
 

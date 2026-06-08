@@ -84,7 +84,7 @@ enum DownloadListFilter: String, CaseIterable, Identifiable {
 }
 
 // MARK: - DownloadRequestPayload
-struct DownloadRequestPayload: Equatable, @unchecked Sendable {
+struct DownloadRequestPayload: Equatable, Sendable {
     let gallery: Gallery
     let galleryDetail: GalleryDetail
     let previewURLs: [Int: URL]

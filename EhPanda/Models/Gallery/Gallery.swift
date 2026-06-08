@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-struct Gallery: Identifiable, Codable, Equatable, Hashable {
+struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     static func == (lhs: Gallery, rhs: Gallery) -> Bool {
         lhs.gid == rhs.gid
     }

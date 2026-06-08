@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct GalleryDetail: Codable, Equatable {
+struct GalleryDetail: Codable, Equatable, Sendable {
     static let empty: Self = .init(
         gid: "", title: "", isFavorited: false,
         visibility: .yes, rating: 0, userRating: 0,
@@ -78,7 +78,7 @@ extension GalleryDetail: DateFormattable {
     }
 }
 
-enum GalleryVisibility: Codable, Equatable {
+enum GalleryVisibility: Codable, Equatable, Sendable {
     case yes
     // swiftlint:disable:next identifier_name
     case no(reason: String)
