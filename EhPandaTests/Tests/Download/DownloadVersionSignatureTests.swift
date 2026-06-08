@@ -95,7 +95,6 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 uploader: "Uploader",
                 tags: [],
                 postedDate: .now,
-                coverRelativePath: nil,
                 rating: 4,
                 downloadOptions: DownloadOptionsSnapshot(),
                 pages: [
