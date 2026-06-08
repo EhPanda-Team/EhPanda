@@ -217,7 +217,6 @@ extension DownloadManager {
             tags: payload.gallery.tags,
             postedDate: payload.galleryDetail.postedDate,
             rating: payload.galleryDetail.rating,
-            downloadOptions: payload.options,
             pages: batchResult.pages
                 .sorted(by: { $0.index < $1.index })
                 .map {

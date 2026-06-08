@@ -30,6 +30,7 @@ struct DownloadedGalleryManifestModelTests {
         #expect(object["galleryURL"] == nil)
         #expect(object["coverFileHash"] == nil)
         #expect(object["coverRelativePath"] == nil)
+        #expect(object["downloadOptions"] == nil)
         #expect(object["downloadedAt"] == nil)
     }
 
@@ -42,7 +43,8 @@ struct DownloadedGalleryManifestModelTests {
             manifest: manifest,
             folderRelativePath: "[123_token] Sample",
             modifiedAt: modifiedAt,
-            displayStatus: .queued
+            displayStatus: .queued,
+            downloadOptionsSnapshot: .init(threadLimit: 3)
         )
 
         #expect(download.gid == "123")
@@ -68,7 +70,6 @@ private extension DownloadedGalleryManifestModelTests {
             tags: [],
             postedDate: Date(timeIntervalSince1970: 1_000),
             rating: 4,
-            downloadOptions: .init(threadLimit: 3),
             pages: pageHashes.sorted(by: { $0.key < $1.key }).map { index, hash in
                 .init(
                     index: index,

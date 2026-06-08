@@ -204,8 +204,7 @@ extension DownloadManager {
         let manifest = validatedManifest(
             at: folderURL,
             gid: payload.gallery.gid,
-            pageCount: payload.galleryDetail.pageCount,
-            downloadOptions: payload.options
+            pageCount: payload.galleryDetail.pageCount
         )
         let existingPages = storage.existingPageRelativePaths(
             folderURL: folderURL,
@@ -245,7 +244,6 @@ extension DownloadManager {
             return manifest.gid == payload.gallery.gid
                 && manifest.token == payload.gallery.token
                 && manifest.pageCount == payload.galleryDetail.pageCount
-                && manifest.downloadOptions == payload.options
         case .repair:
             return true
         case .redownload, .update:
@@ -306,8 +304,7 @@ extension DownloadManager {
               let manifest = validatedManifest(
                 at: temporaryFolderURL,
                 gid: payload.gallery.gid,
-                pageCount: payload.galleryDetail.pageCount,
-                downloadOptions: payload.options
+                pageCount: payload.galleryDetail.pageCount
               ),
               manifest.token == payload.gallery.token
         else {

@@ -13,7 +13,7 @@ extension DownloadManager {
         do {
             let records = try storage.scanDownloadFolders()
             downloadIndex = deduplicatedDownloadIndex(from: records)
-            return downloads(from: records)
+            return await downloads(from: records)
         } catch {
             Logger.error(error)
             downloadIndex = [:]
@@ -21,20 +21,30 @@ extension DownloadManager {
         }
     }
 
-    func indexedDownload(gid: String) -> DownloadedGallery? {
+    func indexedDownload(gid: String) async -> DownloadedGallery? {
         guard let record = downloadIndex[gid] else { return nil }
-        return downloadedGallery(from: record)
+        let downloadOptionsSnapshot = await downloadOptionsProvider()
+        return downloadedGallery(
+            from: record,
+            downloadOptionsSnapshot: downloadOptionsSnapshot
+        )
     }
 
-    func indexedDownloads() -> [DownloadedGallery] {
-        downloads(from: Array(downloadIndex.values))
+    func indexedDownloads() async -> [DownloadedGallery] {
+        await downloads(from: Array(downloadIndex.values))
     }
 
     private func downloads(
         from records: [DownloadFolderRecord]
-    ) -> [DownloadedGallery] {
-        deduplicatedDownloadIndex(from: records).values
-            .map { downloadedGallery(from: $0) }
+    ) async -> [DownloadedGallery] {
+        let downloadOptionsSnapshot = await downloadOptionsProvider()
+        return deduplicatedDownloadIndex(from: records).values
+            .map {
+                downloadedGallery(
+                    from: $0,
+                    downloadOptionsSnapshot: downloadOptionsSnapshot
+                )
+            }
             .sorted(by: sortDownloadsByDisplayStatus)
     }
 
@@ -54,7 +64,8 @@ extension DownloadManager {
     }
 
     private func downloadedGallery(
-        from record: DownloadFolderRecord
+        from record: DownloadFolderRecord,
+        downloadOptionsSnapshot: DownloadOptionsSnapshot
     ) -> DownloadedGallery {
         let gid = record.manifest.gid
         return DownloadedGallery(
@@ -62,6 +73,7 @@ extension DownloadManager {
             folderRelativePath: record.relativePath,
             modifiedAt: record.modifiedAt,
             displayStatus: displayStatus(for: record),
+            downloadOptionsSnapshot: downloadOptionsSnapshot,
             lastError: validationErrors[gid] ?? downloadErrors[gid]
         )
     }
@@ -116,7 +128,7 @@ extension DownloadManager {
         gid: String
     ) async -> DownloadedGallery? {
         _ = await reloadDownloadIndex()
-        if let indexedDownload = indexedDownload(gid: gid) {
+        if let indexedDownload = await indexedDownload(gid: gid) {
             return indexedDownload
         }
         return await fetchDownloadFromCoreData(gid: gid)

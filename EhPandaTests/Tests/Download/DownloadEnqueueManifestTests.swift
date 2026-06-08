@@ -60,7 +60,16 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         #expect(manifest.pageCount == detail.pageCount)
         #expect(manifest.pages.count == detail.pageCount)
         #expect(manifest.pages.first?.relativePath == "\(gallery.gid)_\(gallery.token)_1.pending")
-        #expect(manifest.downloadOptions.threadLimit == 3)
+
+        let manifestData = try Data(
+            contentsOf: storage
+                .folderURL(relativePath: folderRelativePath)
+                .appendingPathComponent(Defaults.FilePath.downloadManifest)
+        )
+        let manifestObject = try #require(
+            JSONSerialization.jsonObject(with: manifestData) as? [String: Any]
+        )
+        #expect(manifestObject["downloadOptions"] == nil)
 
         let request = NSFetchRequest<DownloadedGalleryMO>(
             entityName: "DownloadedGalleryMO"
