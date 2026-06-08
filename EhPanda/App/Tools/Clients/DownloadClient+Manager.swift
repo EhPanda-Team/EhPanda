@@ -36,7 +36,7 @@ actor DownloadManager {
 
     struct DownloadBatchResult: Sendable {
         let pages: [PageResult]
-        let failedPages: [DownloadFailedPagesSnapshot.Page]
+        let failedPages: [PageFailure]
     }
 
     enum PageTaskOutcome: Sendable {
@@ -67,7 +67,7 @@ actor DownloadManager {
     }
 
     struct PartialDownloadError: Error, Sendable {
-        let failedPages: [DownloadFailedPagesSnapshot.Page]
+        let failedPages: [PageFailure]
     }
 
     struct FailureContext: Sendable {
@@ -134,6 +134,7 @@ actor DownloadManager {
     var downloadIndex = [String: DownloadFolderRecord]()
     var downloadErrors = [String: DownloadFailure]()
     var validationErrors = [String: DownloadFailure]()
+    var failedPageErrors = [String: [Int: PageFailure]]()
     var updatedGalleryIDs = Set<String>()
     var queuedModes = [String: DownloadStartMode]()
     var queuedPageSelections = [String: [Int]]()

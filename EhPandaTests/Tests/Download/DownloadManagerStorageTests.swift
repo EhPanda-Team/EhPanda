@@ -455,19 +455,15 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:done", ""]
             )
         )
-        let folderURL = storage.folderURL(relativePath: folderRelativePath)
-        try storage.writeFailedPages(
-            .init(pages: [
+        await manager.testingSetFailedPageErrors(
+            [
                 .init(
                     index: 2,
                     relativePath: "460_token_2.jpg",
-                    failure: .init(
-                        code: .networkingFailed,
-                        message: "Network Error"
-                    )
+                    error: .networkingFailed
                 )
-            ]),
-            folderURL: folderURL
+            ],
+            gid: "460"
         )
         let blockingTask = Task<Void, Never> {
             do {
@@ -487,9 +483,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(queueStore.gids == ["460"])
         #expect(download.displayStatus == .queued)
         #expect(download.status == .queued)
-        #expect(FileManager.default.fileExists(
-            atPath: storage.failedPagesURL(folderURL: folderURL).path
-        ) == false)
     }
 
     @Test
@@ -796,17 +789,15 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             to: folderURL.appendingPathComponent("pages/0001.jpg"),
             options: .atomic
         )
-        try storage.writeFailedPages(
-            .init(
-                pages: [
-                    .init(
-                        index: 2,
-                        relativePath: "pages/0002.jpg",
-                        failure: .init(code: .networkingFailed, message: "Network Error")
-                    )
-                ]
-            ),
-            folderURL: folderURL
+        await manager.testingSetFailedPageErrors(
+            [
+                .init(
+                    index: 2,
+                    relativePath: "pages/0002.jpg",
+                    error: .networkingFailed
+                )
+            ],
+            gid: gid
         )
 
         let result = await manager.loadInspection(gid: gid)

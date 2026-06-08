@@ -143,11 +143,14 @@ extension DownloadManager {
         context: FailureContext
     ) async {
         let pageError =
-            error.failedPages.first?.failure.appError ?? .unknown
+            error.failedPages.first?.error ?? .unknown
         guard !isCancellationLikeAppError(pageError) else { return }
         guard !shouldSuppressFailurePersistence(for: context.gid) else {
             return
         }
+        failedPageErrors[context.gid] = Dictionary(
+            uniqueKeysWithValues: error.failedPages.map { ($0.index, $0) }
+        )
         Logger.error(
             "Download partially failed.",
             context: [
@@ -182,6 +185,7 @@ extension DownloadManager {
     func settleCompletedDownload(gid: String) async {
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
+        failedPageErrors[gid] = nil
         updatedGalleryIDs.remove(gid)
         queuedModes[gid] = nil
         queuedPageSelections[gid] = nil

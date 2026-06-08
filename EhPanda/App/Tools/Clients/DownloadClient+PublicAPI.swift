@@ -282,8 +282,8 @@ extension DownloadManager {
                 expectedPageCount: download.pageCount
             )
         } ?? [:]
-        let failedPages = activeFolderURL
-            .map(sanitizedFailedPages(folderURL:)) ?? [:]
+        let failedPages = (failedPageErrors[gid] ?? [:])
+            .filter { !isCancellationLikeAppError($0.value.error) }
 
         let pages = buildInspectionPages(
             download: download,

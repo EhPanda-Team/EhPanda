@@ -65,26 +65,6 @@ struct DownloadFileStorage: Sendable {
         rootURL.appendingPathComponent(".queue.json")
     }
 
-    func failedPagesURL(folderURL: URL) -> URL {
-        folderURL.appendingPathComponent(Defaults.FilePath.downloadFailedPages)
-    }
-
-    func writeFailedPages(_ snapshot: DownloadFailedPagesSnapshot, folderURL: URL) throws {
-        try writeJSON(snapshot, to: failedPagesURL(folderURL: folderURL))
-    }
-
-    func readFailedPages(folderURL: URL) throws -> DownloadFailedPagesSnapshot {
-        try readJSON(DownloadFailedPagesSnapshot.self, from: failedPagesURL(folderURL: folderURL))
-    }
-
-    func removeFailedPages(folderURL: URL) throws {
-        let url = failedPagesURL(folderURL: folderURL)
-        try fileManager.operate {
-            guard $0.fileExists(atPath: url.path) else { return }
-            try $0.removeItem(at: url)
-        }
-    }
-
     func existingPageRelativePaths(
         folderURL: URL,
         expectedPageCount: Int

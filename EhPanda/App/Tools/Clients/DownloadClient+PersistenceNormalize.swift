@@ -33,35 +33,6 @@ extension DownloadManager {
         return completedFolderExists ? completedFolderURL : nil
     }
 
-    func sanitizedFailedPages(
-        folderURL: URL
-    ) -> [Int: DownloadFailedPagesSnapshot.Page] {
-        guard var snapshot = try? storage
-                .readFailedPages(folderURL: folderURL) else {
-            return [:]
-        }
-        let filteredPages = snapshot.pages.filter {
-            !isCancellationLikeAppError($0.failure.appError)
-        }
-        guard filteredPages.count != snapshot.pages.count
-        else {
-            return snapshot.map
-        }
-
-        snapshot.pages = filteredPages
-        if filteredPages.isEmpty {
-            try? storage.removeFailedPages(
-                folderURL: folderURL
-            )
-        } else {
-            try? storage.writeFailedPages(
-                snapshot,
-                folderURL: folderURL
-            )
-        }
-        return snapshot.map
-    }
-
     func normalizeNeedsAttentionDownloads(
         _ downloads: [DownloadedGallery]
     ) async {

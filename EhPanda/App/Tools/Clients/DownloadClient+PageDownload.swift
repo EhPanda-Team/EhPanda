@@ -9,7 +9,7 @@ import Foundation
 extension DownloadManager {
     private struct PageDownloadProgress {
         var results: [PageResult] = []
-        var failedPages: [Int: DownloadFailedPagesSnapshot.Page?] = [:]
+        var failedPages: [Int: PageFailure?] = [:]
         var completedCount: Int = 0
         var pendingResolvedPages: [PageResult] = []
         var lastFlushDate: Date = Date()
@@ -26,10 +26,8 @@ extension DownloadManager {
             existingPageRelativePaths: existingPageRelativePaths
         )
         var progress = PageDownloadProgress()
-        progress.failedPages = (try? storage
-            .readFailedPages(
-                folderURL: context.folderURL
-            ).map) ?? [:]
+        progress.failedPages = failedPageErrors[context.payload.gallery.gid]?
+            .mapValues(Optional.some) ?? [:]
 
         try await initializePageDownloadState(
             context: context,
@@ -67,8 +65,7 @@ extension DownloadManager {
         )
         return try buildBatchResult(
             results: progress.results,
-            failedPages: progress.failedPages,
-            folderURL: context.folderURL
+            failedPages: progress.failedPages
         )
     }
 
@@ -98,30 +95,17 @@ extension DownloadManager {
 
     private func buildBatchResult(
         results: [PageResult],
-        failedPages: [Int: DownloadFailedPagesSnapshot.Page?],
-        folderURL: URL
+        failedPages: [Int: PageFailure?]
     ) throws -> DownloadBatchResult {
-        let failedSnapshot = DownloadFailedPagesSnapshot(
-            pages: failedPages.values
-                .compactMap { $0 }
-                .filter {
-                    !isCancellationLikeAppError($0.failure.appError)
-                }
-                .sorted(by: { $0.index < $1.index })
-        )
-        if failedSnapshot.pages.isEmpty {
-            try? storage.removeFailedPages(
-                folderURL: folderURL
-            )
-        } else {
-            try storage.writeFailedPages(
-                failedSnapshot,
-                folderURL: folderURL
-            )
-        }
+        let activeFailedPages = failedPages.values
+            .compactMap { $0 }
+            .filter {
+                !isCancellationLikeAppError($0.error)
+            }
+            .sorted(by: { $0.index < $1.index })
         return .init(
             pages: results,
-            failedPages: failedSnapshot.pages
+            failedPages: activeFailedPages
         )
     }
 
@@ -143,7 +127,7 @@ extension DownloadManager {
         existingPages: [Int: String],
         context: PageDownloadContext,
         results: inout [PageResult],
-        failedPages: inout [Int: DownloadFailedPagesSnapshot.Page?]
+        failedPages: inout [Int: PageFailure?]
     ) {
         for index in pageIndices {
             guard let relativePath = existingPages[index] else {
@@ -258,11 +242,7 @@ extension DownloadManager {
                 group.cancelAll()
                 return
             }
-            progress.failedPages[failure.index] = .init(
-                index: failure.index,
-                relativePath: failure.relativePath,
-                failure: .init(error: failure.error)
-            )
+            progress.failedPages[failure.index] = failure
 
         case .cancelled:
             wasCancelled = true

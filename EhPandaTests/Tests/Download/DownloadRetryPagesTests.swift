@@ -18,13 +18,22 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        let folderURL = try writeManifestFolder(
+        try writeManifestFolder(
             storage: storage,
             gid: gid,
             title: "Retry Pages",
             pageHashes: ["sha256:done", ""]
         )
-        try setupRetryPagesFailedPage(storage: storage, folderURL: folderURL)
+        await manager.testingSetFailedPageErrors(
+            [
+                .init(
+                    index: 2,
+                    relativePath: "pages/0002.jpg",
+                    error: .networkingFailed
+                )
+            ],
+            gid: gid
+        )
 
         let blockingTask = Task<Void, Never> { _ = try? await Task.sleep(for: .seconds(60)) }
         defer { blockingTask.cancel() }
@@ -41,9 +50,6 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         #expect(stored?.badge == .queued)
         #expect(stored?.lastError == nil)
 
-        #expect(FileManager.default.fileExists(
-            atPath: storage.failedPagesURL(folderURL: folderURL).path
-        ) == false)
     }
 
     @Test
@@ -121,19 +127,4 @@ private extension DownloadRetryPagesTests {
         return folderURL
     }
 
-    func setupRetryPagesFailedPage(
-        storage: DownloadFileStorage,
-        folderURL: URL
-    ) throws {
-        try storage.writeFailedPages(
-            .init(pages: [
-                .init(
-                    index: 2,
-                    relativePath: "pages/0002.jpg",
-                    failure: .init(code: .networkingFailed, message: "Network Error")
-                )
-            ]),
-            folderURL: folderURL
-        )
-    }
 }

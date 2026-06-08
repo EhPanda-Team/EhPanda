@@ -35,6 +35,7 @@ extension DownloadManager {
         )
         queuedModes[gid] = resolvedMode
         queuedPageSelections[gid] = nil
+        failedPageErrors[gid] = nil
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
         await queueStore.enqueue(gid)
@@ -83,10 +84,7 @@ extension DownloadManager {
         selectedPageIndices: [Int],
         folderURL: URL
     ) async throws {
-        clearSelectedFailedPages(
-            selectedPageIndices: selectedPageIndices,
-            folderURL: folderURL
-        )
+        clearSelectedFailedPages(gid: gid, selectedPageIndices: selectedPageIndices)
         queuedModes[gid] = mode
         queuedPageSelections[gid] = selectedPageIndices
         downloadErrors[gid] = nil

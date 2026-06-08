@@ -11,7 +11,7 @@ extension DownloadManager {
         download: DownloadedGallery,
         activeFolderURL: URL?,
         existingRelativePaths: [Int: String],
-        failedPages: [Int: DownloadFailedPagesSnapshot.Page]
+        failedPages: [Int: PageFailure]
     ) -> [DownloadPageInspection] {
         (1...download.pageCount).map { index -> DownloadPageInspection in
             if let relativePath = existingRelativePaths[index],
@@ -30,13 +30,13 @@ extension DownloadManager {
             }
 
             if let failedPage = failedPages[index] {
-                return .init(
-                    index: index,
-                    status: .failed,
-                    relativePath: failedPage.relativePath,
-                    fileURL: nil,
-                    failure: failedPage.failure
-                )
+                    return .init(
+                        index: index,
+                        status: .failed,
+                        relativePath: failedPage.relativePath,
+                        fileURL: nil,
+                        failure: .init(error: failedPage.error)
+                    )
             }
 
             return .init(
@@ -87,25 +87,14 @@ extension DownloadManager {
     }
 
     func clearSelectedFailedPages(
+        gid: String,
         selectedPageIndices: [Int],
-        folderURL: URL
     ) {
-        if let failedSnapshot = try? storage.readFailedPages(
-            folderURL: folderURL
-        ) {
-            let remainingPages = failedSnapshot.pages.filter {
-                !selectedPageIndices.contains($0.index)
-            }
-            if remainingPages.isEmpty {
-                try? storage.removeFailedPages(
-                    folderURL: folderURL
-                )
-            } else {
-                try? storage.writeFailedPages(
-                    .init(pages: remainingPages),
-                    folderURL: folderURL
-                )
-            }
+        for index in selectedPageIndices {
+            failedPageErrors[gid]?[index] = nil
+        }
+        if failedPageErrors[gid]?.isEmpty == true {
+            failedPageErrors[gid] = nil
         }
     }
 }
