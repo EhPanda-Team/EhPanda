@@ -84,29 +84,6 @@ extension DownloadManager {
         return .update
     }
 
-    func preferredVersionSignature(
-        for download: DownloadedGallery,
-        mode: DownloadStartMode,
-        resumeState: DownloadResumeState?
-    ) -> String {
-        switch mode {
-        case .update:
-            if let latestSignature =
-                download.latestRemoteVersionSignature,
-               !latestSignature.isEmpty {
-                return latestSignature
-            }
-        case .initial, .redownload, .repair:
-            break
-        }
-
-        if !download.remoteVersionSignature.isEmpty {
-            return download.remoteVersionSignature
-        }
-
-        return download.latestRemoteVersionSignature ?? ""
-    }
-
     func preferredWorkingPageCount(
         for download: DownloadedGallery,
         mode: DownloadStartMode,
