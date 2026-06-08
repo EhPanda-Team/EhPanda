@@ -21,9 +21,6 @@ struct DownloadFileStorageTests {
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-
-        let manifest = try sampleManifest(pageCount: 2)
-        try storage.writeManifest(manifest, folderURL: folderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
             to: folderURL.appendingPathComponent("cover.jpg"),
             options: .atomic
@@ -36,6 +33,11 @@ struct DownloadFileStorageTests {
             to: folderURL.appendingPathComponent("pages/0002.jpg"),
             options: .atomic
         )
+        let manifest = try storage.addingCurrentFileHashes(
+            to: sampleManifest(pageCount: 2),
+            folderURL: folderURL
+        )
+        try storage.writeManifest(manifest, folderURL: folderURL)
 
         let loadedManifest = try storage.readManifest(folderURL: folderURL)
 
@@ -67,14 +69,18 @@ struct DownloadFileStorageTests {
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        try storage.writeManifest(sampleManifest(pageCount: 2), folderURL: folderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
             to: folderURL.appendingPathComponent("cover.jpg"),
             options: .atomic
         )
-        try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
-            options: .atomic
+        let page1URL = folderURL.appendingPathComponent("pages/0001.jpg")
+        try Data([0x01]).write(to: page1URL, options: .atomic)
+        try storage.writeManifest(
+            sampleManifest(pageHashes: [
+                1: try storage.fileHash(at: page1URL),
+                2: "sha256:missing"
+            ]),
+            folderURL: folderURL
         )
 
         #expect(
@@ -95,7 +101,6 @@ struct DownloadFileStorageTests {
             at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
-        try storage.writeManifest(sampleManifest(pageCount: 2), folderURL: folderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
             to: folderURL.appendingPathComponent("cover.jpg"),
             options: .atomic
@@ -107,6 +112,14 @@ struct DownloadFileStorageTests {
         try Data([0x02]).write(
             to: folderURL.appendingPathComponent("pages/0002.jpg"),
             options: .atomic
+        )
+        let page2URL = folderURL.appendingPathComponent("pages/0002.jpg")
+        try storage.writeManifest(
+            sampleManifest(pageHashes: [
+                1: "sha256:missing",
+                2: try storage.fileHash(at: page2URL)
+            ]),
+            folderURL: folderURL
         )
 
         #expect(
@@ -401,6 +414,14 @@ private extension DownloadFileStorageTests {
     }
 
     func sampleManifest(pageCount: Int) throws -> DownloadManifest {
+        try sampleManifest(
+            pageHashes: pageCount > 0
+                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                : [:]
+        )
+    }
+
+    func sampleManifest(pageHashes: [Int: String]) throws -> DownloadManifest {
         DownloadManifest(
             gid: "123",
             host: .ehentai,
@@ -413,9 +434,7 @@ private extension DownloadFileStorageTests {
             tags: [],
             postedDate: .now,
             rating: 4,
-            pages: (1...pageCount).map {
-                .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
-            }
+            pages: pageHashes
         )
     }
 }

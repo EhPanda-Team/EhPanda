@@ -82,13 +82,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 tags: [],
                 postedDate: .now,
                 rating: 4,
-                pages: [
-                    .init(
-                        index: 1,
-                        relativePath: "\(gid)_token_1.jpg",
-                        fileHash: "sha256:done"
-                    )
-                ]
+                pages: [1: "sha256:done"]
             ),
             folderURL: folderURL
         )

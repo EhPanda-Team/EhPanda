@@ -129,16 +129,13 @@ extension DownloadManager {
         existingManifest: DownloadManifest?,
         existingPageRelativePaths: [Int: String]
     ) -> [Int: String] {
-        let manifestPages = Dictionary(
-            uniqueKeysWithValues:
-                (existingManifest?.pages ?? [])
-                .filter { !$0.relativePath.hasSuffix(".pending") }
-                .map { ($0.index, $0.relativePath) }
-        )
-        return manifestPages.merging(
-            existingPageRelativePaths,
-            uniquingKeysWith: { manifestPath, _ in manifestPath }
-        )
+        guard let existingManifest else {
+            return existingPageRelativePaths
+        }
+        let manifestPageIndices = Set(existingManifest.pages.keys)
+        return existingPageRelativePaths.filter {
+            manifestPageIndices.contains($0.key)
+        }
     }
 
     private func collectExistingPages(

@@ -6,24 +6,6 @@
 import Foundation
 
 struct DownloadManifest: Codable, Equatable, Sendable {
-    struct Page: Codable, Equatable, Identifiable, Sendable {
-        var id: Int { index }
-
-        let index: Int
-        let relativePath: String
-        let fileHash: String?
-
-        init(
-            index: Int,
-            relativePath: String,
-            fileHash: String? = nil
-        ) {
-            self.index = index
-            self.relativePath = relativePath
-            self.fileHash = fileHash
-        }
-    }
-
     let gid: String
     let host: GalleryHost
     let token: String
@@ -35,12 +17,17 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let tags: [GalleryTag]
     let postedDate: Date
     let rating: Float
-    let pages: [Page]
+    let pages: [Int: String]
 
     func imageURLs(folderURL: URL) -> [Int: URL] {
-        Dictionary(uniqueKeysWithValues: pages.map {
-            ($0.index, folderURL.appendingPathComponent($0.relativePath))
-        })
+        DownloadFileStorage(rootURL: folderURL.deletingLastPathComponent())
+            .existingPageRelativePaths(
+                folderURL: folderURL,
+                expectedPageCount: pageCount
+            )
+            .reduce(into: [Int: URL]()) { result, entry in
+                result[entry.key] = folderURL.appendingPathComponent(entry.value)
+            }
     }
 }
 
@@ -57,7 +44,7 @@ extension DownloadManifest {
     }
 
     var completedPageCount: Int {
-        pages.filter { $0.fileHash?.isEmpty == false }.count
+        pages.values.filter { !$0.isEmpty }.count
     }
 
     var isComplete: Bool {

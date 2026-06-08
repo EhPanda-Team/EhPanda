@@ -58,7 +58,16 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         )
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
+        #expect(
+            pageURLs[1] == completedFolderURL.appendingPathComponent(
+                storage.makePageRelativePath(
+                    gid: gid,
+                    token: "token",
+                    index: 1,
+                    fileExtension: "jpg"
+                )
+            )
+        )
     }
 
     @MainActor
@@ -129,16 +138,8 @@ private extension DownloadManagerCaptureTests {
             postedDate: .now,
             rating: 4,
             pages: [
-                .init(
-                    index: 1,
-                    relativePath: "\(gid)_token_1.jpg",
-                    fileHash: "sha256:missing"
-                ),
-                .init(
-                    index: 2,
-                    relativePath: page2RelativePath,
-                    fileHash: try DownloadFileStorage().fileHash(at: page2URL)
-                )
+                1: "sha256:missing",
+                2: try DownloadFileStorage().fileHash(at: page2URL)
             ]
         )
         try JSONEncoder().encode(manifest).write(

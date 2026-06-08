@@ -49,13 +49,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
                 tags: [],
                 postedDate: .now,
                 rating: 4,
-                pages: [
-                    .init(
-                        index: 1,
-                        relativePath: "pages/0001.jpg",
-                        fileHash: ""
-                    )
-                ]
+                pages: [1: ""]
             ),
             folderURL: folderURL
         )

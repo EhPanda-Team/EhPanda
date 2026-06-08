@@ -181,16 +181,9 @@ extension DownloadManager {
                 folderURL: completedFolderURL,
                 expectedPageCount: download.pageCount
             )
-        let manifestRelativePath = (try? storage
-                                        .readManifest(folderURL: completedFolderURL))?
-            .pages
-            .first(where: { $0.index == index })?
-            .relativePath
-        let preferredRelativePath = completedPages[index]
-            ?? manifestRelativePath
         return CaptureTargetResult(
             folderURL: completedFolderURL,
-            preferredRelativePath: preferredRelativePath
+            preferredRelativePath: completedPages[index]
         )
     }
 }

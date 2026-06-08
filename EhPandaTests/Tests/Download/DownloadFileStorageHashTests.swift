@@ -49,8 +49,8 @@ struct DownloadFileStorageHashTests {
             pageIndex: 2
         )
 
-        #expect(refreshedManifest.pages[0].fileHash == manifest.pages[0].fileHash)
-        #expect(refreshedManifest.pages[1].fileHash != manifest.pages[1].fileHash)
+        #expect(refreshedManifest.pages[1] == manifest.pages[1])
+        #expect(refreshedManifest.pages[2] != manifest.pages[2])
         #expect(storage.validate(download: download) == .valid)
     }
 
@@ -128,9 +128,9 @@ struct DownloadFileStorageHashTests {
             tags: [],
             postedDate: .now,
             rating: 4,
-            pages: (1...pageCount).map {
-                .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
-            }
+            pages: pageCount > 0
+                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                : [:]
         )
     }
 }

@@ -198,14 +198,12 @@ extension DownloadManager {
             tags: payload.gallery.tags,
             postedDate: payload.galleryDetail.postedDate,
             rating: payload.galleryDetail.rating,
-            pages: batchResult.pages
-                .sorted(by: { $0.index < $1.index })
-                .map {
-                    .init(
-                        index: $0.index,
-                        relativePath: $0.relativePath
-                    )
-                }
+            pages: payload.galleryDetail.pageCount > 0
+                ? Dictionary(
+                    uniqueKeysWithValues:
+                        (1...payload.galleryDetail.pageCount).map { ($0, "") }
+                )
+                : [:]
         )
     }
 }

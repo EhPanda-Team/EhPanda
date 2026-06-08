@@ -63,9 +63,14 @@ extension DownloadFileStorage {
             }
         }
 
-        for page in manifest.pages {
-            guard let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: page.relativePath),
-                  let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: page.relativePath)
+        let existingPages = existingPageRelativePaths(
+            folderURL: sourceFolderURL,
+            expectedPageCount: manifest.pageCount
+        )
+        for index in manifest.pages.keys.sorted() {
+            guard let relativePath = existingPages[index],
+                  let sourcePageURL = validatedChildURL(root: sourceFolderURL, relativePath: relativePath),
+                  let destPageURL = validatedChildURL(root: destinationFolderURL, relativePath: relativePath)
             else { continue }
             guard sanitizeAssetFileIfNeeded(at: sourcePageURL) else { continue }
             try linkOrCopyReadableAsset(at: sourcePageURL, to: destPageURL)
@@ -76,21 +81,81 @@ extension DownloadFileStorage {
         to manifest: DownloadManifest,
         folderURL: URL
     ) throws -> DownloadManifest {
-        let pages = try manifest.pages.map { page in
-            DownloadManifest.Page(
-                index: page.index,
-                relativePath: page.relativePath,
-                fileHash: try hashReadableAsset(
+        let existingPages = existingPageRelativePaths(
+            folderURL: folderURL,
+            expectedPageCount: manifest.pageCount
+        )
+        let pages = try manifest.pages.keys.sorted()
+            .reduce(into: [Int: String]()) { result, index in
+                guard let relativePath = existingPages[index] else {
+                    throw AppError.fileOperationFailed(
+                        L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
+                    )
+                }
+                result[index] = try hashReadableAsset(
                     folderURL: folderURL,
-                    relativePath: page.relativePath,
-                    missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index)
+                    relativePath: relativePath,
+                    missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
                 )
+            }
+
+        return manifest.replacing(pages: pages)
+    }
+
+    @discardableResult
+    func refreshManifestPageFileHash(
+        folderURL: URL,
+        pageIndex: Int,
+        relativePath: String? = nil
+    ) throws -> DownloadManifest {
+        let resolvedRelativePath: String?
+        if let relativePath {
+            resolvedRelativePath = relativePath
+        } else {
+            resolvedRelativePath = existingPageRelativePaths(
+                folderURL: folderURL,
+                expectedPageCount: (try? readManifest(folderURL: folderURL).pageCount) ?? pageIndex
+            )[pageIndex]
+        }
+        guard let resolvedRelativePath else {
+            return try readManifest(folderURL: folderURL)
+        }
+        return try refreshManifestPageFileHashes(
+            folderURL: folderURL,
+            pageRelativePaths: [pageIndex: resolvedRelativePath]
+        )
+    }
+
+    @discardableResult
+    func refreshManifestPageFileHashes(
+        folderURL: URL,
+        pageRelativePaths: [Int: String]
+    ) throws -> DownloadManifest {
+        let manifest = try readManifest(folderURL: folderURL)
+        guard !pageRelativePaths.isEmpty else { return manifest }
+        var pages = manifest.pages
+        var didUpdate = false
+        for index in pageRelativePaths.keys.sorted() {
+            guard pages[index] != nil,
+                  let refreshedRelativePath = pageRelativePaths[index]
+            else {
+                continue
+            }
+            pages[index] = try hashReadableAsset(
+                folderURL: folderURL,
+                relativePath: refreshedRelativePath,
+                missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
             )
+            didUpdate = true
         }
 
-        return manifest.replacing(
-            pages: pages
-        )
+        guard didUpdate else { return manifest }
+
+        let refreshedManifest = manifest.replacing(pages: pages)
+        if refreshedManifest != manifest {
+            try writeManifest(refreshedManifest, folderURL: folderURL)
+        }
+        return refreshedManifest
     }
 
     @discardableResult
@@ -104,66 +169,6 @@ extension DownloadFileStorage {
             try writeManifest(hashedManifest, folderURL: folderURL)
         }
         return hashedManifest
-    }
-
-    @discardableResult
-    func refreshManifestPageFileHash(
-        folderURL: URL,
-        pageIndex: Int,
-        relativePath: String? = nil
-    ) throws -> DownloadManifest {
-        if let relativePath {
-            return try refreshManifestPageFileHashes(
-                folderURL: folderURL,
-                pageRelativePaths: [pageIndex: relativePath]
-            )
-        }
-        let manifest = try readManifest(folderURL: folderURL)
-        guard let page = manifest.pages.first(
-            where: { $0.index == pageIndex }
-        ) else {
-            return manifest
-        }
-        return try refreshManifestPageFileHashes(
-            folderURL: folderURL,
-            pageRelativePaths: [pageIndex: page.relativePath]
-        )
-    }
-
-    @discardableResult
-    func refreshManifestPageFileHashes(
-        folderURL: URL,
-        pageRelativePaths: [Int: String]
-    ) throws -> DownloadManifest {
-        let manifest = try readManifest(folderURL: folderURL)
-        guard !pageRelativePaths.isEmpty else { return manifest }
-        var didUpdate = false
-        let pages = try manifest.pages.map { page in
-            guard let refreshedRelativePath =
-                    pageRelativePaths[page.index] else {
-                return page
-            }
-            didUpdate = true
-            return DownloadManifest.Page(
-                index: page.index,
-                relativePath: refreshedRelativePath,
-                fileHash: try hashReadableAsset(
-                    folderURL: folderURL,
-                    relativePath: refreshedRelativePath,
-                    missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index)
-                )
-            )
-        }
-
-        guard didUpdate else { return manifest }
-
-        let refreshedManifest = manifest.replacing(
-            pages: pages
-        )
-        if refreshedManifest != manifest {
-            try writeManifest(refreshedManifest, folderURL: folderURL)
-        }
-        return refreshedManifest
     }
 
     func removeFolder(relativePath: String) throws {
@@ -188,7 +193,7 @@ extension DownloadFileStorage {
         }
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
-            pages: manifest.pages
+            manifest: manifest
         ) {
             return pageValidationFailure
         }
@@ -196,8 +201,14 @@ extension DownloadFileStorage {
     }
 
     func validPageCount(folderURL: URL, manifest: DownloadManifest) -> Int {
-        manifest.pages.reduce(into: 0) { count, page in
-            guard let pageURL = validatedChildURL(root: folderURL, relativePath: page.relativePath) else { return }
+        let existingPages = existingPageRelativePaths(
+            folderURL: folderURL,
+            expectedPageCount: manifest.pageCount
+        )
+        return manifest.pages.keys.reduce(into: 0) { count, index in
+            guard let relativePath = existingPages[index],
+                  let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath)
+            else { return }
             if sanitizeAssetFileIfNeeded(at: pageURL) {
                 count += 1
             }
@@ -223,10 +234,19 @@ extension DownloadFileStorage {
 
     private func validatePages(
         folderURL: URL,
-        pages: [DownloadManifest.Page]
+        manifest: DownloadManifest
     ) -> DownloadValidationState? {
-        for page in pages {
-            if let validationFailure = validatePage(folderURL: folderURL, page: page) {
+        let existingPages = existingPageRelativePaths(
+            folderURL: folderURL,
+            expectedPageCount: manifest.pageCount
+        )
+        for index in manifest.pages.keys.sorted() {
+            if let validationFailure = validatePage(
+                folderURL: folderURL,
+                index: index,
+                expectedHash: manifest.pages[index] ?? "",
+                existingPageRelativePaths: existingPages
+            ) {
                 return validationFailure
             }
         }
@@ -235,18 +255,21 @@ extension DownloadFileStorage {
 
     private func validatePage(
         folderURL: URL,
-        page: DownloadManifest.Page
+        index: Int,
+        expectedHash: String,
+        existingPageRelativePaths: [Int: String]
     ) -> DownloadValidationState? {
-        guard let pageURL = validatedChildURL(root: folderURL, relativePath: page.relativePath),
+        guard !expectedHash.isEmpty,
+              let relativePath = existingPageRelativePaths[index],
+              let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(page.index))
+            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index))
         }
 
-        if let expectedHash = page.fileHash,
-           (try? fileHash(at: pageURL)) != expectedHash {
+        if (try? fileHash(at: pageURL)) != expectedHash {
             return .missingFiles(
-                L10n.Localizable.DownloadFileStorage.Validation.pageImageCorrupted(page.index)
+                L10n.Localizable.DownloadFileStorage.Validation.pageImageCorrupted(index)
             )
         }
 
@@ -256,7 +279,7 @@ extension DownloadFileStorage {
 
 private extension DownloadManifest {
     func replacing(
-        pages: [Page]
+        pages: [Int: String]
     ) -> DownloadManifest {
         DownloadManifest(
             gid: gid,

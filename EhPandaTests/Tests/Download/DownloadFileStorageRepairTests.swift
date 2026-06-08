@@ -115,8 +115,8 @@ private extension DownloadFileStorageRepairTests {
             postedDate: .now,
             rating: 4,
             pages: [
-                .init(index: 1, relativePath: "pages/0001.jpg"),
-                .init(index: 2, relativePath: "../escape.jpg")
+                1: "",
+                2: ""
             ]
         )
         try sourceStorage.writeManifest(manifest, folderURL: sourceFolderURL)
@@ -205,9 +205,9 @@ private extension DownloadFileStorageRepairTests {
             tags: [],
             postedDate: .now,
             rating: 4,
-            pages: (1...pageCount).map {
-                .init(index: $0, relativePath: "pages/\(String(format: "%04d", $0)).jpg")
-            }
+            pages: pageCount > 0
+                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                : [:]
         )
     }
 }

@@ -125,7 +125,6 @@ extension DownloadManager {
         let validation = storage.validate(download: download)
         switch validation {
         case .valid:
-            refreshMissingManifestHashesIfNeeded(download: download)
             validationErrors[download.gid] = nil
 
         case .missingFiles(let message):
@@ -136,29 +135,5 @@ extension DownloadManager {
             validationErrors[download.gid] = failure
         }
         return validation
-    }
-
-    private func refreshMissingManifestHashesIfNeeded(
-        download: DownloadedGallery
-    ) {
-        let folderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
-        guard let manifest = try? storage.readManifest(folderURL: folderURL),
-              manifest.needsFileHashRefresh
-        else {
-            return
-        }
-
-        do {
-            try storage.refreshManifestFileHashes(folderURL: folderURL)
-        } catch {
-            Logger.error(error)
-        }
-    }
-}
-
-private extension DownloadManifest {
-    var needsFileHashRefresh: Bool {
-        pages.contains { $0.fileHash == nil }
     }
 }
