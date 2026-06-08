@@ -5,8 +5,8 @@
 
 import Foundation
 
-struct DownloadManifest: Codable, Equatable {
-    struct Page: Codable, Equatable, Identifiable {
+struct DownloadManifest: Codable, Equatable, Sendable {
+    struct Page: Codable, Equatable, Identifiable, Sendable {
         var id: Int { index }
 
         let index: Int

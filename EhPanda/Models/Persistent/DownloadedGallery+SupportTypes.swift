@@ -121,6 +121,25 @@ extension DownloadedGallery {
         }
     }
 
+    var displayStatus: DownloadDisplayStatus {
+        if status == .updateAvailable || hasUpdate {
+            return .updateAvailable
+        }
+        if status == .completed {
+            return .completed
+        }
+        if status == .downloading {
+            return .active
+        }
+        if isQueuedWorkItem {
+            return .queued
+        }
+        if lastError != nil || [.failed, .missingFiles].contains(status) {
+            return .error
+        }
+        return .inactive
+    }
+
     var sortPriority: Int {
         if isQueuedWorkItem {
             return 1

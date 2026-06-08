@@ -11,6 +11,13 @@ enum DownloadValidationState: Equatable, Sendable {
     case missingFiles(String)
 }
 
+struct DownloadFolderRecord: Equatable, Sendable {
+    let relativePath: String
+    let folderURL: URL
+    let manifest: DownloadManifest
+    let modifiedAt: Date?
+}
+
 struct DownloadResumeState: Codable, Equatable {
     let mode: DownloadStartMode
     let versionSignature: String
@@ -189,6 +196,14 @@ struct DownloadFileStorage: Sendable {
     }
 
     func makeFolderRelativePath(gid: String, title: String) -> String {
+        "\(gid) - \(normalizedFolderTitle(title))"
+    }
+
+    func makeFolderRelativePath(gid: String, token: String, title: String) -> String {
+        "[\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))] \(normalizedFolderTitle(title))"
+    }
+
+    private func normalizedFolderTitle(_ title: String) -> String {
         let invalidCharacters = CharacterSet(charactersIn: "/\\:")
             .union(.controlCharacters)
         let sanitizedScalars = title
@@ -215,7 +230,17 @@ struct DownloadFileStorage: Sendable {
                 options: .regularExpression
             )
         let fallbackTitle = limitedSlug.isEmpty ? "Gallery" : limitedSlug
-        return "\(gid) - \(fallbackTitle)"
+        return fallbackTitle
+    }
+
+    private func normalizedIdentityComponent(_ value: String) -> String {
+        let invalidCharacters = CharacterSet(charactersIn: "/\\[]:")
+            .union(.controlCharacters)
+            .union(.whitespacesAndNewlines)
+        let sanitized = value.unicodeScalars
+            .map { invalidCharacters.contains($0) ? "_" : String($0) }
+            .joined()
+        return sanitized.isEmpty ? "unknown" : sanitized
     }
 
     func makePageRelativePath(index: Int, fileExtension: String) -> String {
@@ -228,12 +253,87 @@ struct DownloadFileStorage: Sendable {
         "cover.\(fileExtension.lowercased())"
     }
 
+    func makePageRelativePath(gid: String, token: String, index: Int, fileExtension: String) -> String {
+        [
+            normalizedIdentityComponent(gid),
+            normalizedIdentityComponent(token),
+            String(index)
+        ].joined(separator: "_") + ".\(fileExtension.lowercased())"
+    }
+
+    func makeCoverRelativePath(gid: String, token: String, fileExtension: String) -> String {
+        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_cover.\(fileExtension.lowercased())"
+    }
+
+    func existingPageFileURL(folderURL: URL, gid: String, token: String, index: Int) -> URL? {
+        existingAssetFileURL(
+            folderURL: folderURL,
+            prefix: "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_\(index)."
+        )
+    }
+
+    func existingCoverFileURL(folderURL: URL, gid: String, token: String) -> URL? {
+        existingAssetFileURL(
+            folderURL: folderURL,
+            prefix: "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_cover."
+        )
+    }
+
+    private func existingAssetFileURL(folderURL: URL, prefix: String) -> URL? {
+        guard let fileURLs = try? fileManager.operate({
+            try $0.contentsOfDirectory(
+                at: folderURL,
+                includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey]
+            )
+        }) else {
+            return nil
+        }
+
+        return fileURLs
+            .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+            .first(where: {
+                $0.lastPathComponent.hasPrefix(prefix)
+                    && sanitizeAssetFileIfNeeded(at: $0)
+            })
+    }
+
     func writeManifest(_ manifest: DownloadManifest, folderURL: URL) throws {
         try writeJSON(manifest, to: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest))
     }
 
     func readManifest(folderURL: URL) throws -> DownloadManifest {
         try readJSON(DownloadManifest.self, from: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest))
+    }
+
+    func scanDownloadFolders() throws -> [DownloadFolderRecord] {
+        guard fileManager.operate({ $0.fileExists(atPath: rootURL.path) }) else {
+            return []
+        }
+
+        let folderURLs = try fileManager.operate {
+            try $0.contentsOfDirectory(
+                at: rootURL,
+                includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey],
+                options: [.skipsHiddenFiles]
+            )
+        }
+
+        return folderURLs.compactMap { folderURL in
+            let resourceValues = try? folderURL.resourceValues(
+                forKeys: [.isDirectoryKey, .contentModificationDateKey]
+            )
+            guard resourceValues?.isDirectory == true,
+                  let manifest = try? readManifest(folderURL: folderURL)
+            else {
+                return nil
+            }
+            return DownloadFolderRecord(
+                relativePath: folderURL.lastPathComponent,
+                folderURL: folderURL,
+                manifest: manifest,
+                modifiedAt: resourceValues?.contentModificationDate
+            )
+        }
     }
 
     func fileHash(at url: URL) throws -> String {
