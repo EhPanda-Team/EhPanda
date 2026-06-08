@@ -73,18 +73,18 @@ extension DownloadManager {
         if validationErrors[gid] != nil {
             return .error
         }
+        if activeGalleryID == gid {
+            return .active
+        }
+        if queueStore.contains(gid) {
+            return .queued
+        }
         if record.manifest.isComplete,
            updatedGalleryIDs.contains(gid) {
             return .updateAvailable
         }
         if record.manifest.isComplete {
             return .completed
-        }
-        if activeGalleryID == gid {
-            return .active
-        }
-        if queueStore.contains(gid) {
-            return .queued
         }
         if downloadErrors[gid] != nil {
             return .error

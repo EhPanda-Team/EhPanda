@@ -49,6 +49,22 @@ extension DownloadManager {
         if !retryParams.shouldResumeExistingWork {
             try? storage.removeTemporaryFolder(gid: gid)
         }
+        if downloadIndex[gid] != nil {
+            downloadErrors[gid] = nil
+            validationErrors[gid] = nil
+            await queueStore.enqueue(gid)
+            if fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
+                writeRetryResumeState(
+                    download: download,
+                    resolvedMode: resolvedMode,
+                    existingResumeState: existingResumeState,
+                    temporaryFolderURL: temporaryFolderURL
+                )
+            }
+            await notifyObservers()
+            await scheduleNextIfNeeded()
+            return
+        }
         try await updateDownloadRecord(
             gid: gid, createIfMissing: false
         ) { record in
