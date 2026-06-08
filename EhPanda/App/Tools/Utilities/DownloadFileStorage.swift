@@ -114,23 +114,19 @@ struct DownloadFileStorage: Sendable {
     }
 
     func writeResumeState(_ state: DownloadResumeState, folderURL: URL) throws {
-        let data = try JSONEncoder().encode(state)
-        try data.write(to: resumeStateURL(folderURL: folderURL), options: .atomic)
+        try writeJSON(state, to: resumeStateURL(folderURL: folderURL))
     }
 
     func readResumeState(folderURL: URL) throws -> DownloadResumeState {
-        let data = try Data(contentsOf: resumeStateURL(folderURL: folderURL))
-        return try JSONDecoder().decode(DownloadResumeState.self, from: data)
+        try readJSON(DownloadResumeState.self, from: resumeStateURL(folderURL: folderURL))
     }
 
     func writeFailedPages(_ snapshot: DownloadFailedPagesSnapshot, folderURL: URL) throws {
-        let data = try JSONEncoder().encode(snapshot)
-        try data.write(to: failedPagesURL(folderURL: folderURL), options: .atomic)
+        try writeJSON(snapshot, to: failedPagesURL(folderURL: folderURL))
     }
 
     func readFailedPages(folderURL: URL) throws -> DownloadFailedPagesSnapshot {
-        let data = try Data(contentsOf: failedPagesURL(folderURL: folderURL))
-        return try JSONDecoder().decode(DownloadFailedPagesSnapshot.self, from: data)
+        try readJSON(DownloadFailedPagesSnapshot.self, from: failedPagesURL(folderURL: folderURL))
     }
 
     func removeFailedPages(folderURL: URL) throws {
@@ -228,15 +224,11 @@ struct DownloadFileStorage: Sendable {
     }
 
     func writeManifest(_ manifest: DownloadManifest, folderURL: URL) throws {
-        let data = try JSONEncoder().encode(manifest)
-        let fileURL = folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
-        try data.write(to: fileURL, options: .atomic)
+        try writeJSON(manifest, to: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest))
     }
 
     func readManifest(folderURL: URL) throws -> DownloadManifest {
-        let manifestURL = folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
-        let data = try Data(contentsOf: manifestURL)
-        return try JSONDecoder().decode(DownloadManifest.self, from: data)
+        try readJSON(DownloadManifest.self, from: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest))
     }
 
     func fileHash(at url: URL) throws -> String {
