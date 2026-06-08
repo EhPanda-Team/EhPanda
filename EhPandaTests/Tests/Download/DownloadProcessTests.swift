@@ -265,10 +265,6 @@ private extension DownloadProcessTests {
         )
 
         #expect(FileManager.default.fileExists(atPath: context.staleFolderURL.path) == false)
-        #expect(
-            FileManager.default.fileExists(
-                atPath: storage.temporaryFolderURL(gid: context.gid).path
-            ) == false
-        )
+        #expect(FileManager.default.fileExists(atPath: completedFolderURL.path))
     }
 }

@@ -7,21 +7,6 @@ import Foundation
 
 // MARK: - Validation & Sanitization
 extension DownloadManager {
-    func temporaryCompletedPageCount(
-        gid: String,
-        expectedPageCount: Int
-    ) -> Int {
-        let folderURL = storage.temporaryFolderURL(gid: gid)
-        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
-            return 0
-        }
-        return storage.existingPageRelativePaths(
-            folderURL: folderURL,
-            expectedPageCount: expectedPageCount
-        )
-        .count
-    }
-
     func validatedCompletedPageCount(
         _ download: DownloadedGallery
     ) -> Int {
@@ -55,14 +40,10 @@ extension DownloadManager {
         guard let download = await fetchDownload(gid: gid)
         else { return nil }
 
-        let (hasTemporaryFolder, temporaryCompletedCount) =
-            scanTemporaryFolder(gid: gid, download: download)
         scanCompletedFolder(download: download)
 
         let updateResult = computeSanitizeUpdate(
             download: download,
-            hasTemporaryFolder: hasTemporaryFolder,
-            temporaryCompletedCount: temporaryCompletedCount,
             clearingLastError: clearingLastError
         )
 
@@ -75,28 +56,6 @@ extension DownloadManager {
         await notifyObservers()
 
         return await fetchDownload(gid: gid)
-    }
-
-    private func scanTemporaryFolder(
-        gid: String,
-        download: DownloadedGallery
-    ) -> (hasTemporaryFolder: Bool, temporaryCompletedCount: Int) {
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let hasTemporaryFolder = fileManager.operate {
-            $0.fileExists(atPath: temporaryFolderURL.path)
-        }
-        let temporaryCompletedCount = hasTemporaryFolder
-            ? storage.existingPageRelativePaths(
-                folderURL: temporaryFolderURL,
-                expectedPageCount: download.pageCount
-            ).count
-            : 0
-        if hasTemporaryFolder {
-            _ = storage.existingCoverRelativePath(
-                folderURL: temporaryFolderURL
-            )
-        }
-        return (hasTemporaryFolder, temporaryCompletedCount)
     }
 
     private func scanCompletedFolder(download: DownloadedGallery) {
@@ -130,8 +89,6 @@ extension DownloadManager {
 
     private func computeSanitizeUpdate(
         download: DownloadedGallery,
-        hasTemporaryFolder: Bool,
-        temporaryCompletedCount: Int,
         clearingLastError: Bool
     ) -> SanitizeUpdateResult {
         var state = MutableSanitizeState(
@@ -139,12 +96,6 @@ extension DownloadManager {
             completedPageCount: download.completedPageCount,
             lastError: download.lastError,
             needsUpdate: false
-        )
-        applyTemporaryFolderUpdate(
-            download: download,
-            hasTemporaryFolder: hasTemporaryFolder,
-            temporaryCompletedCount: temporaryCompletedCount,
-            state: &state
         )
         applyCompletedStatusUpdate(
             download: download,
@@ -157,26 +108,6 @@ extension DownloadManager {
             completedPageCount: state.completedPageCount,
             lastError: state.lastError
         )
-    }
-
-    private func applyTemporaryFolderUpdate(
-        download: DownloadedGallery,
-        hasTemporaryFolder: Bool,
-        temporaryCompletedCount: Int,
-        state: inout MutableSanitizeState
-    ) {
-        guard hasTemporaryFolder,
-              shouldExposeTemporaryWorkingSet(for: download)
-        else { return }
-
-        if state.completedPageCount != temporaryCompletedCount {
-            state.completedPageCount = temporaryCompletedCount
-            state.needsUpdate = true
-        }
-        if download.status == .failed {
-            state.status = .partial
-            state.needsUpdate = true
-        }
     }
 
     private func applyCompletedStatusUpdate(
@@ -236,33 +167,6 @@ extension DownloadManager {
         for download: DownloadedGallery,
         index: Int
     ) -> CaptureTargetResult? {
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: download.gid)
-        if shouldExposeTemporaryWorkingSet(for: download),
-           fileManager.operate({
-               $0.fileExists(atPath: temporaryFolderURL.path)
-           }) {
-            let temporaryPages =
-                storage.existingPageRelativePaths(
-                    folderURL: temporaryFolderURL,
-                    expectedPageCount: download.pageCount
-                )
-            let manifestRelativePath = (try? storage
-                                            .readManifest(
-                                                folderURL: temporaryFolderURL
-                                            ))?
-                .pages
-                .first(where: { $0.index == index })?
-                .relativePath
-            let preferredRelativePath = temporaryPages[index]
-                ?? manifestRelativePath
-            return CaptureTargetResult(
-                folderURL: temporaryFolderURL,
-                preferredRelativePath: preferredRelativePath,
-                isTemporary: true
-            )
-        }
-
         let completedFolderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
         guard fileManager.operate({
@@ -286,8 +190,7 @@ extension DownloadManager {
             ?? manifestRelativePath
         return CaptureTargetResult(
             folderURL: completedFolderURL,
-            preferredRelativePath: preferredRelativePath,
-            isTemporary: false
+            preferredRelativePath: preferredRelativePath
         )
     }
 }

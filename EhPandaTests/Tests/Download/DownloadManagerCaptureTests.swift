@@ -12,7 +12,7 @@ import Testing
 @Suite(.serialized)
 struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerCaptureCachedPageRestoresTemporaryPage() async throws {
+    func testDownloadManagerCaptureCachedPageRestoresFinalPage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -38,19 +38,6 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             folderURL: completedFolderURL
         )
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
-        try storage.writeManifest(
-            sampleManifest(
-                gid: gid,
-                title: "Capture",
-                pageCount: 2
-            ),
-            folderURL: temporaryFolderURL
-        )
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemBlue.setFill()
@@ -71,7 +58,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         )
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
-        #expect(pageURLs[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
+        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
     }
 
     @MainActor

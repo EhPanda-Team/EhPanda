@@ -45,7 +45,7 @@ extension DownloadManager {
         preferredRelativePath: String?
     ) async throws -> PageResult {
         let payload = context.payload
-        let temporaryFolderURL = context.temporaryFolderURL
+        let folderURL = context.folderURL
 
         guard let source = context.source else {
             throw AppError.notFound
@@ -67,7 +67,7 @@ extension DownloadManager {
             index: index,
             resolvedImageSource: resolved,
             payload: payload,
-            temporaryFolderURL: temporaryFolderURL,
+            folderURL: folderURL,
             preferredRelativePath: preferredRelativePath
         )
     }
@@ -94,7 +94,7 @@ extension DownloadManager {
         return try await restorePageFromCache(
             index: index,
             source: resolvedSource,
-            folderURL: context.temporaryFolderURL,
+            folderURL: context.folderURL,
             preferredRelativePath: preferredRelativePath
         )
     }
@@ -103,7 +103,7 @@ extension DownloadManager {
         index: Int,
         resolvedImageSource: ResolvedImageSource,
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL,
+        folderURL: URL,
         preferredRelativePath: String?
     ) async throws -> PageResult {
         let targetURL = resolvedImageSource.imageURL
@@ -132,7 +132,7 @@ extension DownloadManager {
                 fileExtension: ext
             )
         }
-        let fileURL = temporaryFolderURL
+        let fileURL = folderURL
             .appendingPathComponent(relativePath)
         try moveDownloadedFile(
             from: downloadedFileURL,

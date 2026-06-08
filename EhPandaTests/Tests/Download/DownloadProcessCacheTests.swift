@@ -248,11 +248,6 @@ private extension DownloadProcessCacheTests {
             oldPageCount: oldPageCount,
             oldVersionSignature: setup.oldVersionSignature
         )
-        try setupCacheTestTemporaryFolder(
-            storage: setup.storage, gid: setup.gid,
-            pageIndex: setup.pageIndex, oldPageCount: oldPageCount,
-            oldVersionSignature: setup.oldVersionSignature
-        )
         return updatedPageCount
     }
 
@@ -272,36 +267,6 @@ private extension DownloadProcessCacheTests {
             pageCount: oldPageCount, versionSignature: oldVersionSignature
         )
         try storage.writeManifest(staleManifest, folderURL: completedFolderURL)
-    }
-
-    func setupCacheTestTemporaryFolder(
-        storage: DownloadFileStorage, gid: String,
-        pageIndex: Int, oldPageCount: Int, oldVersionSignature: String
-    ) throws {
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
-            withIntermediateDirectories: true
-        )
-        let staleManifest = try sampleManifest(
-            gid: gid, title: "Pause Race",
-            pageCount: oldPageCount, versionSignature: oldVersionSignature
-        )
-        try JSONEncoder().encode(staleManifest).write(
-            to: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
-            options: .atomic
-        )
-        try Data([0x00]).write(
-            to: temporaryFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
-        )
-        try Data([UInt8(pageIndex % 255)]).write(
-            to: temporaryFolderURL.appendingPathComponent(
-                "pages/\(String(format: "%04d", pageIndex)).jpg"
-            ),
-            options: .atomic
-        )
     }
 
     func waitUntilCacheCleared(cachedKeys: Set<String>) async throws {

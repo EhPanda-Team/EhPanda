@@ -10,7 +10,7 @@ import Testing
 @Suite(.serialized)
 struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerReconcilePreservesIndexedTemporaryFolder() async throws {
+    func testDownloadManagerReconcilePreservesIndexedFinalFolder() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 31)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -29,13 +29,13 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             folderURL: folderURL
         )
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
         try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
+        let pageURL = folderURL.appendingPathComponent("pages/0001.jpg")
         try Data([0x01]).write(
-            to: temporaryFolderURL.appendingPathComponent("pages/0001.jpg"),
+            to: pageURL,
             options: .atomic
         )
 
@@ -46,8 +46,8 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         #expect(stored?.status == .paused)
         #expect(stored?.completedPageCount == 0)
-        #expect(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
-        #expect(localPages[1] == temporaryFolderURL.appendingPathComponent("pages/0001.jpg"))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path))
+        #expect(localPages[1] == pageURL)
     }
 
     @MainActor

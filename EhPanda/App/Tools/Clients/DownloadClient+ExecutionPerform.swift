@@ -74,7 +74,7 @@ extension DownloadManager {
         let downloadContext = PageDownloadContext(
             payload: payload,
             source: source,
-            temporaryFolderURL: workingFolderURL
+            folderURL: workingFolderURL
         )
         let batchResult = try await downloadPages(
             context: downloadContext,
@@ -105,7 +105,7 @@ extension DownloadManager {
     ) async throws -> String? {
         try await downloadCoverImage(
             payload: payload,
-            temporaryFolderURL: folderURL,
+            folderURL: folderURL,
             existingCoverRelativePath: existingCoverRelativePath
         )
     }

@@ -28,7 +28,7 @@ extension DownloadManager {
         var progress = PageDownloadProgress()
         progress.failedPages = (try? storage
             .readFailedPages(
-                folderURL: context.temporaryFolderURL
+                folderURL: context.folderURL
             ).map) ?? [:]
 
         try await initializePageDownloadState(
@@ -59,7 +59,7 @@ extension DownloadManager {
         try await flushDownloadProgress(
             context: .init(
                 gid: context.payload.gallery.gid,
-                folderURL: context.temporaryFolderURL
+                folderURL: context.folderURL
             ),
             pendingResolvedPages: &progress.pendingResolvedPages,
             lastFlushDate: &progress.lastFlushDate,
@@ -68,7 +68,7 @@ extension DownloadManager {
         return try buildBatchResult(
             results: progress.results,
             failedPages: progress.failedPages,
-            temporaryFolderURL: context.temporaryFolderURL
+            folderURL: context.folderURL
         )
     }
 
@@ -90,7 +90,7 @@ extension DownloadManager {
         progress.completedCount = progress.results.count
         guard progress.completedCount > 0 else { return }
         try flushManifestPageProgress(
-            folderURL: context.temporaryFolderURL,
+            folderURL: context.folderURL,
             pages: progress.results
         )
         await notifyObservers()
@@ -99,7 +99,7 @@ extension DownloadManager {
     private func buildBatchResult(
         results: [PageResult],
         failedPages: [Int: DownloadFailedPagesSnapshot.Page?],
-        temporaryFolderURL: URL
+        folderURL: URL
     ) throws -> DownloadBatchResult {
         let failedSnapshot = DownloadFailedPagesSnapshot(
             pages: failedPages.values
@@ -111,12 +111,12 @@ extension DownloadManager {
         )
         if failedSnapshot.pages.isEmpty {
             try? storage.removeFailedPages(
-                folderURL: temporaryFolderURL
+                folderURL: folderURL
             )
         } else {
             try storage.writeFailedPages(
                 failedSnapshot,
-                folderURL: temporaryFolderURL
+                folderURL: folderURL
             )
         }
         return .init(
@@ -152,7 +152,7 @@ extension DownloadManager {
             guard let relativePath = existingPages[index] else {
                 continue
             }
-            let fileURL = context.temporaryFolderURL
+            let fileURL = context.folderURL
                 .appendingPathComponent(relativePath)
             guard fileManager.operate({ $0.fileExists(atPath: fileURL.path) }) else {
                 continue
@@ -204,7 +204,7 @@ extension DownloadManager {
                 try? await flushDownloadProgress(
                     context: .init(
                         gid: payload.gallery.gid,
-                        folderURL: context.temporaryFolderURL
+                        folderURL: context.folderURL
                     ),
                     pendingResolvedPages:
                         &progress.pendingResolvedPages,

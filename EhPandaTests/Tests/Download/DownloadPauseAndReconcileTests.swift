@@ -89,17 +89,17 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             pageHashes: ["sha256:done", ""]
         )
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pausable")
         try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: temporaryFolderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("pages/0001.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: temporaryFolderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("pages/0002.jpg"),
             options: .atomic
         )
 
@@ -123,7 +123,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         #expect(stored?.status == .paused)
         #expect(stored?.completedPageCount == 1)
         #expect(stored?.badge == .paused(1, 2))
-        #expect(FileManager.default.fileExists(atPath: temporaryFolderURL.path))
+        #expect(FileManager.default.fileExists(atPath: folderURL.path))
     }
 
     @Test
@@ -215,7 +215,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             title: "Inspection",
             pageHashes: ["sha256:done", ""]
         )
-        let temporaryFolderURL = try setupCancellationFilterTestFolder(storage: storage, gid: gid)
+        let folderURL = try setupCancellationFilterTestFolder(storage: storage, gid: gid)
 
         let result = await manager.loadInspection(gid: gid)
         guard case .success(let inspection) = result else {
@@ -225,7 +225,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         #expect(inspection.pages[0].status == .downloaded)
         #expect(inspection.pages[1].status == .pending)
-        #expect((try? storage.readFailedPages(folderURL: temporaryFolderURL).pages.isEmpty) ?? true)
+        #expect((try? storage.readFailedPages(folderURL: folderURL).pages.isEmpty) ?? true)
     }
 }
 
@@ -274,13 +274,13 @@ private extension DownloadPauseAndReconcileTests {
         storage: DownloadFileStorage,
         gid: String
     ) throws -> URL {
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
+        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Inspection")
         try FileManager.default.createDirectory(
-            at: temporaryFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: temporaryFolderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("pages/0001.jpg"),
             options: .atomic
         )
         try storage.writeFailedPages(
@@ -294,8 +294,8 @@ private extension DownloadPauseAndReconcileTests {
                     )
                 )
             ]),
-            folderURL: temporaryFolderURL
+            folderURL: folderURL
         )
-        return temporaryFolderURL
+        return folderURL
     }
 }

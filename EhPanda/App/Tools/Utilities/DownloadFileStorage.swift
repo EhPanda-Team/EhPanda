@@ -65,18 +65,6 @@ struct DownloadFileStorage: Sendable {
         rootURL.appendingPathComponent(".queue.json")
     }
 
-    func temporaryFolderURL(gid: String) -> URL {
-        rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
-    }
-
-    func removeTemporaryFolder(gid: String) throws {
-        let targetURL = temporaryFolderURL(gid: gid)
-        try fileManager.operate {
-            guard $0.fileExists(atPath: targetURL.path) else { return }
-            try $0.removeItem(at: targetURL)
-        }
-    }
-
     func failedPagesURL(folderURL: URL) -> URL {
         folderURL.appendingPathComponent(Defaults.FilePath.downloadFailedPages)
     }

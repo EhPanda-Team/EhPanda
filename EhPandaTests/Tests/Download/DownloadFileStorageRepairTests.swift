@@ -15,17 +15,17 @@ struct DownloadFileStorageRepairTests {
 
         try storage.ensureRootDirectory()
         let sourceFolderURL = storage.folderURL(relativePath: "123 - Source")
-        let tempFolderURL = storage.temporaryFolderURL(gid: "123")
+        let destinationFolderURL = storage.folderURL(relativePath: "[123_token] Destination")
         let manifest = try sampleManifest(pageCount: 3)
         try setupRepairSourceFiles(
             sourceFolderURL: sourceFolderURL, storage: storage, manifest: manifest
         )
 
         try storage.materializeRepairSeed(
-            from: sourceFolderURL, manifest: manifest, to: tempFolderURL
+            from: sourceFolderURL, manifest: manifest, to: destinationFolderURL
         )
 
-        verifyRepairSeedResult(tempFolderURL: tempFolderURL)
+        verifyRepairSeedResult(destinationFolderURL: destinationFolderURL)
     }
 
     @Test
@@ -44,14 +44,14 @@ struct DownloadFileStorageRepairTests {
         )
 
         try env.destStorage.materializeRepairSeed(
-            from: env.sourceFolderURL, manifest: env.manifest, to: env.tempFolderURL
+            from: env.sourceFolderURL, manifest: env.manifest, to: env.destinationFolderURL
         )
 
         #expect(FileManager.default.fileExists(
-            atPath: env.tempFolderURL.appendingPathComponent("pages/0001.jpg").path
+            atPath: env.destinationFolderURL.appendingPathComponent("pages/0001.jpg").path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: env.tempFolderURL.appendingPathComponent("../escape.jpg").standardizedFileURL.path
+            atPath: env.destinationFolderURL.appendingPathComponent("../escape.jpg").standardizedFileURL.path
         ) == false)
         #expect(FileManager.default.fileExists(
             atPath: destRootURL.appendingPathComponent("escape.jpg").path
@@ -89,7 +89,7 @@ private struct TraversalTestEnvironment {
     let sourceStorage: DownloadFileStorage
     let destStorage: DownloadFileStorage
     let sourceFolderURL: URL
-    let tempFolderURL: URL
+    let destinationFolderURL: URL
     let manifest: DownloadManifest
 }
 
@@ -102,7 +102,7 @@ private extension DownloadFileStorageRepairTests {
         try sourceStorage.ensureRootDirectory()
         try destStorage.ensureRootDirectory()
         let sourceFolderURL = sourceStorage.folderURL(relativePath: "123 - Source")
-        let tempFolderURL = destStorage.temporaryFolderURL(gid: "123")
+        let destinationFolderURL = destStorage.folderURL(relativePath: "[123_token] Destination")
         try FileManager.default.createDirectory(
             at: sourceFolderURL.appendingPathComponent(
                 Defaults.FilePath.downloadPages, isDirectory: true
@@ -130,7 +130,7 @@ private extension DownloadFileStorageRepairTests {
         try Data([0x99]).write(to: escapeURL, options: .atomic)
         return TraversalTestEnvironment(
             sourceStorage: sourceStorage, destStorage: destStorage,
-            sourceFolderURL: sourceFolderURL, tempFolderURL: tempFolderURL, manifest: manifest
+            sourceFolderURL: sourceFolderURL, destinationFolderURL: destinationFolderURL, manifest: manifest
         )
     }
 
@@ -162,24 +162,24 @@ private extension DownloadFileStorageRepairTests {
         )
     }
 
-    func verifyRepairSeedResult(tempFolderURL: URL) {
+    func verifyRepairSeedResult(destinationFolderURL: URL) {
         #expect(FileManager.default.fileExists(
-            atPath: tempFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest).path
+            atPath: destinationFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest).path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: tempFolderURL.appendingPathComponent("cover.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("cover.jpg").path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: tempFolderURL.appendingPathComponent("pages/0001.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("pages/0001.jpg").path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: tempFolderURL.appendingPathComponent("pages/0002.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("pages/0002.jpg").path
         ) == false)
         #expect(FileManager.default.fileExists(
-            atPath: tempFolderURL.appendingPathComponent("pages/0003.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("pages/0003.jpg").path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: tempFolderURL.appendingPathComponent("nested/ignored.bin").path
+            atPath: destinationFolderURL.appendingPathComponent("nested/ignored.bin").path
         ) == false)
     }
 

@@ -19,12 +19,12 @@ extension DownloadManager {
 
     func downloadCoverImage(
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL,
+        folderURL: URL,
         existingCoverRelativePath: String?
     ) async throws -> String? {
         if let coverRelativePath = existingCoverRelativePath,
            !coverRelativePath.isEmpty {
-            let localCoverURL = temporaryFolderURL
+            let localCoverURL = folderURL
                 .appendingPathComponent(coverRelativePath)
             if fileManager.operate({ $0.fileExists(atPath: localCoverURL.path) }) {
                 return coverRelativePath
@@ -43,13 +43,13 @@ extension DownloadManager {
                 cachedData: cachedData,
                 coverURL: coverURL,
                 payload: payload,
-                temporaryFolderURL: temporaryFolderURL
+                folderURL: folderURL
             )
         }
         return try await downloadCoverFromNetwork(
             coverURL: coverURL,
             payload: payload,
-            temporaryFolderURL: temporaryFolderURL,
+            folderURL: folderURL,
             allowsCellular: payload.options.allowCellular
         )
     }
@@ -58,7 +58,7 @@ extension DownloadManager {
         cachedData: Data,
         coverURL: URL,
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL
+        folderURL: URL
     ) throws -> String {
         let ext = fileExtension(
             for: coverURL,
@@ -71,7 +71,7 @@ extension DownloadManager {
                 token: payload.gallery.token,
                 fileExtension: ext
             )
-        let fileURL = temporaryFolderURL
+        let fileURL = folderURL
             .appendingPathComponent(relativePath)
         try write(data: cachedData, to: fileURL)
         return relativePath
@@ -80,7 +80,7 @@ extension DownloadManager {
     private func downloadCoverFromNetwork(
         coverURL: URL,
         payload: DownloadRequestPayload,
-        temporaryFolderURL: URL,
+        folderURL: URL,
         allowsCellular: Bool
     ) async throws -> String {
         let (downloadedFileURL, response) =
@@ -102,7 +102,7 @@ extension DownloadManager {
                 token: payload.gallery.token,
                 fileExtension: ext
             )
-        let fileURL = temporaryFolderURL
+        let fileURL = folderURL
             .appendingPathComponent(relativePath)
         try moveDownloadedFile(
             from: downloadedFileURL,

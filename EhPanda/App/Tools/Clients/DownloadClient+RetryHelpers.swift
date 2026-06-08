@@ -112,30 +112,17 @@ extension DownloadManager {
 
         let completedFolderURL = download
             .resolvedFolderURL(rootURL: storage.rootURL)
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let hasTemporaryFolder = fileManager.operate {
-            $0.fileExists(atPath: temporaryFolderURL.path)
-        }
-        let shouldExposeTemp = hasTemporaryFolder
-            && self.shouldExposeTemporaryWorkingSet(for: download)
         let completedValidation = storage.validate(download: download)
 
         let completedPageURLs = buildCompletedPageURLs(
             completedFolderURL: completedFolderURL,
             download: download
         )
-        let temporaryPageURLs = buildTemporaryPageURLs(
-            hasTemporaryFolder: hasTemporaryFolder,
-            temporaryFolderURL: temporaryFolderURL,
-            download: download
-        )
 
         return resolveLocalPageURLs(
             completedValidation: completedValidation,
             completedFolderURL: completedFolderURL,
-            completedPageURLs: completedPageURLs,
-            temporaryPageURLs: temporaryPageURLs,
-            shouldExposeTemp: shouldExposeTemp
+            completedPageURLs: completedPageURLs
         )
     }
 }
