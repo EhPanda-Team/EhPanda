@@ -92,3 +92,13 @@ struct DownloadManifest: Codable, Equatable, Sendable {
         })
     }
 }
+
+extension DownloadManifest {
+    var completedPageCount: Int {
+        pages.filter { $0.fileHash?.isEmpty == false }.count
+    }
+
+    var isComplete: Bool {
+        !pages.isEmpty && completedPageCount == pages.count
+    }
+}
