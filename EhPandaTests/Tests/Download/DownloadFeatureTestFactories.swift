@@ -69,8 +69,7 @@ extension DownloadFeatureTestCase {
         pageCount: Int = 12,
         completedPageCount: Int? = nil,
         lastDownloadedAt: Date? = .now,
-        lastError: DownloadFailure? = nil,
-        pendingOperation: DownloadStartMode? = nil
+        lastError: DownloadFailure? = nil
     ) -> DownloadedGallery {
         DownloadedGallery(
             gid: gid,
@@ -91,8 +90,7 @@ extension DownloadFeatureTestCase {
             completedPageCount: completedPageCount ?? (status == .completed ? pageCount : 0),
             lastDownloadedAt: lastDownloadedAt,
             lastError: lastError,
-            downloadOptionsSnapshot: DownloadOptionsSnapshot(),
-            pendingOperation: pendingOperation
+            downloadOptionsSnapshot: DownloadOptionsSnapshot()
         )
     }
 

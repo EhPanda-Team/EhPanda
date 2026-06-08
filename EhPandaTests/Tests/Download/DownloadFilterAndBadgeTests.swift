@@ -65,12 +65,10 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         let queuedRedownload = sampleDownload(
             gid: "303",
             title: "Gamma Archive",
-            status: .completed,
-            completedPageCount: 12,
-            pendingOperation: .redownload
+            status: .queued,
+            completedPageCount: 12
         )
 
-        #expect(queuedRedownload.pendingOperation == .redownload)
         #expect(queuedRedownload.badge == .queued)
         #expect(queuedRedownload.matches(filter: .active))
     }
@@ -80,12 +78,10 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         let queuedRepair = sampleDownload(
             gid: "404",
             title: "Broken Archive",
-            status: .missingFiles,
-            completedPageCount: 3,
-            pendingOperation: .repair
+            status: .queued,
+            completedPageCount: 3
         )
 
-        #expect(queuedRepair.pendingOperation == .repair)
         #expect(queuedRepair.badge == .queued)
         #expect(queuedRepair.matches(filter: .active))
     }
@@ -95,12 +91,10 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         let queuedUpdate = sampleDownload(
             gid: "414",
             title: "Updated Archive",
-            status: .updateAvailable,
-            completedPageCount: 12,
-            pendingOperation: .update
+            status: .queued,
+            completedPageCount: 12
         )
 
-        #expect(queuedUpdate.pendingOperation == .update)
         #expect(queuedUpdate.badge == .queued)
         #expect(queuedUpdate.matches(filter: .active))
         #expect(queuedUpdate.matches(filter: .update) == false)
@@ -116,7 +110,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 7
         )
 
-        #expect(resumedUpdate.pendingOperation == nil)
         #expect(resumedUpdate.isQueuedWorkItem)
         #expect(resumedUpdate.badge == .queued)
         #expect(resumedUpdate.matches(filter: .active))

@@ -428,7 +428,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(queueStore.gids == ["450"])
         #expect(download.displayStatus == .queued)
         #expect(download.status == .queued)
-        #expect(download.pendingOperation == nil)
     }
 
     @Test
@@ -488,7 +487,6 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(queueStore.gids == ["460"])
         #expect(download.displayStatus == .queued)
         #expect(download.status == .queued)
-        #expect(download.pendingOperation == nil)
         #expect(FileManager.default.fileExists(
             atPath: storage.failedPagesURL(folderURL: folderURL).path
         ) == false)

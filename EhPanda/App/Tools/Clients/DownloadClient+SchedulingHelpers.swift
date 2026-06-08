@@ -16,9 +16,6 @@ extension DownloadManager {
                 requestedMode: mode
             )
         }
-        if let pendingOperation = download.pendingOperation {
-            return pendingOperation
-        }
         switch download.status {
         case .missingFiles:
             return effectiveRetryMode(

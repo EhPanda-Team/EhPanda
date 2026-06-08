@@ -186,7 +186,7 @@ extension DownloadedGallery {
     }
 
     var isQueuedWorkItem: Bool {
-        status == .queued || pendingOperation != nil
+        status == .queued
     }
 
     var hasUpdate: Bool {

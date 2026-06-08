@@ -27,9 +27,8 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         let queuedRedownload = sampleDownload(
             gid: "505",
             title: "Delta Archive",
-            status: .completed,
-            completedPageCount: 12,
-            pendingOperation: .redownload
+            status: .queued,
+            completedPageCount: 12
         )
 
         #expect(queuedRedownload.matches(filter: .completed) == false)
@@ -41,9 +40,8 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         let queuedRepair = sampleDownload(
             gid: "606",
             title: "Repair Archive",
-            status: .missingFiles,
-            completedPageCount: 3,
-            pendingOperation: .repair
+            status: .queued,
+            completedPageCount: 3
         )
         let missingFilesWithoutQueuedWork = sampleDownload(
             gid: "607",
@@ -71,10 +69,9 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         let queuedRedownload = sampleDownload(
             gid: "808",
             title: "Queued Archive",
-            status: .completed,
+            status: .queued,
             completedPageCount: 12,
-            lastDownloadedAt: .distantPast,
-            pendingOperation: .redownload
+            lastDownloadedAt: .distantPast
         )
 
         let sortedDownloads = [completedDownload, queuedRedownload].sorted { lhs, rhs in
