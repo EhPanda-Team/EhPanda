@@ -19,6 +19,20 @@ extension DownloadManager {
         await scheduleNextIfNeeded()
     }
 
+    func testingSetFetchDownloadsFromStoreHook(
+        _ hook: (@Sendable () async -> Void)?
+    ) {
+        testingFetchDownloadsFromStoreHook = hook
+    }
+
+    func testingScheduledGalleryIDs() -> [String] {
+        testingScheduledGalleryIDHistory
+    }
+
+    func testingHasActiveTask() -> Bool {
+        activeTask != nil
+    }
+
     func testingFetchDownload(
         gid: String
     ) async -> DownloadedGallery? {

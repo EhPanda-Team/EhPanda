@@ -29,11 +29,11 @@ extension DownloadManager {
     }
 
     func scheduleNextIfNeeded() async {
+        let downloads = await fetchDownloadsFromStore()
         guard activeTask == nil else {
             await reconcileActiveDownloadState()
             return
         }
-        let downloads = await fetchDownloadsFromStore()
         let nextDownload = downloads
             .filter {
                 !schedulingBlockedGalleryIDs.contains($0.gid)
@@ -51,6 +51,9 @@ extension DownloadManager {
             .first
         guard let nextDownload else { return }
 
+#if DEBUG
+        testingScheduledGalleryIDHistory.append(nextDownload.gid)
+#endif
         activeGalleryID = nextDownload.gid
         activeTask = Task { [weak self] in
             guard let self else { return }
