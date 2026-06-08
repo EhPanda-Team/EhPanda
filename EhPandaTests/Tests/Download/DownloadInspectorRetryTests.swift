@@ -141,7 +141,6 @@ private extension DownloadInspectorRetryTests {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },

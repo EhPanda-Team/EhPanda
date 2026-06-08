@@ -17,7 +17,6 @@ struct DownloadClient: Sendable {
     let badges: @Sendable ([String]) async -> [String: DownloadBadge]
     let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
     let updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge
-    let updateRemoteSignature: @Sendable (String, String?) async -> DownloadBadge
     let enqueue: @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
     let togglePause: @Sendable (String) async -> Result<Void, AppError>
     let retry: @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>
@@ -41,7 +40,6 @@ struct DownloadClient: Sendable {
         = { _, _ in .failure(.notFound) },
         updateRemoteVersion: @escaping @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge =
         { _, _ in .none },
-        updateRemoteSignature: @escaping @Sendable (String, String?) async -> DownloadBadge,
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>,
         togglePause: @escaping @Sendable (String) async -> Result<Void, AppError>,
         retry: @escaping @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>,
@@ -68,7 +66,6 @@ struct DownloadClient: Sendable {
         self.badges = badges
         self.fetchVersionMetadata = fetchVersionMetadata
         self.updateRemoteVersion = updateRemoteVersion
-        self.updateRemoteSignature = updateRemoteSignature
         self.enqueue = enqueue
         self.togglePause = togglePause
         self.retry = retry
@@ -133,9 +130,6 @@ extension DownloadClient {
             updateRemoteVersion: { gid, metadata in
                 await manager.updateRemoteVersion(gid: gid, metadata: metadata)
             },
-            updateRemoteSignature: { gid, signature in
-                await manager.updateRemoteSignature(gid: gid, latestSignature: signature)
-            },
             enqueue: { payload in await manager.enqueue(payload: payload) },
             togglePause: { gid in await manager.togglePause(gid: gid) },
             retry: { gid, mode in await manager.retry(gid: gid, mode: mode) },
@@ -185,7 +179,6 @@ extension DownloadClient {
         badges: { _ in [:] },
         fetchVersionMetadata: { _, _ in .failure(.notFound) },
         updateRemoteVersion: { _, _ in .none },
-        updateRemoteSignature: { _, _ in .none },
         enqueue: { _ in .success(()) },
         togglePause: { _ in .success(()) },
         retry: { _, _ in .success(()) },
@@ -210,7 +203,6 @@ extension DownloadClient {
         badges: IssueReporting.unimplemented(placeholder: placeholder()),
         fetchVersionMetadata: IssueReporting.unimplemented(placeholder: placeholder()),
         updateRemoteVersion: IssueReporting.unimplemented(placeholder: placeholder()),
-        updateRemoteSignature: IssueReporting.unimplemented(placeholder: placeholder()),
         enqueue: IssueReporting.unimplemented(placeholder: placeholder()),
         togglePause: IssueReporting.unimplemented(placeholder: placeholder()),
         retry: IssueReporting.unimplemented(placeholder: placeholder()),

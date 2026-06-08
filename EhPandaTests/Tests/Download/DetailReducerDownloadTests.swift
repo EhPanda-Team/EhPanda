@@ -150,7 +150,6 @@ private extension DetailReducerDownloadTests {
                 badges: { gids in
                     Dictionary(uniqueKeysWithValues: gids.map { ($0, badgeValue) })
                 },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: enqueue,
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },

@@ -71,7 +71,6 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in
                     enqueueCount.value += 1
                     return .success(())
@@ -146,7 +145,6 @@ private extension DetailReducerPauseAndGuardTests {
                 badges: { gids in
                     Dictionary(uniqueKeysWithValues: gids.map { ($0, .paused(7, 26)) })
                 },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in
                     togglePauseCount.value += 1

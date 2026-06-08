@@ -137,7 +137,6 @@ private extension DetailReducerMetadataUpdateTests {
                     updateCheckCount.value += 1
                     return .downloaded
                 },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },
@@ -161,7 +160,6 @@ private extension DetailReducerMetadataUpdateTests {
             refreshDownloads: {},
             resumeQueue: {},
             badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, .none) }) },
-            updateRemoteSignature: { _, _ in .none },
             enqueue: { _ in .success(()) },
             togglePause: { _ in .success(()) },
             retry: { _, _ in .success(()) },

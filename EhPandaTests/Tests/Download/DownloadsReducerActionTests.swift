@@ -76,7 +76,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { gid, mode in
@@ -123,7 +122,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },
@@ -174,7 +172,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },
@@ -220,7 +217,6 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: { gid in
                     toggled.value.append(gid)

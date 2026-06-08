@@ -351,7 +351,6 @@ private extension DownloadInspectorLoadTests {
                 validateImageData: validateImageData ?? { _ in nil },
                 resumeQueue: {},
                 badges: { _ in [:] },
-                updateRemoteSignature: { _, _ in .none },
                 enqueue: { _ in .success(()) },
                 togglePause: togglePause ?? { _ in .success(()) },
                 retry: { _, _ in .success(()) },
