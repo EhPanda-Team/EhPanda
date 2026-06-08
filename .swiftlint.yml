@@ -21,5 +21,17 @@ line_length:
  warning: 120
  error: 120
 
+custom_rules:
+ no_unchecked_sendable:
+  name: "No @unchecked Sendable"
+  regex: "@unchecked\\s+Sendable"
+  message: "@unchecked Sendable is banned - use a real Sendable value type, an actor, or Mutex."
+  severity: error
+ no_nslock:
+  name: "No NSLock"
+  regex: "\\bNSLock\\b"
+  message: "NSLock is banned - use Mutex (Synchronization) instead."
+  severity: error
+
 excluded:
  - EhPanda/App/Generated

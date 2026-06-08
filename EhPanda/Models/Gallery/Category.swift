@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-enum Category: String, Codable, CaseIterable, Identifiable {
+enum Category: String, Codable, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
 
     static let allFavoritesCases: [Self] = [.misc] + allCases.dropLast(2)

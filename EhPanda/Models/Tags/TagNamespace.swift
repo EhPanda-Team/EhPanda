@@ -3,7 +3,7 @@
 //  EhPanda
 //
 
-enum TagNamespace: String, Codable, CaseIterable {
+enum TagNamespace: String, Codable, CaseIterable, Sendable {
     case reclass
     case language
     case parody
