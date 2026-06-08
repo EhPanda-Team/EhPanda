@@ -314,7 +314,7 @@ extension ReadingView {
            let cgImage = image.cgImage {
             liveTextHandler.analyzeImage(
                 cgImage, size: image.size, index: index, recognitionLanguages:
-                    store.galleryDetail?.language.codes
+                    store.language?.codes
             )
         } else {
             Logger.info("analyzeImageForLiveText local image not found", context: ["index": index])
@@ -332,7 +332,7 @@ extension ReadingView {
             if let image = result.image, let cgImage = image.cgImage {
                 liveTextHandler.analyzeImage(
                     cgImage, size: image.size, index: index, recognitionLanguages:
-                        store.galleryDetail?.language.codes
+                        store.language?.codes
                 )
             } else {
                 await retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
