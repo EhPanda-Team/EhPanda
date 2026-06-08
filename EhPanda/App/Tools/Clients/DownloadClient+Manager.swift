@@ -136,6 +136,8 @@ actor DownloadManager {
     var downloadErrors = [String: DownloadFailure]()
     var validationErrors = [String: DownloadFailure]()
     var updatedGalleryIDs = Set<String>()
+    var queuedModes = [String: DownloadStartMode]()
+    var queuedPageSelections = [String: [Int]]()
     var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
     var lastObservedDownloads = [DownloadedGallery]()
     var activeGalleryID: String?

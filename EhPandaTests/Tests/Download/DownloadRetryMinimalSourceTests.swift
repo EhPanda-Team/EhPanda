@@ -31,16 +31,22 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             pageCount: setup.pageCount, versionSignature: setup.versionSignature
         )
         try writeFinalManifest(storage: storage, gid: gid, manifest: manifest)
-        try writeTemporaryManifestAndPages(
-            storage: storage, gid: gid, manifest: manifest,
-            pageCount: setup.pageCount, omittingPage: pageIndex,
-            versionSignature: setup.versionSignature,
-            pageSelection: [pageIndex]
-        )
+        let blocker = Task<Void, Never> {
+            try? await Task.sleep(for: .seconds(60))
+        }
+        defer { blocker.cancel() }
+        await manager.testingInstallActiveTask(gid: "busy", task: blocker)
+        guard case .success = await manager.retryPages(gid: gid, pageIndices: [pageIndex]) else {
+            Issue.record("retryPages should queue the selected page.")
+            return
+        }
         await manager.testingProcessDownload(gid: gid)
 
         let firstRunSnapshot = setup.recorder.snapshot()
-        #expect(firstRunSnapshot.previewPageNumbers == [1])
+        #expect(
+            firstRunSnapshot.previewPageNumbers == [1],
+            "\(firstRunSnapshot)"
+        )
 
         setup.recorder.reset()
         try await assertRetrySkipsCompletedSelection(
@@ -79,16 +85,21 @@ private extension DownloadRetryMinimalSourceTests {
     func assertRetrySkipsCompletedSelection(
         _ context: MinimalSourceRetrySkipContext
     ) async throws {
-        try writeTemporaryManifestAndPages(
-            storage: context.storage, gid: context.gid,
-            manifest: context.manifest,
-            pageCount: context.setup.pageCount,
-            versionSignature: context.setup.versionSignature,
-            pageSelection: [context.pageIndex]
-        )
+        let blocker = Task<Void, Never> {
+            try? await Task.sleep(for: .seconds(60))
+        }
+        defer { blocker.cancel() }
+        await context.manager.testingInstallActiveTask(gid: "busy", task: blocker)
+        guard case .success = await context.manager.retryPages(
+            gid: context.gid,
+            pageIndices: [context.pageIndex]
+        ) else {
+            Issue.record("retryPages should queue the selected page.")
+            return
+        }
         await context.manager.testingProcessDownload(gid: context.gid)
         let snapshot = context.setup.recorder.snapshot()
-        #expect(snapshot.previewPageNumbers.isEmpty)
+        #expect(snapshot.previewPageNumbers.isEmpty, "\(snapshot)")
         #expect(snapshot.mpvRequests == 0)
         #expect(snapshot.imageDispatchRequests == 0)
     }
@@ -103,6 +114,10 @@ private extension DownloadRetryMinimalSourceTests {
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
+        )
+        try Data([0x00]).write(
+            to: folderURL.appendingPathComponent("cover.jpg"),
+            options: .atomic
         )
         try storage.writeManifest(manifest, folderURL: folderURL)
     }

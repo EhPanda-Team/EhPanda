@@ -9,29 +9,6 @@ import Testing
 
 struct DownloadFileStorageStateTests {
     @Test
-    func testWriteAndReadResumeState() throws {
-        let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        try storage.ensureRootDirectory()
-        let folderURL = storage.temporaryFolderURL(gid: "123")
-        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-
-        let resumeState = DownloadResumeState(
-            mode: .update,
-            pageCount: 27,
-            downloadOptions: .init(
-                threadLimit: 4,
-                allowCellular: false,
-                autoRetryFailedPages: false
-            )
-        )
-        try storage.writeResumeState(resumeState, folderURL: folderURL)
-
-        #expect(try storage.readResumeState(folderURL: folderURL) == resumeState)
-    }
-
-    @Test
     func testWriteReadAndRemoveFailedPagesSnapshot() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }

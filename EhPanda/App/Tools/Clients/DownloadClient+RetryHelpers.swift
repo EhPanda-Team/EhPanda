@@ -33,32 +33,11 @@ extension DownloadManager {
         let resolvedMode = effectiveRetryMode(
             for: download, requestedMode: mode
         )
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let existingResumeState = fileManager.operate {
-            $0.fileExists(atPath: temporaryFolderURL.path)
-        }
-            ? (try? storage.readResumeState(folderURL: temporaryFolderURL))
-            : nil
-        let retryParams = computeRetryParams(
-            download: download,
-            resolvedMode: resolvedMode,
-            existingResumeState: existingResumeState,
-            gid: gid
-        )
-        if !retryParams.shouldResumeExistingWork {
-            try? storage.removeTemporaryFolder(gid: gid)
-        }
+        queuedModes[gid] = resolvedMode
+        queuedPageSelections[gid] = nil
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
         await queueStore.enqueue(gid)
-        if fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) {
-            writeRetryResumeState(
-                download: download,
-                resolvedMode: resolvedMode,
-                existingResumeState: existingResumeState,
-                temporaryFolderURL: temporaryFolderURL
-            )
-        }
         await notifyObservers()
         await scheduleNextIfNeeded()
     }
@@ -76,8 +55,8 @@ extension DownloadManager {
         let selectedPageIndices = Array(Set(pageIndices)).sorted()
         guard !selectedPageIndices.isEmpty else { return .success(()) }
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        guard fileManager.operate({ $0.fileExists(atPath: temporaryFolderURL.path) }) else {
+        let folderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
+        guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .failure(.notFound)
         }
         do {
@@ -86,7 +65,7 @@ extension DownloadManager {
                 download: download,
                 mode: mode,
                 selectedPageIndices: selectedPageIndices,
-                temporaryFolderURL: temporaryFolderURL
+                folderURL: folderURL
             )
             return .success(())
         } catch let error as AppError {
@@ -102,28 +81,14 @@ extension DownloadManager {
         download: DownloadedGallery,
         mode: DownloadStartMode,
         selectedPageIndices: [Int],
-        temporaryFolderURL: URL
+        folderURL: URL
     ) async throws {
-        let existingResumeState = try? storage.readResumeState(
-            folderURL: temporaryFolderURL
-        )
-        let pageCount = preferredWorkingPageCount(
-            for: download, mode: mode,
-            resumeState: existingResumeState
-        )
         clearSelectedFailedPages(
             selectedPageIndices: selectedPageIndices,
-            temporaryFolderURL: temporaryFolderURL
+            folderURL: folderURL
         )
-        try storage.writeResumeState(
-            .init(
-                mode: mode,
-                pageCount: pageCount,
-                downloadOptions: download.downloadOptionsSnapshot,
-                pageSelection: selectedPageIndices
-            ),
-            folderURL: temporaryFolderURL
-        )
+        queuedModes[gid] = mode
+        queuedPageSelections[gid] = selectedPageIndices
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
         await queueStore.enqueue(gid)

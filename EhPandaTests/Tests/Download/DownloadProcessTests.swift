@@ -235,15 +235,6 @@ private extension DownloadProcessTests {
             ),
             options: .atomic
         )
-        try storage.writeResumeState(
-            .init(
-                mode: .redownload,
-                pageCount: oldPageCount,
-                downloadOptions: .init(),
-                pageSelection: [pageIndex]
-            ),
-            folderURL: folderURL
-        )
         return folderURL
     }
 
@@ -273,9 +264,6 @@ private extension DownloadProcessTests {
             ) == false
         )
 
-        let resumeState = try storage.readResumeState(folderURL: completedFolderURL)
-        #expect(resumeState.pageCount == context.updatedPageCount)
-        #expect(resumeState.pageSelection == nil)
         #expect(FileManager.default.fileExists(atPath: context.staleFolderURL.path) == false)
         #expect(
             FileManager.default.fileExists(

@@ -32,15 +32,6 @@ extension DownloadManager {
             folderURL: workingFolderURL,
             existingPageRelativePaths: workingSeed.existingPages
         )
-        try storage.writeResumeState(
-            .init(
-                mode: payload.mode,
-                pageCount: payload.galleryDetail.pageCount,
-                downloadOptions: payload.options,
-                pageSelection: payload.pageSelection?.sorted()
-            ),
-            folderURL: workingFolderURL
-        )
 
         let executionContext = DownloadExecutionContext(
             existingDownload: existingDownload
@@ -124,16 +115,6 @@ extension DownloadManager {
         payload: DownloadRequestPayload,
         folderURL: URL
     ) async throws {
-        if payload.pageSelection != nil {
-            try? storage.writeResumeState(
-                .init(
-                    mode: payload.mode,
-                    pageCount: payload.galleryDetail.pageCount,
-                    downloadOptions: payload.options
-                ),
-                folderURL: folderURL
-            )
-        }
         if !context.batchResult.failedPages.isEmpty {
             throw PartialDownloadError(
                 failedPages: context.batchResult.failedPages

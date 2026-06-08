@@ -446,20 +446,17 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
+        let folderRelativePath = "[460_token] Retry Pages"
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[460_token] Retry Pages",
+            relativePath: folderRelativePath,
             manifest: indexedManifest(
                 gid: "460",
                 title: "Retry Pages",
                 pageHashes: ["sha256:done", ""]
             )
         )
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: "460")
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL,
-            withIntermediateDirectories: true
-        )
+        let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try storage.writeFailedPages(
             .init(pages: [
                 .init(
@@ -471,7 +468,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                     )
                 )
             ]),
-            folderURL: temporaryFolderURL
+            folderURL: folderURL
         )
         let blockingTask = Task<Void, Never> {
             do {
@@ -488,14 +485,12 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             return
         }
         let download = try #require(await manager.fetchDownload(gid: "460"))
-        let resumeState = try storage.readResumeState(folderURL: temporaryFolderURL)
         #expect(queueStore.gids == ["460"])
         #expect(download.displayStatus == .queued)
         #expect(download.status == .queued)
         #expect(download.pendingOperation == nil)
-        #expect(resumeState.pageSelection == [2])
         #expect(FileManager.default.fileExists(
-            atPath: storage.failedPagesURL(folderURL: temporaryFolderURL).path
+            atPath: storage.failedPagesURL(folderURL: folderURL).path
         ) == false)
     }
 

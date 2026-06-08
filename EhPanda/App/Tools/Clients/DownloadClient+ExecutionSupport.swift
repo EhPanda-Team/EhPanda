@@ -180,20 +180,13 @@ extension DownloadManager {
         existingDownload: DownloadedGallery,
         folderURL: URL
     ) throws -> WorkingSeed {
-        let resumeState = try? storage
-            .readResumeState(folderURL: folderURL)
         let shouldReuseFolder = shouldReuseWorkingFolder(
             payload: payload,
-            resumeState: resumeState,
             folderURL: folderURL
         )
         let seedContext = RepairSeedContext(
             existingDownload: existingDownload,
-            payload: payload,
-            temporarySeed: temporaryWorkingSeed(
-                payload: payload,
-                folderURL: folderURL
-            )
+            payload: payload
         )
         try setupWorkingFolder(
             folderURL: folderURL,
@@ -223,18 +216,10 @@ extension DownloadManager {
 
     private func shouldReuseWorkingFolder(
         payload: DownloadRequestPayload,
-        resumeState: DownloadResumeState?,
         folderURL: URL
     ) -> Bool {
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return false
-        }
-        if resumeState?.matches(
-            mode: payload.mode,
-            pageCount: payload.galleryDetail.pageCount,
-            downloadOptions: payload.options
-        ) == true {
-            return true
         }
         switch payload.mode {
         case .initial:
@@ -254,7 +239,6 @@ extension DownloadManager {
     private struct RepairSeedContext {
         let existingDownload: DownloadedGallery
         let payload: DownloadRequestPayload
-        let temporarySeed: RepairSeed?
     }
 
     private func setupWorkingFolder(
@@ -268,7 +252,7 @@ extension DownloadManager {
             }
         }
         if !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) {
-            if let seed = seedContext.temporarySeed ?? repairSeed(
+            if let seed = repairSeed(
                 for: seedContext.existingDownload,
                 payload: seedContext.payload
             ) {
@@ -281,36 +265,6 @@ extension DownloadManager {
                 try createDirectory(at: folderURL)
             }
         }
-    }
-
-    private func temporaryWorkingSeed(
-        payload: DownloadRequestPayload,
-        folderURL: URL
-    ) -> RepairSeed? {
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: payload.gallery.gid)
-        guard temporaryFolderURL != folderURL,
-              fileManager.operate({
-                  $0.fileExists(atPath: temporaryFolderURL.path)
-              }),
-              let resumeState = try? storage.readResumeState(
-                folderURL: temporaryFolderURL
-              ),
-              resumeState.matches(
-                mode: payload.mode,
-                pageCount: payload.galleryDetail.pageCount,
-                downloadOptions: payload.options
-              ),
-              let manifest = validatedManifest(
-                at: temporaryFolderURL,
-                gid: payload.gallery.gid,
-                pageCount: payload.galleryDetail.pageCount
-              ),
-              manifest.token == payload.gallery.token
-        else {
-            return nil
-        }
-        return .init(folderURL: temporaryFolderURL, manifest: manifest)
     }
 
     func resolvedImageSource(

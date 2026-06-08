@@ -15,8 +15,8 @@ extension DownloadFeatureTestCase {
         manifest: DownloadManifest, pageCount: Int,
         omittingPage pageToOmit: Int? = nil,
         versionSignature _: String,
-        mode: DownloadStartMode = .redownload,
-        pageSelection: [Int]? = nil
+        mode _: DownloadStartMode = .redownload,
+        pageSelection _: [Int]? = nil
     ) throws {
         let folderURL = storage.temporaryFolderURL(gid: gid)
         try? FileManager.default.removeItem(at: folderURL)
@@ -44,12 +44,5 @@ extension DownloadFeatureTestCase {
                 options: .atomic
             )
         }
-        try storage.writeResumeState(
-            .init(
-                mode: mode, pageCount: pageCount, downloadOptions: .init(),
-                pageSelection: pageSelection
-            ),
-            folderURL: folderURL
-        )
     }
 }

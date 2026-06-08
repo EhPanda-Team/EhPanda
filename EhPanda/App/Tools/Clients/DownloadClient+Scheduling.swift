@@ -114,15 +114,7 @@ extension DownloadManager {
             return false
         }
 
-        let temporaryFolderURL = storage
-            .temporaryFolderURL(gid: download.gid)
-        guard let resumeState = try? storage
-                .readResumeState(folderURL: temporaryFolderURL),
-              let pageSelection = resumeState.pageSelection
-        else {
-            return false
-        }
-        return !pageSelection.isEmpty
+        return queuedPageSelections[download.gid]?.isEmpty == false
     }
 
     func syncDownloadsState(scheduleNext: Bool) async {
@@ -198,6 +190,8 @@ extension DownloadManager {
     ) async throws -> Task<Void, Never>? {
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
+        queuedModes[gid] = nil
+        queuedPageSelections[gid] = nil
         await queueStore.remove(gid)
         _ = await reloadDownloadIndex()
         await notifyObservers()
@@ -217,6 +211,8 @@ extension DownloadManager {
     ) async throws {
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
+        queuedModes[gid] = nil
+        queuedPageSelections[gid] = nil
         await queueStore.remove(gid)
         _ = await reloadDownloadIndex()
     }
@@ -232,17 +228,22 @@ extension DownloadManager {
             break
         }
 
+        queuedModes[download.gid] = nil
+        queuedPageSelections[download.gid] = nil
+        await queueStore.remove(download.gid)
         await notifyObservers()
         return .success(())
     }
 
     func resume(gid: String) async -> Result<Void, AppError> {
-        guard await fetchDownload(gid: gid) != nil else {
+        guard let download = await fetchDownload(gid: gid) else {
             return .failure(.notFound)
         }
 
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
+        queuedModes[gid] = resumeMode(for: download)
+        queuedPageSelections[gid] = nil
         await queueStore.enqueue(gid)
         _ = await reloadDownloadIndex()
         await notifyObservers()

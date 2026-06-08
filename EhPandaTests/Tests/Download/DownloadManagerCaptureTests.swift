@@ -51,15 +51,6 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             ),
             folderURL: temporaryFolderURL
         )
-        try storage.writeResumeState(
-            .init(
-                mode: .initial,
-                pageCount: 2,
-                downloadOptions: .init()
-            ),
-            folderURL: temporaryFolderURL
-        )
-
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemBlue.setFill()
