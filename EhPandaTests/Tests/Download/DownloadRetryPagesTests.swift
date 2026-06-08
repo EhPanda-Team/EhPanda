@@ -18,13 +18,13 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        try writeManifestFolder(
+        let folderURL = try writeManifestFolder(
             storage: storage,
             gid: gid,
             title: "Retry Pages",
             pageHashes: ["sha256:done", ""]
         )
-        let temporaryFolderURL = try setupRetryPagesPartialFolder(storage: storage, gid: gid)
+        try setupRetryPagesFailedPage(storage: storage, folderURL: folderURL)
 
         let blockingTask = Task<Void, Never> { _ = try? await Task.sleep(for: .seconds(60)) }
         defer { blockingTask.cancel() }
@@ -42,12 +42,8 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         #expect(stored?.pendingOperation == nil)
         #expect(stored?.lastError == nil)
 
-        let resumeState = try storage.readResumeState(folderURL: temporaryFolderURL)
-        #expect(resumeState.pageSelection == [2])
         #expect(FileManager.default.fileExists(
-            atPath: temporaryFolderURL
-                .appendingPathComponent(Defaults.FilePath.downloadFailedPages)
-                .path
+            atPath: storage.failedPagesURL(folderURL: folderURL).path
         ) == false)
     }
 
@@ -90,12 +86,13 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
 // MARK: - Setup Helpers
 
 private extension DownloadRetryPagesTests {
+    @discardableResult
     func writeManifestFolder(
         storage: DownloadFileStorage,
         gid: String,
         title: String,
         pageHashes: [String]
-    ) throws {
+    ) throws -> URL {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
         try FileManager.default.createDirectory(
@@ -125,18 +122,13 @@ private extension DownloadRetryPagesTests {
             ),
             folderURL: folderURL
         )
+        return folderURL
     }
 
-    @discardableResult
-    func setupRetryPagesPartialFolder(
+    func setupRetryPagesFailedPage(
         storage: DownloadFileStorage,
-        gid: String
-    ) throws -> URL {
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        try FileManager.default.createDirectory(
-            at: temporaryFolderURL,
-            withIntermediateDirectories: true
-        )
+        folderURL: URL
+    ) throws {
         try storage.writeFailedPages(
             .init(pages: [
                 .init(
@@ -145,8 +137,7 @@ private extension DownloadRetryPagesTests {
                     failure: .init(code: .networkingFailed, message: "Network Error")
                 )
             ]),
-            folderURL: temporaryFolderURL
+            folderURL: folderURL
         )
-        return temporaryFolderURL
     }
 }

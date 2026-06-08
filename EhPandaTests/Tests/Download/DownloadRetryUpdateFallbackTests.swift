@@ -98,11 +98,6 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             return
         }
 
-        let temporaryFolderURL = storage.temporaryFolderURL(gid: gid)
-        let resumedState = try storage.readResumeState(folderURL: temporaryFolderURL)
-        #expect(resumedState.mode == .update)
-        #expect(resumedState.pageCount == pageCount)
-        #expect(resumedState.pageSelection == nil)
         let resumedDownload = await immediateManager.testingFetchDownload(gid: gid)
         #expect(resumedDownload?.status == .downloading)
         #expect(resumedDownload?.pendingOperation == nil)

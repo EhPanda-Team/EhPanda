@@ -18,35 +18,6 @@ struct DownloadFolderRecord: Equatable, Sendable {
     let modifiedAt: Date?
 }
 
-struct DownloadResumeState: Codable, Equatable {
-    let mode: DownloadStartMode
-    let pageCount: Int
-    let downloadOptions: DownloadOptionsSnapshot
-    let pageSelection: [Int]?
-
-    init(
-        mode: DownloadStartMode,
-        pageCount: Int,
-        downloadOptions: DownloadOptionsSnapshot,
-        pageSelection: [Int]? = nil
-    ) {
-        self.mode = mode
-        self.pageCount = pageCount
-        self.downloadOptions = downloadOptions
-        self.pageSelection = pageSelection
-    }
-
-    func matches(
-        mode: DownloadStartMode,
-        pageCount: Int,
-        downloadOptions: DownloadOptionsSnapshot
-    ) -> Bool {
-        self.mode == mode
-            && self.pageCount == pageCount
-            && self.downloadOptions == downloadOptions
-    }
-}
-
 struct DownloadFileStorage: Sendable {
     let rootURL: URL
     let fileManager: DownloadFileManager
@@ -98,10 +69,6 @@ struct DownloadFileStorage: Sendable {
         rootURL.appendingPathComponent(".tmp-\(gid)", isDirectory: true)
     }
 
-    func temporaryFolderExists(gid: String) -> Bool {
-        fileManager.operate { $0.fileExists(atPath: temporaryFolderURL(gid: gid).path) }
-    }
-
     func removeTemporaryFolder(gid: String) throws {
         let targetURL = temporaryFolderURL(gid: gid)
         try fileManager.operate {
@@ -110,20 +77,8 @@ struct DownloadFileStorage: Sendable {
         }
     }
 
-    func resumeStateURL(folderURL: URL) -> URL {
-        folderURL.appendingPathComponent(Defaults.FilePath.downloadResumeState)
-    }
-
     func failedPagesURL(folderURL: URL) -> URL {
         folderURL.appendingPathComponent(Defaults.FilePath.downloadFailedPages)
-    }
-
-    func writeResumeState(_ state: DownloadResumeState, folderURL: URL) throws {
-        try writeJSON(state, to: resumeStateURL(folderURL: folderURL))
-    }
-
-    func readResumeState(folderURL: URL) throws -> DownloadResumeState {
-        try readJSON(DownloadResumeState.self, from: resumeStateURL(folderURL: folderURL))
     }
 
     func writeFailedPages(_ snapshot: DownloadFailedPagesSnapshot, folderURL: URL) throws {

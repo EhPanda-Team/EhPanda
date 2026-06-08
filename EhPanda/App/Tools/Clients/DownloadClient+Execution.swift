@@ -96,13 +96,7 @@ extension DownloadManager {
         download: DownloadedGallery,
         mode: DownloadStartMode
     ) async throws -> ProcessDownloadResult {
-        let existingFolderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
-        let existingResumeState = (try? storage
-            .readResumeState(folderURL: existingFolderURL)
-        ) ?? (try? storage.readResumeState(
-            folderURL: storage.temporaryFolderURL(gid: gid)
-        ))
-        let rawPageSelection = existingResumeState?.pageSelection
+        let rawPageSelection = queuedPageSelections[gid]
         let fetchedPayload = try await fetchLatestPayload(
             for: download,
             mode: mode,
@@ -111,7 +105,6 @@ extension DownloadManager {
         let payload = normalizeFetchedPayload(
             fetchedPayload,
             mode: mode,
-            existingResumeState: existingResumeState,
             rawPageSelection: rawPageSelection
         )
         let folderRelativePath = folderRelativePath(for: payload)
@@ -190,6 +183,8 @@ extension DownloadManager {
         downloadErrors[gid] = nil
         validationErrors[gid] = nil
         updatedGalleryIDs.remove(gid)
+        queuedModes[gid] = nil
+        queuedPageSelections[gid] = nil
         await queueStore.remove(gid)
     }
 }

@@ -136,19 +136,15 @@ extension DownloadManager {
     func normalizeFetchedPayload(
         _ payload: DownloadRequestPayload,
         mode: DownloadStartMode,
-        existingResumeState: DownloadResumeState?,
         rawPageSelection: [Int]?
     ) -> DownloadRequestPayload {
-        let shouldPreservePageSelection =
-            rawPageSelection?.isEmpty == false
-            && existingResumeState?.matches(
-                mode: mode,
-                pageCount: payload.galleryDetail.pageCount,
-                downloadOptions: payload.options
-            ) == true
-            && mode != .update
+        let validPageSelection = rawPageSelection?
+            .filter { (1...payload.galleryDetail.pageCount).contains($0) }
+        let pageSelection = validPageSelection?.isEmpty == false && mode != .update
+            ? validPageSelection
+            : nil
 
-        guard !shouldPreservePageSelection else {
+        guard pageSelection != rawPageSelection else {
             return payload
         }
 
@@ -161,7 +157,7 @@ extension DownloadManager {
             versionMetadata: payload.versionMetadata,
             options: payload.options,
             mode: payload.mode,
-            pageSelection: nil
+            pageSelection: pageSelection.map(Set.init)
         )
     }
 }

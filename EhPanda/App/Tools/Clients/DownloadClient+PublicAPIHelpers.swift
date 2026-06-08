@@ -131,93 +131,24 @@ extension DownloadManager {
         return .success(completedPageURLs)
     }
 
-    struct RetryParams {
-        let shouldResumeExistingWork: Bool
-        let resumedStatus: DownloadStatus
-        let completedPageCount: Int
-        let pendingOperation: DownloadStartMode?
-    }
-
-    func computeRetryParams(
-        download: DownloadedGallery,
-        resolvedMode: DownloadStartMode,
-        existingResumeState: DownloadResumeState?,
-        gid: String
-    ) -> RetryParams {
-        let shouldResumeExisting = shouldResumeExistingWorkingSet(
-            for: download,
-            mode: resolvedMode,
-            resumeState: existingResumeState
-        )
-        let shouldStartImmediately =
-            activeTask == nil || activeGalleryID == gid
-        let resumedStatus: DownloadStatus
-        let completedPageCount: Int
-        let pendingOperation: DownloadStartMode?
-
-        if shouldResumeExisting {
-            resumedStatus = shouldStartImmediately
-                ? .downloading : .queued
-            completedPageCount = download.completedPageCount
-            pendingOperation = nil
-        } else if shouldStartImmediately {
-            resumedStatus = .downloading
-            completedPageCount = validatedCompletedPageCount(download)
-            pendingOperation = nil
-        } else {
-            resumedStatus = download.status
-            completedPageCount = validatedCompletedPageCount(download)
-            pendingOperation = resolvedMode
-        }
-
-        return RetryParams(
-            shouldResumeExistingWork: shouldResumeExisting,
-            resumedStatus: resumedStatus,
-            completedPageCount: completedPageCount,
-            pendingOperation: pendingOperation
-        )
-    }
-
-    func writeRetryResumeState(
-        download: DownloadedGallery,
-        resolvedMode: DownloadStartMode,
-        existingResumeState: DownloadResumeState?,
-        temporaryFolderURL: URL
-    ) {
-        let downloadOptions = download.downloadOptionsSnapshot
-        let pageCount = preferredWorkingPageCount(
-            for: download,
-            mode: resolvedMode,
-            resumeState: existingResumeState
-        )
-        try? storage.writeResumeState(
-            .init(
-                mode: resolvedMode,
-                pageCount: pageCount,
-                downloadOptions: downloadOptions
-            ),
-            folderURL: temporaryFolderURL
-        )
-    }
-
     func clearSelectedFailedPages(
         selectedPageIndices: [Int],
-        temporaryFolderURL: URL
+        folderURL: URL
     ) {
         if let failedSnapshot = try? storage.readFailedPages(
-            folderURL: temporaryFolderURL
+            folderURL: folderURL
         ) {
             let remainingPages = failedSnapshot.pages.filter {
                 !selectedPageIndices.contains($0.index)
             }
             if remainingPages.isEmpty {
                 try? storage.removeFailedPages(
-                    folderURL: temporaryFolderURL
+                    folderURL: folderURL
                 )
             } else {
                 try? storage.writeFailedPages(
                     .init(pages: remainingPages),
-                    folderURL: temporaryFolderURL
+                    folderURL: folderURL
                 )
             }
         }

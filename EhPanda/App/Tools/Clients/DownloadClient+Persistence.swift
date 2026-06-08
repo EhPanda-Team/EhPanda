@@ -165,6 +165,8 @@ extension DownloadManager {
         }
 #endif
         downloadErrors[context.gid] = DownloadFailure(error: error)
+        queuedModes[context.gid] = nil
+        queuedPageSelections[context.gid] = nil
         await queueStore.remove(context.gid)
         _ = await reloadDownloadIndex()
     }

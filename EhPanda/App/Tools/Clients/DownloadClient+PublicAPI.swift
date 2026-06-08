@@ -166,6 +166,8 @@ extension DownloadManager {
             taskToCancel = nil
         }
         await taskToCancel?.value
+        queuedModes[gid] = nil
+        queuedPageSelections[gid] = nil
         await queueStore.remove(gid)
         guard let download = await fetchDownload(gid: gid) else {
             return .failure(.notFound)

@@ -302,13 +302,6 @@ private extension DownloadProcessCacheTests {
             ),
             options: .atomic
         )
-        try storage.writeResumeState(
-            .init(
-                mode: .redownload,
-                pageCount: oldPageCount, downloadOptions: .init(), pageSelection: [pageIndex]
-            ),
-            folderURL: temporaryFolderURL
-        )
     }
 
     func waitUntilCacheCleared(cachedKeys: Set<String>) async throws {

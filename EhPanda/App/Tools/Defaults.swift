@@ -67,7 +67,6 @@ struct Defaults {
         static let downloads = "Downloads"
         static let downloadPages = "pages"
         static let downloadManifest = "manifest.json"
-        static let downloadResumeState = ".resume.json"
         static let downloadFailedPages = ".failed-pages.json"
     }
     struct Regex {
