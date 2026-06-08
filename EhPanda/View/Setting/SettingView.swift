@@ -91,7 +91,7 @@ private extension SettingView {
         }
         NavigationLink(unwrapping: $store.route, case: \.download) { _ in
             DownloadSettingView(
-                downloadThreadMode: $store.setting.downloadThreadMode,
+                downloadThreadLimit: $store.setting.downloadThreadLimit,
                 downloadAllowCellular: $store.setting.downloadAllowCellular,
                 downloadAutoRetryFailedPages: $store.setting.downloadAutoRetryFailedPages
             )

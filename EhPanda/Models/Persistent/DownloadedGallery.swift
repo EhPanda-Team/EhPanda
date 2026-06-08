@@ -5,116 +5,41 @@
 
 import SwiftUI
 
-enum DownloadThreadMode: Codable, CaseIterable, Identifiable, Sendable {
-    case single
-    case double
-    case triple
-    case quadruple
-    case quintuple
-
-    var id: Int { workerCount }
-
-    var value: String {
-        switch self {
-        case .single:
-            return L10n.Localizable.Enum.DownloadThreadMode.Value.single
-        case .double:
-            return L10n.Localizable.Enum.DownloadThreadMode.Value.double
-        case .triple:
-            return L10n.Localizable.Enum.DownloadThreadMode.Value.triple
-        case .quadruple:
-            return L10n.Localizable.Enum.DownloadThreadMode.Value.quadruple
-        case .quintuple:
-            return L10n.Localizable.Enum.DownloadThreadMode.Value.quintuple
-        }
-    }
-
-    var workerCount: Int {
-        switch self {
-        case .single:
-            return 1
-        case .double:
-            return 2
-        case .triple:
-            return 3
-        case .quadruple:
-            return 4
-        case .quintuple:
-            return 5
-        }
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let storedValue = (try? container.decode(String.self)) ?? ""
-        switch storedValue {
-        case "single":
-            self = .single
-        case "double":
-            self = .double
-        case "triple":
-            self = .triple
-        case "quadruple":
-            self = .quadruple
-        case "quintuple":
-            self = .quintuple
-        default:
-            self = .single
-        }
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .single:
-            try container.encode("single")
-        case .double:
-            try container.encode("double")
-        case .triple:
-            try container.encode("triple")
-        case .quadruple:
-            try container.encode("quadruple")
-        case .quintuple:
-            try container.encode("quintuple")
-        }
-    }
-}
-
 struct DownloadOptionsSnapshot: Codable, Equatable, Sendable {
-    var threadMode: DownloadThreadMode = .single
+    var threadLimit = 1
     var allowCellular = true
     var autoRetryFailedPages = true
 
     var workerCount: Int {
-        threadMode.workerCount
+        threadLimit
     }
 
     private enum CodingKeys: String, CodingKey {
-        case threadMode
+        case threadLimit
         case allowCellular
         case autoRetryFailedPages
     }
 
     init(
-        threadMode: DownloadThreadMode = .single,
+        threadLimit: Int = 1,
         allowCellular: Bool = true,
         autoRetryFailedPages: Bool = true
     ) {
-        self.threadMode = threadMode
+        self.threadLimit = threadLimit
         self.allowCellular = allowCellular
         self.autoRetryFailedPages = autoRetryFailedPages
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        threadMode = try container.decodeIfPresent(DownloadThreadMode.self, forKey: .threadMode) ?? .single
+        threadLimit = try container.decodeIfPresent(Int.self, forKey: .threadLimit) ?? 1
         allowCellular = try container.decodeIfPresent(Bool.self, forKey: .allowCellular) ?? true
         autoRetryFailedPages = try container.decodeIfPresent(Bool.self, forKey: .autoRetryFailedPages) ?? true
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(threadMode, forKey: .threadMode)
+        try container.encode(threadLimit, forKey: .threadLimit)
         try container.encode(allowCellular, forKey: .allowCellular)
         try container.encode(autoRetryFailedPages, forKey: .autoRetryFailedPages)
     }

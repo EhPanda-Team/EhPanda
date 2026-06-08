@@ -50,7 +50,7 @@ struct Setting: Codable, Equatable {
     var doubleTapScaleFactor: Double = 2
 
     // Downloads
-    var downloadThreadMode: DownloadThreadMode = .single
+    var downloadThreadLimit = 1
     var downloadAllowCellular = true
     var downloadAutoRetryFailedPages = true
 
@@ -61,7 +61,7 @@ struct Setting: Codable, Equatable {
 extension Setting {
     var downloadOptionsSnapshot: DownloadOptionsSnapshot {
         .init(
-            threadMode: downloadThreadMode,
+            threadLimit: downloadThreadLimit,
             allowCellular: downloadAllowCellular,
             autoRetryFailedPages: downloadAutoRetryFailedPages
         )
@@ -231,8 +231,7 @@ extension Setting {
         maximumScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .maximumScaleFactor)) ?? 3
         doubleTapScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .doubleTapScaleFactor)) ?? 2
         // Downloads
-        downloadThreadMode = (try? container?.decodeIfPresent(DownloadThreadMode.self, forKey: .downloadThreadMode))
-            ?? .single
+        downloadThreadLimit = (try? container?.decodeIfPresent(Int.self, forKey: .downloadThreadLimit)) ?? 1
         downloadAllowCellular = (try? container?.decodeIfPresent(Bool.self, forKey: .downloadAllowCellular)) ?? true
         downloadAutoRetryFailedPages = (
             try? container?.decodeIfPresent(Bool.self, forKey: .downloadAutoRetryFailedPages)

@@ -19,7 +19,7 @@ struct SettingDownloadTests {
 
         let setting = try JSONDecoder().decode(Setting.self, from: data)
 
-        #expect(setting.downloadThreadMode == .single)
+        #expect(setting.downloadThreadLimit == 1)
         #expect(setting.downloadAllowCellular)
         #expect(setting.downloadAutoRetryFailedPages)
     }
@@ -27,13 +27,13 @@ struct SettingDownloadTests {
     @Test
     func testDownloadOptionsSnapshotMatchesSettingValues() {
         var setting = Setting()
-        setting.downloadThreadMode = .quadruple
+        setting.downloadThreadLimit = 4
         setting.downloadAllowCellular = false
         setting.downloadAutoRetryFailedPages = false
 
         #expect(
             setting.downloadOptionsSnapshot == DownloadOptionsSnapshot(
-                threadMode: .quadruple,
+                threadLimit: 4,
                 allowCellular: false,
                 autoRetryFailedPages: false
             )
@@ -44,7 +44,7 @@ struct SettingDownloadTests {
     func testLegacyDownloadOptionsSnapshotDecodesWithoutOriginalImageField() throws {
         let data = Data("""
         {
-          "threadMode": "triple",
+          "threadLimit": 3,
           "useOriginalImages": true,
           "allowCellular": false,
           "autoRetryFailedPages": false
@@ -55,7 +55,7 @@ struct SettingDownloadTests {
 
         #expect(
             snapshot == DownloadOptionsSnapshot(
-                threadMode: .triple,
+                threadLimit: 3,
                 allowCellular: false,
                 autoRetryFailedPages: false
             )

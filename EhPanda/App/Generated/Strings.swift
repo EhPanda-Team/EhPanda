@@ -1525,20 +1525,6 @@ internal enum L10n {
           internal static let update = L10n.tr("Localizable", "enum.download_list_filter.title.update", fallback: "Update Available")
         }
       }
-      internal enum DownloadThreadMode {
-        internal enum Value {
-          /// 2 images at a time
-          internal static let double = L10n.tr("Localizable", "enum.download_thread_mode.value.double", fallback: "2 images at a time")
-          /// 4 images at a time
-          internal static let quadruple = L10n.tr("Localizable", "enum.download_thread_mode.value.quadruple", fallback: "4 images at a time")
-          /// 5 images at a time
-          internal static let quintuple = L10n.tr("Localizable", "enum.download_thread_mode.value.quintuple", fallback: "5 images at a time")
-          /// 1 image at a time
-          internal static let single = L10n.tr("Localizable", "enum.download_thread_mode.value.single", fallback: "1 image at a time")
-          /// 3 images at a time
-          internal static let triple = L10n.tr("Localizable", "enum.download_thread_mode.value.triple", fallback: "3 images at a time")
-        }
-      }
       internal enum EhSetting {
         internal enum ArchiverBehavior {
           internal enum Value {

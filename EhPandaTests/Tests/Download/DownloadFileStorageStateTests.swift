@@ -22,7 +22,7 @@ struct DownloadFileStorageStateTests {
             versionSignature: "hash:v2",
             pageCount: 27,
             downloadOptions: .init(
-                threadMode: .quadruple,
+                threadLimit: 4,
                 allowCellular: false,
                 autoRetryFailedPages: false
             )

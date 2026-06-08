@@ -6,16 +6,16 @@
 import SwiftUI
 
 struct DownloadSettingView: View {
-    @Binding private var downloadThreadMode: DownloadThreadMode
+    @Binding private var downloadThreadLimit: Int
     @Binding private var downloadAllowCellular: Bool
     @Binding private var downloadAutoRetryFailedPages: Bool
 
     init(
-        downloadThreadMode: Binding<DownloadThreadMode>,
+        downloadThreadLimit: Binding<Int>,
         downloadAllowCellular: Binding<Bool>,
         downloadAutoRetryFailedPages: Binding<Bool>
     ) {
-        _downloadThreadMode = downloadThreadMode
+        _downloadThreadLimit = downloadThreadLimit
         _downloadAllowCellular = downloadAllowCellular
         _downloadAutoRetryFailedPages = downloadAutoRetryFailedPages
     }
@@ -23,15 +23,13 @@ struct DownloadSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker(
-                    L10n.Localizable.DownloadSettingView.Title.concurrentImageDownloads,
-                    selection: $downloadThreadMode
-                ) {
-                    ForEach(DownloadThreadMode.allCases) {
-                        Text($0.value).tag($0)
+                VStack(alignment: .leading) {
+                    LabeledContent(L10n.Localizable.DownloadSettingView.Title.concurrentImageDownloads) {
+                        Text(downloadThreadLimit, format: .number)
+                            .monospacedDigit()
                     }
+                    Slider(value: downloadThreadLimitValue, in: 1...5, step: 1)
                 }
-                .pickerStyle(.menu)
                 Toggle(
                     L10n.Localizable.DownloadSettingView.Title.retryFailedPagesAutomatically,
                     isOn: $downloadAutoRetryFailedPages
@@ -51,13 +49,20 @@ struct DownloadSettingView: View {
         }
         .navigationTitle(L10n.Localizable.DownloadSettingView.title)
     }
+
+    private var downloadThreadLimitValue: Binding<Double> {
+        .init(
+            get: { Double(downloadThreadLimit) },
+            set: { downloadThreadLimit = Int($0.rounded()) }
+        )
+    }
 }
 
 struct DownloadSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             DownloadSettingView(
-                downloadThreadMode: .constant(.single),
+                downloadThreadLimit: .constant(1),
                 downloadAllowCellular: .constant(true),
                 downloadAutoRetryFailedPages: .constant(true)
             )
