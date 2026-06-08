@@ -25,8 +25,12 @@ enum DownloadSignatureBuilder {
         previewURLs: [Int: URL],
         versionMetadata: DownloadVersionMetadata? = nil
     ) -> String {
-        if let versionIdentifier = versionMetadata?.versionIdentifier {
-            return versionIdentifier
+        if let versionMetadata,
+           let chainSignature = chainVersionIdentifier(
+               gid: versionMetadata.resolvedCurrentGID,
+               token: versionMetadata.resolvedCurrentKey
+           ) {
+            return chainSignature
         }
 
         let previewHash = SHA256.hash(
