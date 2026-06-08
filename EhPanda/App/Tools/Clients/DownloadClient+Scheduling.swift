@@ -292,6 +292,12 @@ extension DownloadManager {
         do {
             downloadErrors[gid] = nil
             await queueStore.enqueue(gid)
+            let indexedDownloads = await reloadDownloadIndex()
+            if indexedDownloads.contains(where: { $0.gid == gid }) {
+                await notifyObservers()
+                await scheduleNextIfNeeded()
+                return .success(())
+            }
             let resumedStatus: DownloadStatus =
                 activeTask == nil ? .downloading : .queued
             try await updateDownloadRecord(
