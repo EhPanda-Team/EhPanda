@@ -9,7 +9,6 @@ import Foundation
 extension DownloadManager {
     struct FetchLatestPayloadResult: Sendable {
         let payload: DownloadRequestPayload
-        let versionSignature: String
     }
 
     func fetchLatestPayload(
@@ -67,10 +66,6 @@ extension DownloadManager {
         let download = fetchedData.download
         let detail = fetchedData.detail
         let versionMetadata = fetchedData.versionMetadata
-        let versionSignature = manifestVersionSignature(
-            for: components.gallery,
-            versionMetadata: versionMetadata
-        )
         return FetchLatestPayloadResult(
             payload: .init(
                 gallery: components.gallery,
@@ -82,8 +77,7 @@ extension DownloadManager {
                 options: download.downloadOptionsSnapshot,
                 mode: mode,
                 pageSelection: pageSelection.map(Set.init)
-            ),
-            versionSignature: versionSignature
+            )
         )
     }
 
@@ -148,7 +142,6 @@ extension DownloadManager {
     func normalizeFetchedPayload(
         _ payload: DownloadRequestPayload,
         mode: DownloadStartMode,
-        versionSignature _: String,
         existingResumeState: DownloadResumeState?,
         rawPageSelection: [Int]?
     ) -> DownloadRequestPayload {

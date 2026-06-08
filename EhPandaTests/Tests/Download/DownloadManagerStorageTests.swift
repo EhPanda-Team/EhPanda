@@ -678,8 +678,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 gid: "800",
                 originalDownload: download,
                 mode: .initial,
-                hadReadableFiles: false,
-                latestSignature: nil
+                hadReadableFiles: false
             )
         )
 

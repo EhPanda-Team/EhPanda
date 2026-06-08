@@ -22,7 +22,6 @@ extension DownloadManager {
         let mode = queuedMode(for: download)
         let hadReadableFiles =
             storage.validate(download: download) == .valid
-        var fetchedVersionSignature: String?
 
         do {
             downloadErrors[gid] = nil
@@ -33,7 +32,6 @@ extension DownloadManager {
                 download: download,
                 mode: mode
             )
-            fetchedVersionSignature = result.versionSignature
             guard !Task.isCancelled else { return }
             await completeDownload(
                 gid: gid,
@@ -48,7 +46,6 @@ extension DownloadManager {
                 originalDownload: download,
                 mode: mode,
                 hadReadableFiles: hadReadableFiles,
-                latestSignature: fetchedVersionSignature
             )
             await handleProcessDownloadError(error: error, context: context)
         }
@@ -92,7 +89,6 @@ extension DownloadManager {
 
     private struct ProcessDownloadResult {
         let folderRelativePath: String
-        let versionSignature: String
     }
 
     private func fetchNormalizeAndDownload(
@@ -115,20 +111,17 @@ extension DownloadManager {
         let payload = normalizeFetchedPayload(
             fetchResult.payload,
             mode: mode,
-            versionSignature: fetchResult.versionSignature,
             existingResumeState: existingResumeState,
             rawPageSelection: rawPageSelection
         )
         let folderRelativePath = folderRelativePath(for: payload)
         _ = try await performDownload(
             payload: payload,
-            versionSignature: fetchResult.versionSignature,
             folderRelativePath: folderRelativePath,
             existingDownload: download
         )
         return ProcessDownloadResult(
-            folderRelativePath: folderRelativePath,
-            versionSignature: fetchResult.versionSignature
+            folderRelativePath: folderRelativePath
         )
     }
 

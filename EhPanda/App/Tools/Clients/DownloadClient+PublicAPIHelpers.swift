@@ -8,16 +8,6 @@ import Foundation
 
 // MARK: - Private helpers for public API
 extension DownloadManager {
-    func manifestVersionSignature(
-        for gallery: Gallery,
-        versionMetadata: DownloadVersionMetadata?
-    ) -> String {
-        let gid = versionMetadata?.resolvedCurrentGID ?? gallery.gid
-        let token = versionMetadata?.resolvedCurrentKey ?? gallery.token
-        guard !gid.isEmpty, !token.isEmpty else { return "" }
-        return "chain:\(gid):\(token)"
-    }
-
     func buildInspectionPages(
         download: DownloadedGallery,
         activeFolderURL: URL?,
