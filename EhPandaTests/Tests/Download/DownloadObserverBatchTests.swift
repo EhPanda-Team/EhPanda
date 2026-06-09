@@ -102,7 +102,12 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         var pendingResolvedPages = [DownloadManager.PageResult]()
         var lastFlushDate = Date.distantPast
         for index in 1...pageCount {
-            let relativePath = "pages/\(String(format: "%04d", index)).jpg"
+            let relativePath = storage.makePageRelativePath(
+                gid: gid,
+                token: "token",
+                index: index,
+                fileExtension: "jpg"
+            )
             try Data([UInt8(index)]).write(
                 to: folderURL.appendingPathComponent(relativePath),
                 options: .atomic
