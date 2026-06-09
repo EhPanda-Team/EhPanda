@@ -55,23 +55,25 @@ enum DownloadStartMode: String, Codable, Equatable, Sendable {
 struct DownloadedGallery: Identifiable, Equatable {
     var id: String { gid }
 
-    let gid: String
-    let host: GalleryHost
-    let token: String
-    let title: String
-    let jpnTitle: String?
-    let uploader: String?
-    let category: Category
-    let tags: [GalleryTag]
-    let pageCount: Int
-    let postedDate: Date
-    let rating: Float
-    let onlineCoverURL: URL?
+    let manifest: DownloadManifest
     let folderURL: URL
     let displayStatus: DownloadDisplayStatus
-    let completedPageCount: Int
     let lastDownloadedAt: Date?
     let lastError: DownloadFailure?
+
+    var gid: String { manifest.gid }
+    var host: GalleryHost { manifest.host }
+    var token: String { manifest.token }
+    var title: String { manifest.title }
+    var jpnTitle: String? { manifest.jpnTitle }
+    var uploader: String? { manifest.uploader }
+    var category: Category { manifest.category }
+    var tags: [GalleryTag] { manifest.tags }
+    var pageCount: Int { manifest.pageCount }
+    var postedDate: Date { manifest.postedDate }
+    var rating: Float { manifest.rating }
+    var onlineCoverURL: URL? { manifest.remoteCoverURL }
+    var completedPageCount: Int { manifest.completedPageCount }
 
     init(
         gid: String,
@@ -92,21 +94,30 @@ struct DownloadedGallery: Identifiable, Equatable {
         lastDownloadedAt: Date?,
         lastError: DownloadFailure?
     ) {
-        self.gid = gid
-        self.host = host
-        self.token = token
-        self.title = title
-        self.jpnTitle = jpnTitle
-        self.uploader = uploader
-        self.category = category
-        self.tags = tags
-        self.pageCount = pageCount
-        self.postedDate = postedDate
-        self.rating = rating
-        self.onlineCoverURL = onlineCoverURL
+        let clampedCompletedPageCount = min(max(completedPageCount, 0), pageCount)
+        self.manifest = DownloadManifest(
+            gid: gid,
+            host: host,
+            token: token,
+            title: title,
+            jpnTitle: jpnTitle,
+            category: category,
+            language: .japanese,
+            remoteCoverURL: onlineCoverURL,
+            uploader: uploader,
+            tags: tags,
+            postedDate: postedDate,
+            rating: rating,
+            pages: pageCount > 0
+                ? Dictionary(
+                    uniqueKeysWithValues: (1...pageCount).map {
+                        ($0, $0 <= clampedCompletedPageCount ? "sha256:fixture-\($0)" : "")
+                    }
+                )
+                : [:]
+        )
         self.folderURL = folderURL
         self.displayStatus = displayStatus
-        self.completedPageCount = completedPageCount
         self.lastDownloadedAt = lastDownloadedAt
         self.lastError = lastError
     }
@@ -118,24 +129,10 @@ struct DownloadedGallery: Identifiable, Equatable {
         displayStatus: DownloadDisplayStatus,
         lastError: DownloadFailure? = nil
     ) {
-        self.init(
-            gid: manifest.gid,
-            host: manifest.host,
-            token: manifest.token,
-            title: manifest.title,
-            jpnTitle: manifest.jpnTitle,
-            uploader: manifest.uploader,
-            category: manifest.category,
-            tags: manifest.tags,
-            pageCount: manifest.pageCount,
-            postedDate: manifest.postedDate,
-            rating: manifest.rating,
-            onlineCoverURL: manifest.remoteCoverURL,
-            folderURL: folderURL,
-            displayStatus: displayStatus,
-            completedPageCount: manifest.completedPageCount,
-            lastDownloadedAt: modifiedAt,
-            lastError: lastError
-        )
+        self.manifest = manifest
+        self.folderURL = folderURL
+        self.displayStatus = displayStatus
+        self.lastDownloadedAt = modifiedAt
+        self.lastError = lastError
     }
 }
