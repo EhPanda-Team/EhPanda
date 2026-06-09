@@ -16,7 +16,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
     func testDetailReducerLaunchAutomationDoesNotRedownloadWhenBadgeIsResolved() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let options = DownloadOptionsSnapshot()
+        let options = DownloadRequestOptions()
         var initialState = DetailReducer.State()
         initialState.gallery = gallery
         initialState.galleryDetail = detail
@@ -49,7 +49,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let enqueueCount = UncheckedBox(0)
-        let options = DownloadOptionsSnapshot()
+        let options = DownloadRequestOptions()
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid

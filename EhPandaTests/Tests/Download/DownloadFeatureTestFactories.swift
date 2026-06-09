@@ -245,8 +245,8 @@ extension DownloadFeatureTestCase {
     func makeStubbedDownloadManager(
         rootURL: URL,
         sessionID: String,
-        downloadOptionsProvider: @escaping @Sendable () async -> DownloadOptionsSnapshot = {
-            DownloadOptionsSnapshot()
+        downloadOptionsProvider: @escaping @Sendable () async -> DownloadRequestOptions = {
+            DownloadRequestOptions()
         }
     ) -> (DownloadFileStorage, DownloadManager) {
         let configuration = URLSessionConfiguration.ephemeral

@@ -111,7 +111,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 403)
         let pageIndex = 42
-        let options = DownloadOptionsSnapshot(
+        let options = DownloadRequestOptions(
             threadLimit: 3,
             allowCellular: false,
             autoRetryFailedPages: false

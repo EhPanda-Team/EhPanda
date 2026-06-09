@@ -113,8 +113,8 @@ struct DetailReducer {
         case loadLocalPreviewURLsDone(UUID, [Int: URL])
         case openReading
         case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
-        case runLaunchAutomationIfNeeded(DownloadOptionsSnapshot)
-        case startDownload(DownloadOptionsSnapshot)
+        case runLaunchAutomationIfNeeded(DownloadRequestOptions)
+        case startDownload(DownloadRequestOptions)
         case startDownloadDone(Result<Void, AppError>)
         case toggleDownloadPause
         case toggleDownloadPauseDone(Result<Void, AppError>)

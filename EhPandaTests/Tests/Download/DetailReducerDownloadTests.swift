@@ -17,7 +17,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let options = DownloadOptionsSnapshot(
+        let options = DownloadRequestOptions(
             threadLimit: 4,
             allowCellular: false,
             autoRetryFailedPages: false
@@ -53,7 +53,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
     func testDetailReducerStartDownloadUnlocksActionsAfterQueueing() async throws {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let options = DownloadOptionsSnapshot()
+        let options = DownloadRequestOptions()
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
@@ -85,7 +85,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let options = DownloadOptionsSnapshot()
+        let options = DownloadRequestOptions()
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
 
         setenv("EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID", gallery.gid, 1)

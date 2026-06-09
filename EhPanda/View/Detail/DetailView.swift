@@ -331,7 +331,7 @@ private extension DetailView {
 // MARK: Actions
 private extension DetailView {
     private func handleDownloadAction() {
-        let options = setting.downloadOptionsSnapshot
+        let options = setting.downloadRequestOptions
         switch store.downloadBadge {
         case .none:
             store.send(.startDownload(options))
@@ -349,7 +349,7 @@ private extension DetailView {
     }
 
     private func runLaunchAutomationIfNeeded() {
-        store.send(.runLaunchAutomationIfNeeded(setting.downloadOptionsSnapshot))
+        store.send(.runLaunchAutomationIfNeeded(setting.downloadRequestOptions))
     }
 
     @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {

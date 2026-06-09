@@ -5,53 +5,6 @@
 
 import SwiftUI
 
-struct DownloadOptionsSnapshot: Codable, Equatable, Sendable {
-    var threadLimit = 1
-    var allowCellular = true
-    var autoRetryFailedPages = true
-
-    var workerCount: Int {
-        threadLimit
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case threadLimit
-        case allowCellular
-        case autoRetryFailedPages
-    }
-
-    init(
-        threadLimit: Int = 1,
-        allowCellular: Bool = true,
-        autoRetryFailedPages: Bool = true
-    ) {
-        self.threadLimit = threadLimit
-        self.allowCellular = allowCellular
-        self.autoRetryFailedPages = autoRetryFailedPages
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        threadLimit = try container.decodeIfPresent(Int.self, forKey: .threadLimit) ?? 1
-        allowCellular = try container.decodeIfPresent(Bool.self, forKey: .allowCellular) ?? true
-        autoRetryFailedPages = try container.decodeIfPresent(Bool.self, forKey: .autoRetryFailedPages) ?? true
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(threadLimit, forKey: .threadLimit)
-        try container.encode(allowCellular, forKey: .allowCellular)
-        try container.encode(autoRetryFailedPages, forKey: .autoRetryFailedPages)
-    }
-}
-
-enum DownloadStartMode: String, Codable, Equatable, Sendable {
-    case initial
-    case update
-    case redownload
-    case repair
-}
-
 struct DownloadedGallery: Identifiable, Equatable {
     var id: String { gid }
 
