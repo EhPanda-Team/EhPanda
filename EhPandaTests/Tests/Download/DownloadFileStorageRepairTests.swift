@@ -48,7 +48,7 @@ struct DownloadFileStorageRepairTests {
         )
 
         #expect(FileManager.default.fileExists(
-            atPath: env.destinationFolderURL.appendingPathComponent("pages/0001.jpg").path
+            atPath: env.destinationFolderURL.appendingPathComponent("123_token_1.jpg").path
         ))
         #expect(FileManager.default.fileExists(
             atPath: env.destinationFolderURL.appendingPathComponent("../escape.jpg").standardizedFileURL.path
@@ -104,9 +104,7 @@ private extension DownloadFileStorageRepairTests {
         let sourceFolderURL = sourceStorage.folderURL(relativePath: "123 - Source")
         let destinationFolderURL = destStorage.folderURL(relativePath: "[123_token] Destination")
         try FileManager.default.createDirectory(
-            at: sourceFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
+            at: sourceFolderURL,
             withIntermediateDirectories: true
         )
         let manifest = DownloadManifest(
@@ -123,10 +121,10 @@ private extension DownloadFileStorageRepairTests {
         )
         try sourceStorage.writeManifest(manifest, folderURL: sourceFolderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: sourceFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic
         )
         try Data([0x01]).write(
-            to: sourceFolderURL.appendingPathComponent("pages/0001.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent("123_token_1.jpg"), options: .atomic
         )
         let escapeURL = sourceFolderURL.deletingLastPathComponent().appendingPathComponent("escape.jpg")
         try Data([0x99]).write(to: escapeURL, options: .atomic)
@@ -142,18 +140,18 @@ private extension DownloadFileStorageRepairTests {
         manifest: DownloadManifest
     ) throws {
         try FileManager.default.createDirectory(
-            at: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: sourceFolderURL,
             withIntermediateDirectories: true
         )
         try storage.writeManifest(manifest, folderURL: sourceFolderURL)
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: sourceFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic
         )
         try Data([0x01]).write(
-            to: sourceFolderURL.appendingPathComponent("pages/0001.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent("123_token_1.jpg"), options: .atomic
         )
         try Data([0x03]).write(
-            to: sourceFolderURL.appendingPathComponent("pages/0003.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent("123_token_3.jpg"), options: .atomic
         )
         try FileManager.default.createDirectory(
             at: sourceFolderURL.appendingPathComponent("nested", isDirectory: true),
@@ -169,16 +167,16 @@ private extension DownloadFileStorageRepairTests {
             atPath: destinationFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest).path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: destinationFolderURL.appendingPathComponent("cover.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("123_token_cover.jpg").path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: destinationFolderURL.appendingPathComponent("pages/0001.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("123_token_1.jpg").path
         ))
         #expect(FileManager.default.fileExists(
-            atPath: destinationFolderURL.appendingPathComponent("pages/0002.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("123_token_2.jpg").path
         ) == false)
         #expect(FileManager.default.fileExists(
-            atPath: destinationFolderURL.appendingPathComponent("pages/0003.jpg").path
+            atPath: destinationFolderURL.appendingPathComponent("123_token_3.jpg").path
         ))
         #expect(FileManager.default.fileExists(
             atPath: destinationFolderURL.appendingPathComponent("nested/ignored.bin").path

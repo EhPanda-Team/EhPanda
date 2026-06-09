@@ -31,6 +31,10 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             pageCount: setup.pageCount
         )
         try writeFinalManifest(storage: storage, gid: gid, manifest: manifest)
+        await manager.testingSetDownloadError(
+            .init(code: .fileOperationFailed, message: "Page \(pageIndex) is missing."),
+            gid: gid
+        )
         let blocker = Task<Void, Never> {
             try? await Task.sleep(for: .seconds(60))
         }
@@ -115,7 +119,7 @@ private extension DownloadRetryMinimalSourceTests {
             withIntermediateDirectories: true
         )
         try Data([0x00]).write(
-            to: folderURL.appendingPathComponent("cover.jpg"),
+            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         try storage.writeManifest(manifest, folderURL: folderURL)

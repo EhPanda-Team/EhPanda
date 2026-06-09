@@ -23,32 +23,47 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
 
+        let sourceFolderURL = storage.folderURL(relativePath: "[\(gid)_token] Existing")
         let existingDownload = sampleDownload(
             gid: gid, title: "Mixed Version", status: .missingFiles,
-            pageCount: 2, completedPageCount: 2
+            pageCount: 2, completedPageCount: 2,
+            folderURL: sourceFolderURL
         )
-        try setupRepairSeedFiles(storage: storage, rootURL: rootURL, gid: gid)
+        try setupRepairSeedFiles(
+            storage: storage,
+            sourceFolderURL: sourceFolderURL,
+            gid: gid
+        )
 
         let payload = makeRepairSeedPayload(gid: gid)
         let workingSeed = try await manager.testingPrepareWorkingSeed(
             payload: payload, existingDownload: existingDownload
         )
 
+        let pageOneRelativePath = storage.makePageRelativePath(
+            gid: gid, token: "token", index: 1, fileExtension: "jpg"
+        )
+        let pageTwoRelativePath = storage.makePageRelativePath(
+            gid: gid, token: "token", index: 2, fileExtension: "jpg"
+        )
+        let coverRelativePath = storage.makeCoverRelativePath(
+            gid: gid, token: "token", fileExtension: "jpg"
+        )
         let manifest = try #require(workingSeed.manifest)
         #expect(manifest.gid == gid)
         #expect(workingSeed.existingPages == [
-            1: "pages/0001.jpg",
-            2: "pages/0002.jpg"
+            1: pageOneRelativePath,
+            2: pageTwoRelativePath
         ])
-        #expect(workingSeed.coverRelativePath == "cover.jpg")
+        #expect(workingSeed.coverRelativePath == coverRelativePath)
         #expect(
             FileManager.default.fileExists(
-                atPath: workingSeed.folderURL.appendingPathComponent("pages/0001.jpg").path
+                atPath: workingSeed.folderURL.appendingPathComponent(pageOneRelativePath).path
             )
         )
         #expect(
             FileManager.default.fileExists(
-                atPath: workingSeed.folderURL.appendingPathComponent("pages/0002.jpg").path
+                atPath: workingSeed.folderURL.appendingPathComponent(pageTwoRelativePath).path
             )
         )
     }
@@ -155,15 +170,12 @@ private extension DownloadManagerRepairSeedTests {
     }
 
     func setupRepairSeedFiles(
-        storage: DownloadFileStorage, rootURL: URL, gid: String
+        storage: DownloadFileStorage,
+        sourceFolderURL: URL,
+        gid: String
     ) throws {
-        let completedFolderURL = rootURL.appendingPathComponent(
-            "\(gid) - Mixed Version", isDirectory: true
-        )
         try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
+            at: sourceFolderURL,
             withIntermediateDirectories: true
         )
         let oldManifest = try sampleManifest(
@@ -171,17 +183,26 @@ private extension DownloadManagerRepairSeedTests {
             pageCount: 2
         )
         try JSONEncoder().encode(oldManifest).write(
-            to: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            to: sourceFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent(
+                storage.makeCoverRelativePath(gid: gid, token: "token", fileExtension: "jpg")
+            ),
+            options: .atomic
         )
         try Data([0x01]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0001.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent(
+                storage.makePageRelativePath(gid: gid, token: "token", index: 1, fileExtension: "jpg")
+            ),
+            options: .atomic
         )
         try Data([0x02]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0002.jpg"), options: .atomic
+            to: sourceFolderURL.appendingPathComponent(
+                storage.makePageRelativePath(gid: gid, token: "token", index: 2, fileExtension: "jpg")
+            ),
+            options: .atomic
         )
     }
 
@@ -216,9 +237,7 @@ private extension DownloadManagerRepairSeedTests {
             "\(gid) - Pause Race", isDirectory: true
         )
         try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
+            at: completedFolderURL,
             withIntermediateDirectories: true
         )
         let manifest = try sampleManifest(gid: gid, title: "Pause Race")
@@ -227,11 +246,11 @@ private extension DownloadManagerRepairSeedTests {
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic
         )
-        let emptyPageURL = completedFolderURL.appendingPathComponent("pages/0001.jpg")
+        let emptyPageURL = completedFolderURL.appendingPathComponent("123_token_1.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
-        let goodPageURL = completedFolderURL.appendingPathComponent("pages/0002.jpg")
+        let goodPageURL = completedFolderURL.appendingPathComponent("123_token_2.jpg")
         try Data([0x02]).write(to: goodPageURL, options: .atomic)
         return (emptyPageURL, goodPageURL)
     }

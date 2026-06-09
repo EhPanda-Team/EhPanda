@@ -265,20 +265,16 @@ private extension DownloadProcessTests {
         let folderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
         try? FileManager.default.removeItem(at: folderURL)
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try storage.writeManifest(staleManifest, folderURL: folderURL)
         try Data([0x00]).write(
-            to: folderURL.appendingPathComponent("cover.jpg"),
+            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         try Data([UInt8(pageIndex % 255)]).write(
-            to: folderURL.appendingPathComponent(
-                "pages/\(String(format: "%04d", pageIndex)).jpg"
-            ),
+            to: folderURL.appendingPathComponent("\(gid)_token_\(pageIndex).jpg"),
             options: .atomic
         )
         return folderURL
@@ -306,7 +302,7 @@ private extension DownloadProcessTests {
         )
         #expect(
             FileManager.default.fileExists(
-                atPath: completedFolderURL.appendingPathComponent("pages/0001.jpg").path
+                atPath: completedFolderURL.appendingPathComponent("123_token_1.jpg").path
             ) == false
         )
 

@@ -69,19 +69,16 @@ struct DownloadFileStorage: Sendable {
         folderURL: URL,
         expectedPageCount: Int
     ) -> [Int: String] {
-        var relativePaths = existingLegacyPageRelativePaths(
-            folderURL: folderURL,
-            expectedPageCount: expectedPageCount
-        )
         guard let finalPageURLs = try? fileManager.operate({
             try $0.contentsOfDirectory(
                 at: folderURL,
                 includingPropertiesForKeys: nil
             )
         }) else {
-            return relativePaths
+            return [:]
         }
 
+        var relativePaths = [Int: String]()
         for pageURL in finalPageURLs {
             guard let index = finalPageIndex(from: pageURL),
                   index >= 1,
@@ -91,40 +88,6 @@ struct DownloadFileStorage: Sendable {
                 continue
             }
             relativePaths[index] = pageURL.lastPathComponent
-        }
-        return relativePaths
-    }
-
-    private func existingLegacyPageRelativePaths(
-        folderURL: URL,
-        expectedPageCount: Int
-    ) -> [Int: String] {
-        let pagesFolderURL = folderURL.appendingPathComponent(
-            Defaults.FilePath.downloadPages,
-            isDirectory: true
-        )
-        guard let pageURLs = try? fileManager.operate({
-            try $0.contentsOfDirectory(
-                at: pagesFolderURL,
-                includingPropertiesForKeys: nil
-            )
-        }) else {
-            return [:]
-        }
-
-        var relativePaths = [Int: String]()
-        for pageURL in pageURLs {
-            guard sanitizeAssetFileIfNeeded(at: pageURL) else {
-                continue
-            }
-            let filename = pageURL.deletingPathExtension().lastPathComponent
-            guard let index = Int(filename),
-                  index >= 1,
-                  index <= expectedPageCount
-            else {
-                continue
-            }
-            relativePaths[index] = Defaults.FilePath.downloadPages + "/\(pageURL.lastPathComponent)"
         }
         return relativePaths
     }
@@ -152,7 +115,7 @@ struct DownloadFileStorage: Sendable {
             .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
             .first(where: {
                 let filename = $0.deletingPathExtension().lastPathComponent
-                return (filename == "cover" || filename.hasSuffix("_cover"))
+                return filename.hasSuffix("_cover")
                     && sanitizeAssetFileIfNeeded(at: $0)
             })?
             .lastPathComponent
@@ -204,16 +167,6 @@ struct DownloadFileStorage: Sendable {
             .map { invalidCharacters.contains($0) ? "_" : String($0) }
             .joined()
         return sanitized.isEmpty ? "unknown" : sanitized
-    }
-
-    func makePageRelativePath(index: Int, fileExtension: String) -> String {
-        let ext = fileExtension.lowercased()
-        let paddedIndex = String(format: "%04d", index)
-        return Defaults.FilePath.downloadPages + "/\(paddedIndex).\(ext)"
-    }
-
-    func makeCoverRelativePath(fileExtension: String) -> String {
-        "cover.\(fileExtension.lowercased())"
     }
 
     func makePageRelativePath(gid: String, token: String, index: Int, fileExtension: String) -> String {
