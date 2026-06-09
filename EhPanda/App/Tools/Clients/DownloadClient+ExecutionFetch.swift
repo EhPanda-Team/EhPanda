@@ -59,7 +59,7 @@ extension DownloadManager {
         fetchedData: FetchedGalleryData,
         components: GalleryComponents,
         mode: DownloadStartMode,
-        options: DownloadOptionsSnapshot,
+        options: DownloadRequestOptions,
         pageSelection: [Int]?
     ) -> DownloadRequestPayload {
         let download = fetchedData.download

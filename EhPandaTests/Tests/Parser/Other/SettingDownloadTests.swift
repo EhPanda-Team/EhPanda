@@ -25,14 +25,14 @@ struct SettingDownloadTests {
     }
 
     @Test
-    func testDownloadOptionsSnapshotMatchesSettingValues() {
+    func testDownloadRequestOptionsMatchesSettingValues() {
         var setting = Setting()
         setting.downloadThreadLimit = 4
         setting.downloadAllowCellular = false
         setting.downloadAutoRetryFailedPages = false
 
         #expect(
-            setting.downloadOptionsSnapshot == DownloadOptionsSnapshot(
+            setting.downloadRequestOptions == DownloadRequestOptions(
                 threadLimit: 4,
                 allowCellular: false,
                 autoRetryFailedPages: false
@@ -41,24 +41,9 @@ struct SettingDownloadTests {
     }
 
     @Test
-    func testLegacyDownloadOptionsSnapshotDecodesWithoutOriginalImageField() throws {
-        let data = Data("""
-        {
-          "threadLimit": 3,
-          "useOriginalImages": true,
-          "allowCellular": false,
-          "autoRetryFailedPages": false
-        }
-        """.utf8)
-
-        let snapshot = try JSONDecoder().decode(DownloadOptionsSnapshot.self, from: data)
-
+    func testDownloadRequestOptionsDefaultsMatchSettingDefaults() {
         #expect(
-            snapshot == DownloadOptionsSnapshot(
-                threadLimit: 3,
-                allowCellular: false,
-                autoRetryFailedPages: false
-            )
+            Setting().downloadRequestOptions == DownloadRequestOptions()
         )
     }
 

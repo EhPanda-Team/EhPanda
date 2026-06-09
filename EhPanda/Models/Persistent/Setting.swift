@@ -59,7 +59,7 @@ struct Setting: Codable, Equatable {
 }
 
 extension Setting {
-    var downloadOptionsSnapshot: DownloadOptionsSnapshot {
+    var downloadRequestOptions: DownloadRequestOptions {
         .init(
             threadLimit: downloadThreadLimit,
             allowCellular: downloadAllowCellular,

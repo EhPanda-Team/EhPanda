@@ -88,7 +88,7 @@ extension DownloadClient {
             storage: .init(rootURL: rootURL, fileManager: fileManager),
             urlSession: urlSession,
             downloadOptionsProvider: {
-                await DatabaseClient.live.fetchAppEnv().setting.downloadOptionsSnapshot
+                await DatabaseClient.live.fetchAppEnv().setting.downloadRequestOptions
             }
         )
         Task {

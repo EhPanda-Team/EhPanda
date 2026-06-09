@@ -148,7 +148,7 @@ extension DetailReducer {
     }
 
     private func handleRunLaunchAutomation(
-        options: DownloadOptionsSnapshot,
+        options: DownloadRequestOptions,
         state: inout State
     ) -> Effect<Action> {
         guard !state.didRunLaunchAutomation,
@@ -162,7 +162,7 @@ extension DetailReducer {
     }
 
     private func handleStartDownload(
-        options: DownloadOptionsSnapshot,
+        options: DownloadRequestOptions,
         state: inout State
     ) -> Effect<Action> {
         guard !state.isPreparingDownload else { return .none }

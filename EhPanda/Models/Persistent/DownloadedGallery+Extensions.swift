@@ -91,7 +91,7 @@ struct DownloadRequestPayload: Equatable, Sendable {
     let previewConfig: PreviewConfig
     let host: GalleryHost
     let versionMetadata: DownloadVersionMetadata?
-    let options: DownloadOptionsSnapshot
+    let options: DownloadRequestOptions
     let mode: DownloadStartMode
     let pageSelection: Set<Int>?
 
@@ -102,7 +102,7 @@ struct DownloadRequestPayload: Equatable, Sendable {
         previewConfig: PreviewConfig,
         host: GalleryHost,
         versionMetadata: DownloadVersionMetadata? = nil,
-        options: DownloadOptionsSnapshot,
+        options: DownloadRequestOptions,
         mode: DownloadStartMode,
         pageSelection: Set<Int>? = nil
     ) {

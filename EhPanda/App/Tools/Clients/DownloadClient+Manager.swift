@@ -129,7 +129,7 @@ actor DownloadManager {
     let storage: DownloadFileStorage
     let urlSession: URLSession
     let libraryClient: LibraryClient
-    let downloadOptionsProvider: @Sendable () async -> DownloadOptionsSnapshot
+    let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     let queueStore: DownloadQueueStore
     var downloadIndex = [String: DownloadFolderRecord]()
     var downloadErrors = [String: DownloadFailure]()
@@ -154,8 +154,8 @@ actor DownloadManager {
         storage: DownloadFileStorage,
         urlSession: URLSession,
         libraryClient: LibraryClient = .live,
-        downloadOptionsProvider: @escaping @Sendable () async -> DownloadOptionsSnapshot = {
-            DownloadOptionsSnapshot()
+        downloadOptionsProvider: @escaping @Sendable () async -> DownloadRequestOptions = {
+            DownloadRequestOptions()
         },
         queueStore: DownloadQueueStore? = nil
     ) {
