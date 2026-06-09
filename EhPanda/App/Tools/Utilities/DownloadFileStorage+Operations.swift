@@ -41,13 +41,6 @@ extension DownloadFileStorage {
     ) throws {
         try fileManager.operate {
             try $0.createDirectory(at: destinationFolderURL, withIntermediateDirectories: true)
-            try $0.createDirectory(
-                at: destinationFolderURL.appendingPathComponent(
-                    Defaults.FilePath.downloadPages,
-                    isDirectory: true
-                ),
-                withIntermediateDirectories: true
-            )
         }
 
         try linkOrCopyReadableAsset(

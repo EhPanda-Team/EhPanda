@@ -782,18 +782,18 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         await manager.testingSetFailedPageErrors(
             [
                 .init(
                     index: 2,
-                    relativePath: "pages/0002.jpg",
+                    relativePath: "123_token_2.jpg",
                     error: .networkingFailed
                 )
             ],
@@ -823,7 +823,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: completedFolderURL,
             withIntermediateDirectories: true
         )
         let manifest = try indexedManifest(
@@ -836,7 +836,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("cover.jpg"),
+            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         let completedPageURL = completedFolderURL.appendingPathComponent("\(gid)_token_1.jpg")
@@ -867,7 +867,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: completedFolderURL,
             withIntermediateDirectories: true
         )
         let manifest = try sampleManifest(gid: gid, title: "Pause Race")
@@ -876,22 +876,22 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("cover.jpg"),
+            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         try Data([0x01]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0001.jpg"),
+            to: completedFolderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x09]).write(
-            to: completedFolderURL.appendingPathComponent("pages/0002.jpg"),
+            to: completedFolderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("pages/0001.jpg"))
-        #expect(pageURLs[2] == completedFolderURL.appendingPathComponent("pages/0002.jpg"))
+        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("123_token_1.jpg"))
+        #expect(pageURLs[2] == completedFolderURL.appendingPathComponent("123_token_2.jpg"))
     }
 
 }

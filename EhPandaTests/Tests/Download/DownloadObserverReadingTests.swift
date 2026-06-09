@@ -37,15 +37,15 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         let folderURL = download.folderURL
         defer { try? FileManager.default.removeItem(at: folderURL) }
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
 
@@ -53,8 +53,8 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.gallery = download.gallery
             $0.language = manifest.language
             $0.localPageURLs = [
-                1: folderURL.appendingPathComponent("pages/0001.jpg"),
-                2: folderURL.appendingPathComponent("pages/0002.jpg")
+                1: folderURL.appendingPathComponent("123_token_1.jpg"),
+                2: folderURL.appendingPathComponent("123_token_2.jpg")
             ]
             $0.previewConfig = .normal(rows: 4)
             $0.previewURLs = $0.localPageURLs

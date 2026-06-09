@@ -97,15 +97,12 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         )
 
         let rootURL = FileUtil.downloadsDirectoryURL
-        let folderURL = rootURL.appendingPathComponent(
-            "\(gid) - Local Cover Archive",
-            isDirectory: true
-        )
+        let folderURL = download.folderURL
         try? FileManager.default.removeItem(at: folderURL)
         defer { try? FileManager.default.removeItem(at: folderURL) }
 
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        let coverURL = folderURL.appendingPathComponent("cover.jpg")
+        let coverURL = folderURL.appendingPathComponent("\(gid)_token_cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: coverURL, options: .atomic)
 
         #expect(download.resolvedCoverURL(rootURL: rootURL) == coverURL)

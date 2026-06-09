@@ -95,16 +95,16 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
 
         await store.send(.fetchDatabaseInfos(download.gid))
         #expect(store.state.gallery.id == download.gid)
-        #expect(store.state.imageURLs[1] == folderURL.appendingPathComponent("pages/0001.jpg"))
-        #expect(store.state.imageURLs[2] == folderURL.appendingPathComponent("pages/0002.jpg"))
+        #expect(store.state.imageURLs[1] == folderURL.appendingPathComponent("123_token_1.jpg"))
+        #expect(store.state.imageURLs[2] == folderURL.appendingPathComponent("123_token_2.jpg"))
 
         await store.send(.fetchImageURLs(1)) {
             $0.imageURLLoadingStates[1] = .idle
         }
         await store.send(.reloadAllWebImages)
 
-        #expect(store.state.imageURLs[1] == folderURL.appendingPathComponent("pages/0001.jpg"))
-        #expect(store.state.imageURLs[2] == folderURL.appendingPathComponent("pages/0002.jpg"))
+        #expect(store.state.imageURLs[1] == folderURL.appendingPathComponent("123_token_1.jpg"))
+        #expect(store.state.imageURLs[2] == folderURL.appendingPathComponent("123_token_2.jpg"))
     }
 
 }

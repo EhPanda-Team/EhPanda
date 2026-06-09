@@ -76,7 +76,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         let folderRelativePath = "\(gid) - Progress Flush"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try storage.writeManifest(

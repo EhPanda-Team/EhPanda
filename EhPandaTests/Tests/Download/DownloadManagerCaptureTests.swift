@@ -114,11 +114,11 @@ private extension DownloadManagerCaptureTests {
     func setupCaptureMissingFilesFolder(rootURL: URL, gid: String) throws -> URL {
         let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: completedFolderURL,
             withIntermediateDirectories: true
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("cover.jpg"), options: .atomic
+            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic
         )
         let page2RelativePath = "\(gid)_token_2.jpg"
         let page2URL = completedFolderURL.appendingPathComponent(page2RelativePath)

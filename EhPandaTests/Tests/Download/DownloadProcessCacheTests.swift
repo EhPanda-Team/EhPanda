@@ -249,9 +249,7 @@ private extension DownloadProcessCacheTests {
     ) throws {
         let completedFolderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
         try FileManager.default.createDirectory(
-            at: completedFolderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
+            at: completedFolderURL,
             withIntermediateDirectories: true
         )
         let staleManifest = try sampleManifest(

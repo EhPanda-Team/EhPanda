@@ -17,20 +17,16 @@ struct DownloadFileStorageTests {
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("cover.jpg"),
+            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
         let manifest = try storage.addingCurrentFileHashes(
@@ -65,15 +61,11 @@ struct DownloadFileStorageTests {
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("cover.jpg"),
+            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
-        let page1URL = folderURL.appendingPathComponent("pages/0001.jpg")
+        let page1URL = folderURL.appendingPathComponent("123_token_1.jpg")
         try Data([0x01]).write(to: page1URL, options: .atomic)
         try storage.writeManifest(
             sampleManifest(pageHashes: [
@@ -97,23 +89,19 @@ struct DownloadFileStorageTests {
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
-            withIntermediateDirectories: true
-        )
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("cover.jpg"),
+            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         try Data().write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
-        let page2URL = folderURL.appendingPathComponent("pages/0002.jpg")
+        let page2URL = folderURL.appendingPathComponent("123_token_2.jpg")
         try storage.writeManifest(
             sampleManifest(pageHashes: [
                 1: "sha256:missing",
@@ -127,33 +115,8 @@ struct DownloadFileStorageTests {
         )
         #expect(
             FileManager.default.fileExists(
-                atPath: folderURL.appendingPathComponent("pages/0001.jpg").path
+                atPath: folderURL.appendingPathComponent("123_token_1.jpg").path
             ) == false
-        )
-    }
-
-    @Test
-    func testExistingPageRelativePathsDetectsCompletedPages() throws {
-        let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
-        let pagesURL = folderURL.appendingPathComponent(
-            Defaults.FilePath.downloadPages,
-            isDirectory: true
-        )
-        try FileManager.default.createDirectory(at: pagesURL, withIntermediateDirectories: true)
-        try Data([0x01]).write(to: pagesURL.appendingPathComponent("0001.jpg"), options: .atomic)
-        try Data([0x02]).write(to: pagesURL.appendingPathComponent("0002.png"), options: .atomic)
-        try Data([0x03]).write(to: pagesURL.appendingPathComponent("0027.jpg"), options: .atomic)
-        try Data([0x04]).write(to: pagesURL.appendingPathComponent("invalid.jpg"), options: .atomic)
-
-        #expect(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
-                1: "pages/0001.jpg",
-                2: "pages/0002.png"
-            ]
         )
     }
 
@@ -179,49 +142,18 @@ struct DownloadFileStorageTests {
     }
 
     @Test
-    func testExistingPageRelativePathsPreservesLegacyPagesFolderWhenScanningFinalAssets() throws {
+    func testExistingPageRelativePathsIgnoresLegacyPagesFolder() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
-        let pagesFolderURL = folderURL.appendingPathComponent(
-            Defaults.FilePath.downloadPages,
-            isDirectory: true
-        )
+        let pagesFolderURL = folderURL.appendingPathComponent("pages", isDirectory: true)
         try FileManager.default.createDirectory(at: pagesFolderURL, withIntermediateDirectories: true)
         try Data([0x01]).write(to: pagesFolderURL.appendingPathComponent("0001.jpg"), options: .atomic)
 
-        #expect(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 1) == [
-                1: "pages/0001.jpg"
-            ]
-        )
+        #expect(storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 1) == [:])
         #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path))
-    }
-
-    @Test
-    func testExistingPageRelativePathsRemovesZeroByteFiles() throws {
-        let (storage, rootURL) = makeStorage()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-
-        try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
-        let pagesURL = folderURL.appendingPathComponent(
-            Defaults.FilePath.downloadPages,
-            isDirectory: true
-        )
-        try FileManager.default.createDirectory(at: pagesURL, withIntermediateDirectories: true)
-        let emptyPageURL = pagesURL.appendingPathComponent("0001.jpg")
-        try Data().write(to: emptyPageURL, options: .atomic)
-        try Data([0x02]).write(to: pagesURL.appendingPathComponent("0002.png"), options: .atomic)
-
-        #expect(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
-                2: "pages/0002.png"
-            ]
-        )
-        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
     }
 
     @Test
@@ -245,6 +177,23 @@ struct DownloadFileStorageTests {
     }
 
     @Test
+    func testExistingPageRelativePathsIgnoresZeroByteLegacyFiles() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let pagesURL = folderURL.appendingPathComponent("pages", isDirectory: true)
+        try FileManager.default.createDirectory(at: pagesURL, withIntermediateDirectories: true)
+        let emptyPageURL = pagesURL.appendingPathComponent("0001.jpg")
+        try Data().write(to: emptyPageURL, options: .atomic)
+        try Data([0x02]).write(to: pagesURL.appendingPathComponent("0002.png"), options: .atomic)
+
+        #expect(storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [:])
+        #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
+    }
+
+    @Test
     func testExistingCoverRelativePathDetectsFinalAssetFile() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -264,7 +213,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
-        let fileURL = rootURL.appendingPathComponent("cover.jpg")
+        let fileURL = rootURL.appendingPathComponent("123_token_cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: fileURL, options: .atomic)
         let storage = DownloadFileStorage(
             rootURL: rootURL,

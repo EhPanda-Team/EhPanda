@@ -91,15 +91,15 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pausable")
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
 
@@ -220,7 +220,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             [
                 .init(
                     index: 2,
-                    relativePath: "pages/0002.jpg",
+                    relativePath: "123_token_2.jpg",
                     error: .fileOperationFailed(
                         "The operation could not be completed. (Swift.CancellationError error 1.)"
                     )
@@ -284,11 +284,11 @@ private extension DownloadPauseAndReconcileTests {
     ) throws {
         let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Inspection")
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
     }

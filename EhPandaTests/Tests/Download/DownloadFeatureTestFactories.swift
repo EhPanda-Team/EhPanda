@@ -95,14 +95,14 @@ extension DownloadFeatureTestCase {
                 .init(
                     index: 1,
                     status: .downloaded,
-                    relativePath: "pages/0001.jpg",
+                    relativePath: "123_token_1.jpg",
                     fileURL: URL(fileURLWithPath: "/tmp/0001.jpg"),
                     failure: nil
                 ),
                 .init(
                     index: 2,
                     status: .failed,
-                    relativePath: "pages/0002.jpg",
+                    relativePath: "123_token_2.jpg",
                     fileURL: nil,
                     failure: .init(code: .networkingFailed, message: "Network Error")
                 )
@@ -118,7 +118,8 @@ extension DownloadFeatureTestCase {
         pageCount: Int = 12,
         completedPageCount: Int? = nil,
         lastDownloadedAt: Date? = .now,
-        lastError: DownloadFailure? = nil
+        lastError: DownloadFailure? = nil,
+        folderURL: URL? = nil
     ) -> DownloadedGallery {
         DownloadedGallery(
             gid: gid,
@@ -133,8 +134,8 @@ extension DownloadFeatureTestCase {
             postedDate: .now,
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
-            folderURL: FileUtil.downloadsDirectoryURL
-                .appendingPathComponent("\(gid) - \(title)", isDirectory: true),
+            folderURL: folderURL ?? FileUtil.downloadsDirectoryURL
+                .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true),
             displayStatus: status.displayStatus,
             completedPageCount: completedPageCount
                 ?? status.defaultCompletedPageCount(pageCount: pageCount),
@@ -150,9 +151,7 @@ extension DownloadFeatureTestCase {
         let folderURL = download.folderURL
         try? FileManager.default.removeItem(at: folderURL)
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(
-                Defaults.FilePath.downloadPages, isDirectory: true
-            ),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try JSONEncoder().encode(manifest).write(
@@ -160,11 +159,11 @@ extension DownloadFeatureTestCase {
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
         return folderURL

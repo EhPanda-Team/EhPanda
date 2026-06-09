@@ -28,7 +28,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             [
                 .init(
                     index: 2,
-                    relativePath: "pages/0002.jpg",
+                    relativePath: "123_token_2.jpg",
                     error: .networkingFailed
                 )
             ],

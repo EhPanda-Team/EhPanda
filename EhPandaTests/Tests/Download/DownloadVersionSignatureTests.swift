@@ -30,10 +30,10 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         )
 
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
-        let pageURL = folderURL.appendingPathComponent("pages/0001.jpg")
+        let pageURL = folderURL.appendingPathComponent("123_token_1.jpg")
         try Data([0x01]).write(
             to: pageURL,
             options: .atomic

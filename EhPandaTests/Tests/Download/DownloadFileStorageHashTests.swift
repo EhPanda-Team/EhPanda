@@ -14,7 +14,7 @@ struct DownloadFileStorageHashTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let (download, folderURL) = try makePreparedDownload(storage: storage)
-        let pageTwoURL = folderURL.appendingPathComponent("pages/0002.jpg")
+        let pageTwoURL = folderURL.appendingPathComponent("123_token_2.jpg")
 
         let manifest = try storage.addingCurrentFileHashes(
             to: sampleManifest(pageCount: 2),
@@ -35,7 +35,7 @@ struct DownloadFileStorageHashTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let (download, folderURL) = try makePreparedDownload(storage: storage)
-        let pageTwoURL = folderURL.appendingPathComponent("pages/0002.jpg")
+        let pageTwoURL = folderURL.appendingPathComponent("123_token_2.jpg")
 
         let manifest = try storage.addingCurrentFileHashes(
             to: sampleManifest(pageCount: 2),
@@ -62,19 +62,19 @@ struct DownloadFileStorageHashTests {
         let download = sampleDownload(folderURL: folderURL)
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(
-            at: folderURL.appendingPathComponent(Defaults.FilePath.downloadPages, isDirectory: true),
+            at: folderURL,
             withIntermediateDirectories: true
         )
         try Data([0xFF, 0xD8, 0xFF]).write(
-            to: folderURL.appendingPathComponent("cover.jpg"),
+            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("pages/0001.jpg"),
+            to: folderURL.appendingPathComponent("123_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("pages/0002.jpg"),
+            to: folderURL.appendingPathComponent("123_token_2.jpg"),
             options: .atomic
         )
         return (download, folderURL)
