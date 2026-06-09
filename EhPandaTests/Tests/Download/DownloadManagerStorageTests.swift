@@ -150,7 +150,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(downloads.map(\.gid) == ["600"])
         #expect(indexedDownload.title == "Disk")
         #expect(indexedDownload.displayStatus == .queued)
-        #expect(indexedDownload.status == .queued)
+        #expect(indexedDownload.displayStatus == .queued)
         #expect(await manager.fetchDownload(gid: "601") == nil)
         #expect(badges["600"] == .queued)
         #expect(badges["601"] == nil)
@@ -279,7 +279,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let download = try #require(await manager.fetchDownload(gid: "410"))
         #expect(download.displayStatus == .inactive)
-        #expect(download.status == .paused)
+        #expect(download.displayStatus == .inactive)
         #expect(download.lastError == nil)
     }
 
@@ -311,7 +311,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let download = try #require(await manager.fetchDownload(gid: "420"))
         #expect(download.displayStatus == .inactive)
-        #expect(download.status == .paused)
+        #expect(download.displayStatus == .inactive)
         #expect(await manager.testingActiveGalleryID() == nil)
     }
 
@@ -349,7 +349,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         #expect(sanitizedDownload?.displayStatus == .inactive)
-        #expect(sanitizedDownload?.status == .paused)
+        #expect(sanitizedDownload?.displayStatus == .inactive)
         #expect(sanitizedDownload?.lastError == nil)
     }
 
@@ -381,7 +381,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(validation == .missingFiles("Page 1 is missing."))
         let download = try #require(await manager.fetchDownload(gid: "440"))
         #expect(download.displayStatus == .error)
-        #expect(download.status == .failed)
+        #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
         #expect(download.badge == .failed)
     }
@@ -427,7 +427,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let download = try #require(await manager.fetchDownload(gid: "450"))
         #expect(queueStore.gids == ["450"])
         #expect(download.displayStatus == .queued)
-        #expect(download.status == .queued)
+        #expect(download.displayStatus == .queued)
     }
 
     @Test
@@ -482,7 +482,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let download = try #require(await manager.fetchDownload(gid: "460"))
         #expect(queueStore.gids == ["460"])
         #expect(download.displayStatus == .queued)
-        #expect(download.status == .queued)
+        #expect(download.displayStatus == .queued)
     }
 
     @Test
@@ -527,7 +527,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         #expect(queueStore.gids == [])
         #expect(failedDownload.displayStatus == .error)
-        #expect(failedDownload.status == .failed)
+        #expect(failedDownload.displayStatus == .error)
         #expect(failedDownload.lastError?.code == .networkingFailed)
         #expect(badges["800"] == .failed)
     }
@@ -630,7 +630,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(queueStore.gids == [])
         #expect(await manager.testingActiveGalleryID() == nil)
         #expect(pausedDownload.displayStatus == .inactive)
-        #expect(pausedDownload.status == .paused)
+        #expect(pausedDownload.displayStatus == .inactive)
         #expect(pausedDownload.lastError == nil)
 
         await manager.testingInstallActiveTask(gid: "busy", task: Task {})
@@ -643,7 +643,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         let resumedDownload = try #require(await manager.fetchDownload(gid: "820"))
         #expect(queueStore.gids == ["820"])
         #expect(resumedDownload.displayStatus == .queued)
-        #expect(resumedDownload.status == .queued)
+        #expect(resumedDownload.displayStatus == .queued)
         #expect(resumedDownload.lastError == nil)
     }
 

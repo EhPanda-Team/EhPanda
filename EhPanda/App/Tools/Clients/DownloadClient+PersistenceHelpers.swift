@@ -75,14 +75,10 @@ extension DownloadManager {
 
     private struct SanitizeUpdateResult {
         let needsUpdate: Bool
-        let status: DownloadStatus
-        let completedPageCount: Int
         let lastError: DownloadFailure?
     }
 
     private struct MutableSanitizeState {
-        var status: DownloadStatus
-        var completedPageCount: Int
         var lastError: DownloadFailure?
         var needsUpdate: Bool
     }
@@ -92,8 +88,6 @@ extension DownloadManager {
         clearingLastError: Bool
     ) -> SanitizeUpdateResult {
         var state = MutableSanitizeState(
-            status: download.status,
-            completedPageCount: download.completedPageCount,
             lastError: download.lastError,
             needsUpdate: false
         )
@@ -104,8 +98,6 @@ extension DownloadManager {
         )
         return SanitizeUpdateResult(
             needsUpdate: state.needsUpdate,
-            status: state.status,
-            completedPageCount: state.completedPageCount,
             lastError: state.lastError
         )
     }
@@ -115,39 +107,28 @@ extension DownloadManager {
         clearingLastError: Bool,
         state: inout MutableSanitizeState
     ) {
-        if [.completed, .updateAvailable, .missingFiles]
-            .contains(download.status) {
+        if clearingLastError {
+            if state.lastError != nil {
+                state.lastError = nil
+                state.needsUpdate = true
+            }
+            return
+        }
+
+        let shouldValidateFiles =
+            [.completed, .updateAvailable].contains(download.displayStatus)
+            || download.lastError?.code == .fileOperationFailed
+        if shouldValidateFiles {
             let validation = storage
                 .validate(download: download)
-            let completedPageCount =
-                validatedCompletedPageCount(download)
             switch validation {
             case .valid:
-                let expectedStatus: DownloadStatus =
-                    download.hasUpdate
-                    ? .updateAvailable : .completed
-                if state.status != expectedStatus {
-                    state.status = expectedStatus
-                    state.needsUpdate = true
-                }
-                if state.completedPageCount != completedPageCount {
-                    state.completedPageCount = completedPageCount
-                    state.needsUpdate = true
-                }
-                if clearingLastError || state.lastError != nil {
+                if state.lastError != nil {
                     state.lastError = nil
                     state.needsUpdate = true
                 }
 
             case .missingFiles(let message):
-                if state.status != .missingFiles {
-                    state.status = .missingFiles
-                    state.needsUpdate = true
-                }
-                if state.completedPageCount != completedPageCount {
-                    state.completedPageCount = completedPageCount
-                    state.needsUpdate = true
-                }
                 let failure = DownloadFailure(
                     code: .fileOperationFailed,
                     message: message
@@ -157,9 +138,6 @@ extension DownloadManager {
                     state.needsUpdate = true
                 }
             }
-        } else if clearingLastError, state.lastError != nil {
-            state.lastError = nil
-            state.needsUpdate = true
         }
     }
 

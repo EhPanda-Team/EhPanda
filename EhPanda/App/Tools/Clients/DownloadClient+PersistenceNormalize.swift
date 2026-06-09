@@ -41,7 +41,7 @@ extension DownloadManager {
                 download.lastError.map {
                     isCancellationLikeAppError($0.appError)
                 } ?? false
-            guard download.status == .failed
+            guard download.displayStatus == .error
                     || shouldClearCancellationError else {
                 continue
             }

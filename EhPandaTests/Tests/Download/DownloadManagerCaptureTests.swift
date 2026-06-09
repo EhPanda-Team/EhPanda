@@ -94,7 +94,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         let stored = await manager.testingFetchDownload(gid: gid)
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        #expect(stored?.status == .completed)
+        #expect(stored?.displayStatus == .completed)
         #expect(stored?.completedPageCount == 2)
         #expect(stored?.lastError == nil)
         let pageRelativePath = storage.makePageRelativePath(

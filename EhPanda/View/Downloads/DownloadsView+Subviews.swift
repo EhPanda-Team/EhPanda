@@ -278,13 +278,13 @@ private extension DownloadPageStatus {
 
 private extension DownloadedGallery {
     var inspectorPauseResumeTitle: String {
-        status == .paused
+        displayStatus == .inactive
             ? L10n.Localizable.DownloadsView.Swipe.Button.resume
             : L10n.Localizable.DownloadsView.Swipe.Button.pause
     }
 
     var inspectorPauseResumeSymbol: SFSymbol {
-        status == .paused ? .playFill : .pauseFill
+        displayStatus == .inactive ? .playFill : .pauseFill
     }
 }
 

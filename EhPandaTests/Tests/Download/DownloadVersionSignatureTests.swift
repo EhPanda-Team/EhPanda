@@ -44,7 +44,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         let stored = await manager.testingFetchDownload(gid: gid)
         let localPages = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        #expect(stored?.status == .paused)
+        #expect(stored?.displayStatus == .inactive)
         #expect(stored?.completedPageCount == 0)
         #expect(FileManager.default.fileExists(atPath: folderURL.path))
         #expect(localPages[1] == pageURL)
@@ -105,7 +105,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         #expect(updateBadge == .updateAvailable)
         #expect(updatedDownload?.displayStatus == .updateAvailable)
-        #expect(updatedDownload?.status == .updateAvailable)
+        #expect(updatedDownload?.displayStatus == .updateAvailable)
 
         let currentBadge = await manager.updateRemoteVersion(
             gid: gid,
@@ -124,7 +124,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         #expect(currentBadge == .downloaded)
         #expect(currentDownload?.displayStatus == .completed)
-        #expect(currentDownload?.status == .completed)
+        #expect(currentDownload?.displayStatus == .completed)
     }
 
 }

@@ -48,7 +48,7 @@ struct DownloadedGalleryManifestModelTests {
 
         #expect(download.gid == "123")
         #expect(download.folderURL.lastPathComponent == "[123_token] Sample")
-        #expect(download.status == .queued)
+        #expect(download.displayStatus == .queued)
         #expect(download.onlineCoverURL == manifest.remoteCoverURL)
         #expect(download.completedPageCount == 2)
         #expect(download.lastDownloadedAt == modifiedAt)

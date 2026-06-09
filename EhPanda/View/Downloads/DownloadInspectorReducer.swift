@@ -276,7 +276,11 @@ extension DownloadInspectorReducer.State {
     func shouldKeepRetryPending(for download: DownloadedGallery) -> Bool {
         download.canPauseOrResume
             || download.isPendingQueue
-            || (download.status == .partial && download.lastError == nil)
+            || (
+                [.inactive, .error].contains(download.displayStatus)
+                    && download.isIncomplete
+                    && download.lastError == nil
+            )
     }
 
     func overlayRetryingPages(in inspection: DownloadInspection) -> DownloadInspection {

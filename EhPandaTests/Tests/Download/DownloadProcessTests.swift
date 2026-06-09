@@ -58,7 +58,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await manager.testingSetPersistFailureHook(nil)
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.status == .failed)
+        #expect(stored?.displayStatus == .error)
         #expect(stored?.lastError?.code == .networkingFailed)
 
         await manager.testingScheduleNextIfNeeded()
@@ -291,7 +291,7 @@ private extension DownloadProcessTests {
     ) async throws {
         let completedDownload = await manager.testingFetchDownload(gid: context.gid)
         let unwrapped = try #require(completedDownload)
-        #expect(unwrapped.status == .completed)
+        #expect(unwrapped.displayStatus == .completed)
         #expect(unwrapped.pageCount == context.updatedPageCount)
         #expect(unwrapped.completedPageCount == context.updatedPageCount)
 

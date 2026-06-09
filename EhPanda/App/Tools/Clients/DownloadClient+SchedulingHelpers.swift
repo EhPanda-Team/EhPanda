@@ -16,29 +16,27 @@ extension DownloadManager {
                 requestedMode: mode
             )
         }
-        switch download.status {
-        case .missingFiles:
+        switch download.displayStatus {
+        case .error where download.lastError?.code == .fileOperationFailed:
             return effectiveRetryMode(
                 for: download,
                 requestedMode: .repair
             )
         case .updateAvailable:
             return .update
-        case .partial:
+        case .inactive:
             return resumeMode(for: download)
         case .completed:
             return effectiveRetryMode(
                 for: download,
                 requestedMode: .redownload
             )
-        case .failed:
+        case .error:
             return effectiveRetryMode(
                 for: download,
                 requestedMode: initialOrRedownloadMode(for: download)
             )
-        case .paused:
-            return resumeMode(for: download)
-        case .queued, .downloading:
+        case .queued, .active:
             return effectiveRetryMode(
                 for: download,
                 requestedMode: initialOrRedownloadMode(for: download)
@@ -52,7 +50,7 @@ extension DownloadManager {
         if download.hasUpdate {
             return .update
         }
-        if download.status == .partial {
+        if download.displayStatus == .inactive, download.isIncomplete {
             return effectiveRetryMode(
                 for: download,
                 requestedMode: .redownload
@@ -78,14 +76,5 @@ extension DownloadManager {
             return requestedMode
         }
         return .update
-    }
-
-    nonisolated func fallbackStatus(
-        for download: DownloadedGallery,
-        mode: DownloadStartMode
-    ) -> DownloadStatus {
-        let shouldKeepUpdateBadge = mode == .update
-            || download.status == .updateAvailable
-        return shouldKeepUpdateBadge ? .updateAvailable : .completed
     }
 }

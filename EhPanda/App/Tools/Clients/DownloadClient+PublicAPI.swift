@@ -54,7 +54,7 @@ extension DownloadManager {
         guard downloadIndex[gid] != nil else {
             return download.badge
         }
-        guard [.completed, .updateAvailable].contains(download.status) else {
+        guard [.completed, .updateAvailable].contains(download.displayStatus) else {
             return download.badge
         }
 
@@ -133,12 +133,12 @@ extension DownloadManager {
             return await cancelQueuedWorkItem(download, mode: queuedMode)
         }
 
-        switch download.status {
-        case .queued, .downloading:
+        switch download.displayStatus {
+        case .queued, .active:
             return await pause(gid: gid)
-        case .paused:
+        case .inactive:
             return await resume(gid: gid)
-        case .partial, .completed, .failed, .updateAvailable, .missingFiles:
+        case .completed, .error, .updateAvailable:
             return .failure(.unknown)
         }
     }

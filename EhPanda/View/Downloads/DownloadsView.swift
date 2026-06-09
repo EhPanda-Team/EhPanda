@@ -201,15 +201,15 @@ private extension DownloadsView {
                                 store.send(.toggleDownloadPause(download.gid))
                             } label: {
                                 Label(
-                                    download.status == .paused
+                                    download.displayStatus == .inactive
                                         ? L10n.Localizable.DownloadsView.Swipe.Button.resume
                                         : L10n.Localizable.DownloadsView.Swipe.Button.pause,
-                                    systemImage: download.status == .paused
+                                    systemImage: download.displayStatus == .inactive
                                         ? "play.fill"
                                         : "pause.fill"
                                 )
                             }
-                            .tint(download.status == .paused ? .green : .indigo)
+                            .tint(download.displayStatus == .inactive ? .green : .indigo)
                         }
 
                         Button(role: .destructive) {
@@ -259,10 +259,10 @@ private extension DownloadsView {
                 store.send(.toggleDownloadPause(download.gid))
             } label: {
                 Label(
-                    download.status == .paused
+                    download.displayStatus == .inactive
                         ? L10n.Localizable.DownloadsView.Swipe.Button.resume
                         : L10n.Localizable.DownloadsView.Swipe.Button.pause,
-                    systemImage: download.status == .paused
+                    systemImage: download.displayStatus == .inactive
                         ? "play.fill"
                         : "pause.fill"
                 )
