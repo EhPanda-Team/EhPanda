@@ -87,8 +87,8 @@ extension DownloadManager {
         downloads
             .filter(isSchedulableDownload)
             .sorted { lhs, rhs in
-                let lhsIsDownloading = lhs.status == .downloading
-                let rhsIsDownloading = rhs.status == .downloading
+                let lhsIsDownloading = lhs.displayStatus == .active
+                let rhsIsDownloading = rhs.displayStatus == .active
                 if lhsIsDownloading != rhsIsDownloading {
                     return lhsIsDownloading
                 }
@@ -106,11 +106,11 @@ extension DownloadManager {
     }
 
     func shouldSchedule(download: DownloadedGallery) -> Bool {
-        if download.status == .downloading || download.isQueuedWorkItem {
+        if download.displayStatus == .active || download.isQueuedWorkItem {
             return true
         }
 
-        guard download.status == .partial else {
+        guard download.displayStatus == .inactive, download.isIncomplete else {
             return false
         }
 
@@ -147,8 +147,8 @@ extension DownloadManager {
             else {
                 return .failure(.notFound)
             }
-            guard [.queued, .downloading]
-                    .contains(currentDownload.status)
+            guard [.queued, .active]
+                    .contains(currentDownload.displayStatus)
             else {
                 await notifyObservers()
                 await scheduleNextIfNeeded()

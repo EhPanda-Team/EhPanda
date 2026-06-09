@@ -54,7 +54,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         await manager.testingProcessDownload(gid: gid)
 
         let completedDownload = await manager.testingFetchDownload(gid: gid)
-        #expect(completedDownload?.status == .completed)
+        #expect(completedDownload?.displayStatus == .completed)
 
         try await waitUntilCacheCleared(cachedKeys: cachedKeys)
 

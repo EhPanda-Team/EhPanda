@@ -10,6 +10,56 @@ import Testing
 
 // MARK: - Sample Data Factories & CoreData Helpers
 
+enum DownloadFixtureStatus {
+    case queued
+    case downloading
+    case paused
+    case partial
+    case completed
+    case failed
+    case updateAvailable
+    case missingFiles
+
+    var displayStatus: DownloadDisplayStatus {
+        switch self {
+        case .queued:
+            return .queued
+        case .downloading:
+            return .active
+        case .paused:
+            return .inactive
+        case .partial:
+            return .error
+        case .completed:
+            return .completed
+        case .failed, .missingFiles:
+            return .error
+        case .updateAvailable:
+            return .updateAvailable
+        }
+    }
+
+    var defaultLastError: DownloadFailure? {
+        switch self {
+        case .failed:
+            return .init(code: .networkingFailed, message: "Network Error")
+        case .missingFiles:
+            return .init(code: .fileOperationFailed, message: "Page 2 is missing.")
+        case .queued, .downloading, .paused, .partial, .completed, .updateAvailable:
+            return nil
+        }
+    }
+
+    func defaultCompletedPageCount(pageCount: Int) -> Int {
+        switch self {
+        case .completed, .updateAvailable:
+            return pageCount
+        case .queued, .downloading, .paused, .partial, .failed, .missingFiles:
+            return 0
+        }
+    }
+}
+
 extension DownloadFeatureTestCase {
     func sampleManifest(
         gid: String,
@@ -63,7 +113,7 @@ extension DownloadFeatureTestCase {
     func sampleDownload(
         gid: String,
         title: String,
-        status: DownloadStatus,
+        status: DownloadFixtureStatus,
         category: EhPanda.Category = .doujinshi,
         pageCount: Int = 12,
         completedPageCount: Int? = nil,
@@ -85,10 +135,11 @@ extension DownloadFeatureTestCase {
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
             folderURL: FileUtil.downloadsDirectoryURL
                 .appendingPathComponent("\(gid) - \(title)", isDirectory: true),
-            status: status,
-            completedPageCount: completedPageCount ?? (status == .completed ? pageCount : 0),
+            displayStatus: status.displayStatus,
+            completedPageCount: completedPageCount
+                ?? status.defaultCompletedPageCount(pageCount: pageCount),
             lastDownloadedAt: lastDownloadedAt,
-            lastError: lastError
+            lastError: lastError ?? status.defaultLastError
         )
     }
 

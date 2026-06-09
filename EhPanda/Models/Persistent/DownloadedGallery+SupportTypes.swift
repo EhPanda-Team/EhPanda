@@ -56,46 +56,27 @@ extension DownloadedGallery {
     }
 
     var badge: DownloadBadge {
-        if isQueuedWorkItem {
-            return .queued
-        }
-        switch status {
+        switch displayStatus {
+        case .active:
+            return .downloading(completedPageCount, pageCount)
         case .queued:
             return .queued
-        case .downloading:
-            return .downloading(completedPageCount, pageCount)
-        case .paused:
+        case .inactive:
             return .paused(completedPageCount, pageCount)
-        case .partial:
-            return .partial(completedPageCount, pageCount)
-        case .completed:
-            return .downloaded
-        case .failed:
-            return .failed
         case .updateAvailable:
             return .updateAvailable
-        case .missingFiles:
-            return .missingFiles
+        case .error:
+            if completedPageCount > 0, completedPageCount < pageCount {
+                return .partial(completedPageCount, pageCount)
+            }
+            if lastError?.code == .fileOperationFailed,
+               completedPageCount == 0 {
+                return .missingFiles
+            }
+            return .failed
+        case .completed:
+            return .downloaded
         }
-    }
-
-    var displayStatus: DownloadDisplayStatus {
-        if status == .updateAvailable {
-            return .updateAvailable
-        }
-        if status == .completed {
-            return .completed
-        }
-        if status == .downloading {
-            return .active
-        }
-        if isQueuedWorkItem {
-            return .queued
-        }
-        if lastError != nil || [.failed, .missingFiles].contains(status) {
-            return .error
-        }
-        return .inactive
     }
 
     var gallery: Gallery {
@@ -118,15 +99,16 @@ extension DownloadedGallery {
     }
 
     var canRetry: Bool {
-        [.partial, .failed, .missingFiles].contains(status)
+        displayStatus == .error
     }
 
     var canValidateImageData: Bool {
-        [.completed, .updateAvailable, .missingFiles].contains(status)
+        [.completed, .updateAvailable].contains(displayStatus)
+            || lastError?.code == .fileOperationFailed
     }
 
     var canPauseOrResume: Bool {
-        [.downloading, .paused].contains(status)
+        [.active, .inactive].contains(displayStatus)
     }
 
     var canTogglePause: Bool {
@@ -138,27 +120,31 @@ extension DownloadedGallery {
     }
 
     var canCancelFromDetailAction: Bool {
-        isPendingQueue || canPauseOrResume || [.partial, .completed].contains(status)
+        isPendingQueue || canPauseOrResume || displayStatus == .completed
     }
 
     var canTriggerUpdate: Bool {
         guard !isQueuedWorkItem, !canPauseOrResume else { return false }
-        return status == .updateAvailable
+        return displayStatus == .updateAvailable
     }
 
     var isQueuedWorkItem: Bool {
-        status == .queued
+        displayStatus == .queued
     }
 
     var hasUpdate: Bool {
-        status == .updateAvailable
+        displayStatus == .updateAvailable
+    }
+
+    var isIncomplete: Bool {
+        completedPageCount < pageCount
     }
 
     func needsInterruptedDownloadNormalization(
         activeGalleryID: String?,
         hasActiveTask: Bool
     ) -> Bool {
-        status == .downloading && !(hasActiveTask && activeGalleryID == gid)
+        displayStatus == .active && !(hasActiveTask && activeGalleryID == gid)
     }
 
     func matches(filter: DownloadListFilter) -> Bool {
@@ -170,13 +156,13 @@ extension DownloadedGallery {
         case .all:
             return true
         case .active:
-            return [.downloading, .paused].contains(status)
+            return [.active, .inactive].contains(displayStatus)
         case .completed:
-            return status == .completed
+            return displayStatus == .completed
         case .failed:
-            return [.partial, .failed, .missingFiles].contains(status)
+            return displayStatus == .error
         case .update:
-            return status == .updateAvailable
+            return displayStatus == .updateAvailable
         }
     }
 

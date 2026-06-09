@@ -62,7 +62,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let stored = await manager.testingFetchDownload(gid: gid)
         let activeGalleryID = await manager.testingActiveGalleryID()
-        #expect(stored?.status == .paused)
+        #expect(stored?.displayStatus == .inactive)
         #expect(stored?.badge == .paused(7, 26))
         #expect(activeGalleryID == nil)
     }
@@ -120,7 +120,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         }
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.status == .paused)
+        #expect(stored?.displayStatus == .inactive)
         #expect(stored?.completedPageCount == 1)
         #expect(stored?.badge == .paused(1, 2))
         #expect(FileManager.default.fileExists(atPath: folderURL.path))
@@ -155,7 +155,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         await manager.reconcileDownloads()
 
         let stored = await manager.testingFetchDownload(gid: gid)
-        #expect(stored?.status == .failed)
+        #expect(stored?.displayStatus == .error)
         #expect(stored?.badge == .failed)
     }
 
@@ -193,7 +193,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.lastError == nil)
-        #expect(stored?.status == .paused)
+        #expect(stored?.displayStatus == .inactive)
     }
 
     @Test

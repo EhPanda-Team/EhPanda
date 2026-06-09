@@ -70,7 +70,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         #expect(manifestObject["downloadOptions"] == nil)
 
         let queuedDownload = await manager.testingFetchDownload(gid: gallery.gid)
-        #expect(queuedDownload?.status == .queued)
+        #expect(queuedDownload?.displayStatus == .queued)
         #expect(queuedDownload?.onlineCoverURL == detail.coverURL)
         #expect(queuedDownload?.pageCount == detail.pageCount)
     }

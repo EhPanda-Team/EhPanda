@@ -385,7 +385,7 @@ private extension DownloadFileStorageTests {
     }
 
     func sampleDownload(
-        status: DownloadStatus = .completed,
+        displayStatus: DownloadDisplayStatus = .completed,
         folderURL: URL
     ) -> DownloadedGallery {
         DownloadedGallery(
@@ -402,8 +402,8 @@ private extension DownloadFileStorageTests {
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
             folderURL: folderURL,
-            status: status,
-            completedPageCount: status == .completed ? 2 : 0,
+            displayStatus: displayStatus,
+            completedPageCount: displayStatus == .completed ? 2 : 0,
             lastDownloadedAt: .now,
             lastError: nil
         )

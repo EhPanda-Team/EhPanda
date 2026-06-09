@@ -45,17 +45,6 @@ struct DownloadOptionsSnapshot: Codable, Equatable, Sendable {
     }
 }
 
-enum DownloadStatus: String, Codable, Equatable, CaseIterable, Sendable {
-    case queued
-    case downloading
-    case paused
-    case partial
-    case completed
-    case failed
-    case updateAvailable
-    case missingFiles
-}
-
 enum DownloadStartMode: String, Codable, Equatable, Sendable {
     case initial
     case update
@@ -79,7 +68,7 @@ struct DownloadedGallery: Identifiable, Equatable {
     let rating: Float
     let onlineCoverURL: URL?
     let folderURL: URL
-    let status: DownloadStatus
+    let displayStatus: DownloadDisplayStatus
     let completedPageCount: Int
     let lastDownloadedAt: Date?
     let lastError: DownloadFailure?
@@ -98,7 +87,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         rating: Float,
         onlineCoverURL: URL?,
         folderURL: URL,
-        status: DownloadStatus,
+        displayStatus: DownloadDisplayStatus,
         completedPageCount: Int,
         lastDownloadedAt: Date?,
         lastError: DownloadFailure?
@@ -116,7 +105,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.rating = rating
         self.onlineCoverURL = onlineCoverURL
         self.folderURL = folderURL
-        self.status = status
+        self.displayStatus = displayStatus
         self.completedPageCount = completedPageCount
         self.lastDownloadedAt = lastDownloadedAt
         self.lastError = lastError
@@ -143,29 +132,10 @@ struct DownloadedGallery: Identifiable, Equatable {
             rating: manifest.rating,
             onlineCoverURL: manifest.remoteCoverURL,
             folderURL: folderURL,
-            status: displayStatus.downloadStatus,
+            displayStatus: displayStatus,
             completedPageCount: manifest.completedPageCount,
             lastDownloadedAt: modifiedAt,
             lastError: lastError
         )
-    }
-}
-
-private extension DownloadDisplayStatus {
-    var downloadStatus: DownloadStatus {
-        switch self {
-        case .active:
-            return .downloading
-        case .queued:
-            return .queued
-        case .updateAvailable:
-            return .updateAvailable
-        case .error:
-            return .failed
-        case .inactive:
-            return .paused
-        case .completed:
-            return .completed
-        }
     }
 }

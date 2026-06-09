@@ -104,7 +104,7 @@ struct DownloadFileStorageHashTests {
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
             folderURL: folderURL,
-            status: .completed,
+            displayStatus: .completed,
             completedPageCount: 2,
             lastDownloadedAt: .now,
             lastError: nil
