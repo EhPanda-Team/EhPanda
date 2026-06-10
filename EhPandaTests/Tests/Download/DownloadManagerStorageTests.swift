@@ -517,8 +517,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             context: .init(
                 gid: "800",
                 originalDownload: download,
-                mode: .initial,
-                hadReadableFiles: false
+                mode: .initial
             )
         )
 
