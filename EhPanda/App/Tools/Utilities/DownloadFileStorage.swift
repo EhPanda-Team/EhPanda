@@ -69,7 +69,7 @@ struct DownloadFileStorage: Sendable {
 
     func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
         let fileURLs = existingAssetFileURLs(folderURL: folderURL)
-        manifest.pages.keys.sorted().reduce(into: [:]) { result, index in
+        return manifest.pages.keys.sorted().reduce(into: [:]) { result, index in
             guard let fileURL = existingAssetFileURL(
                 in: fileURLs,
                 prefix: pageFilePrefix(
