@@ -125,7 +125,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
 private extension DetailReducerDownloadTests {
     func makeDownloadTestStore(
         gallery: Gallery, detail: GalleryDetail,
-        badgeValue: DownloadBadge,
+        badgeValue: DownloadBadge?,
         automationGID: String? = nil,
         configure: (inout DetailReducer.State) -> Void = { _ in },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
@@ -147,7 +147,9 @@ private extension DetailReducerDownloadTests {
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { gids in
-                    Dictionary(uniqueKeysWithValues: gids.map { ($0, badgeValue) })
+                    badgeValue.map { value in
+                        Dictionary(uniqueKeysWithValues: gids.map { ($0, value) })
+                    } ?? [:]
                 },
                 enqueue: enqueue,
                 togglePause: { _ in .success(()) },

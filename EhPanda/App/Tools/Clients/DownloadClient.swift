@@ -16,7 +16,7 @@ struct DownloadClient: Sendable {
     let resumeQueue: @Sendable () async -> Void
     let badges: @Sendable ([String]) async -> [String: DownloadBadge]
     let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
-    let updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge
+    let updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge?
     let enqueue: @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
     let togglePause: @Sendable (String) async -> Result<Void, AppError>
     let retry: @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>
@@ -38,8 +38,8 @@ struct DownloadClient: Sendable {
         badges: @escaping @Sendable ([String]) async -> [String: DownloadBadge],
         fetchVersionMetadata: @escaping @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
         = { _, _ in .failure(.notFound) },
-        updateRemoteVersion: @escaping @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge =
-        { _, _ in .none },
+        updateRemoteVersion: @escaping @Sendable (String, DownloadVersionMetadata) async -> DownloadBadge? =
+        { _, _ in nil },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>,
         togglePause: @escaping @Sendable (String) async -> Result<Void, AppError>,
         retry: @escaping @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>,
@@ -181,7 +181,7 @@ extension DownloadClient {
         resumeQueue: {},
         badges: { _ in [:] },
         fetchVersionMetadata: { _, _ in .failure(.notFound) },
-        updateRemoteVersion: { _, _ in .none },
+        updateRemoteVersion: { _, _ in nil },
         enqueue: { _ in .success(()) },
         togglePause: { _ in .success(()) },
         retry: { _, _ in .success(()) },

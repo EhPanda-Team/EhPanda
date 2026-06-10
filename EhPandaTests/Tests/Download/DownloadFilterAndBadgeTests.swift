@@ -67,7 +67,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 12
         )
 
-        #expect(queuedRedownload.badge == .queued)
+        #expect(queuedRedownload.badge.status == .queued)
         #expect(queuedRedownload.matches(filter: .active))
     }
 
@@ -80,7 +80,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 3
         )
 
-        #expect(queuedRepair.badge == .queued)
+        #expect(queuedRepair.badge.status == .queued)
         #expect(queuedRepair.matches(filter: .active))
     }
 
@@ -93,7 +93,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 12
         )
 
-        #expect(queuedUpdate.badge == .queued)
+        #expect(queuedUpdate.badge.status == .queued)
         #expect(queuedUpdate.matches(filter: .active))
         #expect(queuedUpdate.matches(filter: .update) == false)
     }
@@ -109,7 +109,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         )
 
         #expect(resumedUpdate.isQueuedWorkItem)
-        #expect(resumedUpdate.badge == .queued)
+        #expect(resumedUpdate.badge.status == .queued)
         #expect(resumedUpdate.matches(filter: .active))
     }
 

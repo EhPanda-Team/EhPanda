@@ -10,6 +10,27 @@ import Testing
 
 struct DownloadBadgeSortTests: DownloadFeatureTestCase {
     @Test
+    func testBadgeSeparatesDisplayStatusFromProgress() {
+        let activeDownload = sampleDownload(
+            gid: "479",
+            title: "Active Archive",
+            status: .downloading,
+            pageCount: 26,
+            completedPageCount: 7
+        )
+        let badge = activeDownload.badge
+
+        #expect(badge.status == activeDownload.displayStatus)
+        #expect(badge.progress == DownloadProgress(completedPageCount: 7, pageCount: 26))
+        #expect(badge.failure == nil)
+        #expect(badge.compactText == L10n.Localizable.Struct.DownloadBadge.Compact.downloading)
+        #expect(
+            badge.text
+                == L10n.Localizable.Struct.DownloadBadge.Text.downloading(7, 26)
+        )
+    }
+
+    @Test
     func testPartialDownloadBadgeUsesNeedsAttentionCopy() {
         let partialDownload = sampleDownload(
             gid: "480",
@@ -53,7 +74,7 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
 
         #expect(queuedRepair.matches(filter: .failed) == false)
         #expect(queuedRepair.matches(filter: .update) == false)
-        #expect(missingFilesWithoutQueuedWork.badge == .missingFiles)
+        #expect(missingFilesWithoutQueuedWork.badge.failure == .missingFiles)
         #expect(missingFilesWithoutQueuedWork.matches(filter: .failed))
     }
 

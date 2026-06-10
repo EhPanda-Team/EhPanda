@@ -16,7 +16,7 @@ struct GalleryCardCell: View {
     private let webImageSuccessAction: (RetrieveImageResult) -> Void
 
     private let gallery: Gallery
-    private let downloadBadge: DownloadBadge
+    private let downloadBadge: DownloadBadge?
 
     private let animation: Animation =
         .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
@@ -24,7 +24,7 @@ struct GalleryCardCell: View {
     init(
         gallery: Gallery, currentID: String, colors: [Color],
         webImageSuccessAction: @escaping (RetrieveImageResult) -> Void,
-        downloadBadge: DownloadBadge = .none
+        downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
         self.currentID = currentID
@@ -63,7 +63,7 @@ struct GalleryCardCell: View {
                 VStack(alignment: .leading) {
                     Text(title)
                         .font(.title3.bold())
-                        .lineLimit(downloadBadge == .none ? 4 : 2)
+                        .lineLimit(downloadBadge == nil ? 4 : 2)
                     DownloadBadgeLabel(badge: downloadBadge, compact: true)
                     Spacer()
                     RatingView(rating: gallery.rating).foregroundColor(.yellow)

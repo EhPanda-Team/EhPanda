@@ -103,7 +103,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         )
         let updatedDownload = await manager.testingFetchDownload(gid: gid)
 
-        #expect(updateBadge == .updateAvailable)
+        #expect(updateBadge?.status == .updateAvailable)
         #expect(updatedDownload?.displayStatus == .updateAvailable)
         #expect(updatedDownload?.displayStatus == .updateAvailable)
 
@@ -122,7 +122,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         )
         let currentDownload = await manager.testingFetchDownload(gid: gid)
 
-        #expect(currentBadge == .downloaded)
+        #expect(currentBadge?.status == .completed)
         #expect(currentDownload?.displayStatus == .completed)
         #expect(currentDownload?.displayStatus == .completed)
     }

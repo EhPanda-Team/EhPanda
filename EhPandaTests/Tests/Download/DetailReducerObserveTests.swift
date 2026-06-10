@@ -35,7 +35,10 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
         ])
         await store.receive(\.observeDownloadDone) {
-            $0.downloadBadge = .queued
+            $0.downloadBadge = DownloadBadge(
+                status: .queued,
+                progress: .init(completedPageCount: 0, pageCount: 12)
+            )
             $0.hasLoadedDownloadBadge = true
         }
 
@@ -57,7 +60,10 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             )
         ])
         await store.receive(\.observeDownloadDone) {
-            $0.downloadBadge = .downloaded
+            $0.downloadBadge = DownloadBadge(
+                status: .completed,
+                progress: .init(completedPageCount: 26, pageCount: 26)
+            )
             $0.hasLoadedDownloadBadge = true
         }
 
@@ -144,7 +150,7 @@ private extension DetailReducerObserveTests {
                 fetchDownload: { _ in nil },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, .none) }) },
+                badges: { _ in [:] },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },

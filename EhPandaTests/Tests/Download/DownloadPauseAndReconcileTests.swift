@@ -156,7 +156,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.displayStatus == .error)
-        #expect(stored?.badge == .failed)
+        #expect(stored?.badge.failure == .general)
     }
 
     @Test

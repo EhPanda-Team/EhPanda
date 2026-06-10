@@ -332,19 +332,19 @@ private extension DetailView {
 private extension DetailView {
     private func handleDownloadAction() {
         let options = setting.downloadRequestOptions
-        switch store.downloadBadge {
-        case .none:
+        switch store.downloadBadge?.status {
+        case nil:
             store.send(.startDownload(options))
-        case .queued, .downloading, .paused:
+        case .queued, .active, .inactive:
             store.send(.toggleDownloadPause)
-        case .downloaded:
+        case .completed:
             downloadDialog = .delete(isActiveDownload: false)
-        case .failed, .partial:
-            downloadDialog = .retry(.redownload)
+        case .error:
+            downloadDialog = store.downloadBadge?.failure == .missingFiles
+                ? .retry(.repair)
+                : .retry(.redownload)
         case .updateAvailable:
             downloadDialog = .retry(.update)
-        case .missingFiles:
-            downloadDialog = .retry(.repair)
         }
     }
 

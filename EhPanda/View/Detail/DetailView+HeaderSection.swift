@@ -11,7 +11,7 @@ struct HeaderSection: View {
     let gallery: Gallery
     let galleryDetail: GalleryDetail
     let user: User
-    let downloadBadge: DownloadBadge
+    let downloadBadge: DownloadBadge?
     let isPreparingDownload: Bool
     let canDownload: Bool
     let displaysJapaneseTitle: Bool
@@ -30,17 +30,16 @@ struct HeaderSection: View {
         let normalTitle = galleryDetail.title
         return displaysJapaneseTitle ? galleryDetail.jpnTitle ?? normalTitle : normalTitle
     }
-    private var showsMetadataPreparation: Bool { isPreparingDownload && downloadBadge == .none }
+    private var showsMetadataPreparation: Bool { isPreparingDownload && downloadBadge == nil }
     private var isDownloadActionDisabled: Bool {
         guard canDownload else { return true }
         return isPreparingDownload
     }
     private var downloadButtonTint: Color {
-        switch downloadBadge {
+        switch downloadBadge?.status {
         case .updateAvailable: return .orange
-        case .downloaded: return .red
-        case .partial: return .orange
-        case .failed, .missingFiles: return .red
+        case .completed: return .red
+        case .error: return downloadBadge?.failure == .partial ? .orange : .red
         default: return .accentColor
         }
     }
@@ -183,33 +182,30 @@ struct HeaderSection: View {
         }
     }
     private var queuedDownloadProgress: Double? {
-        if case .queued = downloadBadge { return 0 }
-        return nil
+        downloadBadge?.status == .queued ? 0 : nil
     }
     private var activeDownloadProgress: Double? {
-        if case .downloading(let completed, let total) = downloadBadge {
-            return Double(completed) / Double(max(total, 1))
-        }
-        if case .paused(let completed, let total) = downloadBadge {
-            return Double(completed) / Double(max(total, 1))
-        }
-        return nil
+        guard let badge = downloadBadge,
+              [.active, .inactive].contains(badge.status)
+        else { return nil }
+        return badge.resolvedProgress.fraction
     }
     private var activeDownloadIconSystemName: String {
-        switch downloadBadge {
-        case .paused: return "play.fill"
-        case .downloading: return "pause.fill"
+        switch downloadBadge?.status {
+        case .inactive: return "play.fill"
+        case .active: return "pause.fill"
         default: return downloadIconSystemName
         }
     }
     private var downloadIconSystemName: String {
-        switch downloadBadge {
-        case .downloaded: return "trash"
+        switch downloadBadge?.status {
+        case .completed: return "trash"
         case .updateAvailable: return "arrow.triangle.2.circlepath"
-        case .partial: return "exclamationmark.circle"
-        case .failed: return "exclamationmark.circle"
-        case .missingFiles: return "wrench.and.screwdriver"
-        case .paused: return "play.fill"
+        case .error:
+            return downloadBadge?.failure == .missingFiles
+                ? "wrench.and.screwdriver"
+                : "exclamationmark.circle"
+        case .inactive: return "play.fill"
         default: return "icloud.and.arrow.down"
         }
     }
@@ -252,29 +248,38 @@ extension HeaderSection {
         return downloadBadgeAccessibilityLabel
     }
     var downloadBadgeAccessibilityLabel: String {
-        switch downloadBadge {
-        case .none:
+        guard let badge = downloadBadge else {
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.download
+        }
+        let progress = badge.resolvedProgress
+        switch badge.status {
         case .queued:
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.queued
-        case .downloading(let completed, let total):
-            let progress = L10n.Localizable.DetailView.Accessibility.DownloadButton.downloading(
-                completed, max(total, 1)
+        case .active:
+            let downloading = L10n.Localizable.DetailView.Accessibility.DownloadButton.downloading(
+                progress.completedPageCount, progress.displayPageCount
             )
-            return [progress, L10n.Localizable.DetailView.Accessibility.DownloadButton.pauseAction]
+            return [downloading, L10n.Localizable.DetailView.Accessibility.DownloadButton.pauseAction]
                 .joined(separator: ". ")
-        case .paused(let completed, let total):
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.paused(completed, max(total, 1))
-        case .downloaded:
+        case .inactive:
+            return L10n.Localizable.DetailView.Accessibility.DownloadButton.paused(
+                progress.completedPageCount, progress.displayPageCount
+            )
+        case .completed:
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.downloaded
         case .updateAvailable:
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.update
-        case .partial(let completed, let total):
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.partial(completed, max(total, 1))
-        case .failed:
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.retry
-        case .missingFiles:
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.repair
+        case .error:
+            switch badge.failure {
+            case .partial:
+                return L10n.Localizable.DetailView.Accessibility.DownloadButton.partial(
+                    progress.completedPageCount, progress.displayPageCount
+                )
+            case .missingFiles:
+                return L10n.Localizable.DetailView.Accessibility.DownloadButton.repair
+            case .general, nil:
+                return L10n.Localizable.DetailView.Accessibility.DownloadButton.retry
+            }
         }
     }
 }
