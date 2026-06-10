@@ -39,7 +39,8 @@ struct DownloadInspectorRetryTests: DownloadFeatureTestCase {
                 pages: [
                     refreshedInspection.pages[0],
                     .init(
-                        index: 2, status: .pending, relativePath: "123_token_2.jpg",
+                        index: 2, status: .pending,
+                        relativePath: "\(download.gid)_\(download.token)_2.jpg",
                         fileURL: nil, failure: nil
                     )
                 ]
@@ -97,7 +98,8 @@ struct DownloadInspectorRetryTests: DownloadFeatureTestCase {
             pages: [
                 stableInspection.pages[0],
                 .init(
-                    index: 2, status: .pending, relativePath: "123_token_2.jpg",
+                    index: 2, status: .pending,
+                    relativePath: "\(download.gid)_\(download.token)_2.jpg",
                     fileURL: nil, failure: nil
                 )
             ]

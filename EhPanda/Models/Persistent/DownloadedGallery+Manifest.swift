@@ -19,17 +19,6 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let postedDate: Date
     let rating: Float
     let pages: [Int: String]
-
-    func imageURLs(folderURL: URL) -> [Int: URL] {
-        DownloadFileStorage(rootURL: folderURL.deletingLastPathComponent())
-            .existingPageRelativePaths(
-                folderURL: folderURL,
-                expectedPageCount: pageCount
-            )
-            .reduce(into: [Int: URL]()) { result, entry in
-                result[entry.key] = folderURL.appendingPathComponent(entry.value)
-            }
-    }
 }
 
 extension DownloadManifest {

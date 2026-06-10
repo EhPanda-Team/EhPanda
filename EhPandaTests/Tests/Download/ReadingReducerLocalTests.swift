@@ -67,14 +67,24 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testReadingReducerLocalSourceLoadsOfflineImagesWithoutNetwork() async throws {
+        let gid = "777"
+        let title = "Offline Archive"
+        let folderURL = FileUtil.downloadsDirectoryURL
+            .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
+        let localPageURLs = [
+            1: folderURL.appendingPathComponent("123_token_1.jpg"),
+            2: folderURL.appendingPathComponent("123_token_2.jpg")
+        ]
         let download = sampleDownload(
-            gid: "777",
-            title: "Offline Archive",
+            gid: gid,
+            title: title,
             status: .completed,
-            pageCount: 2
+            pageCount: 2,
+            folderURL: folderURL,
+            localPageURLs: localPageURLs
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
-        let folderURL = try prepareLocalDownloadFiles(download: download, manifest: manifest)
+        _ = try prepareLocalDownloadFiles(download: download, manifest: manifest)
         defer { try? FileManager.default.removeItem(at: folderURL) }
 
         let store = TestStore(

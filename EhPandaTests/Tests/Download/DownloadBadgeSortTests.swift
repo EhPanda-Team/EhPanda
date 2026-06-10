@@ -76,7 +76,7 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
 
         let sortedDownloads = [completedDownload, queuedRedownload].sorted { lhs, rhs in
             if lhs.displayStatus != rhs.displayStatus {
-                return lhs.displayStatus.rawValue < rhs.displayStatus.rawValue
+                return lhs.displayStatus.sortPriority < rhs.displayStatus.sortPriority
             }
             return (lhs.lastDownloadedAt ?? .distantPast) > (rhs.lastDownloadedAt ?? .distantPast)
         }
@@ -89,23 +89,25 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
     @Test
     func testInProgressDownloadUsesFinalCoverURL() throws {
         let gid = "811"
+        let folderURL = FileUtil.downloadsDirectoryURL
+            .appendingPathComponent("[\(gid)_token] Local Cover Archive", isDirectory: true)
+        let coverURL = folderURL.appendingPathComponent("\(gid)_token_cover.jpg")
         let download = sampleDownload(
             gid: gid,
             title: "Local Cover Archive",
             status: .downloading,
-            completedPageCount: 3
+            completedPageCount: 3,
+            folderURL: folderURL,
+            localCoverURL: coverURL
         )
 
-        let rootURL = FileUtil.downloadsDirectoryURL
-        let folderURL = download.folderURL
         try? FileManager.default.removeItem(at: folderURL)
         defer { try? FileManager.default.removeItem(at: folderURL) }
 
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
-        let coverURL = folderURL.appendingPathComponent("\(gid)_token_cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: coverURL, options: .atomic)
 
-        #expect(download.resolvedCoverURL(rootURL: rootURL) == coverURL)
+        #expect(download.coverURL == coverURL)
     }
 
     @Test

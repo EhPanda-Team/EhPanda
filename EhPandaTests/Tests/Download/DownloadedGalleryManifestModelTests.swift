@@ -42,6 +42,8 @@ struct DownloadedGalleryManifestModelTests {
         let download = DownloadedGallery(
             manifest: manifest,
             folderURL: URL(fileURLWithPath: "/tmp/[123_token] Sample", isDirectory: true),
+            localCoverURL: nil,
+            localPageURLs: [:],
             modifiedAt: modifiedAt,
             displayStatus: .queued
         )

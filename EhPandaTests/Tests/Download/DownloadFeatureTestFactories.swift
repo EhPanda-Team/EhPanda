@@ -60,7 +60,82 @@ enum DownloadFixtureStatus {
     }
 }
 
+extension DownloadedGallery {
+    init(
+        gid: String,
+        host: GalleryHost,
+        token: String,
+        title: String,
+        jpnTitle: String?,
+        uploader: String?,
+        category: EhPanda.Category,
+        tags: [GalleryTag],
+        pageCount: Int,
+        postedDate: Date,
+        rating: Float,
+        onlineCoverURL: URL?,
+        folderURL: URL,
+        localCoverURL: URL? = nil,
+        localPageURLs: [Int: URL] = [:],
+        displayStatus: DownloadDisplayStatus,
+        completedPageCount: Int,
+        lastDownloadedAt: Date?,
+        lastError: DownloadFailure?
+    ) {
+        let clampedCompletedPageCount = min(max(completedPageCount, 0), pageCount)
+        let manifest = DownloadManifest(
+            gid: gid,
+            host: host,
+            token: token,
+            title: title,
+            jpnTitle: jpnTitle,
+            category: category,
+            language: .japanese,
+            remoteCoverURL: onlineCoverURL,
+            uploader: uploader,
+            tags: tags,
+            postedDate: postedDate,
+            rating: rating,
+            pages: pageCount > 0
+                ? Dictionary(
+                    uniqueKeysWithValues: (1...pageCount).map {
+                        ($0, $0 <= clampedCompletedPageCount ? "sha256:fixture-\($0)" : "")
+                    }
+                )
+                : [:]
+        )
+        self.init(
+            manifest: manifest,
+            folderURL: folderURL,
+            localCoverURL: localCoverURL,
+            localPageURLs: localPageURLs,
+            modifiedAt: lastDownloadedAt,
+            displayStatus: displayStatus,
+            lastError: lastError
+        )
+    }
+}
+
 extension DownloadFeatureTestCase {
+    func appLaunchAutomationClient(
+        _ automation: AppLaunchAutomation?
+    ) -> AppLaunchAutomationClient {
+        .init(current: { automation })
+    }
+
+    func appLaunchAutomationClient(
+        autoDownloadGID: String
+    ) -> AppLaunchAutomationClient {
+        appLaunchAutomationClient(
+            AppLaunchAutomation(
+                initialTab: nil,
+                autoDownloadGID: autoDownloadGID,
+                loginCookies: nil,
+                galleryURL: nil
+            )
+        )
+    }
+
     func sampleManifest(
         gid: String,
         title: String,
@@ -95,14 +170,14 @@ extension DownloadFeatureTestCase {
                 .init(
                     index: 1,
                     status: .downloaded,
-                    relativePath: "123_token_1.jpg",
+                    relativePath: "\(download.gid)_\(download.token)_1.jpg",
                     fileURL: URL(fileURLWithPath: "/tmp/0001.jpg"),
                     failure: nil
                 ),
                 .init(
                     index: 2,
                     status: .failed,
-                    relativePath: "123_token_2.jpg",
+                    relativePath: "\(download.gid)_\(download.token)_2.jpg",
                     fileURL: nil,
                     failure: .init(code: .networkingFailed, message: "Network Error")
                 )
@@ -119,9 +194,13 @@ extension DownloadFeatureTestCase {
         completedPageCount: Int? = nil,
         lastDownloadedAt: Date? = .now,
         lastError: DownloadFailure? = nil,
-        folderURL: URL? = nil
+        folderURL: URL? = nil,
+        localCoverURL: URL? = nil,
+        localPageURLs: [Int: URL] = [:]
     ) -> DownloadedGallery {
-        DownloadedGallery(
+        let resolvedFolderURL = folderURL ?? FileUtil.downloadsDirectoryURL
+            .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
+        return DownloadedGallery(
             gid: gid,
             host: .ehentai,
             token: "token",
@@ -134,8 +213,9 @@ extension DownloadFeatureTestCase {
             postedDate: .now,
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
-            folderURL: folderURL ?? FileUtil.downloadsDirectoryURL
-                .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true),
+            folderURL: resolvedFolderURL,
+            localCoverURL: localCoverURL,
+            localPageURLs: localPageURLs,
             displayStatus: status.displayStatus,
             completedPageCount: completedPageCount
                 ?? status.defaultCompletedPageCount(pageCount: pageCount),
@@ -159,11 +239,15 @@ extension DownloadFeatureTestCase {
             options: .atomic
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appendingPathComponent(
+                "\(manifest.gid)_\(manifest.token)_1.jpg"
+            ),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("123_token_2.jpg"),
+            to: folderURL.appendingPathComponent(
+                "\(manifest.gid)_\(manifest.token)_2.jpg"
+            ),
             options: .atomic
         )
         return folderURL
