@@ -12,89 +12,105 @@ import Synchronization
 struct CookieClient: Sendable {
     let clearAll: @Sendable () -> Void
     let getCookie: @Sendable (URL, String) -> CookieValue
+    private let cookiesForURL: @Sendable (URL) -> [HTTPCookie]
     private let removeCookie: @Sendable (URL, String) -> Void
     private let checkExistence: @Sendable (URL, String) -> Bool
     private let initializeCookie: @Sendable (HTTPCookie, String) -> HTTPCookie
+    private let storeCookie: @Sendable (HTTPCookie) -> Void
     private let setCookieValue: @Sendable (URL, String, String, String, TimeInterval, Bool) -> Void
 }
 
 extension CookieClient {
-    static let live: Self = .init(
-        clearAll: {
-            if let historyCookies = HTTPCookieStorage.shared.cookies {
-                historyCookies.forEach {
-                    HTTPCookieStorage.shared.deleteCookie($0)
-                }
-            }
-        },
-        getCookie: { url, key in
-            var value = CookieValue(
-                rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.none
-            )
-            guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return value }
+    static let live: Self = live(cookieStorage: .shared)
 
-            cookies.forEach { cookie in
-                guard cookie.name == key && !cookie.value.isEmpty else { return }
-                if let expiresDate = cookie.expiresDate,
-                   expiresDate <= .now {
-                    value = CookieValue(
-                        rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.expired
-                    )
-                    return
+    static func live(cookieStorage: HTTPCookieStorage) -> Self {
+        .init(
+            clearAll: {
+                if let historyCookies = cookieStorage.cookies {
+                    historyCookies.forEach {
+                        cookieStorage.deleteCookie($0)
+                    }
                 }
-                guard cookie.value != Defaults.Cookie.mystery else {
-                    value = CookieValue(
-                        rawValue: cookie.value, localizedString:
-                            L10n.Localizable.Struct.CookieValue.LocalizedString.mystery
-                    )
-                    return
-                }
-                value = CookieValue(rawValue: cookie.value, localizedString: "")
-            }
+            },
+            getCookie: { url, key in
+                var value = CookieValue(
+                    rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.none
+                )
+                guard let cookies = cookieStorage.cookies(for: url), !cookies.isEmpty else { return value }
 
-            return value
-        },
-        removeCookie: { url, key in
-            if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
                 cookies.forEach { cookie in
-                    guard cookie.name == key else { return }
-                    HTTPCookieStorage.shared.deleteCookie(cookie)
+                    guard cookie.name == key && !cookie.value.isEmpty else { return }
+                    if let expiresDate = cookie.expiresDate,
+                       expiresDate <= .now {
+                        value = CookieValue(
+                            rawValue: "",
+                            localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.expired
+                        )
+                        return
+                    }
+                    guard cookie.value != Defaults.Cookie.mystery else {
+                        value = CookieValue(
+                            rawValue: cookie.value, localizedString:
+                                L10n.Localizable.Struct.CookieValue.LocalizedString.mystery
+                        )
+                        return
+                    }
+                    value = CookieValue(rawValue: cookie.value, localizedString: "")
+                }
+
+                return value
+            },
+            cookiesForURL: { url in
+                cookieStorage.cookies(for: url) ?? []
+            },
+            removeCookie: { url, key in
+                if let cookies = cookieStorage.cookies(for: url) {
+                    cookies.forEach { cookie in
+                        guard cookie.name == key else { return }
+                        cookieStorage.deleteCookie(cookie)
+                    }
+                }
+            },
+            checkExistence: { url, key in
+                if let cookies = cookieStorage.cookies(for: url) {
+                    var existence: HTTPCookie?
+                    cookies.forEach { cookie in
+                        guard cookie.name == key else { return }
+                        existence = cookie
+                    }
+                    return existence != nil
+                } else {
+                    return false
+                }
+            },
+            initializeCookie: { cookie, value in
+                var properties = cookie.properties
+                properties?[.value] = value
+                return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
+            },
+            storeCookie: { cookie in
+                cookieStorage.setCookie(cookie)
+            },
+            setCookieValue: { url, key, value, path, expiresTime, sessionOnly in
+                let properties: [HTTPCookiePropertyKey: Any] = [
+                    .path: path, .name: key, .value: value,
+                    .originURL: url
+                ]
+                var mutableProperties = properties
+                if let host = url.host {
+                    mutableProperties[.domain] = host
+                }
+                if sessionOnly {
+                    mutableProperties[.discard] = "TRUE"
+                } else {
+                    mutableProperties[.expires] = Date(timeIntervalSinceNow: expiresTime)
+                }
+                if let cookie = HTTPCookie(properties: mutableProperties) {
+                    cookieStorage.setCookie(cookie)
                 }
             }
-        },
-        checkExistence: { url, key in
-            if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
-                var existence: HTTPCookie?
-                cookies.forEach { cookie in
-                    guard cookie.name == key else { return }
-                    existence = cookie
-                }
-                return existence != nil
-            } else {
-                return false
-            }
-        },
-        initializeCookie: { cookie, value in
-            var properties = cookie.properties
-            properties?[.value] = value
-            return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
-        },
-        setCookieValue: { url, key, value, path, expiresTime, sessionOnly in
-            let properties: [HTTPCookiePropertyKey: Any] = [
-                .path: path, .name: key, .value: value,
-                .originURL: url
-            ]
-            var mutableProperties = properties
-            if sessionOnly {
-                mutableProperties[.discard] = "TRUE"
-            } else {
-                mutableProperties[.expires] = Date(timeIntervalSinceNow: expiresTime)
-            }
-            if let cookie = HTTPCookie(properties: mutableProperties) {
-                HTTPCookieStorage.shared.setCookie(cookie)
-            }
-        }
-    )
+        )
+    }
 }
 
 // MARK: Foundation
@@ -151,15 +167,13 @@ extension CookieClient {
     }
     func editCookie(for url: URL, key: String, value: String) {
         var newCookie: HTTPCookie?
-        if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
-            cookies.forEach { cookie in
-                guard cookie.name == key else { return }
-                newCookie = initializeCookie(cookie, value)
-                removeCookie(url, key)
-            }
+        cookiesForURL(url).forEach { cookie in
+            guard cookie.name == key else { return }
+            newCookie = initializeCookie(cookie, value)
+            removeCookie(url, key)
         }
         guard let cookie = newCookie else { return }
-        HTTPCookieStorage.shared.setCookie(cookie)
+        storeCookie(cookie)
     }
     func setOrEditCookie(for url: URL, key: String, value: String) {
         if checkExistence(url, key) {
@@ -168,12 +182,22 @@ extension CookieClient {
             setCookie(for: url, key: key, value: value)
         }
     }
+    func cookies(for url: URL) -> [HTTPCookie] {
+        cookiesForURL(url)
+    }
 }
 
 // MARK: Accessor
 extension CookieClient {
     var didLogin: Bool {
-        CookieUtil.didLogin
+        let ehHasAuth = !getCookie(Defaults.URL.ehentai, Defaults.Cookie.ipbMemberId).rawValue.isEmpty
+            && !getCookie(Defaults.URL.ehentai, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
+        let exIgneous = getCookie(Defaults.URL.exhentai, Defaults.Cookie.igneous).rawValue
+        let exHasAuth = !getCookie(Defaults.URL.exhentai, Defaults.Cookie.ipbMemberId).rawValue.isEmpty
+            && !getCookie(Defaults.URL.exhentai, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
+            && !exIgneous.isEmpty
+            && exIgneous != Defaults.Cookie.mystery
+        return ehHasAuth || exHasAuth
     }
     var apiuid: String {
         getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
@@ -322,9 +346,11 @@ extension CookieClient {
     static let noop: Self = .init(
         clearAll: {},
         getCookie: { _, _ in .empty },
+        cookiesForURL: { _ in [] },
         removeCookie: { _, _ in },
         checkExistence: { _, _ in false },
         initializeCookie: { _, _ in .init() },
+        storeCookie: { _ in },
         setCookieValue: { _, _, _, _, _, _ in }
     )
 
@@ -333,39 +359,125 @@ extension CookieClient {
     static let unimplemented: Self = .init(
         clearAll: IssueReporting.unimplemented(placeholder: placeholder()),
         getCookie: IssueReporting.unimplemented(placeholder: placeholder()),
+        cookiesForURL: IssueReporting.unimplemented(placeholder: placeholder()),
         removeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
         checkExistence: IssueReporting.unimplemented(placeholder: placeholder()),
         initializeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
+        storeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
         setCookieValue: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
 
 #if DEBUG
-private final class CookieClientTestingStore: Sendable {
-    private let cookies: Mutex<[String: String]>
+private struct CookieClientTestingCookie: Sendable {
+    var domain: String
+    var path: String
+    var name: String
+    var value: String
+    var expiresDate: Date?
+    var isSessionOnly: Bool
 
-    init(cookies: [String: String]) {
+    func matches(url: URL, key: String? = nil) -> Bool {
+        guard let host = url.host?.lowercased() else { return false }
+        let normalizedDomain = domain.lowercased()
+            .trimmingCharacters(in: CharacterSet(charactersIn: "."))
+        let domainMatches = host == normalizedDomain
+            || host.hasSuffix(".\(normalizedDomain)")
+        let keyMatches = key.map { name == $0 } ?? true
+        return domainMatches && keyMatches
+    }
+
+    func httpCookie() -> HTTPCookie? {
+        var properties: [HTTPCookiePropertyKey: Any] = [
+            .domain: domain,
+            .path: path,
+            .name: name,
+            .value: value
+        ]
+        if isSessionOnly {
+            properties[.discard] = "TRUE"
+        } else if let expiresDate {
+            properties[.expires] = expiresDate
+        }
+        return HTTPCookie(properties: properties)
+    }
+}
+
+private final class CookieClientTestingStore: Sendable {
+    private let cookies: Mutex<[String: CookieClientTestingCookie]>
+
+    init(cookies: [String: CookieClientTestingCookie]) {
         self.cookies = Mutex(cookies)
     }
 
     func value(for url: URL, key: String) -> String {
-        cookies.withLock { $0[storageKey(url: url, key: key)] ?? "" }
+        cookie(for: url, key: key)?.value ?? ""
     }
 
-    func setValue(_ value: String, for url: URL, key: String) {
-        cookies.withLock { $0[storageKey(url: url, key: key)] = value }
+    func setValue(
+        _ value: String,
+        for url: URL,
+        key: String,
+        path: String = "/",
+        expiresTime: TimeInterval = .oneYear,
+        sessionOnly: Bool = false
+    ) {
+        guard let domain = url.host else { return }
+        let cookie = CookieClientTestingCookie(
+            domain: domain,
+            path: path,
+            name: key,
+            value: value,
+            expiresDate: sessionOnly ? nil : Date(timeIntervalSinceNow: expiresTime),
+            isSessionOnly: sessionOnly
+        )
+        cookies.withLock { $0[storageKey(domain: domain, key: key)] = cookie }
     }
 
     func removeValue(for url: URL, key: String) {
-        cookies.withLock { $0[storageKey(url: url, key: key)] = nil }
+        cookies.withLock { storage in
+            storage = storage.filter { !$0.value.matches(url: url, key: key) }
+        }
+    }
+
+    func containsValue(for url: URL, key: String) -> Bool {
+        cookie(for: url, key: key) != nil
+    }
+
+    func cookies(for url: URL) -> [HTTPCookie] {
+        cookies.withLock { storage in
+            storage.values
+                .filter { $0.matches(url: url) }
+                .compactMap { $0.httpCookie() }
+        }
+    }
+
+    func store(_ cookie: HTTPCookie) {
+        let testingCookie = CookieClientTestingCookie(
+            domain: cookie.domain,
+            path: cookie.path,
+            name: cookie.name,
+            value: cookie.value,
+            expiresDate: cookie.expiresDate,
+            isSessionOnly: cookie.isSessionOnly
+        )
+        cookies.withLock {
+            $0[storageKey(domain: cookie.domain, key: cookie.name)] = testingCookie
+        }
     }
 
     func removeAll() {
         cookies.withLock { $0.removeAll() }
     }
 
-    private func storageKey(url: URL, key: String) -> String {
-        "\(url.absoluteString)|\(key)"
+    private func cookie(for url: URL, key: String) -> CookieClientTestingCookie? {
+        cookies.withLock { storage in
+            storage.values.first { $0.matches(url: url, key: key) }
+        }
+    }
+
+    private func storageKey(domain: String, key: String) -> String {
+        "\(domain.lowercased())|\(key)"
     }
 }
 
@@ -397,17 +509,32 @@ extension CookieClient {
             getCookie: { url, key in
                 .init(rawValue: store.value(for: url, key: key), localizedString: "")
             },
+            cookiesForURL: { url in
+                store.cookies(for: url)
+            },
             removeCookie: { url, key in
                 store.removeValue(for: url, key: key)
             },
-            checkExistence: { _, _ in
-                false
+            checkExistence: { url, key in
+                store.containsValue(for: url, key: key)
             },
-            initializeCookie: { _, _ in
-                .init()
+            initializeCookie: { cookie, value in
+                var properties = cookie.properties
+                properties?[.value] = value
+                return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
             },
-            setCookieValue: { url, key, value, _, _, _ in
-                store.setValue(value, for: url, key: key)
+            storeCookie: { cookie in
+                store.store(cookie)
+            },
+            setCookieValue: { url, key, value, path, expiresTime, sessionOnly in
+                store.setValue(
+                    value,
+                    for: url,
+                    key: key,
+                    path: path,
+                    expiresTime: expiresTime,
+                    sessionOnly: sessionOnly
+                )
             }
         )
     }

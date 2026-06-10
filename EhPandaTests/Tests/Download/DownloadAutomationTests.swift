@@ -33,7 +33,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
 
     @Test
     func testImportAutomationCookiesClearsStaleIgneousAndUsesSessionCookies() {
-        let cookieClient = CookieClient.live
+        let cookieClient = CookieClient.testing()
         cookieClient.clearAll()
         defer { cookieClient.clearAll() }
 
@@ -49,7 +49,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             igneous: nil
         )
 
-        let exCookies = HTTPCookieStorage.shared.cookies(for: Defaults.URL.exhentai) ?? []
+        let exCookies = cookieClient.cookies(for: Defaults.URL.exhentai)
         let memberCookie = exCookies.first { $0.name == Defaults.Cookie.ipbMemberId }
         let passHashCookie = exCookies.first { $0.name == Defaults.Cookie.ipbPassHash }
         let igneousCookie = exCookies.first { $0.name == Defaults.Cookie.igneous }

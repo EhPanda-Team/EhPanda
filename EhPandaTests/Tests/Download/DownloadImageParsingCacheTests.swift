@@ -39,19 +39,13 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(filename: .exLoginRequired)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let cookieClient = CookieClient.live
-        cookieClient.clearAll()
-        defer { cookieClient.clearAll() }
-        cookieClient.setOrEditCookie(
-            for: Defaults.URL.exhentai,
-            key: Defaults.Cookie.yay,
-            value: "louder"
-        )
-
         let manager = makeTestingDownloadManager()
         let response = try makeResponse(
             url: Defaults.URL.exhentai,
-            contentType: "text/html"
+            contentType: "text/html",
+            headers: [
+                "Set-Cookie": "\(Defaults.Cookie.yay)=louder; Path=/"
+            ]
         )
         let error = await manager.testingDetectResponseError(
             fileURL: fileURL,

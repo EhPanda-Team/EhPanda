@@ -149,11 +149,18 @@ extension DownloadFeatureTestCase {
     }
 
     func makeTestingDownloadManager() -> DownloadManager {
+        makeTestingDownloadManager(storedCookiesProvider: { _ in [] })
+    }
+
+    func makeTestingDownloadManager(
+        storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie]
+    ) -> DownloadManager {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return DownloadManager(
             storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
-            urlSession: .shared
+            urlSession: .shared,
+            storedCookiesProvider: storedCookiesProvider
         )
     }
 

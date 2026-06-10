@@ -127,6 +127,7 @@ actor DownloadManager {
 
     let storage: DownloadFileStorage
     let urlSession: URLSession
+    let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     let libraryClient: LibraryClient
     let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     let queueStore: DownloadQueueStore
@@ -152,6 +153,9 @@ actor DownloadManager {
     init(
         storage: DownloadFileStorage,
         urlSession: URLSession,
+        storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie] = {
+            HTTPCookieStorage.shared.cookies(for: $0) ?? []
+        },
         libraryClient: LibraryClient = .live,
         downloadOptionsProvider: @escaping @Sendable () async -> DownloadRequestOptions = {
             DownloadRequestOptions()
@@ -160,6 +164,7 @@ actor DownloadManager {
     ) {
         self.storage = storage
         self.urlSession = urlSession
+        self.storedCookiesProvider = storedCookiesProvider
         self.libraryClient = libraryClient
         self.downloadOptionsProvider = downloadOptionsProvider
         self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
