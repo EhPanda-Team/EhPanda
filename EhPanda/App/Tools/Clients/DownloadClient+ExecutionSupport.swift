@@ -217,19 +217,17 @@ extension DownloadManager {
             seedContext: seedContext
         )
 
-        let manifest = validatedManifest(
-            at: folderURL,
-            gid: payload.gallery.gid,
-            pageCount: payload.galleryDetail.pageCount
+        let manifest = try ensureWorkingManifest(
+            payload: payload,
+            folderURL: folderURL
         )
-        let lookupManifest = manifest ?? makeInitialManifest(payload: payload)
         let existingPages = storage.existingPageRelativePaths(
             folderURL: folderURL,
-            manifest: lookupManifest
+            manifest: manifest
         )
         let coverRelativePath = storage.existingCoverRelativePath(
             folderURL: folderURL,
-            manifest: lookupManifest
+            manifest: manifest
         )
         return .init(
             folderURL: folderURL,
@@ -237,6 +235,26 @@ extension DownloadManager {
             existingPages: existingPages,
             coverRelativePath: coverRelativePath
         )
+    }
+
+    // The disk index drops manifest-less folders and progress flushes skip
+    // them, so the working folder must carry a manifest before any page
+    // lands; otherwise an interruption strands the folder invisibly.
+    private func ensureWorkingManifest(
+        payload: DownloadRequestPayload,
+        folderURL: URL
+    ) throws -> DownloadManifest {
+        if let manifest = validatedManifest(
+            at: folderURL,
+            gid: payload.gallery.gid,
+            pageCount: payload.galleryDetail.pageCount
+        ) {
+            return manifest
+        }
+        let manifest = makeInitialManifest(payload: payload)
+        try storage.writeManifest(manifest, folderURL: folderURL)
+        updateDownloadIndex(folderURL: folderURL, manifest: manifest)
+        return manifest
     }
 
     private func shouldReuseWorkingFolder(

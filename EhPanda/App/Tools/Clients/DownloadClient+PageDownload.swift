@@ -18,7 +18,7 @@ extension DownloadManager {
     func downloadPages(
         context: PageDownloadContext,
         pendingPageIndices: [Int],
-        existingManifest: DownloadManifest?,
+        existingManifest: DownloadManifest,
         existingPageRelativePaths: [Int: String]
     ) async throws -> DownloadBatchResult {
         let existingPages = buildExistingPages(
@@ -110,12 +110,9 @@ extension DownloadManager {
     }
 
     private func buildExistingPages(
-        existingManifest: DownloadManifest?,
+        existingManifest: DownloadManifest,
         existingPageRelativePaths: [Int: String]
     ) -> [Int: String] {
-        guard let existingManifest else {
-            return existingPageRelativePaths
-        }
         let manifestPageIndices = Set(existingManifest.pages.keys)
         return existingPageRelativePaths.filter {
             manifestPageIndices.contains($0.key)
