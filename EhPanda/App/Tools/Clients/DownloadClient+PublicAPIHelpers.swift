@@ -53,18 +53,11 @@ extension DownloadManager {
         completedFolderURL: URL?,
         download: DownloadedGallery
     ) -> [Int: URL] {
-        let completedPageRelativePaths = completedFolderURL.map {
-            storage.existingPageRelativePaths(
-                folderURL: $0,
-                expectedPageCount: download.pageCount
-            )
-        } ?? [:]
-        return completedPageRelativePaths
-            .reduce(into: [Int: URL]()) { result, entry in
-                guard let folderURL = completedFolderURL else { return }
-                result[entry.key] = folderURL
-                    .appendingPathComponent(entry.value)
-            }
+        guard let completedFolderURL else { return [:] }
+        return storage.imageURLs(
+            folderURL: completedFolderURL,
+            manifest: download.manifest
+        )
     }
 
     func resolveLocalPageURLs(
@@ -78,8 +71,10 @@ extension DownloadManager {
            let manifest = try? storage.readManifest(
             folderURL: completedFolderURL
            ) {
-            return .success(manifest
-                .imageURLs(folderURL: completedFolderURL)
+            return .success(storage.imageURLs(
+                folderURL: completedFolderURL,
+                manifest: manifest
+            )
             )
         }
 

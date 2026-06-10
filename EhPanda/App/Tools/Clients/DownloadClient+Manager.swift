@@ -170,3 +170,36 @@ actor DownloadManager {
         storage.fileManager
     }
 }
+
+extension DownloadManager {
+    func clearDownloadFailureState(
+        gid: String,
+        includePageFailures: Bool = true
+    ) {
+        downloadErrors[gid] = nil
+        validationErrors[gid] = nil
+        if includePageFailures {
+            failedPageErrors[gid] = nil
+        }
+    }
+
+    func clearDownloadQueueIntent(gid: String) {
+        queuedModes[gid] = nil
+        queuedPageSelections[gid] = nil
+    }
+
+    func clearDownloadSessionState(
+        gid: String,
+        includePageFailures: Bool = true,
+        includeUpdateFlag: Bool = false
+    ) {
+        clearDownloadFailureState(
+            gid: gid,
+            includePageFailures: includePageFailures
+        )
+        clearDownloadQueueIntent(gid: gid)
+        if includeUpdateFlag {
+            updatedGalleryIDs.remove(gid)
+        }
+    }
+}

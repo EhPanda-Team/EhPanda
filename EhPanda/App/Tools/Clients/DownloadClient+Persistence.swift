@@ -61,6 +61,14 @@ extension DownloadManager {
         return DownloadedGallery(
             manifest: record.manifest,
             folderURL: record.folderURL,
+            localCoverURL: storage.localCoverURL(
+                folderURL: record.folderURL,
+                manifest: record.manifest
+            ),
+            localPageURLs: storage.imageURLs(
+                folderURL: record.folderURL,
+                manifest: record.manifest
+            ),
             modifiedAt: record.modifiedAt,
             displayStatus: displayStatus(for: record),
             lastError: validationErrors[gid] ?? downloadErrors[gid]
@@ -98,7 +106,7 @@ extension DownloadManager {
         _ rhs: DownloadedGallery
     ) -> Bool {
         if lhs.displayStatus != rhs.displayStatus {
-            return lhs.displayStatus.rawValue < rhs.displayStatus.rawValue
+            return lhs.displayStatus.sortPriority < rhs.displayStatus.sortPriority
         }
         return (lhs.lastDownloadedAt ?? .distantPast)
             > (rhs.lastDownloadedAt ?? .distantPast)
@@ -116,7 +124,9 @@ extension DownloadManager {
     func fetchDownload(
         gid: String
     ) async -> DownloadedGallery? {
-        _ = await reloadDownloadIndex()
+        if downloadIndex[gid] == nil {
+            _ = await reloadDownloadIndex()
+        }
         return await indexedDownload(gid: gid)
     }
 
@@ -155,8 +165,7 @@ extension DownloadManager {
         }
 #endif
         downloadErrors[context.gid] = DownloadFailure(error: error)
-        queuedModes[context.gid] = nil
-        queuedPageSelections[context.gid] = nil
+        clearDownloadQueueIntent(gid: context.gid)
         await queueStore.remove(context.gid)
         _ = await reloadDownloadIndex()
     }
@@ -200,10 +209,23 @@ extension DownloadManager {
         let pageRelativePaths = pages.reduce(into: [Int: String]()) { result, page in
             result[page.index] = page.relativePath
         }
-        try storage.refreshManifestPageFileHashes(
+        let manifest = try storage.refreshManifestPageFileHashes(
             folderURL: folderURL,
             pageRelativePaths: pageRelativePaths
         )
+        updateDownloadIndex(folderURL: folderURL, manifest: manifest)
     }
 
+    func updateDownloadIndex(folderURL: URL, manifest: DownloadManifest) {
+        let modifiedAt = try? folderURL.resourceValues(
+            forKeys: [.contentModificationDateKey]
+        )
+        .contentModificationDate
+        downloadIndex[manifest.gid] = DownloadFolderRecord(
+            relativePath: folderURL.lastPathComponent,
+            folderURL: folderURL,
+            manifest: manifest,
+            modifiedAt: modifiedAt
+        )
+    }
 }

@@ -158,11 +158,7 @@ extension DownloadManager {
     ) async throws {
         let batchResult = finalizeContext.batchResult
         let existingDownload = finalizeContext.existingDownload
-        let manifest = makeManifest(
-            payload: payload,
-            coverRelativePath: finalizeContext.coverRelativePath,
-            batchResult: batchResult
-        )
+        let manifest = makeInitialManifest(payload: payload)
         let hashedManifest = try storage.addingCurrentFileHashes(
             to: manifest,
             folderURL: folderURL
@@ -175,34 +171,6 @@ extension DownloadManager {
             payload: payload,
             pages: batchResult.pages,
             existingDownload: existingDownload
-        )
-    }
-
-    private func makeManifest(
-        payload: DownloadRequestPayload,
-        coverRelativePath: String?,
-        batchResult: DownloadBatchResult
-    ) -> DownloadManifest {
-        DownloadManifest(
-            gid: payload.gallery.gid,
-            host: payload.host,
-            token: payload.gallery.token,
-            title: payload.gallery.title,
-            jpnTitle: payload.galleryDetail.jpnTitle,
-            category: payload.gallery.category,
-            language: payload.galleryDetail.language,
-            remoteCoverURL:
-                payload.galleryDetail.coverURL ?? payload.gallery.coverURL,
-            uploader: payload.galleryDetail.uploader,
-            tags: payload.gallery.tags,
-            postedDate: payload.galleryDetail.postedDate,
-            rating: payload.galleryDetail.rating,
-            pages: payload.galleryDetail.pageCount > 0
-                ? Dictionary(
-                    uniqueKeysWithValues:
-                        (1...payload.galleryDetail.pageCount).map { ($0, "") }
-                )
-                : [:]
         )
     }
 }

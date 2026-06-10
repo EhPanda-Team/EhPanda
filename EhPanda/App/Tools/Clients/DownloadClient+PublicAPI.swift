@@ -23,7 +23,10 @@ extension DownloadManager {
     }
 
     func fetchDownloads() async -> [DownloadedGallery] {
-        await fetchDownloadsFromStore()
+        if downloadIndex.isEmpty {
+            return await fetchDownloadsFromStore()
+        }
+        return await indexedDownloads()
     }
 
     func reconcileDownloads() async {
@@ -99,29 +102,9 @@ extension DownloadManager {
     ) throws {
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try createDirectory(at: folderURL)
-        let pageCount = payload.galleryDetail.pageCount
-        let pages = pageCount > 0
-            ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
-            : [:]
-        try storage.writeManifest(
-            DownloadManifest(
-                gid: payload.gallery.gid,
-                host: payload.host,
-                token: payload.gallery.token,
-                title: payload.gallery.title,
-                jpnTitle: payload.galleryDetail.jpnTitle,
-                category: payload.gallery.category,
-                language: payload.galleryDetail.language,
-                remoteCoverURL:
-                    payload.galleryDetail.coverURL ?? payload.gallery.coverURL,
-                uploader: payload.galleryDetail.uploader,
-                tags: payload.gallery.tags,
-                postedDate: payload.galleryDetail.postedDate,
-                rating: payload.galleryDetail.rating,
-                pages: pages
-            ),
-            folderURL: folderURL
-        )
+        let manifest = makeInitialManifest(payload: payload)
+        try storage.writeManifest(manifest, folderURL: folderURL)
+        updateDownloadIndex(folderURL: folderURL, manifest: manifest)
     }
 
     func togglePause(gid: String) async -> Result<Void, AppError> {
@@ -158,14 +141,14 @@ extension DownloadManager {
             taskToCancel = nil
         }
         await taskToCancel?.value
-        queuedModes[gid] = nil
-        queuedPageSelections[gid] = nil
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
         guard let download = await fetchDownload(gid: gid) else {
             return .failure(.notFound)
         }
         do {
             try storage.removeFolder(at: download.folderURL)
+            downloadIndex[gid] = nil
             await notifyObservers()
             await scheduleNextIfNeeded()
             return .success(())
@@ -190,7 +173,6 @@ extension DownloadManager {
         guard let download = resolvedDownload else {
             return .failure(.notFound)
         }
-        let folderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
         switch storage.validate(download: download) {
         case .valid:
             break
@@ -198,7 +180,7 @@ extension DownloadManager {
             return .failure(.fileOperationFailed(message))
         }
         do {
-            let manifest = try storage.readManifest(folderURL: folderURL)
+            let manifest = try storage.readManifest(folderURL: download.folderURL)
             return .success((download, manifest))
         } catch {
             return .failure(.fileOperationFailed(error.localizedDescription))
@@ -237,7 +219,7 @@ extension DownloadManager {
     ) async {
         let existingPages = storage.existingPageRelativePaths(
             folderURL: captureTarget.folderURL,
-            expectedPageCount: download.pageCount
+            manifest: download.manifest
         )
         do {
             let cacheURLs = pageImageCacheURLs(imageURL: imageURL)
@@ -279,7 +261,7 @@ extension DownloadManager {
         let existingRelativePaths = activeFolderURL.map {
             storage.existingPageRelativePaths(
                 folderURL: $0,
-                expectedPageCount: download.pageCount
+                manifest: download.manifest
             )
         } ?? [:]
         let failedPages = (failedPageErrors[gid] ?? [:])

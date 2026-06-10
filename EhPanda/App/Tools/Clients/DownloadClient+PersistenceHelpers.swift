@@ -10,8 +10,7 @@ extension DownloadManager {
     func validatedCompletedPageCount(
         _ download: DownloadedGallery
     ) -> Int {
-        let folderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
+        let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) })
         else {
             return 0
@@ -21,7 +20,7 @@ extension DownloadManager {
                 .readManifest(folderURL: folderURL) else {
             return storage.existingPageRelativePaths(
                 folderURL: folderURL,
-                expectedPageCount: download.pageCount
+                manifest: download.manifest
             )
             .count
         }
@@ -59,14 +58,13 @@ extension DownloadManager {
     }
 
     private func scanCompletedFolder(download: DownloadedGallery) {
-        let completedFolderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
+        let completedFolderURL = download.folderURL
         guard fileManager.operate({
             $0.fileExists(atPath: completedFolderURL.path)
         }) else { return }
         _ = storage.existingPageRelativePaths(
             folderURL: completedFolderURL,
-            expectedPageCount: download.pageCount
+            manifest: download.manifest
         )
         _ = storage.existingCoverRelativePath(
             folderURL: completedFolderURL
@@ -145,8 +143,7 @@ extension DownloadManager {
         for download: DownloadedGallery,
         index: Int
     ) -> CaptureTargetResult? {
-        let completedFolderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
+        let completedFolderURL = download.folderURL
         guard fileManager.operate({
             $0.fileExists(atPath: completedFolderURL.path)
         })
@@ -157,7 +154,7 @@ extension DownloadManager {
         let completedPages =
             storage.existingPageRelativePaths(
                 folderURL: completedFolderURL,
-                expectedPageCount: download.pageCount
+                manifest: download.manifest
             )
         return CaptureTargetResult(
             folderURL: completedFolderURL,

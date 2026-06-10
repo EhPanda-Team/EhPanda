@@ -53,7 +53,7 @@ extension DownloadManager {
         if download.displayStatus == .inactive, download.isIncomplete {
             return effectiveRetryMode(
                 for: download,
-                requestedMode: .redownload
+                requestedMode: .repair
             )
         }
         if case .missingFiles = storage.validate(download: download) {

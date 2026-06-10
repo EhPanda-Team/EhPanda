@@ -26,20 +26,28 @@ struct DownloadQueueStore: Sendable {
             guard !gids.contains(gid) else { return }
             gids.append(gid)
         }
-        try? await identifiers.save()
+        await save()
     }
 
     func remove(_ gid: String) async {
         identifiers.withLock { gids in
             gids.removeAll { $0 == gid }
         }
-        try? await identifiers.save()
+        await save()
     }
 
     func removeAll() async {
         identifiers.withLock { gids in
             gids.removeAll()
         }
-        try? await identifiers.save()
+        await save()
+    }
+
+    private func save() async {
+        do {
+            try await identifiers.save()
+        } catch {
+            Logger.error(error)
+        }
     }
 }
