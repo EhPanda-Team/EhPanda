@@ -31,15 +31,10 @@ extension DownloadManager {
                 for: download,
                 requestedMode: .redownload
             )
-        case .error:
+        case .error, .queued, .active:
             return effectiveRetryMode(
                 for: download,
-                requestedMode: initialOrRedownloadMode(for: download)
-            )
-        case .queued, .active:
-            return effectiveRetryMode(
-                for: download,
-                requestedMode: initialOrRedownloadMode(for: download)
+                requestedMode: interruptedWorkMode(for: download)
             )
         }
     }
@@ -62,10 +57,14 @@ extension DownloadManager {
         return .redownload
     }
 
-    private func initialOrRedownloadMode(
+    // Queued, active, or errored downloads reach this fallback only when the
+    // in-memory queue intent is gone, typically after a relaunch interrupted
+    // the session; resuming in place must not discard downloaded pages, so
+    // anything with progress repairs instead of redownloading.
+    private func interruptedWorkMode(
         for download: DownloadedGallery
     ) -> DownloadStartMode {
-        download.completedPageCount == 0 ? .initial : .redownload
+        download.completedPageCount == 0 ? .initial : .repair
     }
 
     func effectiveRetryMode(
