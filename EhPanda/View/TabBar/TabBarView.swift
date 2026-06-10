@@ -124,7 +124,7 @@ struct TabBarView: View {
 }
 
 // MARK: TabType
-enum TabBarItemType: Int, CaseIterable, Identifiable {
+enum TabBarItemType: Int, CaseIterable, Identifiable, Sendable {
     var id: Int { rawValue }
 
     case home

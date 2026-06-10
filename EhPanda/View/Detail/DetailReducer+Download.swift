@@ -152,7 +152,7 @@ extension DetailReducer {
         state: inout State
     ) -> Effect<Action> {
         guard !state.didRunLaunchAutomation,
-              AppLaunchAutomation.current?.autoDownloadGID == state.gallery.id,
+              appLaunchAutomationClient.current()?.autoDownloadGID == state.gallery.id,
               state.galleryDetail != nil,
               state.hasLoadedDownloadBadge
         else { return .none }

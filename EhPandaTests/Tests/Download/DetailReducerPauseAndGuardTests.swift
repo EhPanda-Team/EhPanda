@@ -21,12 +21,12 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
 
-        setenv("EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID", gallery.gid, 1)
-        defer { unsetenv("EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID") }
-
         let store = TestStore(initialState: initialState) {
             DetailReducer()
         } withDependencies: {
+            $0.appLaunchAutomationClient = appLaunchAutomationClient(
+                autoDownloadGID: gallery.gid
+            )
             $0.downloadClient = .noop
             $0.hapticsClient = .noop
             $0.databaseClient = .noop

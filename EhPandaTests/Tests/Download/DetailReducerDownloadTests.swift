@@ -88,12 +88,10 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let options = DownloadRequestOptions()
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
 
-        setenv("EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID", gallery.gid, 1)
-        defer { unsetenv("EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID") }
-
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
             badgeValue: .queued,
+            automationGID: gallery.gid,
             configure: { state in
                 state.gid = ""
                 state.galleryPreviewURLs = [1: previewURL]
@@ -128,6 +126,7 @@ private extension DetailReducerDownloadTests {
     func makeDownloadTestStore(
         gallery: Gallery, detail: GalleryDetail,
         badgeValue: DownloadBadge,
+        automationGID: String? = nil,
         configure: (inout DetailReducer.State) -> Void = { _ in },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
     ) -> TestStoreOf<DetailReducer> {
@@ -159,6 +158,11 @@ private extension DetailReducerDownloadTests {
             $0.hapticsClient = .noop
             $0.databaseClient = .noop
             $0.cookieClient = .noop
+            if let automationGID {
+                $0.appLaunchAutomationClient = appLaunchAutomationClient(
+                    autoDownloadGID: automationGID
+                )
+            }
         }
     }
 }
