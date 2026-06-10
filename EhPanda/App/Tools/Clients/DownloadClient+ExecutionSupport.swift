@@ -7,6 +7,29 @@ import Foundation
 
 // MARK: - Execution Support
 extension DownloadManager {
+    func makeInitialManifest(payload: DownloadRequestPayload) -> DownloadManifest {
+        let pageCount = payload.galleryDetail.pageCount
+        let pages = pageCount > 0
+            ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+            : [:]
+        return DownloadManifest(
+            gid: payload.gallery.gid,
+            host: payload.host,
+            token: payload.gallery.token,
+            title: payload.gallery.title,
+            jpnTitle: payload.galleryDetail.jpnTitle,
+            category: payload.gallery.category,
+            language: payload.galleryDetail.language,
+            remoteCoverURL:
+                payload.galleryDetail.coverURL ?? payload.gallery.coverURL,
+            uploader: payload.galleryDetail.uploader,
+            tags: payload.gallery.tags,
+            postedDate: payload.galleryDetail.postedDate,
+            rating: payload.galleryDetail.rating,
+            pages: pages
+        )
+    }
+
     func folderRelativePath(for payload: DownloadRequestPayload) -> String {
         storage.makeFolderRelativePath(
             gid: payload.gallery.gid,
@@ -199,9 +222,10 @@ extension DownloadManager {
             gid: payload.gallery.gid,
             pageCount: payload.galleryDetail.pageCount
         )
+        let lookupManifest = manifest ?? makeInitialManifest(payload: payload)
         let existingPages = storage.existingPageRelativePaths(
             folderURL: folderURL,
-            expectedPageCount: payload.galleryDetail.pageCount
+            manifest: lookupManifest
         )
         let coverRelativePath = storage.existingCoverRelativePath(
             folderURL: folderURL
@@ -317,8 +341,7 @@ extension DownloadManager {
         for download: DownloadedGallery,
         payload: DownloadRequestPayload
     ) -> RepairSeed? {
-        let folderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
+        let folderURL = download.folderURL
         guard payload.mode == .repair,
               fileManager.operate({
                   $0.fileExists(atPath: folderURL.path)

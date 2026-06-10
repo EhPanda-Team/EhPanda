@@ -24,8 +24,7 @@ extension DownloadManager {
             storage.validate(download: download) == .valid
 
         do {
-            downloadErrors[gid] = nil
-            validationErrors[gid] = nil
+            clearDownloadFailureState(gid: gid, includePageFailures: false)
             await notifyObservers()
             let result = try await fetchNormalizeAndDownload(
                 gid: gid,
@@ -45,7 +44,7 @@ extension DownloadManager {
                 gid: gid,
                 originalDownload: download,
                 mode: mode,
-                hadReadableFiles: hadReadableFiles,
+                hadReadableFiles: hadReadableFiles
             )
             await handleProcessDownloadError(error: error, context: context)
         }
@@ -184,12 +183,7 @@ extension DownloadManager {
     }
 
     func settleCompletedDownload(gid: String) async {
-        downloadErrors[gid] = nil
-        validationErrors[gid] = nil
-        failedPageErrors[gid] = nil
-        updatedGalleryIDs.remove(gid)
-        queuedModes[gid] = nil
-        queuedPageSelections[gid] = nil
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
     }
 }

@@ -25,8 +25,7 @@ extension DownloadManager {
     func activeInspectionFolderURL(
         for download: DownloadedGallery
     ) -> URL? {
-        let completedFolderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
+        let completedFolderURL = download.folderURL
         let completedFolderExists = fileManager.operate {
             $0.fileExists(atPath: completedFolderURL.path)
         }

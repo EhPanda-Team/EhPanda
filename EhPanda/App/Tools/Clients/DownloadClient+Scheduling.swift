@@ -38,7 +38,7 @@ extension DownloadManager {
             return
         }
         let nextDownload = queuedGIDs.isEmpty
-            ? nextLegacyScheduledDownload(from: downloads)
+            ? nextUnqueuedSchedulableDownload(from: downloads)
             : nextQueuedDownload(
                 orderedGIDs: queuedGIDs,
                 downloads: downloads
@@ -81,9 +81,12 @@ extension DownloadManager {
             .first { isSchedulableDownload($0) }
     }
 
-    private func nextLegacyScheduledDownload(
+    private func nextUnqueuedSchedulableDownload(
         from downloads: [DownloadedGallery]
     ) -> DownloadedGallery? {
+        // Some transient actor state, such as an interrupted active download or
+        // selected page retry, can be schedulable before it is reflected in the
+        // persisted queue.
         downloads
             .filter(isSchedulableDownload)
             .sorted { lhs, rhs in
@@ -178,10 +181,7 @@ extension DownloadManager {
         gid: String,
         download: DownloadedGallery
     ) async throws -> Task<Void, Never>? {
-        downloadErrors[gid] = nil
-        validationErrors[gid] = nil
-        queuedModes[gid] = nil
-        queuedPageSelections[gid] = nil
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
         _ = await reloadDownloadIndex()
         await notifyObservers()
@@ -199,10 +199,7 @@ extension DownloadManager {
         gid: String,
         download: DownloadedGallery
     ) async throws {
-        downloadErrors[gid] = nil
-        validationErrors[gid] = nil
-        queuedModes[gid] = nil
-        queuedPageSelections[gid] = nil
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
         _ = await reloadDownloadIndex()
     }
@@ -218,8 +215,7 @@ extension DownloadManager {
             break
         }
 
-        queuedModes[download.gid] = nil
-        queuedPageSelections[download.gid] = nil
+        clearDownloadQueueIntent(gid: download.gid)
         await queueStore.remove(download.gid)
         await notifyObservers()
         return .success(())
@@ -230,8 +226,7 @@ extension DownloadManager {
             return .failure(.notFound)
         }
 
-        downloadErrors[gid] = nil
-        validationErrors[gid] = nil
+        clearDownloadFailureState(gid: gid)
         queuedModes[gid] = resumeMode(for: download)
         queuedPageSelections[gid] = nil
         await queueStore.enqueue(gid)

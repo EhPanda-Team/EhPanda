@@ -33,11 +33,9 @@ extension DownloadManager {
         let resolvedMode = effectiveRetryMode(
             for: download, requestedMode: mode
         )
+        clearDownloadSessionState(gid: gid)
         queuedModes[gid] = resolvedMode
         queuedPageSelections[gid] = nil
-        failedPageErrors[gid] = nil
-        downloadErrors[gid] = nil
-        validationErrors[gid] = nil
         await queueStore.enqueue(gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
@@ -56,7 +54,7 @@ extension DownloadManager {
         let selectedPageIndices = Array(Set(pageIndices)).sorted()
         guard !selectedPageIndices.isEmpty else { return .success(()) }
 
-        let folderURL = download.resolvedFolderURL(rootURL: storage.rootURL)
+        let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .failure(.notFound)
         }
@@ -64,7 +62,7 @@ extension DownloadManager {
             try await performRetryPages(
                 gid: gid,
                 download: download,
-                mode: mode,
+                mode: .repair,
                 selectedPageIndices: selectedPageIndices,
                 folderURL: folderURL
             )
@@ -85,10 +83,9 @@ extension DownloadManager {
         folderURL: URL
     ) async throws {
         clearSelectedFailedPages(gid: gid, selectedPageIndices: selectedPageIndices)
+        clearDownloadFailureState(gid: gid, includePageFailures: false)
         queuedModes[gid] = mode
         queuedPageSelections[gid] = selectedPageIndices
-        downloadErrors[gid] = nil
-        validationErrors[gid] = nil
         await queueStore.enqueue(gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
@@ -108,8 +105,7 @@ extension DownloadManager {
             return .failure(.notFound)
         }
 
-        let completedFolderURL = download
-            .resolvedFolderURL(rootURL: storage.rootURL)
+        let completedFolderURL = download.folderURL
         let completedValidation = storage.validate(download: download)
 
         let completedPageURLs = buildCompletedPageURLs(
