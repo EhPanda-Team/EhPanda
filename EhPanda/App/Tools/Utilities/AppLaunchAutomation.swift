@@ -5,8 +5,8 @@
 
 import Foundation
 
-struct AppLaunchAutomation {
-    struct LoginCookies {
+struct AppLaunchAutomation: Sendable {
+    struct LoginCookies: Sendable {
         let memberID: String
         let passHash: String
         let igneous: String?

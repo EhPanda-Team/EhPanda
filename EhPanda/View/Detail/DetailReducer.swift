@@ -148,6 +148,7 @@ struct DetailReducer {
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
+    @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
 
     var body: some Reducer<State, Action> { detailBody }
 }

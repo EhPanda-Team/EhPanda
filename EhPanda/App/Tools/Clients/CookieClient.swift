@@ -5,6 +5,9 @@
 
 import Foundation
 import ComposableArchitecture
+#if DEBUG
+import Synchronization
+#endif
 
 struct CookieClient: Sendable {
     let clearAll: @Sendable () -> Void
@@ -12,6 +15,7 @@ struct CookieClient: Sendable {
     private let removeCookie: @Sendable (URL, String) -> Void
     private let checkExistence: @Sendable (URL, String) -> Bool
     private let initializeCookie: @Sendable (HTTPCookie, String) -> HTTPCookie
+    private let setCookieValue: @Sendable (URL, String, String, String, TimeInterval, Bool) -> Void
 }
 
 extension CookieClient {
@@ -74,6 +78,21 @@ extension CookieClient {
             var properties = cookie.properties
             properties?[.value] = value
             return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
+        },
+        setCookieValue: { url, key, value, path, expiresTime, sessionOnly in
+            let properties: [HTTPCookiePropertyKey: Any] = [
+                .path: path, .name: key, .value: value,
+                .originURL: url
+            ]
+            var mutableProperties = properties
+            if sessionOnly {
+                mutableProperties[.discard] = "TRUE"
+            } else {
+                mutableProperties[.expires] = Date(timeIntervalSinceNow: expiresTime)
+            }
+            if let cookie = HTTPCookie(properties: mutableProperties) {
+                HTTPCookieStorage.shared.setCookie(cookie)
+            }
         }
     )
 }
@@ -128,19 +147,7 @@ extension CookieClient {
         expiresTime: TimeInterval = .oneYear,
         sessionOnly: Bool = false
     ) {
-        let properties: [HTTPCookiePropertyKey: Any] = [
-            .path: path, .name: key, .value: value,
-            .originURL: url
-        ]
-        var mutableProperties = properties
-        if sessionOnly {
-            mutableProperties[.discard] = "TRUE"
-        } else {
-            mutableProperties[.expires] = Date(timeIntervalSinceNow: expiresTime)
-        }
-        if let cookie = HTTPCookie(properties: mutableProperties) {
-            HTTPCookieStorage.shared.setCookie(cookie)
-        }
+        setCookieValue(url, key, value, path, expiresTime, sessionOnly)
     }
     func editCookie(for url: URL, key: String, value: String) {
         var newCookie: HTTPCookie?
@@ -317,7 +324,8 @@ extension CookieClient {
         getCookie: { _, _ in .empty },
         removeCookie: { _, _ in },
         checkExistence: { _, _ in false },
-        initializeCookie: { _, _ in .init() }
+        initializeCookie: { _, _ in .init() },
+        setCookieValue: { _, _, _, _, _, _ in }
     )
 
     static func placeholder<Result>() -> Result { fatalError() }
@@ -327,6 +335,81 @@ extension CookieClient {
         getCookie: IssueReporting.unimplemented(placeholder: placeholder()),
         removeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
         checkExistence: IssueReporting.unimplemented(placeholder: placeholder()),
-        initializeCookie: IssueReporting.unimplemented(placeholder: placeholder())
+        initializeCookie: IssueReporting.unimplemented(placeholder: placeholder()),
+        setCookieValue: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
+
+#if DEBUG
+private final class CookieClientTestingStore: Sendable {
+    private let cookies: Mutex<[String: String]>
+
+    init(cookies: [String: String]) {
+        self.cookies = Mutex(cookies)
+    }
+
+    func value(for url: URL, key: String) -> String {
+        cookies.withLock { $0[storageKey(url: url, key: key)] ?? "" }
+    }
+
+    func setValue(_ value: String, for url: URL, key: String) {
+        cookies.withLock { $0[storageKey(url: url, key: key)] = value }
+    }
+
+    func removeValue(for url: URL, key: String) {
+        cookies.withLock { $0[storageKey(url: url, key: key)] = nil }
+    }
+
+    func removeAll() {
+        cookies.withLock { $0.removeAll() }
+    }
+
+    private func storageKey(url: URL, key: String) -> String {
+        "\(url.absoluteString)|\(key)"
+    }
+}
+
+extension CookieClient {
+    static func testing(
+        memberID: String = "",
+        passHash: String = "",
+        igneous: String? = nil
+    ) -> Self {
+        let store = CookieClientTestingStore(cookies: [:])
+        for url in [Defaults.URL.ehentai, Defaults.URL.exhentai, Defaults.URL.sexhentai] {
+            if !memberID.isEmpty {
+                store.setValue(memberID, for: url, key: Defaults.Cookie.ipbMemberId)
+            }
+            if !passHash.isEmpty {
+                store.setValue(passHash, for: url, key: Defaults.Cookie.ipbPassHash)
+            }
+        }
+        if let igneous, !igneous.isEmpty {
+            for url in [Defaults.URL.exhentai, Defaults.URL.sexhentai] {
+                store.setValue(igneous, for: url, key: Defaults.Cookie.igneous)
+            }
+        }
+
+        return .init(
+            clearAll: {
+                store.removeAll()
+            },
+            getCookie: { url, key in
+                .init(rawValue: store.value(for: url, key: key), localizedString: "")
+            },
+            removeCookie: { url, key in
+                store.removeValue(for: url, key: key)
+            },
+            checkExistence: { _, _ in
+                false
+            },
+            initializeCookie: { _, _ in
+                .init()
+            },
+            setCookieValue: { url, key, value, _, _, _ in
+                store.setValue(value, for: url, key: key)
+            }
+        )
+    }
+}
+#endif

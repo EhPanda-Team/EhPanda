@@ -45,6 +45,7 @@ struct AppReducer {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
+    @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
     @Dependency(\.urlClient) private var urlClient
 
     var body: some Reducer<State, Action> {
@@ -81,7 +82,7 @@ struct AppReducer {
 
                 case .runLaunchAutomation:
                     guard !state.didRunLaunchAutomation,
-                          let automation = AppLaunchAutomation.current
+                          let automation = appLaunchAutomationClient.current()
                     else { return .none }
 
                     state.didRunLaunchAutomation = true
@@ -95,8 +96,9 @@ struct AppReducer {
                     }
 
                 case .appDelegate(.migration(.onDatabasePreparationSuccess)):
+                    let loginCookies = appLaunchAutomationClient.current()?.loginCookies
                     return .run { send in
-                        if let loginCookies = AppLaunchAutomation.current?.loginCookies {
+                        if let loginCookies {
                             cookieClient.importAutomationCookies(
                                 memberID: loginCookies.memberID,
                                 passHash: loginCookies.passHash,
@@ -265,7 +267,7 @@ private extension AppReducer {
     func shouldDelayLaunchAutomationUntilIgneous(state: State) -> Bool {
         guard !state.didRunLaunchAutomation,
               cookieClient.shouldFetchIgneous,
-              let automation = AppLaunchAutomation.current
+              let automation = appLaunchAutomationClient.current()
         else { return false }
 
         if let galleryURL = automation.galleryURL,

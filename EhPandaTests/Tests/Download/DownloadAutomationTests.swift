@@ -66,16 +66,17 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testRunLaunchAutomationFallsBackToInitialTabWhenGalleryURLIsUnhandleable() async {
-        setenv("EHPANDA_AUTOMATION_TAB", "downloads", 1)
-        setenv("EHPANDA_AUTOMATION_GALLERY_URL", "https://example.com/not-a-gallery", 1)
-        defer {
-            unsetenv("EHPANDA_AUTOMATION_TAB")
-            unsetenv("EHPANDA_AUTOMATION_GALLERY_URL")
-        }
+        let automation = AppLaunchAutomation(
+            initialTab: .downloads,
+            autoDownloadGID: nil,
+            loginCookies: nil,
+            galleryURL: URL(string: "https://example.com/not-a-gallery")
+        )
 
         let store = TestStore(initialState: AppReducer.State()) {
             AppReducer()
         } withDependencies: {
+            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
             $0.cookieClient = .noop
             $0.deviceClient = .noop
             $0.hapticsClient = .noop
@@ -97,19 +98,22 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDatabasePreparationImportsAutomationCookiesBeforeLoadingSettings() async {
-        let cookieClient = CookieClient.live
-        cookieClient.clearAll()
-        setenv("EHPANDA_AUTOMATION_IPB_MEMBER_ID", "4172984", 1)
-        setenv("EHPANDA_AUTOMATION_IPB_PASS_HASH", "pass-hash", 1)
-        defer {
-            cookieClient.clearAll()
-            unsetenv("EHPANDA_AUTOMATION_IPB_MEMBER_ID")
-            unsetenv("EHPANDA_AUTOMATION_IPB_PASS_HASH")
-        }
+        let cookieClient = CookieClient.testing()
+        let automation = AppLaunchAutomation(
+            initialTab: nil,
+            autoDownloadGID: nil,
+            loginCookies: .init(
+                memberID: "4172984",
+                passHash: "pass-hash",
+                igneous: nil
+            ),
+            galleryURL: nil
+        )
 
         let store = TestStore(initialState: AppReducer.State()) {
             AppReducer()
         } withDependencies: {
+            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
             $0.cookieClient = cookieClient
             $0.databaseClient = .noop
             $0.deviceClient = .noop
@@ -127,29 +131,29 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
 
         await store.send(.appDelegate(.migration(.onDatabasePreparationSuccess)))
         await store.receive(\.appDelegate.removeExpiredImageURLs)
-        #expect(cookieClient.didLogin)
+        #expect(cookieClient.shouldFetchIgneous)
         await store.receive(\.setting.loadUserSettings)
     }
 
     @MainActor
     @Test
     func testLoadUserSettingsDefersExLaunchAutomationUntilIgneousArrives() async throws {
-        let cookieClient = CookieClient.live
-        cookieClient.clearAll()
-        cookieClient.importAutomationCookies(
+        let cookieClient = CookieClient.testing(
             memberID: "4172984",
             passHash: "pass-hash",
             igneous: nil
         )
-        setenv("EHPANDA_AUTOMATION_GALLERY_URL", "https://exhentai.org/g/1394965/56c35114b6/", 1)
-        defer {
-            cookieClient.clearAll()
-            unsetenv("EHPANDA_AUTOMATION_GALLERY_URL")
-        }
+        let automation = AppLaunchAutomation(
+            initialTab: nil,
+            autoDownloadGID: nil,
+            loginCookies: nil,
+            galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
+        )
 
         let store = TestStore(initialState: AppReducer.State()) {
             AppReducer()
         } withDependencies: {
+            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
             $0.cookieClient = cookieClient
             $0.databaseClient = .noop
             $0.deviceClient = .noop
@@ -191,22 +195,22 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testLoadUserSettingsKeepsExLaunchAutomationDeferredWhenIgneousFetchFails() async {
-        let cookieClient = CookieClient.live
-        cookieClient.clearAll()
-        cookieClient.importAutomationCookies(
+        let cookieClient = CookieClient.testing(
             memberID: "4172984",
             passHash: "pass-hash",
             igneous: nil
         )
-        setenv("EHPANDA_AUTOMATION_GALLERY_URL", "https://exhentai.org/g/1394965/56c35114b6/", 1)
-        defer {
-            cookieClient.clearAll()
-            unsetenv("EHPANDA_AUTOMATION_GALLERY_URL")
-        }
+        let automation = AppLaunchAutomation(
+            initialTab: nil,
+            autoDownloadGID: nil,
+            loginCookies: nil,
+            galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
+        )
 
         let store = TestStore(initialState: AppReducer.State()) {
             AppReducer()
         } withDependencies: {
+            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
             $0.cookieClient = cookieClient
             $0.databaseClient = .noop
             $0.deviceClient = .noop
@@ -235,5 +239,4 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         #expect(store.state.didRunLaunchAutomation == false)
         #expect(store.state.isAwaitingIgneousForLaunchAutomation)
     }
-
 }
