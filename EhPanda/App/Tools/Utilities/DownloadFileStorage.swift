@@ -68,12 +68,15 @@ struct DownloadFileStorage: Sendable {
     }
 
     func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
+        let fileURLs = existingAssetFileURLs(folderURL: folderURL)
         manifest.pages.keys.sorted().reduce(into: [:]) { result, index in
-            guard let fileURL = existingPageFileURL(
-                folderURL: folderURL,
-                gid: manifest.gid,
-                token: manifest.token,
-                index: index
+            guard let fileURL = existingAssetFileURL(
+                in: fileURLs,
+                prefix: pageFilePrefix(
+                    gid: manifest.gid,
+                    token: manifest.token,
+                    index: index
+                )
             ) else { return }
             result[index] = fileURL.lastPathComponent
         }
@@ -173,33 +176,51 @@ struct DownloadFileStorage: Sendable {
     func existingPageFileURL(folderURL: URL, gid: String, token: String, index: Int) -> URL? {
         existingAssetFileURL(
             folderURL: folderURL,
-            prefix: "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_\(index)."
+            prefix: pageFilePrefix(gid: gid, token: token, index: index)
         )
     }
 
     func existingCoverFileURL(folderURL: URL, gid: String, token: String) -> URL? {
         existingAssetFileURL(
             folderURL: folderURL,
-            prefix: "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_cover."
+            prefix: coverFilePrefix(gid: gid, token: token)
         )
     }
 
     private func existingAssetFileURL(folderURL: URL, prefix: String) -> URL? {
+        existingAssetFileURL(
+            in: existingAssetFileURLs(folderURL: folderURL),
+            prefix: prefix
+        )
+    }
+
+    private func existingAssetFileURLs(folderURL: URL) -> [URL] {
         guard let fileURLs = try? fileManager.operate({
             try $0.contentsOfDirectory(
                 at: folderURL,
                 includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey]
             )
         }) else {
-            return nil
+            return []
         }
 
-        return fileURLs
-            .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+        return fileURLs.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+    }
+
+    private func existingAssetFileURL(in fileURLs: [URL], prefix: String) -> URL? {
+        fileURLs
             .first(where: {
                 $0.lastPathComponent.hasPrefix(prefix)
                     && sanitizeAssetFileIfNeeded(at: $0)
             })
+    }
+
+    private func pageFilePrefix(gid: String, token: String, index: Int) -> String {
+        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_\(index)."
+    }
+
+    private func coverFilePrefix(gid: String, token: String) -> String {
+        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_cover."
     }
 
     func writeManifest(_ manifest: DownloadManifest, folderURL: URL) throws {
