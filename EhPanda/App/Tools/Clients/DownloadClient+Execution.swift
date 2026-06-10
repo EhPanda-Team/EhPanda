@@ -20,8 +20,6 @@ extension DownloadManager {
             return
         }
         let mode = queuedMode(for: download)
-        let hadReadableFiles =
-            storage.validate(download: download) == .valid
 
         do {
             clearDownloadFailureState(gid: gid, includePageFailures: false)
@@ -43,8 +41,7 @@ extension DownloadManager {
             let context = FailureContext(
                 gid: gid,
                 originalDownload: download,
-                mode: mode,
-                hadReadableFiles: hadReadableFiles
+                mode: mode
             )
             await handleProcessDownloadError(error: error, context: context)
         }

@@ -74,7 +74,6 @@ actor DownloadManager {
         let gid: String
         let originalDownload: DownloadedGallery
         let mode: DownloadStartMode
-        let hadReadableFiles: Bool
     }
 
     struct ProgressFlushContext: Sendable {
