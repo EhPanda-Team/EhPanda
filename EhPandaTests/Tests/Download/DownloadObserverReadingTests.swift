@@ -14,8 +14,17 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testReadingReducerLocalSourceWithoutGalleryStateDoesNotStayLoading() async throws {
+        let gid = "700001"
+        let title = "Offline Gallery"
+        let folderURL = FileUtil.downloadsDirectoryURL
+            .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
+        let localPageURLs = [
+            1: folderURL.appendingPathComponent("123_token_1.jpg"),
+            2: folderURL.appendingPathComponent("123_token_2.jpg")
+        ]
         let download = sampleDownload(
-            gid: "700001", title: "Offline Gallery", status: .completed, pageCount: 2, completedPageCount: 2
+            gid: gid, title: title, status: .completed, pageCount: 2, completedPageCount: 2,
+            folderURL: folderURL, localPageURLs: localPageURLs
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
         let store = TestStore(
@@ -34,7 +43,6 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.urlClient = .noop
         }
         store.exhaustivity = .off
-        let folderURL = download.folderURL
         defer { try? FileManager.default.removeItem(at: folderURL) }
         try FileManager.default.createDirectory(
             at: folderURL,

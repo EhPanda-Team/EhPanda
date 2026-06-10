@@ -275,7 +275,7 @@ private extension Optional where Wrapped == DownloadValidationState {
 extension DownloadInspectorReducer.State {
     func shouldKeepRetryPending(for download: DownloadedGallery) -> Bool {
         download.canPauseOrResume
-            || download.isPendingQueue
+            || download.isQueuedWorkItem
             || (
                 [.inactive, .error].contains(download.displayStatus)
                     && download.isIncomplete

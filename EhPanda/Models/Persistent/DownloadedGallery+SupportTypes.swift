@@ -24,35 +24,12 @@ extension DownloadedGallery {
         .joined(separator: " ")
     }
 
-    func resolvedFolderURL(rootURL _: URL = FileUtil.downloadsDirectoryURL) -> URL {
-        folderURL
-    }
-
-    func resolvedManifestURL(rootURL _: URL = FileUtil.downloadsDirectoryURL) -> URL {
+    var manifestURL: URL {
         folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
     }
 
-    func resolvedLocalCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
-        return DownloadFileStorage(rootURL: rootURL)
-            .existingCoverRelativePath(folderURL: folderURL)
-            .map { folderURL.appendingPathComponent($0) }
-    }
-
-    func resolvedCoverURL(rootURL: URL = FileUtil.downloadsDirectoryURL) -> URL? {
-        resolvedLocalCoverURL(rootURL: rootURL)
-            ?? onlineCoverURL
-    }
-
-    var manifestURL: URL {
-        resolvedManifestURL()
-    }
-
-    var localCoverURL: URL? {
-        resolvedLocalCoverURL()
-    }
-
     var coverURL: URL? {
-        resolvedCoverURL()
+        localCoverURL ?? onlineCoverURL
     }
 
     var badge: DownloadBadge {
@@ -91,10 +68,7 @@ extension DownloadedGallery {
             pageCount: pageCount,
             postedDate: postedDate,
             coverURL: coverURL,
-            galleryURL: host.url
-                .appendingPathComponent("g")
-                .appendingPathComponent(gid)
-                .appendingPathComponent(token)
+            galleryURL: manifest.galleryURL
         )
     }
 
@@ -112,15 +86,11 @@ extension DownloadedGallery {
     }
 
     var canTogglePause: Bool {
-        canPauseOrResume || isPendingQueue
-    }
-
-    var isPendingQueue: Bool {
-        badge == .queued
+        canPauseOrResume || isQueuedWorkItem
     }
 
     var canCancelFromDetailAction: Bool {
-        isPendingQueue || canPauseOrResume || displayStatus == .completed
+        isQueuedWorkItem || canPauseOrResume || displayStatus == .completed
     }
 
     var canTriggerUpdate: Bool {

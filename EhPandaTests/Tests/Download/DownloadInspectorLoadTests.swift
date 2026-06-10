@@ -101,11 +101,13 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
                 coverURL: inspection.coverURL,
                 pages: [
                     .init(
-                        index: 1, status: .downloaded, relativePath: "123_token_1.jpg",
+                        index: 1, status: .downloaded,
+                        relativePath: "\(download.gid)_\(download.token)_1.jpg",
                         fileURL: URL(fileURLWithPath: "/tmp/0001.jpg"), failure: nil
                     ),
                     .init(
-                        index: 2, status: .pending, relativePath: "123_token_2.jpg",
+                        index: 2, status: .pending,
+                        relativePath: "\(download.gid)_\(download.token)_2.jpg",
                         fileURL: nil, failure: nil
                     )
                 ]
@@ -267,7 +269,8 @@ extension DownloadInspectorLoadTests {
                     fileURL: nil, failure: nil
                 ),
                 .init(
-                    index: 2, status: .failed, relativePath: "123_token_2.jpg",
+                    index: 2, status: .failed,
+                    relativePath: "\(download.gid)_\(download.token)_2.jpg",
                     fileURL: nil,
                     failure: .init(code: .networkingFailed, message: "Network Error")
                 )

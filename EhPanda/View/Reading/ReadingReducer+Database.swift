@@ -175,11 +175,9 @@ extension ReadingReducer {
         download: DownloadedGallery,
         manifest: DownloadManifest
     ) {
-        let folderURL = download.folderURL
-
         state.gallery = download.gallery
         state.language = manifest.language
-        let imageURLs = manifest.imageURLs(folderURL: folderURL)
+        let imageURLs = download.localPageURLs
         state.localPageURLs = imageURLs
         state.previewConfig = .normal(rows: 4)
         state.previewURLs = imageURLs
