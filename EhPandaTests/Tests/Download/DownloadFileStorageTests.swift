@@ -205,9 +205,14 @@ struct DownloadFileStorageTests {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: folderURL.appendingPathComponent("other_token_cover.jpg"), options: .atomic)
         try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 1)
 
-        #expect(storage.existingCoverRelativePath(folderURL: folderURL) == "123_token_cover.jpg")
+        #expect(
+            storage.existingCoverRelativePath(folderURL: folderURL, manifest: manifest)
+                == "123_token_cover.jpg"
+        )
     }
 
     @Test

@@ -228,7 +228,8 @@ extension DownloadManager {
             manifest: lookupManifest
         )
         let coverRelativePath = storage.existingCoverRelativePath(
-            folderURL: folderURL
+            folderURL: folderURL,
+            manifest: lookupManifest
         )
         return .init(
             folderURL: folderURL,

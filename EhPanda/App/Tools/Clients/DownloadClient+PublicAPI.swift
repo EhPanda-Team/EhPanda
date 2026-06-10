@@ -275,7 +275,10 @@ extension DownloadManager {
         )
 
         let coverURL = activeFolderURL.flatMap { folderURL in
-            storage.existingCoverRelativePath(folderURL: folderURL).map {
+            storage.existingCoverRelativePath(
+                folderURL: folderURL,
+                manifest: download.manifest
+            ).map {
                 folderURL.appendingPathComponent($0)
             }
         } ?? download.coverURL

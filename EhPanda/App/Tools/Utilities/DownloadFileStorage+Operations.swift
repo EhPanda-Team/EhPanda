@@ -48,7 +48,10 @@ extension DownloadFileStorage {
             to: destinationFolderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
         )
 
-        if let coverRelativePath = existingCoverRelativePath(folderURL: sourceFolderURL),
+        if let coverRelativePath = existingCoverRelativePath(
+            folderURL: sourceFolderURL,
+            manifest: manifest
+        ),
            let sourceCoverURL = validatedChildURL(root: sourceFolderURL, relativePath: coverRelativePath),
            let destCoverURL = validatedChildURL(root: destinationFolderURL, relativePath: coverRelativePath) {
             if sanitizeAssetFileIfNeeded(at: sourceCoverURL) {

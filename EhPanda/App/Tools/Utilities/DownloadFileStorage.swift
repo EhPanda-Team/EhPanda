@@ -97,23 +97,8 @@ struct DownloadFileStorage: Sendable {
         )
     }
 
-    func existingCoverRelativePath(folderURL: URL) -> String? {
-        guard let fileURLs = try? fileManager.operate({
-            try $0.contentsOfDirectory(
-                at: folderURL,
-                includingPropertiesForKeys: nil
-            )
-        }) else {
-            return nil
-        }
-
-        return fileURLs
-            .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
-            .first(where: {
-                let filename = $0.deletingPathExtension().lastPathComponent
-                return filename.hasSuffix("_cover")
-                    && sanitizeAssetFileIfNeeded(at: $0)
-            })?
+    func existingCoverRelativePath(folderURL: URL, manifest: DownloadManifest) -> String? {
+        localCoverURL(folderURL: folderURL, manifest: manifest)?
             .lastPathComponent
     }
 
