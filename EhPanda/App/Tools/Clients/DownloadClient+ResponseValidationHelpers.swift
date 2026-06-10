@@ -257,8 +257,7 @@ extension DownloadManager {
         }
 
         for url in uniqueURLs {
-            cookies += HTTPCookieStorage.shared
-                .cookies(for: url) ?? []
+            cookies += storedCookiesProvider(url)
         }
         return cookies
     }
