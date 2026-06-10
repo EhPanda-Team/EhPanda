@@ -786,14 +786,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appendingPathComponent("\(gid)_token_1.jpg"),
             options: .atomic
         )
         await manager.testingSetFailedPageErrors(
             [
                 .init(
                     index: 2,
-                    relativePath: "123_token_2.jpg",
+                    relativePath: "\(gid)_token_2.jpg",
                     error: .networkingFailed
                 )
             ],
@@ -836,7 +836,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: completedFolderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
             options: .atomic
         )
         let completedPageURL = completedFolderURL.appendingPathComponent("\(gid)_token_1.jpg")
@@ -876,22 +876,24 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: completedFolderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
             options: .atomic
         )
+        let page1URL = completedFolderURL.appendingPathComponent("\(gid)_token_1.jpg")
+        let page2URL = completedFolderURL.appendingPathComponent("\(gid)_token_2.jpg")
         try Data([0x01]).write(
-            to: completedFolderURL.appendingPathComponent("123_token_1.jpg"),
+            to: page1URL,
             options: .atomic
         )
         try Data([0x09]).write(
-            to: completedFolderURL.appendingPathComponent("123_token_2.jpg"),
+            to: page2URL,
             options: .atomic
         )
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
-        #expect(pageURLs[1] == completedFolderURL.appendingPathComponent("123_token_1.jpg"))
-        #expect(pageURLs[2] == completedFolderURL.appendingPathComponent("123_token_2.jpg"))
+        #expect(pageURLs[1] == page1URL)
+        #expect(pageURLs[2] == page2URL)
     }
 
 }

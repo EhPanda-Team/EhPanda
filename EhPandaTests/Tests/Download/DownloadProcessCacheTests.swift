@@ -232,20 +232,20 @@ private extension DownloadProcessCacheTests {
             pageSelection: [setup.pageIndex]
         )
         let updatedPageCount = latestPayload.galleryDetail.pageCount
-        let oldPageCount = updatedPageCount - 5
         #expect(updatedPageCount > setup.pageIndex)
-        #expect(oldPageCount > 0)
 
         try setupCacheTestFinalFolder(
             storage: setup.storage, gid: setup.gid,
-            oldPageCount: oldPageCount
+            pageCount: updatedPageCount,
+            missingPageIndex: setup.pageIndex
         )
         return updatedPageCount
     }
 
     func setupCacheTestFinalFolder(
         storage: DownloadFileStorage, gid: String,
-        oldPageCount: Int
+        pageCount: Int,
+        missingPageIndex: Int
     ) throws {
         let completedFolderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
         try FileManager.default.createDirectory(
@@ -254,8 +254,18 @@ private extension DownloadProcessCacheTests {
         )
         let staleManifest = try sampleManifest(
             gid: gid, title: "Pause Race",
-            pageCount: oldPageCount
+            pageCount: pageCount
         )
+        try Data([0x00]).write(
+            to: completedFolderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
+            options: .atomic
+        )
+        for index in staleManifest.pages.keys where index != missingPageIndex {
+            try Data([UInt8(index % 255)]).write(
+                to: completedFolderURL.appendingPathComponent("\(gid)_token_\(index).jpg"),
+                options: .atomic
+            )
+        }
         try storage.writeManifest(staleManifest, folderURL: completedFolderURL)
     }
 

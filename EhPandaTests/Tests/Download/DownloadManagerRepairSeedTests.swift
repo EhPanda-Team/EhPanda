@@ -246,11 +246,18 @@ private extension DownloadManagerRepairSeedTests {
             options: .atomic
         )
         try Data([0x00]).write(
-            to: completedFolderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic
+            to: completedFolderURL.appendingPathComponent(
+                storage.makeCoverRelativePath(gid: gid, token: "token", fileExtension: "jpg")
+            ),
+            options: .atomic
         )
-        let emptyPageURL = completedFolderURL.appendingPathComponent("123_token_1.jpg")
+        let emptyPageURL = completedFolderURL.appendingPathComponent(
+            storage.makePageRelativePath(gid: gid, token: "token", index: 1, fileExtension: "jpg")
+        )
         try Data().write(to: emptyPageURL, options: .atomic)
-        let goodPageURL = completedFolderURL.appendingPathComponent("123_token_2.jpg")
+        let goodPageURL = completedFolderURL.appendingPathComponent(
+            storage.makePageRelativePath(gid: gid, token: "token", index: 2, fileExtension: "jpg")
+        )
         try Data([0x02]).write(to: goodPageURL, options: .atomic)
         return (emptyPageURL, goodPageURL)
     }

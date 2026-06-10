@@ -30,7 +30,12 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             gid: gid, title: "Pause Race",
             pageCount: setup.pageCount
         )
-        try writeFinalManifest(storage: storage, gid: gid, manifest: manifest)
+        try writeFinalManifest(
+            storage: storage,
+            gid: gid,
+            manifest: manifest,
+            missingPageIndex: pageIndex
+        )
         await manager.testingSetDownloadError(
             .init(code: .fileOperationFailed, message: "Page \(pageIndex) is missing."),
             gid: gid
@@ -110,7 +115,8 @@ private extension DownloadRetryMinimalSourceTests {
     func writeFinalManifest(
         storage: DownloadFileStorage,
         gid: String,
-        manifest: DownloadManifest
+        manifest: DownloadManifest,
+        missingPageIndex: Int
     ) throws {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pause Race")
@@ -119,9 +125,15 @@ private extension DownloadRetryMinimalSourceTests {
             withIntermediateDirectories: true
         )
         try Data([0x00]).write(
-            to: folderURL.appendingPathComponent("123_token_cover.jpg"),
+            to: folderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
             options: .atomic
         )
+        for index in manifest.pages.keys where index != missingPageIndex {
+            try Data([UInt8(index % 255)]).write(
+                to: folderURL.appendingPathComponent("\(gid)_token_\(index).jpg"),
+                options: .atomic
+            )
+        }
         try storage.writeManifest(manifest, folderURL: folderURL)
     }
 

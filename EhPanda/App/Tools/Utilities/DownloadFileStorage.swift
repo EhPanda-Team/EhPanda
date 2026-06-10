@@ -19,6 +19,8 @@ struct DownloadFolderRecord: Equatable, Sendable {
 }
 
 struct DownloadFileStorage: Sendable {
+    private static let maxFolderTitleLength = 96
+
     let rootURL: URL
     let fileManager: DownloadFileManager
 
@@ -65,40 +67,31 @@ struct DownloadFileStorage: Sendable {
         rootURL.appendingPathComponent(".queue.json")
     }
 
-    func existingPageRelativePaths(
-        folderURL: URL,
-        expectedPageCount: Int
-    ) -> [Int: String] {
-        guard let finalPageURLs = try? fileManager.operate({
-            try $0.contentsOfDirectory(
-                at: folderURL,
-                includingPropertiesForKeys: nil
-            )
-        }) else {
-            return [:]
+    func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
+        manifest.pages.keys.sorted().reduce(into: [:]) { result, index in
+            guard let fileURL = existingPageFileURL(
+                folderURL: folderURL,
+                gid: manifest.gid,
+                token: manifest.token,
+                index: index
+            ) else { return }
+            result[index] = fileURL.lastPathComponent
         }
-
-        var relativePaths = [Int: String]()
-        for pageURL in finalPageURLs {
-            guard let index = finalPageIndex(from: pageURL),
-                  index >= 1,
-                  index <= expectedPageCount,
-                  sanitizeAssetFileIfNeeded(at: pageURL)
-            else {
-                continue
-            }
-            relativePaths[index] = pageURL.lastPathComponent
-        }
-        return relativePaths
     }
 
-    private func finalPageIndex(from pageURL: URL) -> Int? {
-        let filename = pageURL.deletingPathExtension().lastPathComponent
-        guard let separatorIndex = filename.lastIndex(of: "_") else {
-            return nil
-        }
-        let indexStart = filename.index(after: separatorIndex)
-        return Int(filename[indexStart...])
+    func imageURLs(folderURL: URL, manifest: DownloadManifest) -> [Int: URL] {
+        existingPageRelativePaths(folderURL: folderURL, manifest: manifest)
+            .reduce(into: [Int: URL]()) { result, entry in
+                result[entry.key] = folderURL.appendingPathComponent(entry.value)
+            }
+    }
+
+    func localCoverURL(folderURL: URL, manifest: DownloadManifest) -> URL? {
+        existingCoverFileURL(
+            folderURL: folderURL,
+            gid: manifest.gid,
+            token: manifest.token
+        )
     }
 
     func existingCoverRelativePath(folderURL: URL) -> String? {
@@ -119,10 +112,6 @@ struct DownloadFileStorage: Sendable {
                     && sanitizeAssetFileIfNeeded(at: $0)
             })?
             .lastPathComponent
-    }
-
-    func makeFolderRelativePath(gid: String, title: String) -> String {
-        "\(gid) - \(normalizedFolderTitle(title))"
     }
 
     func makeFolderRelativePath(gid: String, token: String, title: String) -> String {
@@ -149,7 +138,7 @@ struct DownloadFileStorage: Sendable {
                 with: "",
                 options: .regularExpression
             )
-        let limitedSlug = String(trimmedSlug.prefix(96))
+        let limitedSlug = String(trimmedSlug.prefix(Self.maxFolderTitleLength))
             .replacingOccurrences(
                 of: "[\\s.]+$",
                 with: "",
