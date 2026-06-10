@@ -54,7 +54,7 @@ struct CardSlideSection: View, Equatable {
                     webImageSuccessAction: {
                         webImageSuccessAction(gallery.gid, $0)
                     },
-                    downloadBadge: downloadBadges[gallery.gid] ?? .none
+                    downloadBadge: downloadBadges[gallery.gid]
                 )
                 .tint(.primary)
                 .multilineTextAlignment(.leading)
@@ -155,7 +155,7 @@ struct VerticalCoverStack: View {
                 .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH).cornerRadius(2)
                 .overlay(alignment: .topTrailing) {
                     DownloadBadgeLabel(
-                        badge: downloadBadges[gallery.gid] ?? .none,
+                        badge: downloadBadges[gallery.gid],
                         compact: true
                     )
                     .padding(6)
@@ -278,7 +278,7 @@ struct VerticalToplistsStack: View {
                         GalleryRankingCell(
                             gallery: galleries[index],
                             ranking: startRanking + index,
-                            downloadBadge: downloadBadges[galleries[index].gid] ?? .none
+                            downloadBadge: downloadBadges[galleries[index].gid]
                         )
                         .tint(.primary).multilineTextAlignment(.leading)
                     }

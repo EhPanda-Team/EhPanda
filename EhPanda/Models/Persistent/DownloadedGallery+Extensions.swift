@@ -8,51 +8,69 @@ import SwiftUI
 // MARK: - DownloadBadge
 extension DownloadBadge {
     var text: String {
-        switch self {
-        case .none:
-            return ""
+        switch status {
         case .queued:
             return L10n.Localizable.Struct.DownloadBadge.Text.queued
-        case .downloading(let completed, let total):
-            return L10n.Localizable.Struct.DownloadBadge.Text.downloading(completed, max(total, 1))
-        case .paused(let completed, let total):
-            return L10n.Localizable.Struct.DownloadBadge.Text.paused(completed, max(total, 1))
-        case .partial(let completed, let total):
-            return L10n.Localizable.Struct.DownloadBadge.Text.needsAttentionProgress(
-                completed,
-                max(total, 1)
+        case .active:
+            return L10n.Localizable.Struct.DownloadBadge.Text.downloading(
+                resolvedProgress.completedPageCount,
+                resolvedProgress.displayPageCount
             )
-        case .downloaded:
-            return L10n.Localizable.Struct.DownloadBadge.Text.downloaded
-        case .failed:
-            return L10n.Localizable.Struct.DownloadBadge.Text.needsAttention
+        case .inactive:
+            return L10n.Localizable.Struct.DownloadBadge.Text.paused(
+                resolvedProgress.completedPageCount,
+                resolvedProgress.displayPageCount
+            )
         case .updateAvailable:
             return L10n.Localizable.Struct.DownloadBadge.Text.updateAvailable
-        case .missingFiles:
-            return L10n.Localizable.Struct.DownloadBadge.Text.needsRepair
+        case .completed:
+            return L10n.Localizable.Struct.DownloadBadge.Text.downloaded
+        case .error:
+            switch failure {
+            case .partial:
+                return L10n.Localizable.Struct.DownloadBadge.Text.needsAttentionProgress(
+                    resolvedProgress.completedPageCount,
+                    resolvedProgress.displayPageCount
+                )
+            case .missingFiles:
+                return L10n.Localizable.Struct.DownloadBadge.Text.needsRepair
+            case .general, nil:
+                return L10n.Localizable.Struct.DownloadBadge.Text.needsAttention
+            }
+        }
+    }
+
+    var compactText: String {
+        switch status {
+        case .active:
+            return L10n.Localizable.Struct.DownloadBadge.Compact.downloading
+        case .inactive:
+            return L10n.Localizable.Struct.DownloadBadge.Compact.paused
+        case .completed:
+            return L10n.Localizable.Struct.DownloadBadge.Compact.done
+        case .error:
+            return failure == .missingFiles
+                ? text
+                : L10n.Localizable.Struct.DownloadBadge.Compact.needsAttention
+        case .queued, .updateAvailable:
+            return text
         }
     }
 
     var color: Color {
-        switch self {
-        case .none:
-            return .clear
+        switch status {
         case .queued:
             return .orange
-        case .downloading:
+        case .active:
             return .blue
-        case .paused:
+        case .inactive:
             return .indigo
-        case .partial:
-            return .orange
-        case .downloaded:
+        case .completed:
             return .green
-        case .failed:
-            return .orange
         case .updateAvailable:
             return .yellow
-        case .missingFiles:
-            return .pink
+        case .error:
+            return failure == .missingFiles ? .pink : .orange
         }
     }
 }

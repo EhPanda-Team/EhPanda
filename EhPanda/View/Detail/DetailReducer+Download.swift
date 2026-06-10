@@ -54,13 +54,13 @@ extension DetailReducer {
     private func handleFetchDownloadBadge(state: inout State) -> Effect<Action> {
         guard state.gid.isValidGID else { return .none }
         return .run { [galleryID = state.gid] send in
-            let badge = await downloadClient.badges([galleryID])[galleryID] ?? .none
+            let badge = await downloadClient.badges([galleryID])[galleryID]
             await send(.fetchDownloadBadgeDone(badge))
         }
         .cancellable(id: CancelID.fetchDownloadBadge, cancelInFlight: true)
     }
 
-    private func handleFetchDownloadBadgeDone(badge: DownloadBadge, state: inout State) -> Effect<Action> {
+    private func handleFetchDownloadBadgeDone(badge: DownloadBadge?, state: inout State) -> Effect<Action> {
         _ = applyDownloadBadge(badge, state: &state)
         var effects: [Effect<Action>] = [.send(.loadLocalPreviewURLs)]
         if shouldRequestVersionMetadata(state: state) {
@@ -73,14 +73,14 @@ extension DetailReducer {
         guard state.gid.isValidGID else { return .none }
         return .run { [galleryID = state.gid] send in
             for await downloads in downloadClient.observeDownloads() {
-                let badge = downloads.first(where: { $0.gid == galleryID })?.badge ?? .none
+                let badge = downloads.first(where: { $0.gid == galleryID })?.badge
                 await send(.observeDownloadDone(badge))
             }
         }
         .cancellable(id: CancelID.observeDownload, cancelInFlight: true)
     }
 
-    private func handleObserveDownloadDone(badge: DownloadBadge, state: inout State) -> Effect<Action> {
+    private func handleObserveDownloadDone(badge: DownloadBadge?, state: inout State) -> Effect<Action> {
         let didChangeBadge = applyDownloadBadge(badge, state: &state)
         guard didChangeBadge else { return .none }
         var effects: [Effect<Action>] = [.send(.loadLocalPreviewURLs)]
@@ -157,7 +157,7 @@ extension DetailReducer {
               state.hasLoadedDownloadBadge
         else { return .none }
         state.didRunLaunchAutomation = true
-        guard state.downloadBadge == .none else { return .none }
+        guard state.downloadBadge == nil else { return .none }
         return .send(.startDownload(options))
     }
 
@@ -214,15 +214,19 @@ extension DetailReducer {
     ) -> Effect<Action> {
         state.isPreparingDownload = false
         if case .success = result {
-            switch state.downloadBadge {
-            case .downloading(let completed, let total):
-                state.downloadBadge = .paused(completed, total)
-            case .paused:
+            switch state.downloadBadge?.status {
+            case .active:
+                state.downloadBadge = DownloadBadge(
+                    status: .inactive,
+                    failure: state.downloadBadge?.failure,
+                    progress: state.downloadBadge?.progress
+                )
+            case .inactive:
                 state.downloadBadge = .queued
             default:
                 break
             }
-            state.hasLoadedDownloadBadge = state.downloadBadge != .none
+            state.hasLoadedDownloadBadge = state.downloadBadge != nil
             return .merge(
                 .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
                 .send(.fetchDownloadBadge)

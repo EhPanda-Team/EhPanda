@@ -51,7 +51,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
 
         let queued = await queueingManager.testingFetchDownload(gid: gid)
         #expect(queued?.displayStatus == .queued)
-        #expect(queued?.badge == .queued)
+        #expect(queued?.badge.status == .queued)
         #expect(queued?.lastError == nil)
     }
 

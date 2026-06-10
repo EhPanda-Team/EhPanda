@@ -45,7 +45,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         #expect(store.state.route == .detail(download.gid))
         #expect(store.state.detailState.wrappedValue?.gid == download.gid)
         #expect(store.state.detailState.wrappedValue?.gallery.id == download.gid)
-        #expect(store.state.detailState.wrappedValue?.downloadBadge == .downloaded)
+        #expect(store.state.detailState.wrappedValue?.downloadBadge?.status == .completed)
         #expect(store.state.detailState.wrappedValue?.shouldCheckForRemoteUpdates == true)
     }
 

@@ -123,7 +123,7 @@ private struct DetailList: View {
                     gallery: gallery,
                     setting: setting,
                     translateAction: translateAction,
-                    downloadBadge: downloadBadges[gallery.gid] ?? .none
+                    downloadBadge: downloadBadges[gallery.gid]
                 )
             }
             .foregroundColor(.primary)
@@ -194,7 +194,7 @@ private struct WaterfallList: View {
                         gallery: gallery,
                         setting: setting,
                         translateAction: translateAction,
-                        downloadBadge: downloadBadges[gallery.gid] ?? .none
+                        downloadBadge: downloadBadges[gallery.gid]
                     )
                     .tint(.primary).multilineTextAlignment(.leading)
                 }

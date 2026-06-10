@@ -12,13 +12,13 @@ struct GalleryThumbnailCell: View {
     private let gallery: Gallery
     private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
-    private let downloadBadge: DownloadBadge
+    private let downloadBadge: DownloadBadge?
 
     init(
         gallery: Gallery,
         setting: Setting,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
-        downloadBadge: DownloadBadge = .none
+        downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
         self.setting = setting
@@ -62,7 +62,7 @@ struct GalleryThumbnailCell: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(gallery.title)
                     .font(.callout.bold())
-                    .lineLimit(downloadBadge == .none ? 3 : 2)
+                    .lineLimit(downloadBadge == nil ? 3 : 2)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in

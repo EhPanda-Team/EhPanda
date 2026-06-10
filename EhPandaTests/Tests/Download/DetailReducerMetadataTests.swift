@@ -114,7 +114,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
 private extension DetailReducerMetadataTests {
     func makeMetadataTestStore(
         gid: String, gallery: Gallery,
-        badgeValue: DownloadBadge, updateCheckCount: UncheckedBox<Int>
+        badgeValue: DownloadBadge?, updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State()
         initialState.gid = gid
@@ -130,7 +130,11 @@ private extension DetailReducerMetadataTests {
                 fetchDownload: { _ in nil },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, badgeValue) }) },
+                badges: { gids in
+                    badgeValue.map { value in
+                        Dictionary(uniqueKeysWithValues: gids.map { ($0, value) })
+                    } ?? [:]
+                },
                 fetchVersionMetadata: { _, _ in
                     .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
                 },
@@ -152,7 +156,7 @@ private extension DetailReducerMetadataTests {
 
     func makeDownloadedMetadataTestStore(
         gid: String, gallery: Gallery,
-        badgeValue: DownloadBadge, updateCheckCount: UncheckedBox<Int>
+        badgeValue: DownloadBadge?, updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State()
         initialState.gid = gid
@@ -168,7 +172,11 @@ private extension DetailReducerMetadataTests {
                 fetchDownload: { _ in nil },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, badgeValue) }) },
+                badges: { gids in
+                    badgeValue.map { value in
+                        Dictionary(uniqueKeysWithValues: gids.map { ($0, value) })
+                    } ?? [:]
+                },
                 fetchVersionMetadata: { _, _ in
                     .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
                 },

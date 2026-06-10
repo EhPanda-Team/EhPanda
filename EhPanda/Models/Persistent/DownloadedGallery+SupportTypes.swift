@@ -33,27 +33,26 @@ extension DownloadedGallery {
     }
 
     var badge: DownloadBadge {
-        switch displayStatus {
-        case .active:
-            return .downloading(completedPageCount, pageCount)
-        case .queued:
-            return .queued
-        case .inactive:
-            return .paused(completedPageCount, pageCount)
-        case .updateAvailable:
-            return .updateAvailable
-        case .error:
-            if completedPageCount > 0, completedPageCount < pageCount {
-                return .partial(completedPageCount, pageCount)
-            }
-            if lastError?.code == .fileOperationFailed,
-               completedPageCount == 0 {
-                return .missingFiles
-            }
-            return .failed
-        case .completed:
-            return .downloaded
+        DownloadBadge(
+            status: displayStatus,
+            failure: badgeFailure,
+            progress: DownloadProgress(
+                completedPageCount: completedPageCount,
+                pageCount: pageCount
+            )
+        )
+    }
+
+    private var badgeFailure: DownloadBadge.Failure? {
+        guard displayStatus == .error else { return nil }
+        if completedPageCount > 0, completedPageCount < pageCount {
+            return .partial
         }
+        if lastError?.code == .fileOperationFailed,
+           completedPageCount == 0 {
+            return .missingFiles
+        }
+        return .general
     }
 
     var gallery: Gallery {

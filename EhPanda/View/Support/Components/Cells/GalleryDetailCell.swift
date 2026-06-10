@@ -18,14 +18,14 @@ struct GalleryDetailCell: View {
     private let coverSource: CoverSource
     private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
-    private let downloadBadge: DownloadBadge
+    private let downloadBadge: DownloadBadge?
 
     init(
         gallery: Gallery,
         coverSource: CoverSource = .dynamic,
         setting: Setting,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
-        downloadBadge: DownloadBadge = .none
+        downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
         self.coverSource = coverSource
@@ -61,7 +61,7 @@ private struct GalleryDetailCellContent: View {
     private let setting: Setting
     private let colorScheme: ColorScheme
     private let translateAction: ((String) -> (String, TagTranslation?))?
-    private let downloadBadge: DownloadBadge
+    private let downloadBadge: DownloadBadge?
 
     init(
         gallery: Gallery,
@@ -69,7 +69,7 @@ private struct GalleryDetailCellContent: View {
         setting: Setting,
         colorScheme: ColorScheme,
         translateAction: ((String) -> (String, TagTranslation?))?,
-        downloadBadge: DownloadBadge
+        downloadBadge: DownloadBadge?
     ) {
         self.gallery = gallery
         self.resolvedCoverURL = resolvedCoverURL
@@ -90,7 +90,7 @@ private struct GalleryDetailCellContent: View {
                 .defaultModifier().scaledToFit().frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
             VStack(alignment: .leading, spacing: 5) {
                 Text(gallery.title)
-                    .lineLimit(downloadBadge == .none ? 3 : 2)
+                    .lineLimit(downloadBadge == nil ? 3 : 2)
                     .font(.headline)
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)

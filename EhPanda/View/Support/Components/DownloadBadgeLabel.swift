@@ -9,8 +9,8 @@ struct DownloadBadgeLabel: View {
     private let badge: DownloadBadge
     private let isCompactStyle: Bool
 
-    init?(badge: DownloadBadge, compact: Bool = false) {
-        guard badge != .none else { return nil }
+    init?(badge: DownloadBadge?, compact: Bool = false) {
+        guard let badge else { return nil }
 
         self.badge = badge
         self.isCompactStyle = compact
@@ -18,6 +18,7 @@ struct DownloadBadgeLabel: View {
 
     var body: some View {
         labelText
+            .lineLimit(1)
             .foregroundStyle(foregroundColor)
             .padding(.horizontal, isCompactStyle ? 6 : 8)
             .padding(.vertical, isCompactStyle ? 3 : 4)
@@ -27,28 +28,11 @@ struct DownloadBadgeLabel: View {
 
     private var labelText: Text {
         if isCompactStyle {
-            Text(compactText)
+            Text(badge.compactText)
                 .font(.caption2.bold())
         } else {
             Text(badge.text)
                 .font(.caption.bold().monospacedDigit())
-        }
-    }
-
-    private var compactText: String {
-        switch badge {
-        case .downloading:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.downloading
-        case .paused:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.paused
-        case .partial:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.needsAttention
-        case .downloaded:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.done
-        case .failed:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.needsAttention
-        default:
-            return badge.text
         }
     }
 
@@ -57,11 +41,6 @@ struct DownloadBadgeLabel: View {
     }
 
     private var foregroundColor: Color {
-        switch badge {
-        case .updateAvailable:
-            return .orange
-        default:
-            return badge.color
-        }
+        badge.status == .updateAvailable ? .orange : badge.color
     }
 }

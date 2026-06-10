@@ -9,9 +9,9 @@ import Kingfisher
 struct GalleryRankingCell: View {
     private let gallery: Gallery
     private let ranking: Int
-    private let downloadBadge: DownloadBadge
+    private let downloadBadge: DownloadBadge?
 
-    init(gallery: Gallery, ranking: Int, downloadBadge: DownloadBadge = .none) {
+    init(gallery: Gallery, ranking: Int, downloadBadge: DownloadBadge? = nil) {
         self.gallery = gallery
         self.ranking = ranking
         self.downloadBadge = downloadBadge

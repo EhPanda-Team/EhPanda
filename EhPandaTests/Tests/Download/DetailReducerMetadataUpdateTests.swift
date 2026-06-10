@@ -159,7 +159,7 @@ private extension DetailReducerMetadataUpdateTests {
             fetchDownload: { gid in gid == download.gid ? download : nil },
             refreshDownloads: {},
             resumeQueue: {},
-            badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, .none) }) },
+            badges: { _ in [:] },
             enqueue: { _ in .success(()) },
             togglePause: { _ in .success(()) },
             retry: { _, _ in .success(()) },

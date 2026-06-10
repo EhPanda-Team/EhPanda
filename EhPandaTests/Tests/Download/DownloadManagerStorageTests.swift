@@ -152,7 +152,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(indexedDownload.displayStatus == .queued)
         #expect(indexedDownload.displayStatus == .queued)
         #expect(await manager.fetchDownload(gid: "601") == nil)
-        #expect(badges["600"] == .queued)
+        #expect(badges["600"]?.status == .queued)
         #expect(badges["601"] == nil)
     }
 
@@ -383,7 +383,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(download.displayStatus == .error)
         #expect(download.displayStatus == .error)
         #expect(download.lastError?.code == .fileOperationFailed)
-        #expect(download.badge == .failed)
+        #expect(download.badge.failure == .general)
     }
 
     @Test
@@ -528,7 +528,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(failedDownload.displayStatus == .error)
         #expect(failedDownload.displayStatus == .error)
         #expect(failedDownload.lastError?.code == .networkingFailed)
-        #expect(badges["800"] == .failed)
+        #expect(badges["800"]?.failure == .general)
     }
 
     @Test
