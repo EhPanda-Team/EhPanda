@@ -56,10 +56,22 @@ extension DownloadManager {
         let completedFolderURL = storage.folderURL(
             relativePath: result.folderRelativePath
         )
-        if download.folderURL != completedFolderURL {
-            try? storage.removeFolder(at: download.folderURL)
-        }
+        removeSupersededFolders(gid: gid, keeping: completedFolderURL)
         await notifyObservers()
+    }
+
+    // A download can finish in a different folder than it started in
+    // (re-slot after a title change), and an interrupted session can leave
+    // both behind; only the completed folder may survive, or the stale
+    // duplicate resurfaces once the surviving record is deleted.
+    func removeSupersededFolders(gid: String, keeping folderURL: URL) {
+        let keptPath = folderURL.standardizedFileURL.path
+        let records = (try? storage.scanDownloadFolders()) ?? []
+        for record in records
+        where record.manifest.gid == gid
+            && record.folderURL.standardizedFileURL.path != keptPath {
+            try? storage.removeFolder(at: record.folderURL)
+        }
     }
 
     private func handleProcessDownloadError(
