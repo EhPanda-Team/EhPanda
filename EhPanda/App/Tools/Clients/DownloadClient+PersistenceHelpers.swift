@@ -67,7 +67,8 @@ extension DownloadManager {
             manifest: download.manifest
         )
         _ = storage.existingCoverRelativePath(
-            folderURL: completedFolderURL
+            folderURL: completedFolderURL,
+            manifest: download.manifest
         )
     }
 
