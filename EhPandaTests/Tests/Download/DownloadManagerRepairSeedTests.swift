@@ -49,7 +49,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         let coverRelativePath = storage.makeCoverRelativePath(
             gid: gid, token: "token", fileExtension: "jpg"
         )
-        let manifest = try #require(workingSeed.manifest)
+        let manifest = workingSeed.manifest
         #expect(manifest.gid == gid)
         #expect(workingSeed.existingPages == [
             1: pageOneRelativePath,

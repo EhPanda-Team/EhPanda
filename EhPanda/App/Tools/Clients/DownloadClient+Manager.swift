@@ -52,7 +52,7 @@ actor DownloadManager {
 
     struct WorkingSeed: Sendable {
         let folderURL: URL
-        let manifest: DownloadManifest?
+        let manifest: DownloadManifest
         let existingPages: [Int: String]
         let coverRelativePath: String?
     }
@@ -102,7 +102,7 @@ actor DownloadManager {
 
     struct PrepareWorkingSeedResult: Sendable {
         let folderURL: URL
-        let manifest: DownloadManifest?
+        let manifest: DownloadManifest
         let existingPages: [Int: String]
         let coverRelativePath: String?
     }
