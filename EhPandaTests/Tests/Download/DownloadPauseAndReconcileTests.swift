@@ -95,11 +95,11 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appendingPathComponent("\(gid)_token_1.jpg"),
             options: .atomic
         )
         try Data([0x02]).write(
-            to: folderURL.appendingPathComponent("123_token_2.jpg"),
+            to: folderURL.appendingPathComponent("\(gid)_token_2.jpg"),
             options: .atomic
         )
 
@@ -220,7 +220,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             [
                 .init(
                     index: 2,
-                    relativePath: "123_token_2.jpg",
+                    relativePath: "\(gid)_token_2.jpg",
                     error: .fileOperationFailed(
                         "The operation could not be completed. (Swift.CancellationError error 1.)"
                     )
@@ -288,7 +288,7 @@ private extension DownloadPauseAndReconcileTests {
             withIntermediateDirectories: true
         )
         try Data([0x01]).write(
-            to: folderURL.appendingPathComponent("123_token_1.jpg"),
+            to: folderURL.appendingPathComponent("\(gid)_token_1.jpg"),
             options: .atomic
         )
     }

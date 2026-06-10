@@ -132,9 +132,10 @@ struct DownloadFileStorageTests {
         try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.jpg"), options: .atomic)
         try Data([0x03]).write(to: folderURL.appendingPathComponent("123_token_27.jpg"), options: .atomic)
         try Data([0x04]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
 
         #expect(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
+            storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [
                 1: "123_token_1.webp",
                 2: "123_token_2.jpg"
             ]
@@ -151,8 +152,9 @@ struct DownloadFileStorageTests {
         let pagesFolderURL = folderURL.appendingPathComponent("pages", isDirectory: true)
         try FileManager.default.createDirectory(at: pagesFolderURL, withIntermediateDirectories: true)
         try Data([0x01]).write(to: pagesFolderURL.appendingPathComponent("0001.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 1)
 
-        #expect(storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 1) == [:])
+        #expect(storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [:])
         #expect(FileManager.default.fileExists(atPath: pagesFolderURL.path))
     }
 
@@ -167,9 +169,10 @@ struct DownloadFileStorageTests {
         let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
         try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
 
         #expect(
-            storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [
+            storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [
                 2: "123_token_2.png"
             ]
         )
@@ -188,8 +191,9 @@ struct DownloadFileStorageTests {
         let emptyPageURL = pagesURL.appendingPathComponent("0001.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
         try Data([0x02]).write(to: pagesURL.appendingPathComponent("0002.png"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 2)
 
-        #expect(storage.existingPageRelativePaths(folderURL: folderURL, expectedPageCount: 2) == [:])
+        #expect(storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [:])
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path))
     }
 
@@ -230,16 +234,16 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let unsafeTitle = "  /Alpha\\\\Beta:\n\tGamma   Delta \(String(repeating: "X", count: 200)).  "
-        let relativePath = storage.makeFolderRelativePath(gid: "123", title: unsafeTitle)
+        let relativePath = storage.makeFolderRelativePath(gid: "123", token: "token", title: unsafeTitle)
 
-        #expect(relativePath.hasPrefix("123 - "))
+        #expect(relativePath.hasPrefix("[123_token] "))
         #expect(relativePath.contains("/") == false)
         #expect(relativePath.contains("\\") == false)
         #expect(relativePath.contains(":") == false)
         #expect(relativePath.contains("\n") == false)
         #expect(relativePath.hasSuffix(" ") == false)
         #expect(relativePath.hasSuffix(".") == false)
-        #expect(relativePath.count <= "123 - ".count + 96)
+        #expect(relativePath.count <= "[123_token] ".count + 96)
     }
 
     @Test
@@ -358,15 +362,15 @@ private extension DownloadFileStorageTests {
         )
     }
 
-    func sampleManifest(pageCount: Int) throws -> DownloadManifest {
-        try sampleManifest(
+    func sampleManifest(pageCount: Int) -> DownloadManifest {
+        sampleManifest(
             pageHashes: pageCount > 0
                 ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
                 : [:]
         )
     }
 
-    func sampleManifest(pageHashes: [Int: String]) throws -> DownloadManifest {
+    func sampleManifest(pageHashes: [Int: String]) -> DownloadManifest {
         DownloadManifest(
             gid: "123",
             host: .ehentai,

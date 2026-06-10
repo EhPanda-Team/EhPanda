@@ -33,7 +33,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             at: folderURL,
             withIntermediateDirectories: true
         )
-        let pageURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        let pageURL = folderURL.appendingPathComponent("\(gid)_token_1.jpg")
         try Data([0x01]).write(
             to: pageURL,
             options: .atomic

@@ -58,7 +58,7 @@ extension DownloadFileStorage {
 
         let existingPages = existingPageRelativePaths(
             folderURL: sourceFolderURL,
-            expectedPageCount: manifest.pageCount
+            manifest: manifest
         )
         for index in manifest.pages.keys.sorted() {
             guard let relativePath = existingPages[index],
@@ -76,7 +76,7 @@ extension DownloadFileStorage {
     ) throws -> DownloadManifest {
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
-            expectedPageCount: manifest.pageCount
+            manifest: manifest
         )
         let pages = try manifest.pages.keys.sorted()
             .reduce(into: [Int: String]()) { result, index in
@@ -105,10 +105,16 @@ extension DownloadFileStorage {
         if let relativePath {
             resolvedRelativePath = relativePath
         } else {
-            resolvedRelativePath = existingPageRelativePaths(
-                folderURL: folderURL,
-                expectedPageCount: (try? readManifest(folderURL: folderURL).pageCount) ?? pageIndex
-            )[pageIndex]
+            let manifest = try readManifest(folderURL: folderURL)
+            resolvedRelativePath = manifest.pages[pageIndex].flatMap { _ in
+                existingPageFileURL(
+                    folderURL: folderURL,
+                    gid: manifest.gid,
+                    token: manifest.token,
+                    index: pageIndex
+                )?
+                .lastPathComponent
+            }
         }
         guard let resolvedRelativePath else {
             return try readManifest(folderURL: folderURL)
@@ -181,11 +187,11 @@ extension DownloadFileStorage {
     }
 
     func validate(download: DownloadedGallery) -> DownloadValidationState {
-        let folderURL = download.resolvedFolderURL(rootURL: rootURL)
+        let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadFolderMissing)
         }
-        let manifestURL = download.resolvedManifestURL(rootURL: rootURL)
+        let manifestURL = download.manifestURL
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestMissing)
         }
@@ -204,7 +210,7 @@ extension DownloadFileStorage {
     func validPageCount(folderURL: URL, manifest: DownloadManifest) -> Int {
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
-            expectedPageCount: manifest.pageCount
+            manifest: manifest
         )
         return manifest.pages.keys.reduce(into: 0) { count, index in
             guard let relativePath = existingPages[index],
@@ -239,7 +245,7 @@ extension DownloadFileStorage {
     ) -> DownloadValidationState? {
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
-            expectedPageCount: manifest.pageCount
+            manifest: manifest
         )
         for index in manifest.pages.keys.sorted() {
             if let validationFailure = validatePage(
@@ -260,8 +266,11 @@ extension DownloadFileStorage {
         expectedHash: String,
         existingPageRelativePaths: [Int: String]
     ) -> DownloadValidationState? {
-        guard !expectedHash.isEmpty,
-              let relativePath = existingPageRelativePaths[index],
+        guard !expectedHash.isEmpty else {
+            return nil
+        }
+
+        guard let relativePath = existingPageRelativePaths[index],
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
