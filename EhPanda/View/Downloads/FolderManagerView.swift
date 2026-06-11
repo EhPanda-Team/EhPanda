@@ -71,11 +71,7 @@ struct FolderManagerView: View {
             }
             .animation(.default, value: store.folders)
             .animation(.default, value: store.editingField)
-            .onChange(of: focusedField) { oldValue, newValue in
-                if newValue == nil, let oldValue, store.editingField == oldValue {
-                    store.send(.setEditingField(nil))
-                }
-            }
+            .synchronize($store.editingField, $focusedField)
             .onAppear {
                 store.send(.fetchFolders)
             }
@@ -113,9 +109,6 @@ struct FolderManagerView: View {
         .disableAutocorrection(true)
         .submitLabel(.done)
         .focused($focusedField, equals: field)
-        .onAppear {
-            focusedField = field
-        }
         .onSubmit {
             store.send(.submitEditingField)
         }
