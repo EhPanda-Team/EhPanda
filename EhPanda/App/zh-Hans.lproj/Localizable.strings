@@ -458,17 +458,13 @@
 
 // MARK: DownloadBadge
 "struct.download_badge.text.queued" = "已排队";
-"struct.download_badge.text.downloading" = "下载中 %d/%d";
-"struct.download_badge.text.paused" = "已暂停 %d/%d";
-"struct.download_badge.text.needs_attention_progress" = "需处理 %d/%d";
+"struct.download_badge.text.downloading" = "下载中";
+"struct.download_badge.text.paused" = "已暂停";
 "struct.download_badge.text.downloaded" = "已下载";
 "struct.download_badge.text.needs_attention" = "需处理";
 "struct.download_badge.text.update_available" = "有可更新";
 "struct.download_badge.text.needs_repair" = "需修复";
-"struct.download_badge.compact.downloading" = "下载中";
-"struct.download_badge.compact.paused" = "暂停";
-"struct.download_badge.compact.needs_attention" = "需处理";
-"struct.download_badge.compact.done" = "完成";
+"struct.download_badge.progress" = "%d/%d";
 
 // MARK: DownloadFileStorage
 "download_file_storage.error.asset_unreadable" = "资源文件无法读取：%@";

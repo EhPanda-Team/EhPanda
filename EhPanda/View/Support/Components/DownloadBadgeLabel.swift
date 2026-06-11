@@ -28,7 +28,7 @@ struct DownloadBadgeLabel: View {
 
     private var labelText: Text {
         if isCompactStyle {
-            Text(badge.compactText)
+            Text(badge.statusText)
                 .font(.caption2.bold())
         } else {
             Text(badge.text)
