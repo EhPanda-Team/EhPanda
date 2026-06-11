@@ -113,7 +113,10 @@ extension DownloadManager {
         existingDownload: DownloadedGallery
     ) throws -> PrepareWorkingSeedResult {
         let folderURL = storage.folderURL(
-            relativePath: folderRelativePath(for: payload)
+            relativePath: folderRelativePath(
+                for: payload,
+                parentFolderName: existingDownload.folderName
+            )
         )
         try? fileManager.operate {
             try $0.removeItem(at: folderURL)

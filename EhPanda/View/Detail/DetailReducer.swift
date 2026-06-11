@@ -121,7 +121,7 @@ struct DetailReducer {
         case openReading
         case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
         case runLaunchAutomationIfNeeded(DownloadRequestOptions)
-        case startDownload(DownloadRequestOptions)
+        case startDownload(DownloadRequestOptions, String)
         case startDownloadDone(Result<Void, AppError>)
         case toggleDownloadPause
         case toggleDownloadPauseDone(Result<Void, AppError>)

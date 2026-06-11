@@ -67,6 +67,7 @@ struct Defaults {
         static let downloads = "Downloads"
         static let downloadPages = "pages"
         static let downloadManifest = "manifest.json"
+        static let automationDownloadFolder = "Automation"
     }
     struct Regex {
         static let tagSuggestion: NSRegularExpression? = try? .init(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")

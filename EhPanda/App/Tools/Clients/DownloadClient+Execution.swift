@@ -116,7 +116,10 @@ extension DownloadManager {
             mode: mode,
             rawPageSelection: rawPageSelection
         )
-        let folderRelativePath = folderRelativePath(for: payload)
+        let folderRelativePath = folderRelativePath(
+            for: payload,
+            parentFolderName: download.folderName
+        )
         _ = try await performDownload(
             payload: payload,
             folderRelativePath: folderRelativePath,

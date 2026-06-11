@@ -462,6 +462,10 @@
 
 // MARK: DownloadFileStorage
 "download_file_storage.error.asset_unreadable" = "资源文件无法读取：%@";
+"download_file_storage.error.invalid_folder_name" = "The folder name is invalid.";
+"download_file_storage.error.folder_already_exists" = "A folder with this name already exists.";
+"download_file_storage.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_file_storage.error.download_busy" = "The download is currently active.";
 "download_file_storage.validation.download_folder_unresolved" = "无法解析下载文件夹。";
 "download_file_storage.validation.download_folder_missing" = "下载文件夹缺失。";
 "download_file_storage.validation.manifest_missing" = "Manifest 文件缺失。";

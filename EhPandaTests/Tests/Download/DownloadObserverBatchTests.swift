@@ -73,7 +73,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
 
-        let folderRelativePath = "\(gid) - Progress Flush"
+        let folderRelativePath = "Folder/\(gid) - Progress Flush"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try FileManager.default.createDirectory(
             at: folderURL,

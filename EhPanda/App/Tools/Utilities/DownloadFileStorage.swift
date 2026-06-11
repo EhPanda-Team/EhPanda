@@ -16,6 +16,12 @@ struct DownloadFolderRecord: Equatable, Sendable {
     let folderURL: URL
     let manifest: DownloadManifest
     let modifiedAt: Date?
+    let parentFolderName: String
+}
+
+struct DownloadScanResult: Equatable, Sendable {
+    let records: [DownloadFolderRecord]
+    let userFolders: [String]
 }
 
 struct DownloadFileStorage: Sendable {
@@ -44,6 +50,24 @@ struct DownloadFileStorage: Sendable {
 
     func folderURL(relativePath: String) -> URL {
         rootURL.appendingPathComponent(relativePath, isDirectory: true)
+    }
+
+    func userFolderURL(name: String) -> URL {
+        rootURL.appendingPathComponent(name, isDirectory: true)
+    }
+
+    func rootRelativePath(forFolderURL url: URL) -> String? {
+        let rootPath = rootURL.standardizedFileURL.path + "/"
+        let path = url.standardizedFileURL.path
+        guard path.hasPrefix(rootPath) else { return nil }
+        return String(path.dropFirst(rootPath.count))
+    }
+
+    func parentFolderName(forFolderURL url: URL) -> String? {
+        guard let relativePath = rootRelativePath(forFolderURL: url) else { return nil }
+        let components = relativePath.split(separator: "/")
+        guard components.count >= 2 else { return nil }
+        return String(components[0])
     }
 
     func validatedChildURL(
@@ -104,6 +128,40 @@ struct DownloadFileStorage: Sendable {
 
     func makeFolderRelativePath(gid: String, token: String, title: String) -> String {
         "[\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))] \(normalizedFolderTitle(title))"
+    }
+
+    func isGalleryFolderLikeName(_ name: String) -> Bool {
+        name.range(of: #"^\[[^\]]*_[^\]]*\] "#, options: .regularExpression) != nil
+    }
+
+    func normalizedUserFolderName(_ name: String) -> String? {
+        let invalidCharacters = CharacterSet(charactersIn: "/\\:")
+            .union(.controlCharacters)
+        let sanitizedScalars = name
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .unicodeScalars
+            .map { invalidCharacters.contains($0) ? " " : String($0) }
+            .joined()
+        let collapsedWhitespace = sanitizedScalars.replacingOccurrences(
+            of: "\\s+",
+            with: " ",
+            options: .regularExpression
+        )
+        let trimmedName = collapsedWhitespace.replacingOccurrences(
+            of: "^[\\s.]+|[\\s.]+$",
+            with: "",
+            options: .regularExpression
+        )
+        let limitedName = String(trimmedName.prefix(Self.maxFolderTitleLength))
+            .replacingOccurrences(
+                of: "[\\s.]+$",
+                with: "",
+                options: .regularExpression
+            )
+        guard !limitedName.isEmpty, !isGalleryFolderLikeName(limitedName) else {
+            return nil
+        }
+        return limitedName
     }
 
     private func normalizedFolderTitle(_ title: String) -> String {
@@ -217,34 +275,74 @@ struct DownloadFileStorage: Sendable {
     }
 
     func scanDownloadFolders() throws -> [DownloadFolderRecord] {
+        try scanDownloads().records
+    }
+
+    func scanDownloads() throws -> DownloadScanResult {
         guard fileManager.operate({ $0.fileExists(atPath: rootURL.path) }) else {
-            return []
+            return .init(records: [], userFolders: [])
         }
 
-        let folderURLs = try fileManager.operate {
+        var records = [DownloadFolderRecord]()
+        var userFolders = [String]()
+        for folderURL in directoryURLs(in: rootURL) {
+            let folderName = folderURL.lastPathComponent
+            // Gallery folders dropped directly under the root, including broken
+            // manifest-less ones, are invisible to the app and never become
+            // user folders.
+            guard (try? readManifest(folderURL: folderURL)) == nil else { continue }
+            guard !isGalleryFolderLikeName(folderName) else { continue }
+
+            userFolders.append(folderName)
+            for galleryFolderURL in directoryURLs(in: folderURL) {
+                guard let manifest = try? readManifest(folderURL: galleryFolderURL) else {
+                    continue
+                }
+                records.append(
+                    galleryFolderRecord(
+                        folderURL: galleryFolderURL,
+                        manifest: manifest,
+                        parentFolderName: folderName
+                    )
+                )
+            }
+        }
+        return .init(
+            records: records,
+            userFolders: userFolders.sorted {
+                $0.localizedStandardCompare($1) == .orderedAscending
+            }
+        )
+    }
+
+    private func directoryURLs(in parentURL: URL) -> [URL] {
+        let contents = (try? fileManager.operate {
             try $0.contentsOfDirectory(
-                at: rootURL,
+                at: parentURL,
                 includingPropertiesForKeys: [.isDirectoryKey, .contentModificationDateKey],
                 options: [.skipsHiddenFiles]
             )
+        }) ?? []
+        return contents.filter {
+            (try? $0.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
         }
+    }
 
-        return folderURLs.compactMap { folderURL in
-            let resourceValues = try? folderURL.resourceValues(
-                forKeys: [.isDirectoryKey, .contentModificationDateKey]
-            )
-            guard resourceValues?.isDirectory == true,
-                  let manifest = try? readManifest(folderURL: folderURL)
-            else {
-                return nil
-            }
-            return DownloadFolderRecord(
-                relativePath: folderURL.lastPathComponent,
-                folderURL: folderURL,
-                manifest: manifest,
-                modifiedAt: resourceValues?.contentModificationDate
-            )
-        }
+    private func galleryFolderRecord(
+        folderURL: URL,
+        manifest: DownloadManifest,
+        parentFolderName: String
+    ) -> DownloadFolderRecord {
+        let resourceValues = try? folderURL.resourceValues(
+            forKeys: [.contentModificationDateKey]
+        )
+        return DownloadFolderRecord(
+            relativePath: "\(parentFolderName)/\(folderURL.lastPathComponent)",
+            folderURL: folderURL,
+            manifest: manifest,
+            modifiedAt: resourceValues?.contentModificationDate,
+            parentFolderName: parentFolderName
+        )
     }
 
     func fileHash(at url: URL) throws -> String {

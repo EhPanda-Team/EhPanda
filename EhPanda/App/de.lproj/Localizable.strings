@@ -1005,6 +1005,10 @@
 "struct.download_badge.text.needs_repair" = "Reparatur nötig";
 "struct.download_badge.progress" = "%d/%d";
 "download_file_storage.error.asset_unreadable" = "Asset-Datei ist nicht lesbar: %@";
+"download_file_storage.error.invalid_folder_name" = "The folder name is invalid.";
+"download_file_storage.error.folder_already_exists" = "A folder with this name already exists.";
+"download_file_storage.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_file_storage.error.download_busy" = "The download is currently active.";
 "download_file_storage.validation.download_folder_unresolved" = "Download-Ordner konnte nicht aufgelöst werden.";
 "download_file_storage.validation.download_folder_missing" = "Download-Ordner fehlt.";
 "download_file_storage.validation.manifest_missing" = "Manifest-Datei fehlt.";

@@ -103,7 +103,7 @@ private extension DownloadRetryPagesTests {
         pageHashes: [String]
     ) throws -> URL {
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

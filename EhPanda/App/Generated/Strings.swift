@@ -591,6 +591,14 @@ internal enum L10n {
         internal static func assetUnreadable(_ p1: Any) -> String {
           return L10n.tr("Localizable", "download_file_storage.error.asset_unreadable", String(describing: p1), fallback: "Asset file is unreadable: %@")
         }
+        /// The download is currently active.
+        internal static let downloadBusy = L10n.tr("Localizable", "download_file_storage.error.download_busy", fallback: "The download is currently active.")
+        /// A folder with this name already exists.
+        internal static let folderAlreadyExists = L10n.tr("Localizable", "download_file_storage.error.folder_already_exists", fallback: "A folder with this name already exists.")
+        /// The folder contains an active download.
+        internal static let folderBusyDownloading = L10n.tr("Localizable", "download_file_storage.error.folder_busy_downloading", fallback: "The folder contains an active download.")
+        /// The folder name is invalid.
+        internal static let invalidFolderName = L10n.tr("Localizable", "download_file_storage.error.invalid_folder_name", fallback: "The folder name is invalid.")
       }
       internal enum Validation {
         /// Cover image data is corrupted.

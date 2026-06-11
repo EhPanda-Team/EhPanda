@@ -15,6 +15,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         let automation = AppLaunchAutomation.resolve(environment: [
             "EHPANDA_AUTOMATION_TAB": "downloads",
             "EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID": "1394965",
+            "EHPANDA_AUTOMATION_DOWNLOAD_FOLDER": " UI Tests ",
             "EHPANDA_AUTOMATION_GALLERY_URL": "https://e-hentai.org/g/1394965/56c35114b6/",
             "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "4172984",
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "pass-hash",
@@ -23,6 +24,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
 
         #expect(automation?.initialTab == .downloads)
         #expect(automation?.autoDownloadGID == "1394965")
+        #expect(automation?.downloadFolderName == "UI Tests")
         #expect(
             automation?.galleryURL == URL(string: "https://e-hentai.org/g/1394965/56c35114b6/")
         )
@@ -69,6 +71,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         let automation = AppLaunchAutomation(
             initialTab: .downloads,
             autoDownloadGID: nil,
+            downloadFolderName: nil,
             loginCookies: nil,
             galleryURL: URL(string: "https://example.com/not-a-gallery")
         )
@@ -102,6 +105,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         let automation = AppLaunchAutomation(
             initialTab: nil,
             autoDownloadGID: nil,
+            downloadFolderName: nil,
             loginCookies: .init(
                 memberID: "4172984",
                 passHash: "pass-hash",
@@ -146,6 +150,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         let automation = AppLaunchAutomation(
             initialTab: nil,
             autoDownloadGID: nil,
+            downloadFolderName: nil,
             loginCookies: nil,
             galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
         )
@@ -203,6 +208,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         let automation = AppLaunchAutomation(
             initialTab: nil,
             autoDownloadGID: nil,
+            downloadFolderName: nil,
             loginCookies: nil,
             galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
         )

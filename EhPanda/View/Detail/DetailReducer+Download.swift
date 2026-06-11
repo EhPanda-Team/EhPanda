@@ -29,8 +29,8 @@ extension DetailReducer {
                 return handleOpenReadingDone(result: result, state: &state)
             case .runLaunchAutomationIfNeeded(let options):
                 return handleRunLaunchAutomation(options: options, state: &state)
-            case .startDownload(let options):
-                return handleStartDownload(options: options, state: &state)
+            case .startDownload(let options, let folderName):
+                return handleStartDownload(options: options, folderName: folderName, state: &state)
             case .startDownloadDone(let result):
                 return handleStartDownloadDone(result: result, state: &state)
             case .toggleDownloadPause:
@@ -158,17 +158,24 @@ extension DetailReducer {
         state: inout State
     ) -> Effect<Action> {
         guard !state.didRunLaunchAutomation,
-              appLaunchAutomationClient.current()?.autoDownloadGID == state.gallery.id,
+              let automation = appLaunchAutomationClient.current(),
+              automation.autoDownloadGID == state.gallery.id,
               state.galleryDetail != nil,
               state.hasLoadedDownloadBadge
         else { return .none }
         state.didRunLaunchAutomation = true
         guard state.downloadBadge == nil else { return .none }
-        return .send(.startDownload(options))
+        return .send(
+            .startDownload(
+                options,
+                automation.downloadFolderName ?? Defaults.FilePath.automationDownloadFolder
+            )
+        )
     }
 
     private func handleStartDownload(
         options: DownloadRequestOptions,
+        folderName: String,
         state: inout State
     ) -> Effect<Action> {
         guard !state.isPreparingDownload else { return .none }
@@ -181,6 +188,7 @@ extension DetailReducer {
             previewURLs: state.galleryPreviewURLs,
             previewConfig: state.previewConfig,
             host: AppUtil.galleryHost,
+            folderName: folderName,
             versionMetadata: state.galleryVersionMetadata,
             options: options,
             mode: .initial

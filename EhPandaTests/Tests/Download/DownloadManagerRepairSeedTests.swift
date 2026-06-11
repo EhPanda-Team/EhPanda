@@ -23,7 +23,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
 
-        let sourceFolderURL = storage.folderURL(relativePath: "[\(gid)_token] Existing")
+        let sourceFolderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Existing")
         let existingDownload = sampleDownload(
             gid: gid, title: "Mixed Version", status: .missingFiles,
             pageCount: 2, completedPageCount: 2,
@@ -226,7 +226,7 @@ private extension DownloadManagerRepairSeedTests {
                 sizeCount: 1, sizeType: "MB", torrentCount: 0
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, options: .init(), mode: .repair
+            host: .ehentai, folderName: "Folder", options: .init(), mode: .repair
         )
     }
 
@@ -234,7 +234,7 @@ private extension DownloadManagerRepairSeedTests {
         rootURL: URL, gid: String, storage: DownloadFileStorage
     ) throws -> (URL, URL) {
         let completedFolderURL = rootURL.appendingPathComponent(
-            "\(gid) - Pause Race", isDirectory: true
+            "Folder/\(gid) - Pause Race", isDirectory: true
         )
         try FileManager.default.createDirectory(
             at: completedFolderURL,

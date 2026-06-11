@@ -19,7 +19,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Indexed")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Indexed")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
@@ -64,7 +64,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             urlSession: .shared
         )
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Indexed")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Indexed")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

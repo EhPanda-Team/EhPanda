@@ -332,10 +332,11 @@ private extension DetailView {
 // MARK: Actions
 private extension DetailView {
     private func handleDownloadAction() {
-        let options = setting.downloadRequestOptions
         switch store.downloadBadge?.status {
         case nil:
-            store.send(.startDownload(options))
+            // Starting a new download requires picking a folder; the download
+            // button presents a folder menu for this case instead.
+            break
         case .queued, .active, .inactive:
             store.send(.toggleDownloadPause)
         case .completed:

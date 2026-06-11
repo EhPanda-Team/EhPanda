@@ -31,6 +31,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
             previewURLs: [:],
             previewConfig: .normal(rows: 4),
             host: .ehentai,
+            folderName: "Folder",
             options: .init(threadLimit: 3),
             mode: .initial
         )
@@ -42,7 +43,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
             return
         }
 
-        let folderRelativePath = storage.makeFolderRelativePath(
+        let folderRelativePath = "Folder/" + storage.makeFolderRelativePath(
             gid: gallery.gid,
             token: gallery.token,
             title: detail.trimmedTitle

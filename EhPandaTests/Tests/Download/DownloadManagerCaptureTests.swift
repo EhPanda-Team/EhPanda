@@ -24,7 +24,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             urlSession: .shared
         )
 
-        let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Capture", isDirectory: true)
+        let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Capture", isDirectory: true)
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true
@@ -112,7 +112,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
 
 private extension DownloadManagerCaptureTests {
     func setupCaptureMissingFilesFolder(rootURL: URL, gid: String) throws -> URL {
-        let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
+        let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true

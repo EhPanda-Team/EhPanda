@@ -1005,6 +1005,10 @@
 "struct.download_badge.text.needs_repair" = "복구 필요";
 "struct.download_badge.progress" = "%d/%d";
 "download_file_storage.error.asset_unreadable" = "에셋 파일을 읽을 수 없습니다: %@";
+"download_file_storage.error.invalid_folder_name" = "The folder name is invalid.";
+"download_file_storage.error.folder_already_exists" = "A folder with this name already exists.";
+"download_file_storage.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_file_storage.error.download_busy" = "The download is currently active.";
 "download_file_storage.validation.download_folder_unresolved" = "다운로드 폴더를 확인할 수 없습니다.";
 "download_file_storage.validation.download_folder_missing" = "다운로드 폴더가 없습니다.";
 "download_file_storage.validation.manifest_missing" = "매니페스트 파일이 없습니다.";

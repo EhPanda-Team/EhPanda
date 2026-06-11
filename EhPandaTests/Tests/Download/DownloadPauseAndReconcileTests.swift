@@ -94,7 +94,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             pageHashes: ["sha256:done", ""]
         )
 
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pausable")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Pausable")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
@@ -260,7 +260,7 @@ private extension DownloadPauseAndReconcileTests {
         pageHashes: [String]
     ) throws {
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
@@ -292,7 +292,7 @@ private extension DownloadPauseAndReconcileTests {
         storage: DownloadFileStorage,
         gid: String
     ) throws {
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Inspection")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Inspection")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

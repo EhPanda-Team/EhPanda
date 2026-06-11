@@ -14,6 +14,7 @@ struct AppLaunchAutomation: Sendable {
 
     let initialTab: TabBarItemType?
     let autoDownloadGID: String?
+    let downloadFolderName: String?
     let loginCookies: LoginCookies?
     let galleryURL: URL?
 
@@ -32,6 +33,10 @@ struct AppLaunchAutomation: Sendable {
         let autoDownloadGID = trimmedValue(
             environment: environment,
             key: "EHPANDA_AUTOMATION_AUTO_DOWNLOAD_GID"
+        )
+        let downloadFolderName = trimmedValue(
+            environment: environment,
+            key: "EHPANDA_AUTOMATION_DOWNLOAD_FOLDER"
         )
         let galleryURL = trimmedValue(
             environment: environment,
@@ -70,6 +75,7 @@ struct AppLaunchAutomation: Sendable {
         return .init(
             initialTab: initialTab,
             autoDownloadGID: autoDownloadGID,
+            downloadFolderName: downloadFolderName,
             loginCookies: loginCookies,
             galleryURL: galleryURL
         )

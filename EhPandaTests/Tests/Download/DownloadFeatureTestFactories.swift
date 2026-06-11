@@ -75,6 +75,7 @@ extension DownloadedGallery {
         rating: Float,
         onlineCoverURL: URL?,
         folderURL: URL,
+        folderName: String = "Folder",
         localCoverURL: URL? = nil,
         localPageURLs: [Int: URL] = [:],
         displayStatus: DownloadDisplayStatus,
@@ -107,6 +108,7 @@ extension DownloadedGallery {
         self.init(
             manifest: manifest,
             folderURL: folderURL,
+            folderName: folderName,
             localCoverURL: localCoverURL,
             localPageURLs: localPageURLs,
             modifiedAt: lastDownloadedAt,
@@ -130,6 +132,7 @@ extension DownloadFeatureTestCase {
             AppLaunchAutomation(
                 initialTab: nil,
                 autoDownloadGID: autoDownloadGID,
+                downloadFolderName: nil,
                 loginCookies: nil,
                 galleryURL: nil
             )
@@ -195,10 +198,12 @@ extension DownloadFeatureTestCase {
         lastDownloadedAt: Date? = .now,
         lastError: DownloadFailure? = nil,
         folderURL: URL? = nil,
+        folderName: String = "Folder",
         localCoverURL: URL? = nil,
         localPageURLs: [Int: URL] = [:]
     ) -> DownloadedGallery {
         let resolvedFolderURL = folderURL ?? FileUtil.downloadsDirectoryURL
+            .appendingPathComponent(folderName, isDirectory: true)
             .appendingPathComponent("[\(gid)_token] \(title)", isDirectory: true)
         return DownloadedGallery(
             gid: gid,
@@ -214,6 +219,7 @@ extension DownloadFeatureTestCase {
             rating: 4,
             onlineCoverURL: URL(string: "https://example.com/cover.jpg"),
             folderURL: resolvedFolderURL,
+            folderName: folderName,
             localCoverURL: localCoverURL,
             localPageURLs: localPageURLs,
             displayStatus: status.displayStatus,

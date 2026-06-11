@@ -15,7 +15,7 @@ struct DownloadFileStorageRepairTests {
 
         try storage.ensureRootDirectory()
         let sourceFolderURL = storage.folderURL(relativePath: "123 - Source")
-        let destinationFolderURL = storage.folderURL(relativePath: "[123_token] Destination")
+        let destinationFolderURL = storage.folderURL(relativePath: "Folder/[123_token] Destination")
         let manifest = try sampleManifest(pageCount: 3)
         try setupRepairSourceFiles(
             sourceFolderURL: sourceFolderURL, storage: storage, manifest: manifest
@@ -102,7 +102,7 @@ private extension DownloadFileStorageRepairTests {
         try sourceStorage.ensureRootDirectory()
         try destStorage.ensureRootDirectory()
         let sourceFolderURL = sourceStorage.folderURL(relativePath: "123 - Source")
-        let destinationFolderURL = destStorage.folderURL(relativePath: "[123_token] Destination")
+        let destinationFolderURL = destStorage.folderURL(relativePath: "Folder/[123_token] Destination")
         try FileManager.default.createDirectory(
             at: sourceFolderURL,
             withIntermediateDirectories: true
