@@ -29,9 +29,6 @@ extension HomeReducer {
             case .binding:
                 return .none
 
-            case .onAppear:
-                return .send(.observeDownloads)
-
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
@@ -150,20 +147,6 @@ extension HomeReducer {
 
             case .analyzeImageColorsDone(let gid, let colors):
                 state.rawCardColors[gid] = colors
-                return .none
-
-            case .observeDownloads:
-                return .run { send in
-                    for await downloads in downloadClient.observeDownloads() {
-                        await send(.observeDownloadsDone(downloads))
-                    }
-                }
-                .cancellable(id: CancelID.observeDownloads, cancelInFlight: true)
-
-            case .observeDownloadsDone(let downloads):
-                state.downloadBadges = Dictionary(
-                    uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
-                )
                 return .none
 
             case .frontpage:

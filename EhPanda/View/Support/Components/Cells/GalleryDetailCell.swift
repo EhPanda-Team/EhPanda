@@ -102,9 +102,7 @@ private struct GalleryDetailCellContent: View {
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    if let downloadBadge {
-                        DownloadBadgeLabel(badge: downloadBadge)
-                    }
+                    Text(gallery.language?.value ?? "")
                 }
 
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
@@ -123,15 +121,18 @@ private struct GalleryDetailCellContent: View {
                 }
                 HStack {
                     RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
-                    Spacer()
-                    HStack(spacing: 10) {
-                        Text(gallery.language?.value ?? "")
+
+                    Spacer(minLength: 8)
+
+                    if let downloadBadge {
+                        DownloadBadgeLabel(badge: downloadBadge)
+                    } else {
                         HStack(spacing: 2) {
                             Image(systemSymbol: .photoOnRectangleAngled)
                             Text(String(gallery.pageCount))
                         }
+                        .lineLimit(1).font(.footnote).foregroundStyle(.secondary).minimumScaleFactor(0.75)
                     }
-                    .lineLimit(1).font(.footnote).foregroundStyle(.secondary).minimumScaleFactor(0.75)
                 }
                 HStack(alignment: .bottom) {
                     CategoryLabel(text: gallery.category.value, color: gallery.color)

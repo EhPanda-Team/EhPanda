@@ -6,46 +6,13 @@
 import SwiftUI
 
 struct DownloadBadgeLabel: View {
-    private static let ringDiameter: CGFloat = 26
-    private static let ringLineWidth: CGFloat = 2.5
-
     private let badge: DownloadBadge
-    private let isCompactStyle: Bool
 
-    init(badge: DownloadBadge, isCompactStyle: Bool = false) {
+    init(badge: DownloadBadge) {
         self.badge = badge
-        self.isCompactStyle = isCompactStyle
     }
 
     var body: some View {
-        Group {
-            if isCompactStyle {
-                ringSymbol
-            } else {
-                textLabel
-            }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityText)
-    }
-
-    private var ringSymbol: some View {
-        ZStack {
-            Circle()
-                .stroke(badge.color.opacity(0.18), lineWidth: Self.ringLineWidth)
-            Circle()
-                .trim(from: 0, to: badge.progress.fraction)
-                .stroke(badge.color, style: .init(lineWidth: Self.ringLineWidth, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            Image(systemSymbol: badge.ringSymbol)
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(badge.color)
-        }
-        .padding(Self.ringLineWidth / 2)
-        .frame(width: Self.ringDiameter, height: Self.ringDiameter)
-    }
-
-    private var textLabel: some View {
         HStack(spacing: 4) {
             Image(systemSymbol: badge.symbol)
                 .font(.caption.bold())
@@ -58,6 +25,8 @@ struct DownloadBadgeLabel: View {
         .padding(.vertical, 4)
         .background(badge.color.opacity(0.15))
         .clipShape(.capsule)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
     }
 
     private var progressText: String {

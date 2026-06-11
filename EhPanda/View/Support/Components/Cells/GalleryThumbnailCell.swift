@@ -45,21 +45,16 @@ struct GalleryThumbnailCell: View {
                     minAspect: Defaults.ImageSize.webtoonMinAspect,
                     idealAspect: Defaults.ImageSize.webtoonIdealAspect
                 ))
-                .fade(duration: 0.25).resizable().scaledToFit().overlay {
-                    VStack {
-                        HStack {
-                            if let downloadBadge {
-                                DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
-                            }
-                            Spacer()
-                            CategoryLabel(
-                                text: gallery.category.value, color: gallery.color,
-                                insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
-                                cornerRadius: 15, corners: .bottomLeft
-                            )
-                        }
-                        Spacer()
-                    }
+                .fade(duration: 0.25)
+                .resizable()
+                .scaledToFit()
+                .overlay {
+                    CategoryLabel(
+                        text: gallery.category.value, color: gallery.color,
+                        insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
+                        cornerRadius: 15, corners: .bottomLeft
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 }
             VStack(alignment: .leading, spacing: 5) {
                 Text(gallery.title)
@@ -80,15 +75,23 @@ struct GalleryThumbnailCell: View {
                     }
                 }
                 HStack(spacing: 10) {
+                    if let downloadBadge {
+                        DownloadBadgeLabel(badge: downloadBadge)
+                    } else {
+                        HStack(spacing: 2) {
+                            Image(systemSymbol: .photoOnRectangleAngled)
+                            Text(String(gallery.pageCount))
+                        }
+                    }
+
+                    Spacer(minLength: 8)
+
                     if let language = gallery.language {
                         Text(language.value)
                     }
-                    HStack(spacing: 2) {
-                        Image(systemSymbol: .photoOnRectangleAngled)
-                        Text(String(gallery.pageCount))
-                    }
                 }
                 .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
+
                 RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
             }
             .padding()

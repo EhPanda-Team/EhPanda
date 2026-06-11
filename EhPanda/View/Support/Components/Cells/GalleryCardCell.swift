@@ -16,21 +16,18 @@ struct GalleryCardCell: View {
     private let webImageSuccessAction: (RetrieveImageResult) -> Void
 
     private let gallery: Gallery
-    private let downloadBadge: DownloadBadge?
 
     private let animation: Animation =
         .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
 
     init(
         gallery: Gallery, currentID: String, colors: [Color],
-        webImageSuccessAction: @escaping (RetrieveImageResult) -> Void,
-        downloadBadge: DownloadBadge? = nil
+        webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
     ) {
         self.gallery = gallery
         self.currentID = currentID
         self.colors = colors
         self.webImageSuccessAction = webImageSuccessAction
-        self.downloadBadge = downloadBadge
     }
 
     private var animated: Bool {
@@ -61,12 +58,7 @@ struct GalleryCardCell: View {
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.title3.bold())
-                        .lineLimit(downloadBadge == nil ? 4 : 2)
-                    if let downloadBadge {
-                        DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
-                    }
+                    Text(title).font(.title3.bold()).lineLimit(4)
                     Spacer()
                     RatingView(rating: gallery.rating).foregroundColor(.yellow)
                 }

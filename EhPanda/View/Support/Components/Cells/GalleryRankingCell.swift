@@ -9,12 +9,10 @@ import Kingfisher
 struct GalleryRankingCell: View {
     private let gallery: Gallery
     private let ranking: Int
-    private let downloadBadge: DownloadBadge?
 
-    init(gallery: Gallery, ranking: Int, downloadBadge: DownloadBadge? = nil) {
+    init(gallery: Gallery, ranking: Int) {
         self.gallery = gallery
         self.ranking = ranking
-        self.downloadBadge = downloadBadge
     }
 
     private var resolvedCoverURL: URL? {
@@ -30,9 +28,6 @@ struct GalleryRankingCell: View {
             Text(String(ranking)).fontWeight(.medium).font(.title2).padding(.horizontal)
             VStack(alignment: .leading) {
                 Text(gallery.trimmedTitle).bold().lineLimit(2).fixedSize(horizontal: false, vertical: true)
-                if let downloadBadge {
-                    DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
-                }
                 if let uploader = gallery.uploader {
                     Text(uploader).foregroundColor(.secondary).lineLimit(1)
                 }

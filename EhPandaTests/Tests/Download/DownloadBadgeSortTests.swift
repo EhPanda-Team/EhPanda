@@ -25,7 +25,6 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         #expect(badge.status == activeDownload.displayStatus)
         #expect(badge.progress == DownloadProgress(completedPageCount: 7, pageCount: 26))
         #expect(badge.symbol == .playFill)
-        #expect(badge.ringSymbol == .playFill)
         #expect(badge.color == .green)
 
         let completedBadge = sampleDownload(
@@ -36,7 +35,6 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         ).badge
 
         #expect(completedBadge.symbol == .checkmarkCircleFill)
-        #expect(completedBadge.ringSymbol == .checkmark)
         #expect(completedBadge.color == .gray)
         #expect(completedBadge.progress.fraction == 1)
     }
@@ -51,7 +49,6 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             completedPageCount: 5
         )
         #expect(partialDownload.badge.symbol == .exclamationmarkTriangleFill)
-        #expect(partialDownload.badge.ringSymbol == .exclamationmark)
         #expect(partialDownload.badge.color == .yellow)
         #expect(
             partialDownload.badge.progress

@@ -39,7 +39,6 @@ struct HomeView: View {
                                     pageIndex: $store.cardPageIndex,
                                     currentID: store.currentCardID,
                                     colors: store.cardColors,
-                                    downloadBadges: store.downloadBadges,
                                     navigateAction: navigateTo(gid:),
                                     webImageSuccessAction: { gid, result in
                                         store.send(.analyzeImageColors(gid, result))
@@ -52,7 +51,6 @@ struct HomeView: View {
                                     CoverWallSection(
                                         galleries: store.frontpageGalleries,
                                         isLoading: store.frontpageLoadingState == .loading,
-                                        downloadBadges: store.downloadBadges,
                                         navigateAction: navigateTo(gid:),
                                         showAllAction: { store.send(.setNavigation(.section(.frontpage))) },
                                         reloadAction: { store.send(.fetchFrontpageGalleries) }
@@ -62,7 +60,6 @@ struct HomeView: View {
                                     galleries: store.toplistsGalleries,
                                     isLoading: !store.toplistsLoadingState
                                         .values.allSatisfy({ $0 != .loading }),
-                                    downloadBadges: store.downloadBadges,
                                     navigateAction: navigateTo(gid:),
                                     showAllAction: { store.send(.setNavigation(.section(.toplists))) },
                                     reloadAction: { store.send(.fetchAllToplistsGalleries) }
@@ -90,7 +87,6 @@ struct HomeView: View {
                 }
                 .animation(.default, value: store.popularLoadingState)
                 .onAppear {
-                    store.send(.onAppear)
                     if store.popularGalleries.isEmpty {
                         store.send(.fetchAllGalleries)
                     }
