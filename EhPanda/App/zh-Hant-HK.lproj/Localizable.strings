@@ -962,7 +962,6 @@
 "downloads_view.swipe.button.move" = "Move";
 "folder_manager_view.title.folders" = "Folders";
 "folder_manager_view.title.new_folder" = "New Folder";
-"folder_manager_view.title.rename_folder" = "Rename Folder";
 "folder_manager_view.placeholder.folder_name" = "Folder name";
 "folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
 "folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
