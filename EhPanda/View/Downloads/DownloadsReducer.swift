@@ -13,16 +13,20 @@ struct DownloadsReducer {
         case inspector(String)
         case detail(String)
         case reading(String)
+        case folderManager(EquatableVoid = .init())
     }
 
     private enum CancelID {
         case observeDownloads
+        case fetchFolders
     }
 
     @ObservableState
     struct State: Equatable {
         var route: Route?
         var keyword = ""
+        var folderFilter: DownloadFolderFilter = .all
+        var folders = [String]()
         var downloads = [DownloadedGallery]()
         var loadingState: LoadingState = .loading
         var hasLoadedInitialDownloads = false
@@ -30,6 +34,7 @@ struct DownloadsReducer {
         var detailState: Heap<DetailReducer.State?>
         var readingState = ReadingReducer.State()
         var inspectorState = DownloadInspectorReducer.State()
+        var folderManagerState = FolderManagerReducer.State()
         var readingRequestID = UUID()
 
         init() {
@@ -38,8 +43,11 @@ struct DownloadsReducer {
 
         var filteredDownloads: [DownloadedGallery] {
             downloads.filter {
-                keyword.isEmpty
-                    || $0.searchableText.caseInsensitiveContains(keyword)
+                $0.matches(folderFilter: folderFilter)
+                    && (
+                        keyword.isEmpty
+                            || $0.searchableText.caseInsensitiveContains(keyword)
+                    )
             }
         }
     }
@@ -58,6 +66,10 @@ struct DownloadsReducer {
         case observeDownloadsDone([DownloadedGallery])
         case refreshDownloads
         case refreshDownloadsDone
+        case fetchFolders
+        case fetchFoldersDone([String])
+        case moveDownload(String, String)
+        case moveDownloadDone(Result<Void, AppError>)
         case openReading(String)
         case openReadingDone(UUID, String, Result<(DownloadedGallery, DownloadManifest), AppError>)
         case toggleDownloadPause(String)
@@ -70,6 +82,7 @@ struct DownloadsReducer {
         case detail(DetailReducer.Action)
         case reading(ReadingReducer.Action)
         case inspector(DownloadInspectorReducer.Action)
+        case folderManager(FolderManagerReducer.Action)
     }
 
     @Dependency(\.downloadClient) private var downloadClient
@@ -103,14 +116,16 @@ struct DownloadsReducer {
                 state.detailState.wrappedValue = .init()
                 state.readingState = .init()
                 state.inspectorState = .init()
+                state.folderManagerState = .init()
                 return .merge(
                     .send(.detail(.teardown)),
                     .send(.reading(.teardown)),
-                    .send(.inspector(.teardown))
+                    .send(.inspector(.teardown)),
+                    .send(.folderManager(.teardown))
                 )
 
             case .onAppear:
-                guard !state.hasLoadedInitialDownloads else { return .none }
+                guard !state.hasLoadedInitialDownloads else { return .send(.fetchFolders) }
                 state.hasLoadedInitialDownloads = true
                 return .merge(
                     .send(.fetchDownloads),
@@ -119,7 +134,10 @@ struct DownloadsReducer {
                 )
 
             case .teardown:
-                return .cancel(id: CancelID.observeDownloads)
+                return .merge(
+                    .cancel(id: CancelID.observeDownloads),
+                    .cancel(id: CancelID.fetchFolders)
+                )
 
             case .bootstrapDownloads:
                 return .run { send in
@@ -156,7 +174,34 @@ struct DownloadsReducer {
                 }
 
             case .refreshDownloadsDone:
+                return .send(.fetchFolders)
+
+            case .fetchFolders:
+                return .run { send in
+                    await send(.fetchFoldersDone(await downloadClient.fetchFolders()))
+                }
+                .cancellable(id: CancelID.fetchFolders, cancelInFlight: true)
+
+            case .fetchFoldersDone(let folders):
+                state.folders = folders
+                if case .folder(let name) = state.folderFilter,
+                   !folders.contains(name) {
+                    state.folderFilter = .all
+                }
                 return .none
+
+            case .moveDownload(let gid, let folderName):
+                return .run { send in
+                    await send(.moveDownloadDone(await downloadClient.moveDownload(gid, folderName)))
+                }
+
+            case .moveDownloadDone(let result):
+                if case .failure = result {
+                    return .run { _ in
+                        await downloadClient.reconcileDownloads()
+                    }
+                }
+                return .send(.fetchFolders)
 
             case .openReading(let gid):
                 let requestID = UUID()
@@ -223,12 +268,21 @@ struct DownloadsReducer {
 
             case .inspector:
                 return .none
+
+            case .folderManager(.createFolderDone),
+                 .folderManager(.renameFolderDone),
+                 .folderManager(.deleteFolderDone):
+                return .send(.fetchFolders)
+
+            case .folderManager:
+                return .none
             }
         }
 
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
         Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
         Scope(state: \.inspectorState, action: \.inspector, child: DownloadInspectorReducer.init)
+        Scope(state: \.folderManagerState, action: \.folderManager, child: FolderManagerReducer.init)
     }
 }
 

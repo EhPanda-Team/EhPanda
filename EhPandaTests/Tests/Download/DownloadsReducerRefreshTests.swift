@@ -90,6 +90,8 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
 
         await store.send(.refreshDownloads)
         await store.receive(\.refreshDownloadsDone)
+        await store.receive(\.fetchFolders)
+        await store.receive(\.fetchFoldersDone)
 
         #expect(refreshCount.value == 1)
         #expect(reconcileCount.value == 0)
@@ -130,6 +132,8 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
 
         await store.send(.bootstrapDownloads)
         await store.receive(\.refreshDownloadsDone)
+        await store.receive(\.fetchFolders)
+        await store.receive(\.fetchFoldersDone)
 
         #expect(refreshCount.value == 1)
         #expect(reconcileCount.value == 0)
