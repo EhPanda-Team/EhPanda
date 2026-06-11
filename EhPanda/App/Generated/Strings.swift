@@ -2025,6 +2025,30 @@ internal enum L10n {
         internal static let setPagesRange = L10n.tr("Localizable", "filters_view.title.set_pages_range", fallback: "Set pages range")
       }
     }
+    internal enum FolderManagerView {
+      internal enum Dialog {
+        internal enum Message {
+          /// This will delete the folder and all downloaded galleries inside it.
+          internal static let deleteFolder = L10n.tr("Localizable", "folder_manager_view.dialog.message.delete_folder", fallback: "This will delete the folder and all downloaded galleries inside it.")
+        }
+      }
+      internal enum EmptyState {
+        /// Folders you create will appear here.
+        internal static let folders = L10n.tr("Localizable", "folder_manager_view.empty_state.folders", fallback: "Folders you create will appear here.")
+      }
+      internal enum Placeholder {
+        /// Folder name
+        internal static let folderName = L10n.tr("Localizable", "folder_manager_view.placeholder.folder_name", fallback: "Folder name")
+      }
+      internal enum Title {
+        /// Folders
+        internal static let folders = L10n.tr("Localizable", "folder_manager_view.title.folders", fallback: "Folders")
+        /// New Folder
+        internal static let newFolder = L10n.tr("Localizable", "folder_manager_view.title.new_folder", fallback: "New Folder")
+        /// Rename Folder
+        internal static let renameFolder = L10n.tr("Localizable", "folder_manager_view.title.rename_folder", fallback: "Rename Folder")
+      }
+    }
     internal enum FrontpageView {
       internal enum Title {
         /// Frontpage

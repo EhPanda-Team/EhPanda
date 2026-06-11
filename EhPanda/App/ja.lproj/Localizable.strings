@@ -957,6 +957,12 @@
 "detail_view.dialog.button.update" = "更新";
 "detail_view.dialog.button.redownload" = "再ダウンロード";
 "detail_view.offline_notice.saved_details" = "オンラインの詳細を更新できなかったため、保存済みの詳細を表示しています。";
+"folder_manager_view.title.folders" = "Folders";
+"folder_manager_view.title.new_folder" = "New Folder";
+"folder_manager_view.title.rename_folder" = "Rename Folder";
+"folder_manager_view.placeholder.folder_name" = "Folder name";
+"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
+"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
 "downloads_view.title.downloads" = "ダウンロード";
 "downloads_view.search.prompt.downloads" = "ダウンロードを検索";
 "downloads_view.dialog.title.delete_download" = "ダウンロードを削除しますか？";

@@ -957,6 +957,12 @@
 "detail_view.dialog.button.update" = "Aktualisieren";
 "detail_view.dialog.button.redownload" = "Erneut laden";
 "detail_view.offline_notice.saved_details" = "Online-Details konnten nicht aktualisiert werden. Stattdessen werden gespeicherte Details angezeigt.";
+"folder_manager_view.title.folders" = "Folders";
+"folder_manager_view.title.new_folder" = "New Folder";
+"folder_manager_view.title.rename_folder" = "Rename Folder";
+"folder_manager_view.placeholder.folder_name" = "Folder name";
+"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
+"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
 "downloads_view.title.downloads" = "Downloads";
 "downloads_view.search.prompt.downloads" = "Downloads durchsuchen";
 "downloads_view.dialog.title.delete_download" = "Download löschen?";
