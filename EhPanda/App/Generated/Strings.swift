@@ -720,6 +720,14 @@ internal enum L10n {
           internal static let downloadStatus = L10n.tr("Localizable", "downloads_view.inspector.title.download_status", fallback: "Download Status")
         }
       }
+      internal enum Menu {
+        internal enum Button {
+          /// Manage Folders
+          internal static let manageFolders = L10n.tr("Localizable", "downloads_view.menu.button.manage_folders", fallback: "Manage Folders")
+          /// Move to Folder
+          internal static let moveToFolder = L10n.tr("Localizable", "downloads_view.menu.button.move_to_folder", fallback: "Move to Folder")
+        }
+      }
       internal enum Search {
         internal enum Prompt {
           /// Search downloads
@@ -728,6 +736,8 @@ internal enum L10n {
       }
       internal enum Swipe {
         internal enum Button {
+          /// Move
+          internal static let move = L10n.tr("Localizable", "downloads_view.swipe.button.move", fallback: "Move")
           /// Pages
           internal static let pages = L10n.tr("Localizable", "downloads_view.swipe.button.pages", fallback: "Pages")
           /// Pause
@@ -1517,6 +1527,12 @@ internal enum L10n {
           internal static let `private` = L10n.tr("Localizable", "enum.category.value.private", fallback: "Private")
           /// Western
           internal static let western = L10n.tr("Localizable", "enum.category.value.western", fallback: "Western")
+        }
+      }
+      internal enum DownloadFolderFilter {
+        internal enum Title {
+          /// All
+          internal static let all = L10n.tr("Localizable", "enum.download_folder_filter.title.all", fallback: "All")
         }
       }
       internal enum EhSetting {

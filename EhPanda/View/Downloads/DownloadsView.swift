@@ -21,6 +21,7 @@ struct DownloadsView: View {
 
     @Bindable private var store: StoreOf<DownloadsReducer>
     @State private var rowDialog: RowDialog?
+    @State private var moveDialogDownload: DownloadedGallery?
     @Binding private var setting: Setting
     private let user: User
     private let blurRadius: Double
@@ -100,6 +101,13 @@ struct DownloadsView: View {
             .autoBlur(radius: blurRadius)
             .navigationViewStyle(.stack)
         }
+        .sheet(item: $store.route.sending(\.setNavigation).folderManager) { _ in
+            FolderManagerView(
+                store: store.scope(state: \.folderManagerState, action: \.folderManager)
+            )
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
+        }
         .fullScreenCover(item: $store.route.sending(\.setNavigation).reading, id: \.self) { route in
             ReadingView(
                 store: store.scope(state: \.readingState, action: \.reading),
@@ -141,9 +149,29 @@ struct DownloadsView: View {
                 )
             }
         }
+        .confirmationDialog(
+            L10n.Localizable.DownloadsView.Menu.Button.moveToFolder,
+            isPresented: Binding(
+                get: { moveDialogDownload != nil },
+                set: { if !$0 { moveDialogDownload = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: moveDialogDownload
+        ) { download in
+            ForEach(moveDestinations(for: download), id: \.self) { folder in
+                Button(folder) {
+                    store.send(.moveDownload(download.gid, folder))
+                    moveDialogDownload = nil
+                }
+            }
+            Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {
+                moveDialogDownload = nil
+            }
+        }
         .background(navigationLink)
         .navigationTitle(L10n.Localizable.DownloadsView.Title.downloads)
         .navigationBarTitleDisplayMode(.large)
+        .toolbar(content: toolbar)
     }
 
 }
@@ -181,6 +209,18 @@ private extension DownloadsView {
                             )
                         }
                         .tint(setting.accentColor)
+
+                        if canMove(download) {
+                            Button {
+                                moveDialogDownload = download
+                            } label: {
+                                Label(
+                                    L10n.Localizable.DownloadsView.Swipe.Button.move,
+                                    systemSymbol: .folder
+                                )
+                            }
+                            .tint(.teal)
+                        }
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         if download.canTriggerUpdate {
@@ -240,6 +280,21 @@ private extension DownloadsView {
                 L10n.Localizable.DownloadsView.Swipe.Button.pages,
                 systemImage: "list.bullet.rectangle.portrait"
             )
+        }
+
+        if canMove(download) {
+            Menu {
+                ForEach(moveDestinations(for: download), id: \.self) { folder in
+                    Button(folder) {
+                        store.send(.moveDownload(download.gid, folder))
+                    }
+                }
+            } label: {
+                Label(
+                    L10n.Localizable.DownloadsView.Menu.Button.moveToFolder,
+                    systemSymbol: .folder
+                )
+            }
         }
 
         if download.canTriggerUpdate {
@@ -305,11 +360,56 @@ private extension DownloadsView {
             ) {
                 AlertViewButton(title: L10n.Localizable.DownloadsView.Button.clearFilters) {
                     store.keyword = ""
+                    store.folderFilter = .all
                 }
             }
         }
     }
 
+    private func canMove(_ download: DownloadedGallery) -> Bool {
+        download.displayStatus != .active && !moveDestinations(for: download).isEmpty
+    }
+
+    private func moveDestinations(for download: DownloadedGallery) -> [String] {
+        store.folders.filter { $0 != download.folderName }
+    }
+
+    @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {
+        CustomToolbarItem {
+            Menu {
+                Section {
+                    Button {
+                        store.send(.setNavigation(.folderManager()))
+                    } label: {
+                        Label(
+                            L10n.Localizable.DownloadsView.Menu.Button.manageFolders,
+                            systemSymbol: .folderBadgeGearshape
+                        )
+                    }
+                }
+                Section {
+                    folderFilterButton(.all)
+                    ForEach(store.folders, id: \.self) { folder in
+                        folderFilterButton(.folder(folder))
+                    }
+                }
+            } label: {
+                Image(systemSymbol: .dialLow)
+                    .symbolRenderingMode(.hierarchical)
+            }
+        }
+    }
+
+    private func folderFilterButton(_ filter: DownloadFolderFilter) -> some View {
+        Button {
+            store.folderFilter = filter
+        } label: {
+            Text(filter.title)
+            if store.folderFilter == filter {
+                Image(systemSymbol: .checkmark)
+            }
+        }
+    }
 }
 
 struct DownloadsView_Previews: PreviewProvider {

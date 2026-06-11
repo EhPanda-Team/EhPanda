@@ -387,6 +387,10 @@
 "tag_detail_view.section.title.links" = "Links";
 
 // MARK: DownloadsView
+"enum.download_folder_filter.title.all" = "All";
+"downloads_view.menu.button.manage_folders" = "Manage Folders";
+"downloads_view.menu.button.move_to_folder" = "Move to Folder";
+"downloads_view.swipe.button.move" = "Move";
 "folder_manager_view.title.folders" = "Folders";
 "folder_manager_view.title.new_folder" = "New Folder";
 "folder_manager_view.title.rename_folder" = "Rename Folder";

@@ -51,6 +51,90 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testDownloadsReducerFolderFilterNarrowsDownloads() async {
+        let libraryDownload = sampleDownload(
+            gid: "111", title: "Library Archive", status: .completed, folderName: "Library"
+        )
+        let otherDownload = sampleDownload(
+            gid: "222", title: "Other Archive", status: .completed, folderName: "Other"
+        )
+        var state = DownloadsReducer.State()
+        state.downloads = [libraryDownload, otherDownload]
+
+        state.folderFilter = .all
+        #expect(state.filteredDownloads == [libraryDownload, otherDownload])
+
+        state.folderFilter = .folder("Library")
+        #expect(state.filteredDownloads == [libraryDownload])
+
+        state.folderFilter = .folder("Vanished")
+        #expect(state.filteredDownloads.isEmpty)
+    }
+
+    @MainActor
+    @Test
+    func testDownloadsReducerPrunesStaleFolderFilterAfterFetch() async {
+        var initialState = DownloadsReducer.State()
+        initialState.folderFilter = .folder("Vanished")
+
+        let store = TestStore(initialState: initialState) {
+            DownloadsReducer()
+        }
+
+        await store.send(.fetchFoldersDone(["Library"])) {
+            $0.folders = ["Library"]
+            $0.folderFilter = .all
+        }
+
+        await store.send(.fetchFoldersDone(["Library", "Other"])) {
+            $0.folders = ["Library", "Other"]
+        }
+    }
+
+    @MainActor
+    @Test
+    func testDownloadsReducerMoveActionUsesDownloadClientMove() async {
+        let moved = UncheckedBox<(String, String)?>(nil)
+        let store = TestStore(initialState: DownloadsReducer.State()) {
+            DownloadsReducer()
+        } withDependencies: {
+            $0.downloadClient = .init(
+                observeDownloads: {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                },
+                fetchDownloads: { [] },
+                fetchDownload: { _ in nil },
+                refreshDownloads: {},
+                resumeQueue: {},
+                badges: { _ in [:] },
+                enqueue: { _ in .success(()) },
+                togglePause: { _ in .success(()) },
+                retry: { _, _ in .success(()) },
+                delete: { _ in .success(()) },
+                loadManifest: { _ in .failure(.notFound) },
+                fetchFolders: { ["Library"] },
+                moveDownload: { gid, folder in
+                    moved.value = (gid, folder)
+                    return .success(())
+                }
+            )
+        }
+        store.exhaustivity = .off
+
+        await store.send(.moveDownload("123456", "Library"))
+        await store.receive(\.moveDownloadDone)
+        await store.receive(\.fetchFoldersDone) {
+            $0.folders = ["Library"]
+        }
+
+        #expect(moved.value?.0 == "123456")
+        #expect(moved.value?.1 == "Library")
+    }
+
+    @MainActor
+    @Test
     func testDownloadsReducerUpdateActionUsesDownloadClientRetry() async {
         let retried = UncheckedBox<[String]>([])
         let download = sampleDownload(
