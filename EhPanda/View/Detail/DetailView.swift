@@ -155,6 +155,7 @@ private extension DetailView {
                             galleryDetail: store.galleryDetail ?? .empty,
                             user: user,
                             downloadBadge: store.downloadBadge,
+                            downloadNeedsRepair: store.downloadNeedsRepair,
                             isPreparingDownload: store.isPreparingDownload,
                             canDownload: !store.gallery.id.isEmpty
                                 && (AppUtil.galleryHost == .ehentai || CookieUtil.didLogin),
@@ -340,7 +341,7 @@ private extension DetailView {
         case .completed:
             downloadDialog = .delete(isActiveDownload: false)
         case .error:
-            downloadDialog = store.downloadBadge?.failure == .missingFiles
+            downloadDialog = store.downloadNeedsRepair
                 ? .retry(.repair)
                 : .retry(.redownload)
         case .updateAvailable:

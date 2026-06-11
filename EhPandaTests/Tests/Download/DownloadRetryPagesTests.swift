@@ -82,7 +82,12 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.displayStatus == .inactive)
         #expect(stored?.completedPageCount == 1)
-        #expect(stored?.badge == .paused(1, 2))
+        #expect(
+            stored?.badge == DownloadBadge(
+                status: .inactive,
+                progress: .init(completedPageCount: 1, pageCount: 2)
+            )
+        )
     }
 
 }

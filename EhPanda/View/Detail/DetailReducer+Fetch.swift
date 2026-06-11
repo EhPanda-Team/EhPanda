@@ -152,11 +152,11 @@ extension DetailReducer {
             }
             await send(.fetchVersionMetadataDone(.success(metadata)))
             guard let metadata else { return }
-            let badge = await downloadClient.updateRemoteVersion(
+            let download = await downloadClient.updateRemoteVersion(
                 gallery.gid,
                 metadata
             )
-            await send(.fetchDownloadBadgeDone(badge))
+            await send(.fetchDownloadBadgeDone(download))
         }
         .cancellable(id: CancelID.fetchVersionMetadata, cancelInFlight: true)
     }

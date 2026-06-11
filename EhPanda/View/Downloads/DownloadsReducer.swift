@@ -96,7 +96,7 @@ struct DownloadsReducer {
                     var detailState = DetailReducer.State()
                     detailState.gid = download.gid
                     detailState.gallery = download.gallery
-                    _ = DetailReducer().applyDownloadBadge(download.badge, state: &detailState)
+                    _ = DetailReducer().applyDownload(download, state: &detailState)
                     state.detailState.wrappedValue = detailState
                 } else if case .inspector(let gid) = route {
                     state.inspectorState = .init(gid: gid)

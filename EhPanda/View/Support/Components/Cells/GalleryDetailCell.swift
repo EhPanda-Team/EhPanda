@@ -102,7 +102,9 @@ private struct GalleryDetailCellContent: View {
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    DownloadBadgeLabel(badge: downloadBadge)
+                    if let downloadBadge {
+                        DownloadBadgeLabel(badge: downloadBadge)
+                    }
                 }
 
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)

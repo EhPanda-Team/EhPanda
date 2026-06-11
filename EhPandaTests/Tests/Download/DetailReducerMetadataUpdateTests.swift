@@ -17,18 +17,22 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
 
         let store = makeUpdateTestStore(
             gid: gallery.gid, gallery: gallery, detail: detail,
+            updatedDownload: completedDownload,
             updateCheckCount: updateCheckCount
         )
         store.exhaustivity = .off
 
-        await store.send(.observeDownloadDone(.downloaded))
+        await store.send(.observeDownloadDone(completedDownload))
         await drainDetailMetadataEffects(store, condition: { updateCheckCount.value == 1 })
         #expect(updateCheckCount.value == 1)
 
-        await store.send(.observeDownloadDone(.downloaded))
+        await store.send(.observeDownloadDone(completedDownload))
         await store.skipReceivedActions(strict: false)
         #expect(updateCheckCount.value == 1)
     }
@@ -39,14 +43,18 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
         let updateCheckCount = UncheckedBox(0)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
 
         let store = makeUpdateTestStore(
             gid: gallery.gid, gallery: gallery, detail: detail,
+            updatedDownload: completedDownload,
             updateCheckCount: updateCheckCount
         )
         store.exhaustivity = .off
 
-        await store.send(.fetchDownloadBadgeDone(.downloaded))
+        await store.send(.fetchDownloadBadgeDone(completedDownload))
         await drainDetailMetadataEffects(
             store,
             condition: {
@@ -112,6 +120,7 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
 private extension DetailReducerMetadataUpdateTests {
     func makeUpdateTestStore(
         gid: String, gallery: Gallery, detail: GalleryDetail,
+        updatedDownload: DownloadedGallery,
         updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State()
@@ -126,7 +135,7 @@ private extension DetailReducerMetadataUpdateTests {
                     AsyncStream { continuation in continuation.finish() }
                 },
                 fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
+                fetchDownload: { _ in updatedDownload },
                 refreshDownloads: {},
                 resumeQueue: {},
                 badges: { _ in [:] },
@@ -135,7 +144,7 @@ private extension DetailReducerMetadataUpdateTests {
                 },
                 updateRemoteVersion: { _, _ in
                     updateCheckCount.value += 1
-                    return .downloaded
+                    return updatedDownload
                 },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },

@@ -16,6 +16,9 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
     func testDetailReducerLaunchAutomationDoesNotRedownloadWhenBadgeIsResolved() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
         let options = DownloadRequestOptions()
         var initialState = DetailReducer.State()
         initialState.gallery = gallery
@@ -34,8 +37,8 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.fetchDownloadBadgeDone(.downloaded)) {
-            $0.downloadBadge = .downloaded
+        await store.send(.fetchDownloadBadgeDone(completedDownload)) {
+            $0.downloadBadge = completedDownload.badge
             $0.hasLoadedDownloadBadge = true
         }
         await store.send(.runLaunchAutomationIfNeeded(options)) {
@@ -97,30 +100,44 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
     func testDetailReducerTogglesPauseForActiveDownload() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let pausedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .paused,
+            pageCount: 26, completedPageCount: 7
+        )
         let togglePauseCount = UncheckedBox(0)
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
         initialState.gallery = gallery
         initialState.galleryDetail = detail
-        initialState.downloadBadge = .downloading(7, 26)
+        initialState.downloadBadge = DownloadBadge(
+            status: .active,
+            progress: .init(completedPageCount: 7, pageCount: 26)
+        )
 
-        let store = makeTogglePauseStore(initialState: initialState, togglePauseCount: togglePauseCount)
+        let store = makeTogglePauseStore(
+            initialState: initialState,
+            pausedDownload: pausedDownload,
+            togglePauseCount: togglePauseCount
+        )
 
         await store.send(.toggleDownloadPause) { $0.isPreparingDownload = true }
         await store.receive(\.toggleDownloadPauseDone) {
             $0.isPreparingDownload = false
-            $0.downloadBadge = .paused(7, 26)
+            $0.downloadBadge = DownloadBadge(
+                status: .inactive,
+                progress: .init(completedPageCount: 7, pageCount: 26)
+            )
             $0.hasLoadedDownloadBadge = true
         }
         await store.receive(\.fetchDownloadBadge)
-        await store.receive(\.fetchDownloadBadgeDone, .paused(7, 26)) {
-            $0.downloadBadge = .paused(7, 26)
+        await store.receive(\.fetchDownloadBadgeDone, pausedDownload) {
+            $0.downloadBadge = pausedDownload.badge
             $0.hasLoadedDownloadBadge = true
         }
 
         #expect(togglePauseCount.value == 1)
-        #expect(store.state.downloadBadge == .paused(7, 26))
+        #expect(store.state.downloadBadge == pausedDownload.badge)
         #expect(store.state.isPreparingDownload == false)
     }
 
@@ -131,6 +148,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
 private extension DetailReducerPauseAndGuardTests {
     func makeTogglePauseStore(
         initialState: DetailReducer.State,
+        pausedDownload: DownloadedGallery,
         togglePauseCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         let store = TestStore(initialState: initialState) {
@@ -139,12 +157,10 @@ private extension DetailReducerPauseAndGuardTests {
             $0.downloadClient = .init(
                 observeDownloads: { AsyncStream { continuation in continuation.finish() } },
                 fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
+                fetchDownload: { _ in pausedDownload },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in
-                    Dictionary(uniqueKeysWithValues: gids.map { ($0, .paused(7, 26)) })
-                },
+                badges: { _ in [:] },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in
                     togglePauseCount.value += 1

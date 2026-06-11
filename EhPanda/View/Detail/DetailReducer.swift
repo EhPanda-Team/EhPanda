@@ -59,8 +59,15 @@ struct DetailReducer {
         var galleryComments = [GalleryComment]()
         var previewConfig: PreviewConfig = .normal(rows: 4)
         var downloadBadge: DownloadBadge?
+        var downloadFailureCode: DownloadFailureCode?
         var isPreparingDownload = false
         var hasLoadedDownloadBadge = false
+
+        var downloadNeedsRepair: Bool {
+            guard let badge = downloadBadge, badge.status == .error else { return false }
+            return badge.progress.completedPageCount == 0
+                && downloadFailureCode == .fileOperationFailed
+        }
         var didRunLaunchAutomation = false
         var shouldCheckForRemoteUpdates = false
         var didRequestVersionMetadata = false
@@ -106,9 +113,9 @@ struct DetailReducer {
         case saveGalleryHistory
         case updateReadingProgress(Int)
         case fetchDownloadBadge
-        case fetchDownloadBadgeDone(DownloadBadge?)
+        case fetchDownloadBadgeDone(DownloadedGallery?)
         case observeDownload
-        case observeDownloadDone(DownloadBadge?)
+        case observeDownloadDone(DownloadedGallery?)
         case loadLocalPreviewURLs
         case loadLocalPreviewURLsDone(UUID, [Int: URL])
         case openReading
@@ -202,9 +209,11 @@ extension DetailReducer {
 
 // MARK: - Helpers
 extension DetailReducer {
-    func applyDownloadBadge(_ badge: DownloadBadge?, state: inout State) -> Bool {
+    func applyDownload(_ download: DownloadedGallery?, state: inout State) -> Bool {
+        let badge = download?.badge
         let didChangeBadge = badge != state.downloadBadge || !state.hasLoadedDownloadBadge
         state.downloadBadge = badge
+        state.downloadFailureCode = download?.lastError?.code
         if badge != nil { state.isPreparingDownload = false }
         state.hasLoadedDownloadBadge = true
         state.shouldCheckForRemoteUpdates = badge != nil

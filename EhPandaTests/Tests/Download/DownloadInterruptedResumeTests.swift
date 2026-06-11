@@ -117,7 +117,12 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         }
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.displayStatus == .inactive)
-        #expect(stored?.badge == .paused(0, 2))
+        #expect(
+            stored?.badge == DownloadBadge(
+                status: .inactive,
+                progress: .init(completedPageCount: 0, pageCount: 2)
+            )
+        )
         #expect(FileManager.default.fileExists(atPath: folderURL.path))
     }
 

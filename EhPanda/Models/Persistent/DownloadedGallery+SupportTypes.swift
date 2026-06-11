@@ -35,24 +35,11 @@ extension DownloadedGallery {
     var badge: DownloadBadge {
         DownloadBadge(
             status: displayStatus,
-            failure: badgeFailure,
             progress: DownloadProgress(
                 completedPageCount: completedPageCount,
                 pageCount: pageCount
             )
         )
-    }
-
-    private var badgeFailure: DownloadBadge.Failure? {
-        guard displayStatus == .error else { return nil }
-        if completedPageCount > 0, completedPageCount < pageCount {
-            return .partial
-        }
-        if lastError?.code == .fileOperationFailed,
-           completedPageCount == 0 {
-            return .missingFiles
-        }
-        return .general
     }
 
     var gallery: Gallery {

@@ -49,7 +49,10 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             )
         ])
         await store.receive(\.observeDownloadDone) {
-            $0.downloadBadge = .downloading(7, 26)
+            $0.downloadBadge = DownloadBadge(
+                status: .active,
+                progress: .init(completedPageCount: 7, pageCount: 26)
+            )
             $0.hasLoadedDownloadBadge = true
         }
 
@@ -174,7 +177,9 @@ private extension DetailReducerObserveTests {
             fetchDownload: { gid in gid == download.gid ? download : nil },
             refreshDownloads: {},
             resumeQueue: {},
-            badges: { gids in Dictionary(uniqueKeysWithValues: gids.map { ($0, .downloaded) }) },
+            badges: { gids in
+                Dictionary(uniqueKeysWithValues: gids.map { ($0, download.badge) })
+            },
             enqueue: { _ in .success(()) },
             togglePause: { _ in .success(()) },
             retry: { _, _ in .success(()) },

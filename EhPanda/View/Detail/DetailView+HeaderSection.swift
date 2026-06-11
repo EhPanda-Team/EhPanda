@@ -12,6 +12,7 @@ struct HeaderSection: View {
     let galleryDetail: GalleryDetail
     let user: User
     let downloadBadge: DownloadBadge?
+    let downloadNeedsRepair: Bool
     let isPreparingDownload: Bool
     let canDownload: Bool
     let displaysJapaneseTitle: Bool
@@ -39,9 +40,14 @@ struct HeaderSection: View {
         switch downloadBadge?.status {
         case .updateAvailable: return .orange
         case .completed: return .red
-        case .error: return downloadBadge?.failure == .partial ? .orange : .red
+        case .error: return isPartialDownloadError ? .orange : .red
         default: return .accentColor
         }
+    }
+    private var isPartialDownloadError: Bool {
+        guard let badge = downloadBadge, badge.status == .error else { return false }
+        return badge.progress.completedPageCount > 0
+            && badge.progress.completedPageCount < badge.progress.pageCount
     }
     private var categoryLabel: some View {
         CategoryLabel(
@@ -188,7 +194,7 @@ struct HeaderSection: View {
         guard let badge = downloadBadge,
               [.active, .inactive].contains(badge.status)
         else { return nil }
-        return badge.resolvedProgress.fraction
+        return badge.progress.fraction
     }
     private var activeDownloadIconSystemName: String {
         switch downloadBadge?.status {
@@ -202,7 +208,7 @@ struct HeaderSection: View {
         case .completed: return "trash"
         case .updateAvailable: return "arrow.triangle.2.circlepath"
         case .error:
-            return downloadBadge?.failure == .missingFiles
+            return downloadNeedsRepair
                 ? "wrench.and.screwdriver"
                 : "exclamationmark.circle"
         case .inactive: return "play.fill"
@@ -251,7 +257,7 @@ extension HeaderSection {
         guard let badge = downloadBadge else {
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.download
         }
-        let progress = badge.resolvedProgress
+        let progress = badge.progress
         switch badge.status {
         case .queued:
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.queued
@@ -270,16 +276,14 @@ extension HeaderSection {
         case .updateAvailable:
             return L10n.Localizable.DetailView.Accessibility.DownloadButton.update
         case .error:
-            switch badge.failure {
-            case .partial:
+            if isPartialDownloadError {
                 return L10n.Localizable.DetailView.Accessibility.DownloadButton.partial(
                     progress.completedPageCount, progress.displayPageCount
                 )
-            case .missingFiles:
-                return L10n.Localizable.DetailView.Accessibility.DownloadButton.repair
-            case .general, nil:
-                return L10n.Localizable.DetailView.Accessibility.DownloadButton.retry
             }
+            return downloadNeedsRepair
+                ? L10n.Localizable.DetailView.Accessibility.DownloadButton.repair
+                : L10n.Localizable.DetailView.Accessibility.DownloadButton.retry
         }
     }
 }

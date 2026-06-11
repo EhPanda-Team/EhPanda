@@ -17,6 +17,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
         let options = DownloadRequestOptions(
             threadLimit: 4,
             allowCellular: false,
@@ -25,7 +26,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
-            badgeValue: .queued,
+            downloadValue: queuedDownload,
             configure: { state in
                 state.galleryPreviewURLs = [1: previewURL]
                 state.previewConfig = .large(rows: 2)
@@ -45,7 +46,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         #expect(capturedPayload.value?.previewConfig == .large(rows: 2))
         #expect(capturedPayload.value?.options == options)
         #expect(capturedPayload.value?.mode == .initial)
-        #expect(store.state.downloadBadge == .queued)
+        #expect(store.state.downloadBadge == queuedDownload.badge)
     }
 
     @MainActor
@@ -53,11 +54,12 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
     func testDetailReducerStartDownloadUnlocksActionsAfterQueueing() async throws {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
         let options = DownloadRequestOptions()
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
-            badgeValue: .queued,
+            downloadValue: queuedDownload,
             configure: { state in state.galleryPreviewURLs = [1: previewURL] },
             enqueue: { _ in .success(()) }
         )
@@ -69,12 +71,15 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         }
         await store.receive(\.startDownloadDone) {
             $0.isPreparingDownload = false
-            $0.downloadBadge = .queued
+            $0.downloadBadge = DownloadBadge(
+                status: .queued,
+                progress: .init(completedPageCount: 0, pageCount: detail.pageCount)
+            )
             $0.hasLoadedDownloadBadge = true
         }
         await store.receive(\.fetchDownloadBadge)
-        await store.receive(\.fetchDownloadBadgeDone, .queued) {
-            $0.downloadBadge = .queued
+        await store.receive(\.fetchDownloadBadgeDone, queuedDownload) {
+            $0.downloadBadge = queuedDownload.badge
             $0.hasLoadedDownloadBadge = true
         }
     }
@@ -90,7 +95,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
 
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
-            badgeValue: .queued,
+            downloadValue: nil,
             automationGID: gallery.gid,
             configure: { state in
                 state.gid = ""
@@ -125,7 +130,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
 private extension DetailReducerDownloadTests {
     func makeDownloadTestStore(
         gallery: Gallery, detail: GalleryDetail,
-        badgeValue: DownloadBadge?,
+        downloadValue: DownloadedGallery?,
         automationGID: String? = nil,
         configure: (inout DetailReducer.State) -> Void = { _ in },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
@@ -143,14 +148,10 @@ private extension DetailReducerDownloadTests {
                     AsyncStream { continuation in continuation.finish() }
                 },
                 fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
+                fetchDownload: { _ in downloadValue },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in
-                    badgeValue.map { value in
-                        Dictionary(uniqueKeysWithValues: gids.map { ($0, value) })
-                    } ?? [:]
-                },
+                badges: { _ in [:] },
                 enqueue: enqueue,
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },

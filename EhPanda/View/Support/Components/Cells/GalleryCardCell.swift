@@ -64,7 +64,9 @@ struct GalleryCardCell: View {
                     Text(title)
                         .font(.title3.bold())
                         .lineLimit(downloadBadge == nil ? 4 : 2)
-                    DownloadBadgeLabel(badge: downloadBadge, compact: true)
+                    if let downloadBadge {
+                        DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
+                    }
                     Spacer()
                     RatingView(rating: gallery.rating).foregroundColor(.yellow)
                 }
