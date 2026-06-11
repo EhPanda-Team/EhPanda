@@ -30,14 +30,18 @@ extension DownloadManager {
         )
     }
 
-    func folderRelativePath(for payload: DownloadRequestPayload) -> String {
-        storage.makeFolderRelativePath(
+    func folderRelativePath(
+        for payload: DownloadRequestPayload,
+        parentFolderName: String
+    ) -> String {
+        let galleryFolderName = storage.makeFolderRelativePath(
             gid: payload.gallery.gid,
             token: payload.gallery.token,
             title: payload.galleryDetail.trimmedTitle.isEmpty
                 ? payload.gallery.title
                 : payload.galleryDetail.trimmedTitle
         )
+        return "\(parentFolderName)/\(galleryFolderName)"
     }
 
     func downloadCoverImage(

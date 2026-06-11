@@ -10,12 +10,14 @@ extension DownloadManager {
     @discardableResult
     func reloadDownloadIndex() async -> [DownloadedGallery] {
         do {
-            let records = try storage.scanDownloadFolders()
-            downloadIndex = deduplicatedDownloadIndex(from: records)
-            return await downloads(from: records)
+            let scanResult = try storage.scanDownloads()
+            downloadIndex = deduplicatedDownloadIndex(from: scanResult.records)
+            userFolders = scanResult.userFolders
+            return await downloads(from: scanResult.records)
         } catch {
             Logger.error(error)
             downloadIndex = [:]
+            userFolders = []
             return []
         }
     }
@@ -61,6 +63,7 @@ extension DownloadManager {
         return DownloadedGallery(
             manifest: record.manifest,
             folderURL: record.folderURL,
+            folderName: record.parentFolderName,
             localCoverURL: storage.localCoverURL(
                 folderURL: record.folderURL,
                 manifest: record.manifest
@@ -222,10 +225,12 @@ extension DownloadManager {
         )
         .contentModificationDate
         downloadIndex[manifest.gid] = DownloadFolderRecord(
-            relativePath: folderURL.lastPathComponent,
+            relativePath: storage.rootRelativePath(forFolderURL: folderURL)
+                ?? folderURL.lastPathComponent,
             folderURL: folderURL,
             manifest: manifest,
-            modifiedAt: modifiedAt
+            modifiedAt: modifiedAt,
+            parentFolderName: storage.parentFolderName(forFolderURL: folderURL) ?? ""
         )
     }
 }

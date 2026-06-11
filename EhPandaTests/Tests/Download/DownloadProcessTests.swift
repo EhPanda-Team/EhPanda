@@ -209,7 +209,7 @@ private extension DownloadProcessTests {
         pageCount: Int
     ) throws {
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
@@ -262,7 +262,7 @@ private extension DownloadProcessTests {
             gid: gid, title: "Pause Race",
             pageCount: oldPageCount
         )
-        let folderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
+        let folderURL = storage.folderURL(relativePath: "Folder/\(gid) - Pause Race")
         try? FileManager.default.removeItem(at: folderURL)
         try FileManager.default.createDirectory(
             at: folderURL,

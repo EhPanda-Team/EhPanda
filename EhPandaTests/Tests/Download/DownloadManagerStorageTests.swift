@@ -26,7 +26,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[100_token] Complete",
+            relativePath: "Folder/[100_token] Complete",
             manifest: indexedManifest(
                 gid: "100",
                 title: "Complete",
@@ -36,7 +36,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[200_token] Queued",
+            relativePath: "Folder/[200_token] Queued",
             manifest: indexedManifest(
                 gid: "200",
                 title: "Queued",
@@ -80,7 +80,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[500_token] Old",
+            relativePath: "Folder/[500_token] Old",
             manifest: indexedManifest(
                 gid: "500",
                 title: "Old",
@@ -91,11 +91,11 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try setFolderModificationDate(
             olderDate,
             storage: storage,
-            relativePath: "[500_token] Old"
+            relativePath: "Folder/[500_token] Old"
         )
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[500_token] New",
+            relativePath: "Folder/[500_token] New",
             manifest: indexedManifest(
                 gid: "500",
                 title: "New",
@@ -106,7 +106,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try setFolderModificationDate(
             newerDate,
             storage: storage,
-            relativePath: "[500_token] New"
+            relativePath: "Folder/[500_token] New"
         )
 
         let downloads = await manager.reloadDownloadIndex()
@@ -114,7 +114,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(downloads.map(\.gid) == ["500"])
         let download = try #require(downloads.first)
         #expect(download.title == "New")
-        #expect(download.folderURL == storage.folderURL(relativePath: "[500_token] New"))
+        #expect(download.folderURL == storage.folderURL(relativePath: "Folder/[500_token] New"))
         #expect(download.lastDownloadedAt == newerDate)
         #expect((await manager.indexedDownload(gid: "500")) == download)
     }
@@ -134,7 +134,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[600_token] Disk",
+            relativePath: "Folder/[600_token] Disk",
             manifest: indexedManifest(
                 gid: "600",
                 title: "Disk",
@@ -171,7 +171,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[700_token] Observed",
+            relativePath: "Folder/[700_token] Observed",
             manifest: indexedManifest(
                 gid: "700",
                 title: "Observed",
@@ -213,7 +213,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[300_token] Updated",
+            relativePath: "Folder/[300_token] Updated",
             manifest: indexedManifest(
                 gid: "300",
                 title: "Updated",
@@ -222,7 +222,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[400_token] Failed",
+            relativePath: "Folder/[400_token] Failed",
             manifest: indexedManifest(
                 gid: "400",
                 title: "Failed",
@@ -263,7 +263,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[410_token] Cancelled",
+            relativePath: "Folder/[410_token] Cancelled",
             manifest: indexedManifest(
                 gid: "410",
                 title: "Cancelled",
@@ -298,7 +298,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[420_token] Interrupted",
+            relativePath: "Folder/[420_token] Interrupted",
             manifest: indexedManifest(
                 gid: "420",
                 title: "Interrupted",
@@ -334,7 +334,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[430_token] Sanitize",
+            relativePath: "Folder/[430_token] Sanitize",
             manifest: indexedManifest(
                 gid: "430",
                 title: "Sanitize",
@@ -368,7 +368,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[440_token] Missing",
+            relativePath: "Folder/[440_token] Missing",
             manifest: indexedManifest(
                 gid: "440",
                 title: "Missing",
@@ -402,7 +402,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[450_token] Retry",
+            relativePath: "Folder/[450_token] Retry",
             manifest: indexedManifest(
                 gid: "450",
                 title: "Retry",
@@ -444,7 +444,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
-        let folderRelativePath = "[460_token] Retry Pages"
+        let folderRelativePath = "Folder/[460_token] Retry Pages"
         try writeIndexedManifest(
             storage: storage,
             relativePath: folderRelativePath,
@@ -501,7 +501,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[800_token] Failing",
+            relativePath: "Folder/[800_token] Failing",
             manifest: indexedManifest(
                 gid: "800",
                 title: "Failing",
@@ -546,7 +546,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: "Complete")
-        let folderRelativePath = storage.makeFolderRelativePath(
+        let folderRelativePath = "Folder/" + storage.makeFolderRelativePath(
             gid: gallery.gid,
             token: gallery.token,
             title: detail.trimmedTitle
@@ -599,7 +599,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[820_token] Pausable",
+            relativePath: "Folder/[820_token] Pausable",
             manifest: indexedManifest(
                 gid: "820",
                 title: "Pausable",
@@ -667,7 +667,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[830_token] First",
+            relativePath: "Folder/[830_token] First",
             manifest: indexedManifest(
                 gid: "830",
                 title: "First",
@@ -677,7 +677,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
         try writeIndexedManifest(
             storage: storage,
-            relativePath: "[831_token] Newer",
+            relativePath: "Folder/[831_token] Newer",
             manifest: indexedManifest(
                 gid: "831",
                 title: "Newer",
@@ -713,7 +713,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
-        let folderRelativePath = "[840_token] Progress"
+        let folderRelativePath = "Folder/[840_token] Progress"
         try writeIndexedManifest(
             storage: storage,
             relativePath: folderRelativePath,
@@ -768,7 +768,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         try storage.ensureRootDirectory()
-        let folderRelativePath = "[\(gid)_token] Inspect"
+        let folderRelativePath = "Folder/[\(gid)_token] Inspect"
         try writeIndexedManifest(
             storage: storage,
             relativePath: folderRelativePath,
@@ -819,7 +819,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             urlSession: .shared
         )
 
-        let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
+        let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true
@@ -863,7 +863,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             urlSession: .shared
         )
 
-        let completedFolderURL = rootURL.appendingPathComponent("\(gid) - Pause Race", isDirectory: true)
+        let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true

@@ -47,6 +47,7 @@ struct DownloadRequestPayload: Equatable, Sendable {
     let previewURLs: [Int: URL]
     let previewConfig: PreviewConfig
     let host: GalleryHost
+    let folderName: String
     let versionMetadata: DownloadVersionMetadata?
     let options: DownloadRequestOptions
     let mode: DownloadStartMode
@@ -58,6 +59,7 @@ struct DownloadRequestPayload: Equatable, Sendable {
         previewURLs: [Int: URL],
         previewConfig: PreviewConfig,
         host: GalleryHost,
+        folderName: String,
         versionMetadata: DownloadVersionMetadata? = nil,
         options: DownloadRequestOptions,
         mode: DownloadStartMode,
@@ -68,6 +70,7 @@ struct DownloadRequestPayload: Equatable, Sendable {
         self.previewURLs = previewURLs
         self.previewConfig = previewConfig
         self.host = host
+        self.folderName = folderName
         self.versionMetadata = versionMetadata
         self.options = options
         self.mode = mode

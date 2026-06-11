@@ -119,7 +119,7 @@ private extension DownloadRetryMinimalSourceTests {
         missingPageIndex: Int
     ) throws {
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Pause Race")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Pause Race")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true

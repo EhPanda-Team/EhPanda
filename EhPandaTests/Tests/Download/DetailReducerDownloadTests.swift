@@ -38,7 +38,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.startDownload(options))
+        await store.send(.startDownload(options, "Folder"))
         await store.skipReceivedActions(strict: false)
 
         #expect(capturedPayload.value?.gallery.gid == gallery.gid)
@@ -65,7 +65,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.startDownload(options)) {
+        await store.send(.startDownload(options, "Folder")) {
             $0.isPreparingDownload = true
             $0.didRunLaunchAutomation = true
         }
@@ -118,10 +118,11 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         await store.send(.runLaunchAutomationIfNeeded(options)) {
             $0.didRunLaunchAutomation = true
         }
-        await store.receive(\.startDownload, options)
+        await store.receive(\.startDownload)
         await store.skipReceivedActions(strict: false)
 
         #expect(capturedPayload.value?.gallery.gid == gallery.gid)
+        #expect(capturedPayload.value?.folderName == Defaults.FilePath.automationDownloadFolder)
     }
 }
 

@@ -10,6 +10,7 @@ struct DownloadedGallery: Identifiable, Equatable {
 
     let manifest: DownloadManifest
     let folderURL: URL
+    let folderName: String
     let localCoverURL: URL?
     let localPageURLs: [Int: URL]
     let displayStatus: DownloadDisplayStatus
@@ -33,6 +34,7 @@ struct DownloadedGallery: Identifiable, Equatable {
     init(
         manifest: DownloadManifest,
         folderURL: URL,
+        folderName: String,
         localCoverURL: URL?,
         localPageURLs: [Int: URL],
         modifiedAt: Date?,
@@ -41,6 +43,7 @@ struct DownloadedGallery: Identifiable, Equatable {
     ) {
         self.manifest = manifest
         self.folderURL = folderURL
+        self.folderName = folderName
         self.localCoverURL = localCoverURL
         self.localPageURLs = localPageURLs
         self.displayStatus = displayStatus

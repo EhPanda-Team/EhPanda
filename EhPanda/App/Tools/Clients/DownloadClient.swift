@@ -26,6 +26,11 @@ struct DownloadClient: Sendable {
     let loadLocalPageURLs: @Sendable (String) async -> Result<[Int: URL], AppError>
     let captureCachedPage: @Sendable (String, Int, URL?) async -> Void
     let loadInspection: @Sendable (String) async -> Result<DownloadInspection, AppError>
+    let fetchFolders: @Sendable () async -> [String]
+    let createFolder: @Sendable (String) async -> Result<Void, AppError>
+    let renameFolder: @Sendable (String, String) async -> Result<Void, AppError>
+    let deleteFolder: @Sendable (String) async -> Result<Void, AppError>
+    let moveDownload: @Sendable (String, String) async -> Result<Void, AppError>
 
     init(
         observeDownloads: @escaping @Sendable () -> AsyncStream<[DownloadedGallery]>,
@@ -54,7 +59,16 @@ struct DownloadClient: Sendable {
         captureCachedPage: @escaping @Sendable (String, Int, URL?) async -> Void = { _, _, _ in },
         loadInspection: @escaping @Sendable (String) async -> Result<
             DownloadInspection, AppError
-        > = { _ in .failure(.notFound) }
+        > = { _ in .failure(.notFound) },
+        fetchFolders: @escaping @Sendable () async -> [String] = { [] },
+        createFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
+        = { _ in .success(()) },
+        renameFolder: @escaping @Sendable (String, String) async -> Result<Void, AppError>
+        = { _, _ in .success(()) },
+        deleteFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
+        = { _ in .success(()) },
+        moveDownload: @escaping @Sendable (String, String) async -> Result<Void, AppError>
+        = { _, _ in .success(()) }
     ) {
         self.observeDownloads = observeDownloads
         self.fetchDownloads = fetchDownloads
@@ -75,6 +89,11 @@ struct DownloadClient: Sendable {
         self.loadLocalPageURLs = loadLocalPageURLs
         self.captureCachedPage = captureCachedPage
         self.loadInspection = loadInspection
+        self.fetchFolders = fetchFolders
+        self.createFolder = createFolder
+        self.renameFolder = renameFolder
+        self.deleteFolder = deleteFolder
+        self.moveDownload = moveDownload
     }
 }
 
@@ -145,7 +164,16 @@ extension DownloadClient {
             captureCachedPage: { gid, index, imageURL in
                 await manager.captureCachedPage(gid: gid, index: index, imageURL: imageURL)
             },
-            loadInspection: { gid in await manager.loadInspection(gid: gid) }
+            loadInspection: { gid in await manager.loadInspection(gid: gid) },
+            fetchFolders: { await manager.fetchFolders() },
+            createFolder: { name in await manager.createFolder(name: name) },
+            renameFolder: { oldName, newName in
+                await manager.renameFolder(oldName: oldName, newName: newName)
+            },
+            deleteFolder: { name in await manager.deleteFolder(name: name) },
+            moveDownload: { gid, folderName in
+                await manager.moveDownload(gid: gid, toFolderName: folderName)
+            }
         )
     }
 }
@@ -190,7 +218,12 @@ extension DownloadClient {
         loadManifest: { _ in .failure(.notFound) },
         loadLocalPageURLs: { _ in .failure(.notFound) },
         captureCachedPage: { _, _, _ in },
-        loadInspection: { _ in .failure(.notFound) }
+        loadInspection: { _ in .failure(.notFound) },
+        fetchFolders: { [] },
+        createFolder: { _ in .success(()) },
+        renameFolder: { _, _ in .success(()) },
+        deleteFolder: { _ in .success(()) },
+        moveDownload: { _, _ in .success(()) }
     )
 
     static func placeholder<Result>() -> Result { fatalError() }
@@ -214,6 +247,11 @@ extension DownloadClient {
         loadManifest: IssueReporting.unimplemented(placeholder: placeholder()),
         loadLocalPageURLs: IssueReporting.unimplemented(placeholder: placeholder()),
         captureCachedPage: IssueReporting.unimplemented(placeholder: placeholder()),
-        loadInspection: IssueReporting.unimplemented(placeholder: placeholder())
+        loadInspection: IssueReporting.unimplemented(placeholder: placeholder()),
+        fetchFolders: IssueReporting.unimplemented(placeholder: placeholder()),
+        createFolder: IssueReporting.unimplemented(placeholder: placeholder()),
+        renameFolder: IssueReporting.unimplemented(placeholder: placeholder()),
+        deleteFolder: IssueReporting.unimplemented(placeholder: placeholder()),
+        moveDownload: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

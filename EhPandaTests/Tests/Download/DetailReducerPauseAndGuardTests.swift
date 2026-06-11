@@ -88,7 +88,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
             $0.cookieClient = .noop
         }
 
-        await store.send(.startDownload(options))
+        await store.send(.startDownload(options, "Folder"))
 
         #expect(enqueueCount.value == 0)
         #expect(store.state.isPreparingDownload)

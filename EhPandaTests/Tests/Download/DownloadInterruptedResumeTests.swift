@@ -171,7 +171,7 @@ private extension DownloadInterruptedResumeTests {
         pageHashes: [String]
     ) throws -> URL {
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] \(title)")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
@@ -230,7 +230,7 @@ private extension DownloadInterruptedResumeTests {
                 sizeCount: 1, sizeType: "MB", torrentCount: 0
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, options: .init(), mode: mode
+            host: .ehentai, folderName: "Folder", options: .init(), mode: mode
         )
     }
 }

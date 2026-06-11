@@ -247,7 +247,7 @@ private extension DownloadProcessCacheTests {
         pageCount: Int,
         missingPageIndex: Int
     ) throws {
-        let completedFolderURL = storage.folderURL(relativePath: "\(gid) - Pause Race")
+        let completedFolderURL = storage.folderURL(relativePath: "Folder/\(gid) - Pause Race")
         try FileManager.default.createDirectory(
             at: completedFolderURL,
             withIntermediateDirectories: true

@@ -79,7 +79,25 @@ extension DownloadManager {
     ) async -> Result<Void, AppError> {
         do {
             try storage.ensureRootDirectory()
-            let folderRelativePath = folderRelativePath(for: payload)
+            // An already-known gallery keeps its current folder; only brand-new
+            // downloads land in the folder carried by the payload.
+            let parentFolderName: String
+            if let record = downloadIndex[payload.gallery.gid] {
+                parentFolderName = record.parentFolderName
+            } else if let normalizedName = storage.normalizedUserFolderName(payload.folderName) {
+                parentFolderName = normalizedName
+            } else {
+                return .failure(
+                    .fileOperationFailed(
+                        L10n.Localizable.DownloadFileStorage.Error.invalidFolderName
+                    )
+                )
+            }
+            try createDirectory(at: storage.userFolderURL(name: parentFolderName))
+            let folderRelativePath = folderRelativePath(
+                for: payload,
+                parentFolderName: parentFolderName
+            )
             try writeInitialManifest(
                 payload: payload,
                 folderRelativePath: folderRelativePath

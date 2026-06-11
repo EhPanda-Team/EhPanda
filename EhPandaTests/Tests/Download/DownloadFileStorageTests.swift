@@ -126,7 +126,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try Data([0x01]).write(to: folderURL.appendingPathComponent("123_token_1.webp"), options: .atomic)
         try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_2.jpg"), options: .atomic)
@@ -148,7 +148,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         let pagesFolderURL = folderURL.appendingPathComponent("pages", isDirectory: true)
         try FileManager.default.createDirectory(at: pagesFolderURL, withIntermediateDirectories: true)
         try Data([0x01]).write(to: pagesFolderURL.appendingPathComponent("0001.jpg"), options: .atomic)
@@ -164,7 +164,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         let emptyPageURL = folderURL.appendingPathComponent("123_token_1.jpg")
         try Data().write(to: emptyPageURL, options: .atomic)
@@ -185,7 +185,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         let pagesURL = folderURL.appendingPathComponent("pages", isDirectory: true)
         try FileManager.default.createDirectory(at: pagesURL, withIntermediateDirectories: true)
         let emptyPageURL = pagesURL.appendingPathComponent("0001.jpg")
@@ -203,7 +203,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         try Data([0x01]).write(to: folderURL.appendingPathComponent("other_token_cover.jpg"), options: .atomic)
         try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_cover.jpg"), options: .atomic)
@@ -283,9 +283,9 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let downloadFolderURL = storage.folderURL(relativePath: "[123_token] Sample")
-        let ignoredFolderURL = storage.folderURL(relativePath: "[456_token] Missing manifest")
-        let hiddenFolderURL = storage.folderURL(relativePath: "[789_token] Missing manifest")
+        let downloadFolderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        let ignoredFolderURL = storage.folderURL(relativePath: "Folder/[456_token] Missing manifest")
+        let hiddenFolderURL = storage.folderURL(relativePath: "Folder/[789_token] Missing manifest")
         try FileManager.default.createDirectory(at: downloadFolderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: ignoredFolderURL, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: hiddenFolderURL, withIntermediateDirectories: true)
@@ -293,9 +293,68 @@ struct DownloadFileStorageTests {
 
         let records = try storage.scanDownloadFolders()
 
-        #expect(records.map(\.relativePath) == ["[123_token] Sample"])
+        #expect(records.map(\.relativePath) == ["Folder/[123_token] Sample"])
         #expect(records.first?.manifest.gid == "123")
         #expect(records.first?.folderURL == downloadFolderURL)
+        #expect(records.first?.parentFolderName == "Folder")
+    }
+
+    @Test
+    func testScanDownloadsIgnoresRootGalleryFoldersAndListsEmptyUserFolders() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        // A gallery folder dropped directly at the root stays invisible.
+        let rootGalleryURL = storage.folderURL(relativePath: "[123_token] Sample")
+        try FileManager.default.createDirectory(at: rootGalleryURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageCount: 2), folderURL: rootGalleryURL)
+        // A broken gallery-like folder without a manifest is not a user folder.
+        let brokenGalleryURL = storage.folderURL(relativePath: "[456_token] Broken")
+        try FileManager.default.createDirectory(at: brokenGalleryURL, withIntermediateDirectories: true)
+        // User folders are listed even when empty.
+        let emptyFolderURL = storage.userFolderURL(name: "Empty Folder")
+        try FileManager.default.createDirectory(at: emptyFolderURL, withIntermediateDirectories: true)
+        // A populated user folder yields records carrying its name.
+        let galleryFolderURL = storage.folderURL(relativePath: "Library/[789_token] Inside")
+        try FileManager.default.createDirectory(at: galleryFolderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(
+            DownloadManifest(
+                gid: "789",
+                host: .ehentai,
+                token: "token",
+                title: "Inside",
+                jpnTitle: nil,
+                category: .doujinshi,
+                language: .japanese,
+                remoteCoverURL: nil,
+                uploader: "Uploader",
+                tags: [],
+                postedDate: .now,
+                rating: 4,
+                pages: [1: "", 2: ""]
+            ),
+            folderURL: galleryFolderURL
+        )
+
+        let scanResult = try storage.scanDownloads()
+
+        #expect(scanResult.userFolders == ["Empty Folder", "Library"])
+        #expect(scanResult.records.map(\.relativePath) == ["Library/[789_token] Inside"])
+        #expect(scanResult.records.first?.parentFolderName == "Library")
+    }
+
+    @Test
+    func testUserFolderNameNormalizationRejectsInvalidNames() {
+        let (storage, _) = makeStorage()
+
+        #expect(storage.normalizedUserFolderName("  My Folder  ") == "My Folder")
+        #expect(storage.normalizedUserFolderName("a/b:c") == "a b c")
+        #expect(storage.normalizedUserFolderName("...") == nil)
+        #expect(storage.normalizedUserFolderName("   ") == nil)
+        #expect(storage.normalizedUserFolderName("") == nil)
+        #expect(storage.normalizedUserFolderName(".hidden") == "hidden")
+        #expect(storage.normalizedUserFolderName("[123_token] Sample") == nil)
     }
 
     @Test
@@ -304,7 +363,7 @@ struct DownloadFileStorageTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[123_token] Sample")
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
         let pageURL = folderURL.appendingPathComponent("123_token_2.webp")
         let coverURL = folderURL.appendingPathComponent("123_token_cover.jpg")

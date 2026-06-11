@@ -31,7 +31,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         }
 
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "[\(gid)_token] Queued")
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Queued")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
