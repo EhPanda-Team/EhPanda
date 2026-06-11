@@ -9,10 +9,13 @@ import ComposableArchitecture
 @Reducer
 struct FolderManagerReducer {
     @CasePathable
-    enum Route: Equatable, Hashable {
+    enum Route: Equatable {
+        case deleteFolder(String)
+    }
+
+    enum EditingField: Equatable, Hashable {
         case newFolder
         case renameFolder(String)
-        case deleteFolder(String)
     }
 
     private enum CancelID {
@@ -22,6 +25,7 @@ struct FolderManagerReducer {
     @ObservableState
     struct State: Equatable {
         var route: Route?
+        var editingField: EditingField?
         var editingFolderName = ""
         var loadingState: LoadingState = .idle
         var folders = [String]()
@@ -36,7 +40,8 @@ struct FolderManagerReducer {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
-        case clearSubStates
+        case setEditingField(EditingField?)
+        case submitEditingField
 
         case createFolder
         case createFolderDone(Result<Void, AppError>)
@@ -54,9 +59,6 @@ struct FolderManagerReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
@@ -65,11 +67,30 @@ struct FolderManagerReducer {
 
             case .setNavigation(let route):
                 state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
-            case .clearSubStates:
-                state.editingFolderName = ""
                 return .none
+
+            case .setEditingField(let editingField):
+                state.editingField = editingField
+                switch editingField {
+                case .renameFolder(let folderName):
+                    state.editingFolderName = folderName
+                case .newFolder, nil:
+                    state.editingFolderName = ""
+                }
+                return .none
+
+            case .submitEditingField:
+                let editingField = state.editingField
+                state.editingField = nil
+                guard state.isEditingNameValid else { return .none }
+                switch editingField {
+                case .newFolder:
+                    return .send(.createFolder)
+                case .renameFolder(let oldName):
+                    return .send(.renameFolder(oldName))
+                case nil:
+                    return .none
+                }
 
             case .createFolder:
                 return .run { [name = state.editingFolderName] send in

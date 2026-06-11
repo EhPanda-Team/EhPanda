@@ -9,7 +9,7 @@ import ComposableArchitecture
 
 struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>
-    @FocusState private var focusedRoute: FolderManagerReducer.Route?
+    @FocusState private var focusedField: FolderManagerReducer.EditingField?
     @Environment(\.dismiss) private var dismiss
 
     init(store: StoreOf<FolderManagerReducer>) {
@@ -20,7 +20,7 @@ struct FolderManagerView: View {
         NavigationView {
             ZStack {
                 List {
-                    if store.route == .newFolder {
+                    if store.editingField == .newFolder {
                         newFolderRow
                             .padding(5)
                     }
@@ -35,8 +35,7 @@ struct FolderManagerView: View {
                                 }
                                 .tint(.red)
                                 Button {
-                                    store.editingFolderName = folder
-                                    store.send(.setNavigation(.renameFolder(folder)))
+                                    store.send(.setEditingField(.renameFolder(folder)))
                                 } label: {
                                     Image(systemSymbol: .squareAndPencil)
                                 }
@@ -67,14 +66,14 @@ struct FolderManagerView: View {
                 }
                 .opacity(
                     store.loadingState != .loading && store.folders.isEmpty
-                        && store.route != .newFolder ? 1 : 0
+                        && store.editingField != .newFolder ? 1 : 0
                 )
             }
             .animation(.default, value: store.folders)
-            .animation(.default, value: store.route)
-            .onChange(of: focusedRoute) { oldValue, newValue in
-                if newValue == nil, let oldValue, store.route == oldValue {
-                    store.send(.setNavigation(nil))
+            .animation(.default, value: store.editingField)
+            .onChange(of: focusedField) { oldValue, newValue in
+                if newValue == nil, let oldValue, store.editingField == oldValue {
+                    store.send(.setEditingField(nil))
                 }
             }
             .onAppear {
@@ -88,16 +87,16 @@ struct FolderManagerView: View {
 
     private var newFolderRow: some View {
         Label {
-            editingTextField(route: .newFolder, submitAction: .createFolder)
+            editingTextField(.newFolder)
         } icon: {
             Image(systemSymbol: .folderBadgePlus)
         }
     }
 
     @ViewBuilder private func folderRow(_ folder: String) -> some View {
-        if store.route == .renameFolder(folder) {
+        if store.editingField == .renameFolder(folder) {
             Label {
-                editingTextField(route: .renameFolder(folder), submitAction: .renameFolder(folder))
+                editingTextField(.renameFolder(folder))
             } icon: {
                 Image(systemSymbol: .folder)
             }
@@ -106,24 +105,19 @@ struct FolderManagerView: View {
         }
     }
 
-    private func editingTextField(
-        route: FolderManagerReducer.Route, submitAction: FolderManagerReducer.Action
-    ) -> some View {
+    private func editingTextField(_ field: FolderManagerReducer.EditingField) -> some View {
         TextField(
             L10n.Localizable.FolderManagerView.Placeholder.folderName,
             text: $store.editingFolderName
         )
         .disableAutocorrection(true)
         .submitLabel(.done)
-        .focused($focusedRoute, equals: route)
+        .focused($focusedField, equals: field)
         .onAppear {
-            focusedRoute = route
+            focusedField = field
         }
         .onSubmit {
-            if store.isEditingNameValid {
-                store.send(submitAction)
-            }
-            store.send(.setNavigation(nil))
+            store.send(.submitEditingField)
         }
     }
 
@@ -134,8 +128,7 @@ struct FolderManagerView: View {
             }
             CustomToolbarItem {
                 Button {
-                    store.editingFolderName = ""
-                    store.send(.setNavigation(.newFolder))
+                    store.send(.setEditingField(.newFolder))
                 } label: {
                     Image(systemSymbol: .plus)
                 }
