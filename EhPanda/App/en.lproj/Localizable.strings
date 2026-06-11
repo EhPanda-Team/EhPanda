@@ -450,12 +450,6 @@
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "Off";
 
-// MARK: DownloadListFilter
-"enum.download_list_filter.title.all" = "All";
-"enum.download_list_filter.title.active" = "Active";
-"enum.download_list_filter.title.completed" = "Downloaded";
-"enum.download_list_filter.title.failed" = "Needs Attention";
-"enum.download_list_filter.title.update" = "Update Available";
 
 // MARK: DownloadBadge
 "struct.download_badge.text.queued" = "Queued";

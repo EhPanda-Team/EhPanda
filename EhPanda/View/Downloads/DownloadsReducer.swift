@@ -23,7 +23,6 @@ struct DownloadsReducer {
     struct State: Equatable {
         var route: Route?
         var keyword = ""
-        var filter: DownloadListFilter = .all
         var downloads = [DownloadedGallery]()
         var loadingState: LoadingState = .loading
         var hasLoadedInitialDownloads = false
@@ -39,11 +38,8 @@ struct DownloadsReducer {
 
         var filteredDownloads: [DownloadedGallery] {
             downloads.filter {
-                $0.matches(filter: filter)
-                    && (
-                        keyword.isEmpty
-                            || $0.searchableText.caseInsensitiveContains(keyword)
-                    )
+                keyword.isEmpty
+                    || $0.searchableText.caseInsensitiveContains(keyword)
             }
         }
     }

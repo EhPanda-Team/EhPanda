@@ -996,11 +996,6 @@
 "enum.download_thread_mode.value.triple" = "3 枚ずつダウンロード";
 "enum.download_thread_mode.value.quadruple" = "4 枚ずつダウンロード";
 "enum.download_thread_mode.value.quintuple" = "5 枚ずつダウンロード";
-"enum.download_list_filter.title.all" = "すべて";
-"enum.download_list_filter.title.active" = "進行中";
-"enum.download_list_filter.title.completed" = "ダウンロード済み";
-"enum.download_list_filter.title.failed" = "要対応";
-"enum.download_list_filter.title.update" = "更新あり";
 "struct.download_badge.text.queued" = "待機中";
 "struct.download_badge.text.downloading" = "ダウンロード中";
 "struct.download_badge.text.paused" = "一時停止";

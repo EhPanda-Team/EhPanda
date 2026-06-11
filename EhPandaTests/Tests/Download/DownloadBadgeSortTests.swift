@@ -57,24 +57,10 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             partialDownload.badge.progress
                 == DownloadProgress(completedPageCount: 5, pageCount: 12)
         )
-        #expect(DownloadListFilter.failed.title == "Needs Attention")
     }
 
     @Test
-    func testQueuedRedownloadDoesNotLeakIntoCompletedFilter() {
-        let queuedRedownload = sampleDownload(
-            gid: "505",
-            title: "Delta Archive",
-            status: .queued,
-            completedPageCount: 12
-        )
-
-        #expect(queuedRedownload.matches(filter: .completed) == false)
-        #expect(queuedRedownload.matches(filter: .update) == false)
-    }
-
-    @Test
-    func testQueuedRepairDoesNotLeakIntoFailedFilter() {
+    func testQueuedRepairKeepsQueuedStatusWhileMissingFilesStaysError() {
         let queuedRepair = sampleDownload(
             gid: "606",
             title: "Repair Archive",
@@ -89,10 +75,9 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             completedPageCount: 0
         )
 
-        #expect(queuedRepair.matches(filter: .failed) == false)
-        #expect(queuedRepair.matches(filter: .update) == false)
+        #expect(queuedRepair.displayStatus == .queued)
+        #expect(missingFilesWithoutQueuedWork.displayStatus == .error)
         #expect(missingFilesWithoutQueuedWork.lastError?.code == .fileOperationFailed)
-        #expect(missingFilesWithoutQueuedWork.matches(filter: .failed))
     }
 
     @Test

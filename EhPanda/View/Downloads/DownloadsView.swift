@@ -144,7 +144,6 @@ struct DownloadsView: View {
         .background(navigationLink)
         .navigationTitle(L10n.Localizable.DownloadsView.Title.downloads)
         .navigationBarTitleDisplayMode(.large)
-        .toolbar(content: toolbar)
     }
 
 }
@@ -306,31 +305,11 @@ private extension DownloadsView {
             ) {
                 AlertViewButton(title: L10n.Localizable.DownloadsView.Button.clearFilters) {
                     store.keyword = ""
-                    store.filter = .all
                 }
             }
         }
     }
 
-    @ToolbarContentBuilder private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
-            Menu {
-                ForEach(DownloadListFilter.allCases) { filter in
-                    Button {
-                        store.filter = filter
-                    } label: {
-                        Text(filter.title)
-                        if store.filter == filter {
-                            Image(systemSymbol: .checkmark)
-                        }
-                    }
-                }
-            } label: {
-                Image(systemSymbol: .dialLow)
-                    .symbolRenderingMode(.hierarchical)
-            }
-        }
-    }
 }
 
 struct DownloadsView_Previews: PreviewProvider {

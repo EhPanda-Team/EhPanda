@@ -993,11 +993,6 @@
 "enum.download_thread_mode.value.triple" = "同時下載 3 張圖片";
 "enum.download_thread_mode.value.quadruple" = "同時下載 4 張圖片";
 "enum.download_thread_mode.value.quintuple" = "同時下載 5 張圖片";
-"enum.download_list_filter.title.all" = "全部";
-"enum.download_list_filter.title.active" = "進行中";
-"enum.download_list_filter.title.completed" = "已下載";
-"enum.download_list_filter.title.failed" = "需處理";
-"enum.download_list_filter.title.update" = "有可更新";
 "struct.download_badge.text.queued" = "已排隊";
 "struct.download_badge.text.downloading" = "下載中";
 "struct.download_badge.text.paused" = "已暫停";

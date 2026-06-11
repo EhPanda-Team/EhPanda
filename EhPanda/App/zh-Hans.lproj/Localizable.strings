@@ -449,12 +449,6 @@
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "不启用";
 
-// MARK: DownloadListFilter
-"enum.download_list_filter.title.all" = "全部";
-"enum.download_list_filter.title.active" = "进行中";
-"enum.download_list_filter.title.completed" = "已下载";
-"enum.download_list_filter.title.failed" = "需处理";
-"enum.download_list_filter.title.update" = "有可更新";
 
 // MARK: DownloadBadge
 "struct.download_badge.text.queued" = "已排队";
