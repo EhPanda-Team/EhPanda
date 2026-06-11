@@ -257,6 +257,11 @@ struct DownloadsReducer {
             case .deleteDownloadDone:
                 return .none
 
+            case .detail(.folderManager(.createFolderDone)),
+                 .detail(.folderManager(.renameFolderDone)),
+                 .detail(.folderManager(.deleteFolderDone)):
+                return .send(.fetchFolders)
+
             case .detail:
                 return .none
 

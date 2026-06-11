@@ -13,12 +13,15 @@ struct HeaderSection: View {
     let user: User
     let downloadBadge: DownloadBadge?
     let downloadNeedsRepair: Bool
+    let downloadFolders: [String]
     let isPreparingDownload: Bool
     let canDownload: Bool
     let displaysJapaneseTitle: Bool
     let showFullTitle: Bool
     let showFullTitleAction: () -> Void
     let downloadAction: () -> Void
+    let downloadToFolderAction: (String) -> Void
+    let manageFoldersAction: () -> Void
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
     let navigateReadingAction: () -> Void
@@ -79,14 +82,31 @@ struct HeaderSection: View {
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
-            } else {
-                Button(action: downloadAction) {
-                    Image(systemName: downloadIconSystemName)
-                        .font(actionIconFont)
-                        .foregroundStyle(canDownload ? downloadButtonTint : .secondary)
-                        .rotationEffect(.degrees(showsMetadataPreparation ? 360 : 0))
-                        .frame(width: actionIconButtonSize, height: actionIconButtonSize)
-                        .contentShape(Circle())
+            } else if downloadBadge == nil {
+                Menu {
+                    Section {
+                        Button(action: manageFoldersAction) {
+                            Label(
+                                L10n.Localizable.DetailView.Menu.Button.manageFolders,
+                                systemSymbol: .folderBadgeGearshape
+                            )
+                        }
+                    }
+                    Section {
+                        if downloadFolders.isEmpty {
+                            Text(L10n.Localizable.DetailView.Menu.Text.noFolders)
+                        } else {
+                            ForEach(downloadFolders, id: \.self) { folder in
+                                Button {
+                                    downloadToFolderAction(folder)
+                                } label: {
+                                    Label(folder, systemSymbol: .folder)
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    downloadIconLabel
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
@@ -95,11 +115,25 @@ struct HeaderSection: View {
                         ? .linear(duration: 0.9).repeatForever(autoreverses: false) : .default,
                     value: showsMetadataPreparation
                 )
+            } else {
+                Button(action: downloadAction) {
+                    downloadIconLabel
+                }
+                .buttonStyle(.glass(.regular.interactive()))
+                .buttonBorderShape(.circle)
             }
         }
         .disabled(isDownloadActionDisabled)
         .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         .accessibilityLabel(downloadButtonAccessibilityLabel)
+    }
+    private var downloadIconLabel: some View {
+        Image(systemName: downloadIconSystemName)
+            .font(actionIconFont)
+            .foregroundStyle(canDownload ? downloadButtonTint : .secondary)
+            .rotationEffect(.degrees(showsMetadataPreparation ? 360 : 0))
+            .frame(width: actionIconButtonSize, height: actionIconButtonSize)
+            .contentShape(Circle())
     }
     private var favoriteButton: some View {
         ZStack {

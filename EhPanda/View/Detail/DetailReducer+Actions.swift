@@ -27,6 +27,7 @@ extension DetailReducer {
                 state.commentContent = .init()
                 state.postCommentFocused = false
                 state.galleryInfosState = .init()
+                state.folderManagerState = .init()
                 state.detailSearchState.wrappedValue = .init()
                 return .merge(
                     .send(.reading(.teardown)),
@@ -34,6 +35,7 @@ extension DetailReducer {
                     .send(.torrents(.teardown)),
                     .send(.previews(.teardown)),
                     .send(.comments(.teardown)),
+                    .send(.folderManager(.teardown)),
                     .send(.detailSearch(.teardown))
                 )
 
@@ -72,6 +74,7 @@ extension DetailReducer {
         return .merge(
             .send(.fetchDatabaseInfos(gid)),
             .send(.fetchDownloadBadge),
+            .send(.fetchDownloadFolders),
             .send(.observeDownload),
             .send(.loadLocalPreviewURLs)
         )

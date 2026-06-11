@@ -958,6 +958,8 @@
 "detail_view.dialog.button.redownload" = "再ダウンロード";
 "detail_view.offline_notice.saved_details" = "オンラインの詳細を更新できなかったため、保存済みの詳細を表示しています。";
 "enum.download_folder_filter.title.all" = "All";
+"detail_view.menu.button.manage_folders" = "Manage Folders";
+"detail_view.menu.text.no_folders" = "No folders yet";
 "downloads_view.menu.button.manage_folders" = "Manage Folders";
 "downloads_view.menu.button.move_to_folder" = "Move to Folder";
 "downloads_view.swipe.button.move" = "Move";

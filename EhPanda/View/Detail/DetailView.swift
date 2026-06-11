@@ -156,6 +156,7 @@ private extension DetailView {
                             user: user,
                             downloadBadge: store.downloadBadge,
                             downloadNeedsRepair: store.downloadNeedsRepair,
+                            downloadFolders: store.downloadFolders,
                             isPreparingDownload: store.isPreparingDownload,
                             canDownload: !store.gallery.id.isEmpty
                                 && (AppUtil.galleryHost == .ehentai || CookieUtil.didLogin),
@@ -163,6 +164,10 @@ private extension DetailView {
                             showFullTitle: store.showsFullTitle,
                             showFullTitleAction: { store.send(.toggleShowFullTitle) },
                             downloadAction: { handleDownloadAction() },
+                            downloadToFolderAction: {
+                                store.send(.startDownload(setting.downloadRequestOptions, $0))
+                            },
+                            manageFoldersAction: { store.send(.setNavigation(.folderManager())) },
                             favorAction: { store.send(.favorGallery($0)) },
                             unfavorAction: { store.send(.unfavorGallery) },
                             navigateReadingAction: { store.send(.openReading) },
@@ -317,6 +322,13 @@ private extension DetailView {
                     gid: gid,
                     token: store.gallery.token,
                     blurRadius: blurRadius
+                )
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
+            .sheet(item: $store.route.sending(\.setNavigation).folderManager) { _ in
+                FolderManagerView(
+                    store: store.scope(state: \.folderManagerState, action: \.folderManager)
                 )
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)

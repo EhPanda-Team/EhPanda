@@ -22,6 +22,7 @@ struct DetailReducer {
         case detailSearch(String)
         case tagDetail(TagDetail)
         case galleryInfos(Gallery, GalleryDetail)
+        case folderManager(EquatableVoid = .init())
     }
 
     enum CancelID: CaseIterable {
@@ -29,6 +30,7 @@ struct DetailReducer {
         case fetchGalleryDetail
         case fetchVersionMetadata
         case fetchDownloadBadge
+        case fetchDownloadFolders
         case observeDownload
         case loadLocalPreviewURLs
         case rateGallery
@@ -60,6 +62,7 @@ struct DetailReducer {
         var previewConfig: PreviewConfig = .normal(rows: 4)
         var downloadBadge: DownloadBadge?
         var downloadFailureCode: DownloadFailureCode?
+        var downloadFolders = [String]()
         var isPreparingDownload = false
         var hasLoadedDownloadBadge = false
 
@@ -78,6 +81,7 @@ struct DetailReducer {
         var previewsState = PreviewsReducer.State()
         var commentsState: Heap<CommentsReducer.State?>
         var galleryInfosState = GalleryInfosReducer.State()
+        var folderManagerState = FolderManagerReducer.State()
         var detailSearchState: Heap<DetailSearchReducer.State?>
 
         init() {
@@ -114,6 +118,8 @@ struct DetailReducer {
         case updateReadingProgress(Int)
         case fetchDownloadBadge
         case fetchDownloadBadgeDone(DownloadedGallery?)
+        case fetchDownloadFolders
+        case fetchDownloadFoldersDone([String])
         case observeDownload
         case observeDownloadDone(DownloadedGallery?)
         case loadLocalPreviewURLs
@@ -148,6 +154,7 @@ struct DetailReducer {
         case previews(PreviewsReducer.Action)
         case comments(CommentsReducer.Action)
         case galleryInfos(GalleryInfosReducer.Action)
+        case folderManager(FolderManagerReducer.Action)
         case detailSearch(DetailSearchReducer.Action)
     }
 
@@ -181,6 +188,7 @@ extension DetailReducer {
             Scope(state: \.torrentsState, action: \.torrents, child: TorrentsReducer.init)
             Scope(state: \.previewsState, action: \.previews, child: PreviewsReducer.init)
             Scope(state: \.galleryInfosState, action: \.galleryInfos, child: GalleryInfosReducer.init)
+            Scope(state: \.folderManagerState, action: \.folderManager, child: FolderManagerReducer.init)
         }
     }
 
