@@ -459,17 +459,13 @@
 
 // MARK: DownloadBadge
 "struct.download_badge.text.queued" = "Queued";
-"struct.download_badge.text.downloading" = "Downloading %d/%d";
-"struct.download_badge.text.paused" = "Paused %d/%d";
-"struct.download_badge.text.needs_attention_progress" = "Needs Attention %d/%d";
+"struct.download_badge.text.downloading" = "Downloading";
+"struct.download_badge.text.paused" = "Paused";
 "struct.download_badge.text.downloaded" = "Downloaded";
 "struct.download_badge.text.needs_attention" = "Needs Attention";
 "struct.download_badge.text.update_available" = "Update Available";
 "struct.download_badge.text.needs_repair" = "Needs Repair";
-"struct.download_badge.compact.downloading" = "DL";
-"struct.download_badge.compact.paused" = "Pause";
-"struct.download_badge.compact.needs_attention" = "Needs Attention";
-"struct.download_badge.compact.done" = "Done";
+"struct.download_badge.progress" = "%d/%d";
 
 // MARK: DownloadFileStorage
 "download_file_storage.error.asset_unreadable" = "Asset file is unreadable: %@";

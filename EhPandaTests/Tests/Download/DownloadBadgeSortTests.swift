@@ -23,11 +23,19 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
         #expect(badge.status == activeDownload.displayStatus)
         #expect(badge.progress == DownloadProgress(completedPageCount: 7, pageCount: 26))
         #expect(badge.failure == nil)
-        #expect(badge.compactText == L10n.Localizable.Struct.DownloadBadge.Compact.downloading)
-        #expect(
-            badge.text
-                == L10n.Localizable.Struct.DownloadBadge.Text.downloading(7, 26)
-        )
+        #expect(badge.statusText == "Downloading")
+        #expect(badge.progressText == "7/26")
+        #expect(badge.text == "Downloading 7/26")
+
+        let completedBadge = sampleDownload(
+            gid: "481",
+            title: "Done Archive",
+            status: .completed,
+            pageCount: 26
+        ).badge
+
+        #expect(completedBadge.progressText == nil)
+        #expect(completedBadge.text == completedBadge.statusText)
     }
 
     @Test

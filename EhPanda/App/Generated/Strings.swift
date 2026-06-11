@@ -2393,35 +2393,21 @@ internal enum L10n {
         }
       }
       internal enum DownloadBadge {
-        internal enum Compact {
-          /// Done
-          internal static let done = L10n.tr("Localizable", "struct.download_badge.compact.done", fallback: "Done")
-          /// DL
-          internal static let downloading = L10n.tr("Localizable", "struct.download_badge.compact.downloading", fallback: "DL")
-          /// Needs Attention
-          internal static let needsAttention = L10n.tr("Localizable", "struct.download_badge.compact.needs_attention", fallback: "Needs Attention")
-          /// Pause
-          internal static let paused = L10n.tr("Localizable", "struct.download_badge.compact.paused", fallback: "Pause")
+        /// %d/%d
+        internal static func progress(_ p1: Int, _ p2: Int) -> String {
+          return L10n.tr("Localizable", "struct.download_badge.progress", p1, p2, fallback: "%d/%d")
         }
         internal enum Text {
           /// Downloaded
           internal static let downloaded = L10n.tr("Localizable", "struct.download_badge.text.downloaded", fallback: "Downloaded")
-          /// Downloading %d/%d
-          internal static func downloading(_ p1: Int, _ p2: Int) -> String {
-            return L10n.tr("Localizable", "struct.download_badge.text.downloading", p1, p2, fallback: "Downloading %d/%d")
-          }
+          /// Downloading
+          internal static let downloading = L10n.tr("Localizable", "struct.download_badge.text.downloading", fallback: "Downloading")
           /// Needs Attention
           internal static let needsAttention = L10n.tr("Localizable", "struct.download_badge.text.needs_attention", fallback: "Needs Attention")
-          /// Needs Attention %d/%d
-          internal static func needsAttentionProgress(_ p1: Int, _ p2: Int) -> String {
-            return L10n.tr("Localizable", "struct.download_badge.text.needs_attention_progress", p1, p2, fallback: "Needs Attention %d/%d")
-          }
           /// Needs Repair
           internal static let needsRepair = L10n.tr("Localizable", "struct.download_badge.text.needs_repair", fallback: "Needs Repair")
-          /// Paused %d/%d
-          internal static func paused(_ p1: Int, _ p2: Int) -> String {
-            return L10n.tr("Localizable", "struct.download_badge.text.paused", p1, p2, fallback: "Paused %d/%d")
-          }
+          /// Paused
+          internal static let paused = L10n.tr("Localizable", "struct.download_badge.text.paused", fallback: "Paused")
           /// Queued
           internal static let queued = L10n.tr("Localizable", "struct.download_badge.text.queued", fallback: "Queued")
           /// Update Available

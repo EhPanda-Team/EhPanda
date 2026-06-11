@@ -7,53 +7,47 @@ import SwiftUI
 
 // MARK: - DownloadBadge
 extension DownloadBadge {
-    var text: String {
+    var statusText: String {
         switch status {
         case .queued:
             return L10n.Localizable.Struct.DownloadBadge.Text.queued
         case .active:
-            return L10n.Localizable.Struct.DownloadBadge.Text.downloading(
-                resolvedProgress.completedPageCount,
-                resolvedProgress.displayPageCount
-            )
+            return L10n.Localizable.Struct.DownloadBadge.Text.downloading
         case .inactive:
-            return L10n.Localizable.Struct.DownloadBadge.Text.paused(
-                resolvedProgress.completedPageCount,
-                resolvedProgress.displayPageCount
-            )
+            return L10n.Localizable.Struct.DownloadBadge.Text.paused
         case .updateAvailable:
             return L10n.Localizable.Struct.DownloadBadge.Text.updateAvailable
         case .completed:
             return L10n.Localizable.Struct.DownloadBadge.Text.downloaded
         case .error:
-            switch failure {
-            case .partial:
-                return L10n.Localizable.Struct.DownloadBadge.Text.needsAttentionProgress(
-                    resolvedProgress.completedPageCount,
-                    resolvedProgress.displayPageCount
-                )
-            case .missingFiles:
-                return L10n.Localizable.Struct.DownloadBadge.Text.needsRepair
-            case .general, nil:
-                return L10n.Localizable.Struct.DownloadBadge.Text.needsAttention
-            }
+            return failure == .missingFiles
+                ? L10n.Localizable.Struct.DownloadBadge.Text.needsRepair
+                : L10n.Localizable.Struct.DownloadBadge.Text.needsAttention
         }
     }
 
-    var compactText: String {
+    var progressText: String? {
+        guard showsProgressText, let progress else { return nil }
+        return L10n.Localizable.Struct.DownloadBadge.progress(
+            progress.completedPageCount,
+            progress.displayPageCount
+        )
+    }
+
+    var text: String {
+        [statusText, progressText]
+            .compactMap { $0 }
+            .joined(separator: " ")
+    }
+
+    private var showsProgressText: Bool {
         switch status {
-        case .active:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.downloading
-        case .inactive:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.paused
-        case .completed:
-            return L10n.Localizable.Struct.DownloadBadge.Compact.done
+        case .active, .inactive:
+            return true
         case .error:
-            return failure == .missingFiles
-                ? text
-                : L10n.Localizable.Struct.DownloadBadge.Compact.needsAttention
-        case .queued, .updateAvailable:
-            return text
+            return failure == .partial
+        case .queued, .updateAvailable, .completed:
+            return false
         }
     }
 
