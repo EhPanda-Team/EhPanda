@@ -957,6 +957,12 @@
 "detail_view.dialog.button.update" = "업데이트";
 "detail_view.dialog.button.redownload" = "다시 다운로드";
 "detail_view.offline_notice.saved_details" = "온라인 세부 정보를 새로고침할 수 없어 저장된 세부 정보를 표시합니다.";
+"folder_manager_view.title.folders" = "Folders";
+"folder_manager_view.title.new_folder" = "New Folder";
+"folder_manager_view.title.rename_folder" = "Rename Folder";
+"folder_manager_view.placeholder.folder_name" = "Folder name";
+"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
+"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
 "downloads_view.title.downloads" = "다운로드";
 "downloads_view.search.prompt.downloads" = "다운로드 검색";
 "downloads_view.dialog.title.delete_download" = "다운로드를 삭제할까요?";
