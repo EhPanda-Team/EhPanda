@@ -9,7 +9,7 @@ import ComposableArchitecture
 
 struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>
-    @FocusState private var renamingFolderName: String?
+    @FocusState private var focusedRoute: FolderManagerReducer.Route?
     @Environment(\.dismiss) private var dismiss
 
     init(store: StoreOf<FolderManagerReducer>) {
@@ -20,6 +20,10 @@ struct FolderManagerView: View {
         NavigationView {
             ZStack {
                 List {
+                    if store.route == .newFolder {
+                        newFolderRow
+                            .padding(5)
+                    }
                     ForEach(store.folders, id: \.self) { folder in
                         folderRow(folder)
                             .padding(5)
@@ -62,12 +66,14 @@ struct FolderManagerView: View {
                     EmptyView()
                 }
                 .opacity(
-                    store.loadingState != .loading && store.folders.isEmpty ? 1 : 0
+                    store.loadingState != .loading && store.folders.isEmpty
+                        && store.route != .newFolder ? 1 : 0
                 )
             }
             .animation(.default, value: store.folders)
-            .onChange(of: renamingFolderName) { oldValue, newValue in
-                if newValue == nil, let oldValue, store.route == .renameFolder(oldValue) {
+            .animation(.default, value: store.route)
+            .onChange(of: focusedRoute) { oldValue, newValue in
+                if newValue == nil, let oldValue, store.route == oldValue {
                     store.send(.setNavigation(nil))
                 }
             }
@@ -75,36 +81,49 @@ struct FolderManagerView: View {
                 store.send(.fetchFolders)
             }
             .toolbar(content: toolbar)
-            .background(navigationLinks)
             .navigationTitle(L10n.Localizable.FolderManagerView.Title.folders)
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private var newFolderRow: some View {
+        Label {
+            editingTextField(route: .newFolder, submitAction: .createFolder)
+        } icon: {
+            Image(systemSymbol: .folderBadgePlus)
         }
     }
 
     @ViewBuilder private func folderRow(_ folder: String) -> some View {
         if store.route == .renameFolder(folder) {
             Label {
-                TextField(
-                    L10n.Localizable.FolderManagerView.Placeholder.folderName,
-                    text: $store.editingFolderName
-                )
-                .disableAutocorrection(true)
-                .submitLabel(.done)
-                .focused($renamingFolderName, equals: folder)
-                .onAppear {
-                    renamingFolderName = folder
-                }
-                .onSubmit {
-                    if store.isEditingNameValid {
-                        store.send(.renameFolder(folder))
-                    }
-                    store.send(.setNavigation(nil))
-                }
+                editingTextField(route: .renameFolder(folder), submitAction: .renameFolder(folder))
             } icon: {
                 Image(systemSymbol: .folder)
             }
         } else {
             Label(folder, systemSymbol: .folder)
+        }
+    }
+
+    private func editingTextField(
+        route: FolderManagerReducer.Route, submitAction: FolderManagerReducer.Action
+    ) -> some View {
+        TextField(
+            L10n.Localizable.FolderManagerView.Placeholder.folderName,
+            text: $store.editingFolderName
+        )
+        .disableAutocorrection(true)
+        .submitLabel(.done)
+        .focused($focusedRoute, equals: route)
+        .onAppear {
+            focusedRoute = route
+        }
+        .onSubmit {
+            if store.isEditingNameValid {
+                store.send(submitAction)
+            }
+            store.send(.setNavigation(nil))
         }
     }
 
@@ -120,63 +139,6 @@ struct FolderManagerView: View {
                 } label: {
                     Image(systemSymbol: .plus)
                 }
-            }
-        }
-    }
-
-    @ViewBuilder private var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: \.newFolder) { _ in
-            EditFolderView(
-                title: L10n.Localizable.FolderManagerView.Title.newFolder,
-                folderName: $store.editingFolderName,
-                isNameValid: store.isEditingNameValid,
-                confirmAction: {
-                    store.send(.createFolder)
-                    store.send(.setNavigation(nil))
-                }
-            )
-        }
-    }
-}
-
-extension FolderManagerView {
-    // MARK: EditFolderView
-    struct EditFolderView: View {
-        private let title: String
-        @Binding private var folderName: String
-        private let isNameValid: Bool
-        private let confirmAction: () -> Void
-
-        init(
-            title: String,
-            folderName: Binding<String>,
-            isNameValid: Bool,
-            confirmAction: @escaping () -> Void
-        ) {
-            self.title = title
-            _folderName = folderName
-            self.isNameValid = isNameValid
-            self.confirmAction = confirmAction
-        }
-
-        var body: some View {
-            Form {
-                Section {
-                    TextField(
-                        L10n.Localizable.FolderManagerView.Placeholder.folderName,
-                        text: $folderName
-                    )
-                    .disableAutocorrection(true)
-                }
-            }
-            .toolbar(content: toolbar)
-            .navigationTitle(title)
-        }
-
-        private func toolbar() -> some ToolbarContent {
-            CustomToolbarItem {
-                Button(role: .confirm, action: confirmAction)
-                    .disabled(!isNameValid)
             }
         }
     }

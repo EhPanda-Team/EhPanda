@@ -9,7 +9,7 @@ import ComposableArchitecture
 @Reducer
 struct FolderManagerReducer {
     @CasePathable
-    enum Route: Equatable {
+    enum Route: Equatable, Hashable {
         case newFolder
         case renameFolder(String)
         case deleteFolder(String)

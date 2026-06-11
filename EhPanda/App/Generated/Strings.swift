@@ -2069,8 +2069,6 @@ internal enum L10n {
       internal enum Title {
         /// Folders
         internal static let folders = L10n.tr("Localizable", "folder_manager_view.title.folders", fallback: "Folders")
-        /// New Folder
-        internal static let newFolder = L10n.tr("Localizable", "folder_manager_view.title.new_folder", fallback: "New Folder")
       }
     }
     internal enum FrontpageView {
