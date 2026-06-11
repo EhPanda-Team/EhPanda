@@ -15,6 +15,18 @@ extension DetailReducer {
                 return handleFetchDownloadBadge(state: &state)
             case .fetchDownloadBadgeDone(let download):
                 return handleFetchDownloadBadgeDone(download: download, state: &state)
+            case .fetchDownloadFolders:
+                return .run { send in
+                    await send(.fetchDownloadFoldersDone(await downloadClient.fetchFolders()))
+                }
+                .cancellable(id: CancelID.fetchDownloadFolders, cancelInFlight: true)
+            case .fetchDownloadFoldersDone(let folders):
+                state.downloadFolders = folders
+                return .none
+            case .folderManager(.createFolderDone),
+                 .folderManager(.renameFolderDone),
+                 .folderManager(.deleteFolderDone):
+                return .send(.fetchDownloadFolders)
             case .observeDownload:
                 return handleObserveDownload(state: &state)
             case .observeDownloadDone(let download):

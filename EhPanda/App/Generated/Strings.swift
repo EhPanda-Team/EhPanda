@@ -562,6 +562,16 @@ internal enum L10n {
           internal static let updateDownload = L10n.tr("Localizable", "detail_view.dialog.title.update_download", fallback: "Update Download?")
         }
       }
+      internal enum Menu {
+        internal enum Button {
+          /// Manage Folders
+          internal static let manageFolders = L10n.tr("Localizable", "detail_view.menu.button.manage_folders", fallback: "Manage Folders")
+        }
+        internal enum Text {
+          /// No folders yet
+          internal static let noFolders = L10n.tr("Localizable", "detail_view.menu.text.no_folders", fallback: "No folders yet")
+        }
+      }
       internal enum OfflineNotice {
         /// Couldn't refresh online details. Showing saved details instead.
         internal static let savedDetails = L10n.tr("Localizable", "detail_view.offline_notice.saved_details", fallback: "Couldn't refresh online details. Showing saved details instead.")

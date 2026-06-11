@@ -86,6 +86,29 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testDetailReducerFetchDownloadFoldersPopulatesStateAndRefetchesAfterChanges() async {
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: nil,
+            folders: { ["Library"] },
+            enqueue: { _ in .success(()) }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchDownloadFolders)
+        await store.receive(\.fetchDownloadFoldersDone, ["Library"]) {
+            $0.downloadFolders = ["Library"]
+        }
+
+        await store.send(.folderManager(.createFolderDone(.success(()))))
+        await store.receive(\.fetchDownloadFolders)
+        await store.skipReceivedActions(strict: false)
+    }
+
+    @MainActor
+    @Test
     func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async throws {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
@@ -133,6 +156,7 @@ private extension DetailReducerDownloadTests {
         gallery: Gallery, detail: GalleryDetail,
         downloadValue: DownloadedGallery?,
         automationGID: String? = nil,
+        folders: @escaping @Sendable () -> [String] = { [] },
         configure: (inout DetailReducer.State) -> Void = { _ in },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
     ) -> TestStoreOf<DetailReducer> {
@@ -157,7 +181,8 @@ private extension DetailReducerDownloadTests {
                 togglePause: { _ in .success(()) },
                 retry: { _, _ in .success(()) },
                 delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
+                loadManifest: { _ in .failure(.notFound) },
+                fetchFolders: { folders() }
             )
             $0.hapticsClient = .noop
             $0.databaseClient = .noop
