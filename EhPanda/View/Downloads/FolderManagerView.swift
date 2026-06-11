@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>
+    @FocusState private var renamingFolderName: String?
     @Environment(\.dismiss) private var dismiss
 
     init(store: StoreOf<FolderManagerReducer>) {
@@ -20,7 +21,7 @@ struct FolderManagerView: View {
             ZStack {
                 List {
                     ForEach(store.folders, id: \.self) { folder in
-                        Label(folder, systemSymbol: .folder)
+                        folderRow(folder)
                             .padding(5)
                             .swipeActions(edge: .trailing) {
                                 Button {
@@ -65,6 +66,11 @@ struct FolderManagerView: View {
                 )
             }
             .animation(.default, value: store.folders)
+            .onChange(of: renamingFolderName) { oldValue, newValue in
+                if newValue == nil, let oldValue, store.route == .renameFolder(oldValue) {
+                    store.send(.setNavigation(nil))
+                }
+            }
             .onAppear {
                 store.send(.fetchFolders)
             }
@@ -72,6 +78,33 @@ struct FolderManagerView: View {
             .background(navigationLinks)
             .navigationTitle(L10n.Localizable.FolderManagerView.Title.folders)
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    @ViewBuilder private func folderRow(_ folder: String) -> some View {
+        if store.route == .renameFolder(folder) {
+            Label {
+                TextField(
+                    L10n.Localizable.FolderManagerView.Placeholder.folderName,
+                    text: $store.editingFolderName
+                )
+                .disableAutocorrection(true)
+                .submitLabel(.done)
+                .focused($renamingFolderName, equals: folder)
+                .onAppear {
+                    renamingFolderName = folder
+                }
+                .onSubmit {
+                    if store.isEditingNameValid {
+                        store.send(.renameFolder(folder))
+                    }
+                    store.send(.setNavigation(nil))
+                }
+            } icon: {
+                Image(systemSymbol: .folder)
+            }
+        } else {
+            Label(folder, systemSymbol: .folder)
         }
     }
 
@@ -99,17 +132,6 @@ struct FolderManagerView: View {
                 isNameValid: store.isEditingNameValid,
                 confirmAction: {
                     store.send(.createFolder)
-                    store.send(.setNavigation(nil))
-                }
-            )
-        }
-        NavigationLink(unwrapping: $store.route, case: \.renameFolder) { route in
-            EditFolderView(
-                title: L10n.Localizable.FolderManagerView.Title.renameFolder,
-                folderName: $store.editingFolderName,
-                isNameValid: store.isEditingNameValid,
-                confirmAction: {
-                    store.send(.renameFolder(route.wrappedValue))
                     store.send(.setNavigation(nil))
                 }
             )
