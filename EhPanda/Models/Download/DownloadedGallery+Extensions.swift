@@ -19,17 +19,6 @@ extension DownloadBadge {
         }
     }
 
-    var ringSymbol: SFSymbol {
-        switch status {
-        case .active: .playFill
-        case .queued: .listDash
-        case .inactive: .pauseFill
-        case .completed: .checkmark
-        case .updateAvailable: .arrowUp
-        case .error: .exclamationmark
-        }
-    }
-
     var color: Color {
         switch status {
         case .active, .queued: .green

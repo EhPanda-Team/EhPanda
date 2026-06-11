@@ -9,10 +9,6 @@ import ComposableArchitecture
 
 @Reducer
 struct HomeReducer {
-    enum CancelID {
-        case observeDownloads
-    }
-
     @CasePathable
     enum Route: Equatable, Hashable {
         case detail(String)
@@ -37,7 +33,6 @@ struct HomeReducer {
         var frontpageLoadingState: LoadingState = .idle
         var toplistsGalleries = [Int: [Gallery]]()
         var toplistsLoadingState = [Int: LoadingState]()
-        var downloadBadges = [String: DownloadBadge]()
 
         var frontpageState = FrontpageReducer.State()
         var toplistsState = ToplistsReducer.State()
@@ -73,7 +68,6 @@ struct HomeReducer {
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case onAppear
         case setNavigation(Route?)
         case clearSubStates
         case setAllowsCardHitTesting(Bool)
@@ -88,8 +82,6 @@ struct HomeReducer {
         case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchToplistsGalleries(Int, Int? = nil)
         case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
-        case observeDownloads
-        case observeDownloadsDone([DownloadedGallery])
 
         case frontpage(FrontpageReducer.Action)
         case toplists(ToplistsReducer.Action)
@@ -100,7 +92,6 @@ struct HomeReducer {
     }
 
     @Dependency(\.databaseClient) var databaseClient
-    @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.libraryClient) var libraryClient
 
     var body: some Reducer<State, Action> { reducerBody }

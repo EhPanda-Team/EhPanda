@@ -16,13 +16,12 @@ struct CardSlideSection: View, Equatable {
     private let galleries: [Gallery]
     private let currentID: String
     private let colors: [Color]
-    private let downloadBadges: [String: DownloadBadge]
     private let navigateAction: (String) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
         galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
-        colors: [Color], downloadBadges: [String: DownloadBadge],
+        colors: [Color],
         navigateAction: @escaping (String) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
@@ -30,7 +29,6 @@ struct CardSlideSection: View, Equatable {
         _pageIndex = pageIndex
         self.currentID = currentID
         self.colors = colors
-        self.downloadBadges = downloadBadges
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
     }
@@ -39,7 +37,6 @@ struct CardSlideSection: View, Equatable {
         lhs.galleries == rhs.galleries
             && lhs.currentID == rhs.currentID
             && lhs.colors == rhs.colors
-            && lhs.downloadBadges == rhs.downloadBadges
     }
 
     var body: some View {
@@ -53,8 +50,7 @@ struct CardSlideSection: View, Equatable {
                     colors: colors,
                     webImageSuccessAction: {
                         webImageSuccessAction(gallery.gid, $0)
-                    },
-                    downloadBadge: downloadBadges[gallery.gid]
+                    }
                 )
                 .tint(.primary)
                 .multilineTextAlignment(.leading)
@@ -72,20 +68,18 @@ struct CardSlideSection: View, Equatable {
 struct CoverWallSection: View {
     private let galleries: [Gallery]
     private let isLoading: Bool
-    private let downloadBadges: [String: DownloadBadge]
     private let navigateAction: (String) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
-        galleries: [Gallery], isLoading: Bool, downloadBadges: [String: DownloadBadge],
+        galleries: [Gallery], isLoading: Bool,
         navigateAction: @escaping (String) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
-        self.downloadBadges = downloadBadges
         self.navigateAction = navigateAction
         self.showAllAction = showAllAction
         self.reloadAction = reloadAction
@@ -112,11 +106,7 @@ struct CoverWallSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     ForEach(dataSource, id: \.first) {
-                        VerticalCoverStack(
-                            galleries: $0,
-                            downloadBadges: downloadBadges,
-                            navigateAction: navigateAction
-                        )
+                        VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
                     }
                     .withHorizontalSpacing(width: 0)
                 }
@@ -128,16 +118,10 @@ struct CoverWallSection: View {
 
 struct VerticalCoverStack: View {
     private let galleries: [Gallery]
-    private let downloadBadges: [String: DownloadBadge]
     private let navigateAction: (String) -> Void
 
-    init(
-        galleries: [Gallery],
-        downloadBadges: [String: DownloadBadge],
-        navigateAction: @escaping (String) -> Void
-    ) {
+    init(galleries: [Gallery], navigateAction: @escaping (String) -> Void) {
         self.galleries = galleries
-        self.downloadBadges = downloadBadges
         self.navigateAction = navigateAction
     }
 
@@ -153,12 +137,6 @@ struct VerticalCoverStack: View {
                 .defaultModifier()
                 .scaledToFill()
                 .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH).cornerRadius(2)
-                .overlay(alignment: .topTrailing) {
-                    if let downloadBadge = downloadBadges[gallery.gid] {
-                        DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
-                            .padding(6)
-                    }
-                }
         }
     }
 
@@ -173,20 +151,18 @@ struct VerticalCoverStack: View {
 struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
-    private let downloadBadges: [String: DownloadBadge]
     private let navigateAction: (String) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
-        galleries: [Int: [Gallery]], isLoading: Bool, downloadBadges: [String: DownloadBadge],
+        galleries: [Int: [Gallery]], isLoading: Bool,
         navigateAction: @escaping (String) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
-        self.downloadBadges = downloadBadges
         self.navigateAction = navigateAction
         self.showAllAction = showAllAction
         self.reloadAction = reloadAction
@@ -233,13 +209,11 @@ struct ToplistsSection: View {
             HStack {
                 VerticalToplistsStack(
                     galleries: galleries(type: type, range: 0...2), startRanking: 1,
-                    downloadBadges: downloadBadges,
                     navigateAction: navigateAction
                 )
                 if DeviceUtil.isPad {
                     VerticalToplistsStack(
                         galleries: galleries(type: type, range: 3...5), startRanking: 4,
-                        downloadBadges: downloadBadges,
                         navigateAction: navigateAction
                     )
                 }
@@ -252,18 +226,15 @@ struct ToplistsSection: View {
 struct VerticalToplistsStack: View {
     private let galleries: [Gallery]
     private let startRanking: Int
-    private let downloadBadges: [String: DownloadBadge]
     private let navigateAction: (String) -> Void
 
     init(
         galleries: [Gallery],
         startRanking: Int,
-        downloadBadges: [String: DownloadBadge],
         navigateAction: @escaping (String) -> Void
     ) {
         self.galleries = galleries
         self.startRanking = startRanking
-        self.downloadBadges = downloadBadges
         self.navigateAction = navigateAction
     }
 
@@ -274,12 +245,8 @@ struct VerticalToplistsStack: View {
                     Button {
                         navigateAction(galleries[index].id)
                     } label: {
-                        GalleryRankingCell(
-                            gallery: galleries[index],
-                            ranking: startRanking + index,
-                            downloadBadge: downloadBadges[galleries[index].gid]
-                        )
-                        .tint(.primary).multilineTextAlignment(.leading)
+                        GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
+                            .tint(.primary).multilineTextAlignment(.leading)
                     }
                     Divider().opacity(index == galleries.count - 1 ? 0 : 1)
                 }

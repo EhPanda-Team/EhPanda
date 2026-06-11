@@ -216,7 +216,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         )
 
         #expect(partialDownload.badge.symbol == .exclamationmarkTriangleFill)
-        #expect(partialDownload.badge.ringSymbol == .exclamationmark)
         #expect(partialDownload.badge.color == .yellow)
         #expect(
             partialDownload.badge.progress
