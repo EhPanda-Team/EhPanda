@@ -996,11 +996,6 @@
 "enum.download_thread_mode.value.triple" = "3 Bilder gleichzeitig";
 "enum.download_thread_mode.value.quadruple" = "4 Bilder gleichzeitig";
 "enum.download_thread_mode.value.quintuple" = "5 Bilder gleichzeitig";
-"enum.download_list_filter.title.all" = "Alle";
-"enum.download_list_filter.title.active" = "Aktiv";
-"enum.download_list_filter.title.completed" = "Heruntergeladen";
-"enum.download_list_filter.title.failed" = "Benötigt Aufmerksamkeit";
-"enum.download_list_filter.title.update" = "Update verfügbar";
 "struct.download_badge.text.queued" = "In Warteschlange";
 "struct.download_badge.text.downloading" = "Lädt herunter";
 "struct.download_badge.text.paused" = "Pausiert";

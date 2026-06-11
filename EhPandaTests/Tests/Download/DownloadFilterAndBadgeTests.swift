@@ -27,7 +27,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
 
         var state = DownloadsReducer.State()
         state.downloads = [activeDownload, completedDownload]
-        state.filter = .active
         state.keyword = "alpha"
 
         #expect(state.filteredDownloads == [activeDownload])
@@ -70,7 +69,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         )
 
         #expect(queuedRedownload.badge.status == .queued)
-        #expect(queuedRedownload.matches(filter: .active))
     }
 
     @Test
@@ -83,7 +81,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         )
 
         #expect(queuedRepair.badge.status == .queued)
-        #expect(queuedRepair.matches(filter: .active))
     }
 
     @Test
@@ -96,8 +93,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
         )
 
         #expect(queuedUpdate.badge.status == .queued)
-        #expect(queuedUpdate.matches(filter: .active))
-        #expect(queuedUpdate.matches(filter: .update) == false)
     }
 
     @Test
@@ -112,7 +107,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
 
         #expect(resumedUpdate.isQueuedWorkItem)
         #expect(resumedUpdate.badge.status == .queued)
-        #expect(resumedUpdate.matches(filter: .active))
     }
 
     @Test
@@ -131,7 +125,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
                 progress: .init(completedPageCount: 4, pageCount: 12)
             )
         )
-        #expect(pausedDownload.matches(filter: .active))
     }
 
     @Test
@@ -229,7 +222,6 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             partialDownload.badge.progress
                 == DownloadProgress(completedPageCount: 5, pageCount: 12)
         )
-        #expect(DownloadListFilter.failed.title == "Needs Attention")
     }
 
     private func queryItems(for url: URL) -> [String: String] {

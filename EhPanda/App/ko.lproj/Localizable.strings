@@ -996,11 +996,6 @@
 "enum.download_thread_mode.value.triple" = "한 번에 3장 다운로드";
 "enum.download_thread_mode.value.quadruple" = "한 번에 4장 다운로드";
 "enum.download_thread_mode.value.quintuple" = "한 번에 5장 다운로드";
-"enum.download_list_filter.title.all" = "전체";
-"enum.download_list_filter.title.active" = "진행 중";
-"enum.download_list_filter.title.completed" = "다운로드됨";
-"enum.download_list_filter.title.failed" = "조치 필요";
-"enum.download_list_filter.title.update" = "업데이트 가능";
 "struct.download_badge.text.queued" = "대기 중";
 "struct.download_badge.text.downloading" = "다운로드 중";
 "struct.download_badge.text.paused" = "일시 정지";

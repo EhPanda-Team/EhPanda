@@ -40,32 +40,6 @@ extension DownloadBadge {
     }
 }
 
-// MARK: - DownloadListFilter
-enum DownloadListFilter: String, CaseIterable, Identifiable {
-    case all
-    case active
-    case completed
-    case failed
-    case update
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .all:
-            return L10n.Localizable.Enum.DownloadListFilter.Title.all
-        case .active:
-            return L10n.Localizable.Enum.DownloadListFilter.Title.active
-        case .completed:
-            return L10n.Localizable.Enum.DownloadListFilter.Title.completed
-        case .failed:
-            return L10n.Localizable.Enum.DownloadListFilter.Title.failed
-        case .update:
-            return L10n.Localizable.Enum.DownloadListFilter.Title.update
-        }
-    }
-}
-
 // MARK: - DownloadRequestPayload
 struct DownloadRequestPayload: Equatable, Sendable {
     let gallery: Gallery

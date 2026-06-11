@@ -103,25 +103,6 @@ extension DownloadedGallery {
         displayStatus == .active && !(hasActiveTask && activeGalleryID == gid)
     }
 
-    func matches(filter: DownloadListFilter) -> Bool {
-        if isQueuedWorkItem {
-            return filter == .all || filter == .active
-        }
-
-        switch filter {
-        case .all:
-            return true
-        case .active:
-            return [.active, .inactive].contains(displayStatus)
-        case .completed:
-            return displayStatus == .completed
-        case .failed:
-            return displayStatus == .error
-        case .update:
-            return displayStatus == .updateAvailable
-        }
-    }
-
 }
 
 extension DownloadInspection {

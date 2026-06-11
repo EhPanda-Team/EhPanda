@@ -1511,20 +1511,6 @@ internal enum L10n {
           internal static let western = L10n.tr("Localizable", "enum.category.value.western", fallback: "Western")
         }
       }
-      internal enum DownloadListFilter {
-        internal enum Title {
-          /// Active
-          internal static let active = L10n.tr("Localizable", "enum.download_list_filter.title.active", fallback: "Active")
-          /// All
-          internal static let all = L10n.tr("Localizable", "enum.download_list_filter.title.all", fallback: "All")
-          /// Downloaded
-          internal static let completed = L10n.tr("Localizable", "enum.download_list_filter.title.completed", fallback: "Downloaded")
-          /// Needs Attention
-          internal static let failed = L10n.tr("Localizable", "enum.download_list_filter.title.failed", fallback: "Needs Attention")
-          /// Update Available
-          internal static let update = L10n.tr("Localizable", "enum.download_list_filter.title.update", fallback: "Update Available")
-        }
-      }
       internal enum EhSetting {
         internal enum ArchiverBehavior {
           internal enum Value {
