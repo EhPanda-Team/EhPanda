@@ -50,15 +50,15 @@ extension DownloadManager {
     func updateRemoteVersion(
         gid: String,
         metadata: DownloadVersionMetadata
-    ) async -> DownloadBadge? {
+    ) async -> DownloadedGallery? {
         guard let download = await fetchDownload(gid: gid) else {
             return nil
         }
         guard downloadIndex[gid] != nil else {
-            return download.badge
+            return download
         }
         guard [.completed, .updateAvailable].contains(download.displayStatus) else {
-            return download.badge
+            return download
         }
 
         let hadUpdate = updatedGalleryIDs.contains(gid)
@@ -71,7 +71,7 @@ extension DownloadManager {
         if hadUpdate != hasUpdate {
             await notifyObservers()
         }
-        return (await fetchDownload(gid: gid))?.badge
+        return await fetchDownload(gid: gid)
     }
 
     func enqueue(

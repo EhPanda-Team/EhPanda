@@ -4,67 +4,38 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
 
 // MARK: - DownloadBadge
 extension DownloadBadge {
-    var statusText: String {
+    var symbol: SFSymbol {
         switch status {
-        case .queued:
-            return L10n.Localizable.Struct.DownloadBadge.Text.queued
-        case .active:
-            return L10n.Localizable.Struct.DownloadBadge.Text.downloading
-        case .inactive:
-            return L10n.Localizable.Struct.DownloadBadge.Text.paused
-        case .updateAvailable:
-            return L10n.Localizable.Struct.DownloadBadge.Text.updateAvailable
-        case .completed:
-            return L10n.Localizable.Struct.DownloadBadge.Text.downloaded
-        case .error:
-            return failure == .missingFiles
-                ? L10n.Localizable.Struct.DownloadBadge.Text.needsRepair
-                : L10n.Localizable.Struct.DownloadBadge.Text.needsAttention
+        case .active: .playFill
+        case .queued: .listDash
+        case .inactive: .pauseFill
+        case .completed: .checkmarkCircleFill
+        case .updateAvailable: .arrowUpCircleFill
+        case .error: .exclamationmarkTriangleFill
         }
     }
 
-    var progressText: String? {
-        guard showsProgressText, let progress else { return nil }
-        return L10n.Localizable.Struct.DownloadBadge.progress(
-            progress.completedPageCount,
-            progress.displayPageCount
-        )
-    }
-
-    var text: String {
-        [statusText, progressText]
-            .compactMap { $0 }
-            .joined(separator: " ")
-    }
-
-    private var showsProgressText: Bool {
+    var ringSymbol: SFSymbol {
         switch status {
-        case .active, .inactive:
-            return true
-        case .error:
-            return failure == .partial
-        case .queued, .updateAvailable, .completed:
-            return false
+        case .active: .playFill
+        case .queued: .listDash
+        case .inactive: .pauseFill
+        case .completed: .checkmark
+        case .updateAvailable: .arrowUp
+        case .error: .exclamationmark
         }
     }
 
     var color: Color {
         switch status {
-        case .queued:
-            return .orange
-        case .active:
-            return .blue
-        case .inactive:
-            return .indigo
-        case .completed:
-            return .green
-        case .updateAvailable:
-            return .yellow
-        case .error:
-            return failure == .missingFiles ? .pink : .orange
+        case .active, .queued: .green
+        case .inactive, .completed: .gray
+        case .updateAvailable: .blue
+        case .error: .yellow
         }
     }
 }

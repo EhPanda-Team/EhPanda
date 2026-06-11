@@ -48,7 +48,9 @@ struct GalleryThumbnailCell: View {
                 .fade(duration: 0.25).resizable().scaledToFit().overlay {
                     VStack {
                         HStack {
-                            DownloadBadgeLabel(badge: downloadBadge, compact: true)
+                            if let downloadBadge {
+                                DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
+                            }
                             Spacer()
                             CategoryLabel(
                                 text: gallery.category.value, color: gallery.color,

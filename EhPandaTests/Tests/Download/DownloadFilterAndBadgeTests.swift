@@ -3,7 +3,9 @@
 //  EhPandaTests
 //
 
+import SwiftUI
 import Foundation
+import SFSafeSymbols
 import ComposableArchitecture
 import Testing
 @testable import EhPanda
@@ -123,7 +125,12 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 4
         )
 
-        #expect(pausedDownload.badge == .paused(4, 12))
+        #expect(
+            pausedDownload.badge == DownloadBadge(
+                status: .inactive,
+                progress: .init(completedPageCount: 4, pageCount: 12)
+            )
+        )
         #expect(pausedDownload.matches(filter: .active))
     }
 
@@ -215,7 +222,13 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             completedPageCount: 5
         )
 
-        #expect(partialDownload.badge.text == "Needs Attention 5/12")
+        #expect(partialDownload.badge.symbol == .exclamationmarkTriangleFill)
+        #expect(partialDownload.badge.ringSymbol == .exclamationmark)
+        #expect(partialDownload.badge.color == .yellow)
+        #expect(
+            partialDownload.badge.progress
+                == DownloadProgress(completedPageCount: 5, pageCount: 12)
+        )
         #expect(DownloadListFilter.failed.title == "Needs Attention")
     }
 

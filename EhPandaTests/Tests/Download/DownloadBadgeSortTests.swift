@@ -3,7 +3,9 @@
 //  EhPandaTests
 //
 
+import SwiftUI
 import Foundation
+import SFSafeSymbols
 import ComposableArchitecture
 import Testing
 @testable import EhPanda
@@ -22,10 +24,9 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
 
         #expect(badge.status == activeDownload.displayStatus)
         #expect(badge.progress == DownloadProgress(completedPageCount: 7, pageCount: 26))
-        #expect(badge.failure == nil)
-        #expect(badge.statusText == "Downloading")
-        #expect(badge.progressText == "7/26")
-        #expect(badge.text == "Downloading 7/26")
+        #expect(badge.symbol == .playFill)
+        #expect(badge.ringSymbol == .playFill)
+        #expect(badge.color == .green)
 
         let completedBadge = sampleDownload(
             gid: "481",
@@ -34,8 +35,10 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             pageCount: 26
         ).badge
 
-        #expect(completedBadge.progressText == nil)
-        #expect(completedBadge.text == completedBadge.statusText)
+        #expect(completedBadge.symbol == .checkmarkCircleFill)
+        #expect(completedBadge.ringSymbol == .checkmark)
+        #expect(completedBadge.color == .gray)
+        #expect(completedBadge.progress.fraction == 1)
     }
 
     @Test
@@ -47,7 +50,13 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             pageCount: 12,
             completedPageCount: 5
         )
-        #expect(partialDownload.badge.text == "Needs Attention 5/12")
+        #expect(partialDownload.badge.symbol == .exclamationmarkTriangleFill)
+        #expect(partialDownload.badge.ringSymbol == .exclamationmark)
+        #expect(partialDownload.badge.color == .yellow)
+        #expect(
+            partialDownload.badge.progress
+                == DownloadProgress(completedPageCount: 5, pageCount: 12)
+        )
         #expect(DownloadListFilter.failed.title == "Needs Attention")
     }
 
@@ -82,7 +91,7 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
 
         #expect(queuedRepair.matches(filter: .failed) == false)
         #expect(queuedRepair.matches(filter: .update) == false)
-        #expect(missingFilesWithoutQueuedWork.badge.failure == .missingFiles)
+        #expect(missingFilesWithoutQueuedWork.lastError?.code == .fileOperationFailed)
         #expect(missingFilesWithoutQueuedWork.matches(filter: .failed))
     }
 

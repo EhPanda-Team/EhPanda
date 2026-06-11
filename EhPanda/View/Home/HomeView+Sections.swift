@@ -154,11 +154,10 @@ struct VerticalCoverStack: View {
                 .scaledToFill()
                 .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH).cornerRadius(2)
                 .overlay(alignment: .topTrailing) {
-                    DownloadBadgeLabel(
-                        badge: downloadBadges[gallery.gid],
-                        compact: true
-                    )
-                    .padding(6)
+                    if let downloadBadge = downloadBadges[gallery.gid] {
+                        DownloadBadgeLabel(badge: downloadBadge, isCompactStyle: true)
+                            .padding(6)
+                    }
                 }
         }
     }

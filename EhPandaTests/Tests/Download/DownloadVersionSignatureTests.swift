@@ -88,7 +88,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             folderURL: folderURL
         )
 
-        let updateBadge = await manager.updateRemoteVersion(
+        let updateResult = await manager.updateRemoteVersion(
             gid: gid,
             metadata: DownloadVersionMetadata(
                 gid: gid,
@@ -103,11 +103,11 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         )
         let updatedDownload = await manager.testingFetchDownload(gid: gid)
 
-        #expect(updateBadge?.status == .updateAvailable)
+        #expect(updateResult?.displayStatus == .updateAvailable)
         #expect(updatedDownload?.displayStatus == .updateAvailable)
         #expect(updatedDownload?.displayStatus == .updateAvailable)
 
-        let currentBadge = await manager.updateRemoteVersion(
+        let currentResult = await manager.updateRemoteVersion(
             gid: gid,
             metadata: DownloadVersionMetadata(
                 gid: gid,
@@ -122,7 +122,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         )
         let currentDownload = await manager.testingFetchDownload(gid: gid)
 
-        #expect(currentBadge?.status == .completed)
+        #expect(currentResult?.displayStatus == .completed)
         #expect(currentDownload?.displayStatus == .completed)
         #expect(currentDownload?.displayStatus == .completed)
     }

@@ -21,7 +21,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
 
         let store = makeMetadataTestStore(
             gid: gallery.gid, gallery: gallery,
-            badgeValue: .none, updateCheckCount: updateCheckCount
+            downloadValue: nil, updateCheckCount: updateCheckCount
         )
         store.exhaustivity = .off
 
@@ -48,9 +48,12 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = try sampleGalleryState(gid: gallery.gid)
 
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
         let store = makeDownloadedMetadataTestStore(
             gid: gallery.gid, gallery: gallery,
-            badgeValue: .none, updateCheckCount: updateCheckCount
+            downloadValue: nil, updateCheckCount: updateCheckCount
         )
         store.exhaustivity = .off
 
@@ -60,7 +63,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
         await store.skipReceivedActions(strict: false)
         #expect(updateCheckCount.value == 0)
 
-        await store.send(.fetchDownloadBadgeDone(.downloaded))
+        await store.send(.fetchDownloadBadgeDone(completedDownload))
         await drainDetailMetadataEffects(
             store,
             condition: {
@@ -82,13 +85,16 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let galleryState = try sampleGalleryState(gid: gallery.gid)
 
+        let completedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
         let store = makeDownloadedMetadataTestStore(
             gid: gallery.gid, gallery: gallery,
-            badgeValue: .downloaded, updateCheckCount: updateCheckCount
+            downloadValue: completedDownload, updateCheckCount: updateCheckCount
         )
         store.exhaustivity = .off
 
-        await store.send(.fetchDownloadBadgeDone(.downloaded))
+        await store.send(.fetchDownloadBadgeDone(completedDownload))
         await store.skipReceivedActions(strict: false)
         #expect(updateCheckCount.value == 0)
 
@@ -114,7 +120,7 @@ struct DetailReducerMetadataTests: DownloadFeatureTestCase {
 private extension DetailReducerMetadataTests {
     func makeMetadataTestStore(
         gid: String, gallery: Gallery,
-        badgeValue: DownloadBadge?, updateCheckCount: UncheckedBox<Int>
+        downloadValue: DownloadedGallery?, updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State()
         initialState.gid = gid
@@ -127,14 +133,10 @@ private extension DetailReducerMetadataTests {
                     AsyncStream { continuation in continuation.finish() }
                 },
                 fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
+                fetchDownload: { _ in downloadValue },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in
-                    badgeValue.map { value in
-                        Dictionary(uniqueKeysWithValues: gids.map { ($0, value) })
-                    } ?? [:]
-                },
+                badges: { _ in [:] },
                 fetchVersionMetadata: { _, _ in
                     .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
                 },
@@ -156,8 +158,11 @@ private extension DetailReducerMetadataTests {
 
     func makeDownloadedMetadataTestStore(
         gid: String, gallery: Gallery,
-        badgeValue: DownloadBadge?, updateCheckCount: UncheckedBox<Int>
+        downloadValue: DownloadedGallery?, updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
+        let updatedDownload = sampleDownload(
+            gid: gallery.gid, title: gallery.title, status: .completed
+        )
         var initialState = DetailReducer.State()
         initialState.gid = gid
         initialState.gallery = gallery
@@ -169,20 +174,16 @@ private extension DetailReducerMetadataTests {
                     AsyncStream { continuation in continuation.finish() }
                 },
                 fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
+                fetchDownload: { _ in downloadValue },
                 refreshDownloads: {},
                 resumeQueue: {},
-                badges: { gids in
-                    badgeValue.map { value in
-                        Dictionary(uniqueKeysWithValues: gids.map { ($0, value) })
-                    } ?? [:]
-                },
+                badges: { _ in [:] },
                 fetchVersionMetadata: { _, _ in
                     .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
                 },
                 updateRemoteVersion: { _, _ in
                     updateCheckCount.value += 1
-                    return .downloaded
+                    return updatedDownload
                 },
                 enqueue: { _ in .success(()) },
                 togglePause: { _ in .success(()) },
