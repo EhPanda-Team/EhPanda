@@ -49,38 +49,6 @@ extension DownloadManager {
         }
     }
 
-    func buildCompletedPageURLs(
-        completedFolderURL: URL?,
-        download: DownloadedGallery
-    ) -> [Int: URL] {
-        guard let completedFolderURL else { return [:] }
-        return storage.imageURLs(
-            folderURL: completedFolderURL,
-            manifest: download.manifest
-        )
-    }
-
-    func resolveLocalPageURLs(
-        completedValidation: DownloadValidationState,
-        completedFolderURL: URL?,
-        completedPageURLs: [Int: URL]
-    ) -> Result<[Int: URL], AppError> {
-        if completedValidation == .valid,
-           let completedFolderURL,
-           fileManager.operate({ $0.fileExists(atPath: completedFolderURL.path) }),
-           let manifest = try? storage.readManifest(
-            folderURL: completedFolderURL
-           ) {
-            return .success(storage.imageURLs(
-                folderURL: completedFolderURL,
-                manifest: manifest
-            )
-            )
-        }
-
-        return .success(completedPageURLs)
-    }
-
     func clearSelectedFailedPages(
         gid: String,
         selectedPageIndices: [Int],

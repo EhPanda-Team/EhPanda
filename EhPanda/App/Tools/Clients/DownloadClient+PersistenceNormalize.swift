@@ -75,35 +75,25 @@ extension DownloadManager {
         downloadErrors[activeGalleryID] = nil
     }
 
-    func validateDownloads() async {
-        let downloads = await fetchDownloadsFromStore()
-        for download in downloads where download.canValidateImageData {
-            _ = await validateDownload(download)
-        }
-    }
-
     func validateImageData(gid: String) async -> DownloadValidationState? {
         guard let download = await fetchDownload(gid: gid),
               download.canValidateImageData
         else { return nil }
-        let validation = await validateDownload(download)
-        await notifyObservers()
-        return validation
-    }
-
-    private func validateDownload(_ download: DownloadedGallery) async -> DownloadValidationState {
-        let validation = storage.validate(download: download)
+        let validation = storage.validate(
+            download: download,
+            verifiesContentHashes: true
+        )
         switch validation {
         case .valid:
             validationErrors[download.gid] = nil
 
         case .missingFiles(let message):
-            let failure = DownloadFailure(
+            validationErrors[download.gid] = DownloadFailure(
                 code: .fileOperationFailed,
                 message: message
             )
-            validationErrors[download.gid] = failure
         }
+        await notifyObservers()
         return validation
     }
 }

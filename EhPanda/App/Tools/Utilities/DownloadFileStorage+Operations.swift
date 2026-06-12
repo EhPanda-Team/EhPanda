@@ -189,7 +189,10 @@ extension DownloadFileStorage {
         }
     }
 
-    func validate(download: DownloadedGallery) -> DownloadValidationState {
+    func validate(
+        download: DownloadedGallery,
+        verifiesContentHashes: Bool
+    ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadFolderMissing)
@@ -203,7 +206,8 @@ extension DownloadFileStorage {
         }
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
-            manifest: manifest
+            manifest: manifest,
+            verifiesContentHashes: verifiesContentHashes
         ) {
             return pageValidationFailure
         }
@@ -244,7 +248,8 @@ extension DownloadFileStorage {
 
     private func validatePages(
         folderURL: URL,
-        manifest: DownloadManifest
+        manifest: DownloadManifest,
+        verifiesContentHashes: Bool
     ) -> DownloadValidationState? {
         let existingPages = existingPageRelativePaths(
             folderURL: folderURL,
@@ -255,7 +260,8 @@ extension DownloadFileStorage {
                 folderURL: folderURL,
                 index: index,
                 expectedHash: manifest.pages[index] ?? "",
-                existingPageRelativePaths: existingPages
+                existingPageRelativePaths: existingPages,
+                verifiesContentHash: verifiesContentHashes
             ) {
                 return validationFailure
             }
@@ -267,7 +273,8 @@ extension DownloadFileStorage {
         folderURL: URL,
         index: Int,
         expectedHash: String,
-        existingPageRelativePaths: [Int: String]
+        existingPageRelativePaths: [Int: String],
+        verifiesContentHash: Bool
     ) -> DownloadValidationState? {
         guard !expectedHash.isEmpty else {
             return nil
@@ -280,7 +287,7 @@ extension DownloadFileStorage {
             return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index))
         }
 
-        if (try? fileHash(at: pageURL)) != expectedHash {
+        if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
             return .missingFiles(
                 L10n.Localizable.DownloadFileStorage.Validation.pageImageCorrupted(index)
             )
