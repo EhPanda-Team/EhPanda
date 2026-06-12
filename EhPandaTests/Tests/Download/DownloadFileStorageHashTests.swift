@@ -24,7 +24,7 @@ struct DownloadFileStorageHashTests {
         try Data([0x03]).write(to: pageTwoURL, options: .atomic)
 
         #expect(
-            storage.validate(download: download)
+            storage.validate(download: download, verifiesContentHashes: true)
                 == .missingFiles("Page 2 image data is corrupted.")
         )
     }
@@ -51,7 +51,7 @@ struct DownloadFileStorageHashTests {
 
         #expect(refreshedManifest.pages[1] == manifest.pages[1])
         #expect(refreshedManifest.pages[2] != manifest.pages[2])
-        #expect(storage.validate(download: download) == .valid)
+        #expect(storage.validate(download: download, verifiesContentHashes: true) == .valid)
     }
 
     private func makePreparedDownload(

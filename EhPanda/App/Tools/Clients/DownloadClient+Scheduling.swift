@@ -131,7 +131,6 @@ extension DownloadManager {
             Logger.error(error)
         }
         await reconcileActiveDownloadState()
-        await validateDownloads()
         await notifyObservers()
         guard scheduleNext else { return }
         await scheduleNextIfNeeded()

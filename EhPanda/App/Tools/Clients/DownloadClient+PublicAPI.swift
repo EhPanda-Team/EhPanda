@@ -181,17 +181,13 @@ extension DownloadManager {
     func loadManifest(
         gid: String
     ) async -> Result<(DownloadedGallery, DownloadManifest), AppError> {
-        let sanitizedDownload = await sanitizeLocalFilesIfNeeded(gid: gid)
-        let resolvedDownload: DownloadedGallery?
-        if let sanitizedDownload {
-            resolvedDownload = sanitizedDownload
-        } else {
-            resolvedDownload = await fetchDownload(gid: gid)
-        }
-        guard let download = resolvedDownload else {
+        guard let download = await sanitizeLocalFilesIfNeeded(gid: gid) else {
             return .failure(.notFound)
         }
-        switch storage.validate(download: download) {
+        switch storage.validate(
+            download: download,
+            verifiesContentHashes: false
+        ) {
         case .valid:
             break
         case .missingFiles(let message):

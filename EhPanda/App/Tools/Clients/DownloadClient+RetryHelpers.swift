@@ -94,29 +94,12 @@ extension DownloadManager {
     func loadLocalPageURLs(
         gid: String
     ) async -> Result<[Int: URL], AppError> {
-        let sanitizedDownload = await sanitizeLocalFilesIfNeeded(gid: gid)
-        let resolvedDownload: DownloadedGallery?
-        if let sanitizedDownload {
-            resolvedDownload = sanitizedDownload
-        } else {
-            resolvedDownload = await fetchDownload(gid: gid)
-        }
-        guard let download = resolvedDownload else {
+        guard let download = await sanitizeLocalFilesIfNeeded(gid: gid) else {
             return .failure(.notFound)
         }
-
-        let completedFolderURL = download.folderURL
-        let completedValidation = storage.validate(download: download)
-
-        let completedPageURLs = buildCompletedPageURLs(
-            completedFolderURL: completedFolderURL,
-            download: download
-        )
-
-        return resolveLocalPageURLs(
-            completedValidation: completedValidation,
-            completedFolderURL: completedFolderURL,
-            completedPageURLs: completedPageURLs
-        )
+        return .success(storage.imageURLs(
+            folderURL: download.folderURL,
+            manifest: download.manifest
+        ))
     }
 }

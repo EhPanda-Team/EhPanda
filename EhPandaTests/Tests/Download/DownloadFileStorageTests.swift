@@ -38,7 +38,7 @@ struct DownloadFileStorageTests {
         let loadedManifest = try storage.readManifest(folderURL: folderURL)
 
         #expect(loadedManifest == manifest)
-        #expect(storage.validate(download: download) == .valid)
+        #expect(storage.validate(download: download, verifiesContentHashes: true) == .valid)
     }
 
     @Test
@@ -76,7 +76,7 @@ struct DownloadFileStorageTests {
         )
 
         #expect(
-            storage.validate(download: download) == .missingFiles("Page 2 is missing.")
+            storage.validate(download: download, verifiesContentHashes: true) == .missingFiles("Page 2 is missing.")
         )
     }
 
@@ -111,7 +111,7 @@ struct DownloadFileStorageTests {
         )
 
         #expect(
-            storage.validate(download: download) == .missingFiles("Page 1 is missing.")
+            storage.validate(download: download, verifiesContentHashes: true) == .missingFiles("Page 1 is missing.")
         )
         #expect(
             FileManager.default.fileExists(

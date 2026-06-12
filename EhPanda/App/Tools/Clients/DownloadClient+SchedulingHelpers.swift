@@ -51,7 +51,10 @@ extension DownloadManager {
                 requestedMode: .repair
             )
         }
-        if case .missingFiles = storage.validate(download: download) {
+        if case .missingFiles = storage.validate(
+            download: download,
+            verifiesContentHashes: false
+        ) {
             return .repair
         }
         return .redownload
