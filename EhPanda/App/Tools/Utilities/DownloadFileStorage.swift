@@ -146,16 +146,20 @@ struct DownloadFileStorage: Sendable {
             .filter { $0.lastPathComponent.hasPrefix(prefix) }
     }
 
-    func isGalleryFolderLikeName(_ name: String) -> Bool {
+    static func isGalleryFolderLikeName(_ name: String) -> Bool {
         name.range(of: #"^\[[^\]]*_[^\]]*\] "#, options: .regularExpression) != nil
     }
 
-    func normalizedUserFolderName(_ name: String) -> String? {
+    func isGalleryFolderLikeName(_ name: String) -> Bool {
+        Self.isGalleryFolderLikeName(name)
+    }
+
+    static func normalizedUserFolderName(_ name: String) -> String? {
         guard let limitedName = normalizedFolderName(
             name,
             trimsLeadingDots: true,
             fallback: nil,
-            maximumUTF8ByteCount: Self.maxFolderComponentByteCount
+            maximumUTF8ByteCount: maxFolderComponentByteCount
         ) else {
             return nil
         }
@@ -165,11 +169,15 @@ struct DownloadFileStorage: Sendable {
         return limitedName
     }
 
+    func normalizedUserFolderName(_ name: String) -> String? {
+        Self.normalizedUserFolderName(name)
+    }
+
     private func normalizedFolderTitle(
         _ title: String,
         maximumUTF8ByteCount: Int
     ) -> String {
-        normalizedFolderName(
+        Self.normalizedFolderName(
             title,
             trimsLeadingDots: false,
             fallback: "Gallery",
@@ -177,7 +185,7 @@ struct DownloadFileStorage: Sendable {
         ) ?? "Gallery"
     }
 
-    private func normalizedFolderName(
+    private static func normalizedFolderName(
         _ name: String,
         trimsLeadingDots: Bool,
         fallback: String?,

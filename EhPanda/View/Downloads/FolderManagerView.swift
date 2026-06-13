@@ -55,19 +55,7 @@ struct FolderManagerView: View {
                     }
                 }
 
-                LoadingView().opacity(
-                    store.loadingState == .loading && store.folders.isEmpty ? 1 : 0
-                )
-                AlertView(
-                    symbol: .folder,
-                    message: L10n.Localizable.FolderManagerView.EmptyState.folders
-                ) {
-                    EmptyView()
-                }
-                .opacity(
-                    store.loadingState != .loading && store.folders.isEmpty
-                        && store.editingField != .newFolder ? 1 : 0
-                )
+                stateOverlay
             }
             .animation(.default, value: store.folders)
             .animation(.default, value: store.editingField)
@@ -78,6 +66,28 @@ struct FolderManagerView: View {
             .toolbar(content: toolbar)
             .navigationTitle(L10n.Localizable.FolderManagerView.Title.folders)
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    @ViewBuilder private var stateOverlay: some View {
+        switch store.loadingState {
+        case .loading where store.folders.isEmpty:
+            LoadingView()
+
+        case .failed(let error):
+            ErrorView(error: error) {
+                store.send(.fetchFolders)
+            }
+
+        case .idle, .loading:
+            if store.folders.isEmpty && store.editingField != .newFolder {
+                AlertView(
+                    symbol: .folder,
+                    message: L10n.Localizable.FolderManagerView.EmptyState.folders
+                ) {
+                    EmptyView()
+                }
+            }
         }
     }
 
