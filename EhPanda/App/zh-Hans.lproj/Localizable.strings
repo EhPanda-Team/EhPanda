@@ -427,6 +427,7 @@
 "downloads_view.inspector.status.failed" = "失败";
 
 // MARK: DownloadSettingView
+"download_setting_view.title" = "下载";
 "download_setting_view.section.title.download_queue" = "下载队列";
 "download_setting_view.section.title.network" = "网络";
 "download_setting_view.title.concurrent_image_downloads" = "并发图片下载";

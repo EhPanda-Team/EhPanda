@@ -995,6 +995,7 @@
 "downloads_view.inspector.status.pending" = "Ausstehend";
 "downloads_view.inspector.status.downloaded" = "Heruntergeladen";
 "downloads_view.inspector.status.failed" = "Fehlgeschlagen";
+"download_setting_view.title" = "Download";
 "download_setting_view.section.title.download_queue" = "Download-Warteschlange";
 "download_setting_view.section.title.network" = "Netzwerk";
 "download_setting_view.title.concurrent_image_downloads" = "Gleichzeitige Bilddownloads";
