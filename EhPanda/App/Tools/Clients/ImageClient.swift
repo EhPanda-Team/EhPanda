@@ -86,8 +86,15 @@ extension ImageClient {
             let result: Result<UIImage, Error> = await withCheckedContinuation { continuation in
                 KingfisherManager.shared.downloader.downloadImage(with: url, options: nil) { result in
                     switch result {
-                    case .success(let result):
-                        continuation.resume(returning: .success(result.image))
+                    case .success(let downloadResult):
+                        KingfisherManager.shared.cache.store(
+                            downloadResult.image,
+                            original: downloadResult.originalData,
+                            forKey: url.stableImageCacheKey ?? url.absoluteString,
+                            completionHandler: { _ in
+                                continuation.resume(returning: .success(downloadResult.image))
+                            }
+                        )
                     case .failure(let error):
                         continuation.resume(returning: .failure(error))
                     }
