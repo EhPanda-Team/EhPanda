@@ -175,6 +175,64 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testImageClientDownloadImageCancelsKingfisherTask() async throws {
+        let url = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
+        )
+        let downloader = ImageDownloader(name: "cancel-\(UUID().uuidString)")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingURLProtocol.self]
+        downloader.sessionConfiguration = configuration
+        let task = Task {
+            await ImageClient.downloadStaticImage(
+                url: url,
+                downloader: downloader,
+                cache: KingfisherManager.shared.cache
+            )
+        }
+
+        task.cancel()
+        let result = try await waitForTaskValue(
+            task,
+            timeout: .seconds(1),
+            description: "Kingfisher image cancellation"
+        )
+
+        #expect(throws: CancellationError.self) {
+            try result.get()
+        }
+    }
+
+    @MainActor
+    @Test
+    func testImageClientDownloadImageCancelsSDWebImageOperation() async throws {
+        let url = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-1234567890.webp?download=1")
+        )
+        let downloaderConfig = SDWebImageDownloaderConfig()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingURLProtocol.self]
+        downloaderConfig.sessionConfiguration = configuration
+        let downloader = SDWebImageDownloader(config: downloaderConfig)
+        let manager = SDWebImageManager(cache: SDImageCache.shared, loader: downloader)
+        let task = Task {
+            await ImageClient.downloadAnimatedImage(url: url, manager: manager)
+        }
+
+        task.cancel()
+        let result = try await waitForTaskValue(
+            task,
+            timeout: .seconds(1),
+            description: "SDWebImage image cancellation"
+        )
+
+        #expect(throws: CancellationError.self) {
+            try result.get()
+        }
+    }
+
+    @MainActor
+    @Test
     func testImageClientFetchImageUsesSDWebImageStableAliasCacheKey() async throws {
         let url = try #require(
             URL(string: "https://ehgt.org/ab/cd/0001-1234567890.webp?download=1")
