@@ -120,9 +120,36 @@ extension DownloadManager {
     ) throws {
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try createDirectory(at: folderURL)
+        if let existingManifest = reusableExistingManifest(
+            payload: payload,
+            folderURL: folderURL
+        ) {
+            updateDownloadIndex(folderURL: folderURL, manifest: existingManifest)
+            return
+        }
         let manifest = makeInitialManifest(payload: payload)
         try storage.writeManifest(manifest, folderURL: folderURL)
         updateDownloadIndex(folderURL: folderURL, manifest: manifest)
+    }
+
+    private func reusableExistingManifest(
+        payload: DownloadRequestPayload,
+        folderURL: URL
+    ) -> DownloadManifest? {
+        guard let manifest = try? storage.readManifest(folderURL: folderURL),
+              manifest.gid == payload.gallery.gid,
+              manifest.token == payload.gallery.token,
+              manifest.host == payload.host
+        else {
+            return nil
+        }
+        let expectedPageIndices = payload.galleryDetail.pageCount > 0
+            ? Set(1...payload.galleryDetail.pageCount)
+            : Set<Int>()
+        guard Set(manifest.pages.keys) == expectedPageIndices else {
+            return nil
+        }
+        return manifest
     }
 
     func togglePause(gid: String) async -> Result<Void, AppError> {
