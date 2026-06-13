@@ -127,7 +127,21 @@ struct DownloadFileStorage: Sendable {
     }
 
     func makeFolderRelativePath(gid: String, token: String, title: String) -> String {
-        "[\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))] \(normalizedFolderTitle(title))"
+        "\(galleryFolderNamePrefix(gid: gid, token: token))\(normalizedFolderTitle(title))"
+    }
+
+    func galleryFolderNamePrefix(gid: String, token: String) -> String {
+        "[\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))] "
+    }
+
+    func galleryFolderURLs(gid: String, token: String) -> [URL] {
+        guard fileManager.operate({ $0.fileExists(atPath: rootURL.path) }) else {
+            return []
+        }
+        let prefix = galleryFolderNamePrefix(gid: gid, token: token)
+        return directoryURLs(in: rootURL)
+            .flatMap { directoryURLs(in: $0) }
+            .filter { $0.lastPathComponent.hasPrefix(prefix) }
     }
 
     func isGalleryFolderLikeName(_ name: String) -> Bool {
