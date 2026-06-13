@@ -13,7 +13,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
     func testRetryPagesUsesMinimalSourceResolutionAndSkipsWhenNoPendingPages() async throws {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 200)
-        let pageIndex = 42
+        let pageIndex = 40
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -53,7 +53,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
 
         let firstRunSnapshot = setup.recorder.snapshot()
         #expect(
-            firstRunSnapshot.previewPageNumbers == [1],
+            firstRunSnapshot.previewPageNumbers == [0],
             "\(firstRunSnapshot)"
         )
 
