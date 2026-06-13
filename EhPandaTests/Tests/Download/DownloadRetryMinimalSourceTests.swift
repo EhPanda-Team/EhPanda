@@ -69,6 +69,59 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             )
         )
     }
+
+    @Test
+    func testPartialRetryDoesNotOverwriteLastErrorWhenUnselectedPagesRemainMissing() async throws {
+        let sessionID = UUID().uuidString
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 201)
+        let pageIndex = 40
+        let remainingMissingPageIndex = 41
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let (storage, manager) = makeStubbedDownloadManager(
+            rootURL: rootURL, sessionID: sessionID
+        )
+        let setup = try await setupMinimalSourceTest(
+            manager: manager, sessionID: sessionID, gid: gid, pageIndex: pageIndex
+        )
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let manifest = try sampleManifest(
+            gid: gid, title: "Pause Race",
+            pageCount: setup.pageCount
+        )
+        try writeFinalManifest(
+            storage: storage,
+            gid: gid,
+            manifest: manifest,
+            missingPageIndices: [pageIndex, remainingMissingPageIndex]
+        )
+        await manager.testingSetDownloadError(
+            .init(code: .networkingFailed, message: "Original retry failure."),
+            gid: gid
+        )
+        let blocker = Task<Void, Never> {
+            try? await Task.sleep(for: .seconds(60))
+        }
+        defer { blocker.cancel() }
+        await manager.testingInstallActiveTask(gid: "busy", task: blocker)
+        guard case .success = await manager.retryPages(gid: gid, pageIndices: [pageIndex]) else {
+            Issue.record("retryPages should queue the selected page.")
+            return
+        }
+
+        await manager.testingProcessDownload(gid: gid)
+
+        let snapshot = setup.recorder.snapshot()
+        #expect(snapshot.previewPageNumbers == [0], "\(snapshot)")
+
+        let stored = try #require(await manager.testingFetchDownload(gid: gid))
+        #expect(stored.displayStatus == .inactive)
+        #expect(stored.lastError == nil)
+        #expect(stored.completedPageCount == setup.pageCount - 1)
+    }
 }
 
 // MARK: - Minimal Source Test Result
@@ -118,6 +171,20 @@ private extension DownloadRetryMinimalSourceTests {
         manifest: DownloadManifest,
         missingPageIndex: Int
     ) throws {
+        try writeFinalManifest(
+            storage: storage,
+            gid: gid,
+            manifest: manifest,
+            missingPageIndices: [missingPageIndex]
+        )
+    }
+
+    func writeFinalManifest(
+        storage: DownloadFileStorage,
+        gid: String,
+        manifest: DownloadManifest,
+        missingPageIndices: Set<Int>
+    ) throws {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Pause Race")
         try FileManager.default.createDirectory(
@@ -128,7 +195,7 @@ private extension DownloadRetryMinimalSourceTests {
             to: folderURL.appendingPathComponent("\(gid)_token_cover.jpg"),
             options: .atomic
         )
-        for index in manifest.pages.keys where index != missingPageIndex {
+        for index in manifest.pages.keys where !missingPageIndices.contains(index) {
             try Data([UInt8(index % 255)]).write(
                 to: folderURL.appendingPathComponent("\(gid)_token_\(index).jpg"),
                 options: .atomic

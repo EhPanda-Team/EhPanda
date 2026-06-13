@@ -120,11 +120,34 @@ extension DownloadManager {
                 failedPages: context.batchResult.failedPages
             )
         }
+        let missingPageIndices = missingFinalizedPageIndices(
+            payload: payload,
+            folderURL: folderURL
+        )
+        guard missingPageIndices.isEmpty else {
+            throw IncompleteDownloadError(
+                missingPageIndices: missingPageIndices
+            )
+        }
         try await finalizeDownload(
             payload: payload,
             folderURL: folderURL,
             finalizeContext: context
         )
+    }
+
+    private func missingFinalizedPageIndices(
+        payload: DownloadRequestPayload,
+        folderURL: URL
+    ) -> [Int] {
+        let manifest = makeInitialManifest(payload: payload)
+        let existingPages = storage.existingPageRelativePaths(
+            folderURL: folderURL,
+            manifest: manifest
+        )
+        return manifest.pages.keys.sorted().filter { index in
+            existingPages[index] == nil
+        }
     }
 
     private func resolveSourceIfNeeded(

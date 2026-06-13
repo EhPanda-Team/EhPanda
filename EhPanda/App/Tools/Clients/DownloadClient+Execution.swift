@@ -100,6 +100,11 @@ extension DownloadManager {
                 error: partialError,
                 context: context
             )
+        } else if let incompleteError = error as? IncompleteDownloadError {
+            await handleProcessDownloadIncompleteError(
+                error: incompleteError,
+                context: context
+            )
         } else {
             await handleProcessDownloadGenericError(
                 error: error,
@@ -184,6 +189,19 @@ extension DownloadManager {
             ]
         )
         await persistFailure(error: pageError, context: context)
+        await notifyObservers()
+    }
+
+    private func handleProcessDownloadIncompleteError(
+        error _: IncompleteDownloadError,
+        context: FailureContext
+    ) async {
+        guard !shouldSuppressFailurePersistence(for: context.gid) else {
+            return
+        }
+        clearDownloadQueueIntent(gid: context.gid)
+        await queueStore.remove(context.gid)
+        _ = await reloadDownloadIndex()
         await notifyObservers()
     }
 
