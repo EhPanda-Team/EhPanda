@@ -116,6 +116,65 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testImageClientDownloadImageCachesKingfisherOriginalUnderStableKey() async throws {
+        let sessionID = UUID().uuidString
+        let url = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
+        )
+        let stableCacheKey = try #require(url.stableImageCacheKey)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let image = UIGraphicsImageRenderer(
+            size: .init(width: 1, height: 1),
+            format: format
+        )
+        .image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
+        let imageData = try #require(image.pngData())
+        let originalDownloader = KingfisherManager.shared.downloader
+        let downloader = ImageDownloader(name: "test-\(sessionID)")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [
+            SharedSessionStubURLProtocol.headerKey: sessionID
+        ]
+        downloader.sessionConfiguration = configuration
+        KingfisherManager.shared.downloader = downloader
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
+            #expect(request.url == url)
+            return (
+                try #require(HTTPURLResponse(
+                    url: url,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: [
+                        "Content-Type": "image/png",
+                        "Content-Length": "\(imageData.count)"
+                    ]
+                )),
+                imageData
+            )
+        }
+        defer {
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
+            KingfisherManager.shared.downloader = originalDownloader
+            KingfisherManager.shared.cache.removeImage(forKey: stableCacheKey)
+            KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
+        }
+
+        let result = await ImageClient.live.downloadImage(url)
+        let downloadedImage = try result.get()
+
+        #expect(downloadedImage.size == image.size)
+        await waitUntilCacheReady(for: [stableCacheKey], timeout: .seconds(3))
+        let cachedImage = try #require(await LibraryClient.live.cachedImage(stableCacheKey))
+        #expect(cachedImage.size == image.size)
+    }
+
+    @MainActor
+    @Test
     func testImageClientFetchImageUsesSDWebImageStableAliasCacheKey() async throws {
         let url = try #require(
             URL(string: "https://ehgt.org/ab/cd/0001-1234567890.webp?download=1")
