@@ -25,7 +25,7 @@ struct DownloadScanResult: Equatable, Sendable {
 }
 
 struct DownloadFileStorage: Sendable {
-    private static let maxFolderTitleLength = 96
+    private static let maxFolderComponentByteCount = 255
 
     let rootURL: URL
     let fileManager: DownloadFileManager
@@ -127,7 +127,9 @@ struct DownloadFileStorage: Sendable {
     }
 
     func makeFolderRelativePath(gid: String, token: String, title: String) -> String {
-        "\(galleryFolderNamePrefix(gid: gid, token: token))\(normalizedFolderTitle(title))"
+        let prefix = galleryFolderNamePrefix(gid: gid, token: token)
+        let titleByteCount = max(Self.maxFolderComponentByteCount - prefix.utf8.count, 0)
+        return "\(prefix)\(normalizedFolderTitle(title, maximumUTF8ByteCount: titleByteCount))"
     }
 
     func galleryFolderNamePrefix(gid: String, token: String) -> String {
@@ -149,6 +151,38 @@ struct DownloadFileStorage: Sendable {
     }
 
     func normalizedUserFolderName(_ name: String) -> String? {
+        guard let limitedName = normalizedFolderName(
+            name,
+            trimsLeadingDots: true,
+            fallback: nil,
+            maximumUTF8ByteCount: Self.maxFolderComponentByteCount
+        ) else {
+            return nil
+        }
+        guard !limitedName.isEmpty, !isGalleryFolderLikeName(limitedName) else {
+            return nil
+        }
+        return limitedName
+    }
+
+    private func normalizedFolderTitle(
+        _ title: String,
+        maximumUTF8ByteCount: Int
+    ) -> String {
+        normalizedFolderName(
+            title,
+            trimsLeadingDots: false,
+            fallback: "Gallery",
+            maximumUTF8ByteCount: maximumUTF8ByteCount
+        ) ?? "Gallery"
+    }
+
+    private func normalizedFolderName(
+        _ name: String,
+        trimsLeadingDots: Bool,
+        fallback: String?,
+        maximumUTF8ByteCount: Int
+    ) -> String? {
         let invalidCharacters = CharacterSet(charactersIn: "/\\:")
             .union(.controlCharacters)
         let sanitizedScalars = name
@@ -161,51 +195,25 @@ struct DownloadFileStorage: Sendable {
             with: " ",
             options: .regularExpression
         )
+        let trimPattern = trimsLeadingDots
+            ? "^[\\s.]+|[\\s.]+$"
+            : "^\\s+|[\\s.]+$"
         let trimmedName = collapsedWhitespace.replacingOccurrences(
-            of: "^[\\s.]+|[\\s.]+$",
+            of: trimPattern,
             with: "",
             options: .regularExpression
         )
-        let limitedName = String(trimmedName.prefix(Self.maxFolderTitleLength))
+        let limitedName = trimmedName
+            .truncatedToUTF8ByteCount(maximumUTF8ByteCount)
             .replacingOccurrences(
                 of: "[\\s.]+$",
                 with: "",
                 options: .regularExpression
             )
-        guard !limitedName.isEmpty, !isGalleryFolderLikeName(limitedName) else {
-            return nil
+        if limitedName.isEmpty {
+            return fallback
         }
         return limitedName
-    }
-
-    private func normalizedFolderTitle(_ title: String) -> String {
-        let invalidCharacters = CharacterSet(charactersIn: "/\\:")
-            .union(.controlCharacters)
-        let sanitizedScalars = title
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .unicodeScalars
-            .map { invalidCharacters.contains($0) ? " " : String($0) }
-            .joined()
-        let collapsedWhitespace = sanitizedScalars.replacingOccurrences(
-            of: "\\s+",
-            with: " ",
-            options: .regularExpression
-        )
-        let trimmedSlug = collapsedWhitespace
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(
-                of: "[\\s.]+$",
-                with: "",
-                options: .regularExpression
-            )
-        let limitedSlug = String(trimmedSlug.prefix(Self.maxFolderTitleLength))
-            .replacingOccurrences(
-                of: "[\\s.]+$",
-                with: "",
-                options: .regularExpression
-            )
-        let fallbackTitle = limitedSlug.isEmpty ? "Gallery" : limitedSlug
-        return fallbackTitle
     }
 
     private func normalizedIdentityComponent(_ value: String) -> String {
@@ -408,5 +416,22 @@ struct DownloadFileStorage: Sendable {
         } catch {
             return false
         }
+    }
+}
+
+private extension String {
+    func truncatedToUTF8ByteCount(_ maximumByteCount: Int) -> String {
+        guard maximumByteCount > 0 else { return "" }
+        var byteCount = 0
+        var result = ""
+        for character in self {
+            let characterByteCount = String(character).utf8.count
+            guard byteCount + characterByteCount <= maximumByteCount else {
+                break
+            }
+            result.append(character)
+            byteCount += characterByteCount
+        }
+        return result
     }
 }

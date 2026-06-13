@@ -234,7 +234,7 @@ struct DownloadFileStorageTests {
     }
 
     @Test
-    func testMakeFolderRelativePathSanitizesSeparatorsWhitespaceAndLength() {
+    func testMakeFolderRelativePathSanitizesSeparatorsWhitespaceAndLength() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
@@ -248,7 +248,18 @@ struct DownloadFileStorageTests {
         #expect(relativePath.contains("\n") == false)
         #expect(relativePath.hasSuffix(" ") == false)
         #expect(relativePath.hasSuffix(".") == false)
-        #expect(relativePath.count <= "[123_token] ".count + 96)
+        #expect(relativePath.utf8.count <= 255)
+
+        let cjkRelativePath = storage.makeFolderRelativePath(
+            gid: "123",
+            token: "token",
+            title: String(repeating: "語", count: 120)
+        )
+        #expect(cjkRelativePath.utf8.count <= 255)
+        try FileManager.default.createDirectory(
+            at: storage.folderURL(relativePath: "Folder/\(cjkRelativePath)"),
+            withIntermediateDirectories: true
+        )
     }
 
     @Test
@@ -345,8 +356,9 @@ struct DownloadFileStorageTests {
     }
 
     @Test
-    func testUserFolderNameNormalizationRejectsInvalidNames() {
-        let (storage, _) = makeStorage()
+    func testUserFolderNameNormalizationRejectsInvalidNames() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
 
         #expect(storage.normalizedUserFolderName("  My Folder  ") == "My Folder")
         #expect(storage.normalizedUserFolderName("a/b:c") == "a b c")
@@ -355,6 +367,15 @@ struct DownloadFileStorageTests {
         #expect(storage.normalizedUserFolderName("") == nil)
         #expect(storage.normalizedUserFolderName(".hidden") == "hidden")
         #expect(storage.normalizedUserFolderName("[123_token] Sample") == nil)
+
+        let cjkName = try #require(
+            storage.normalizedUserFolderName(String(repeating: "語", count: 120))
+        )
+        #expect(cjkName.utf8.count <= 255)
+        try FileManager.default.createDirectory(
+            at: storage.userFolderURL(name: cjkName),
+            withIntermediateDirectories: true
+        )
     }
 
     @Test
