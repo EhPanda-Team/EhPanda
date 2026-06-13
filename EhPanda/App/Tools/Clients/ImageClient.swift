@@ -117,7 +117,10 @@ extension ImageClient {
         }
         for key in url.imageCacheKeys(includeStableAlias: true)
         where isCached(key) {
-            return await retrieveImage(key)
+            let result = await retrieveImage(key)
+            if case .success = result {
+                return result
+            }
         }
         return await downloadImage(url)
     }
