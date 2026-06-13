@@ -143,7 +143,15 @@ struct DownloadFileStorage: Sendable {
         let prefix = galleryFolderNamePrefix(gid: gid, token: token)
         return directoryURLs(in: rootURL)
             .flatMap { directoryURLs(in: $0) }
-            .filter { $0.lastPathComponent.hasPrefix(prefix) }
+            .filter { folderURL in
+                guard !folderURL.lastPathComponent.hasPrefix(prefix) else {
+                    return true
+                }
+                guard let manifest = try? readManifest(folderURL: folderURL) else {
+                    return false
+                }
+                return manifest.gid == gid && manifest.token == token
+            }
     }
 
     static func isGalleryFolderLikeName(_ name: String) -> Bool {
