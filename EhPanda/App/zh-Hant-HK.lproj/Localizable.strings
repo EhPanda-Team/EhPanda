@@ -992,6 +992,7 @@
 "downloads_view.inspector.status.pending" = "等待中";
 "downloads_view.inspector.status.downloaded" = "已下載";
 "downloads_view.inspector.status.failed" = "失敗";
+"download_setting_view.title" = "下載";
 "download_setting_view.section.title.download_queue" = "下載佇列";
 "download_setting_view.section.title.network" = "網絡";
 "download_setting_view.title.concurrent_image_downloads" = "並行圖片下載";

@@ -995,6 +995,7 @@
 "downloads_view.inspector.status.pending" = "대기 중";
 "downloads_view.inspector.status.downloaded" = "다운로드됨";
 "downloads_view.inspector.status.failed" = "실패";
+"download_setting_view.title" = "다운로드";
 "download_setting_view.section.title.download_queue" = "다운로드 대기열";
 "download_setting_view.section.title.network" = "네트워크";
 "download_setting_view.title.concurrent_image_downloads" = "동시 이미지 다운로드 수";
