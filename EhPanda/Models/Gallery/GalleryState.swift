@@ -89,7 +89,7 @@ extension PreviewConfig {
     }
 
     func pageNumber(index: Int) -> Int {
-        index / batchSize
+        max(index - 1, 0) / batchSize
     }
     func batchRange(index: Int) -> ClosedRange<Int> {
         let lowerBound = pageNumber(index: index) * batchSize + 1
