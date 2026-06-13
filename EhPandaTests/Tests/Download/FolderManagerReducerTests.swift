@@ -27,7 +27,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testCreateFolderForwardsEditingNameAndRefetches() async {
+    func testCreateFolderForwardsNormalizedEditingNameAndRefetches() async {
         let createdName = UncheckedBox<String?>(nil)
         let store = makeStore(
             folders: { createdName.value.map { [$0] } ?? [] },
@@ -38,20 +38,23 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.binding(.set(\.editingFolderName, "Favorites")))
-        await store.send(.createFolder)
+        await store.send(.binding(.set(\.editingFolderName, " Favorites/2026 ")))
+        await store.send(.createFolder) {
+            $0.loadingState = .loading
+        }
         await store.receive(\.createFolderDone)
         await store.receive(\.fetchFolders)
         await store.receive(\.fetchFoldersDone) {
-            $0.folders = ["Favorites"]
+            $0.loadingState = .idle
+            $0.folders = ["Favorites 2026"]
         }
 
-        #expect(createdName.value == "Favorites")
+        #expect(createdName.value == "Favorites 2026")
     }
 
     @MainActor
     @Test
-    func testRenameFolderForwardsOriginalAndEditedNames() async {
+    func testRenameFolderForwardsOriginalAndNormalizedEditedNames() async {
         let renamedPair = UncheckedBox<(String, String)?>(nil)
         let store = makeStore(
             folders: { ["New Name"] },
@@ -62,10 +65,14 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.binding(.set(\.editingFolderName, "New Name")))
-        await store.send(.renameFolder("Old Name"))
+        await store.send(.binding(.set(\.editingFolderName, " New/Name ")))
+        await store.send(.renameFolder("Old Name")) {
+            $0.loadingState = .loading
+        }
         await store.receive(\.renameFolderDone)
+        await store.receive(\.fetchFolders)
         await store.receive(\.fetchFoldersDone) {
+            $0.loadingState = .idle
             $0.folders = ["New Name"]
         }
 
@@ -86,9 +93,13 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.deleteFolder("Doomed"))
+        await store.send(.deleteFolder("Doomed")) {
+            $0.loadingState = .loading
+        }
         await store.receive(\.deleteFolderDone)
+        await store.receive(\.fetchFolders)
         await store.receive(\.fetchFoldersDone) {
+            $0.loadingState = .idle
             $0.folders = []
         }
 
@@ -137,9 +148,13 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         await store.send(.submitEditingField) {
             $0.editingField = nil
         }
-        await store.receive(\.createFolder)
+        await store.receive(\.createFolder) {
+            $0.loadingState = .loading
+        }
         await store.receive(\.createFolderDone)
+        await store.receive(\.fetchFolders)
         await store.receive(\.fetchFoldersDone) {
+            $0.loadingState = .idle
             $0.folders = ["Favorites"]
         }
 
@@ -167,9 +182,13 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         await store.send(.submitEditingField) {
             $0.editingField = nil
         }
-        await store.receive(\.renameFolder)
+        await store.receive(\.renameFolder) {
+            $0.loadingState = .loading
+        }
         await store.receive(\.renameFolderDone)
+        await store.receive(\.fetchFolders)
         await store.receive(\.fetchFoldersDone) {
+            $0.loadingState = .idle
             $0.folders = ["New Name"]
         }
 
@@ -192,9 +211,9 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testEditingNameValidationRejectsBlankAndDuplicateNames() {
+    func testEditingNameValidationRejectsBlankAndNormalizedDuplicateNames() {
         var state = FolderManagerReducer.State()
-        state.folders = ["Existing"]
+        state.folders = ["Existing", "a b c"]
 
         state.editingFolderName = "   "
         #expect(state.isEditingNameValid == false)
@@ -202,8 +221,94 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
         state.editingFolderName = "Existing"
         #expect(state.isEditingNameValid == false)
 
+        state.editingFolderName = "a/b:c"
+        #expect(state.isEditingNameValid == false)
+
         state.editingFolderName = "Fresh"
         #expect(state.isEditingNameValid)
+    }
+
+    @MainActor
+    @Test
+    func testRenameValidationAllowsNormalizedCurrentFolderName() {
+        var state = FolderManagerReducer.State()
+        state.editingField = .renameFolder("a b c")
+        state.folders = ["a b c"]
+        state.editingFolderName = "a/b:c"
+
+        #expect(state.isEditingNameValid)
+    }
+
+    @MainActor
+    @Test
+    func testCreateFolderFailureSetsFailedStateWithoutRefetching() async {
+        let fetchCount = UncheckedBox(0)
+        let error = AppError.fileOperationFailed("disk full")
+        let store = makeStore(
+            folders: {
+                fetchCount.value += 1
+                return []
+            },
+            createFolder: { _ in .failure(error) }
+        )
+
+        await store.send(.binding(.set(\.editingFolderName, "Favorites"))) {
+            $0.editingFolderName = "Favorites"
+        }
+        await store.send(.createFolder) {
+            $0.loadingState = .loading
+        }
+        await store.receive(\.createFolderDone) {
+            $0.loadingState = .failed(error)
+        }
+        #expect(fetchCount.value == 0)
+    }
+
+    @MainActor
+    @Test
+    func testRenameFolderFailureSetsFailedStateWithoutRefetching() async {
+        let fetchCount = UncheckedBox(0)
+        let error = AppError.fileOperationFailed("folder busy")
+        let store = makeStore(
+            folders: {
+                fetchCount.value += 1
+                return []
+            },
+            renameFolder: { _, _ in .failure(error) }
+        )
+
+        await store.send(.binding(.set(\.editingFolderName, "New Name"))) {
+            $0.editingFolderName = "New Name"
+        }
+        await store.send(.renameFolder("Old Name")) {
+            $0.loadingState = .loading
+        }
+        await store.receive(\.renameFolderDone) {
+            $0.loadingState = .failed(error)
+        }
+        #expect(fetchCount.value == 0)
+    }
+
+    @MainActor
+    @Test
+    func testDeleteFolderFailureSetsFailedStateWithoutRefetching() async {
+        let fetchCount = UncheckedBox(0)
+        let error = AppError.fileOperationFailed("permission denied")
+        let store = makeStore(
+            folders: {
+                fetchCount.value += 1
+                return []
+            },
+            deleteFolder: { _ in .failure(error) }
+        )
+
+        await store.send(.deleteFolder("Doomed")) {
+            $0.loadingState = .loading
+        }
+        await store.receive(\.deleteFolderDone) {
+            $0.loadingState = .failed(error)
+        }
+        #expect(fetchCount.value == 0)
     }
 }
 

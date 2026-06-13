@@ -22,6 +22,12 @@ struct FolderManagerReducer {
         case fetchFolders
     }
 
+    private static var invalidFolderNameError: AppError {
+        .fileOperationFailed(
+            L10n.Localizable.DownloadFileStorage.Error.invalidFolderName
+        )
+    }
+
     @ObservableState
     struct State: Equatable {
         var route: Route?
@@ -30,10 +36,20 @@ struct FolderManagerReducer {
         var loadingState: LoadingState = .idle
         var folders = [String]()
 
+        var normalizedEditingFolderName: String? {
+            DownloadFileStorage.normalizedUserFolderName(editingFolderName)
+        }
+
         var isEditingNameValid: Bool {
-            let trimmedName = editingFolderName
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            return !trimmedName.isEmpty && !folders.contains(trimmedName)
+            guard let normalizedName = normalizedEditingFolderName else {
+                return false
+            }
+            switch editingField {
+            case .renameFolder(let oldName):
+                return normalizedName == oldName || !folders.contains(normalizedName)
+            case .newFolder, nil:
+                return !folders.contains(normalizedName)
+            }
         }
     }
 
@@ -93,28 +109,51 @@ struct FolderManagerReducer {
                 }
 
             case .createFolder:
-                return .run { [name = state.editingFolderName] send in
+                guard let name = state.normalizedEditingFolderName else {
+                    state.loadingState = .failed(Self.invalidFolderNameError)
+                    return .none
+                }
+                state.loadingState = .loading
+                return .run { send in
                     await send(.createFolderDone(await downloadClient.createFolder(name)))
                 }
 
-            case .createFolderDone:
+            case .createFolderDone(.success):
                 return .send(.fetchFolders)
 
+            case .createFolderDone(.failure(let error)):
+                state.loadingState = .failed(error)
+                return .none
+
             case .renameFolder(let oldName):
-                return .run { [newName = state.editingFolderName] send in
+                guard let newName = state.normalizedEditingFolderName else {
+                    state.loadingState = .failed(Self.invalidFolderNameError)
+                    return .none
+                }
+                state.loadingState = .loading
+                return .run { send in
                     await send(.renameFolderDone(await downloadClient.renameFolder(oldName, newName)))
                 }
 
-            case .renameFolderDone:
+            case .renameFolderDone(.success):
                 return .send(.fetchFolders)
 
+            case .renameFolderDone(.failure(let error)):
+                state.loadingState = .failed(error)
+                return .none
+
             case .deleteFolder(let name):
+                state.loadingState = .loading
                 return .run { send in
                     await send(.deleteFolderDone(await downloadClient.deleteFolder(name)))
                 }
 
-            case .deleteFolderDone:
+            case .deleteFolderDone(.success):
                 return .send(.fetchFolders)
+
+            case .deleteFolderDone(.failure(let error)):
+                state.loadingState = .failed(error)
+                return .none
 
             case .teardown:
                 return .cancel(id: CancelID.fetchFolders)
