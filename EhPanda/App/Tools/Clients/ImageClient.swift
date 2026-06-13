@@ -7,7 +7,8 @@ import Photos
 import SwiftUI
 import Combine
 import Kingfisher
-import SDWebImage
+@preconcurrency import SDWebImage
+import Synchronization
 import ComposableArchitecture
 
 struct ImageClient: Sendable {
@@ -67,40 +68,9 @@ extension ImageClient {
         },
         downloadImage: { url in
             if url.isPotentiallyAnimatedImage {
-                let result: Result<UIImage, Error> = await withCheckedContinuation { continuation in
-                    SDWebImageManager.shared.loadImage(
-                        with: url,
-                        options: [.retryFailed, .continueInBackground, .handleCookies],
-                        context: [.callbackQueue: SDCallbackQueue.main],
-                        progress: nil
-                    ) { image, _, error, _, _, _ in
-                        if let image {
-                            continuation.resume(returning: .success(image))
-                        } else {
-                            continuation.resume(returning: .failure(error ?? AppError.notFound))
-                        }
-                    }
-                }
-                return result
+                return await ImageClient.downloadAnimatedImage(url: url)
             }
-            let result: Result<UIImage, Error> = await withCheckedContinuation { continuation in
-                KingfisherManager.shared.downloader.downloadImage(with: url, options: nil) { result in
-                    switch result {
-                    case .success(let downloadResult):
-                        KingfisherManager.shared.cache.store(
-                            downloadResult.image,
-                            original: downloadResult.originalData,
-                            forKey: url.stableImageCacheKey ?? url.absoluteString,
-                            completionHandler: { _ in
-                                continuation.resume(returning: .success(downloadResult.image))
-                            }
-                        )
-                    case .failure(let error):
-                        continuation.resume(returning: .failure(error))
-                    }
-                }
-            }
-            return result
+            return await ImageClient.downloadStaticImage(url: url)
         },
         retrieveImage: { key in
             guard let image = await LibraryClient.live.cachedImage(key) else {
@@ -110,6 +80,77 @@ extension ImageClient {
         },
         isCached: LibraryClient.live.isCached
     )
+
+    static func downloadAnimatedImage(
+        url: URL,
+        manager: SDWebImageManager = .shared
+    ) async -> Result<UIImage, Error> {
+        let continuationBox = ImageDownloadContinuationBox()
+        let result: Result<UIImage, Error> = await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                continuationBox.setContinuation(continuation)
+                let operation = manager.loadImage(
+                    with: url,
+                    options: [.retryFailed, .continueInBackground, .handleCookies],
+                    context: [.callbackQueue: SDCallbackQueue.main],
+                    progress: nil
+                ) { image, _, error, _, _, _ in
+                    if let image {
+                        continuationBox.resume(returning: .success(image))
+                    } else {
+                        continuationBox.resume(returning: .failure(error ?? AppError.notFound))
+                    }
+                }
+                guard let operation else {
+                    continuationBox.resume(returning: .failure(AppError.notFound))
+                    return
+                }
+                continuationBox.setCancelOperation {
+                    operation.cancel()
+                }
+            }
+        } onCancel: {
+            continuationBox.cancel()
+        }
+        return result
+    }
+
+    static func downloadStaticImage(
+        url: URL,
+        downloader: ImageDownloader = KingfisherManager.shared.downloader,
+        cache: ImageCache = KingfisherManager.shared.cache
+    ) async -> Result<UIImage, Error> {
+        let continuationBox = ImageDownloadContinuationBox()
+        let result: Result<UIImage, Error> = await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                continuationBox.setContinuation(continuation)
+                let downloadTask = downloader.downloadImage(
+                    with: url,
+                    options: nil
+                ) { result in
+                    switch result {
+                    case .success(let downloadResult):
+                        cache.store(
+                            downloadResult.image,
+                            original: downloadResult.originalData,
+                            forKey: url.stableImageCacheKey ?? url.absoluteString,
+                            completionHandler: { _ in
+                                continuationBox.resume(returning: .success(downloadResult.image))
+                            }
+                        )
+                    case .failure(let error):
+                        continuationBox.resume(returning: .failure(error))
+                    }
+                }
+                continuationBox.setCancelOperation {
+                    downloadTask.cancel()
+                }
+            }
+        } onCancel: {
+            continuationBox.cancel()
+        }
+        return result
+    }
 
     func fetchImage(url: URL) async -> Result<UIImage, Error> {
         if url.isFileURL {
@@ -130,6 +171,90 @@ extension ImageClient {
             }
         }
         return await downloadImage(url)
+    }
+}
+
+// The callback APIs expose cancellation tokens after Swift task cancellation can already arrive.
+private final class ImageDownloadContinuationBox: Sendable {
+    private struct State: Sendable {
+        var cancelOperation: (@Sendable () -> Void)?
+        var continuation: CheckedContinuation<Result<UIImage, Error>, Never>?
+        var isCancelled = false
+        var isFinished = false
+    }
+
+    private let state = Mutex(State())
+
+    func setContinuation(_ continuation: CheckedContinuation<Result<UIImage, Error>, Never>) {
+        let shouldResumeCancellation = state.withLock { state in
+            if state.isCancelled || state.isFinished {
+                state.isFinished = true
+                return true
+            }
+            state.continuation = continuation
+            return false
+        }
+
+        if shouldResumeCancellation {
+            continuation.resume(returning: .failure(CancellationError()))
+        }
+    }
+
+    func setCancelOperation(_ cancelOperation: @escaping @Sendable () -> Void) {
+        let shouldCancel = state.withLock { state in
+            if state.isCancelled {
+                return true
+            }
+            if !state.isFinished {
+                state.cancelOperation = cancelOperation
+            }
+            return false
+        }
+
+        if shouldCancel {
+            cancelOperation()
+        }
+    }
+
+    func resume(returning result: Result<UIImage, Error>) {
+        let continuation = state.withLock { state in
+            guard !state.isFinished else {
+                return nil as CheckedContinuation<Result<UIImage, Error>, Never>?
+            }
+            state.isFinished = true
+            let continuation = state.continuation
+            state.continuation = nil
+            state.cancelOperation = nil
+            return continuation
+        }
+
+        continuation?.resume(returning: result)
+    }
+
+    func cancel() {
+        let cancellation = state.withLock { state in
+            guard !state.isFinished else {
+                return (
+                    cancelOperation: nil as (@Sendable () -> Void)?,
+                    continuation: nil as CheckedContinuation<Result<UIImage, Error>, Never>?
+                )
+            }
+            state.isCancelled = true
+            let cancelOperation = state.cancelOperation
+            state.cancelOperation = nil
+            let continuation = state.continuation
+            if continuation != nil {
+                state.isFinished = true
+                state.continuation = nil
+            }
+            return (
+                cancelOperation: cancelOperation,
+                continuation: continuation
+            )
+        }
+
+        cancellation.cancelOperation?()
+        cancellation.continuation?.resume(returning: .failure(CancellationError()))
     }
 }
 
