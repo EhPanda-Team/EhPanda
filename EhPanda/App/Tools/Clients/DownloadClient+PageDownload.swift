@@ -43,12 +43,14 @@ extension DownloadManager {
         let remainingPageIndices = pendingPageIndices
             .filter { !restoredIndices.contains($0) }
         var wasCancelled = false
+        var didAbortForFatalError = false
         await processRemainingPages(
             context: context,
             remainingPageIndices: remainingPageIndices,
             existingPages: existingPages,
             progress: &progress,
-            wasCancelled: &wasCancelled
+            wasCancelled: &wasCancelled,
+            didAbortForFatalError: &didAbortForFatalError
         )
 
         if wasCancelled || Task.isCancelled {
@@ -151,7 +153,8 @@ extension DownloadManager {
         remainingPageIndices: [Int],
         existingPages: [Int: String],
         progress: inout PageDownloadProgress,
-        wasCancelled: inout Bool
+        wasCancelled: inout Bool,
+        didAbortForFatalError: inout Bool
     ) async {
         let payload = context.payload
         await withTaskGroup(of: PageTaskOutcome.self) { group in
@@ -165,6 +168,10 @@ extension DownloadManager {
                 existingPages: existingPages
             )
             while let outcome = await group.next() {
+                guard !didAbortForFatalError else {
+                    group.cancelAll()
+                    continue
+                }
                 if wasCancelled || Task.isCancelled
                     || schedulingBlockedGalleryIDs
                     .contains(payload.gallery.gid) {
@@ -176,9 +183,10 @@ extension DownloadManager {
                     outcome,
                     progress: &progress,
                     wasCancelled: &wasCancelled,
+                    didAbortForFatalError: &didAbortForFatalError,
                     group: &group
                 )
-                guard !wasCancelled else { continue }
+                guard !wasCancelled, !didAbortForFatalError else { continue }
                 try? await flushDownloadProgress(
                     context: .init(
                         gid: payload.gallery.gid,
@@ -224,6 +232,7 @@ extension DownloadManager {
         _ outcome: PageTaskOutcome,
         progress: inout PageDownloadProgress,
         wasCancelled: inout Bool,
+        didAbortForFatalError: inout Bool,
         group: inout TaskGroup<PageTaskOutcome>
     ) {
         switch outcome {
@@ -240,8 +249,13 @@ extension DownloadManager {
                 return
             }
             progress.failedPages[failure.index] = failure
+            if isFatalAccountAppError(failure.error) {
+                didAbortForFatalError = true
+                group.cancelAll()
+            }
 
         case .cancelled:
+            guard !didAbortForFatalError else { return }
             wasCancelled = true
             group.cancelAll()
         }
@@ -287,6 +301,17 @@ extension DownloadManager {
                     )
                 )
             }
+        }
+    }
+
+    private func isFatalAccountAppError(_ error: AppError) -> Bool {
+        switch error {
+        case .quotaExceeded, .authenticationRequired, .ipBanned:
+            return true
+        case .databaseCorrupted, .copyrightClaim, .expunged, .networkingFailed,
+             .webImageFailed, .parseFailed, .fileOperationFailed, .noUpdates,
+             .notFound, .unknown:
+            return false
         }
     }
 }
