@@ -151,6 +151,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
 
         await manager.removeSupersededFolders(
             gid: gid,
+            token: "token",
             keeping: completedFolderURL
         )
 

@@ -56,7 +56,11 @@ extension DownloadManager {
         let completedFolderURL = storage.folderURL(
             relativePath: result.folderRelativePath
         )
-        removeSupersededFolders(gid: gid, keeping: completedFolderURL)
+        removeSupersededFolders(
+            gid: gid,
+            token: download.token,
+            keeping: completedFolderURL
+        )
         await notifyObservers()
     }
 
@@ -64,13 +68,21 @@ extension DownloadManager {
     // (re-slot after a title change), and an interrupted session can leave
     // both behind; only the completed folder may survive, or the stale
     // duplicate resurfaces once the surviving record is deleted.
-    func removeSupersededFolders(gid: String, keeping folderURL: URL) {
-        let keptPath = folderURL.standardizedFileURL.path
-        let records = (try? storage.scanDownloadFolders()) ?? []
-        for record in records
-        where record.manifest.gid == gid
-            && record.folderURL.standardizedFileURL.path != keptPath {
-            try? storage.removeFolder(at: record.folderURL)
+    func removeSupersededFolders(gid: String, token: String, keeping folderURL: URL) {
+        do {
+            try removeGalleryFolders(gid: gid, token: token, keeping: folderURL)
+        } catch {
+            Logger.error(error)
+        }
+    }
+
+    func removeGalleryFolders(gid: String, token: String, keeping folderURL: URL? = nil) throws {
+        let keptPath = folderURL?.standardizedFileURL.path
+        for galleryFolderURL in storage.galleryFolderURLs(gid: gid, token: token) {
+            guard galleryFolderURL.standardizedFileURL.path != keptPath else {
+                continue
+            }
+            try storage.removeFolder(at: galleryFolderURL)
         }
     }
 

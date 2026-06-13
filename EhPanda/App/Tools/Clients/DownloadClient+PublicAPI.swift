@@ -165,7 +165,7 @@ extension DownloadManager {
             return .failure(.notFound)
         }
         do {
-            try storage.removeFolder(at: download.folderURL)
+            try removeGalleryFolders(gid: download.gid, token: download.token)
             downloadIndex[gid] = nil
             await notifyObservers()
             await scheduleNextIfNeeded()

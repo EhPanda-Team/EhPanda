@@ -11,30 +11,30 @@ import Testing
 struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testCreateFolderListsFolderAndRejectsDuplicatesAndInvalidNames() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-        try storage.ensureRootDirectory()
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        try environment.storage.ensureRootDirectory()
 
-        let created = await manager.createFolder(name: "  Favorites  ")
+        let created = await environment.manager.createFolder(name: "  Favorites  ")
         guard case .success = created else {
             Issue.record("Expected create to succeed, got \(created)")
             return
         }
-        #expect(await manager.fetchFolders() == ["Favorites"])
+        #expect(await environment.manager.fetchFolders() == ["Favorites"])
 
-        let duplicate = await manager.createFolder(name: "Favorites")
+        let duplicate = await environment.manager.createFolder(name: "Favorites")
         guard case .failure = duplicate else {
             Issue.record("Expected duplicate create to fail")
             return
         }
 
-        let invalid = await manager.createFolder(name: "   ")
+        let invalid = await environment.manager.createFolder(name: "   ")
         guard case .failure = invalid else {
             Issue.record("Expected invalid name to fail")
             return
         }
 
-        let galleryLike = await manager.createFolder(name: "[123_token] Sample")
+        let galleryLike = await environment.manager.createFolder(name: "[123_token] Sample")
         guard case .failure = galleryLike else {
             Issue.record("Expected gallery-like name to fail")
             return
@@ -43,89 +43,120 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
     @Test
     func testRenameFolderRepointsContainedDownloads() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "311"
-        try writeGalleryFolder(storage: storage, folderName: "Old Name", gid: gid)
+        try writeGalleryFolder(storage: environment.storage, folderName: "Old Name", gid: gid)
 
-        let result = await manager.renameFolder(oldName: "Old Name", newName: "New Name")
+        let result = await environment.manager.renameFolder(oldName: "Old Name", newName: "New Name")
         guard case .success = result else {
             Issue.record("Expected rename to succeed, got \(result)")
             return
         }
 
-        let download = await manager.testingFetchDownload(gid: gid)
-        #expect(await manager.fetchFolders() == ["New Name"])
+        let download = await environment.manager.testingFetchDownload(gid: gid)
+        #expect(await environment.manager.fetchFolders() == ["New Name"])
         #expect(download?.folderName == "New Name")
         #expect(download?.folderURL.path.contains("/New Name/") == true)
     }
 
     @Test
     func testRenameFolderRejectsActiveDownloadInside() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "312"
-        try writeGalleryFolder(storage: storage, folderName: "Busy", gid: gid)
-        _ = await manager.reconcileDownloads()
+        try writeGalleryFolder(storage: environment.storage, folderName: "Busy", gid: gid)
+        _ = await environment.manager.reconcileDownloads()
         let blockingTask = Task<Void, Never> { _ = try? await Task.sleep(for: .seconds(60)) }
         defer { blockingTask.cancel() }
-        await manager.testingInstallActiveTask(gid: gid, task: blockingTask)
+        await environment.manager.testingInstallActiveTask(gid: gid, task: blockingTask)
 
-        let result = await manager.renameFolder(oldName: "Busy", newName: "Renamed")
+        let result = await environment.manager.renameFolder(oldName: "Busy", newName: "Renamed")
         guard case .failure = result else {
             Issue.record("Expected rename to fail while downloading")
             return
         }
-        #expect(await manager.fetchFolders() == ["Busy"])
+        #expect(await environment.manager.fetchFolders() == ["Busy"])
     }
 
     @Test
     func testDeleteFolderRemovesContainedDownloadsAndQueueIntents() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "313"
-        let folderURL = try writeGalleryFolder(storage: storage, folderName: "Doomed", gid: gid)
-        await manager.testingSetQueuedGalleryIDs([gid])
+        let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Doomed", gid: gid)
+        await environment.manager.testingSetQueuedGalleryIDs([gid])
 
-        let result = await manager.deleteFolder(name: "Doomed")
+        let result = await environment.manager.deleteFolder(name: "Doomed")
         guard case .success = result else {
             Issue.record("Expected delete to succeed, got \(result)")
             return
         }
 
-        #expect(await manager.fetchFolders().isEmpty)
-        #expect(await manager.testingFetchDownload(gid: gid) == nil)
+        #expect(await environment.manager.fetchFolders().isEmpty)
+        #expect(await environment.manager.testingFetchDownload(gid: gid) == nil)
         #expect(!FileManager.default.fileExists(atPath: folderURL.path))
     }
 
     @Test
-    func testMoveDownloadRelocatesGalleryFolder() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
+    func testDeleteDownloadRemovesSupersededSameIdentityFolders() async throws {
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "314"
-        let sourceURL = try writeGalleryFolder(storage: storage, folderName: "Source", gid: gid)
+        let oldFolderURL = try writeGalleryFolder(
+            storage: environment.storage,
+            folderName: "Saved",
+            gid: gid,
+            galleryFolderName: "[\(gid)_token] Old Title"
+        )
+        let currentFolderURL = try writeGalleryFolder(
+            storage: environment.storage,
+            folderName: "Saved",
+            gid: gid,
+            galleryFolderName: "[\(gid)_token] Current Title"
+        )
+        await environment.manager.reconcileDownloads()
 
-        let result = await manager.moveDownload(gid: gid, toFolderName: "Target")
+        let result = await environment.manager.delete(gid: gid)
+        guard case .success = result else {
+            Issue.record("Expected delete to succeed, got \(result)")
+            return
+        }
+
+        await environment.manager.reconcileDownloads()
+        #expect(await environment.manager.testingFetchDownload(gid: gid) == nil)
+        #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path))
+        #expect(!FileManager.default.fileExists(atPath: currentFolderURL.path))
+    }
+
+    @Test
+    func testMoveDownloadRelocatesGalleryFolder() async throws {
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        let gid = "315"
+        let sourceURL = try writeGalleryFolder(storage: environment.storage, folderName: "Source", gid: gid)
+
+        let result = await environment.manager.moveDownload(gid: gid, toFolderName: "Target")
         guard case .success = result else {
             Issue.record("Expected move to succeed, got \(result)")
             return
         }
 
-        let download = await manager.testingFetchDownload(gid: gid)
+        let download = await environment.manager.testingFetchDownload(gid: gid)
         #expect(download?.folderName == "Target")
         #expect(download?.folderURL.path.contains("/Target/") == true)
         #expect(!FileManager.default.fileExists(atPath: sourceURL.path))
-        #expect(await manager.fetchFolders() == ["Source", "Target"])
+        #expect(await environment.manager.fetchFolders() == ["Source", "Target"])
     }
 
     @Test
     func testMoveDownloadIntoSameFolderIsNoOp() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-        let gid = "315"
-        let folderURL = try writeGalleryFolder(storage: storage, folderName: "Home", gid: gid)
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        let gid = "316"
+        let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Home", gid: gid)
 
-        let result = await manager.moveDownload(gid: gid, toFolderName: "Home")
+        let result = await environment.manager.moveDownload(gid: gid, toFolderName: "Home")
         guard case .success = result else {
             Issue.record("Expected same-folder move to succeed, got \(result)")
             return
@@ -135,16 +166,16 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
     @Test
     func testMoveDownloadRejectsActivelyDownloadingGallery() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-        let gid = "316"
-        let folderURL = try writeGalleryFolder(storage: storage, folderName: "Working", gid: gid)
-        _ = await manager.reconcileDownloads()
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        let gid = "317"
+        let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Working", gid: gid)
+        _ = await environment.manager.reconcileDownloads()
         let blockingTask = Task<Void, Never> { _ = try? await Task.sleep(for: .seconds(60)) }
         defer { blockingTask.cancel() }
-        await manager.testingInstallActiveTask(gid: gid, task: blockingTask)
+        await environment.manager.testingInstallActiveTask(gid: gid, task: blockingTask)
 
-        let result = await manager.moveDownload(gid: gid, toFolderName: "Elsewhere")
+        let result = await environment.manager.moveDownload(gid: gid, toFolderName: "Elsewhere")
         guard case .failure = result else {
             Issue.record("Expected move of active download to fail")
             return
@@ -154,24 +185,24 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
     @Test
     func testEnqueueKeepsExistingDownloadInItsFolder() async throws {
-        let (storage, manager, rootURL) = makeManager()
-        defer { try? FileManager.default.removeItem(at: rootURL) }
-        await manager.testingInstallActiveTask(gid: "busy", task: Task {})
+        let environment = makeManager()
+        defer { try? FileManager.default.removeItem(at: environment.rootURL) }
+        await environment.manager.testingInstallActiveTask(gid: "busy", task: Task {})
 
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let galleryFolderName = storage.makeFolderRelativePath(
+        let galleryFolderName = environment.storage.makeFolderRelativePath(
             gid: gallery.gid,
             token: gallery.token,
             title: detail.trimmedTitle
         )
         try writeGalleryFolder(
-            storage: storage,
+            storage: environment.storage,
             folderName: "Original",
             gid: gallery.gid,
             galleryFolderName: galleryFolderName
         )
-        _ = await manager.reconcileDownloads()
+        _ = await environment.manager.reconcileDownloads()
 
         let payload = DownloadRequestPayload(
             gallery: gallery,
@@ -183,26 +214,32 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             options: .init(),
             mode: .initial
         )
-        let result = await manager.enqueue(payload: payload)
+        let result = await environment.manager.enqueue(payload: payload)
         guard case .success = result else {
             Issue.record("Expected enqueue to succeed, got \(result)")
             return
         }
 
-        let download = await manager.testingFetchDownload(gid: gallery.gid)
+        let download = await environment.manager.testingFetchDownload(gid: gallery.gid)
         #expect(download?.folderName == "Original")
     }
 }
 
 // MARK: - Setup Helpers
 
+private struct DownloadFolderOperationTestEnvironment {
+    let storage: DownloadFileStorage
+    let manager: DownloadManager
+    let rootURL: URL
+}
+
 private extension DownloadFolderOperationTests {
-    func makeManager() -> (DownloadFileStorage, DownloadManager, URL) {
+    func makeManager() -> DownloadFolderOperationTestEnvironment {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
-        return (storage, manager, rootURL)
+        return .init(storage: storage, manager: manager, rootURL: rootURL)
     }
 
     @discardableResult
