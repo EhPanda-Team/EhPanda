@@ -10,6 +10,22 @@ import Testing
 
 @Suite(.serialized)
 struct ReadingReducerLocalTests: DownloadFeatureTestCase {
+    @Test
+    func testContainerDataSourceHandlesZeroPageGallery() {
+        var gallery = sampleGallery()
+        gallery.pageCount = 0
+        var state = ReadingReducer.State()
+        state.gallery = gallery
+
+        var dualPageSetting = Setting()
+        dualPageSetting.enablesDualPageMode = true
+        dualPageSetting.readingDirection = .leftToRight
+        dualPageSetting.exceptCover = true
+
+        #expect(state.containerDataSource(setting: Setting(), isLandscape: false) == [])
+        #expect(state.containerDataSource(setting: dualPageSetting, isLandscape: true) == [])
+    }
+
     @MainActor
     func testReadingReducerOnWebImageSucceededDoesNotCaptureAlreadyLocalPage() async {
         let capturedCalls = UncheckedBox([(String, Int, URL?)]())
