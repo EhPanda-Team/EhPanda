@@ -15,6 +15,11 @@ extension DownloadManager {
         var lastFlushDate: Date = Date()
     }
 
+    private struct PageDownloadControl {
+        var wasCancelled = false
+        var didAbortForFatalError = false
+    }
+
     func downloadPages(
         context: PageDownloadContext,
         pendingPageIndices: [Int],
@@ -42,18 +47,16 @@ extension DownloadManager {
         )
         let remainingPageIndices = pendingPageIndices
             .filter { !restoredIndices.contains($0) }
-        var wasCancelled = false
-        var didAbortForFatalError = false
+        var control = PageDownloadControl()
         await processRemainingPages(
             context: context,
             remainingPageIndices: remainingPageIndices,
             existingPages: existingPages,
             progress: &progress,
-            wasCancelled: &wasCancelled,
-            didAbortForFatalError: &didAbortForFatalError
+            control: &control
         )
 
-        if wasCancelled || Task.isCancelled {
+        if control.wasCancelled || Task.isCancelled {
             throw CancellationError()
         }
         try await flushDownloadProgress(
@@ -153,8 +156,7 @@ extension DownloadManager {
         remainingPageIndices: [Int],
         existingPages: [Int: String],
         progress: inout PageDownloadProgress,
-        wasCancelled: inout Bool,
-        didAbortForFatalError: inout Bool
+        control: inout PageDownloadControl
     ) async {
         let payload = context.payload
         await withTaskGroup(of: PageTaskOutcome.self) { group in
@@ -168,25 +170,25 @@ extension DownloadManager {
                 existingPages: existingPages
             )
             while let outcome = await group.next() {
-                guard !didAbortForFatalError else {
+                guard !control.didAbortForFatalError else {
                     group.cancelAll()
                     continue
                 }
-                if wasCancelled || Task.isCancelled
+                if control.wasCancelled || Task.isCancelled
                     || schedulingBlockedGalleryIDs
                     .contains(payload.gallery.gid) {
-                    wasCancelled = true
+                    control.wasCancelled = true
                     group.cancelAll()
                     continue
                 }
                 applyPageTaskOutcome(
                     outcome,
                     progress: &progress,
-                    wasCancelled: &wasCancelled,
-                    didAbortForFatalError: &didAbortForFatalError,
+                    wasCancelled: &control.wasCancelled,
+                    didAbortForFatalError: &control.didAbortForFatalError,
                     group: &group
                 )
-                guard !wasCancelled, !didAbortForFatalError else { continue }
+                guard !control.wasCancelled, !control.didAbortForFatalError else { continue }
                 try? await flushDownloadProgress(
                     context: .init(
                         gid: payload.gallery.gid,
