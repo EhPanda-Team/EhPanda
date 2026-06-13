@@ -97,4 +97,18 @@ struct SettingDownloadTests {
         #expect(combinedURL.previewCacheCleanupURLs() == [combinedURL, plainURL])
         #expect(plainURL.previewCacheCleanupURLs() == [plainURL])
     }
+
+    @Test
+    func testCheckIfMPVURLHandlesHostOnlyURL() throws {
+        let url = try #require(URL(string: "https://e-hentai.org"))
+
+        #expect(!URLClient.live.checkIfMPVURL(url))
+    }
+
+    @Test
+    func testCheckIfMPVURLDetectsMPVPath() throws {
+        let url = try #require(URL(string: "https://e-hentai.org/mpv/123456/token"))
+
+        #expect(URLClient.live.checkIfMPVURL(url))
+    }
 }

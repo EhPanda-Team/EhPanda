@@ -28,7 +28,7 @@ extension URLClient {
         },
         checkIfMPVURL: {
             guard let url = $0 else { return false }
-            return url.pathComponents.count >= 1 && url.pathComponents[1] == "mpv"
+            return url.pathComponents.count >= 2 && url.pathComponents[1] == "mpv"
         },
         parseGalleryID: { url in
             var gid = url.pathComponents[2]
