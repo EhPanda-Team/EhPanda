@@ -156,6 +156,36 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         #expect(fetchedImage.size == image.size)
     }
 
+    @MainActor
+    @Test
+    func testImageClientFetchImageDownloadsWhenCachedRetrievalFails() async throws {
+        let url = try #require(
+            URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
+        )
+        let expectedCacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        let retrievedCacheKeys = UncheckedBox([String]())
+        let downloadedURLs = UncheckedBox([URL]())
+        let client = ImageClient(
+            prefetchImages: { _ in },
+            saveImageToPhotoLibrary: { _, _ in false },
+            downloadImage: { downloadURL in
+                downloadedURLs.value.append(downloadURL)
+                return .success(UIImage())
+            },
+            retrieveImage: { cacheKey in
+                retrievedCacheKeys.value.append(cacheKey)
+                return .failure(AppError.notFound)
+            },
+            isCached: { _ in true }
+        )
+
+        let result = await client.fetchImage(url: url)
+        _ = try result.get()
+
+        #expect(retrievedCacheKeys.value == expectedCacheKeys)
+        #expect(downloadedURLs.value == [url])
+    }
+
 }
 
 // MARK: - Repair Seed Helpers
