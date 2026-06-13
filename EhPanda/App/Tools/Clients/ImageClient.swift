@@ -29,7 +29,7 @@ extension ImageClient {
                     result.0.append(url)
                 } else {
                     result.1.append(
-                        ImageResource(
+                        KF.ImageResource(
                             downloadURL: url,
                             cacheKey: url.stableImageCacheKey ?? url.absoluteString
                         )
