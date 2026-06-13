@@ -42,6 +42,44 @@ struct DownloadFileStorageTests {
     }
 
     @Test
+    func testReadManifestRejectsEmptyPages() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Empty")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageCount: 0), folderURL: folderURL)
+
+        #expect(
+            throws: AppError.fileOperationFailed(
+                L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted
+            )
+        ) {
+            try storage.readManifest(folderURL: folderURL)
+        }
+    }
+
+    @Test
+    func testReadManifestRejectsNonContiguousPages() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "123 - Sparse")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try storage.writeManifest(sampleManifest(pageHashes: [1: "", 3: ""]), folderURL: folderURL)
+
+        #expect(
+            throws: AppError.fileOperationFailed(
+                L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted
+            )
+        ) {
+            try storage.readManifest(folderURL: folderURL)
+        }
+    }
+
+    @Test
     func testEnsureRootDirectoryMarksDownloadsFolderExcludedFromBackup() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }

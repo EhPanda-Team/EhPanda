@@ -86,6 +86,8 @@ struct ReadingReducer {
 
         // Image
         func containerDataSource(setting: Setting, isLandscape: Bool) -> [Int] {
+            guard gallery.pageCount > 0 else { return [] }
+
             let defaultData = Array(1...gallery.pageCount)
             guard isLandscape && setting.enablesDualPageMode
                     && setting.readingDirection != .vertical

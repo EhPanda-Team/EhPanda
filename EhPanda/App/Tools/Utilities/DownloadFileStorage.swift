@@ -301,7 +301,25 @@ struct DownloadFileStorage: Sendable {
     }
 
     func readManifest(folderURL: URL) throws -> DownloadManifest {
-        try readJSON(DownloadManifest.self, from: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest))
+        let manifest = try readJSON(
+            DownloadManifest.self,
+            from: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest)
+        )
+        try validateDecodedManifest(manifest)
+        return manifest
+    }
+
+    private func validateDecodedManifest(_ manifest: DownloadManifest) throws {
+        guard manifest.pages.isEmpty == false else {
+            throw manifestCorruptedError()
+        }
+        guard manifest.pages.keys.sorted() == Array(1...manifest.pages.count) else {
+            throw manifestCorruptedError()
+        }
+    }
+
+    private func manifestCorruptedError() -> AppError {
+        .fileOperationFailed(L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted)
     }
 
     func scanDownloadFolders() throws -> [DownloadFolderRecord] {
