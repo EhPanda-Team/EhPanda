@@ -70,6 +70,10 @@ actor DownloadManager {
         let failedPages: [PageFailure]
     }
 
+    struct IncompleteDownloadError: Error, Sendable {
+        let missingPageIndices: [Int]
+    }
+
     struct FailureContext: Sendable {
         let gid: String
         let originalDownload: DownloadedGallery
