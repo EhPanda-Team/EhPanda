@@ -25,19 +25,36 @@ struct DetailReducer {
         case folderManager(EquatableVoid = .init())
     }
 
-    enum CancelID: CaseIterable {
-        case fetchDatabaseInfos
-        case fetchGalleryDetail
-        case fetchVersionMetadata
-        case fetchDownloadBadge
-        case fetchDownloadFolders
-        case observeDownload
-        case loadLocalPreviewURLs
-        case rateGallery
-        case favorGallery
-        case unfavorGallery
-        case postComment
-        case voteTag
+    enum CancelID: Hashable {
+        case fetchDatabaseInfos(String)
+        case fetchGalleryDetail(String)
+        case fetchVersionMetadata(String)
+        case fetchDownloadBadge(String)
+        case fetchDownloadFolders(String)
+        case observeDownload(String)
+        case loadLocalPreviewURLs(String)
+        case rateGallery(String)
+        case favorGallery(String)
+        case unfavorGallery(String)
+        case postComment(String)
+        case voteTag(String)
+
+        static func all(for gid: String) -> [Self] {
+            [
+                .fetchDatabaseInfos(gid),
+                .fetchGalleryDetail(gid),
+                .fetchVersionMetadata(gid),
+                .fetchDownloadBadge(gid),
+                .fetchDownloadFolders(gid),
+                .observeDownload(gid),
+                .loadLocalPreviewURLs(gid),
+                .rateGallery(gid),
+                .favorGallery(gid),
+                .unfavorGallery(gid),
+                .postComment(gid),
+                .voteTag(gid)
+            ]
+        }
     }
 
     @ObservableState
@@ -65,6 +82,10 @@ struct DetailReducer {
         var downloadFolders = [String]()
         var isPreparingDownload = false
         var hasLoadedDownloadBadge = false
+
+        var cancellationGalleryID: String {
+            gid.isEmpty ? gallery.id : gid
+        }
 
         var downloadNeedsRepair: Bool {
             guard let badge = downloadBadge, badge.status == .error else { return false }

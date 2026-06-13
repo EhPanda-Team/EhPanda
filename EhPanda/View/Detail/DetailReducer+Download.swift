@@ -16,10 +16,11 @@ extension DetailReducer {
             case .fetchDownloadBadgeDone(let download):
                 return handleFetchDownloadBadgeDone(download: download, state: &state)
             case .fetchDownloadFolders:
+                let cancellationID = CancelID.fetchDownloadFolders(state.cancellationGalleryID)
                 return .run { send in
                     await send(.fetchDownloadFoldersDone(await downloadClient.fetchFolders()))
                 }
-                .cancellable(id: CancelID.fetchDownloadFolders, cancelInFlight: true)
+                .cancellable(id: cancellationID, cancelInFlight: true)
             case .fetchDownloadFoldersDone(let folders):
                 state.downloadFolders = folders
                 return .none
@@ -69,7 +70,7 @@ extension DetailReducer {
             let download = await downloadClient.fetchDownload(galleryID)
             await send(.fetchDownloadBadgeDone(download))
         }
-        .cancellable(id: CancelID.fetchDownloadBadge, cancelInFlight: true)
+        .cancellable(id: CancelID.fetchDownloadBadge(state.gid), cancelInFlight: true)
     }
 
     private func handleFetchDownloadBadgeDone(
@@ -92,7 +93,7 @@ extension DetailReducer {
                 await send(.observeDownloadDone(download))
             }
         }
-        .cancellable(id: CancelID.observeDownload, cancelInFlight: true)
+        .cancellable(id: CancelID.observeDownload(state.gid), cancelInFlight: true)
     }
 
     private func handleObserveDownloadDone(
@@ -126,7 +127,7 @@ extension DetailReducer {
             }
             await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
         }
-        .cancellable(id: CancelID.loadLocalPreviewURLs, cancelInFlight: true)
+        .cancellable(id: CancelID.loadLocalPreviewURLs(state.gid), cancelInFlight: true)
     }
 
     private func handleLoadLocalPreviewURLsDone(
