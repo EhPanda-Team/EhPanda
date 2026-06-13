@@ -21,15 +21,22 @@ struct ImageClient: Sendable {
 extension ImageClient {
     static let live: Self = .init(
         prefetchImages: { urls in
-            let (sdWebImageURLs, kingfisherURLs) = urls.reduce(into: ([URL](), [URL]())) { result, url in
+            let (sdWebImageURLs, kingfisherResources) = urls.reduce(
+                into: ([URL](), [any Resource]())
+            ) { result, url in
                 if url.isPotentiallyAnimatedImage {
                     result.0.append(url)
                 } else {
-                    result.1.append(url)
+                    result.1.append(
+                        ImageResource(
+                            downloadURL: url,
+                            cacheKey: url.stableImageCacheKey ?? url.absoluteString
+                        )
+                    )
                 }
             }
-            if !kingfisherURLs.isEmpty {
-                ImagePrefetcher(urls: kingfisherURLs).start()
+            if !kingfisherResources.isEmpty {
+                ImagePrefetcher(resources: kingfisherResources).start()
             }
             if !sdWebImageURLs.isEmpty {
                 SDWebImagePrefetcher.shared.prefetchURLs(
