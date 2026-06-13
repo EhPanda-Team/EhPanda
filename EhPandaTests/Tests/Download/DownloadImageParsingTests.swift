@@ -152,6 +152,97 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         #expect(error == .quotaExceeded)
     }
 
+    @Test
+    func testFatalAccountPageFailureStopsSchedulingRemainingPages() async throws {
+        let sessionID = UUID().uuidString
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [
+            SharedSessionStubURLProtocol.headerKey: sessionID
+        ]
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: URLSession(configuration: configuration)
+        )
+        let recorder = RequestRecorder()
+        let quotaHTML = Data("""
+        <html><body>You have exceeded your image viewing limits</body></html>
+        """.utf8)
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
+            recorder.recordImageDownload()
+            return (
+                try #require(HTTPURLResponse(
+                    url: request.url ?? Defaults.URL.ehentai,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "text/html"]
+                )),
+                quotaHTML
+            )
+        }
+        defer {
+            SharedSessionStubURLProtocol.removeHandler(for: sessionID)
+        }
+
+        var gallery = sampleGallery()
+        gallery.pageCount = 3
+        var detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        detail.pageCount = 3
+        var options = DownloadRequestOptions()
+        options.threadLimit = 1
+        options.autoRetryFailedPages = false
+        let payload = DownloadRequestPayload(
+            gallery: gallery,
+            galleryDetail: detail,
+            previewURLs: [:],
+            previewConfig: .normal(rows: 4),
+            host: .ehentai,
+            folderName: "Folder",
+            options: options,
+            mode: .initial
+        )
+        let galleryFolderName = storage.makeFolderRelativePath(
+            gid: gallery.gid,
+            token: gallery.token,
+            title: detail.trimmedTitle
+        )
+        let folderURL = storage.folderURL(
+            relativePath: "Folder/\(galleryFolderName)"
+        )
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        let manifest = try sampleManifest(
+            gid: gallery.gid,
+            title: gallery.title,
+            pageCount: detail.pageCount
+        )
+        let batchResult = try await manager.downloadPages(
+            context: .init(
+                payload: payload,
+                source: .normal([
+                    1: try #require(URL(string: "https://example.com/1.html")),
+                    2: try #require(URL(string: "https://example.com/2.html")),
+                    3: try #require(URL(string: "https://example.com/3.html"))
+                ]),
+                folderURL: folderURL
+            ),
+            pendingPageIndices: [1, 2, 3],
+            existingManifest: manifest,
+            existingPageRelativePaths: [:]
+        )
+
+        #expect(batchResult.failedPages.map(\.index) == [1])
+        #expect(batchResult.failedPages.first?.error == .quotaExceeded)
+        #expect(recorder.snapshot().imageDownloads == 1)
+    }
+
     @MainActor
     @Test
     func testCachedQuotaPlaceholderStoredUnderNormalImageURLIsRejected() async throws {
