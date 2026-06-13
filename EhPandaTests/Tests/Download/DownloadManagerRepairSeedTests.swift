@@ -133,7 +133,6 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let imageData = try #require(image.pngData())
-        let originalDownloader = KingfisherManager.shared.downloader
         let downloader = ImageDownloader(name: "test-\(sessionID)")
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -141,7 +140,6 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             SharedSessionStubURLProtocol.headerKey: sessionID
         ]
         downloader.sessionConfiguration = configuration
-        KingfisherManager.shared.downloader = downloader
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
             #expect(request.url == url)
             return (
@@ -159,12 +157,15 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         }
         defer {
             SharedSessionStubURLProtocol.removeHandler(for: sessionID)
-            KingfisherManager.shared.downloader = originalDownloader
             KingfisherManager.shared.cache.removeImage(forKey: stableCacheKey)
             KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         }
 
-        let result = await ImageClient.live.downloadImage(url)
+        let result = await ImageClient.downloadStaticImage(
+            url: url,
+            downloader: downloader,
+            cache: KingfisherManager.shared.cache
+        )
         let downloadedImage = try result.get()
 
         #expect(downloadedImage.size == image.size)
