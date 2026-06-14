@@ -37,6 +37,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             ),
             folderURL: completedFolderURL
         )
+        await manager.reloadDownloadIndex()
 
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
@@ -83,6 +84,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
         let completedFolderURL = try setupCaptureMissingFilesFolder(
             rootURL: rootURL, gid: gid
         )
+        await manager.reloadDownloadIndex()
         let (imageURL, cacheKey) = try await setupCaptureCachedImage(gid: gid)
         defer {
             KingfisherManager.shared.cache.removeImage(forKey: cacheKey)

@@ -184,7 +184,7 @@ private extension DownloadsView {
             LoadingView()
 
         case .failed(let error) where store.downloads.isEmpty:
-            ErrorView(error: error, action: { store.send(.refreshDownloads) })
+            ErrorView(error: error, action: { store.send(.fetchDownloads) })
 
         default:
             List {

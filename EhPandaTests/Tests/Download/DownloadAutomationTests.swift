@@ -4,12 +4,59 @@
 //
 
 import Foundation
+import SwiftUI
 import ComposableArchitecture
 import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
 struct DownloadAutomationTests: DownloadFeatureTestCase {
+    @MainActor
+    @Test
+    func testAppForegroundReturnReconcilesDownloads() async {
+        let reconcileCount = UncheckedBox(0)
+        var initialState = AppReducer.State()
+        initialState.scenePhase = .background
+        initialState.settingState.hasLoadedInitialSetting = true
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.appLaunchAutomationClient = .none
+                $0.cookieClient = .noop
+                $0.downloadClient = .init(
+                    observeDownloads: { .init { $0.finish() } },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    reconcileDownloads: {
+                        reconcileCount.value += 1
+                    },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.onScenePhaseChange(.active)) {
+            $0.scenePhase = .active
+        }
+        await store.receive(\.appLock, .onBecomeActive(-1, 10))
+        await store.receive(\.appLock, .unlockApp) {
+            $0.appLockState.blurRadius = 0.00001
+        }
+        await store.finish()
+
+        #expect(reconcileCount.value == 1)
+    }
+
     @Test
     func testAppLaunchAutomationResolveParsesGalleryURLAndCookies() {
         let automation = AppLaunchAutomation.resolve(environment: [

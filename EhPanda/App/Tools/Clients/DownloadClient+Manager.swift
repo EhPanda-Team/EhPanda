@@ -136,6 +136,7 @@ actor DownloadManager {
     let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     let queueStore: DownloadQueueStore
     var downloadIndex = [String: DownloadFolderRecord]()
+    var hasLoadedIndex = false
     var userFolders = [String]()
     var downloadErrors = [String: DownloadFailure]()
     var validationErrors = [String: DownloadFailure]()

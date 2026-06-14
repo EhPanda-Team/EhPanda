@@ -201,7 +201,10 @@ extension DownloadManager {
         }
         clearDownloadQueueIntent(gid: context.gid)
         await queueStore.remove(context.gid)
-        _ = await reloadDownloadIndex()
+        await reloadDownloadRecord(
+            gid: context.gid,
+            token: context.originalDownload.token
+        )
         await notifyObservers()
     }
 
