@@ -118,7 +118,7 @@ struct FolderManagerReducer {
                     try await downloadClient.createFolder(name)
                     await send(.createFolderDone(.success(())))
                 } catch: { error, send in
-                    await send(.createFolderDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.createFolderDone(.failure(AppError(error))))
                 }
 
             case .createFolderDone(.success):
@@ -138,7 +138,7 @@ struct FolderManagerReducer {
                     try await downloadClient.renameFolder(oldName, newName)
                     await send(.renameFolderDone(.success(())))
                 } catch: { error, send in
-                    await send(.renameFolderDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.renameFolderDone(.failure(AppError(error))))
                 }
 
             case .renameFolderDone(.success):
@@ -154,7 +154,7 @@ struct FolderManagerReducer {
                     try await downloadClient.deleteFolder(name)
                     await send(.deleteFolderDone(.success(())))
                 } catch: { error, send in
-                    await send(.deleteFolderDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.deleteFolderDone(.failure(AppError(error))))
                 }
 
             case .deleteFolderDone(.success):

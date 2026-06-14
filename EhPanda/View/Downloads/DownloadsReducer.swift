@@ -188,7 +188,7 @@ struct DownloadsReducer {
                     try await downloadClient.moveDownload(gid, folderName)
                     await send(.moveDownloadDone(.success(())))
                 } catch: { error, send in
-                    await send(.moveDownloadDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.moveDownloadDone(.failure(AppError(error))))
                 }
 
             case .moveDownloadDone(let result):
@@ -213,7 +213,7 @@ struct DownloadsReducer {
                         )
                     )
                 } catch: { error, send in
-                    await send(.openReadingDone(requestID, gid, .failure(error as? AppError ?? .unknown)))
+                    await send(.openReadingDone(requestID, gid, .failure(AppError(error))))
                 }
 
             case .openReadingDone(let requestID, let gid, let result):
@@ -229,7 +229,7 @@ struct DownloadsReducer {
                     try await downloadClient.togglePause(gid)
                     await send(.toggleDownloadPauseDone(.success(())))
                 } catch: { error, send in
-                    await send(.toggleDownloadPauseDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.toggleDownloadPauseDone(.failure(AppError(error))))
                 }
 
             case .toggleDownloadPauseDone:
@@ -240,7 +240,7 @@ struct DownloadsReducer {
                     try await downloadClient.retry(gid, .update)
                     await send(.updateDownloadDone(.success(())))
                 } catch: { error, send in
-                    await send(.updateDownloadDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.updateDownloadDone(.failure(AppError(error))))
                 }
 
             // List-level mutations don't surface a per-op HUD: the `observeDownloads` stream is the
@@ -254,7 +254,7 @@ struct DownloadsReducer {
                     try await downloadClient.delete(gid)
                     await send(.deleteDownloadDone(.success(())))
                 } catch: { error, send in
-                    await send(.deleteDownloadDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.deleteDownloadDone(.failure(AppError(error))))
                 }
 
             case .deleteDownloadDone:

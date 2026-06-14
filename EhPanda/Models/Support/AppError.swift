@@ -9,6 +9,10 @@ import SFSafeSymbols
 enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     var id: String { localizedDescription }
 
+    init(_ error: any Error) {
+        self = error as? AppError ?? .unknown
+    }
+
     case databaseCorrupted(String?)
     case copyrightClaim(String)
     case ipBanned(BanInterval)

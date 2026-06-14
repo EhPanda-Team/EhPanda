@@ -144,7 +144,7 @@ extension DetailReducer {
             }
             await send(.openReadingDone(.success(try await downloadClient.loadManifest(galleryID))))
         } catch: { error, send in
-            await send(.openReadingDone(.failure(error as? AppError ?? .unknown)))
+            await send(.openReadingDone(.failure(AppError(error))))
         }
     }
 
@@ -198,7 +198,7 @@ extension DetailReducer {
             try await downloadClient.enqueue(payload)
             await send(.startDownloadDone(.success(())))
         } catch: { error, send in
-            await send(.startDownloadDone(.failure(error as? AppError ?? .unknown)))
+            await send(.startDownloadDone(.failure(AppError(error))))
         }
     }
 
@@ -232,7 +232,7 @@ extension DetailReducer {
             try await downloadClient.togglePause(galleryID)
             await send(.toggleDownloadPauseDone(.success(())))
         } catch: { error, send in
-            await send(.toggleDownloadPauseDone(.failure(error as? AppError ?? .unknown)))
+            await send(.toggleDownloadPauseDone(.failure(AppError(error))))
         }
     }
 
@@ -273,7 +273,7 @@ extension DetailReducer {
             try await downloadClient.retry(galleryID, mode)
             await send(.retryDownloadDone(.success(())))
         } catch: { error, send in
-            await send(.retryDownloadDone(.failure(error as? AppError ?? .unknown)))
+            await send(.retryDownloadDone(.failure(AppError(error))))
         }
     }
 
@@ -305,7 +305,7 @@ extension DetailReducer {
             try await downloadClient.delete(galleryID)
             await send(.deleteDownloadDone(.success(())))
         } catch: { error, send in
-            await send(.deleteDownloadDone(.failure(error as? AppError ?? .unknown)))
+            await send(.deleteDownloadDone(.failure(AppError(error))))
         }
     }
 
