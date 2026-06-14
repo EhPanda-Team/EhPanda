@@ -7,13 +7,16 @@ import Foundation
 
 // MARK: - Process Download
 extension DownloadManager {
-    func processDownload(gid: String) async {
+    func processDownload(
+        gid: String,
+        generation: Int? = nil
+    ) async {
         defer {
-            activeTask = nil
-            activeGalleryID = nil
-            Task {
-                await self.scheduleNextIfNeeded()
-            }
+            finishActiveTaskIfOwned(
+                gid: gid,
+                generation: generation,
+                schedulesNext: true
+            )
         }
 
         guard let download = await fetchDownload(gid: gid) else {
@@ -235,5 +238,33 @@ extension DownloadManager {
     func settleCompletedDownload(gid: String) async {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
+    }
+
+    func finishActiveTaskIfOwned(
+        gid: String,
+        generation: Int?,
+        schedulesNext: Bool
+    ) {
+        guard isActiveTaskOwner(gid: gid, generation: generation) else {
+            return
+        }
+        activeTask = nil
+        activeGalleryID = nil
+        guard schedulesNext else { return }
+        Task {
+            await self.scheduleNextIfNeeded()
+        }
+    }
+
+    private func isActiveTaskOwner(
+        gid: String,
+        generation: Int?
+    ) -> Bool {
+        if let generation {
+            return activeGalleryID == gid
+                && activeTaskGeneration == generation
+        }
+        guard activeTask == nil else { return false }
+        return activeGalleryID == nil || activeGalleryID == gid
     }
 }
