@@ -174,6 +174,7 @@ extension DownloadCoordinator {
         guard let download = await fetchDownload(gid: gid) else {
             clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
             await queueStore.remove(gid)
+            await backgroundTaskStore.removeAll(for: gid)
             return .failure(.notFound)
         }
         do {
@@ -190,6 +191,7 @@ extension DownloadCoordinator {
         // removal above leaves the gallery intact and must not silently dequeue it.
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
+        await backgroundTaskStore.removeAll(for: gid)
         downloadIndex[gid] = nil
         await notifyObservers()
         await scheduleNextIfNeeded()

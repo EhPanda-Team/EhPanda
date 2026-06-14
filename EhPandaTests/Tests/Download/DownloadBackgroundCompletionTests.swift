@@ -66,6 +66,36 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
         #expect(try await manager.loadLocalPageURLs(gid: gid).get()[1] == pageURL)
     }
 
+    @Test
+    func testDeleteClearsPersistedBackgroundTaskRecords() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 902)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            backgroundTaskStore: taskStore
+        )
+        _ = try writeDownloadFolder(storage: storage, gid: gid)
+        await manager.reloadDownloadIndex()
+
+        await taskStore.record(taskIdentifier: 77, gid: gid, pageIndex: 1)
+        await taskStore.record(taskIdentifier: 78, gid: "other", pageIndex: 1)
+
+        let result = await manager.delete(gid: gid)
+        guard case .success = result else {
+            Issue.record("Expected delete to succeed, got \(result)")
+            return
+        }
+
+        #expect(await taskStore.records(for: gid).isEmpty)
+        #expect(await taskStore.record(taskIdentifier: 78) == .init(gid: "other", pageIndex: 1))
+    }
+
     private func writeDownloadFolder(
         storage: DownloadFileStorage,
         gid: String
