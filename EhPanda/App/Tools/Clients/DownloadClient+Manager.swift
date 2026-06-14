@@ -155,8 +155,8 @@ actor DownloadManager {
     var activeTask: Task<Void, Never>?
     var schedulingBlockedGalleryIDs = Set<String>()
 #if DEBUG
-    var testingFetchDownloadsFromStoreHook: (@Sendable () async -> Void)?
     var testingPersistFailureHook: (@Sendable () async -> Void)?
+    var testingScheduleBeforeActiveCheckHook: (@Sendable () async -> Void)?
     var testingScheduledProcessHook: (@Sendable (String) async -> Void)?
     var testingScheduledGalleryIDHistory = [String]()
 #endif

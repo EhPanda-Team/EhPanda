@@ -23,10 +23,10 @@ extension DownloadManager {
         await scheduleNextIfNeeded()
     }
 
-    func testingSetFetchDownloadsFromStoreHook(
+    func testingSetScheduleBeforeActiveCheckHook(
         _ hook: (@Sendable () async -> Void)?
     ) {
-        testingFetchDownloadsFromStoreHook = hook
+        testingScheduleBeforeActiveCheckHook = hook
     }
 
     func testingSetPersistFailureHook(
