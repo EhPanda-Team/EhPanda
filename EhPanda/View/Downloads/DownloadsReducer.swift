@@ -246,7 +246,17 @@ struct DownloadsReducer {
                     await send(.updateDownloadDone(await downloadClient.retry(gid, .update)))
                 }
 
-            case .updateDownloadDone:
+            // Like `moveDownloadDone`/`toggleDownloadPauseDone`, list-level mutations don't surface a
+            // per-op HUD: the `observeDownloads` stream is the user-facing feedback, continuously
+            // reflecting filesystem truth (DES-3). A failure means the observed state simply doesn't
+            // change; we still reconcile to repair any divergence a partial mutation left in the
+            // write-through cache.
+            case .updateDownloadDone(let result):
+                if case .failure = result {
+                    return .run { _ in
+                        await downloadClient.reconcileDownloads()
+                    }
+                }
                 return .none
 
             case .deleteDownload(let gid):
@@ -254,7 +264,12 @@ struct DownloadsReducer {
                     await send(.deleteDownloadDone(await downloadClient.delete(gid)))
                 }
 
-            case .deleteDownloadDone:
+            case .deleteDownloadDone(let result):
+                if case .failure = result {
+                    return .run { _ in
+                        await downloadClient.reconcileDownloads()
+                    }
+                }
                 return .none
 
             case .detail(.folderManager(.createFolderDone)),
