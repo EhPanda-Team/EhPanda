@@ -16,7 +16,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Indexed")
@@ -58,7 +58,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared

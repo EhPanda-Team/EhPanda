@@ -1,11 +1,11 @@
 //
-//  DownloadFileStorage+JSONCoding.swift
+//  DownloadStore+JSONCoding.swift
 //  EhPanda
 //
 
 import Foundation
 
-extension DownloadFileStorage {
+extension DownloadStore {
     func writeJSON<T: Encodable>(_ value: T, to url: URL) throws {
         try JSONEncoder().encode(value).write(to: url, options: .atomic)
     }

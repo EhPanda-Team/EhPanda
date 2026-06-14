@@ -37,7 +37,7 @@ struct FolderManagerReducer {
         var folders = [String]()
 
         var normalizedEditingFolderName: String? {
-            DownloadFileStorage.normalizedUserFolderName(editingFolderName)
+            DownloadStore.normalizedUserFolderName(editingFolderName)
         }
 
         var isEditingNameValid: Bool {

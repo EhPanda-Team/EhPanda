@@ -19,7 +19,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
 
@@ -75,7 +75,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
 
         let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
@@ -97,7 +97,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
 
         let folderURL = rootURL.appendingPathComponent(
@@ -396,7 +396,7 @@ private extension DownloadManagerRepairSeedTests {
     }
 
     func setupRepairSeedFiles(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         sourceFolderURL: URL,
         gid: String
     ) throws {
@@ -457,7 +457,7 @@ private extension DownloadManagerRepairSeedTests {
     }
 
     func setupZeroBytePageFiles(
-        rootURL: URL, gid: String, storage: DownloadFileStorage
+        rootURL: URL, gid: String, storage: DownloadStore
     ) throws -> (URL, URL) {
         let completedFolderURL = rootURL.appendingPathComponent(
             "Folder/\(gid) - Pause Race", isDirectory: true

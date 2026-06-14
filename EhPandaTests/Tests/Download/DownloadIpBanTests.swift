@@ -16,7 +16,7 @@ struct DownloadIpBanTests: DownloadFeatureTestCase {
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let manager = DownloadManager(
-            storage: DownloadFileStorage(
+            storage: DownloadStore(
                 rootURL: FileManager.default.temporaryDirectory
                     .appendingPathComponent(UUID().uuidString, isDirectory: true),
                 fileManager: .default

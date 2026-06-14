@@ -1,5 +1,5 @@
 //
-//  DownloadFileStorage.swift
+//  DownloadStore.swift
 //  EhPanda
 //
 
@@ -25,8 +25,6 @@ struct DownloadScanResult: Equatable, Sendable {
     let records: [DownloadFolderRecord]
     let userFolders: [String]
 }
-
-typealias DownloadFileStorage = DownloadStore
 
 struct DownloadStore: Sendable {
     private static let maxFolderComponentByteCount = 255

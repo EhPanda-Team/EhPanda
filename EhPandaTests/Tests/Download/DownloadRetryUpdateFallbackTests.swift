@@ -144,7 +144,7 @@ private extension DownloadRetryUpdateFallbackTests {
     }
 
     func setupImmediateUpdateTestState(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         context: DownloadPageContext
     ) throws {
         let oldCount = context.pageCount - 5
@@ -156,7 +156,7 @@ private extension DownloadRetryUpdateFallbackTests {
     }
 
     func writeFinalManifest(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         pageCount: Int
     ) throws {

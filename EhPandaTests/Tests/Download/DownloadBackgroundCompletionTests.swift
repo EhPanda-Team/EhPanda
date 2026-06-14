@@ -16,7 +16,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
         let manager = DownloadManager(
             storage: storage,
@@ -73,7 +73,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
         let manager = DownloadManager(
             storage: storage,
@@ -103,7 +103,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
         let manager = DownloadManager(
             storage: storage,
@@ -127,7 +127,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     }
 
     private func writeDownloadFolder(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         folderName: String = "Folder"
     ) throws -> URL {
@@ -145,7 +145,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     }
 
     private func writeStagedBackgroundFile(
-        storage: DownloadFileStorage
+        storage: DownloadStore
     ) throws -> URL {
         let holdingDirectory = storage.backgroundTransferHoldingDirectoryURL()
         try FileManager.default.createDirectory(

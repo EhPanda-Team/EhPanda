@@ -28,7 +28,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
@@ -80,7 +80,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
 
         try writeManifestFolder(
@@ -124,7 +124,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
@@ -189,7 +189,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
@@ -222,7 +222,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
@@ -259,7 +259,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage, urlSession: URLSession(configuration: configuration)
         )
@@ -299,7 +299,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
 private extension DownloadPauseAndReconcileTests {
     func writeManifestFolder(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         title: String,
         pageHashes: [String]
@@ -334,7 +334,7 @@ private extension DownloadPauseAndReconcileTests {
     }
 
     func setupCancellationFilterTestFolder(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String
     ) throws {
         let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Inspection")

@@ -17,7 +17,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -69,7 +69,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -125,7 +125,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -161,7 +161,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
 
         try storage.ensureRootDirectory()
@@ -186,7 +186,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -229,7 +229,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -275,7 +275,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -314,7 +314,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -346,7 +346,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -385,7 +385,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -418,7 +418,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
         let manager = DownloadManager(
             storage: storage,
@@ -463,7 +463,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
         let manager = DownloadManager(
             storage: storage,
@@ -519,7 +519,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
         let manager = DownloadManager(
             storage: storage,
@@ -565,7 +565,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
         let manager = DownloadManager(
             storage: storage,
@@ -618,7 +618,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
         let manager = DownloadManager(
             storage: storage,
@@ -682,7 +682,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
         let scheduledRecorder = ScheduledGalleryRecorder()
         let taskRunner = DownloadTaskRunner(
@@ -746,7 +746,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -802,7 +802,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -855,7 +855,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -900,7 +900,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -942,7 +942,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
 private extension DownloadManagerStorageTests {
     func writeIndexedManifest(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         relativePath: String,
         manifest: DownloadManifest
     ) throws {
@@ -986,7 +986,7 @@ private extension DownloadManagerStorageTests {
 
     func setFolderModificationDate(
         _ date: Date,
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         relativePath: String
     ) throws {
         try FileManager.default.setAttributes(

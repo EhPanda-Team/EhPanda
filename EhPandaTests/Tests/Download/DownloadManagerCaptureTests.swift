@@ -17,7 +17,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -75,7 +75,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         let completedFolderURL = try setupCaptureMissingFilesFolder(
             rootURL: rootURL, gid: gid
@@ -135,7 +135,7 @@ private extension DownloadManagerCaptureTests {
             rating: 4,
             pages: [
                 1: "sha256:missing",
-                2: try DownloadFileStorage().fileHash(at: page2URL)
+                2: try DownloadStore().fileHash(at: page2URL)
             ]
         )
         try JSONEncoder().encode(manifest).write(

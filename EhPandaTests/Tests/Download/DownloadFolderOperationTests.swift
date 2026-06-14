@@ -231,7 +231,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 // MARK: - Setup Helpers
 
 private struct DownloadFolderOperationTestEnvironment {
-    let storage: DownloadFileStorage
+    let storage: DownloadStore
     let manager: DownloadManager
     let rootURL: URL
 }
@@ -240,14 +240,14 @@ private extension DownloadFolderOperationTests {
     func makeManager() -> DownloadFolderOperationTestEnvironment {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         return .init(storage: storage, manager: manager, rootURL: rootURL)
     }
 
     @discardableResult
     func writeGalleryFolder(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         folderName: String,
         gid: String,
         galleryFolderName: String? = nil

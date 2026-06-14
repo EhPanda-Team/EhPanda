@@ -1,5 +1,5 @@
 //
-//  DownloadFileStorageTests.swift
+//  DownloadStoreTests.swift
 //  EhPandaTests
 //
 
@@ -7,7 +7,7 @@ import Foundation
 import Testing
 @testable import EhPanda
 
-struct DownloadFileStorageTests {
+struct DownloadStoreTests {
     @Test
     func testWriteReadAndValidateManifest() throws {
         let (storage, rootURL) = makeStorage()
@@ -284,7 +284,7 @@ struct DownloadFileStorageTests {
         try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
         let fileURL = rootURL.appendingPathComponent("123_token_cover.jpg")
         try Data([0xFF, 0xD8, 0xFF]).write(to: fileURL, options: .atomic)
-        let storage = DownloadFileStorage(
+        let storage = DownloadStore(
             rootURL: rootURL,
             fileManager: ThrowingAttributesFileManager(failingPath: fileURL.path)
         )
@@ -472,12 +472,12 @@ private final class ThrowingAttributesFileManager: FileManager {
     }
 }
 
-private extension DownloadFileStorageTests {
-    func makeStorage() -> (DownloadFileStorage, URL) {
+private extension DownloadStoreTests {
+    func makeStorage() -> (DownloadStore, URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return (
-            DownloadFileStorage(rootURL: rootURL, fileManager: .default),
+            DownloadStore(rootURL: rootURL, fileManager: .default),
             rootURL
         )
     }

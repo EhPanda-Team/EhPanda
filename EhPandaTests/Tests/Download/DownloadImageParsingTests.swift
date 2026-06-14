@@ -164,7 +164,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         configuration.httpAdditionalHeaders = [
             SharedSessionStubURLProtocol.headerKey: sessionID
         ]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
@@ -281,7 +281,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         configuration.httpAdditionalHeaders = [
             SharedSessionStubURLProtocol.headerKey: sessionID
         ]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration)

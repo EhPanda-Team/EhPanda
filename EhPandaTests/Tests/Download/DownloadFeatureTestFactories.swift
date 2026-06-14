@@ -338,13 +338,13 @@ extension DownloadFeatureTestCase {
             DownloadRequestOptions()
         },
         taskRunner: DownloadTaskRunner = .init()
-    ) -> (DownloadFileStorage, DownloadManager) {
+    ) -> (DownloadStore, DownloadManager) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [
             SharedSessionStubURLProtocol.headerKey: sessionID
         ]
-        let storage = DownloadFileStorage(
+        let storage = DownloadStore(
             rootURL: rootURL, fileManager: .default
         )
         let manager = DownloadManager(

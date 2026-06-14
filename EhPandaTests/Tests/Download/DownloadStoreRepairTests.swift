@@ -1,5 +1,5 @@
 //
-//  DownloadFileStorageRepairTests.swift
+//  DownloadStoreRepairTests.swift
 //  EhPandaTests
 //
 
@@ -7,7 +7,7 @@ import Foundation
 import Testing
 @testable import EhPanda
 
-struct DownloadFileStorageRepairTests {
+struct DownloadStoreRepairTests {
     @Test
     func testMaterializeRepairSeedCopiesOnlyManifestCoverAndExistingPageFiles() throws {
         let (storage, rootURL) = makeStorage()
@@ -65,7 +65,7 @@ struct DownloadFileStorageRepairTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let fileManager = LinkFailingFileManager()
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: fileManager)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
         try storage.ensureRootDirectory()
 
         let sourceURL = rootURL.appendingPathComponent("source.bin")
@@ -86,19 +86,19 @@ private final class LinkFailingFileManager: FileManager {
 }
 
 private struct TraversalTestEnvironment {
-    let sourceStorage: DownloadFileStorage
-    let destStorage: DownloadFileStorage
+    let sourceStorage: DownloadStore
+    let destStorage: DownloadStore
     let sourceFolderURL: URL
     let destinationFolderURL: URL
     let manifest: DownloadManifest
 }
 
-private extension DownloadFileStorageRepairTests {
+private extension DownloadStoreRepairTests {
     func setupTraversalTestEnvironment(
         sourceRootURL: URL, destRootURL: URL
     ) throws -> TraversalTestEnvironment {
-        let sourceStorage = DownloadFileStorage(rootURL: sourceRootURL, fileManager: .default)
-        let destStorage = DownloadFileStorage(rootURL: destRootURL, fileManager: .default)
+        let sourceStorage = DownloadStore(rootURL: sourceRootURL, fileManager: .default)
+        let destStorage = DownloadStore(rootURL: destRootURL, fileManager: .default)
         try sourceStorage.ensureRootDirectory()
         try destStorage.ensureRootDirectory()
         let sourceFolderURL = sourceStorage.folderURL(relativePath: "123 - Source")
@@ -136,7 +136,7 @@ private extension DownloadFileStorageRepairTests {
 
     func setupRepairSourceFiles(
         sourceFolderURL: URL,
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         manifest: DownloadManifest
     ) throws {
         try FileManager.default.createDirectory(
@@ -183,11 +183,11 @@ private extension DownloadFileStorageRepairTests {
         ) == false)
     }
 
-    func makeStorage() -> (DownloadFileStorage, URL) {
+    func makeStorage() -> (DownloadStore, URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return (
-            DownloadFileStorage(rootURL: rootURL, fileManager: .default),
+            DownloadStore(rootURL: rootURL, fileManager: .default),
             rootURL
         )
     }

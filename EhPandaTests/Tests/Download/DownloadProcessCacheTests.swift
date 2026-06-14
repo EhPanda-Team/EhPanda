@@ -77,13 +77,13 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
 // MARK: - Cache Test Manager Result
 
 struct CacheTestManagerResult {
-    let storage: DownloadFileStorage
+    let storage: DownloadStore
     let manager: DownloadManager
     let metadataResponse: Data
 }
 
 private struct CacheTestDownloadSetup {
-    let storage: DownloadFileStorage
+    let storage: DownloadStore
     let manager: DownloadManager
     let gid: String
     let pageIndex: Int
@@ -102,7 +102,7 @@ private extension DownloadProcessCacheTests {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration),
@@ -246,7 +246,7 @@ private extension DownloadProcessCacheTests {
     }
 
     func setupCacheTestFinalFolder(
-        storage: DownloadFileStorage, gid: String,
+        storage: DownloadStore, gid: String,
         pageCount: Int,
         missingPageIndex: Int
     ) throws {
