@@ -64,11 +64,6 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
                 1: folderURL.appendingPathComponent("123_token_1.jpg"),
                 2: folderURL.appendingPathComponent("123_token_2.jpg")
             ]
-            $0.previewConfig = .normal(rows: 4)
-            $0.previewURLs = $0.localPageURLs
-            $0.thumbnailURLs = $0.localPageURLs
-            $0.imageURLs = $0.localPageURLs
-            $0.originalImageURLs = $0.localPageURLs
             $0.databaseLoadingState = .idle
         }
         await store.finish()
