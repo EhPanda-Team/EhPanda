@@ -99,6 +99,10 @@ struct DownloadStore: Sendable {
         rootURL.appendingPathComponent(".background-tasks.json")
     }
 
+    func backgroundTransferHoldingDirectoryURL() -> URL {
+        rootURL.appendingPathComponent(".background-downloads", isDirectory: true)
+    }
+
     func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
         let pageIndices = Set(manifest.pages.keys)
         guard !pageIndices.isEmpty else { return [:] }
