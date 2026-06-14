@@ -54,6 +54,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             ),
             folderURL: folderURL
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetQueuedGalleryIDs([gid])
 
         let gate = ScheduleFetchGate()

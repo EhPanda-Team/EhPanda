@@ -51,6 +51,7 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
                 pageIndex: pageIndex
             )
         )
+        await manager.reloadDownloadIndex()
 
         await manager.testingProcessDownload(gid: gid)
 

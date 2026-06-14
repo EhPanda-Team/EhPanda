@@ -36,6 +36,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             manifest: manifest,
             missingPageIndex: pageIndex
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetDownloadError(
             .init(code: .fileOperationFailed, message: "Page \(pageIndex) is missing."),
             gid: gid
@@ -98,6 +99,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             manifest: manifest,
             missingPageIndices: [pageIndex, remainingMissingPageIndex]
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetDownloadError(
             .init(code: .networkingFailed, message: "Original retry failure."),
             gid: gid

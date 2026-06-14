@@ -87,6 +87,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
             ),
             folderURL: folderURL
         )
+        await manager.reloadDownloadIndex()
 
         let updateResult = await manager.updateRemoteVersion(
             gid: gid,
