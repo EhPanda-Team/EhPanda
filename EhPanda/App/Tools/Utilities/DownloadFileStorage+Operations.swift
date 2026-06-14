@@ -81,19 +81,22 @@ extension DownloadFileStorage {
             folderURL: folderURL,
             manifest: manifest
         )
-        let pages = try manifest.pages.keys.sorted()
-            .reduce(into: [Int: String]()) { result, index in
-                guard let relativePath = existingPages[index] else {
-                    throw AppError.fileOperationFailed(
-                        L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
-                    )
-                }
-                result[index] = try hashReadableAsset(
-                    folderURL: folderURL,
-                    relativePath: relativePath,
-                    missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
+        var pages = manifest.pages
+        for index in manifest.pages.keys.sorted() {
+            guard pages[index]?.isEmpty != false else {
+                continue
+            }
+            guard let relativePath = existingPages[index] else {
+                throw AppError.fileOperationFailed(
+                    L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
                 )
             }
+            pages[index] = try hashReadableAsset(
+                folderURL: folderURL,
+                relativePath: relativePath,
+                missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
+            )
+        }
 
         return manifest.replacing(pages: pages)
     }
