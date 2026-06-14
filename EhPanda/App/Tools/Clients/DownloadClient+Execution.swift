@@ -238,6 +238,7 @@ extension DownloadCoordinator {
     func settleCompletedDownload(gid: String) async {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
+        await backgroundTaskStore.removeAll(for: gid)
     }
 
     func finishActiveTaskIfOwned(

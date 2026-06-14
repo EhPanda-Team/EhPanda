@@ -171,6 +171,7 @@ extension DownloadCoordinator {
     ) async throws -> Task<Void, Never>? {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
+        await backgroundTaskStore.removeAll(for: gid)
         await notifyObservers()
         if activeGalleryID == gid {
             let task = activeTask
@@ -188,6 +189,7 @@ extension DownloadCoordinator {
     ) async throws {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
+        await backgroundTaskStore.removeAll(for: gid)
     }
 
     func cancelQueuedWorkItem(
