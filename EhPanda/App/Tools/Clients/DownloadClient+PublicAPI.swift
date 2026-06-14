@@ -277,11 +277,12 @@ extension DownloadManager {
                     captureTarget.preferredRelativePath ?? existingPages[index],
                 overwriteExistingFile: true
             ) else { return }
-            _ = try? storage.refreshManifestPageFileHash(
+            let manifest = try storage.refreshManifestPageFileHash(
                 folderURL: captureTarget.folderURL,
                 pageIndex: index,
                 relativePath: pageResult.relativePath
             )
+            updateDownloadIndex(folderURL: captureTarget.folderURL, manifest: manifest)
             _ = await sanitizeLocalFilesIfNeeded(gid: gid, clearingLastError: true)
         } catch {
             Logger.error(error)

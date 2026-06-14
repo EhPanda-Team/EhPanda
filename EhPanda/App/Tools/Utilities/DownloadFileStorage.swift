@@ -15,6 +15,8 @@ struct DownloadFolderRecord: Equatable, Sendable {
     let relativePath: String
     let folderURL: URL
     let manifest: DownloadManifest
+    let localCoverURL: URL?
+    let localPageURLs: [Int: URL]
     let modifiedAt: Date?
     let parentFolderName: String
 }
@@ -396,7 +398,7 @@ struct DownloadFileStorage: Sendable {
         }
     }
 
-    private func galleryFolderRecord(
+    func galleryFolderRecord(
         folderURL: URL,
         manifest: DownloadManifest,
         parentFolderName: String
@@ -408,6 +410,8 @@ struct DownloadFileStorage: Sendable {
             relativePath: "\(parentFolderName)/\(folderURL.lastPathComponent)",
             folderURL: folderURL,
             manifest: manifest,
+            localCoverURL: localCoverURL(folderURL: folderURL, manifest: manifest),
+            localPageURLs: imageURLs(folderURL: folderURL, manifest: manifest),
             modifiedAt: resourceValues?.contentModificationDate,
             parentFolderName: parentFolderName
         )
