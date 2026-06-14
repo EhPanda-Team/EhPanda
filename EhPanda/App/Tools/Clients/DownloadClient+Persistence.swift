@@ -79,14 +79,8 @@ extension DownloadManager {
             manifest: record.manifest,
             folderURL: record.folderURL,
             folderName: record.parentFolderName,
-            localCoverURL: storage.localCoverURL(
-                folderURL: record.folderURL,
-                manifest: record.manifest
-            ),
-            localPageURLs: storage.imageURLs(
-                folderURL: record.folderURL,
-                manifest: record.manifest
-            ),
+            localCoverURL: record.localCoverURL,
+            localPageURLs: record.localPageURLs,
             modifiedAt: record.modifiedAt,
             displayStatus: displayStatus(for: record),
             lastError: validationErrors[gid] ?? downloadErrors[gid]
@@ -249,17 +243,10 @@ extension DownloadManager {
     }
 
     func updateDownloadIndex(folderURL: URL, manifest: DownloadManifest) {
-        let modifiedAt = try? folderURL.resourceValues(
-            forKeys: [.contentModificationDateKey]
-        )
-        .contentModificationDate
         hasLoadedIndex = true
-        downloadIndex[manifest.gid] = DownloadFolderRecord(
-            relativePath: storage.rootRelativePath(forFolderURL: folderURL)
-                ?? folderURL.lastPathComponent,
+        downloadIndex[manifest.gid] = storage.galleryFolderRecord(
             folderURL: folderURL,
             manifest: manifest,
-            modifiedAt: modifiedAt,
             parentFolderName: storage.parentFolderName(forFolderURL: folderURL) ?? ""
         )
     }

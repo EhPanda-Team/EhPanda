@@ -208,6 +208,12 @@ extension DownloadManager {
                 relativePath: "\(newName)/\(record.folderURL.lastPathComponent)",
                 folderURL: destinationFolderURL,
                 manifest: record.manifest,
+                localCoverURL: record.localCoverURL.map {
+                    destinationFolderURL.appendingPathComponent($0.lastPathComponent)
+                },
+                localPageURLs: record.localPageURLs.mapValues {
+                    destinationFolderURL.appendingPathComponent($0.lastPathComponent)
+                },
                 modifiedAt: record.modifiedAt,
                 parentFolderName: newName
             )
