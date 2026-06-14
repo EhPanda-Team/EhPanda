@@ -39,6 +39,8 @@ struct DetailReducer {
         case postComment(String)
         case voteTag(String)
 
+        // Teardown cancels this whole set; keep it in sync with the cases above.
+        // Dropping `CaseIterable` (associated values) means the compiler can't check the list for us.
         static func all(for gid: String) -> [Self] {
             [
                 .fetchDatabaseInfos(gid),

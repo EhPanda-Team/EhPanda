@@ -61,7 +61,7 @@ extension DetailReducer {
                 guard let dbState = await databaseClient.fetchGalleryState(gid: galleryID) else { return }
                 await send(.fetchDatabaseInfosDone(dbState))
             }
-            .cancellable(id: CancelID.fetchDatabaseInfos(gid))
+            .cancellable(id: CancelID.fetchDatabaseInfos(state.cancellationGalleryID))
         )
     }
 
@@ -87,7 +87,7 @@ extension DetailReducer {
             let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).response()
             await send(.fetchGalleryDetailDone(response))
         }
-        .cancellable(id: CancelID.fetchGalleryDetail(galleryID))
+        .cancellable(id: CancelID.fetchGalleryDetail(state.cancellationGalleryID))
     }
 
     private func handleFetchGalleryDetailDone(
@@ -164,7 +164,7 @@ extension DetailReducer {
             )
             await send(.fetchDownloadBadgeDone(download))
         }
-        .cancellable(id: CancelID.fetchVersionMetadata(gallery.gid), cancelInFlight: true)
+        .cancellable(id: CancelID.fetchVersionMetadata(state.cancellationGalleryID), cancelInFlight: true)
     }
 
     var galleryOpsReducer: some ReducerOf<Self> {
@@ -198,7 +198,7 @@ extension DetailReducer {
             ).response()
             await send(.anyGalleryOpsDone(response))
         }
-        .cancellable(id: CancelID.rateGallery(state.gallery.id))
+        .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
     }
 
     private func handleFavorGallery(favIndex: Int, state: State) -> Effect<Action> {
@@ -208,7 +208,7 @@ extension DetailReducer {
             ).response()
             await send(.anyGalleryOpsDone(response))
         }
-        .cancellable(id: CancelID.favorGallery(state.gallery.id))
+        .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
     }
 
     private func handleUnfavorGallery(state: State) -> Effect<Action> {
@@ -216,7 +216,7 @@ extension DetailReducer {
             let response = await UnfavorGalleryRequest(gid: galleryID).response()
             await send(.anyGalleryOpsDone(response))
         }
-        .cancellable(id: CancelID.unfavorGallery(state.gallery.id))
+        .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
     }
 
     private func handlePostComment(galleryURL: URL, state: State) -> Effect<Action> {
@@ -227,7 +227,7 @@ extension DetailReducer {
             ).response()
             await send(.anyGalleryOpsDone(response))
         }
-        .cancellable(id: CancelID.postComment(state.gallery.id))
+        .cancellable(id: CancelID.postComment(state.cancellationGalleryID))
     }
 
     private func handleVoteTag(tag: String, vote: Int, state: State) -> Effect<Action> {
@@ -240,7 +240,7 @@ extension DetailReducer {
             ).response()
             await send(.anyGalleryOpsDone(response))
         }
-        .cancellable(id: CancelID.voteTag(state.gallery.id))
+        .cancellable(id: CancelID.voteTag(state.cancellationGalleryID))
     }
 
     private func handleAnyGalleryOpsDone(result: Result<Void, AppError>) -> Effect<Action> {

@@ -70,7 +70,7 @@ extension DetailReducer {
             let download = await downloadClient.fetchDownload(galleryID)
             await send(.fetchDownloadBadgeDone(download))
         }
-        .cancellable(id: CancelID.fetchDownloadBadge(state.gid), cancelInFlight: true)
+        .cancellable(id: CancelID.fetchDownloadBadge(state.cancellationGalleryID), cancelInFlight: true)
     }
 
     private func handleFetchDownloadBadgeDone(
@@ -93,7 +93,7 @@ extension DetailReducer {
                 await send(.observeDownloadDone(download))
             }
         }
-        .cancellable(id: CancelID.observeDownload(state.gid), cancelInFlight: true)
+        .cancellable(id: CancelID.observeDownload(state.cancellationGalleryID), cancelInFlight: true)
     }
 
     private func handleObserveDownloadDone(
@@ -127,7 +127,7 @@ extension DetailReducer {
             }
             await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
         }
-        .cancellable(id: CancelID.loadLocalPreviewURLs(state.gid), cancelInFlight: true)
+        .cancellable(id: CancelID.loadLocalPreviewURLs(state.cancellationGalleryID), cancelInFlight: true)
     }
 
     private func handleLoadLocalPreviewURLsDone(
