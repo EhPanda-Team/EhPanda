@@ -35,6 +35,8 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
             mode: .initial
         )
 
+        // Warm the index the way launch does; enqueue then patches it in place.
+        await manager.reloadDownloadIndex()
         let result = await manager.enqueue(payload: payload)
 
         guard case .success = result else {
@@ -124,6 +126,8 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         )
         try storage.writeManifest(existingManifest, folderURL: folderURL)
 
+        // Warm the index the way launch does; enqueue then patches it in place.
+        await manager.reloadDownloadIndex()
         let result = await manager.enqueue(payload: .init(
             gallery: gallery,
             galleryDetail: detail,

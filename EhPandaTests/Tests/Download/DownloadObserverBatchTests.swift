@@ -75,6 +75,11 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
 
+        // Warm the (empty) index before seeding so the gallery surfaces only
+        // through flush updates, mirroring an active download whose folder is
+        // patched into the index rather than re-scanned per progress tick.
+        await manager.reloadDownloadIndex()
+
         let folderRelativePath = "Folder/\(gid) - Progress Flush"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try FileManager.default.createDirectory(
