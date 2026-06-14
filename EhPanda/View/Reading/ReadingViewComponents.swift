@@ -240,43 +240,13 @@ struct ImageContainer: View {
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
-        if let url, url.isPotentiallyAnimatedImage {
-            AnimatedImage(
-                url: url,
-                options: [.retryFailed, .continueInBackground, .handleCookies],
-                context: [.callbackQueue: SDCallbackQueue.main],
-                isAnimating: .constant(isActive),
-                placeholder: { placeholder(nil) }
-            )
-            .resizable()
-            .onViewUpdate { imageView, _ in
-                if !isActive {
-                    imageView.stopAnimating()
-                }
-            }
-            .onSuccess(perform: { image, data, _ in
-                cacheImageData(
-                    data ?? image.animatedSourceData ?? image.sd_imageData(),
-                    for: url
-                )
-                loadSucceededAction(index)
-            })
-            .onFailure(perform: { _ in loadFailedAction(index) })
-            .clipped()
-        } else {
-            let isFileURL = url?.isFileURL ?? false
-            let cacheKey = url.map { url in
-                isFileURL
-                    ? localFileCacheKey(url)
-                    : url.stableImageCacheKey ?? url.absoluteString
-            }
-            KFImage.url(url, cacheKey: cacheKey)
-                .cacheMemoryOnly(isFileURL)
-                .placeholder(placeholder)
-                .defaultModifier(withRoundedCorners: false)
-                .onSuccess(onSuccess)
-                .onFailure(onFailure)
-        }
+        ByteRoutedReaderImage(
+            url: url,
+            isActive: isActive,
+            placeholder: { placeholder(nil) },
+            onSucceeded: { loadSucceededAction(index) },
+            onFailed: { loadFailedAction(index) }
+        )
     }
 
     var body: some View {
@@ -317,38 +287,49 @@ struct ImageContainer: View {
             }
         }
     }
-    private func onSuccess(_ result: RetrieveImageResult) {
-        if let imageURL {
-            cacheImageData(result.data(), for: imageURL)
-        }
-        loadSucceededAction(index)
+}
+
+// Renders a reader page from bytes loaded through the owned ImageClient fetch
+// (DataCache → cookied URLSession), routing animated bytes to SDWebImage and
+// still bytes to UIImage so the engine decides by content, not URL extension.
+private struct ByteRoutedReaderImage<Placeholder: View>: View {
+    let url: URL?
+    let isActive: Bool
+    @ViewBuilder let placeholder: () -> Placeholder
+    let onSucceeded: () -> Void
+    let onFailed: () -> Void
+
+    @State private var stillImage: UIImage?
+    @State private var animatedData: Data?
+
+    var body: some View {
+        content.task(id: url) { await load() }
     }
-    private func onFailure(_: KingfisherError) {
-        if imageURL != nil {
-            loadFailedAction(index)
+
+    @ViewBuilder private var content: some View {
+        if let animatedData {
+            AnimatedImage(data: animatedData, isAnimating: .constant(isActive))
+                .resizable()
+        } else if let stillImage {
+            Image(uiImage: stillImage).resizable()
+        } else {
+            placeholder()
         }
     }
 
-    private var emptyProgress: Progress {
-        Progress(totalUnitCount: 1)
-    }
-
-    private func localFileCacheKey(_ url: URL) -> String {
-        let resourceValues = try? url.resourceValues(forKeys: [
-            .contentModificationDateKey,
-            .fileSizeKey
-        ])
-        let modificationStamp = resourceValues?.contentModificationDate?
-            .timeIntervalSinceReferenceDate ?? .zero
-        let fileSize = resourceValues?.fileSize ?? 0
-        return "local::\(url.path)#\(fileSize)#\(modificationStamp)"
-    }
-
-    private func cacheImageData(_ data: Data?, for url: URL) {
-        guard let data, !url.isFileURL else { return }
-        let keys = url.imageCacheKeys(includeStableAlias: true)
-        Task {
-            try? await DataCache.shared.store(data, forKeys: keys)
+    private func load() async {
+        stillImage = nil
+        animatedData = nil
+        guard let url else { return }
+        guard let asset = await ImageClient.live.fetchReaderImageAsset(url: url) else {
+            onFailed()
+            return
         }
+        if asset.isAnimated {
+            animatedData = asset.data
+        } else {
+            stillImage = asset.image
+        }
+        onSucceeded()
     }
 }
