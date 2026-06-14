@@ -23,6 +23,7 @@ struct DownloadClient: Sendable {
     var delete: @Sendable (String) async throws -> Void
     var loadManifest: @Sendable (String) async throws -> (DownloadedGallery, DownloadManifest)
     var loadLocalPageURLs: @Sendable (String) async -> [Int: URL]?
+    var rescanLocalPageURLs: @Sendable (String) async -> [Int: URL]?
     var captureCachedPage: @Sendable (String, Int, URL?) async -> Void
     var loadInspection: @Sendable (String) async throws -> DownloadInspection
     var fetchFolders: @Sendable () async throws -> [String]
@@ -114,6 +115,7 @@ extension DownloadClient {
             delete: { gid in try await manager.delete(gid: gid).get() },
             loadManifest: { gid in try await manager.loadManifest(gid: gid).get() },
             loadLocalPageURLs: { gid in try? await manager.loadLocalPageURLs(gid: gid).get() },
+            rescanLocalPageURLs: { gid in await manager.rescanLocalPageURLs(gid: gid) },
             captureCachedPage: { gid, index, imageURL in
                 await manager.captureCachedPage(gid: gid, index: index, imageURL: imageURL)
             },
@@ -163,6 +165,7 @@ extension DownloadClient {
         delete: { _ in },
         loadManifest: { _ in throw AppError.notFound },
         loadLocalPageURLs: { _ in nil },
+        rescanLocalPageURLs: { _ in nil },
         captureCachedPage: { _, _, _ in },
         loadInspection: { _ in throw AppError.notFound },
         fetchFolders: { [] },

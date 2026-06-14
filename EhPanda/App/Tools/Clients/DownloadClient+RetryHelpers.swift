@@ -99,4 +99,11 @@ extension DownloadCoordinator {
         }
         return .success(download.localPageURLs)
     }
+
+    func rescanLocalPageURLs(
+        gid: String
+    ) async -> [Int: URL]? {
+        guard let token = downloadIndex[gid]?.manifest.token else { return nil }
+        return await reloadDownloadRecord(gid: gid, token: token)?.localPageURLs
+    }
 }
