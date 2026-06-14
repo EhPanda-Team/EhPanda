@@ -133,7 +133,7 @@ private extension DetailReducerMetadataUpdateTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in continuation.finish() }
                 }
@@ -161,7 +161,7 @@ private extension DetailReducerMetadataUpdateTests {
     }
 
     func makeDeleteTestClient(download: DownloadedGallery) -> DownloadClient {
-        var client = DownloadClient.noop
+        var client = DownloadClient()
         client.observeDownloads = {
             AsyncStream { continuation in continuation.finish() }
         }

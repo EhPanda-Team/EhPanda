@@ -134,7 +134,7 @@ private extension ReadingReducerDownloadTests {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { $0.yield([]); $0.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }
@@ -170,7 +170,7 @@ private extension ReadingReducerDownloadTests {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { $0.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }

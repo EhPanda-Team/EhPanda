@@ -94,7 +94,7 @@ private extension PreviewsReducerDownloadTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
                 $0.downloadClient.fetchDownloads = { [download] }
                 $0.downloadClient.fetchDownload = { gid in gid == download.gid ? download : nil }
@@ -122,7 +122,7 @@ private extension PreviewsReducerDownloadTests {
         } else {
             loadLocalPageURLsResult = { _ in throw AppError.notFound }
         }
-        var client = DownloadClient.noop
+        var client = DownloadClient()
         client.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
         client.fetchDownloads = { [] }
         client.fetchDownload = { _ in nil }

@@ -24,7 +24,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.appLaunchAutomationClient = .none
                 $0.cookieClient = .noop
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { .init { $0.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }

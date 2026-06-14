@@ -46,7 +46,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
                         continuation.finish()

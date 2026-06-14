@@ -144,7 +144,7 @@ private extension DownloadObserverRefreshTests {
         stream: AsyncStream<[DownloadedGallery]>,
         loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
     ) -> DownloadClient {
-        var client = DownloadClient.noop
+        var client = DownloadClient()
         client.observeDownloads = { stream }
         client.fetchDownloads = { [] }
         client.fetchDownload = { _ in nil }
