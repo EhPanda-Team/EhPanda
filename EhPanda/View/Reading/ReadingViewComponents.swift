@@ -6,6 +6,7 @@ import SwiftUI
 import Kingfisher
 import SDWebImage
 import SDWebImageSwiftUI
+import ComposableArchitecture
 
 // MARK: ImageStackConfig
 struct ImageStackConfig {
@@ -299,6 +300,7 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
     let onSucceeded: () -> Void
     let onFailed: () -> Void
 
+    @Dependency(\.imageClient) private var imageClient
     @State private var stillImage: UIImage?
     @State private var animatedData: Data?
 
@@ -321,7 +323,7 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         stillImage = nil
         animatedData = nil
         guard let url else { return }
-        guard let asset = await ImageClient.live.fetchReaderImageAsset(url: url) else {
+        guard let asset = await imageClient.fetchReaderImageAsset(url: url) else {
             onFailed()
             return
         }
