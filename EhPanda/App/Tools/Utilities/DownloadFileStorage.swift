@@ -26,7 +26,9 @@ struct DownloadScanResult: Equatable, Sendable {
     let userFolders: [String]
 }
 
-struct DownloadFileStorage: Sendable {
+typealias DownloadFileStorage = DownloadStore
+
+struct DownloadStore: Sendable {
     private static let maxFolderComponentByteCount = 255
 
     let rootURL: URL
