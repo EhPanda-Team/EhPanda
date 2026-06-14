@@ -143,14 +143,6 @@ extension DownloadManager {
         return await reloadDownloadIndex()
     }
 
-    func fetchDownloadsFromStore(
-        gids: [String]
-    ) async -> [DownloadedGallery] {
-        let gidSet = Set(gids)
-        return await reloadDownloadIndex()
-            .filter { gidSet.contains($0.gid) }
-    }
-
     @discardableResult
     func reloadDownloadRecord(gid: String, token: String) async -> DownloadedGallery? {
         let records = storage.galleryFolderRecords(gid: gid, token: token)
