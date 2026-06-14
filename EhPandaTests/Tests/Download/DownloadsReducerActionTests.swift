@@ -13,9 +13,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test
     func testDownloadsReducerKeepsIdleStateForEmptyLibrary() async {
-        let store = TestStore(initialState: DownloadsReducer.State()) {
-            DownloadsReducer()
-        }
+        let store = TestStore(initialState: DownloadsReducer.State(), reducer: DownloadsReducer.init)
 
         await store.send(.fetchDownloadsDone([])) {
             $0.loadingState = .idle
@@ -35,9 +33,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        }
+        let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init)
         store.exhaustivity = .off
 
         await store.send(.setNavigation(.detail(download.gid)))
@@ -77,9 +73,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.folderFilter = .folder("Vanished")
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        }
+        let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init)
 
         await store.send(.fetchFoldersDone(["Library"])) {
             $0.folders = ["Library"]
@@ -95,32 +89,34 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @Test
     func testDownloadsReducerMoveActionUsesDownloadClientMove() async {
         let moved = UncheckedBox<(String, String)?>(nil)
-        let store = TestStore(initialState: DownloadsReducer.State()) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
+        let store = TestStore(
+            initialState: DownloadsReducer.State(),
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    fetchFolders: { ["Library"] },
+                    moveDownload: { gid, folder in
+                        moved.value = (gid, folder)
+                        return .success(())
                     }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                fetchFolders: { ["Library"] },
-                moveDownload: { gid, folder in
-                    moved.value = (gid, folder)
-                    return .success(())
-                }
-            )
-        }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.moveDownload("123456", "Library"))
@@ -145,32 +141,34 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { gid, mode in
-                    if mode == .update {
-                        retried.value.append(gid)
-                    }
-                    return .success(())
-                },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { gid, mode in
+                        if mode == .update {
+                            retried.value.append(gid)
+                        }
+                        return .success(())
+                    },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.updateDownload(download.gid))
@@ -191,30 +189,32 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { gid in
-                    deleted.value.append(gid)
-                    return .success(())
-                },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { gid in
+                        deleted.value.append(gid)
+                        return .success(())
+                    },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.deleteDownload(download.gid))
@@ -240,29 +240,31 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { gid in
+                        gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
                     }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { gid in
-                    gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
-                }
-            )
-        }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.openReading(download.gid))
@@ -285,30 +287,32 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { gid in
-                    toggled.value.append(gid)
-                    return .success(())
-                },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { gid in
+                        toggled.value.append(gid)
+                        return .success(())
+                    },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.toggleDownloadPause(download.gid))

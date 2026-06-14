@@ -165,33 +165,35 @@ private extension DetailReducerDownloadTests {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
         configure(&initialState)
-        return TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in downloadValue },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: enqueue,
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                fetchFolders: { folders() }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-            if let automationGID {
-                $0.appLaunchAutomationClient = appLaunchAutomationClient(
-                    autoDownloadGID: automationGID
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in downloadValue },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: enqueue,
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    fetchFolders: { folders() }
                 )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+                if let automationGID {
+                    $0.appLaunchAutomationClient = appLaunchAutomationClient(
+                        autoDownloadGID: automationGID
+                    )
+                }
             }
-        }
+        )
     }
 }

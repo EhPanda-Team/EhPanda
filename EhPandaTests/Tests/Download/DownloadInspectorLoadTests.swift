@@ -341,27 +341,29 @@ private extension DownloadInspectorLoadTests {
         var initialState = DownloadInspectorReducer.State(gid: gid)
         initialState.inspection = initialInspection
         if initialInspection != nil { initialState.loadingState = .idle }
-        return TestStore(initialState: initialState) {
-            DownloadInspectorReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                validateImageData: validateImageData ?? { _ in nil },
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: togglePause ?? { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                retryPages: retryPages ?? { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadInspection: loadInspection
-            )
-        }
+        return TestStore(
+            initialState: initialState,
+            reducer: DownloadInspectorReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    validateImageData: validateImageData ?? { _ in nil },
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: togglePause ?? { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    retryPages: retryPages ?? { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadInspection: loadInspection
+                )
+            }
+        )
     }
 }

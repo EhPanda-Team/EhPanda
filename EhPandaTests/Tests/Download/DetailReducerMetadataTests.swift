@@ -125,35 +125,37 @@ private extension DetailReducerMetadataTests {
         var initialState = DetailReducer.State()
         initialState.gid = gid
         initialState.gallery = gallery
-        return TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in downloadValue },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                fetchVersionMetadata: { _, _ in
-                    .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
-                },
-                updateRemoteVersion: { _, _ in
-                    updateCheckCount.value += 1
-                    return .none
-                },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in downloadValue },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    fetchVersionMetadata: { _, _ in
+                        .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
+                    },
+                    updateRemoteVersion: { _, _ in
+                        updateCheckCount.value += 1
+                        return .none
+                    },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
     }
 
     func makeDownloadedMetadataTestStore(
@@ -166,35 +168,37 @@ private extension DetailReducerMetadataTests {
         var initialState = DetailReducer.State()
         initialState.gid = gid
         initialState.gallery = gallery
-        return TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in downloadValue },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                fetchVersionMetadata: { _, _ in
-                    .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
-                },
-                updateRemoteVersion: { _, _ in
-                    updateCheckCount.value += 1
-                    return updatedDownload
-                },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadLocalPageURLs: { _ in .success([:]) }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in downloadValue },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    fetchVersionMetadata: { _, _ in
+                        .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
+                    },
+                    updateRemoteVersion: { _, _ in
+                        updateCheckCount.value += 1
+                        return updatedDownload
+                    },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadLocalPageURLs: { _ in .success([:]) }
+                )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
     }
 }

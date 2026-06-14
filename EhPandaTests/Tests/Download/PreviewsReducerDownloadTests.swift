@@ -90,27 +90,29 @@ private extension PreviewsReducerDownloadTests {
     ) -> TestStoreOf<PreviewsReducer> {
         var initialState = PreviewsReducer.State()
         initialState.gallery = download.gallery
-        let store = TestStore(initialState: initialState) {
-            PreviewsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: { AsyncStream { continuation in continuation.finish() } },
-                fetchDownloads: { [download] },
-                fetchDownload: { gid in gid == download.gid ? download : nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { gid in
-                    gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
-                }
-            )
-            $0.databaseClient = .noop
-            $0.hapticsClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: PreviewsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: { AsyncStream { continuation in continuation.finish() } },
+                    fetchDownloads: { [download] },
+                    fetchDownload: { gid in gid == download.gid ? download : nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { gid in
+                        gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
+                    }
+                )
+                $0.databaseClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }
@@ -143,13 +145,15 @@ private extension PreviewsReducerDownloadTests {
         withLoadLocalPageURLs: Bool
     ) -> TestStoreOf<PreviewsReducer> {
         let downloadClient = makePreviewsNoManifestClient(loadLocalPageURLs: withLoadLocalPageURLs)
-        let store = TestStore(initialState: initialState) {
-            PreviewsReducer()
-        } withDependencies: {
-            $0.downloadClient = downloadClient
-            $0.databaseClient = .noop
-            $0.hapticsClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: PreviewsReducer.init,
+            withDependencies: {
+                $0.downloadClient = downloadClient
+                $0.databaseClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }

@@ -23,30 +23,32 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [download] },
-                fetchDownload: { _ in nil },
-                reconcileDownloads: {
-                    reconcileCount.value += 1
-                },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .failure(.networkingFailed) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [download] },
+                    fetchDownload: { _ in nil },
+                    reconcileDownloads: {
+                        reconcileCount.value += 1
+                    },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .failure(.networkingFailed) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
 
         await store.send(.toggleDownloadPause(download.gid))
         await store.receive(\.toggleDownloadPauseDone)
@@ -61,32 +63,34 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
         let refreshCount = UncheckedBox(0)
         let reconcileCount = UncheckedBox(0)
 
-        let store = TestStore(initialState: DownloadsReducer.State()) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                reconcileDownloads: {
-                    reconcileCount.value += 1
-                },
-                refreshDownloads: {
-                    refreshCount.value += 1
-                },
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
+        let store = TestStore(
+            initialState: DownloadsReducer.State(),
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    reconcileDownloads: {
+                        reconcileCount.value += 1
+                    },
+                    refreshDownloads: {
+                        refreshCount.value += 1
+                    },
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
 
         await store.send(.refreshDownloads)
         await store.receive(\.refreshDownloadsDone)
@@ -103,32 +107,34 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
         let refreshCount = UncheckedBox(0)
         let reconcileCount = UncheckedBox(0)
 
-        let store = TestStore(initialState: DownloadsReducer.State()) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                reconcileDownloads: {
-                    reconcileCount.value += 1
-                },
-                refreshDownloads: {
-                    refreshCount.value += 1
-                },
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-        }
+        let store = TestStore(
+            initialState: DownloadsReducer.State(),
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    reconcileDownloads: {
+                        reconcileCount.value += 1
+                    },
+                    refreshDownloads: {
+                        refreshCount.value += 1
+                    },
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+            }
+        )
 
         await store.send(.bootstrapDownloads)
         await store.receive(\.refreshDownloadsDone)

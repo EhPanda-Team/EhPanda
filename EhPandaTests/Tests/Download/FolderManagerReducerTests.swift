@@ -324,28 +324,30 @@ private extension FolderManagerReducerTests {
         deleteFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
         = { _ in .success(()) }
     ) -> TestStoreOf<FolderManagerReducer> {
-        TestStore(initialState: FolderManagerReducer.State()) {
-            FolderManagerReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                fetchFolders: { folders() },
-                createFolder: createFolder,
-                renameFolder: renameFolder,
-                deleteFolder: deleteFolder
-            )
-        }
+        TestStore(
+            initialState: FolderManagerReducer.State(),
+            reducer: FolderManagerReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    fetchFolders: { folders() },
+                    createFolder: createFolder,
+                    renameFolder: renameFolder,
+                    deleteFolder: deleteFolder
+                )
+            }
+        )
     }
 }

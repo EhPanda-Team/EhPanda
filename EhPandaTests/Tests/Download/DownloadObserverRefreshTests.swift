@@ -99,21 +99,23 @@ private extension DownloadObserverRefreshTests {
         stream: AsyncStream<[DownloadedGallery]>,
         loadLocalPageURLs: @escaping @Sendable (String) async -> Result<[Int: URL], AppError>
     ) -> TestStoreOf<ReadingReducer> {
-        let store = TestStore(initialState: initialState) {
-            ReadingReducer()
-        } withDependencies: {
-            $0.appDelegateClient = .noop
-            $0.clipboardClient = .noop
-            $0.cookieClient = .noop
-            $0.databaseClient = .noop
-            $0.deviceClient = .noop
-            $0.downloadClient = makeObserveDownloadClient(
-                stream: stream, loadLocalPageURLs: loadLocalPageURLs
-            )
-            $0.hapticsClient = .noop
-            $0.imageClient = .noop
-            $0.urlClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.appDelegateClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.databaseClient = .noop
+                $0.deviceClient = .noop
+                $0.downloadClient = makeObserveDownloadClient(
+                    stream: stream, loadLocalPageURLs: loadLocalPageURLs
+                )
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+                $0.urlClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }
@@ -123,15 +125,17 @@ private extension DownloadObserverRefreshTests {
         stream: AsyncStream<[DownloadedGallery]>,
         loadLocalPageURLs: @escaping @Sendable (String) async -> Result<[Int: URL], AppError>
     ) -> TestStoreOf<PreviewsReducer> {
-        let store = TestStore(initialState: initialState) {
-            PreviewsReducer()
-        } withDependencies: {
-            $0.downloadClient = makeObserveDownloadClient(
-                stream: stream, loadLocalPageURLs: loadLocalPageURLs
-            )
-            $0.databaseClient = .noop
-            $0.hapticsClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: PreviewsReducer.init,
+            withDependencies: {
+                $0.downloadClient = makeObserveDownloadClient(
+                    stream: stream, loadLocalPageURLs: loadLocalPageURLs
+                )
+                $0.databaseClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }

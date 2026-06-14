@@ -131,26 +131,28 @@ private extension DownloadInspectorRetryTests {
         initialState: DownloadInspectorReducer.State,
         loadInspection: @escaping @Sendable (String) async -> Result<DownloadInspection, AppError>
     ) -> TestStoreOf<DownloadInspectorReducer> {
-        TestStore(initialState: initialState) {
-            DownloadInspectorReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                retryPages: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadInspection: loadInspection
-            )
-        }
+        TestStore(
+            initialState: initialState,
+            reducer: DownloadInspectorReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    retryPages: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadInspection: loadInspection
+                )
+            }
+        )
     }
 }

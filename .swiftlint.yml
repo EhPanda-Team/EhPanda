@@ -1,47 +1,83 @@
 disabled_rules:
- - file_length
- - opening_brace
- - type_body_length
- - function_body_length
- - cyclomatic_complexity
- - blanket_disable_command
- - multiple_closures_with_trailing_closure
+  - opening_brace
+  - type_body_length
+  - function_body_length
+  - cyclomatic_complexity
+  - blanket_disable_command
+  - multiple_closures_with_trailing_closure
 
 opt_in_rules:
- - force_try
- - force_unwrapping
+  - force_try
+  - force_unwrapping
 
 force_try:
- severity: error
+  severity: error
 
 force_unwrapping:
- severity: error
+  severity: error
 
 line_length:
- warning: 120
- error: 120
+  warning: 120
+  error: 120
+
+file_length:
+  warning: 1000
+  error: 1000
 
 custom_rules:
- no_unchecked_sendable:
-  name: "No @unchecked Sendable"
-  regex: "@unchecked\\s+Sendable"
-  message: "@unchecked Sendable is banned - use a real Sendable value type, an actor, or Mutex."
-  severity: error
- no_nslock:
-  name: "No NSLock"
-  regex: "\\bNSLock\\b"
-  message: "NSLock is banned - use Mutex (Synchronization) instead."
-  severity: error
- scope_reducer_child_shorthand:
-  name: "Scope child shorthand"
-  regex: 'Scope\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
-  message: "Use Scope(state:action:child: Reducer.init) instead of expanding a closure for a single bare Reducer()."
-  severity: error
- foreach_reducer_element_shorthand:
-  name: "forEach element shorthand"
-  regex: 'forEach\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
-  message: "Use .forEach(_:action:element: Reducer.init) instead of expanding a closure for a single bare Reducer()."
-  severity: error
+  child_reducer_shorthand_foreach:
+    name: "Child reducer shorthand (forEach)"
+    regex: 'forEach\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
+    message: "Use .forEach(_:action:element: Reducer.init) instead of expanding a closure for a single bare Reducer()."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  child_reducer_shorthand_scope:
+    name: "Child reducer shorthand (Scope)"
+    regex: 'Scope\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
+    message: "Use Scope(state:action:child: Reducer.init) instead of expanding a closure for a single bare Reducer()."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  child_reducer_shorthand_store:
+    name: "Child reducer shorthand (Store)"
+    regex: '\b(?:Store|TestStore)\(\s*initialState:\s*(?:[^()]|\([^()]*\))*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
+    message: "Use Store/TestStore initialState:reducer: instead of expanding a closure for a single bare Reducer()."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  no_nslock:
+    name: "No NSLock"
+    regex: "\\bNSLock\\b"
+    message: "NSLock is banned, use Mutex (Synchronization) instead."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  no_preconcurrency:
+    name: "No @preconcurrency"
+    regex: "@preconcurrency\\b"
+    message: "@preconcurrency is banned, resolve the underlying Sendable / concurrency issue instead of suppressing it."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  no_unchecked_sendable:
+    name: "No @unchecked Sendable"
+    regex: "@unchecked\\s+Sendable"
+    message: "@unchecked Sendable is banned, use a real Sendable value type, an actor, or Mutex."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
 
 excluded:
- - EhPanda/App/Generated
+  - EhPanda/App/Generated

@@ -37,38 +37,40 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         initialState.gallery = gallery
         initialState.localPageURLs = [1: localPageURL]
 
-        let store = TestStore(initialState: initialState) {
-            ReadingReducer()
-        } withDependencies: {
-            $0.appDelegateClient = .noop
-            $0.clipboardClient = .noop
-            $0.cookieClient = .noop
-            $0.databaseClient = .noop
-            $0.deviceClient = .noop
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.appDelegateClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.databaseClient = .noop
+                $0.deviceClient = .noop
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    captureCachedPage: { gid, index, imageURL in
+                        capturedCalls.value.append((gid, index, imageURL))
                     }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                captureCachedPage: { gid, index, imageURL in
-                    capturedCalls.value.append((gid, index, imageURL))
-                }
-            )
-            $0.hapticsClient = .noop
-            $0.imageClient = .noop
-            $0.urlClient = .noop
-        }
+                )
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+                $0.urlClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.onWebImageSucceeded(1)) {

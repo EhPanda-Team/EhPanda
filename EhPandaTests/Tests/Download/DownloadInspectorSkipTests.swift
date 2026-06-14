@@ -26,32 +26,34 @@ struct DownloadInspectorSkipTests: DownloadFeatureTestCase {
         initialState.inspection = inspection
         initialState.loadingState = .idle
 
-        let store = TestStore(initialState: initialState) {
-            DownloadInspectorReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadInspectorReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    retryPages: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadInspection: { _ in
+                        loadInspectionCount.value += 1
+                        return .success(inspection)
                     }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                retryPages: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadInspection: { _ in
-                    loadInspectionCount.value += 1
-                    return .success(inspection)
-                }
-            )
-        }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.observeDownloadsDone([download]))
@@ -82,9 +84,7 @@ struct DownloadInspectorSkipTests: DownloadFeatureTestCase {
         initialState.loadingState = .loading
         initialState.inspectionRequestID = secondRequestID
 
-        let store = TestStore(initialState: initialState) {
-            DownloadInspectorReducer()
-        }
+        let store = TestStore(initialState: initialState, reducer: DownloadInspectorReducer.init)
         store.exhaustivity = .off
 
         await store.send(.loadInspectionDone(firstRequestID, .success(staleInspection)))

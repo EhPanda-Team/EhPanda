@@ -76,19 +76,21 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             galleryURL: URL(string: "https://example.com/not-a-gallery")
         )
 
-        let store = TestStore(initialState: AppReducer.State()) {
-            AppReducer()
-        } withDependencies: {
-            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
-            $0.cookieClient = .noop
-            $0.deviceClient = .noop
-            $0.hapticsClient = .noop
-            $0.urlClient = .init(
-                checkIfHandleable: { _ in false },
-                checkIfMPVURL: { _ in false },
-                parseGalleryID: { _ in .init() }
-            )
-        }
+        let store = TestStore(
+            initialState: AppReducer.State(),
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
+                $0.cookieClient = .noop
+                $0.deviceClient = .noop
+                $0.hapticsClient = .noop
+                $0.urlClient = .init(
+                    checkIfHandleable: { _ in false },
+                    checkIfMPVURL: { _ in false },
+                    parseGalleryID: { _ in .init() }
+                )
+            }
+        )
 
         await store.send(.runLaunchAutomation) {
             $0.didRunLaunchAutomation = true
@@ -114,23 +116,25 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             galleryURL: nil
         )
 
-        let store = TestStore(initialState: AppReducer.State()) {
-            AppReducer()
-        } withDependencies: {
-            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
-            $0.cookieClient = cookieClient
-            $0.databaseClient = .noop
-            $0.deviceClient = .noop
-            $0.hapticsClient = .noop
-            $0.uiApplicationClient = .noop
-            $0.userDefaultsClient = .noop
-            $0.appDelegateClient = .noop
-            $0.libraryClient = .noop
-            $0.loggerClient = .noop
-            $0.fileClient = .noop
-            $0.dfClient = .noop
-            $0.urlClient = .noop
-        }
+        let store = TestStore(
+            initialState: AppReducer.State(),
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
+                $0.cookieClient = cookieClient
+                $0.databaseClient = .noop
+                $0.deviceClient = .noop
+                $0.hapticsClient = .noop
+                $0.uiApplicationClient = .noop
+                $0.userDefaultsClient = .noop
+                $0.appDelegateClient = .noop
+                $0.libraryClient = .noop
+                $0.loggerClient = .noop
+                $0.fileClient = .noop
+                $0.dfClient = .noop
+                $0.urlClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.appDelegate(.migration(.onDatabasePreparationSuccess)))
@@ -155,27 +159,29 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
         )
 
-        let store = TestStore(initialState: AppReducer.State()) {
-            AppReducer()
-        } withDependencies: {
-            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
-            $0.cookieClient = cookieClient
-            $0.databaseClient = .noop
-            $0.deviceClient = .noop
-            $0.hapticsClient = .noop
-            $0.uiApplicationClient = .noop
-            $0.userDefaultsClient = .noop
-            $0.appDelegateClient = .noop
-            $0.libraryClient = .noop
-            $0.loggerClient = .noop
-            $0.fileClient = .noop
-            $0.dfClient = .noop
-            $0.urlClient = .init(
-                checkIfHandleable: { _ in false },
-                checkIfMPVURL: { _ in false },
-                parseGalleryID: { _ in .init() }
-            )
-        }
+        let store = TestStore(
+            initialState: AppReducer.State(),
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
+                $0.cookieClient = cookieClient
+                $0.databaseClient = .noop
+                $0.deviceClient = .noop
+                $0.hapticsClient = .noop
+                $0.uiApplicationClient = .noop
+                $0.userDefaultsClient = .noop
+                $0.appDelegateClient = .noop
+                $0.libraryClient = .noop
+                $0.loggerClient = .noop
+                $0.fileClient = .noop
+                $0.dfClient = .noop
+                $0.urlClient = .init(
+                    checkIfHandleable: { _ in false },
+                    checkIfMPVURL: { _ in false },
+                    parseGalleryID: { _ in .init() }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.setting(.loadUserSettingsDone))
@@ -213,27 +219,29 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             galleryURL: URL(string: "https://exhentai.org/g/1394965/56c35114b6/")
         )
 
-        let store = TestStore(initialState: AppReducer.State()) {
-            AppReducer()
-        } withDependencies: {
-            $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
-            $0.cookieClient = cookieClient
-            $0.databaseClient = .noop
-            $0.deviceClient = .noop
-            $0.hapticsClient = .noop
-            $0.uiApplicationClient = .noop
-            $0.userDefaultsClient = .noop
-            $0.appDelegateClient = .noop
-            $0.libraryClient = .noop
-            $0.loggerClient = .noop
-            $0.fileClient = .noop
-            $0.dfClient = .noop
-            $0.urlClient = .init(
-                checkIfHandleable: { _ in false },
-                checkIfMPVURL: { _ in false },
-                parseGalleryID: { _ in .init() }
-            )
-        }
+        let store = TestStore(
+            initialState: AppReducer.State(),
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
+                $0.cookieClient = cookieClient
+                $0.databaseClient = .noop
+                $0.deviceClient = .noop
+                $0.hapticsClient = .noop
+                $0.uiApplicationClient = .noop
+                $0.userDefaultsClient = .noop
+                $0.appDelegateClient = .noop
+                $0.libraryClient = .noop
+                $0.loggerClient = .noop
+                $0.fileClient = .noop
+                $0.dfClient = .noop
+                $0.urlClient = .init(
+                    checkIfHandleable: { _ in false },
+                    checkIfMPVURL: { _ in false },
+                    parseGalleryID: { _ in .init() }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.setting(.loadUserSettingsDone))
