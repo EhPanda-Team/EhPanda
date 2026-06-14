@@ -203,9 +203,12 @@ extension ImageClient {
         }
     }
 
-    func fetchReaderImageAsset(url: URL) async -> ImageAsset? {
+    func fetchReaderImageAsset(
+        url: URL,
+        onProgress: (@MainActor @Sendable (Double) -> Void)? = nil
+    ) async -> ImageAsset? {
         guard let data = try? await Self.readerImageData(
-            url: url, dataCache: dataCache, urlSession: urlSession
+            url: url, dataCache: dataCache, urlSession: urlSession, onProgress: onProgress
         ), let image = data.decodedImage else {
             return nil
         }
@@ -215,7 +218,8 @@ extension ImageClient {
     static func readerImageData(
         url: URL,
         dataCache: DataCache,
-        urlSession: URLSession
+        urlSession: URLSession,
+        onProgress: (@MainActor @Sendable (Double) -> Void)? = nil
     ) async throws -> Data {
         if url.isFileURL {
             return try Data(contentsOf: url)
@@ -224,11 +228,9 @@ extension ImageClient {
         if let data = try await dataCache.data(forKeys: cacheKeys) {
             return data
         }
-        let (data, response) = try await urlSession.data(for: URLRequest(url: url))
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200..<300).contains(httpResponse.statusCode) else {
-            throw AppError.networkingFailed
-        }
+        let data = try await downloadReaderData(
+            url: url, urlSession: urlSession, onProgress: onProgress
+        )
         // Only cache decodable image bytes so a 200 carrying an HTML/error body
         // (e.g. an E-H bandwidth notice) can't poison the key until expiry.
         guard data.decodedImage != nil else {
@@ -236,6 +238,46 @@ extension ImageClient {
         }
         try? await dataCache.store(data, forKeys: cacheKeys)
         return data
+    }
+
+    // Streams the body via `bytes(for:)` to drive per-image progress when a
+    // handler is supplied; otherwise the single-shot `data(for:)` keeps the
+    // progress-less prefetch path fast.
+    private static func downloadReaderData(
+        url: URL,
+        urlSession: URLSession,
+        onProgress: (@MainActor @Sendable (Double) -> Void)?
+    ) async throws -> Data {
+        guard let onProgress else {
+            let (data, response) = try await urlSession.data(for: URLRequest(url: url))
+            try validateReaderResponse(response)
+            return data
+        }
+        let (bytes, response) = try await urlSession.bytes(for: URLRequest(url: url))
+        try validateReaderResponse(response)
+        let expectedLength = response.expectedContentLength
+        var data = Data()
+        if expectedLength > 0 {
+            data.reserveCapacity(Int(expectedLength))
+        }
+        var lastReportedFraction = 0.0
+        for try await byte in bytes {
+            data.append(byte)
+            guard expectedLength > 0 else { continue }
+            let fraction = min(Double(data.count) / Double(expectedLength), 1)
+            if fraction - lastReportedFraction >= 0.01 {
+                lastReportedFraction = fraction
+                await onProgress(fraction)
+            }
+        }
+        return data
+    }
+
+    private static func validateReaderResponse(_ response: URLResponse) throws {
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw AppError.networkingFailed
+        }
     }
 
     private func imageData(url: URL) async throws -> Data {
