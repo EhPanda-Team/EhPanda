@@ -181,6 +181,28 @@ struct DownloadFileStorageTests {
     }
 
     @Test
+    func testExistingPageRelativePathsMatchesExactUnpaddedPageIndices() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[123_token] Sample")
+        try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: folderURL.appendingPathComponent("123_token_1.webp"), options: .atomic)
+        try Data([0x02]).write(to: folderURL.appendingPathComponent("123_token_10.jpg"), options: .atomic)
+        try Data([0x03]).write(to: folderURL.appendingPathComponent("123_token_01.jpg"), options: .atomic)
+        try Data([0x04]).write(to: folderURL.appendingPathComponent("123_token_11.jpg"), options: .atomic)
+        let manifest = sampleManifest(pageCount: 10)
+
+        #expect(
+            storage.existingPageRelativePaths(folderURL: folderURL, manifest: manifest) == [
+                1: "123_token_1.webp",
+                10: "123_token_10.jpg"
+            ]
+        )
+    }
+
+    @Test
     func testExistingPageRelativePathsIgnoresLegacyPagesFolder() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
