@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Public API
-extension DownloadManager {
+extension DownloadCoordinator {
     func observeDownloads() async -> AsyncStream<[DownloadedGallery]> {
         let downloads = await indexedDownloads()
         return await observerHub.observe(initialDownloads: downloads)

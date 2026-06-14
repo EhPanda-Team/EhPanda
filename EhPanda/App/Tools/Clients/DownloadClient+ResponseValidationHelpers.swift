@@ -9,7 +9,7 @@ import Foundation
 import ImageIO
 
 // MARK: - Response Inspection Helpers
-extension DownloadManager {
+extension DownloadCoordinator {
     func normalizedMimeType(
         _ response: URLResponse
     ) -> String? {

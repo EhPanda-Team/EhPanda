@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Download Pages
-extension DownloadManager {
+extension DownloadCoordinator {
     private struct PageDownloadProgress {
         var results: [PageResult] = []
         var failedPages: [Int: PageFailure?] = [:]

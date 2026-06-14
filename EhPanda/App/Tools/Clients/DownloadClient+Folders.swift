@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - User Folder Operations
-extension DownloadManager {
+extension DownloadCoordinator {
     func fetchFolders() async -> [String] {
         return userFolders
     }

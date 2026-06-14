@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Mode Resolution
-extension DownloadManager {
+extension DownloadCoordinator {
     func queuedMode(
         for download: DownloadedGallery
     ) -> DownloadStartMode {

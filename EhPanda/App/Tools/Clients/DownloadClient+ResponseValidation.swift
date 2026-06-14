@@ -9,7 +9,7 @@ import Foundation
 import ImageIO
 
 // MARK: - Response Error Detection
-extension DownloadManager {
+extension DownloadCoordinator {
     func detectResponseError(
         data: Data,
         response: URLResponse,

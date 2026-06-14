@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Perform Download
-extension DownloadManager {
+extension DownloadCoordinator {
     struct PerformDownloadResult {
         let coverRelativePath: String?
         let pages: [PageResult]

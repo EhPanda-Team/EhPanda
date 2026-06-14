@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Disk Index
-extension DownloadManager {
+extension DownloadCoordinator {
     @discardableResult
     func reloadDownloadIndex() async -> [DownloadedGallery] {
         do {
@@ -132,7 +132,7 @@ private extension DownloadFolderRecord {
 }
 
 // MARK: - Store Operations
-extension DownloadManager {
+extension DownloadCoordinator {
     func fetchDownload(
         gid: String
     ) async -> DownloadedGallery? {
@@ -162,7 +162,7 @@ extension DownloadManager {
 }
 
 // MARK: - Persist Failure & Progress
-extension DownloadManager {
+extension DownloadCoordinator {
     func persistFailure(
         error: AppError,
         context: FailureContext

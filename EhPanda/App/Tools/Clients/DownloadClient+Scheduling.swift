@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Observer Management & Scheduling
-extension DownloadManager {
+extension DownloadCoordinator {
     func notifyObservers() async {
         let downloads = await indexedDownloads()
         await observerHub.notify(downloads)
@@ -127,7 +127,7 @@ extension DownloadManager {
 }
 
 // MARK: - Pause & Resume
-extension DownloadManager {
+extension DownloadCoordinator {
     func pause(gid: String) async -> Result<Void, AppError> {
         do {
             schedulingBlockedGalleryIDs.insert(gid)

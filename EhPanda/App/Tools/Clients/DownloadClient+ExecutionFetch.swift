@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Fetch & Normalize Payload
-extension DownloadManager {
+extension DownloadCoordinator {
     func fetchLatestPayload(
         for download: DownloadedGallery,
         mode: DownloadStartMode,

@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Process Download
-extension DownloadManager {
+extension DownloadCoordinator {
     func processDownload(
         gid: String,
         generation: Int? = nil
