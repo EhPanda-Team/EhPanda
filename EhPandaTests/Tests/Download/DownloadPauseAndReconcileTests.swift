@@ -74,6 +74,48 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testTogglePausePausesActiveRetryBeforeClearingQueuedIntent() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 10)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+
+        try writeManifestFolder(
+            storage: storage,
+            gid: gid,
+            title: "Active Repair",
+            pageHashes: ["sha256:done", ""]
+        )
+        await manager.reloadDownloadIndex()
+
+        let activeTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(10))
+            }
+        }
+        await manager.testingInstallActiveTask(gid: gid, task: activeTask)
+
+        guard case .success = await manager.retry(gid: gid, mode: .repair) else {
+            Issue.record("Retry should set the active gallery's queued intent.")
+            return
+        }
+        guard case .success = await manager.togglePause(gid: gid) else {
+            Issue.record("First pause tap should pause active retry work.")
+            return
+        }
+
+        let stored = await manager.testingFetchDownload(gid: gid)
+        let activeGalleryID = await manager.testingActiveGalleryID()
+        let hasActiveTask = await manager.testingHasActiveTask()
+        #expect(stored?.displayStatus == .inactive)
+        #expect(activeGalleryID == nil)
+        #expect(!hasActiveTask)
+    }
+
+    @Test
     func testPauseKeepsIndexedManifestProgressWhenCancelling() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 1)
         let rootURL = FileManager.default.temporaryDirectory

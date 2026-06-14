@@ -138,6 +138,10 @@ extension DownloadManager {
             return .failure(.notFound)
         }
 
+        if activeGalleryID == gid {
+            return await pause(gid: gid)
+        }
+
         if let queuedMode = queuedModes[gid] {
             return await cancelQueuedWorkItem(download, mode: queuedMode)
         }
