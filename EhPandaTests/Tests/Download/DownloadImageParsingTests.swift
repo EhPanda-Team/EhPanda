@@ -269,4 +269,68 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         #expect(cachedData == nil)
     }
 
+    @Test
+    func testMPVImageResolutionFailsOverWithSkipServerTokenOnRetry() async throws {
+        let sessionID = UUID().uuidString
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
+        configuration.httpAdditionalHeaders = [
+            SharedSessionStubURLProtocol.headerKey: sessionID
+        ]
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: URLSession(configuration: configuration)
+        )
+
+        let receivedSkipServerTokens = UncheckedBox([String?]())
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
+            let body = requestBodyData(from: request)
+                .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+            let skipServer = body?["nl"] as? String
+            receivedSkipServerTokens.value.append(skipServer)
+            let imageURL = skipServer == nil
+                ? "https://example.com/server-a.jpg"
+                : "https://example.com/server-b.jpg"
+            let data = try JSONSerialization.data(withJSONObject: ["i": imageURL, "s": "42"])
+            return (
+                try #require(HTTPURLResponse(
+                    url: request.url ?? Defaults.URL.api,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "application/json"]
+                )),
+                data
+            )
+        }
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+
+        let payload = DownloadRequestPayload(
+            gallery: sampleGallery(),
+            galleryDetail: sampleGalleryDetail(gid: "123456", title: "Sample Gallery"),
+            previewURLs: [:],
+            previewConfig: .normal(rows: 4),
+            host: .ehentai,
+            folderName: "Folder",
+            mode: .initial
+        )
+        let source = DownloadManager.ResolvedSource.mpv("mpvkey", [1: "imgkey1"])
+
+        let first = try await manager.resolvedImageSource(
+            index: 1, payload: payload, options: .init(), source: source, failover: nil
+        )
+        let second = try await manager.resolvedImageSource(
+            index: 1, payload: payload, options: .init(), source: source, failover: first
+        )
+
+        #expect(receivedSkipServerTokens.value == [nil, "42"])
+        #expect(first.imageURL.absoluteString == "https://example.com/server-a.jpg")
+        #expect(first.mpvSkipServerIdentifier == "42")
+        #expect(second.imageURL.absoluteString == "https://example.com/server-b.jpg")
+    }
+
 }

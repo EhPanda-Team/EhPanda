@@ -12,13 +12,34 @@ extension DownloadCoordinator {
         context: PageDownloadContext,
         preferredRelativePath: String?
     ) async throws -> PageResult {
+        guard let source = context.source else {
+            throw AppError.notFound
+        }
         let attempts = context.options.autoRetryFailedPages ? 2 : 1
         var capturedError: AppError = .unknown
+        var failover: ResolvedImageSource?
 
         for _ in 0..<attempts {
             do {
-                return try await performSingleDownloadAttempt(
+                let resolved = try await resolvedImageSource(
                     index: index,
+                    payload: context.payload,
+                    options: context.options,
+                    source: source,
+                    failover: failover
+                )
+                failover = resolved
+                if let result = try await attemptResolvedCacheRestore(
+                    index: index,
+                    resolvedImageSource: resolved,
+                    context: context,
+                    preferredRelativePath: preferredRelativePath
+                ) {
+                    return result
+                }
+                return try await downloadAndSavePage(
+                    index: index,
+                    resolvedImageSource: resolved,
                     context: context,
                     preferredRelativePath: preferredRelativePath
                 )
@@ -36,38 +57,6 @@ extension DownloadCoordinator {
         }
 
         throw capturedError
-    }
-
-    private func performSingleDownloadAttempt(
-        index: Int,
-        context: PageDownloadContext,
-        preferredRelativePath: String?
-    ) async throws -> PageResult {
-        let payload = context.payload
-
-        guard let source = context.source else {
-            throw AppError.notFound
-        }
-        let resolved = try await resolvedImageSource(
-            index: index,
-            payload: payload,
-            options: context.options,
-            source: source
-        )
-        if let result = try await attemptResolvedCacheRestore(
-            index: index,
-            resolvedImageSource: resolved,
-            context: context,
-            preferredRelativePath: preferredRelativePath
-        ) {
-            return result
-        }
-        return try await downloadAndSavePage(
-            index: index,
-            resolvedImageSource: resolved,
-            context: context,
-            preferredRelativePath: preferredRelativePath
-        )
     }
 
     private func attemptResolvedCacheRestore(
