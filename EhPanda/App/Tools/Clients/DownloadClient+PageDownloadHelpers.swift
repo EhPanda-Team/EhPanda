@@ -105,10 +105,14 @@ extension DownloadCoordinator {
     ) async throws -> PageResult {
         let payload = context.payload
         let targetURL = resolvedImageSource.imageURL
-        let (downloadedFileURL, response) =
-            try await downloadResponse(
+        let transfer =
+            try await pageDownloadResponse(
                 url: targetURL,
                 allowsCellular: context.options.allowCellular,
+                context: .init(
+                    gid: payload.gallery.gid,
+                    pageIndex: index
+                ),
                 retriesRequest: false
             )
         let relativePath: String
@@ -116,11 +120,11 @@ extension DownloadCoordinator {
             relativePath = preferredRelativePath
         } else {
             let prefixData = try readResponsePrefixData(
-                at: downloadedFileURL
+                at: transfer.fileURL
             )
             let ext = fileExtension(
                 for: targetURL,
-                response: response,
+                response: transfer.response,
                 prefixData: prefixData
             )
             relativePath = storage.makePageRelativePath(
@@ -132,10 +136,20 @@ extension DownloadCoordinator {
         }
         let fileURL = context.folderURL
             .appendingPathComponent(relativePath)
-        try moveDownloadedFile(
-            from: downloadedFileURL,
-            to: fileURL
-        )
+        do {
+            try moveDownloadedFile(
+                from: transfer.fileURL,
+                to: fileURL
+            )
+            if let taskIdentifier = transfer.taskIdentifier {
+                await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
+            }
+        } catch {
+            if let taskIdentifier = transfer.taskIdentifier {
+                await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
+            }
+            throw error
+        }
         return .init(
             index: index,
             relativePath: relativePath,

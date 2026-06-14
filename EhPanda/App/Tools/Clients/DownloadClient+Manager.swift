@@ -171,6 +171,8 @@ actor DownloadCoordinator {
 
     let storage: DownloadStore
     let urlSession: URLSession
+    let pageDownloader: DownloadPageDownloader
+    let backgroundTaskStore: DownloadBackgroundTaskStore
     let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     let libraryClient: LibraryClient
     /// Supplies the latest runtime settings immediately before a queued download starts.
@@ -198,6 +200,8 @@ actor DownloadCoordinator {
     init(
         storage: DownloadStore,
         urlSession: URLSession,
+        pageDownloader: DownloadPageDownloader? = nil,
+        backgroundTaskStore: DownloadBackgroundTaskStore? = nil,
         storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie] = {
             HTTPCookieStorage.shared.cookies(for: $0) ?? []
         },
@@ -210,6 +214,10 @@ actor DownloadCoordinator {
     ) {
         self.storage = storage
         self.urlSession = urlSession
+        self.pageDownloader = pageDownloader ?? .foreground(urlSession: urlSession)
+        self.backgroundTaskStore = backgroundTaskStore ?? DownloadBackgroundTaskStore(
+            fileURL: storage.backgroundTaskRegistryURL()
+        )
         self.storedCookiesProvider = storedCookiesProvider
         self.libraryClient = libraryClient
         self.downloadOptionsProvider = downloadOptionsProvider

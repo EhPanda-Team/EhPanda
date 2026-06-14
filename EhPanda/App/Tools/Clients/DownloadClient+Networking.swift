@@ -119,6 +119,88 @@ extension DownloadCoordinator {
         }
     }
 
+    func pageDownloadResponse(
+        url: URL,
+        allowsCellular: Bool,
+        context: DownloadPageTaskContext,
+        retriesRequest: Bool = true
+    ) async throws -> DownloadPageTransfer {
+        var request = URLRequest(url: url)
+        request.allowsCellularAccess = allowsCellular
+        return try await pageDownloadResponse(
+            for: request,
+            context: context,
+            retriesRequest: retriesRequest
+        )
+    }
+
+    func pageDownloadResponse(
+        for request: URLRequest,
+        context: DownloadPageTaskContext,
+        retriesRequest: Bool = true
+    ) async throws -> DownloadPageTransfer {
+        let performRequest = {
+            try await self.rawPageDownloadResponse(
+                for: request,
+                context: context
+            )
+        }
+
+        let transfer: DownloadPageTransfer
+        if retriesRequest {
+            transfer = try await withRetry(
+                operation: "pageDownloadResponse",
+                context: [
+                    "url": request.url?.absoluteString ?? ""
+                ]
+            ) {
+                try await performRequest()
+            }
+        } else {
+            transfer = try await performRequest()
+        }
+
+        if let error = detectResponseError(
+            fileURL: transfer.fileURL,
+            response: transfer.response,
+            requestURL: request.url
+        ) {
+            try? fileManager.operate {
+                try $0.removeItem(at: transfer.fileURL)
+            }
+            if let taskIdentifier = transfer.taskIdentifier {
+                await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
+            }
+            throw error
+        }
+
+        return transfer
+    }
+
+    func rawPageDownloadResponse(
+        for request: URLRequest,
+        context: DownloadPageTaskContext
+    ) async throws -> DownloadPageTransfer {
+        do {
+            return try await pageDownloader.download(request, context)
+        } catch let error as AppError {
+            throw error
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let error as URLError
+                    where error.code == .cancelled {
+            throw CancellationError()
+        } catch {
+            if Self.isCancellationLikeError(error) {
+                throw CancellationError()
+            }
+            if error is URLError {
+                throw AppError.networkingFailed
+            }
+            throw AppError.unknown
+        }
+    }
+
     func withRetry<T>(
         operation: String,
         context: [String: Any],
