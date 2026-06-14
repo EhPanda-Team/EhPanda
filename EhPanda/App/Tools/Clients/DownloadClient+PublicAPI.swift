@@ -74,7 +74,7 @@ extension DownloadCoordinator {
             } else {
                 return .failure(
                     .fileOperationFailed(
-                        L10n.Localizable.DownloadFileStorage.Error.invalidFolderName
+                        L10n.Localizable.DownloadStore.Error.invalidFolderName
                     )
                 )
             }

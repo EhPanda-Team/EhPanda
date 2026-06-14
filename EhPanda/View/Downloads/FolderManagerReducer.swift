@@ -24,7 +24,7 @@ struct FolderManagerReducer {
 
     private static var invalidFolderNameError: AppError {
         .fileOperationFailed(
-            L10n.Localizable.DownloadFileStorage.Error.invalidFolderName
+            L10n.Localizable.DownloadStore.Error.invalidFolderName
         )
     }
 

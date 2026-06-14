@@ -471,21 +471,21 @@
 "struct.download_badge.text.needs_repair" = "Needs Repair";
 "struct.download_badge.progress" = "%d/%d";
 
-// MARK: DownloadFileStorage
-"download_file_storage.error.asset_unreadable" = "Asset file is unreadable: %@";
-"download_file_storage.error.invalid_folder_name" = "The folder name is invalid.";
-"download_file_storage.error.folder_already_exists" = "A folder with this name already exists.";
-"download_file_storage.error.folder_busy_downloading" = "The folder contains an active download.";
-"download_file_storage.error.download_busy" = "The download is currently active.";
-"download_file_storage.validation.download_folder_unresolved" = "Download folder could not be resolved.";
-"download_file_storage.validation.download_folder_missing" = "Download folder is missing.";
-"download_file_storage.validation.manifest_missing" = "Manifest file is missing.";
-"download_file_storage.validation.manifest_corrupted" = "Manifest file is corrupted.";
-"download_file_storage.validation.downloaded_pages_incomplete" = "Downloaded pages are incomplete.";
-"download_file_storage.validation.cover_image_missing" = "Cover image is missing.";
-"download_file_storage.validation.page_missing" = "Page %d is missing.";
-"download_file_storage.validation.cover_image_corrupted" = "Cover image data is corrupted.";
-"download_file_storage.validation.page_image_corrupted" = "Page %d image data is corrupted.";
+// MARK: DownloadStore
+"download_store.error.asset_unreadable" = "Asset file is unreadable: %@";
+"download_store.error.invalid_folder_name" = "The folder name is invalid.";
+"download_store.error.folder_already_exists" = "A folder with this name already exists.";
+"download_store.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_store.error.download_busy" = "The download is currently active.";
+"download_store.validation.download_folder_unresolved" = "Download folder could not be resolved.";
+"download_store.validation.download_folder_missing" = "Download folder is missing.";
+"download_store.validation.manifest_missing" = "Manifest file is missing.";
+"download_store.validation.manifest_corrupted" = "Manifest file is corrupted.";
+"download_store.validation.downloaded_pages_incomplete" = "Downloaded pages are incomplete.";
+"download_store.validation.cover_image_missing" = "Cover image is missing.";
+"download_store.validation.page_missing" = "Page %d is missing.";
+"download_store.validation.cover_image_corrupted" = "Cover image data is corrupted.";
+"download_store.validation.page_image_corrupted" = "Page %d image data is corrupted.";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "Filters";
