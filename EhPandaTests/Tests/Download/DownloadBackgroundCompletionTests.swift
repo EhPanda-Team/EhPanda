@@ -96,12 +96,43 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
         #expect(await taskStore.record(taskIdentifier: 78) == .init(gid: "other", pageIndex: 1))
     }
 
+    @Test
+    func testDeleteFolderClearsPersistedBackgroundTaskRecords() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 903)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            backgroundTaskStore: taskStore
+        )
+        _ = try writeDownloadFolder(storage: storage, gid: gid, folderName: "Doomed")
+        await manager.reconcileDownloads()
+
+        await taskStore.record(taskIdentifier: 81, gid: gid, pageIndex: 1)
+        await taskStore.record(taskIdentifier: 82, gid: "other", pageIndex: 1)
+
+        let result = await manager.deleteFolder(name: "Doomed")
+        guard case .success = result else {
+            Issue.record("Expected folder delete to succeed, got \(result)")
+            return
+        }
+
+        #expect(await taskStore.records(for: gid).isEmpty)
+        #expect(await taskStore.record(taskIdentifier: 82) == .init(gid: "other", pageIndex: 1))
+    }
+
     private func writeDownloadFolder(
         storage: DownloadFileStorage,
-        gid: String
+        gid: String,
+        folderName: String = "Folder"
     ) throws -> URL {
         try storage.ensureRootDirectory()
-        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Background")
+        let folderURL = storage.folderURL(relativePath: "\(folderName)/[\(gid)_token] Background")
         try FileManager.default.createDirectory(
             at: folderURL,
             withIntermediateDirectories: true
