@@ -87,7 +87,7 @@ struct DownloadInspectorReducer {
                 return .run { [gid = state.gid] send in
                     await send(.loadInspectionDone(requestID, .success(try await downloadClient.loadInspection(gid))))
                 } catch: { error, send in
-                    await send(.loadInspectionDone(requestID, .failure(error as? AppError ?? .unknown)))
+                    await send(.loadInspectionDone(requestID, .failure(AppError(error))))
                 }
                 .cancellable(id: CancelID.loadInspection, cancelInFlight: true)
 
@@ -173,7 +173,7 @@ struct DownloadInspectorReducer {
                         try await downloadClient.retryPages(gid, [index])
                         await send(.retryPageDone(.success(())))
                     } catch: { error, send in
-                        await send(.retryPageDone(.failure(error as? AppError ?? .unknown)))
+                        await send(.retryPageDone(.failure(AppError(error))))
                     }
                 )
 
@@ -216,7 +216,7 @@ struct DownloadInspectorReducer {
                         try await downloadClient.retryPages(gid, failedPageIndices)
                         await send(.retryFailedPagesDone(.success(())))
                     } catch: { error, send in
-                        await send(.retryFailedPagesDone(.failure(error as? AppError ?? .unknown)))
+                        await send(.retryFailedPagesDone(.failure(AppError(error))))
                     }
                 )
 
@@ -235,7 +235,7 @@ struct DownloadInspectorReducer {
                     try await downloadClient.togglePause(download.gid)
                     await send(.toggleDownloadPauseDone(.success(())))
                 } catch: { error, send in
-                    await send(.toggleDownloadPauseDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.toggleDownloadPauseDone(.failure(AppError(error))))
                 }
 
             case .toggleDownloadPauseDone(let result):

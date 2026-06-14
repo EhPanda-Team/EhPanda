@@ -176,7 +176,7 @@ struct PreviewsReducer {
                     }
                     await send(.openReadingDone(.success(try await downloadClient.loadManifest(galleryID))))
                 } catch: { error, send in
-                    await send(.openReadingDone(.failure(error as? AppError ?? .unknown)))
+                    await send(.openReadingDone(.failure(AppError(error))))
                 }
 
             case .openReadingDone(let result):
