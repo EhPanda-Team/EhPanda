@@ -109,10 +109,15 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         }
 
-        let result = await ImageClient.live.fetchImage(url: url)
+        let (cache, cacheRootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: cacheRootURL) }
+        var client = ImageClient.live
+        client.dataCache = cache
+
+        let result = await client.fetchImage(url: url)
         let fetchedImage = try result.get()
 
-        #expect(fetchedImage.size == image.size)
+        #expect(pixelSize(fetchedImage) == pixelSize(image))
     }
 
     @MainActor
@@ -258,6 +263,8 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             SDImageCache.shared.removeImage(forKey: url.absoluteString) {}
         }
 
+        let (cache, cacheRootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: cacheRootURL) }
         let client = ImageClient(
             prefetchImages: { _ in },
             saveImageToPhotoLibrary: { _, _ in false },
@@ -267,7 +274,8 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
                 return .failure(AppError.notFound)
             },
             retrieveImage: ImageClient.live.retrieveImage,
-            isCached: LibraryClient.live.isCached
+            isCached: LibraryClient.live.isCached,
+            dataCache: cache
         )
 
         let result = await client.fetchImage(url: url)
@@ -283,10 +291,8 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
         )
         let expectedCacheKeys = url.imageCacheKeys(includeStableAlias: true)
-        // Earlier serialized tests in this suite warm DataCache.shared for these
-        // keys, which would short-circuit fetchImage before the retrieve/download
-        // fallback this test asserts on. Clear them so the fallback path runs.
-        try await DataCache.shared.removeData(forKeys: expectedCacheKeys)
+        let (cache, cacheRootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: cacheRootURL) }
         let retrievedCacheKeys = UncheckedBox([String]())
         let downloadedURLs = UncheckedBox([URL]())
         let downloadedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
@@ -305,7 +311,8 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
                 retrievedCacheKeys.value.append(cacheKey)
                 return .failure(AppError.notFound)
             },
-            isCached: { _ in true }
+            isCached: { _ in true },
+            dataCache: cache
         )
 
         let result = await client.fetchImage(url: url)
@@ -326,6 +333,29 @@ private extension DownloadManagerRepairSeedTests {
                 continuation.resume()
             }
         }
+    }
+
+    /// A `DataCache` backed by a throwaway directory, isolated from `DataCache.shared`.
+    ///
+    /// `ImageClient.imageData` consults its `dataCache` before the retrieve/download
+    /// closures, and `.shared` persists on disk across runs. Injecting a per-test cache
+    /// keeps these tests hermetic and repeatable without clearing the simulator cache.
+    func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        return (DataCache(configuration: .init(rootURL: rootURL)), rootURL)
+    }
+
+    /// The image's dimensions in pixels (`size` in points × `scale`).
+    ///
+    /// `fetchImage` round-trips images through `Data`, which yields a scale-1 image with
+    /// the original pixel dimensions. Comparing pixels keeps cache-hit assertions stable
+    /// regardless of the stored image's scale.
+    func pixelSize(_ image: UIImage) -> CGSize {
+        .init(
+            width: image.size.width * image.scale,
+            height: image.size.height * image.scale
+        )
     }
 
     func setupRepairSeedFiles(
