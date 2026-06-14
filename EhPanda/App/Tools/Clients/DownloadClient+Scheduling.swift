@@ -31,8 +31,8 @@ extension DownloadManager {
     func scheduleNextIfNeeded() async {
         let queuedGIDs = queueStore.gids
         let downloads = queuedGIDs.isEmpty
-            ? await fetchDownloadsFromStore()
-            : await fetchDownloadsFromStore(gids: queuedGIDs)
+            ? await indexedDownloads()
+            : await indexedDownloads(gids: queuedGIDs)
         guard activeTask == nil else {
             await reconcileActiveDownloadState()
             return
@@ -182,7 +182,6 @@ extension DownloadManager {
     ) async throws -> Task<Void, Never>? {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
-        _ = await reloadDownloadIndex()
         await notifyObservers()
         if activeGalleryID == gid {
             let task = activeTask
@@ -200,7 +199,6 @@ extension DownloadManager {
     ) async throws {
         clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
         await queueStore.remove(gid)
-        _ = await reloadDownloadIndex()
     }
 
     func cancelQueuedWorkItem(
@@ -229,7 +227,6 @@ extension DownloadManager {
         queuedModes[gid] = resumeMode(for: download)
         queuedPageSelections[gid] = nil
         await queueStore.enqueue(gid)
-        _ = await reloadDownloadIndex()
         await notifyObservers()
         await scheduleNextIfNeeded()
         return .success(())

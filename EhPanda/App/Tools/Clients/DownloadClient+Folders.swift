@@ -8,7 +8,6 @@ import Foundation
 // MARK: - User Folder Operations
 extension DownloadManager {
     func fetchFolders() async -> [String] {
-        _ = await reloadDownloadIndex()
         return userFolders
     }
 
@@ -35,7 +34,7 @@ extension DownloadManager {
             Logger.error(error)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
-        _ = await reloadDownloadIndex()
+        insertUserFolder(normalizedName)
         return .success(())
     }
 
@@ -81,9 +80,10 @@ extension DownloadManager {
             }
         } catch {
             Logger.error(error)
+            await reloadDownloadRecordIfPossible(gidInFolder: oldName)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
-        _ = await reloadDownloadIndex()
+        renameUserFolder(oldName: oldName, newName: normalizedName)
         await notifyObservers()
         return .success(())
     }
@@ -93,9 +93,9 @@ extension DownloadManager {
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .failure(.notFound)
         }
-        let containedGIDs = downloadIndex.values
+        let containedRecords = downloadIndex.values
             .filter { $0.parentFolderName == name }
-            .map(\.manifest.gid)
+        let containedGIDs = containedRecords.map(\.manifest.gid)
         for gid in containedGIDs {
             schedulingBlockedGalleryIDs.insert(gid)
         }
@@ -120,12 +120,14 @@ extension DownloadManager {
         do {
             try storage.removeFolder(at: folderURL)
         } catch let error as AppError {
+            await reloadDownloadRecords(containedRecords)
             return .failure(error)
         } catch {
             Logger.error(error)
+            await reloadDownloadRecords(containedRecords)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
-        _ = await reloadDownloadIndex()
+        userFolders.removeAll { $0 == name }
         await notifyObservers()
         await scheduleNextIfNeeded()
         return .success(())
@@ -179,10 +181,47 @@ extension DownloadManager {
             }
         } catch {
             Logger.error(error)
+            await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
-        _ = await reloadDownloadIndex()
+        await reloadDownloadRecord(gid: download.gid, token: download.token)
         await notifyObservers()
         return .success(())
+    }
+
+    private func insertUserFolder(_ name: String) {
+        guard !userFolders.contains(name) else { return }
+        userFolders.append(name)
+        userFolders.sort {
+            $0.localizedStandardCompare($1) == .orderedAscending
+        }
+    }
+
+    private func renameUserFolder(oldName: String, newName: String) {
+        userFolders.removeAll { $0 == oldName }
+        insertUserFolder(newName)
+        let movedRecords = downloadIndex.values.filter { $0.parentFolderName == oldName }
+        for record in movedRecords {
+            let destinationFolderURL = storage.userFolderURL(name: newName)
+                .appendingPathComponent(record.folderURL.lastPathComponent, isDirectory: true)
+            downloadIndex[record.manifest.gid] = DownloadFolderRecord(
+                relativePath: "\(newName)/\(record.folderURL.lastPathComponent)",
+                folderURL: destinationFolderURL,
+                manifest: record.manifest,
+                modifiedAt: record.modifiedAt,
+                parentFolderName: newName
+            )
+        }
+    }
+
+    private func reloadDownloadRecordIfPossible(gidInFolder folderName: String) async {
+        let records = downloadIndex.values.filter { $0.parentFolderName == folderName }
+        await reloadDownloadRecords(records)
+    }
+
+    private func reloadDownloadRecords(_ records: [DownloadFolderRecord]) async {
+        for record in records {
+            await reloadDownloadRecord(gid: record.manifest.gid, token: record.manifest.token)
+        }
     }
 }

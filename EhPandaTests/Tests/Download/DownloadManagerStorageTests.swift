@@ -142,6 +142,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             )
         )
         await manager.testingSetQueuedGalleryIDs(["600"])
+        await manager.reloadDownloadIndex()
 
         let downloads = await manager.fetchDownloads()
         let indexedDownload = try #require(await manager.fetchDownload(gid: "600"))
@@ -154,6 +155,34 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         #expect(await manager.fetchDownload(gid: "601") == nil)
         #expect(badges["600"]?.status == .queued)
         #expect(badges["601"] == nil)
+    }
+
+    @Test
+    func testDownloadManagerWarmIndexMissDoesNotRescanDisk() async throws {
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+
+        try storage.ensureRootDirectory()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "Folder/[610_token] Warm",
+            manifest: indexedManifest(gid: "610", title: "Warm", pageHashes: ["sha256:known"])
+        )
+        await manager.reloadDownloadIndex()
+        try writeIndexedManifest(
+            storage: storage,
+            relativePath: "Folder/[611_token] Later",
+            manifest: indexedManifest(gid: "611", title: "Later", pageHashes: ["sha256:new"])
+        )
+
+        let badges = await manager.badges(for: ["611"])
+
+        #expect(await manager.fetchDownload(gid: "611") == nil)
+        #expect(badges.isEmpty)
     }
 
     @Test
@@ -178,6 +207,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:1"]
             )
         )
+        await manager.reloadDownloadIndex()
 
         let stream = await manager.observeDownloads()
         let initialSnapshotTask = Task<[DownloadedGallery]?, Never> {
@@ -341,6 +371,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: [""]
             )
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetDownloadError(failure, gid: "430")
 
         let sanitizedDownload = await manager.testingSanitizeLocalFilesIfNeeded(
@@ -375,6 +406,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:missing"]
             )
         )
+        await manager.reloadDownloadIndex()
 
         let validation = await manager.validateImageData(gid: "440")
 
@@ -409,6 +441,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:done"]
             )
         )
+        await manager.reloadDownloadIndex()
         let blockingTask = Task<Void, Never> {
             do {
                 try await Task.sleep(for: .seconds(60))
@@ -454,6 +487,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:done", ""]
             )
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetFailedPageErrors(
             [
                 .init(
@@ -508,6 +542,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: [""]
             )
         )
+        await manager.reloadDownloadIndex()
         await queueStore.enqueue("800")
         let download = try #require(await manager.fetchDownload(gid: "800"))
 
@@ -565,6 +600,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 )
             )
         )
+        await manager.reloadDownloadIndex()
         await queueStore.enqueue(gallery.gid)
         await manager.testingSetDownloadError(
             .init(code: .networkingFailed, message: "failed"),
@@ -606,6 +642,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:1", ""]
             )
         )
+        await manager.reloadDownloadIndex()
         await queueStore.enqueue("820")
         await manager.testingSetDownloadError(
             .init(code: .networkingFailed, message: "failed"),
@@ -685,6 +722,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 modifiedAt: Date(timeIntervalSince1970: 200)
             )
         )
+        await manager.reloadDownloadIndex()
         await queueStore.enqueue("830")
         await queueStore.enqueue("831")
 
@@ -778,6 +816,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 pageHashes: ["sha256:done", ""]
             )
         )
+        await manager.reloadDownloadIndex()
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         try FileManager.default.createDirectory(
             at: folderURL,
@@ -843,6 +882,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             to: completedFolderURL.appendingPathComponent("\(gid)_token_2.jpg"),
             options: .atomic
         )
+        await manager.reloadDownloadIndex()
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
@@ -887,6 +927,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             to: page2URL,
             options: .atomic
         )
+        await manager.reloadDownloadIndex()
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 

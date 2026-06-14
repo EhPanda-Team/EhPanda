@@ -23,9 +23,6 @@ extension DownloadManager {
     }
 
     func fetchDownloads() async -> [DownloadedGallery] {
-        if downloadIndex.isEmpty {
-            return await fetchDownloadsFromStore()
-        }
         return await indexedDownloads()
     }
 
@@ -43,7 +40,7 @@ extension DownloadManager {
 
     func badges(for gids: [String]) async -> [String: DownloadBadge] {
         guard !gids.isEmpty else { return [:] }
-        let downloads = await fetchDownloadsFromStore(gids: gids)
+        let downloads = await indexedDownloads(gids: gids)
         return Dictionary(uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) })
     }
 
@@ -233,6 +230,7 @@ extension DownloadManager {
         index: Int,
         imageURL: URL?
     ) async {
+        guard downloadIndex[gid] != nil else { return }
         guard let download = await fetchDownload(gid: gid),
               index >= 1,
               index <= max(download.pageCount, 1)

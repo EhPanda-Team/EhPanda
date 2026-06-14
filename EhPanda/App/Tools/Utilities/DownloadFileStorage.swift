@@ -154,6 +154,22 @@ struct DownloadFileStorage: Sendable {
             }
     }
 
+    func galleryFolderRecords(gid: String, token: String) -> [DownloadFolderRecord] {
+        galleryFolderURLs(gid: gid, token: token).compactMap { folderURL in
+            guard let manifest = try? readManifest(folderURL: folderURL),
+                  manifest.gid == gid,
+                  manifest.token == token
+            else {
+                return nil
+            }
+            return galleryFolderRecord(
+                folderURL: folderURL,
+                manifest: manifest,
+                parentFolderName: parentFolderName(forFolderURL: folderURL) ?? ""
+            )
+        }
+    }
+
     static func isGalleryFolderLikeName(_ name: String) -> Bool {
         name.range(of: #"^\[[^\]]*_[^\]]*\] "#, options: .regularExpression) != nil
     }

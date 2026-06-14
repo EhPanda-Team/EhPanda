@@ -13,22 +13,29 @@ extension DownloadManager {
             let scanResult = try storage.scanDownloads()
             downloadIndex = deduplicatedDownloadIndex(from: scanResult.records)
             userFolders = scanResult.userFolders
+            hasLoadedIndex = true
             return await downloads(from: scanResult.records)
         } catch {
             Logger.error(error)
             downloadIndex = [:]
             userFolders = []
+            hasLoadedIndex = true
             return []
         }
     }
 
+    /// The filesystem is the durable source of truth, but this actor's index is the read authority
+    /// between explicit sync points. Hot lookups must not walk download folders; app launch,
+    /// foreground return, pull-to-refresh, and targeted surprise repair are the scan boundaries.
     func indexedDownload(gid: String) async -> DownloadedGallery? {
+        guard hasLoadedIndex else { return nil }
         guard let record = downloadIndex[gid] else { return nil }
         return downloadedGallery(from: record)
     }
 
     func indexedDownloads() async -> [DownloadedGallery] {
-        await downloads(from: Array(downloadIndex.values))
+        guard hasLoadedIndex else { return [] }
+        return await downloads(from: Array(downloadIndex.values))
     }
 
     private func downloads(
@@ -39,6 +46,14 @@ extension DownloadManager {
                 downloadedGallery(from: $0)
             }
             .sorted(by: sortDownloadsByDisplayStatus)
+    }
+
+    func indexedDownloads(gids: [String]) async -> [DownloadedGallery] {
+        guard hasLoadedIndex else { return [] }
+        let gidSet = Set(gids)
+        return await downloads(
+            from: downloadIndex.values.filter { gidSet.contains($0.manifest.gid) }
+        )
     }
 
     private func deduplicatedDownloadIndex(
@@ -127,9 +142,6 @@ extension DownloadManager {
     func fetchDownload(
         gid: String
     ) async -> DownloadedGallery? {
-        if downloadIndex[gid] == nil {
-            _ = await reloadDownloadIndex()
-        }
         return await indexedDownload(gid: gid)
     }
 
@@ -154,6 +166,24 @@ extension DownloadManager {
         return await reloadDownloadIndex()
             .filter { gidSet.contains($0.gid) }
     }
+
+    @discardableResult
+    func reloadDownloadRecord(gid: String, token: String) async -> DownloadedGallery? {
+        let records = storage.galleryFolderRecords(gid: gid, token: token)
+        hasLoadedIndex = true
+        guard let record = deduplicatedDownloadIndex(from: records).values.first else {
+            downloadIndex[gid] = nil
+            return nil
+        }
+        downloadIndex[gid] = record
+        if !userFolders.contains(record.parentFolderName) {
+            userFolders.append(record.parentFolderName)
+            userFolders.sort {
+                $0.localizedStandardCompare($1) == .orderedAscending
+            }
+        }
+        return await indexedDownload(gid: gid)
+    }
 }
 
 // MARK: - Persist Failure & Progress
@@ -170,7 +200,6 @@ extension DownloadManager {
         downloadErrors[context.gid] = DownloadFailure(error: error)
         clearDownloadQueueIntent(gid: context.gid)
         await queueStore.remove(context.gid)
-        _ = await reloadDownloadIndex()
     }
 
     func flushDownloadProgress(
@@ -224,6 +253,7 @@ extension DownloadManager {
             forKeys: [.contentModificationDateKey]
         )
         .contentModificationDate
+        hasLoadedIndex = true
         downloadIndex[manifest.gid] = DownloadFolderRecord(
             relativePath: storage.rootRelativePath(forFolderURL: folderURL)
                 ?? folderURL.lastPathComponent,

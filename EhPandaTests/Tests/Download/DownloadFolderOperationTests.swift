@@ -47,6 +47,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "311"
         try writeGalleryFolder(storage: environment.storage, folderName: "Old Name", gid: gid)
+        await environment.manager.reconcileDownloads()
 
         let result = await environment.manager.renameFolder(oldName: "Old Name", newName: "New Name")
         guard case .success = result else {
@@ -85,6 +86,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "313"
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Doomed", gid: gid)
+        await environment.manager.reconcileDownloads()
         await environment.manager.testingSetQueuedGalleryIDs([gid])
 
         let result = await environment.manager.deleteFolder(name: "Doomed")
@@ -135,6 +137,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "315"
         let sourceURL = try writeGalleryFolder(storage: environment.storage, folderName: "Source", gid: gid)
+        await environment.manager.reconcileDownloads()
 
         let result = await environment.manager.moveDownload(gid: gid, toFolderName: "Target")
         guard case .success = result else {
@@ -155,6 +158,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: environment.rootURL) }
         let gid = "316"
         let folderURL = try writeGalleryFolder(storage: environment.storage, folderName: "Home", gid: gid)
+        await environment.manager.reconcileDownloads()
 
         let result = await environment.manager.moveDownload(gid: gid, toFolderName: "Home")
         guard case .success = result else {

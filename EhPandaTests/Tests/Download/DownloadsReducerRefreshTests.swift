@@ -12,7 +12,7 @@ import Testing
 struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
     @MainActor
     @Test
-    func testDownloadsReducerRefreshesWithoutResumingQueueAfterPauseFailure() async {
+    func testDownloadsReducerDoesNotReconcileAfterPauseFailure() async {
         let download = sampleDownload(
             gid: "987655",
             title: "Queued Gallery",
@@ -54,7 +54,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
         await store.receive(\.toggleDownloadPauseDone)
         await store.finish()
 
-        #expect(reconcileCount.value == 1)
+        #expect(reconcileCount.value == 0)
     }
 
     @MainActor
@@ -103,9 +103,10 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDownloadsReducerBootstrapUsesClientRefresh() async {
+    func testDownloadsReducerOnAppearUsesCachedIndexWithoutRefresh() async {
+        let fetchCount = UncheckedBox(0)
+        let folderFetchCount = UncheckedBox(0)
         let refreshCount = UncheckedBox(0)
-        let reconcileCount = UncheckedBox(0)
 
         let store = TestStore(
             initialState: DownloadsReducer.State(),
@@ -117,11 +118,11 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
                             continuation.finish()
                         }
                     },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    reconcileDownloads: {
-                        reconcileCount.value += 1
+                    fetchDownloads: {
+                        fetchCount.value += 1
+                        return []
                     },
+                    fetchDownload: { _ in nil },
                     refreshDownloads: {
                         refreshCount.value += 1
                     },
@@ -131,18 +132,29 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
                     togglePause: { _ in .success(()) },
                     retry: { _, _ in .success(()) },
                     delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
+                    loadManifest: { _ in .failure(.notFound) },
+                    fetchFolders: {
+                        folderFetchCount.value += 1
+                        return []
+                    }
                 )
             }
         )
 
-        await store.send(.bootstrapDownloads)
-        await store.receive(\.refreshDownloadsDone)
+        await store.send(.onAppear) {
+            $0.hasLoadedInitialDownloads = true
+        }
+        await store.receive(\.fetchDownloads)
+        await store.receive(\.observeDownloads)
         await store.receive(\.fetchFolders)
+        await store.receive(\.fetchDownloadsDone) {
+            $0.loadingState = .idle
+        }
         await store.receive(\.fetchFoldersDone)
 
-        #expect(refreshCount.value == 1)
-        #expect(reconcileCount.value == 0)
+        #expect(fetchCount.value == 1)
+        #expect(folderFetchCount.value == 1)
+        #expect(refreshCount.value == 0)
     }
 
 }

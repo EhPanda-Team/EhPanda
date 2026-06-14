@@ -19,6 +19,7 @@ struct AppReducer {
         var searchRootState = SearchRootReducer.State()
         var downloadsState = DownloadsReducer.State()
         var settingState = SettingReducer.State()
+        var scenePhase = ScenePhase.active
         var didRunLaunchAutomation = false
         var isAwaitingIgneousForLaunchAutomation = false
     }
@@ -45,6 +46,7 @@ struct AppReducer {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
+    @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
     @Dependency(\.urlClient) private var urlClient
 
@@ -64,13 +66,25 @@ struct AppReducer {
                     return .none
 
                 case .onScenePhaseChange(let scenePhase):
+                    let previousScenePhase = state.scenePhase
+                    state.scenePhase = scenePhase
                     guard state.settingState.hasLoadedInitialSetting else { return .none }
 
                     switch scenePhase {
                     case .active:
                         let threshold = state.settingState.setting.autoLockPolicy.rawValue
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
-                        return .send(.appLock(.onBecomeActive(threshold, blurRadius)))
+                        var effects: [Effect<Action>] = [
+                            .send(.appLock(.onBecomeActive(threshold, blurRadius)))
+                        ]
+                        if previousScenePhase == .background {
+                            effects.append(
+                                .run { _ in
+                                    await downloadClient.reconcileDownloads()
+                                }
+                            )
+                        }
+                        return .merge(effects)
 
                     case .inactive:
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
@@ -168,7 +182,7 @@ struct AppReducer {
                             if state.downloadsState.route != nil {
                                 effects.append(.send(.downloads(.setNavigation(nil))))
                             } else {
-                                effects.append(.send(.downloads(.refreshDownloads)))
+                                effects.append(.send(.downloads(.fetchDownloads)))
                             }
                             effects.append(hapticEffect)
                         case .setting:
