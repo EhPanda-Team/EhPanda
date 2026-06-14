@@ -20,6 +20,7 @@ struct AppReducer {
         var downloadsState = DownloadsReducer.State()
         var settingState = SettingReducer.State()
         var scenePhase = ScenePhase.active
+        var hasEnteredBackground = false
         var didRunLaunchAutomation = false
         var isAwaitingIgneousForLaunchAutomation = false
     }
@@ -66,7 +67,6 @@ struct AppReducer {
                     return .none
 
                 case .onScenePhaseChange(let scenePhase):
-                    let previousScenePhase = state.scenePhase
                     state.scenePhase = scenePhase
                     guard state.settingState.hasLoadedInitialSetting else { return .none }
 
@@ -77,7 +77,13 @@ struct AppReducer {
                         var effects: [Effect<Action>] = [
                             .send(.appLock(.onBecomeActive(threshold, blurRadius)))
                         ]
-                        if previousScenePhase == .background {
+                        // iOS interposes .inactive on a foreground return
+                        // (.background -> .inactive -> .active), so the previous
+                        // phase is never .background here. Latch the background
+                        // entry instead: reconcile once per cycle, never on a
+                        // transient .inactive blip (Control Center, notifications).
+                        if state.hasEnteredBackground {
+                            state.hasEnteredBackground = false
                             effects.append(
                                 .run { _ in
                                     await downloadClient.reconcileDownloads()
@@ -89,6 +95,10 @@ struct AppReducer {
                     case .inactive:
                         let blurRadius = state.settingState.setting.backgroundBlurRadius
                         return .send(.appLock(.onBecomeInactive(blurRadius)))
+
+                    case .background:
+                        state.hasEnteredBackground = true
+                        return .none
 
                     default:
                         return .none

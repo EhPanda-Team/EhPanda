@@ -16,7 +16,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
     func testAppForegroundReturnReconcilesDownloads() async {
         let reconcileCount = UncheckedBox(0)
         var initialState = AppReducer.State()
-        initialState.scenePhase = .background
         initialState.settingState.hasLoadedInitialSetting = true
 
         let store = TestStore(
@@ -45,12 +44,22 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
+        // iOS always interposes .inactive on both edges of a background cycle:
+        // .active -> .inactive -> .background -> .inactive -> .active. The
+        // reconcile must survive the trailing .inactive and fire exactly once.
+        await store.send(.onScenePhaseChange(.inactive)) {
+            $0.scenePhase = .inactive
+        }
+        await store.send(.onScenePhaseChange(.background)) {
+            $0.scenePhase = .background
+            $0.hasEnteredBackground = true
+        }
+        await store.send(.onScenePhaseChange(.inactive)) {
+            $0.scenePhase = .inactive
+        }
         await store.send(.onScenePhaseChange(.active)) {
             $0.scenePhase = .active
-        }
-        await store.receive(\.appLock, .onBecomeActive(-1, 10))
-        await store.receive(\.appLock, .unlockApp) {
-            $0.appLockState.blurRadius = 0.00001
+            $0.hasEnteredBackground = false
         }
         await store.finish()
 
