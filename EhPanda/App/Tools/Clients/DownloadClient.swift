@@ -14,7 +14,7 @@ struct DownloadClient: Sendable {
     var reconcileDownloads: @Sendable () async -> Void
     var refreshDownloads: @Sendable () async -> Void
     var validateImageData: @Sendable (String) async -> DownloadValidationState?
-    var fetchVersionMetadata: @Sendable (String, String) async throws -> DownloadVersionMetadata
+    var fetchVersionMetadata: @Sendable (String, String) async -> DownloadVersionMetadata?
     var updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery?
     var enqueue: @Sendable (DownloadRequestPayload) async throws -> Void
     var togglePause: @Sendable (String) async throws -> Void
@@ -80,7 +80,7 @@ extension DownloadClient {
             refreshDownloads: { await manager.refreshDownloads() },
             validateImageData: { gid in await manager.validateImageData(gid: gid) },
             fetchVersionMetadata: { gid, token in
-                try await manager.fetchVersionMetadata(gid: gid, token: token).get()
+                try? await manager.fetchVersionMetadata(gid: gid, token: token).get()
             },
             updateRemoteVersion: { gid, metadata in
                 await manager.updateRemoteVersion(gid: gid, metadata: metadata)
@@ -134,7 +134,7 @@ extension DownloadClient {
         reconcileDownloads: {},
         refreshDownloads: {},
         validateImageData: { _ in nil },
-        fetchVersionMetadata: { _, _ in throw AppError.notFound },
+        fetchVersionMetadata: { _, _ in nil },
         updateRemoteVersion: { _, _ in nil },
         enqueue: { _ in },
         togglePause: { _ in },
