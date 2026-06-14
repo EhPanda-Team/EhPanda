@@ -27,7 +27,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
                         continuation.finish()
@@ -64,7 +64,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
                         continuation.finish()
@@ -83,6 +83,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
                 $0.downloadClient.retry = { _, _ in }
                 $0.downloadClient.delete = { _ in }
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.fetchFolders = { [] }
             }
         )
 
@@ -106,7 +107,7 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in
                         continuation.finish()

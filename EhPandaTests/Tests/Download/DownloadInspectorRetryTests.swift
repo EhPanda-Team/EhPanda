@@ -135,7 +135,7 @@ private extension DownloadInspectorRetryTests {
             initialState: initialState,
             reducer: DownloadInspectorReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
                     AsyncStream { continuation in continuation.finish() }
                 }

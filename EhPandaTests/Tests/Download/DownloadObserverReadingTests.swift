@@ -176,7 +176,7 @@ private extension DownloadObserverReadingTests {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }
@@ -210,7 +210,7 @@ private extension DownloadObserverReadingTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }

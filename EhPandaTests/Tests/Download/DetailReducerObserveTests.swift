@@ -162,7 +162,7 @@ private extension DetailReducerObserveTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
-                $0.downloadClient = .noop
+                $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
                 $0.downloadClient.fetchDownloads = { [] }
                 $0.downloadClient.fetchDownload = { _ in nil }
@@ -172,6 +172,9 @@ private extension DetailReducerObserveTests {
                 $0.downloadClient.retry = { _, _ in }
                 $0.downloadClient.delete = { _ in }
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { _ in [:] }
+                $0.downloadClient.fetchVersionMetadata = { _, _ in nil }
+                $0.downloadClient.fetchFolders = { [] }
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop
@@ -182,7 +185,7 @@ private extension DetailReducerObserveTests {
     func makeLocalManifestClient(
         download: DownloadedGallery, manifest: DownloadManifest
     ) -> DownloadClient {
-        var client = DownloadClient.noop
+        var client = DownloadClient()
         client.observeDownloads = {
             AsyncStream { continuation in continuation.finish() }
         }
@@ -201,7 +204,7 @@ private extension DetailReducerObserveTests {
     }
 
     func makeNoManifestClient() -> DownloadClient {
-        var client = DownloadClient.noop
+        var client = DownloadClient()
         client.observeDownloads = {
             AsyncStream { continuation in continuation.finish() }
         }
