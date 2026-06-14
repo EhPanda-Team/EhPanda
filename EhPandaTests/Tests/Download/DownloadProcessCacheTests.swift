@@ -3,8 +3,6 @@
 //  EhPandaTests
 //
 
-import Kingfisher
-import SDWebImage
 import UIKit
 import Foundation
 import Testing
@@ -21,26 +19,29 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
+        let cachedKeysBox = UncheckedBox(Set<String>())
+        let libraryClient = try makeCacheLibraryClient(
+            cachedKeys: cachedKeysBox
+        )
 
         let cacheTestManager = try makeCacheTestManager(
-            rootURL: rootURL, sessionID: sessionID, gid: gid, pageIndex: pageIndex
+            rootURL: rootURL,
+            sessionID: sessionID,
+            gid: gid,
+            pageIndex: pageIndex,
+            libraryClient: libraryClient
         )
         let storage = cacheTestManager.storage
         let manager = cacheTestManager.manager
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
-        let (cachedKeys, _) = try await prepareCacheTestAssets(
+        let cachedKeys = try await prepareCacheTestAssets(
             manager: manager, gid: gid,
-            pageIndex: pageIndex
+            pageIndex: pageIndex,
+            cachedKeysBox: cachedKeysBox
         )
-        defer {
-            cachedKeys.forEach {
-                KingfisherManager.shared.cache.removeImage(forKey: $0)
-                SDImageCache.shared.removeImage(forKey: $0) {}
-            }
-        }
 
-        await waitUntilCacheReady(for: cachedKeys, timeout: .seconds(3))
+        #expect(cachedKeys.allSatisfy(libraryClient.isCached))
 
         let updatedPageCount = try await setupCacheTestDownload(
             .init(
@@ -56,11 +57,14 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         let completedDownload = await manager.testingFetchDownload(gid: gid)
         #expect(completedDownload?.displayStatus == .completed)
 
-        try await waitUntilCacheCleared(cachedKeys: cachedKeys)
+        try await waitUntilCacheCleared(
+            cachedKeys: cachedKeys,
+            isCached: libraryClient.isCached
+        )
 
         for cacheKey in cachedKeys {
             #expect(
-                LibraryClient.live.isCached(cacheKey) == false,
+                libraryClient.isCached(cacheKey) == false,
                 "Expected cache key to be removed after successful download: \(cacheKey)"
             )
         }
@@ -88,7 +92,11 @@ private struct CacheTestDownloadSetup {
 
 private extension DownloadProcessCacheTests {
     func makeCacheTestManager(
-        rootURL: URL, sessionID: String, gid: String, pageIndex: Int
+        rootURL: URL,
+        sessionID: String,
+        gid: String,
+        pageIndex: Int,
+        libraryClient: LibraryClient
     ) throws -> CacheTestManagerResult {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -96,7 +104,8 @@ private extension DownloadProcessCacheTests {
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
-            urlSession: URLSession(configuration: configuration)
+            urlSession: URLSession(configuration: configuration),
+            libraryClient: libraryClient
         )
         let content = StubHandlerContent(
             detailHTML: try makeUniqueDetailHTML(gid: gid),
@@ -193,8 +202,9 @@ private extension DownloadProcessCacheTests {
     @MainActor
     func prepareCacheTestAssets(
         manager: DownloadManager, gid: String,
-        pageIndex: Int
-    ) async throws -> (Set<String>, URL) {
+        pageIndex: Int,
+        cachedKeysBox: UncheckedBox<Set<String>>
+    ) async throws -> Set<String> {
         let currentPageImageURL = try #require(
             Self.currentPageImageURL(gid: gid, pageIndex: pageIndex)
         )
@@ -208,18 +218,10 @@ private extension DownloadProcessCacheTests {
         let coverURL = try #require(
             latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL
         )
-        let cachedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { ctx in
-            UIColor.systemTeal.setFill()
-            ctx.fill(.init(x: 0, y: 0, width: 1, height: 1))
-        }
-        let cachedImageData = try #require(cachedImage.jpegData(compressionQuality: 1))
         let cachedURLs = [currentPageImageURL, coverURL]
         let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
-        for cacheKey in cachedKeys {
-            try await KingfisherManager.shared.cache.storeToDisk(cachedImageData, forKey: cacheKey)
-            await storeSDWebImageData(cachedImageData, forKey: cacheKey)
-        }
-        return (cachedKeys, coverURL)
+        cachedKeysBox.value = cachedKeys
+        return cachedKeys
     }
 
     func setupCacheTestDownload(_ setup: CacheTestDownloadSetup) async throws -> Int {
@@ -269,20 +271,47 @@ private extension DownloadProcessCacheTests {
         try storage.writeManifest(staleManifest, folderURL: completedFolderURL)
     }
 
-    func waitUntilCacheCleared(cachedKeys: Set<String>) async throws {
+    func waitUntilCacheCleared(
+        cachedKeys: Set<String>,
+        isCached: @Sendable (String) -> Bool
+    ) async throws {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: .seconds(1))
-        while cachedKeys.contains(where: LibraryClient.live.isCached),
+        while cachedKeys.contains(where: isCached),
               clock.now < deadline {
             try? await Task.sleep(for: .milliseconds(10))
         }
     }
 
-    func storeSDWebImageData(_ data: Data, forKey key: String) async {
-        await withCheckedContinuation { continuation in
-            SDImageCache.shared.storeImageData(data, forKey: key) {
-                continuation.resume()
-            }
+    @MainActor
+    func makeCacheLibraryClient(
+        cachedKeys: UncheckedBox<Set<String>>
+    ) throws -> LibraryClient {
+        let cachedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
+            UIColor.systemTeal.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
+        let cachedImageData = try #require(cachedImage.jpegData(compressionQuality: 1))
+        return .init(
+            initializeLogger: {},
+            initializeWebImage: {},
+            removeAllCachedImages: {
+                cachedKeys.value = []
+            },
+            cachedImage: { _ in nil },
+            cachedImageData: { key in
+                cachedKeys.value.contains(key) ? cachedImageData : nil
+            },
+            removeCachedImage: { key in
+                var keys = cachedKeys.value
+                keys.remove(key)
+                cachedKeys.value = keys
+            },
+            isCached: { key in
+                cachedKeys.value.contains(key)
+            },
+            analyzeImageColors: { _ in nil },
+            calculateWebImageDiskCacheSize: { 0 }
+        )
     }
 }

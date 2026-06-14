@@ -24,6 +24,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             title: "Retry Pages",
             pageHashes: ["sha256:done", ""]
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetFailedPageErrors(
             [
                 .init(
