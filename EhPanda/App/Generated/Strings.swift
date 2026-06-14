@@ -595,46 +595,6 @@ internal enum L10n {
         }
       }
     }
-    internal enum DownloadFileStorage {
-      internal enum Error {
-        /// Asset file is unreadable: %@
-        internal static func assetUnreadable(_ p1: Any) -> String {
-          return L10n.tr("Localizable", "download_file_storage.error.asset_unreadable", String(describing: p1), fallback: "Asset file is unreadable: %@")
-        }
-        /// The download is currently active.
-        internal static let downloadBusy = L10n.tr("Localizable", "download_file_storage.error.download_busy", fallback: "The download is currently active.")
-        /// A folder with this name already exists.
-        internal static let folderAlreadyExists = L10n.tr("Localizable", "download_file_storage.error.folder_already_exists", fallback: "A folder with this name already exists.")
-        /// The folder contains an active download.
-        internal static let folderBusyDownloading = L10n.tr("Localizable", "download_file_storage.error.folder_busy_downloading", fallback: "The folder contains an active download.")
-        /// The folder name is invalid.
-        internal static let invalidFolderName = L10n.tr("Localizable", "download_file_storage.error.invalid_folder_name", fallback: "The folder name is invalid.")
-      }
-      internal enum Validation {
-        /// Cover image data is corrupted.
-        internal static let coverImageCorrupted = L10n.tr("Localizable", "download_file_storage.validation.cover_image_corrupted", fallback: "Cover image data is corrupted.")
-        /// Cover image is missing.
-        internal static let coverImageMissing = L10n.tr("Localizable", "download_file_storage.validation.cover_image_missing", fallback: "Cover image is missing.")
-        /// Download folder is missing.
-        internal static let downloadFolderMissing = L10n.tr("Localizable", "download_file_storage.validation.download_folder_missing", fallback: "Download folder is missing.")
-        /// Download folder could not be resolved.
-        internal static let downloadFolderUnresolved = L10n.tr("Localizable", "download_file_storage.validation.download_folder_unresolved", fallback: "Download folder could not be resolved.")
-        /// Downloaded pages are incomplete.
-        internal static let downloadedPagesIncomplete = L10n.tr("Localizable", "download_file_storage.validation.downloaded_pages_incomplete", fallback: "Downloaded pages are incomplete.")
-        /// Manifest file is corrupted.
-        internal static let manifestCorrupted = L10n.tr("Localizable", "download_file_storage.validation.manifest_corrupted", fallback: "Manifest file is corrupted.")
-        /// Manifest file is missing.
-        internal static let manifestMissing = L10n.tr("Localizable", "download_file_storage.validation.manifest_missing", fallback: "Manifest file is missing.")
-        /// Page %d image data is corrupted.
-        internal static func pageImageCorrupted(_ p1: Int) -> String {
-          return L10n.tr("Localizable", "download_file_storage.validation.page_image_corrupted", p1, fallback: "Page %d image data is corrupted.")
-        }
-        /// Page %d is missing.
-        internal static func pageMissing(_ p1: Int) -> String {
-          return L10n.tr("Localizable", "download_file_storage.validation.page_missing", p1, fallback: "Page %d is missing.")
-        }
-      }
-    }
     internal enum DownloadSettingView {
       /// Download
       internal static let title = L10n.tr("Localizable", "download_setting_view.title", fallback: "Download")
@@ -657,6 +617,46 @@ internal enum L10n {
         internal static let concurrentImageDownloads = L10n.tr("Localizable", "download_setting_view.title.concurrent_image_downloads", fallback: "Concurrent image downloads")
         /// Retry failed pages automatically
         internal static let retryFailedPagesAutomatically = L10n.tr("Localizable", "download_setting_view.title.retry_failed_pages_automatically", fallback: "Retry failed pages automatically")
+      }
+    }
+    internal enum DownloadStore {
+      internal enum Error {
+        /// Asset file is unreadable: %@
+        internal static func assetUnreadable(_ p1: Any) -> String {
+          return L10n.tr("Localizable", "download_store.error.asset_unreadable", String(describing: p1), fallback: "Asset file is unreadable: %@")
+        }
+        /// The download is currently active.
+        internal static let downloadBusy = L10n.tr("Localizable", "download_store.error.download_busy", fallback: "The download is currently active.")
+        /// A folder with this name already exists.
+        internal static let folderAlreadyExists = L10n.tr("Localizable", "download_store.error.folder_already_exists", fallback: "A folder with this name already exists.")
+        /// The folder contains an active download.
+        internal static let folderBusyDownloading = L10n.tr("Localizable", "download_store.error.folder_busy_downloading", fallback: "The folder contains an active download.")
+        /// The folder name is invalid.
+        internal static let invalidFolderName = L10n.tr("Localizable", "download_store.error.invalid_folder_name", fallback: "The folder name is invalid.")
+      }
+      internal enum Validation {
+        /// Cover image data is corrupted.
+        internal static let coverImageCorrupted = L10n.tr("Localizable", "download_store.validation.cover_image_corrupted", fallback: "Cover image data is corrupted.")
+        /// Cover image is missing.
+        internal static let coverImageMissing = L10n.tr("Localizable", "download_store.validation.cover_image_missing", fallback: "Cover image is missing.")
+        /// Download folder is missing.
+        internal static let downloadFolderMissing = L10n.tr("Localizable", "download_store.validation.download_folder_missing", fallback: "Download folder is missing.")
+        /// Download folder could not be resolved.
+        internal static let downloadFolderUnresolved = L10n.tr("Localizable", "download_store.validation.download_folder_unresolved", fallback: "Download folder could not be resolved.")
+        /// Downloaded pages are incomplete.
+        internal static let downloadedPagesIncomplete = L10n.tr("Localizable", "download_store.validation.downloaded_pages_incomplete", fallback: "Downloaded pages are incomplete.")
+        /// Manifest file is corrupted.
+        internal static let manifestCorrupted = L10n.tr("Localizable", "download_store.validation.manifest_corrupted", fallback: "Manifest file is corrupted.")
+        /// Manifest file is missing.
+        internal static let manifestMissing = L10n.tr("Localizable", "download_store.validation.manifest_missing", fallback: "Manifest file is missing.")
+        /// Page %d image data is corrupted.
+        internal static func pageImageCorrupted(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "download_store.validation.page_image_corrupted", p1, fallback: "Page %d image data is corrupted.")
+        }
+        /// Page %d is missing.
+        internal static func pageMissing(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "download_store.validation.page_missing", p1, fallback: "Page %d is missing.")
+        }
       }
     }
     internal enum DownloadsView {

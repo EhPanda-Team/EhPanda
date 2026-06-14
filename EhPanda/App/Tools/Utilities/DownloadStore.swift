@@ -358,7 +358,7 @@ struct DownloadStore: Sendable {
     }
 
     private func manifestCorruptedError() -> AppError {
-        .fileOperationFailed(L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted)
+        .fileOperationFailed(L10n.Localizable.DownloadStore.Validation.manifestCorrupted)
     }
 
     func scanDownloadFolders() throws -> [DownloadFolderRecord] {

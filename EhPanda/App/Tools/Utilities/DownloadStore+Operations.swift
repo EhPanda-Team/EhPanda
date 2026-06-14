@@ -9,7 +9,7 @@ extension DownloadStore {
     func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
             throw AppError.fileOperationFailed(
-                L10n.Localizable.DownloadFileStorage.Error.assetUnreadable(sourceURL.lastPathComponent)
+                L10n.Localizable.DownloadStore.Error.assetUnreadable(sourceURL.lastPathComponent)
             )
         }
 
@@ -88,13 +88,13 @@ extension DownloadStore {
             }
             guard let relativePath = existingPages[index] else {
                 throw AppError.fileOperationFailed(
-                    L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
+                    L10n.Localizable.DownloadStore.Validation.pageMissing(index)
                 )
             }
             pages[index] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: relativePath,
-                missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
+                missingMessage: L10n.Localizable.DownloadStore.Validation.pageMissing(index)
             )
         }
 
@@ -149,7 +149,7 @@ extension DownloadStore {
             pages[index] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: refreshedRelativePath,
-                missingMessage: L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index)
+                missingMessage: L10n.Localizable.DownloadStore.Validation.pageMissing(index)
             )
             didUpdate = true
         }
@@ -198,14 +198,14 @@ extension DownloadStore {
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.downloadFolderMissing)
+            return .missingFiles(L10n.Localizable.DownloadStore.Validation.downloadFolderMissing)
         }
         let manifestURL = download.manifestURL
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestMissing)
+            return .missingFiles(L10n.Localizable.DownloadStore.Validation.manifestMissing)
         }
         guard let manifest = try? readManifest(folderURL: folderURL) else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted)
+            return .missingFiles(L10n.Localizable.DownloadStore.Validation.manifestCorrupted)
         }
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
@@ -287,12 +287,12 @@ extension DownloadStore {
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
-            return .missingFiles(L10n.Localizable.DownloadFileStorage.Validation.pageMissing(index))
+            return .missingFiles(L10n.Localizable.DownloadStore.Validation.pageMissing(index))
         }
 
         if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
             return .missingFiles(
-                L10n.Localizable.DownloadFileStorage.Validation.pageImageCorrupted(index)
+                L10n.Localizable.DownloadStore.Validation.pageImageCorrupted(index)
             )
         }
 

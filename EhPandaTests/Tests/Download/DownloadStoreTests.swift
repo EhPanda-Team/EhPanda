@@ -53,7 +53,7 @@ struct DownloadStoreTests {
 
         #expect(
             throws: AppError.fileOperationFailed(
-                L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted
+                L10n.Localizable.DownloadStore.Validation.manifestCorrupted
             )
         ) {
             try storage.readManifest(folderURL: folderURL)
@@ -72,7 +72,7 @@ struct DownloadStoreTests {
 
         #expect(
             throws: AppError.fileOperationFailed(
-                L10n.Localizable.DownloadFileStorage.Validation.manifestCorrupted
+                L10n.Localizable.DownloadStore.Validation.manifestCorrupted
             )
         ) {
             try storage.readManifest(folderURL: folderURL)

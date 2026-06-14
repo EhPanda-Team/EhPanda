@@ -471,21 +471,21 @@
 "struct.download_badge.text.needs_repair" = "需修复";
 "struct.download_badge.progress" = "%d/%d";
 
-// MARK: DownloadFileStorage
-"download_file_storage.error.asset_unreadable" = "资源文件无法读取：%@";
-"download_file_storage.error.invalid_folder_name" = "The folder name is invalid.";
-"download_file_storage.error.folder_already_exists" = "A folder with this name already exists.";
-"download_file_storage.error.folder_busy_downloading" = "The folder contains an active download.";
-"download_file_storage.error.download_busy" = "The download is currently active.";
-"download_file_storage.validation.download_folder_unresolved" = "无法解析下载文件夹。";
-"download_file_storage.validation.download_folder_missing" = "下载文件夹缺失。";
-"download_file_storage.validation.manifest_missing" = "Manifest 文件缺失。";
-"download_file_storage.validation.manifest_corrupted" = "Manifest 文件已损坏。";
-"download_file_storage.validation.downloaded_pages_incomplete" = "下载页面不完整。";
-"download_file_storage.validation.cover_image_missing" = "封面图片缺失。";
-"download_file_storage.validation.page_missing" = "第 %d 页缺失。";
-"download_file_storage.validation.cover_image_corrupted" = "封面图片数据已损坏。";
-"download_file_storage.validation.page_image_corrupted" = "第 %d 页图片数据已损坏。";
+// MARK: DownloadStore
+"download_store.error.asset_unreadable" = "资源文件无法读取：%@";
+"download_store.error.invalid_folder_name" = "The folder name is invalid.";
+"download_store.error.folder_already_exists" = "A folder with this name already exists.";
+"download_store.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_store.error.download_busy" = "The download is currently active.";
+"download_store.validation.download_folder_unresolved" = "无法解析下载文件夹。";
+"download_store.validation.download_folder_missing" = "下载文件夹缺失。";
+"download_store.validation.manifest_missing" = "Manifest 文件缺失。";
+"download_store.validation.manifest_corrupted" = "Manifest 文件已损坏。";
+"download_store.validation.downloaded_pages_incomplete" = "下载页面不完整。";
+"download_store.validation.cover_image_missing" = "封面图片缺失。";
+"download_store.validation.page_missing" = "第 %d 页缺失。";
+"download_store.validation.cover_image_corrupted" = "封面图片数据已损坏。";
+"download_store.validation.page_image_corrupted" = "第 %d 页图片数据已损坏。";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "筛选";
