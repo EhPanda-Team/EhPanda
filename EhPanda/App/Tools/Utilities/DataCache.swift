@@ -53,11 +53,12 @@ actor DataCache {
     }
 
     func data(forKey key: String) throws -> Data? {
-        if let data = memoryCache.object(forKey: key as NSString) {
+        let filename = Self.filename(forKey: key)
+        if let data = memoryCache.object(forKey: filename as NSString) {
             return Data(referencing: data)
         }
 
-        let fileURL = fileURL(forKey: key)
+        let fileURL = configuration.rootURL.appendingPathComponent(filename)
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
         if isExpired(fileURL) {
             try? fileManager.removeItem(at: fileURL)
@@ -65,8 +66,9 @@ actor DataCache {
         }
 
         let data = try Data(contentsOf: fileURL)
-        memoryCache.setObject(data as NSData, forKey: key as NSString, cost: data.count)
-        try touchAccessDate(for: fileURL)
+        memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
+        // A failed access-date bump must not fail an otherwise-successful read.
+        try? touchAccessDate(for: fileURL)
         return data
     }
 
@@ -80,8 +82,9 @@ actor DataCache {
     }
 
     func store(_ data: Data, forKey key: String) throws {
-        memoryCache.setObject(data as NSData, forKey: key as NSString, cost: data.count)
-        let fileURL = fileURL(forKey: key)
+        let filename = Self.filename(forKey: key)
+        memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
+        let fileURL = configuration.rootURL.appendingPathComponent(filename)
         try write(data, to: fileURL, canRetryDirectoryCreation: true)
         bytesWrittenSinceSweep += UInt64(data.count)
         if configuration.sweepByteInterval > 0,
@@ -98,8 +101,9 @@ actor DataCache {
     }
 
     func removeData(forKey key: String) throws {
-        memoryCache.removeObject(forKey: key as NSString)
-        let fileURL = fileURL(forKey: key)
+        let filename = Self.filename(forKey: key)
+        memoryCache.removeObject(forKey: filename as NSString)
+        let fileURL = configuration.rootURL.appendingPathComponent(filename)
         guard fileManager.fileExists(atPath: fileURL.path) else { return }
         try fileManager.removeItem(at: fileURL)
     }
@@ -146,18 +150,11 @@ actor DataCache {
 
     func sweepDisk() throws {
         guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return }
-        var didRemoveDiskEntries = false
-        defer {
-            if didRemoveDiskEntries {
-                memoryCache.removeAllObjects()
-            }
-        }
         var entries = try diskEntries()
         let now = Date()
         if configuration.maxDiskAge > 0 {
             for entry in entries where now.timeIntervalSince(entry.accessDate) > configuration.maxDiskAge {
-                try? fileManager.removeItem(at: entry.url)
-                didRemoveDiskEntries = true
+                evictDiskEntry(entry)
             }
             entries.removeAll { now.timeIntervalSince($0.accessDate) > configuration.maxDiskAge }
         }
@@ -167,11 +164,18 @@ actor DataCache {
         guard totalSize > configuration.diskSizeLimit else { return }
         let targetSize = configuration.diskSizeLimit / 2
         for entry in entries.sorted(by: { $0.accessDate < $1.accessDate }) {
-            try? fileManager.removeItem(at: entry.url)
-            didRemoveDiskEntries = true
+            evictDiskEntry(entry)
             totalSize = totalSize > entry.size ? totalSize - entry.size : 0
             guard totalSize > targetSize else { break }
         }
+    }
+
+    // Evicts a single entry from disk and drops only its matching memory object.
+    // The memory cache is keyed by the on-disk hashed filename, so eviction stays
+    // scoped to the swept keys instead of purging the whole memory front.
+    private func evictDiskEntry(_ entry: DiskEntry) {
+        try? fileManager.removeItem(at: entry.url)
+        memoryCache.removeObject(forKey: entry.url.lastPathComponent as NSString)
     }
 
     private func write(
@@ -182,7 +186,8 @@ actor DataCache {
         do {
             try ensureDirectory()
             try data.write(to: fileURL, options: .atomic)
-            try touchAccessDate(for: fileURL)
+            // A failed access-date bump must not fail an otherwise-successful write.
+            try? touchAccessDate(for: fileURL)
         } catch {
             guard canRetryDirectoryCreation else { throw error }
             try? fileManager.removeItem(at: configuration.rootURL)
@@ -200,10 +205,6 @@ actor DataCache {
         resourceValues.isExcludedFromBackup = true
         var directoryURL = configuration.rootURL
         try? directoryURL.setResourceValues(resourceValues)
-    }
-
-    private func fileURL(forKey key: String) -> URL {
-        configuration.rootURL.appendingPathComponent(Self.filename(forKey: key))
     }
 
     private static func filename(forKey key: String) -> String {
