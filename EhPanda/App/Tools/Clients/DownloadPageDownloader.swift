@@ -78,6 +78,40 @@ enum DownloadBackgroundSessionEvents {
     }
 }
 
+// A FIFO-bounded map: stash entries left behind by orphaned tasks or cancel-vs-
+// complete races (no registration ever claims them) can't grow without bound over
+// a long-lived session.
+private struct BoundedStash<Value> {
+    private let capacity: Int
+    private var order = [Int]()
+    private var entries = [Int: Value]()
+
+    init(capacity: Int) {
+        self.capacity = capacity
+    }
+
+    mutating func insert(_ value: Value, forKey key: Int) {
+        if entries[key] == nil {
+            order.append(key)
+        }
+        entries[key] = value
+        while order.count > capacity {
+            let evictedKey = order.removeFirst()
+            entries[evictedKey] = nil
+        }
+    }
+
+    mutating func removeValue(forKey key: Int) -> Value? {
+        guard let value = entries.removeValue(forKey: key) else {
+            return nil
+        }
+        if let index = order.firstIndex(of: key) {
+            order.remove(at: index)
+        }
+        return value
+    }
+}
+
 private actor BackgroundDownloadTaskHub {
     private enum Failure: Error, Sendable {
         case cancelled
@@ -93,9 +127,15 @@ private actor BackgroundDownloadTaskHub {
         }
     }
 
+    private static let stashCapacity = 256
+
     private var continuations = [Int: CheckedContinuation<DownloadPageTransfer, Error>]()
-    private var completions = [Int: DownloadPageTransfer]()
-    private var failures = [Int: Failure]()
+    private var completions = BoundedStash<DownloadPageTransfer>(
+        capacity: BackgroundDownloadTaskHub.stashCapacity
+    )
+    private var failures = BoundedStash<Failure>(
+        capacity: BackgroundDownloadTaskHub.stashCapacity
+    )
 
     func wait(
         taskIdentifier: Int,
@@ -126,7 +166,7 @@ private actor BackgroundDownloadTaskHub {
             continuation.resume(returning: transfer)
             return true
         }
-        completions[taskIdentifier] = transfer
+        completions.insert(transfer, forKey: taskIdentifier)
         return false
     }
 
@@ -139,7 +179,7 @@ private actor BackgroundDownloadTaskHub {
             continuation.resume(throwing: failure.error)
             return true
         }
-        failures[taskIdentifier] = failure
+        failures.insert(failure, forKey: taskIdentifier)
         return false
     }
 
@@ -163,7 +203,7 @@ private actor BackgroundDownloadTaskHub {
             continuation.resume(throwing: CancellationError())
             return
         }
-        failures[taskIdentifier] = .cancelled
+        failures.insert(.cancelled, forKey: taskIdentifier)
     }
 
     private static func failure(from error: Error) -> Failure {
