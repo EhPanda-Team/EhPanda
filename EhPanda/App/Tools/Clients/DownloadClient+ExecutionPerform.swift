@@ -35,16 +35,15 @@ extension DownloadManager {
         )
 
         let executionContext = DownloadExecutionContext(
+            payload: payload,
+            options: options,
             existingDownload: existingDownload
         )
         do {
             let batchAndCover = try await executePageDownloads(
-                payload: payload,
-                options: options,
+                context: executionContext,
                 workingSeed: workingSeed,
-                pendingIndices: pendingIndices,
-                workingFolderURL: workingFolderURL,
-                executionContext: executionContext
+                pendingIndices: pendingIndices
             )
             return batchAndCover
         } catch is CancellationError {
@@ -55,32 +54,31 @@ extension DownloadManager {
     }
 
     private func executePageDownloads(
-        payload: DownloadRequestPayload,
-        options: DownloadRequestOptions,
+        context: DownloadExecutionContext,
         workingSeed: WorkingSeed,
-        pendingIndices: [Int],
-        workingFolderURL: URL,
-        executionContext: DownloadExecutionContext
+        pendingIndices: [Int]
     ) async throws -> PerformDownloadResult {
-        let existingDownload = executionContext.existingDownload
+        let payload = context.payload
+        let options = context.options
+        let folderURL = workingSeed.folderURL
         let coverRelativePath = try await downloadCoverIfNeeded(
             payload: payload,
             options: options,
-            folderURL: workingFolderURL,
+            folderURL: folderURL,
             existingCoverRelativePath: workingSeed.coverRelativePath
         )
         let source = try await resolveSourceIfNeeded(
             payload: payload,
             options: options,
             pendingIndices: pendingIndices,
-            folderURL: workingFolderURL,
+            folderURL: folderURL,
             existingPages: workingSeed.existingPages
         )
         let downloadContext = PageDownloadContext(
             payload: payload,
             options: options,
             source: source,
-            folderURL: workingFolderURL
+            folderURL: folderURL
         )
         let batchResult = try await downloadPages(
             context: downloadContext,
@@ -91,12 +89,12 @@ extension DownloadManager {
         let finalizeCtx = FinalizeContext(
             coverRelativePath: coverRelativePath,
             batchResult: batchResult,
-            existingDownload: existingDownload
+            existingDownload: context.existingDownload
         )
         try await finalizeBatchResult(
             context: finalizeCtx,
             payload: payload,
-            folderURL: workingFolderURL
+            folderURL: folderURL
         )
         return PerformDownloadResult(
             coverRelativePath: coverRelativePath,
