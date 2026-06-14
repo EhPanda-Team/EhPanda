@@ -8,8 +8,12 @@ import Foundation
 // MARK: - Public API
 extension DownloadCoordinator {
     func observeDownloads() async -> AsyncStream<[DownloadedGallery]> {
-        let downloads = await indexedDownloads()
-        return await observerHub.observe(initialDownloads: downloads)
+        // Let the hub pull the snapshot inside its own registration so the
+        // capture-then-register hop can't strand a new observer on a stale
+        // initial when a notify lands in the window (BUG-16).
+        await observerHub.observe {
+            await self.indexedDownloads()
+        }
     }
 
     func fetchDownloads() async -> [DownloadedGallery] {

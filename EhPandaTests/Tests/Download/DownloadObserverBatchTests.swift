@@ -162,13 +162,15 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         )
 
         await hub.notify([initialDownload])
-        let existingObserverStream = await hub.observe(initialDownloads: [initialDownload])
+        let existingSnapshot = [initialDownload]
+        let existingObserverStream = await hub.observe { existingSnapshot }
         let existingObserverTask = collectEmissions(
             from: existingObserverStream,
             count: 2
         )
 
-        let lateObserverStream = await hub.observe(initialDownloads: [updatedDownload])
+        let lateSnapshot = [updatedDownload]
+        let lateObserverStream = await hub.observe { lateSnapshot }
         let lateObserverTask = collectEmissions(
             from: lateObserverStream,
             count: 1
@@ -198,11 +200,45 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             title: "Observer Registration",
             status: .completed
         )
-        let stream = await hub.observe(initialDownloads: [initialDownload])
+        let registrationSnapshot = [initialDownload]
+        let stream = await hub.observe { registrationSnapshot }
         let observerTask = collectEmissions(from: stream, count: 1)
 
         let emissions = await observerTask.value
         #expect(emissions == [[initialDownload]])
+    }
+
+    @Test
+    func testObserveDeliversNotifyArrivingDuringSnapshotResolution() async throws {
+        let hub = DownloadObserverHub()
+        let initialDownload = sampleDownload(
+            gid: "observer-window",
+            title: "Observer Window",
+            status: .queued,
+            completedPageCount: 0
+        )
+        let updatedDownload = sampleDownload(
+            gid: initialDownload.gid,
+            title: initialDownload.title,
+            status: .completed,
+            completedPageCount: initialDownload.pageCount
+        )
+
+        // The provider notifies the hub mid-resolution, reproducing a state change
+        // landing in the capture->register window. The observer must receive the
+        // notify value, not the stale snapshot captured before it.
+        let stream = await hub.observe {
+            await hub.notify([updatedDownload])
+            return [initialDownload]
+        }
+        let observerTask = collectEmissions(from: stream, count: 1)
+
+        let emissions = try await waitForTaskValue(
+            observerTask,
+            timeout: .seconds(1),
+            description: "observer notify during snapshot resolution"
+        )
+        #expect(emissions == [[updatedDownload]])
     }
 }
 
