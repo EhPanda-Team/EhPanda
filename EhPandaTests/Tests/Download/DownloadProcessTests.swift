@@ -32,6 +32,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             title: "Queued Failure",
             pageCount: 2
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetQueuedGalleryIDs([gid])
 
         let persistenceGate = FailurePersistenceGate()
@@ -91,6 +92,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             storage: storage, gid: gid, pageIndex: pageIndex,
             oldPageCount: oldPageCount
         )
+        await manager.reloadDownloadIndex()
         let beforeProcess = await manager.testingFetchDownload(gid: gid)
         #expect(beforeProcess?.hasUpdate ?? true == false)
 

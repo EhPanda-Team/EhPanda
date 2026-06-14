@@ -120,10 +120,7 @@ extension DownloadManager {
                 failedPages: context.batchResult.failedPages
             )
         }
-        let missingPageIndices = missingFinalizedPageIndices(
-            payload: payload,
-            folderURL: folderURL
-        )
+        let missingPageIndices = try missingFinalizedPageIndices(folderURL: folderURL)
         guard missingPageIndices.isEmpty else {
             throw IncompleteDownloadError(
                 missingPageIndices: missingPageIndices
@@ -137,10 +134,9 @@ extension DownloadManager {
     }
 
     private func missingFinalizedPageIndices(
-        payload: DownloadRequestPayload,
         folderURL: URL
-    ) -> [Int] {
-        let manifest = makeInitialManifest(payload: payload)
+    ) throws -> [Int] {
+        let manifest = try storage.readManifest(folderURL: folderURL)
         let existingPages = storage.existingPageRelativePaths(
             folderURL: folderURL,
             manifest: manifest
@@ -181,7 +177,7 @@ extension DownloadManager {
     ) async throws {
         let batchResult = finalizeContext.batchResult
         let existingDownload = finalizeContext.existingDownload
-        let manifest = makeInitialManifest(payload: payload)
+        let manifest = try storage.readManifest(folderURL: folderURL)
         let hashedManifest = try storage.addingCurrentFileHashes(
             to: manifest,
             folderURL: folderURL
@@ -190,6 +186,7 @@ extension DownloadManager {
             hashedManifest,
             folderURL: folderURL
         )
+        updateDownloadIndex(folderURL: folderURL, manifest: hashedManifest)
         await cleanupCachedRemoteAssetsAfterSuccessfulDownload(
             payload: payload,
             pages: batchResult.pages,

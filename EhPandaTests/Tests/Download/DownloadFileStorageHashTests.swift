@@ -54,6 +54,32 @@ struct DownloadFileStorageHashTests {
         #expect(storage.validate(download: download, verifiesContentHashes: true) == .valid)
     }
 
+    @Test
+    func testAddingCurrentFileHashesPreservesExistingHashesAndFillsEmptyHashes() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let (_, folderURL) = try makePreparedDownload(storage: storage)
+        let pageOneURL = folderURL.appendingPathComponent("123_token_1.jpg")
+        let existingPageOneHash = "sha256:already-flushed"
+        try Data([0x09]).write(to: pageOneURL, options: .atomic)
+        let manifest = try sampleManifest(
+            pageHashes: [
+                1: existingPageOneHash,
+                2: ""
+            ]
+        )
+
+        let hashedManifest = try storage.addingCurrentFileHashes(
+            to: manifest,
+            folderURL: folderURL
+        )
+
+        #expect(hashedManifest.pages[1] == existingPageOneHash)
+        #expect(hashedManifest.pages[2]?.hasPrefix("sha256:") == true)
+        #expect(hashedManifest.pages[2]?.isEmpty == false)
+    }
+
     private func makePreparedDownload(
         storage: DownloadFileStorage
     ) throws -> (DownloadedGallery, URL) {
@@ -112,6 +138,14 @@ struct DownloadFileStorageHashTests {
     }
 
     private func sampleManifest(pageCount: Int) throws -> DownloadManifest {
+        try sampleManifest(
+            pageHashes: pageCount > 0
+                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
+                : [:]
+        )
+    }
+
+    private func sampleManifest(pageHashes: [Int: String]) throws -> DownloadManifest {
         DownloadManifest(
             gid: "123",
             host: .ehentai,
@@ -125,9 +159,7 @@ struct DownloadFileStorageHashTests {
             tags: [],
             postedDate: .now,
             rating: 4,
-            pages: pageCount > 0
-                ? Dictionary(uniqueKeysWithValues: (1...pageCount).map { ($0, "") })
-                : [:]
+            pages: pageHashes
         )
     }
 }
