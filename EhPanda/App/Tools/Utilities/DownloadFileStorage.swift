@@ -98,13 +98,12 @@ struct DownloadFileStorage: Sendable {
         guard !pageIndices.isEmpty else { return [:] }
 
         let fileURLs = existingAssetFileURLs(folderURL: folderURL)
-        let identityPrefix =
-            "\(normalizedIdentityComponent(manifest.gid))_\(normalizedIdentityComponent(manifest.token))_"
+        let prefix = identityPrefix(gid: manifest.gid, token: manifest.token)
 
         return fileURLs.reduce(into: [:]) { result, fileURL in
             let fileName = fileURL.lastPathComponent
-            guard fileName.hasPrefix(identityPrefix) else { return }
-            let suffix = fileName.dropFirst(identityPrefix.count)
+            guard fileName.hasPrefix(prefix) else { return }
+            let suffix = fileName.dropFirst(prefix.count)
             guard let dotIndex = suffix.firstIndex(of: ".") else { return }
             let indexText = String(suffix[..<dotIndex])
             guard let index = Int(indexText),
@@ -266,16 +265,16 @@ struct DownloadFileStorage: Sendable {
         return sanitized.isEmpty ? "unknown" : sanitized
     }
 
+    private func identityPrefix(gid: String, token: String) -> String {
+        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_"
+    }
+
     func makePageRelativePath(gid: String, token: String, index: Int, fileExtension: String) -> String {
-        [
-            normalizedIdentityComponent(gid),
-            normalizedIdentityComponent(token),
-            String(index)
-        ].joined(separator: "_") + ".\(fileExtension.lowercased())"
+        "\(identityPrefix(gid: gid, token: token))\(index).\(fileExtension.lowercased())"
     }
 
     func makeCoverRelativePath(gid: String, token: String, fileExtension: String) -> String {
-        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_cover.\(fileExtension.lowercased())"
+        "\(identityPrefix(gid: gid, token: token))cover.\(fileExtension.lowercased())"
     }
 
     func existingPageFileURL(folderURL: URL, gid: String, token: String, index: Int) -> URL? {
@@ -321,11 +320,11 @@ struct DownloadFileStorage: Sendable {
     }
 
     private func pageFilePrefix(gid: String, token: String, index: Int) -> String {
-        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_\(index)."
+        "\(identityPrefix(gid: gid, token: token))\(index)."
     }
 
     private func coverFilePrefix(gid: String, token: String) -> String {
-        "\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))_cover."
+        "\(identityPrefix(gid: gid, token: token))cover."
     }
 
     func writeManifest(_ manifest: DownloadManifest, folderURL: URL) throws {
