@@ -72,6 +72,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             title: "Queued",
             pageHashes: ["sha256:done", ""]
         )
+        await manager.reloadDownloadIndex()
         await manager.testingSetQueuedGalleryIDs([gid])
 
         let result = await manager.togglePause(gid: gid)

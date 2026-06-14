@@ -35,6 +35,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             gid: gid,
             pageCount: oldCount
         )
+        await queueingManager.reloadDownloadIndex()
         await queueingManager.testingSetUpdatedGalleryIDs([gid])
         let queuedCandidate = await queueingManager.testingFetchDownload(gid: gid)
         #expect(queuedCandidate?.hasUpdate == true)
@@ -79,6 +80,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             storage: storage,
             context: DownloadPageContext(gid: gid, pageIndex: pageIndex, pageCount: pageCount)
         )
+        await immediateManager.reloadDownloadIndex()
         await immediateManager.testingSetUpdatedGalleryIDs([gid])
 
         let immediateBlockerTask = Task<Void, Never> {

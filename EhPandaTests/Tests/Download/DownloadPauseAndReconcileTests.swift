@@ -41,6 +41,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             pageHashes: Array(repeating: "sha256:done", count: 7)
                 + Array(repeating: "", count: 19)
         )
+        await manager.reloadDownloadIndex()
 
         let activeTask = Task { [manager] in
             do {
@@ -107,6 +108,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             to: folderURL.appendingPathComponent("\(gid)_token_2.jpg"),
             options: .atomic
         )
+        await manager.reloadDownloadIndex()
 
         let activeTask = Task { [manager] in
             do {
@@ -226,6 +228,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             pageHashes: ["sha256:done", ""]
         )
         try setupCancellationFilterTestFolder(storage: storage, gid: gid)
+        await manager.reloadDownloadIndex()
         await manager.testingSetFailedPageErrors(
             [
                 .init(
