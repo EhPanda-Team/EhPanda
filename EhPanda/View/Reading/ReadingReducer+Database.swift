@@ -171,13 +171,11 @@ extension ReadingReducer {
     ) {
         state.gallery = download.gallery
         state.language = manifest.language
-        let imageURLs = download.localPageURLs
-        state.localPageURLs = imageURLs
-        state.previewConfig = .normal(rows: 4)
-        state.previewURLs = imageURLs
-        state.thumbnailURLs = imageURLs
-        state.imageURLs = imageURLs
-        state.originalImageURLs = imageURLs
+        state.localPageURLs = download.localPageURLs
+        state.previewURLs = .init()
+        state.thumbnailURLs = .init()
+        state.imageURLs = .init()
+        state.originalImageURLs = .init()
         state.mpvKey = nil
         state.mpvImageKeys = .init()
         state.mpvSkipServerIdentifiers = .init()
