@@ -20,15 +20,27 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             rootURL: rootURL,
             fileManager: .default
         )
+        let gate = ScheduleFetchGate()
+        let scheduledRecorder = ScheduledGalleryRecorder()
+        let taskRunner = DownloadTaskRunner(
+            beforeActiveTaskCheck: {
+                await gate.waitAtGate()
+            },
+            recordScheduledGallery: { gid in
+                scheduledRecorder.record(gid)
+            },
+            runScheduledDownload: { _, _ in
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .milliseconds(10))
+                }
+                return .skippedOperation
+            }
+        )
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared
+            urlSession: .shared,
+            taskRunner: taskRunner
         )
-        await manager.testingSetScheduledProcessHook { _ in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(10))
-            }
-        }
 
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Queued")
@@ -57,11 +69,6 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         await manager.testingSetQueuedGalleryIDs([gid])
 
-        let gate = ScheduleFetchGate()
-        await manager.testingSetScheduleBeforeActiveCheckHook {
-            await gate.waitAtGate()
-        }
-
         async let firstSchedule: Void =
             manager.testingScheduleNextIfNeeded()
         async let secondSchedule: Void =
@@ -70,10 +77,8 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         await gate.waitForBothArrivals()
         await gate.releaseAll()
         _ = await (firstSchedule, secondSchedule)
-        await manager.testingSetScheduleBeforeActiveCheckHook(nil)
 
-        let scheduledGalleryIDs = await manager
-            .testingScheduledGalleryIDs()
+        let scheduledGalleryIDs = scheduledRecorder.snapshot()
         let hasActiveTask = await manager.testingHasActiveTask()
         let activeGalleryID = await manager.testingActiveGalleryID()
         #expect(scheduledGalleryIDs.count == 1)
@@ -98,14 +103,18 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             rootURL: rootURL,
             fileManager: .default
         )
+        let gate = ScheduledProcessCleanupGate(firstGID: firstGID)
+        let taskRunner = DownloadTaskRunner(
+            runScheduledDownload: { gid, _ in
+                await gate.run(gid: gid)
+                return .skippedOperation
+            }
+        )
         let manager = DownloadManager(
             storage: storage,
-            urlSession: .shared
+            urlSession: .shared,
+            taskRunner: taskRunner
         )
-        let gate = ScheduledProcessCleanupGate(firstGID: firstGID)
-        await manager.testingSetScheduledProcessHook { gid in
-            await gate.run(gid: gid)
-        }
 
         try writeQueuedManifest(storage: storage, gid: firstGID, title: "First")
         try writeQueuedManifest(storage: storage, gid: secondGID, title: "Second")
@@ -138,7 +147,6 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             Issue.record("Cleanup pause should succeed for the second download.")
             return
         }
-        await manager.testingSetScheduledProcessHook(nil)
     }
 }
 
@@ -181,10 +189,12 @@ private extension DownloadSchedulingTests {
 
 private actor ScheduleFetchGate {
     private var arrivalCount = 0
+    private var isReleased = false
     private var bothArrivedContinuation: CheckedContinuation<Void, Never>?
     private var releaseContinuations = [CheckedContinuation<Void, Never>]()
 
     func waitAtGate() async {
+        guard !isReleased else { return }
         arrivalCount += 1
         if arrivalCount == 2 {
             bothArrivedContinuation?.resume()
@@ -203,6 +213,7 @@ private actor ScheduleFetchGate {
     }
 
     func releaseAll() {
+        isReleased = true
         releaseContinuations.forEach { $0.resume() }
         releaseContinuations.removeAll()
     }

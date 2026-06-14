@@ -24,28 +24,6 @@ extension DownloadManager {
         await scheduleNextIfNeeded()
     }
 
-    func testingSetScheduleBeforeActiveCheckHook(
-        _ hook: (@Sendable () async -> Void)?
-    ) {
-        testingScheduleBeforeActiveCheckHook = hook
-    }
-
-    func testingSetPersistFailureHook(
-        _ hook: (@Sendable () async -> Void)?
-    ) {
-        testingPersistFailureHook = hook
-    }
-
-    func testingSetScheduledProcessHook(
-        _ hook: (@Sendable (String) async -> Void)?
-    ) {
-        testingScheduledProcessHook = hook
-    }
-
-    func testingScheduledGalleryIDs() -> [String] {
-        testingScheduledGalleryIDHistory
-    }
-
     func testingSetQueuedGalleryIDs(_ gids: [String]) async {
         await queueStore.removeAll()
         for gid in gids {

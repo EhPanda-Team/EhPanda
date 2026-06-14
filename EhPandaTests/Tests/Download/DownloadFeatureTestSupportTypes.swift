@@ -67,6 +67,18 @@ final class RequestRecorder: Sendable {
     }
 }
 
+final class ScheduledGalleryRecorder: Sendable {
+    private let state = Mutex([String]())
+
+    func record(_ gid: String) {
+        state.withLock { $0.append(gid) }
+    }
+
+    func snapshot() -> [String] {
+        state.withLock { $0 }
+    }
+}
+
 func requestBodyData(from request: URLRequest) -> Data? {
     if let httpBody = request.httpBody {
         return httpBody
