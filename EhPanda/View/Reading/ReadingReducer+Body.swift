@@ -151,7 +151,7 @@ extension ReadingReducer {
     func reduceWebImageSucceeded(state: inout State, index: Int) -> Effect<Action> {
         state.imageURLLoadingStates[index] = .idle
         state.webImageLoadSuccessIndices.insert(index)
-        guard state.contentSource == .remote,
+        guard !state.isOffline,
               state.gallery.id.isValidGID,
               state.localPageURLs[index] == nil
         else {
@@ -197,7 +197,7 @@ extension ReadingReducer {
     }
 
     func reduceRetryAllFailedWebImages(state: inout State) -> Effect<Action> {
-        guard state.contentSource == .remote else { return .none }
+        guard !state.isOffline else { return .none }
         state.imageURLLoadingStates.forEach { (index, loadingState) in
             if case .failed = loadingState {
                 state.imageURLLoadingStates[index] = .idle

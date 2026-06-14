@@ -68,6 +68,8 @@ struct ReadingReducer {
             self.contentSource = contentSource
         }
 
+        var isOffline: Bool { contentSource != .remote }
+
         // Update
         func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
             guard !new.isEmpty else { return }
