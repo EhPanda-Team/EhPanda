@@ -44,7 +44,6 @@ extension DownloadManager {
         preferredRelativePath: String?
     ) async throws -> PageResult {
         let payload = context.payload
-        let folderURL = context.folderURL
 
         guard let source = context.source else {
             throw AppError.notFound
@@ -66,9 +65,7 @@ extension DownloadManager {
         return try await downloadAndSavePage(
             index: index,
             resolvedImageSource: resolved,
-            payload: payload,
-            options: context.options,
-            folderURL: folderURL,
+            context: context,
             preferredRelativePath: preferredRelativePath
         )
     }
@@ -103,16 +100,15 @@ extension DownloadManager {
     private func downloadAndSavePage(
         index: Int,
         resolvedImageSource: ResolvedImageSource,
-        payload: DownloadRequestPayload,
-        options: DownloadRequestOptions,
-        folderURL: URL,
+        context: PageDownloadContext,
         preferredRelativePath: String?
     ) async throws -> PageResult {
+        let payload = context.payload
         let targetURL = resolvedImageSource.imageURL
         let (downloadedFileURL, response) =
             try await downloadResponse(
                 url: targetURL,
-                allowsCellular: options.allowCellular,
+                allowsCellular: context.options.allowCellular,
                 retriesRequest: false
             )
         let relativePath: String
@@ -134,7 +130,7 @@ extension DownloadManager {
                 fileExtension: ext
             )
         }
-        let fileURL = folderURL
+        let fileURL = context.folderURL
             .appendingPathComponent(relativePath)
         try moveDownloadedFile(
             from: downloadedFileURL,

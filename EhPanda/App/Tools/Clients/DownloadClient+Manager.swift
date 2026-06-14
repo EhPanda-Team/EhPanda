@@ -121,6 +121,8 @@ actor DownloadManager {
     }
 
     struct DownloadExecutionContext: Sendable {
+        let payload: DownloadRequestPayload
+        let options: DownloadRequestOptions
         let existingDownload: DownloadedGallery
     }
 
