@@ -23,6 +23,16 @@ actor BackgroundPageCompletionReceiver {
             response: response
         )
     }
+
+    func handleFailure(
+        taskIdentifier: Int,
+        error: AppError?
+    ) async {
+        await coordinator?.handleBackgroundPageDownloadFailed(
+            taskIdentifier: taskIdentifier,
+            error: error
+        )
+    }
 }
 
 extension DownloadCoordinator {
@@ -47,6 +57,37 @@ extension DownloadCoordinator {
         } catch {
             Logger.error(error)
             removeStagedBackgroundFile(fileURL)
+        }
+
+        await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
+        await notifyObservers()
+        await scheduleNextIfNeeded()
+    }
+
+    func handleBackgroundPageDownloadFailed(
+        taskIdentifier: Int,
+        error: AppError?
+    ) async {
+        guard let record = await backgroundTaskStore.record(
+            taskIdentifier: taskIdentifier
+        ) else {
+            return
+        }
+
+        // A non-cancellation error surfaces as a page failure (DES-8: in-memory);
+        // a cancellation only cleans up the persisted task record below.
+        if let error {
+            if !hasLoadedIndex {
+                await reloadDownloadIndex()
+            }
+            if let folderRecord = downloadIndex[record.gid],
+               folderRecord.manifest.pages[record.pageIndex] != nil {
+                failedPageErrors[record.gid, default: [:]][record.pageIndex] = .init(
+                    index: record.pageIndex,
+                    relativePath: nil,
+                    error: error
+                )
+            }
         }
 
         await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)

@@ -67,6 +67,74 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testOrphanedBackgroundFailureRecordsPageFailureAndClearsTaskRecord() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 904)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            backgroundTaskStore: taskStore
+        )
+        _ = try writeDownloadFolder(storage: storage, gid: gid)
+        await manager.reloadDownloadIndex()
+
+        let taskIdentifier = 91
+        await taskStore.record(
+            taskIdentifier: taskIdentifier,
+            gid: gid,
+            pageIndex: 1
+        )
+
+        await manager.handleBackgroundPageDownloadFailed(
+            taskIdentifier: taskIdentifier,
+            error: .networkingFailed
+        )
+
+        #expect(await taskStore.record(taskIdentifier: taskIdentifier) == nil)
+        let inspection = try await manager.loadInspection(gid: gid).get()
+        #expect(inspection.failedPageIndices.contains(1))
+    }
+
+    @Test
+    func testOrphanedBackgroundCancellationClearsTaskRecordWithoutPageFailure() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 905)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared,
+            backgroundTaskStore: taskStore
+        )
+        _ = try writeDownloadFolder(storage: storage, gid: gid)
+        await manager.reloadDownloadIndex()
+
+        let taskIdentifier = 92
+        await taskStore.record(
+            taskIdentifier: taskIdentifier,
+            gid: gid,
+            pageIndex: 1
+        )
+
+        await manager.handleBackgroundPageDownloadFailed(
+            taskIdentifier: taskIdentifier,
+            error: nil
+        )
+
+        #expect(await taskStore.record(taskIdentifier: taskIdentifier) == nil)
+        let inspection = try await manager.loadInspection(gid: gid).get()
+        #expect(inspection.failedPageIndices.isEmpty)
+    }
+
+    @Test
     func testDeleteClearsPersistedBackgroundTaskRecords() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 902)
         let rootURL = FileManager.default.temporaryDirectory
