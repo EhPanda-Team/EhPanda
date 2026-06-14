@@ -18,7 +18,7 @@ extension DetailReducer {
             case .fetchDownloadFolders:
                 let cancellationID = CancelID.fetchDownloadFolders(state.cancellationGalleryID)
                 return .run { send in
-                    await send(.fetchDownloadFoldersDone(await downloadClient.fetchFolders()))
+                    await send(.fetchDownloadFoldersDone(try await downloadClient.fetchFolders()))
                 }
                 .cancellable(id: cancellationID, cancelInFlight: true)
             case .fetchDownloadFoldersDone(let folders):
@@ -118,13 +118,7 @@ extension DetailReducer {
         let requestID = UUID()
         state.localPreviewRequestID = requestID
         return .run { [galleryID = state.gid] send in
-            let localPreviewURLs: [Int: URL]
-            switch await downloadClient.loadLocalPageURLs(galleryID) {
-            case .success(let pageURLs):
-                localPreviewURLs = pageURLs
-            case .failure:
-                localPreviewURLs = [:]
-            }
+            let localPreviewURLs = (try? await downloadClient.loadLocalPageURLs(galleryID)) ?? [:]
             await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
         }
         .cancellable(id: CancelID.loadLocalPreviewURLs(state.cancellationGalleryID), cancelInFlight: true)
@@ -148,7 +142,9 @@ extension DetailReducer {
                 await send(.openReadingDone(.failure(.notFound)))
                 return
             }
-            await send(.openReadingDone(await downloadClient.loadManifest(galleryID)))
+            await send(.openReadingDone(.success(try await downloadClient.loadManifest(galleryID))))
+        } catch: { error, send in
+            await send(.openReadingDone(.failure(error as? AppError ?? .unknown)))
         }
     }
 
@@ -199,7 +195,10 @@ extension DetailReducer {
             mode: .initial
         )
         return .run { send in
-            await send(.startDownloadDone(await downloadClient.enqueue(payload)))
+            try await downloadClient.enqueue(payload)
+            await send(.startDownloadDone(.success(())))
+        } catch: { error, send in
+            await send(.startDownloadDone(.failure(error as? AppError ?? .unknown)))
         }
     }
 
@@ -230,7 +229,10 @@ extension DetailReducer {
         guard !state.isPreparingDownload else { return .none }
         state.isPreparingDownload = true
         return .run { [galleryID = state.gallery.id] send in
-            await send(.toggleDownloadPauseDone(await downloadClient.togglePause(galleryID)))
+            try await downloadClient.togglePause(galleryID)
+            await send(.toggleDownloadPauseDone(.success(())))
+        } catch: { error, send in
+            await send(.toggleDownloadPauseDone(.failure(error as? AppError ?? .unknown)))
         }
     }
 
@@ -268,7 +270,10 @@ extension DetailReducer {
         guard !state.isPreparingDownload else { return .none }
         state.isPreparingDownload = true
         return .run { [galleryID = state.gallery.id] send in
-            await send(.retryDownloadDone(await downloadClient.retry(galleryID, mode)))
+            try await downloadClient.retry(galleryID, mode)
+            await send(.retryDownloadDone(.success(())))
+        } catch: { error, send in
+            await send(.retryDownloadDone(.failure(error as? AppError ?? .unknown)))
         }
     }
 
@@ -297,7 +302,10 @@ extension DetailReducer {
 
     private func handleDeleteDownload(state: State) -> Effect<Action> {
         .run { [galleryID = state.gallery.id] send in
-            await send(.deleteDownloadDone(await downloadClient.delete(galleryID)))
+            try await downloadClient.delete(galleryID)
+            await send(.deleteDownloadDone(.success(())))
+        } catch: { error, send in
+            await send(.deleteDownloadDone(.failure(error as? AppError ?? .unknown)))
         }
     }
 

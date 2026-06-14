@@ -29,26 +29,23 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadInspectorReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.yield([download])
-                            continuation.yield([])
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [download] },
-                    fetchDownload: { gid in gid == download.gid ? download : nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    loadInspection: { _ in .success(inspection) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.yield([download])
+                        continuation.yield([])
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [download] }
+                $0.downloadClient.fetchDownload = { gid in gid == download.gid ? download : nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadInspection = { _ in inspection }
             }
         )
         store.exhaustivity = .off

@@ -6,95 +6,30 @@
 import Foundation
 import ComposableArchitecture
 
+@DependencyClient
 struct DownloadClient: Sendable {
-    let observeDownloads: @Sendable () -> AsyncStream<[DownloadedGallery]>
-    let fetchDownloads: @Sendable () async -> [DownloadedGallery]
-    let fetchDownload: @Sendable (String) async -> DownloadedGallery?
-    let reconcileDownloads: @Sendable () async -> Void
-    let refreshDownloads: @Sendable () async -> Void
-    let validateImageData: @Sendable (String) async -> DownloadValidationState?
-    let resumeQueue: @Sendable () async -> Void
-    let badges: @Sendable ([String]) async -> [String: DownloadBadge]
-    let fetchVersionMetadata: @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
-    let updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery?
-    let enqueue: @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
-    let togglePause: @Sendable (String) async -> Result<Void, AppError>
-    let retry: @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>
-    let retryPages: @Sendable (String, [Int]) async -> Result<Void, AppError>
-    let delete: @Sendable (String) async -> Result<Void, AppError>
-    let loadManifest: @Sendable (String) async -> Result<(DownloadedGallery, DownloadManifest), AppError>
-    let loadLocalPageURLs: @Sendable (String) async -> Result<[Int: URL], AppError>
-    let captureCachedPage: @Sendable (String, Int, URL?) async -> Void
-    let loadInspection: @Sendable (String) async -> Result<DownloadInspection, AppError>
-    let fetchFolders: @Sendable () async -> [String]
-    let createFolder: @Sendable (String) async -> Result<Void, AppError>
-    let renameFolder: @Sendable (String, String) async -> Result<Void, AppError>
-    let deleteFolder: @Sendable (String) async -> Result<Void, AppError>
-    let moveDownload: @Sendable (String, String) async -> Result<Void, AppError>
-
-    init(
-        observeDownloads: @escaping @Sendable () -> AsyncStream<[DownloadedGallery]>,
-        fetchDownloads: @escaping @Sendable () async -> [DownloadedGallery],
-        fetchDownload: @escaping @Sendable (String) async -> DownloadedGallery?,
-        reconcileDownloads: @escaping @Sendable () async -> Void = {},
-        refreshDownloads: @escaping @Sendable () async -> Void,
-        validateImageData: @escaping @Sendable (String) async -> DownloadValidationState? = { _ in nil },
-        resumeQueue: @escaping @Sendable () async -> Void,
-        badges: @escaping @Sendable ([String]) async -> [String: DownloadBadge],
-        fetchVersionMetadata: @escaping @Sendable (String, String) async -> Result<DownloadVersionMetadata, AppError>
-        = { _, _ in .failure(.notFound) },
-        updateRemoteVersion: @escaping @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery? =
-        { _, _ in nil },
-        enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>,
-        togglePause: @escaping @Sendable (String) async -> Result<Void, AppError>,
-        retry: @escaping @Sendable (String, DownloadStartMode) async -> Result<Void, AppError>,
-        retryPages: @escaping @Sendable (String, [Int]) async -> Result<Void, AppError> = { _, _ in .success(()) },
-        delete: @escaping @Sendable (String) async -> Result<Void, AppError>,
-        loadManifest: @escaping @Sendable (String) async -> Result<
-            (DownloadedGallery, DownloadManifest), AppError
-        >,
-        loadLocalPageURLs: @escaping @Sendable (String) async -> Result<
-            [Int: URL], AppError
-        > = { _ in .failure(.notFound) },
-        captureCachedPage: @escaping @Sendable (String, Int, URL?) async -> Void = { _, _, _ in },
-        loadInspection: @escaping @Sendable (String) async -> Result<
-            DownloadInspection, AppError
-        > = { _ in .failure(.notFound) },
-        fetchFolders: @escaping @Sendable () async -> [String] = { [] },
-        createFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
-        = { _ in .success(()) },
-        renameFolder: @escaping @Sendable (String, String) async -> Result<Void, AppError>
-        = { _, _ in .success(()) },
-        deleteFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
-        = { _ in .success(()) },
-        moveDownload: @escaping @Sendable (String, String) async -> Result<Void, AppError>
-        = { _, _ in .success(()) }
-    ) {
-        self.observeDownloads = observeDownloads
-        self.fetchDownloads = fetchDownloads
-        self.fetchDownload = fetchDownload
-        self.reconcileDownloads = reconcileDownloads
-        self.refreshDownloads = refreshDownloads
-        self.validateImageData = validateImageData
-        self.resumeQueue = resumeQueue
-        self.badges = badges
-        self.fetchVersionMetadata = fetchVersionMetadata
-        self.updateRemoteVersion = updateRemoteVersion
-        self.enqueue = enqueue
-        self.togglePause = togglePause
-        self.retry = retry
-        self.retryPages = retryPages
-        self.delete = delete
-        self.loadManifest = loadManifest
-        self.loadLocalPageURLs = loadLocalPageURLs
-        self.captureCachedPage = captureCachedPage
-        self.loadInspection = loadInspection
-        self.fetchFolders = fetchFolders
-        self.createFolder = createFolder
-        self.renameFolder = renameFolder
-        self.deleteFolder = deleteFolder
-        self.moveDownload = moveDownload
-    }
+    var observeDownloads: @Sendable () -> AsyncStream<[DownloadedGallery]> = { AsyncStream { $0.finish() } }
+    var fetchDownloads: @Sendable () async throws -> [DownloadedGallery]
+    var fetchDownload: @Sendable (String) async -> DownloadedGallery?
+    var reconcileDownloads: @Sendable () async -> Void
+    var refreshDownloads: @Sendable () async -> Void
+    var validateImageData: @Sendable (String) async -> DownloadValidationState?
+    var fetchVersionMetadata: @Sendable (String, String) async throws -> DownloadVersionMetadata
+    var updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery?
+    var enqueue: @Sendable (DownloadRequestPayload) async throws -> Void
+    var togglePause: @Sendable (String) async throws -> Void
+    var retry: @Sendable (String, DownloadStartMode) async throws -> Void
+    var retryPages: @Sendable (String, [Int]) async throws -> Void
+    var delete: @Sendable (String) async throws -> Void
+    var loadManifest: @Sendable (String) async throws -> (DownloadedGallery, DownloadManifest)
+    var loadLocalPageURLs: @Sendable (String) async throws -> [Int: URL]
+    var captureCachedPage: @Sendable (String, Int, URL?) async -> Void
+    var loadInspection: @Sendable (String) async throws -> DownloadInspection
+    var fetchFolders: @Sendable () async throws -> [String]
+    var createFolder: @Sendable (String) async throws -> Void
+    var renameFolder: @Sendable (String, String) async throws -> Void
+    var deleteFolder: @Sendable (String) async throws -> Void
+    var moveDownload: @Sendable (String, String) async throws -> Void
 }
 
 extension DownloadClient {
@@ -144,35 +79,33 @@ extension DownloadClient {
             reconcileDownloads: { await manager.reconcileDownloads() },
             refreshDownloads: { await manager.refreshDownloads() },
             validateImageData: { gid in await manager.validateImageData(gid: gid) },
-            resumeQueue: { await manager.resumeQueue() },
-            badges: { gids in await manager.badges(for: gids) },
             fetchVersionMetadata: { gid, token in
-                await manager.fetchVersionMetadata(gid: gid, token: token)
+                try await manager.fetchVersionMetadata(gid: gid, token: token).get()
             },
             updateRemoteVersion: { gid, metadata in
                 await manager.updateRemoteVersion(gid: gid, metadata: metadata)
             },
-            enqueue: { payload in await manager.enqueue(payload: payload) },
-            togglePause: { gid in await manager.togglePause(gid: gid) },
-            retry: { gid, mode in await manager.retry(gid: gid, mode: mode) },
+            enqueue: { payload in try await manager.enqueue(payload: payload).get() },
+            togglePause: { gid in try await manager.togglePause(gid: gid).get() },
+            retry: { gid, mode in try await manager.retry(gid: gid, mode: mode).get() },
             retryPages: { gid, pageIndices in
-                await manager.retryPages(gid: gid, pageIndices: pageIndices)
+                try await manager.retryPages(gid: gid, pageIndices: pageIndices).get()
             },
-            delete: { gid in await manager.delete(gid: gid) },
-            loadManifest: { gid in await manager.loadManifest(gid: gid) },
-            loadLocalPageURLs: { gid in await manager.loadLocalPageURLs(gid: gid) },
+            delete: { gid in try await manager.delete(gid: gid).get() },
+            loadManifest: { gid in try await manager.loadManifest(gid: gid).get() },
+            loadLocalPageURLs: { gid in try await manager.loadLocalPageURLs(gid: gid).get() },
             captureCachedPage: { gid, index, imageURL in
                 await manager.captureCachedPage(gid: gid, index: index, imageURL: imageURL)
             },
-            loadInspection: { gid in await manager.loadInspection(gid: gid) },
+            loadInspection: { gid in try await manager.loadInspection(gid: gid).get() },
             fetchFolders: { await manager.fetchFolders() },
-            createFolder: { name in await manager.createFolder(name: name) },
+            createFolder: { name in try await manager.createFolder(name: name).get() },
             renameFolder: { oldName, newName in
-                await manager.renameFolder(oldName: oldName, newName: newName)
+                try await manager.renameFolder(oldName: oldName, newName: newName).get()
             },
-            deleteFolder: { name in await manager.deleteFolder(name: name) },
+            deleteFolder: { name in try await manager.deleteFolder(name: name).get() },
             moveDownload: { gid, folderName in
-                await manager.moveDownload(gid: gid, toFolderName: folderName)
+                try await manager.moveDownload(gid: gid, toFolderName: folderName).get()
             }
         )
     }
@@ -182,7 +115,7 @@ extension DownloadClient {
 enum DownloadClientKey: DependencyKey {
     static let liveValue = DownloadClient.live()
     static let previewValue = DownloadClient.noop
-    static let testValue = DownloadClient.unimplemented
+    static let testValue = DownloadClient()
 }
 
 extension DependencyValues {
@@ -192,66 +125,30 @@ extension DependencyValues {
     }
 }
 
-// MARK: Test
+// MARK: Preview
 extension DownloadClient {
-    static let noop: Self = .init(
-        observeDownloads: {
-            .init { continuation in
-                continuation.yield([])
-                continuation.finish()
-            }
-        },
+    static let noop = Self(
+        observeDownloads: { AsyncStream { $0.finish() } },
         fetchDownloads: { [] },
         fetchDownload: { _ in nil },
         reconcileDownloads: {},
         refreshDownloads: {},
         validateImageData: { _ in nil },
-        resumeQueue: {},
-        badges: { _ in [:] },
-        fetchVersionMetadata: { _, _ in .failure(.notFound) },
+        fetchVersionMetadata: { _, _ in throw AppError.notFound },
         updateRemoteVersion: { _, _ in nil },
-        enqueue: { _ in .success(()) },
-        togglePause: { _ in .success(()) },
-        retry: { _, _ in .success(()) },
-        retryPages: { _, _ in .success(()) },
-        delete: { _ in .success(()) },
-        loadManifest: { _ in .failure(.notFound) },
-        loadLocalPageURLs: { _ in .failure(.notFound) },
+        enqueue: { _ in },
+        togglePause: { _ in },
+        retry: { _, _ in },
+        retryPages: { _, _ in },
+        delete: { _ in },
+        loadManifest: { _ in throw AppError.notFound },
+        loadLocalPageURLs: { _ in throw AppError.notFound },
         captureCachedPage: { _, _, _ in },
-        loadInspection: { _ in .failure(.notFound) },
+        loadInspection: { _ in throw AppError.notFound },
         fetchFolders: { [] },
-        createFolder: { _ in .success(()) },
-        renameFolder: { _, _ in .success(()) },
-        deleteFolder: { _ in .success(()) },
-        moveDownload: { _, _ in .success(()) }
-    )
-
-    static func placeholder<Result>() -> Result { fatalError() }
-
-    static let unimplemented: Self = .init(
-        observeDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
-        fetchDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
-        fetchDownload: IssueReporting.unimplemented(placeholder: placeholder()),
-        reconcileDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
-        refreshDownloads: IssueReporting.unimplemented(placeholder: placeholder()),
-        validateImageData: IssueReporting.unimplemented(placeholder: placeholder()),
-        resumeQueue: IssueReporting.unimplemented(placeholder: placeholder()),
-        badges: IssueReporting.unimplemented(placeholder: placeholder()),
-        fetchVersionMetadata: IssueReporting.unimplemented(placeholder: placeholder()),
-        updateRemoteVersion: IssueReporting.unimplemented(placeholder: placeholder()),
-        enqueue: IssueReporting.unimplemented(placeholder: placeholder()),
-        togglePause: IssueReporting.unimplemented(placeholder: placeholder()),
-        retry: IssueReporting.unimplemented(placeholder: placeholder()),
-        retryPages: IssueReporting.unimplemented(placeholder: placeholder()),
-        delete: IssueReporting.unimplemented(placeholder: placeholder()),
-        loadManifest: IssueReporting.unimplemented(placeholder: placeholder()),
-        loadLocalPageURLs: IssueReporting.unimplemented(placeholder: placeholder()),
-        captureCachedPage: IssueReporting.unimplemented(placeholder: placeholder()),
-        loadInspection: IssueReporting.unimplemented(placeholder: placeholder()),
-        fetchFolders: IssueReporting.unimplemented(placeholder: placeholder()),
-        createFolder: IssueReporting.unimplemented(placeholder: placeholder()),
-        renameFolder: IssueReporting.unimplemented(placeholder: placeholder()),
-        deleteFolder: IssueReporting.unimplemented(placeholder: placeholder()),
-        moveDownload: IssueReporting.unimplemented(placeholder: placeholder())
+        createFolder: { _ in },
+        renameFolder: { _, _ in },
+        deleteFolder: { _ in },
+        moveDownload: { _, _ in }
     )
 }

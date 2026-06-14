@@ -134,22 +134,20 @@ private extension ReadingReducerDownloadTests {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .init(
-                    observeDownloads: { AsyncStream { $0.yield([]); $0.finish() } },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    loadLocalPageURLs: { gid in
-                        gid == gallery.gid ? .success([1: localPageURL]) : .failure(.notFound)
-                    }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { AsyncStream { $0.yield([]); $0.finish() } }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { gid in
+                    guard gid == gallery.gid else { throw AppError.notFound }
+                    return [1: localPageURL]
+                }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
                 $0.urlClient = .noop
@@ -172,22 +170,19 @@ private extension ReadingReducerDownloadTests {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .init(
-                    observeDownloads: { AsyncStream { $0.finish() } },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    captureCachedPage: { gid, index, imageURL in
-                        capturedCalls.value.append(CapturedPageCall(gid: gid, index: index, imageURL: imageURL))
-                    }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { AsyncStream { $0.finish() } }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.captureCachedPage = { gid, index, imageURL in
+                    capturedCalls.value.append(CapturedPageCall(gid: gid, index: index, imageURL: imageURL))
+                }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
                 $0.urlClient = .noop

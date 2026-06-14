@@ -28,7 +28,6 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
             },
             enqueue: { payload in
                 capturedPayload.value = payload
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -54,7 +53,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
             gallery: gallery, detail: detail,
             downloadValue: queuedDownload,
             configure: { state in state.galleryPreviewURLs = [1: previewURL] },
-            enqueue: { _ in .success(()) }
+            enqueue: { _ in }
         )
         store.exhaustivity = .off
 
@@ -86,7 +85,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
             gallery: gallery, detail: detail,
             downloadValue: nil,
             folders: { ["Library"] },
-            enqueue: { _ in .success(()) }
+            enqueue: { _ in }
         )
         store.exhaustivity = .off
 
@@ -118,7 +117,6 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
             },
             enqueue: { payload in
                 capturedPayload.value = payload
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -150,7 +148,7 @@ private extension DetailReducerDownloadTests {
         automationGID: String? = nil,
         folders: @escaping @Sendable () -> [String] = { [] },
         configure: (inout DetailReducer.State) -> Void = { _ in },
-        enqueue: @escaping @Sendable (DownloadRequestPayload) async -> Result<Void, AppError>
+        enqueue: @escaping @Sendable (DownloadRequestPayload) async throws -> Void
     ) -> TestStoreOf<DetailReducer> {
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
@@ -161,22 +159,19 @@ private extension DetailReducerDownloadTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in continuation.finish() }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in downloadValue },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: enqueue,
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    fetchFolders: { folders() }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in downloadValue }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = enqueue
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.fetchFolders = { folders() }
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop

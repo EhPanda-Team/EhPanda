@@ -27,26 +27,23 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [download] },
-                    fetchDownload: { _ in nil },
-                    reconcileDownloads: {
-                        reconcileCount.value += 1
-                    },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .failure(.networkingFailed) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [download] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.reconcileDownloads = {
+                    reconcileCount.value += 1
+                }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in throw AppError.networkingFailed }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
             }
         )
 
@@ -67,28 +64,25 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    reconcileDownloads: {
-                        reconcileCount.value += 1
-                    },
-                    refreshDownloads: {
-                        refreshCount.value += 1
-                    },
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.reconcileDownloads = {
+                    reconcileCount.value += 1
+                }
+                $0.downloadClient.refreshDownloads = {
+                    refreshCount.value += 1
+                }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
             }
         )
 
@@ -112,32 +106,29 @@ struct DownloadsReducerRefreshTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: {
-                        fetchCount.value += 1
-                        return []
-                    },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {
-                        refreshCount.value += 1
-                    },
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    fetchFolders: {
-                        folderFetchCount.value += 1
-                        return []
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
                     }
-                )
+                }
+                $0.downloadClient.fetchDownloads = {
+                    fetchCount.value += 1
+                    return []
+                }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {
+                    refreshCount.value += 1
+                }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.fetchFolders = {
+                    folderFetchCount.value += 1
+                    return []
+                }
             }
         )
 

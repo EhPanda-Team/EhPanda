@@ -94,21 +94,19 @@ private extension PreviewsReducerDownloadTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: { AsyncStream { continuation in continuation.finish() } },
-                    fetchDownloads: { [download] },
-                    fetchDownload: { gid in gid == download.gid ? download : nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { gid in
-                        gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
-                    }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
+                $0.downloadClient.fetchDownloads = { [download] }
+                $0.downloadClient.fetchDownload = { gid in gid == download.gid ? download : nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { gid in
+                    guard gid == download.gid else { throw AppError.notFound }
+                    return (download, manifest)
+                }
                 $0.databaseClient = .noop
                 $0.hapticsClient = .noop
             }
@@ -118,26 +116,24 @@ private extension PreviewsReducerDownloadTests {
     }
 
     func makePreviewsNoManifestClient(loadLocalPageURLs: Bool) -> DownloadClient {
-        let loadLocalPageURLsResult: @Sendable (String) async -> Result<[Int: URL], AppError>
+        let loadLocalPageURLsResult: @Sendable (String) async throws -> [Int: URL]
         if loadLocalPageURLs {
-            loadLocalPageURLsResult = { _ in .success([:]) }
+            loadLocalPageURLsResult = { _ in [:] }
         } else {
-            loadLocalPageURLsResult = { _ in .failure(.notFound) }
+            loadLocalPageURLsResult = { _ in throw AppError.notFound }
         }
-        return .init(
-            observeDownloads: { AsyncStream { continuation in continuation.finish() } },
-            fetchDownloads: { [] },
-            fetchDownload: { _ in nil },
-            refreshDownloads: {},
-            resumeQueue: {},
-            badges: { _ in [:] },
-            enqueue: { _ in .success(()) },
-            togglePause: { _ in .success(()) },
-            retry: { _, _ in .success(()) },
-            delete: { _ in .success(()) },
-            loadManifest: { _ in .failure(.notFound) },
-            loadLocalPageURLs: loadLocalPageURLsResult
-        )
+        var client = DownloadClient.noop
+        client.observeDownloads = { AsyncStream { continuation in continuation.finish() } }
+        client.fetchDownloads = { [] }
+        client.fetchDownload = { _ in nil }
+        client.refreshDownloads = {}
+        client.enqueue = { _ in }
+        client.togglePause = { _ in }
+        client.retry = { _, _ in }
+        client.delete = { _ in }
+        client.loadManifest = { _ in throw AppError.notFound }
+        client.loadLocalPageURLs = loadLocalPageURLsResult
+        return client
     }
 
     func makePreviewsNoManifestStore(

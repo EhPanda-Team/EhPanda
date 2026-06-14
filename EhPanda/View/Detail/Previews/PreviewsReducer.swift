@@ -156,13 +156,7 @@ struct PreviewsReducer {
                 let requestID = UUID()
                 state.localPreviewRequestID = requestID
                 return .run { send in
-                    let localPreviewURLs: [Int: URL]
-                    switch await downloadClient.loadLocalPageURLs(gid) {
-                    case .success(let pageURLs):
-                        localPreviewURLs = pageURLs
-                    case .failure:
-                        localPreviewURLs = [:]
-                    }
+                    let localPreviewURLs = (try? await downloadClient.loadLocalPageURLs(gid)) ?? [:]
                     await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
                 }
                 .cancellable(id: CancelID.loadLocalPreviewURLs, cancelInFlight: true)
@@ -180,7 +174,9 @@ struct PreviewsReducer {
                         await send(.openReadingDone(.failure(.notFound)))
                         return
                     }
-                    await send(.openReadingDone(await downloadClient.loadManifest(galleryID)))
+                    await send(.openReadingDone(.success(try await downloadClient.loadManifest(galleryID))))
+                } catch: { error, send in
+                    await send(.openReadingDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .openReadingDone(let result):

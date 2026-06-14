@@ -38,12 +38,6 @@ extension DownloadManager {
         await scheduleNextIfNeeded()
     }
 
-    func badges(for gids: [String]) async -> [String: DownloadBadge] {
-        guard !gids.isEmpty else { return [:] }
-        let downloads = await indexedDownloads(gids: gids)
-        return Dictionary(uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) })
-    }
-
     func updateRemoteVersion(
         gid: String,
         metadata: DownloadVersionMetadata

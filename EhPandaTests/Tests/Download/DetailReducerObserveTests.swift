@@ -162,19 +162,16 @@ private extension DetailReducerObserveTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: { stream },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { stream }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop
@@ -185,42 +182,37 @@ private extension DetailReducerObserveTests {
     func makeLocalManifestClient(
         download: DownloadedGallery, manifest: DownloadManifest
     ) -> DownloadClient {
-        .init(
-            observeDownloads: {
-                AsyncStream { continuation in continuation.finish() }
-            },
-            fetchDownloads: { [download] },
-            fetchDownload: { gid in gid == download.gid ? download : nil },
-            refreshDownloads: {},
-            resumeQueue: {},
-            badges: { gids in
-                Dictionary(uniqueKeysWithValues: gids.map { ($0, download.badge) })
-            },
-            enqueue: { _ in .success(()) },
-            togglePause: { _ in .success(()) },
-            retry: { _, _ in .success(()) },
-            delete: { _ in .success(()) },
-            loadManifest: { gid in
-                gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
-            }
-        )
+        var client = DownloadClient.noop
+        client.observeDownloads = {
+            AsyncStream { continuation in continuation.finish() }
+        }
+        client.fetchDownloads = { [download] }
+        client.fetchDownload = { gid in gid == download.gid ? download : nil }
+        client.refreshDownloads = {}
+        client.enqueue = { _ in }
+        client.togglePause = { _ in }
+        client.retry = { _, _ in }
+        client.delete = { _ in }
+        client.loadManifest = { gid in
+            guard gid == download.gid else { throw AppError.notFound }
+            return (download, manifest)
+        }
+        return client
     }
 
     func makeNoManifestClient() -> DownloadClient {
-        .init(
-            observeDownloads: {
-                AsyncStream { continuation in continuation.finish() }
-            },
-            fetchDownloads: { [] },
-            fetchDownload: { _ in nil },
-            refreshDownloads: {},
-            resumeQueue: {},
-            badges: { _ in [:] },
-            enqueue: { _ in .success(()) },
-            togglePause: { _ in .success(()) },
-            retry: { _, _ in .success(()) },
-            delete: { _ in .success(()) },
-            loadManifest: { _ in .failure(.notFound) }
-        )
+        var client = DownloadClient.noop
+        client.observeDownloads = {
+            AsyncStream { continuation in continuation.finish() }
+        }
+        client.fetchDownloads = { [] }
+        client.fetchDownload = { _ in nil }
+        client.refreshDownloads = {}
+        client.enqueue = { _ in }
+        client.togglePause = { _ in }
+        client.retry = { _, _ in }
+        client.delete = { _ in }
+        client.loadManifest = { _ in throw AppError.notFound }
+        return client
     }
 }

@@ -24,22 +24,19 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.appLaunchAutomationClient = .none
                 $0.cookieClient = .noop
-                $0.downloadClient = .init(
-                    observeDownloads: { .init { $0.finish() } },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    reconcileDownloads: {
-                        reconcileCount.value += 1
-                    },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { .init { $0.finish() } }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.reconcileDownloads = {
+                    reconcileCount.value += 1
+                }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
             }
         )
         store.exhaustivity = .off
