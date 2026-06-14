@@ -306,6 +306,13 @@ extension DownloadManager {
         }
     }
 
+    /// Whether an error is account-level fatal and must abort the whole page batch.
+    ///
+    /// Scope is intentionally **account-level only**: quota, auth, and IP ban affect every
+    /// in-flight and queued page, so continuing the batch only wastes requests and can worsen a ban.
+    /// Gallery-level errors (`.expunged`, `.copyrightClaim`) are deliberately *not* fatal here — they
+    /// mean the gallery is gone, but they surface before per-page download and are handled upstream,
+    /// so a per-page occurrence is treated like any other page failure rather than aborting the batch.
     private func isFatalAccountAppError(_ error: AppError) -> Bool {
         switch error {
         case .quotaExceeded, .authenticationRequired, .ipBanned:
