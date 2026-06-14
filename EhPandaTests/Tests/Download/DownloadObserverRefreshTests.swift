@@ -27,7 +27,7 @@ struct DownloadObserverRefreshTests: DownloadFeatureTestCase {
             stream: stream,
             loadLocalPageURLs: { _ in
                 loadCount.value += 1
-                return .success([:])
+                return [:]
             }
         )
 
@@ -63,7 +63,7 @@ struct DownloadObserverRefreshTests: DownloadFeatureTestCase {
             stream: stream,
             loadLocalPageURLs: { _ in
                 loadCount.value += 1
-                return .success([:])
+                return [:]
             }
         )
 
@@ -97,7 +97,7 @@ private extension DownloadObserverRefreshTests {
     func makeReadingObserverStore(
         initialState: ReadingReducer.State,
         stream: AsyncStream<[DownloadedGallery]>,
-        loadLocalPageURLs: @escaping @Sendable (String) async -> Result<[Int: URL], AppError>
+        loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
     ) -> TestStoreOf<ReadingReducer> {
         let store = TestStore(
             initialState: initialState,
@@ -123,7 +123,7 @@ private extension DownloadObserverRefreshTests {
     func makePreviewsObserverStore(
         initialState: PreviewsReducer.State,
         stream: AsyncStream<[DownloadedGallery]>,
-        loadLocalPageURLs: @escaping @Sendable (String) async -> Result<[Int: URL], AppError>
+        loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
     ) -> TestStoreOf<PreviewsReducer> {
         let store = TestStore(
             initialState: initialState,
@@ -142,21 +142,19 @@ private extension DownloadObserverRefreshTests {
 
     func makeObserveDownloadClient(
         stream: AsyncStream<[DownloadedGallery]>,
-        loadLocalPageURLs: @escaping @Sendable (String) async -> Result<[Int: URL], AppError>
+        loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
     ) -> DownloadClient {
-        .init(
-            observeDownloads: { stream },
-            fetchDownloads: { [] },
-            fetchDownload: { _ in nil },
-            refreshDownloads: {},
-            resumeQueue: {},
-            badges: { _ in [:] },
-            enqueue: { _ in .success(()) },
-            togglePause: { _ in .success(()) },
-            retry: { _, _ in .success(()) },
-            delete: { _ in .success(()) },
-            loadManifest: { _ in .failure(.notFound) },
-            loadLocalPageURLs: loadLocalPageURLs
-        )
+        var client = DownloadClient.noop
+        client.observeDownloads = { stream }
+        client.fetchDownloads = { [] }
+        client.fetchDownload = { _ in nil }
+        client.refreshDownloads = {}
+        client.enqueue = { _ in }
+        client.togglePause = { _ in }
+        client.retry = { _, _ in }
+        client.delete = { _ in }
+        client.loadManifest = { _ in throw AppError.notFound }
+        client.loadLocalPageURLs = loadLocalPageURLs
+        return client
     }
 }

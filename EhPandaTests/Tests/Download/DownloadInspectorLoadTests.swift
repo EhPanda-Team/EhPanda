@@ -21,7 +21,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
         let inspection = sampleInspection(download: download)
         let store = makeInspectorStore(
             gid: download.gid,
-            loadInspection: { _ in .success(inspection) }
+            loadInspection: { _ in inspection }
         )
         store.exhaustivity = .off
 
@@ -51,13 +51,12 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
                 retryPages: { _, pageIndices in
                     retried.value = pageIndices
                     confirm()
-                    return .success(())
                 },
                 loadInspection: { [initialState] _ in
                     guard let inspection = initialState.inspection else {
-                        return .failure(.notFound)
+                        throw AppError.notFound
                     }
-                    return .success(inspection)
+                    return inspection
                 }
             )
             store.exhaustivity = .off
@@ -83,13 +82,12 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
             initialInspection: initialState.inspection,
             retryPages: { _, pageIndices in
                 retried.value = pageIndices
-                return .success(())
             },
             loadInspection: { [initialState] _ in
                 guard let inspection = initialState.inspection else {
-                    return .failure(.notFound)
+                    throw AppError.notFound
                 }
-                return .success(inspection)
+                return inspection
             }
         )
         store.exhaustivity = .off
@@ -147,7 +145,8 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
                 return .valid
             },
             loadInspection: { gid in
-                gid == download.gid ? .success(refreshedInspection) : .failure(.notFound)
+                guard gid == download.gid else { throw AppError.notFound }
+                return refreshedInspection
             }
         )
         store.exhaustivity = .off
@@ -186,9 +185,8 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
             initialInspection: inspection,
             togglePause: { gid in
                 toggledGID.value = gid
-                return .success(())
             },
-            loadInspection: { _ in .success(inspection) }
+            loadInspection: { _ in inspection }
         )
         store.exhaustivity = .off
 
@@ -212,9 +210,8 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
             initialInspection: inspection,
             togglePause: { gid in
                 toggledGID.value = gid
-                return .success(())
             },
-            loadInspection: { _ in .success(inspection) }
+            loadInspection: { _ in inspection }
         )
         store.exhaustivity = .off
 
@@ -238,9 +235,8 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
             initialInspection: inspection,
             togglePause: { _ in
                 didToggle.value = true
-                return .success(())
             },
-            loadInspection: { _ in .success(inspection) }
+            loadInspection: { _ in inspection }
         )
         store.exhaustivity = .off
 
@@ -283,7 +279,7 @@ extension DownloadInspectorLoadTests {
                 didValidate.value = true
                 return .valid
             },
-            loadInspection: { _ in .success(inspection) }
+            loadInspection: { _ in inspection }
         )
         store.exhaustivity = .off
 
@@ -306,7 +302,7 @@ extension DownloadInspectorLoadTests {
             validateImageData: { _ in
                 .missingFiles("Page 2 image data is corrupted.")
             },
-            loadInspection: { _ in .success(inspection) }
+            loadInspection: { _ in inspection }
         )
         store.exhaustivity = .off
 
@@ -333,10 +329,10 @@ private extension DownloadInspectorLoadTests {
     func makeInspectorStore(
         gid: String,
         initialInspection: DownloadInspection? = nil,
-        retryPages: (@Sendable (String, [Int]) async -> Result<Void, AppError>)? = nil,
+        retryPages: (@Sendable (String, [Int]) async throws -> Void)? = nil,
         validateImageData: (@Sendable (String) async -> DownloadValidationState?)? = nil,
-        togglePause: (@Sendable (String) async -> Result<Void, AppError>)? = nil,
-        loadInspection: @escaping @Sendable (String) async -> Result<DownloadInspection, AppError>
+        togglePause: (@Sendable (String) async throws -> Void)? = nil,
+        loadInspection: @escaping @Sendable (String) async throws -> DownloadInspection
     ) -> TestStoreOf<DownloadInspectorReducer> {
         var initialState = DownloadInspectorReducer.State(gid: gid)
         initialState.inspection = initialInspection
@@ -345,24 +341,21 @@ private extension DownloadInspectorLoadTests {
             initialState: initialState,
             reducer: DownloadInspectorReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in continuation.finish() }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    validateImageData: validateImageData ?? { _ in nil },
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: togglePause ?? { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    retryPages: retryPages ?? { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    loadInspection: loadInspection
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.validateImageData = validateImageData ?? { _ in nil }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = togglePause ?? { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.retryPages = retryPages ?? { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadInspection = loadInspection
             }
         )
     }

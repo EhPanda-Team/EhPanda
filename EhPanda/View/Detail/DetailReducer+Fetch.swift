@@ -149,19 +149,10 @@ extension DetailReducer {
         state.didRequestVersionMetadata = true
         let gallery = state.gallery
         return .run { send in
-            let metadata: DownloadVersionMetadata?
-            switch await downloadClient.fetchVersionMetadata(gallery.gid, gallery.token) {
-            case .success(let fetchedMetadata):
-                metadata = fetchedMetadata
-            case .failure:
-                metadata = nil
-            }
+            let metadata = try? await downloadClient.fetchVersionMetadata(gallery.gid, gallery.token)
             await send(.fetchVersionMetadataDone(.success(metadata)))
             guard let metadata else { return }
-            let download = await downloadClient.updateRemoteVersion(
-                gallery.gid,
-                metadata
-            )
+            let download = await downloadClient.updateRemoteVersion(gallery.gid, metadata)
             await send(.fetchDownloadBadgeDone(download))
         }
         .cancellable(id: CancelID.fetchVersionMetadata(state.cancellationGalleryID), cancelInFlight: true)

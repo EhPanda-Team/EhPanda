@@ -141,7 +141,7 @@ struct DownloadsReducer {
             case .fetchDownloads:
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.fetchDownloadsDone(await downloadClient.fetchDownloads()))
+                    await send(.fetchDownloadsDone(try await downloadClient.fetchDownloads()))
                 }
 
             case .fetchDownloadsDone(let downloads), .observeDownloadsDone(let downloads):
@@ -171,7 +171,7 @@ struct DownloadsReducer {
 
             case .fetchFolders:
                 return .run { send in
-                    await send(.fetchFoldersDone(await downloadClient.fetchFolders()))
+                    await send(.fetchFoldersDone(try await downloadClient.fetchFolders()))
                 }
                 .cancellable(id: CancelID.fetchFolders, cancelInFlight: true)
 
@@ -185,7 +185,10 @@ struct DownloadsReducer {
 
             case .moveDownload(let gid, let folderName):
                 return .run { send in
-                    await send(.moveDownloadDone(await downloadClient.moveDownload(gid, folderName)))
+                    try await downloadClient.moveDownload(gid, folderName)
+                    await send(.moveDownloadDone(.success(())))
+                } catch: { error, send in
+                    await send(.moveDownloadDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .moveDownloadDone(let result):
@@ -206,9 +209,11 @@ struct DownloadsReducer {
                         .openReadingDone(
                             requestID,
                             gid,
-                            await downloadClient.loadManifest(gid)
+                            .success(try await downloadClient.loadManifest(gid))
                         )
                     )
+                } catch: { error, send in
+                    await send(.openReadingDone(requestID, gid, .failure(error as? AppError ?? .unknown)))
                 }
 
             case .openReadingDone(let requestID, let gid, let result):
@@ -221,7 +226,10 @@ struct DownloadsReducer {
 
             case .toggleDownloadPause(let gid):
                 return .run { send in
-                    await send(.toggleDownloadPauseDone(await downloadClient.togglePause(gid)))
+                    try await downloadClient.togglePause(gid)
+                    await send(.toggleDownloadPauseDone(.success(())))
+                } catch: { error, send in
+                    await send(.toggleDownloadPauseDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .toggleDownloadPauseDone:
@@ -229,7 +237,10 @@ struct DownloadsReducer {
 
             case .updateDownload(let gid):
                 return .run { send in
-                    await send(.updateDownloadDone(await downloadClient.retry(gid, .update)))
+                    try await downloadClient.retry(gid, .update)
+                    await send(.updateDownloadDone(.success(())))
+                } catch: { error, send in
+                    await send(.updateDownloadDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             // List-level mutations don't surface a per-op HUD: the `observeDownloads` stream is the
@@ -240,7 +251,10 @@ struct DownloadsReducer {
 
             case .deleteDownload(let gid):
                 return .run { send in
-                    await send(.deleteDownloadDone(await downloadClient.delete(gid)))
+                    try await downloadClient.delete(gid)
+                    await send(.deleteDownloadDone(.success(())))
+                } catch: { error, send in
+                    await send(.deleteDownloadDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .deleteDownloadDone:

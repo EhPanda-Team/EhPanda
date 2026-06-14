@@ -46,26 +46,23 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    captureCachedPage: { gid, index, imageURL in
-                        capturedCalls.value.append((gid, index, imageURL))
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
                     }
-                )
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.captureCachedPage = { gid, index, imageURL in
+                    capturedCalls.value.append((gid, index, imageURL))
+                }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
                 $0.urlClient = .noop

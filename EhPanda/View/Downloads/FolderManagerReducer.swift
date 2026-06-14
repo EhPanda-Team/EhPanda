@@ -115,7 +115,10 @@ struct FolderManagerReducer {
                 }
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.createFolderDone(await downloadClient.createFolder(name)))
+                    try await downloadClient.createFolder(name)
+                    await send(.createFolderDone(.success(())))
+                } catch: { error, send in
+                    await send(.createFolderDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .createFolderDone(.success):
@@ -132,7 +135,10 @@ struct FolderManagerReducer {
                 }
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.renameFolderDone(await downloadClient.renameFolder(oldName, newName)))
+                    try await downloadClient.renameFolder(oldName, newName)
+                    await send(.renameFolderDone(.success(())))
+                } catch: { error, send in
+                    await send(.renameFolderDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .renameFolderDone(.success):
@@ -145,7 +151,10 @@ struct FolderManagerReducer {
             case .deleteFolder(let name):
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.deleteFolderDone(await downloadClient.deleteFolder(name)))
+                    try await downloadClient.deleteFolder(name)
+                    await send(.deleteFolderDone(.success(())))
+                } catch: { error, send in
+                    await send(.deleteFolderDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .deleteFolderDone(.success):
@@ -161,7 +170,7 @@ struct FolderManagerReducer {
             case .fetchFolders:
                 state.loadingState = .loading
                 return .run { send in
-                    await send(.fetchFoldersDone(await downloadClient.fetchFolders()))
+                    await send(.fetchFoldersDone(try await downloadClient.fetchFolders()))
                 }
                 .cancellable(id: CancelID.fetchFolders, cancelInFlight: true)
 

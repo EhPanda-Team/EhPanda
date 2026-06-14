@@ -85,7 +85,9 @@ struct DownloadInspectorReducer {
                 let requestID = UUID()
                 state.inspectionRequestID = requestID
                 return .run { [gid = state.gid] send in
-                    await send(.loadInspectionDone(requestID, await downloadClient.loadInspection(gid)))
+                    await send(.loadInspectionDone(requestID, .success(try await downloadClient.loadInspection(gid))))
+                } catch: { error, send in
+                    await send(.loadInspectionDone(requestID, .failure(error as? AppError ?? .unknown)))
                 }
                 .cancellable(id: CancelID.loadInspection, cancelInFlight: true)
 
@@ -168,7 +170,10 @@ struct DownloadInspectorReducer {
                 return .merge(
                     .cancel(id: CancelID.loadInspection),
                     .run { [gid = state.gid] send in
-                        await send(.retryPageDone(await downloadClient.retryPages(gid, [index])))
+                        try await downloadClient.retryPages(gid, [index])
+                        await send(.retryPageDone(.success(())))
+                    } catch: { error, send in
+                        await send(.retryPageDone(.failure(error as? AppError ?? .unknown)))
                     }
                 )
 
@@ -208,7 +213,10 @@ struct DownloadInspectorReducer {
                 return .merge(
                     .cancel(id: CancelID.loadInspection),
                     .run { send in
-                        await send(.retryFailedPagesDone(await downloadClient.retryPages(gid, failedPageIndices)))
+                        try await downloadClient.retryPages(gid, failedPageIndices)
+                        await send(.retryFailedPagesDone(.success(())))
+                    } catch: { error, send in
+                        await send(.retryFailedPagesDone(.failure(error as? AppError ?? .unknown)))
                     }
                 )
 
@@ -224,7 +232,10 @@ struct DownloadInspectorReducer {
                       download.canTogglePause
                 else { return .none }
                 return .run { send in
-                    await send(.toggleDownloadPauseDone(await downloadClient.togglePause(download.gid)))
+                    try await downloadClient.togglePause(download.gid)
+                    await send(.toggleDownloadPauseDone(.success(())))
+                } catch: { error, send in
+                    await send(.toggleDownloadPauseDone(.failure(error as? AppError ?? .unknown)))
                 }
 
             case .toggleDownloadPauseDone(let result):

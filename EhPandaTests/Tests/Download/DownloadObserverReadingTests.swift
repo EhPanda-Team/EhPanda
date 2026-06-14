@@ -176,24 +176,21 @@ private extension DownloadObserverReadingTests {
                 $0.cookieClient = .noop
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
-                $0.downloadClient = .init(
-                    observeDownloads: { stream },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    loadLocalPageURLs: { gid in
-                        #expect(gid == expectedGID)
-                        loadCount.value += 1
-                        return .success([:])
-                    }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { stream }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { gid in
+                    #expect(gid == expectedGID)
+                    loadCount.value += 1
+                    return [:]
+                }
                 $0.hapticsClient = .noop
                 $0.imageClient = .noop
                 $0.urlClient = .noop
@@ -213,24 +210,21 @@ private extension DownloadObserverReadingTests {
             initialState: initialState,
             reducer: PreviewsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: { stream },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    loadLocalPageURLs: { gid in
-                        #expect(gid == expectedGID)
-                        loadCount.value += 1
-                        return .success([:])
-                    }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = { stream }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { gid in
+                    #expect(gid == expectedGID)
+                    loadCount.value += 1
+                    return [:]
+                }
                 $0.databaseClient = .noop
                 $0.hapticsClient = .noop
             }

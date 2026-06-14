@@ -33,7 +33,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             folders: { createdName.value.map { [$0] } ?? [] },
             createFolder: { name in
                 createdName.value = name
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -60,7 +59,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             folders: { ["New Name"] },
             renameFolder: { oldName, newName in
                 renamedPair.value = (oldName, newName)
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -88,7 +86,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             folders: { deletedName.value == nil ? ["Doomed"] : [] },
             deleteFolder: { name in
                 deletedName.value = name
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -136,7 +133,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             folders: { createdName.value.map { [$0] } ?? [] },
             createFolder: { name in
                 createdName.value = name
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -169,7 +165,6 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
             folders: { renamedPair.value == nil ? ["Old Name"] : ["New Name"] },
             renameFolder: { oldName, newName in
                 renamedPair.value = (oldName, newName)
-                return .success(())
             }
         )
         store.exhaustivity = .off
@@ -249,7 +244,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
                 fetchCount.value += 1
                 return []
             },
-            createFolder: { _ in .failure(error) }
+            createFolder: { _ in throw error }
         )
 
         await store.send(.binding(.set(\.editingFolderName, "Favorites"))) {
@@ -274,7 +269,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
                 fetchCount.value += 1
                 return []
             },
-            renameFolder: { _, _ in .failure(error) }
+            renameFolder: { _, _ in throw error }
         )
 
         await store.send(.binding(.set(\.editingFolderName, "New Name"))) {
@@ -299,7 +294,7 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
                 fetchCount.value += 1
                 return []
             },
-            deleteFolder: { _ in .failure(error) }
+            deleteFolder: { _ in throw error }
         )
 
         await store.send(.deleteFolder("Doomed")) {
@@ -317,36 +312,33 @@ struct FolderManagerReducerTests: DownloadFeatureTestCase {
 private extension FolderManagerReducerTests {
     func makeStore(
         folders: @escaping @Sendable () -> [String],
-        createFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
-        = { _ in .success(()) },
-        renameFolder: @escaping @Sendable (String, String) async -> Result<Void, AppError>
-        = { _, _ in .success(()) },
-        deleteFolder: @escaping @Sendable (String) async -> Result<Void, AppError>
-        = { _ in .success(()) }
+        createFolder: @escaping @Sendable (String) async throws -> Void
+        = { _ in },
+        renameFolder: @escaping @Sendable (String, String) async throws -> Void
+        = { _, _ in },
+        deleteFolder: @escaping @Sendable (String) async throws -> Void
+        = { _ in }
     ) -> TestStoreOf<FolderManagerReducer> {
         TestStore(
             initialState: FolderManagerReducer.State(),
             reducer: FolderManagerReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in continuation.finish() }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    fetchFolders: { folders() },
-                    createFolder: createFolder,
-                    renameFolder: renameFolder,
-                    deleteFolder: deleteFolder
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.fetchFolders = { folders() }
+                $0.downloadClient.createFolder = createFolder
+                $0.downloadClient.renameFolder = renameFolder
+                $0.downloadClient.deleteFolder = deleteFolder
             }
         )
     }

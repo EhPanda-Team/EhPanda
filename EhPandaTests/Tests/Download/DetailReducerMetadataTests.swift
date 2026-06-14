@@ -129,28 +129,25 @@ private extension DetailReducerMetadataTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in continuation.finish() }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in downloadValue },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    fetchVersionMetadata: { _, _ in
-                        .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
-                    },
-                    updateRemoteVersion: { _, _ in
-                        updateCheckCount.value += 1
-                        return .none
-                    },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in downloadValue }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.fetchVersionMetadata = { _, _ in
+                    sampleVersionMetadata(gid: gallery.gid, token: gallery.token)
+                }
+                $0.downloadClient.updateRemoteVersion = { _, _ in
+                    updateCheckCount.value += 1
+                    return .none
+                }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop
@@ -172,29 +169,26 @@ private extension DetailReducerMetadataTests {
             initialState: initialState,
             reducer: DetailReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in continuation.finish() }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in downloadValue },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    fetchVersionMetadata: { _, _ in
-                        .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
-                    },
-                    updateRemoteVersion: { _, _ in
-                        updateCheckCount.value += 1
-                        return updatedDownload
-                    },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    loadLocalPageURLs: { _ in .success([:]) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in downloadValue }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.fetchVersionMetadata = { _, _ in
+                    sampleVersionMetadata(gid: gallery.gid, token: gallery.token)
+                }
+                $0.downloadClient.updateRemoteVersion = { _, _ in
+                    updateCheckCount.value += 1
+                    return updatedDownload
+                }
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { _ in [:] }
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop

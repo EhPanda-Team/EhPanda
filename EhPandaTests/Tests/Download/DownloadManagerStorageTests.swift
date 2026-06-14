@@ -146,15 +146,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let downloads = await manager.fetchDownloads()
         let indexedDownload = try #require(await manager.fetchDownload(gid: "600"))
-        let badges = await manager.badges(for: ["600", "601"])
 
         #expect(downloads.map(\.gid) == ["600"])
         #expect(indexedDownload.title == "Disk")
         #expect(indexedDownload.displayStatus == .queued)
         #expect(indexedDownload.displayStatus == .queued)
         #expect(await manager.fetchDownload(gid: "601") == nil)
-        #expect(badges["600"]?.status == .queued)
-        #expect(badges["601"] == nil)
+        #expect(indexedDownload.badge.status == .queued)
     }
 
     @Test
@@ -179,10 +177,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             manifest: indexedManifest(gid: "611", title: "Later", pageHashes: ["sha256:new"])
         )
 
-        let badges = await manager.badges(for: ["611"])
-
         #expect(await manager.fetchDownload(gid: "611") == nil)
-        #expect(badges.isEmpty)
     }
 
     @Test
@@ -556,13 +551,12 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
 
         let failedDownload = try #require(await manager.fetchDownload(gid: "800"))
-        let badges = await manager.badges(for: ["800"])
 
         #expect(queueStore.gids == [])
         #expect(failedDownload.displayStatus == .error)
         #expect(failedDownload.displayStatus == .error)
         #expect(failedDownload.lastError?.code == .networkingFailed)
-        #expect(badges["800"]?.status == .error)
+        #expect(failedDownload.badge.status == .error)
     }
 
     @Test

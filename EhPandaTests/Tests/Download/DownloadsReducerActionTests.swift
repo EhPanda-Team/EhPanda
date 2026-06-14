@@ -93,28 +93,24 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: DownloadsReducer.State(),
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) },
-                    fetchFolders: { ["Library"] },
-                    moveDownload: { gid, folder in
-                        moved.value = (gid, folder)
-                        return .success(())
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
                     }
-                )
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.fetchFolders = { ["Library"] }
+                $0.downloadClient.moveDownload = { gid, folder in
+                    moved.value = (gid, folder)
+                }
             }
         )
         store.exhaustivity = .off
@@ -145,28 +141,24 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { gid, mode in
-                        if mode == .update {
-                            retried.value.append(gid)
-                        }
-                        return .success(())
-                    },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { gid, mode in
+                    if mode == .update {
+                        retried.value.append(gid)
+                    }
+                }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
             }
         )
         store.exhaustivity = .off
@@ -193,26 +185,22 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { gid in
-                        deleted.value.append(gid)
-                        return .success(())
-                    },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { gid in
+                    deleted.value.append(gid)
+                }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
             }
         )
         store.exhaustivity = .off
@@ -244,25 +232,23 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { _ in .success(()) },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { gid in
-                        gid == download.gid ? .success((download, manifest)) : .failure(.notFound)
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
                     }
-                )
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { gid in
+                    guard gid == download.gid else { throw AppError.notFound }
+                    return (download, manifest)
+                }
             }
         )
         store.exhaustivity = .off
@@ -291,26 +277,22 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
             initialState: initialState,
             reducer: DownloadsReducer.init,
             withDependencies: {
-                $0.downloadClient = .init(
-                    observeDownloads: {
-                        AsyncStream { continuation in
-                            continuation.finish()
-                        }
-                    },
-                    fetchDownloads: { [] },
-                    fetchDownload: { _ in nil },
-                    refreshDownloads: {},
-                    resumeQueue: {},
-                    badges: { _ in [:] },
-                    enqueue: { _ in .success(()) },
-                    togglePause: { gid in
-                        toggled.value.append(gid)
-                        return .success(())
-                    },
-                    retry: { _, _ in .success(()) },
-                    delete: { _ in .success(()) },
-                    loadManifest: { _ in .failure(.notFound) }
-                )
+                $0.downloadClient = .noop
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in
+                        continuation.finish()
+                    }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in nil }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = { _ in }
+                $0.downloadClient.togglePause = { gid in
+                    toggled.value.append(gid)
+                }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
             }
         )
         store.exhaustivity = .off
