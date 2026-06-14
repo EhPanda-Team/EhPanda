@@ -107,7 +107,7 @@ extension DownloadCoordinator {
         for urls: [URL?],
         includeStableAlias: Bool
     ) async -> Data? {
-        let allKeys = urls
+        let keys = urls
             .compactMap { $0 }
             .flatMap {
                 cacheKeys(
@@ -115,35 +115,7 @@ extension DownloadCoordinator {
                     includeStableAlias: includeStableAlias
                 )
             }
-        let keys = allKeys
-            .reduce(into: [String]()) { partialResult, key in
-                guard !partialResult.contains(key) else {
-                    return
-                }
-                partialResult.append(key)
-            }
-
-        if let data = try? await DataCache.shared.data(forKeys: keys) {
-            return data
-        }
-        for key in keys {
-            if let data = await cachedImageData(forKey: key) {
-                try? await DataCache.shared.store(data, forKeys: keys)
-                return data
-            }
-        }
-        return nil
-    }
-
-    func cachedImageData(forKey key: String) async -> Data? {
-        if let data = try? await DataCache.shared.data(forKey: key) {
-            return data
-        }
-        guard let data = await libraryClient.cachedImageData(key) else {
-            return nil
-        }
-        try? await DataCache.shared.store(data, forKey: key)
-        return data
+        return try? await DataCache.shared.data(forKeys: keys)
     }
 
     func validatedCachedAssetData(
