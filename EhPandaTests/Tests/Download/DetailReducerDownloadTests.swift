@@ -13,16 +13,11 @@ import Testing
 struct DetailReducerDownloadTests: DownloadFeatureTestCase {
     @MainActor
     @Test
-    func testDetailReducerStartDownloadEnqueuesGalleryWithSnapshotOptions() async throws {
+    func testDetailReducerStartDownloadEnqueuesGalleryPayload() async throws {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
-        let options = DownloadRequestOptions(
-            threadLimit: 4,
-            allowCellular: false,
-            autoRetryFailedPages: false
-        )
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
@@ -38,13 +33,12 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.startDownload(options, "Folder"))
+        await store.send(.startDownload("Folder"))
         await store.skipReceivedActions(strict: false)
 
         #expect(capturedPayload.value?.gallery.gid == gallery.gid)
         #expect(capturedPayload.value?.galleryDetail == detail)
         #expect(capturedPayload.value?.previewConfig == .large(rows: 2))
-        #expect(capturedPayload.value?.options == options)
         #expect(capturedPayload.value?.mode == .initial)
         #expect(store.state.downloadBadge == queuedDownload.badge)
     }
@@ -55,7 +49,6 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
-        let options = DownloadRequestOptions()
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
         let store = makeDownloadTestStore(
             gallery: gallery, detail: detail,
@@ -65,7 +58,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.startDownload(options, "Folder")) {
+        await store.send(.startDownload("Folder")) {
             $0.isPreparingDownload = true
             $0.didRunLaunchAutomation = true
         }
@@ -113,7 +106,6 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        let options = DownloadRequestOptions()
         let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
 
         let store = makeDownloadTestStore(
@@ -131,14 +123,14 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.runLaunchAutomationIfNeeded(options))
+        await store.send(.runLaunchAutomationIfNeeded)
         #expect(capturedPayload.value == nil)
         #expect(store.state.didRunLaunchAutomation == false)
 
         await store.send(.fetchDownloadBadgeDone(.none)) {
             $0.hasLoadedDownloadBadge = true
         }
-        await store.send(.runLaunchAutomationIfNeeded(options)) {
+        await store.send(.runLaunchAutomationIfNeeded) {
             $0.didRunLaunchAutomation = true
         }
         await store.receive(\.startDownload)

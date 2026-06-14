@@ -231,7 +231,7 @@ private extension DownloadInterruptedResumeTests {
                 sizeCount: 1, sizeType: "MB", torrentCount: 0
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, folderName: "Folder", options: .init(), mode: mode
+            host: .ehentai, folderName: "Folder", mode: mode
         )
     }
 }

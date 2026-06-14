@@ -87,6 +87,7 @@ actor DownloadManager {
 
     struct PageDownloadContext: Sendable {
         let payload: DownloadRequestPayload
+        let options: DownloadRequestOptions
         let source: ResolvedSource?
         let folderURL: URL
     }
@@ -133,6 +134,10 @@ actor DownloadManager {
     let urlSession: URLSession
     let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     let libraryClient: LibraryClient
+    /// Supplies the latest runtime settings immediately before a queued download starts.
+    ///
+    /// Options are not stored in manifests or request payloads so settings changed while
+    /// a gallery is queued apply to the eventual detail fetch and page workers.
     let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     let queueStore: DownloadQueueStore
     var downloadIndex = [String: DownloadFolderRecord]()

@@ -14,6 +14,7 @@ extension DownloadManager {
 
     func performDownload(
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         folderRelativePath: String,
         existingDownload: DownloadedGallery
     ) async throws -> PerformDownloadResult {
@@ -39,6 +40,7 @@ extension DownloadManager {
         do {
             let batchAndCover = try await executePageDownloads(
                 payload: payload,
+                options: options,
                 workingSeed: workingSeed,
                 pendingIndices: pendingIndices,
                 workingFolderURL: workingFolderURL,
@@ -54,6 +56,7 @@ extension DownloadManager {
 
     private func executePageDownloads(
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         workingSeed: WorkingSeed,
         pendingIndices: [Int],
         workingFolderURL: URL,
@@ -62,17 +65,20 @@ extension DownloadManager {
         let existingDownload = executionContext.existingDownload
         let coverRelativePath = try await downloadCoverIfNeeded(
             payload: payload,
+            options: options,
             folderURL: workingFolderURL,
             existingCoverRelativePath: workingSeed.coverRelativePath
         )
         let source = try await resolveSourceIfNeeded(
             payload: payload,
+            options: options,
             pendingIndices: pendingIndices,
             folderURL: workingFolderURL,
             existingPages: workingSeed.existingPages
         )
         let downloadContext = PageDownloadContext(
             payload: payload,
+            options: options,
             source: source,
             folderURL: workingFolderURL
         )
@@ -100,11 +106,13 @@ extension DownloadManager {
 
     private func downloadCoverIfNeeded(
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         folderURL: URL,
         existingCoverRelativePath: String?
     ) async throws -> String? {
         try await downloadCoverImage(
             payload: payload,
+            options: options,
             folderURL: folderURL,
             existingCoverRelativePath: existingCoverRelativePath
         )
@@ -148,6 +156,7 @@ extension DownloadManager {
 
     private func resolveSourceIfNeeded(
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         pendingIndices: [Int],
         folderURL: URL,
         existingPages: [Int: String]
@@ -166,6 +175,7 @@ extension DownloadManager {
         }
         return try await resolveSource(
             payload: payload,
+            options: options,
             requiredPageIndices: missingIndices
         )
     }

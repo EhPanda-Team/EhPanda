@@ -12,8 +12,7 @@ extension DownloadManager {
         context: PageDownloadContext,
         preferredRelativePath: String?
     ) async throws -> PageResult {
-        let payload = context.payload
-        let attempts = payload.options.autoRetryFailedPages ? 2 : 1
+        let attempts = context.options.autoRetryFailedPages ? 2 : 1
         var capturedError: AppError = .unknown
 
         for _ in 0..<attempts {
@@ -53,6 +52,7 @@ extension DownloadManager {
         let resolved = try await resolvedImageSource(
             index: index,
             payload: payload,
+            options: context.options,
             source: source
         )
         if let result = try await attemptResolvedCacheRestore(
@@ -67,6 +67,7 @@ extension DownloadManager {
             index: index,
             resolvedImageSource: resolved,
             payload: payload,
+            options: context.options,
             folderURL: folderURL,
             preferredRelativePath: preferredRelativePath
         )
@@ -103,6 +104,7 @@ extension DownloadManager {
         index: Int,
         resolvedImageSource: ResolvedImageSource,
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         folderURL: URL,
         preferredRelativePath: String?
     ) async throws -> PageResult {
@@ -110,7 +112,7 @@ extension DownloadManager {
         let (downloadedFileURL, response) =
             try await downloadResponse(
                 url: targetURL,
-                allowsCellular: payload.options.allowCellular,
+                allowsCellular: options.allowCellular,
                 retriesRequest: false
             )
         let relativePath: String

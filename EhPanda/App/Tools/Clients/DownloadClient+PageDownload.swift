@@ -218,7 +218,7 @@ extension DownloadManager {
         pageCount: Int,
         existingPages: [Int: String]
     ) {
-        let workerCount = context.payload.options.workerCount
+        let workerCount = context.options.workerCount
         for _ in 0..<min(workerCount, pageCount) {
             guard let index = iterator.next() else { break }
             addPageDownloadTask(
