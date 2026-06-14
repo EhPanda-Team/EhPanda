@@ -27,6 +27,7 @@ struct ImageClient: Sendable {
     let downloadImage: @Sendable (URL) async -> Result<UIImage, Error>
     let retrieveImage: @Sendable (String) async -> Result<UIImage, Error>
     let isCached: @Sendable (String) -> Bool
+    var dataCache: DataCache = .shared
 }
 
 extension ImageClient {
@@ -222,7 +223,7 @@ extension ImageClient {
         }
 
         let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
-        if let data = try await DataCache.shared.data(forKeys: cacheKeys) {
+        if let data = try await dataCache.data(forKeys: cacheKeys) {
             return data
         }
 
@@ -233,7 +234,7 @@ extension ImageClient {
             else {
                 continue
             }
-            try? await DataCache.shared.store(data, forKeys: cacheKeys)
+            try? await dataCache.store(data, forKeys: cacheKeys)
             return data
         }
 
@@ -242,7 +243,7 @@ extension ImageClient {
             guard let data = Self.data(from: image) else {
                 throw AppError.notFound
             }
-            try? await DataCache.shared.store(data, forKeys: cacheKeys)
+            try? await dataCache.store(data, forKeys: cacheKeys)
             return data
 
         case .failure(let error):
