@@ -17,11 +17,7 @@ extension DownloadManager {
         let downloads = queuedGIDs.isEmpty
             ? await indexedDownloads()
             : await indexedDownloads(gids: queuedGIDs)
-#if DEBUG
-        if let testingScheduleBeforeActiveCheckHook {
-            await testingScheduleBeforeActiveCheckHook()
-        }
-#endif
+        await taskRunner.beforeActiveTaskCheck()
         guard activeTask == nil else {
             await reconcileActiveDownloadState()
             return
@@ -34,9 +30,7 @@ extension DownloadManager {
             )
         guard let nextDownload else { return }
 
-#if DEBUG
-        testingScheduledGalleryIDHistory.append(nextDownload.gid)
-#endif
+        await taskRunner.recordScheduledGallery(nextDownload.gid)
         activeTaskGeneration += 1
         let generation = activeTaskGeneration
         activeGalleryID = nextDownload.gid
@@ -53,20 +47,15 @@ extension DownloadManager {
         gid: String,
         generation: Int
     ) async {
-#if DEBUG
-        if let testingScheduledProcessHook {
-            defer {
-                finishActiveTaskIfOwned(
-                    gid: gid,
-                    generation: generation,
-                    schedulesNext: false
-                )
-            }
-            await testingScheduledProcessHook(gid)
-            return
+        let result = await taskRunner.runScheduledDownload(gid) {
+            await self.processDownload(gid: gid, generation: generation)
         }
-#endif
-        await processDownload(gid: gid, generation: generation)
+        guard result == .skippedOperation else { return }
+        finishActiveTaskIfOwned(
+            gid: gid,
+            generation: generation,
+            schedulesNext: false
+        )
     }
 
     private func nextQueuedDownload(

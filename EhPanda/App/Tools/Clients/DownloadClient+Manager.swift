@@ -5,6 +5,41 @@
 
 import Foundation
 
+typealias ScheduledDownloadOperation = @Sendable () async -> Void
+
+enum ScheduledDownloadRunResult: Equatable, Sendable {
+    case ranOperation
+    case skippedOperation
+}
+
+struct DownloadTaskRunner: Sendable {
+    var beforeActiveTaskCheck: @Sendable () async -> Void
+    var recordScheduledGallery: @Sendable (String) async -> Void
+    var runScheduledDownload: @Sendable (
+        String,
+        @escaping ScheduledDownloadOperation
+    ) async -> ScheduledDownloadRunResult
+    var beforeFailurePersistence: @Sendable () async -> Void
+
+    init(
+        beforeActiveTaskCheck: @escaping @Sendable () async -> Void = {},
+        recordScheduledGallery: @escaping @Sendable (String) async -> Void = { _ in },
+        runScheduledDownload: @escaping @Sendable (
+            String,
+            @escaping ScheduledDownloadOperation
+        ) async -> ScheduledDownloadRunResult = { _, operation in
+            await operation()
+            return .ranOperation
+        },
+        beforeFailurePersistence: @escaping @Sendable () async -> Void = {}
+    ) {
+        self.beforeActiveTaskCheck = beforeActiveTaskCheck
+        self.recordScheduledGallery = recordScheduledGallery
+        self.runScheduledDownload = runScheduledDownload
+        self.beforeFailurePersistence = beforeFailurePersistence
+    }
+}
+
 actor DownloadManager {
     static let retryLimit = 3
     static let progressFlushPageInterval = 8
@@ -142,6 +177,7 @@ actor DownloadManager {
     /// a gallery is queued apply to the eventual detail fetch and page workers.
     let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     let queueStore: DownloadQueueStore
+    let taskRunner: DownloadTaskRunner
     let observerHub = DownloadObserverHub()
     var downloadIndex = [String: DownloadFolderRecord]()
     var hasLoadedIndex = false
@@ -156,12 +192,6 @@ actor DownloadManager {
     var activeTask: Task<Void, Never>?
     var activeTaskGeneration = 0
     var schedulingBlockedGalleryIDs = Set<String>()
-#if DEBUG
-    var testingPersistFailureHook: (@Sendable () async -> Void)?
-    var testingScheduleBeforeActiveCheckHook: (@Sendable () async -> Void)?
-    var testingScheduledProcessHook: (@Sendable (String) async -> Void)?
-    var testingScheduledGalleryIDHistory = [String]()
-#endif
 
     init(
         storage: DownloadFileStorage,
@@ -173,7 +203,8 @@ actor DownloadManager {
         downloadOptionsProvider: @escaping @Sendable () async -> DownloadRequestOptions = {
             DownloadRequestOptions()
         },
-        queueStore: DownloadQueueStore? = nil
+        queueStore: DownloadQueueStore? = nil,
+        taskRunner: DownloadTaskRunner = .init()
     ) {
         self.storage = storage
         self.urlSession = urlSession
@@ -181,6 +212,7 @@ actor DownloadManager {
         self.libraryClient = libraryClient
         self.downloadOptionsProvider = downloadOptionsProvider
         self.queueStore = queueStore ?? DownloadQueueStore(fileURL: storage.queueURL())
+        self.taskRunner = taskRunner
     }
 
     var fileManager: DownloadFileManager {

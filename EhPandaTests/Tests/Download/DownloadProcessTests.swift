@@ -17,9 +17,20 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
+        let persistenceGate = FailurePersistenceGate()
+        let scheduledRecorder = ScheduledGalleryRecorder()
+        let taskRunner = DownloadTaskRunner(
+            recordScheduledGallery: { gid in
+                scheduledRecorder.record(gid)
+            },
+            beforeFailurePersistence: {
+                await persistenceGate.waitAtGate()
+            }
+        )
         let (storage, manager) = makeStubbedDownloadManager(
             rootURL: rootURL,
-            sessionID: sessionID
+            sessionID: sessionID,
+            taskRunner: taskRunner
         )
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
             throw URLError(.notConnectedToInternet)
@@ -35,11 +46,6 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         await manager.testingSetQueuedGalleryIDs([gid])
 
-        let persistenceGate = FailurePersistenceGate()
-        await manager.testingSetPersistFailureHook {
-            await persistenceGate.waitAtGate()
-        }
-
         let completionProbe = ProcessCompletionProbe()
         let processTask = Task {
             await manager.testingProcessDownload(gid: gid)
@@ -49,22 +55,19 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await persistenceGate.waitForArrival()
         let completedBeforePersistence = await completionProbe
             .isFinished()
-        let scheduledBeforePersistence = await manager
-            .testingScheduledGalleryIDs()
+        let scheduledBeforePersistence = scheduledRecorder.snapshot()
         #expect(completedBeforePersistence == false)
         #expect(scheduledBeforePersistence.isEmpty)
 
         await persistenceGate.release()
         await processTask.value
-        await manager.testingSetPersistFailureHook(nil)
 
         let stored = await manager.testingFetchDownload(gid: gid)
         #expect(stored?.displayStatus == .error)
         #expect(stored?.lastError?.code == .networkingFailed)
 
         await manager.testingScheduleNextIfNeeded()
-        let scheduledAfterFailure = await manager
-            .testingScheduledGalleryIDs()
+        let scheduledAfterFailure = scheduledRecorder.snapshot()
         #expect(scheduledAfterFailure.isEmpty)
     }
 

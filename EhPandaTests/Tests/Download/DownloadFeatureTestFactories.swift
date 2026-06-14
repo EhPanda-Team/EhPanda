@@ -336,7 +336,8 @@ extension DownloadFeatureTestCase {
         sessionID: String,
         downloadOptionsProvider: @escaping @Sendable () async -> DownloadRequestOptions = {
             DownloadRequestOptions()
-        }
+        },
+        taskRunner: DownloadTaskRunner = .init()
     ) -> (DownloadFileStorage, DownloadManager) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
@@ -349,7 +350,8 @@ extension DownloadFeatureTestCase {
         let manager = DownloadManager(
             storage: storage,
             urlSession: URLSession(configuration: configuration),
-            downloadOptionsProvider: downloadOptionsProvider
+            downloadOptionsProvider: downloadOptionsProvider,
+            taskRunner: taskRunner
         )
         return (storage, manager)
     }

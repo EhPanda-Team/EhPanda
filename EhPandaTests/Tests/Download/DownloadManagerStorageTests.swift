@@ -684,16 +684,24 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let scheduledRecorder = ScheduledGalleryRecorder()
+        let taskRunner = DownloadTaskRunner(
+            recordScheduledGallery: { gid in
+                scheduledRecorder.record(gid)
+            },
+            runScheduledDownload: { _, _ in
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .milliseconds(10))
+                }
+                return .skippedOperation
+            }
+        )
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared,
-            queueStore: queueStore
+            queueStore: queueStore,
+            taskRunner: taskRunner
         )
-        await manager.testingSetScheduledProcessHook { _ in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(10))
-            }
-        }
 
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
@@ -722,7 +730,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
         await manager.testingScheduleNextIfNeeded()
 
-        let scheduledGalleryIDs = await manager.testingScheduledGalleryIDs()
+        let scheduledGalleryIDs = scheduledRecorder.snapshot()
         #expect(scheduledGalleryIDs == ["830"])
         #expect(await manager.testingActiveGalleryID() == "830")
 
