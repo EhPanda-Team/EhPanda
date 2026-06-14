@@ -320,12 +320,30 @@ extension DownloadCoordinator {
         index: Int,
         payload: DownloadRequestPayload,
         options: DownloadRequestOptions,
-        source: ResolvedSource
+        source: ResolvedSource,
+        failover: ResolvedImageSource? = nil
     ) async throws -> ResolvedImageSource {
         switch source {
         case .normal(let thumbnailURLs):
             guard let thumbnailURL = thumbnailURLs[index] else {
                 throw AppError.notFound
+            }
+            if let failover {
+                let (imageURLs, _) = try await GalleryNormalImageURLRefetchRequest(
+                    index: index,
+                    pageNum: 0,
+                    galleryURL: payload.gallery.galleryURL ?? payload.host.url,
+                    thumbnailURL: thumbnailURL,
+                    storedImageURL: failover.imageURL,
+                    urlSession: urlSession,
+                    allowsCellular: options.allowCellular
+                )
+                .response()
+                .get()
+                guard let imageURL = imageURLs[index] else {
+                    throw AppError.notFound
+                }
+                return .init(imageURL: imageURL, mpvSkipServerIdentifier: nil)
             }
             let (imageURLs, _) = try await GalleryNormalImageURLsRequest(
                 thumbnailURLs: [index: thumbnailURL],
@@ -337,7 +355,7 @@ extension DownloadCoordinator {
             guard let imageURL = imageURLs[index] else {
                 throw AppError.notFound
             }
-            return .init(imageURL: imageURL)
+            return .init(imageURL: imageURL, mpvSkipServerIdentifier: nil)
 
         case .mpv(let mpvKey, let imageKeys):
             guard let gid = Int(payload.gallery.gid) else {
@@ -351,15 +369,18 @@ extension DownloadCoordinator {
                 index: index,
                 mpvKey: mpvKey,
                 mpvImageKey: imageKey,
-                skipServerIdentifier: nil,
+                skipServerIdentifier: failover?.mpvSkipServerIdentifier,
                 apiURL: payload.host.url.appendingPathComponent("api.php"),
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular,
-                requiresSkipServerIdentifier: false
+                requiresSkipServerIdentifier: failover != nil
             )
             .response()
             .get()
-            return .init(imageURL: response.imageURL)
+            return .init(
+                imageURL: response.imageURL,
+                mpvSkipServerIdentifier: response.skipServerIdentifier
+            )
         }
     }
 

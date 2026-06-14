@@ -101,6 +101,7 @@ actor DownloadCoordinator {
 
     struct ResolvedImageSource: Sendable {
         let imageURL: URL
+        var mpvSkipServerIdentifier: String?
     }
 
     struct PartialDownloadError: Error, Sendable {
