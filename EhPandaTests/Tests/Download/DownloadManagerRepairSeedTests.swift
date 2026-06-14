@@ -90,6 +90,43 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         #expect(FileManager.default.fileExists(atPath: emptyPageURL.path) == false)
     }
 
+    @Test
+    func testRescanLocalPageURLsDropsExternallyDeletedPage() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 71)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let manager = DownloadManager(storage: storage, urlSession: .shared)
+
+        let folderURL = rootURL.appendingPathComponent(
+            "Folder/\(gid) - Rescan", isDirectory: true
+        )
+        try FileManager.default.createDirectory(
+            at: folderURL, withIntermediateDirectories: true
+        )
+        try JSONEncoder().encode(sampleManifest(gid: gid, title: "Rescan")).write(
+            to: folderURL.appendingPathComponent(Defaults.FilePath.downloadManifest),
+            options: .atomic
+        )
+        let pageOneURL = folderURL.appendingPathComponent(
+            storage.makePageRelativePath(gid: gid, token: "token", index: 1, fileExtension: "jpg")
+        )
+        let pageTwoURL = folderURL.appendingPathComponent(
+            storage.makePageRelativePath(gid: gid, token: "token", index: 2, fileExtension: "jpg")
+        )
+        try Data([0x01]).write(to: pageOneURL, options: .atomic)
+        try Data([0x02]).write(to: pageTwoURL, options: .atomic)
+        await manager.reloadDownloadIndex()
+
+        #expect(await manager.rescanLocalPageURLs(gid: gid) == [1: pageOneURL, 2: pageTwoURL])
+
+        try FileManager.default.removeItem(at: pageOneURL)
+
+        #expect(await manager.rescanLocalPageURLs(gid: gid) == [2: pageTwoURL])
+    }
+
     @MainActor
     @Test
     func testImageClientFetchImageUsesStableAliasCacheKey() async throws {

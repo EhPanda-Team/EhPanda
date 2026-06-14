@@ -82,7 +82,7 @@ extension ReadingReducer {
 
             case .onWebImageFailed(let index):
                 state.imageURLLoadingStates[index] = .failed(.webImageFailed)
-                return .none
+                return reduceLocalPageMiss(state: &state, index: index)
 
             case .reloadAllWebImages:
                 return reduceReloadAllWebImages(state: &state)
@@ -158,6 +158,22 @@ extension ReadingReducer {
             return .none
         }
         return .send(.captureCachedPage(index))
+    }
+
+    func reduceLocalPageMiss(state: inout State, index: Int) -> Effect<Action> {
+        guard let url = state.localPageURLs[index], url.isFileURL,
+              state.gallery.id.isValidGID
+        else {
+            return .none
+        }
+        let gid = state.gallery.id
+        let requestID = UUID()
+        state.localPageRequestID = requestID
+        return .run { send in
+            let localPageURLs = await downloadClient.rescanLocalPageURLs(gid) ?? [:]
+            await send(.loadLocalPageURLsDone(requestID, localPageURLs))
+        }
+        .cancellable(id: ReadingCancelID.loadLocalPageURLs, cancelInFlight: true)
     }
 
     func reduceReloadAllWebImages(state: inout State) -> Effect<Action> {
