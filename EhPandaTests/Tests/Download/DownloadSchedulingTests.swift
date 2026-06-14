@@ -85,6 +85,98 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             return
         }
     }
+
+    @Test
+    func testCancelledProcessCleanupDoesNotClearNewerActiveTask() async throws {
+        let firstGID = "100011"
+        let secondGID = "100012"
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadFileStorage(
+            rootURL: rootURL,
+            fileManager: .default
+        )
+        let manager = DownloadManager(
+            storage: storage,
+            urlSession: .shared
+        )
+        let gate = ScheduledProcessCleanupGate(firstGID: firstGID)
+        await manager.testingSetScheduledProcessHook { gid in
+            await gate.run(gid: gid)
+        }
+
+        try writeQueuedManifest(storage: storage, gid: firstGID, title: "First")
+        try writeQueuedManifest(storage: storage, gid: secondGID, title: "Second")
+        await manager.reloadDownloadIndex()
+        await manager.testingSetQueuedGalleryIDs([firstGID, secondGID])
+
+        await manager.testingScheduleNextIfNeeded()
+        await gate.waitForFirstArrival()
+
+        let pauseTask = Task {
+            await manager.pause(gid: firstGID)
+        }
+        try await waitForActiveGalleryID(manager, toEqual: nil)
+
+        await manager.testingScheduleNextIfNeeded()
+        await gate.waitForSecondStart()
+        await gate.releaseFirst()
+
+        guard case .success = await pauseTask.value else {
+            Issue.record("Pause should succeed for the canceled first download.")
+            return
+        }
+
+        let activeGalleryID = await manager.testingActiveGalleryID()
+        let hasActiveTask = await manager.testingHasActiveTask()
+        #expect(activeGalleryID == secondGID)
+        #expect(hasActiveTask)
+
+        guard case .success = await manager.pause(gid: secondGID) else {
+            Issue.record("Cleanup pause should succeed for the second download.")
+            return
+        }
+        await manager.testingSetScheduledProcessHook(nil)
+    }
+}
+
+private extension DownloadSchedulingTests {
+    func writeQueuedManifest(
+        storage: DownloadFileStorage,
+        gid: String,
+        title: String
+    ) throws {
+        try storage.ensureRootDirectory()
+        let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] \(title)")
+        try FileManager.default.createDirectory(
+            at: folderURL,
+            withIntermediateDirectories: true
+        )
+        try storage.writeManifest(
+            sampleManifest(gid: gid, title: title),
+            folderURL: folderURL
+        )
+    }
+
+    func waitForActiveGalleryID(
+        _ manager: DownloadManager,
+        toEqual expected: String?,
+        timeout: Duration = .seconds(1)
+    ) async throws {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+
+        while await manager.testingActiveGalleryID() != expected,
+              clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        try #require(
+            await manager.testingActiveGalleryID() == expected,
+            "Timed out waiting for activeGalleryID to become \(String(describing: expected))."
+        )
+    }
 }
 
 private actor ScheduleFetchGate {
@@ -113,5 +205,63 @@ private actor ScheduleFetchGate {
     func releaseAll() {
         releaseContinuations.forEach { $0.resume() }
         releaseContinuations.removeAll()
+    }
+}
+
+private actor ScheduledProcessCleanupGate {
+    private let firstGID: String
+    private var firstArrived = false
+    private var secondStarted = false
+    private var firstArrivalContinuation: CheckedContinuation<Void, Never>?
+    private var secondStartContinuation: CheckedContinuation<Void, Never>?
+    private var releaseFirstContinuation: CheckedContinuation<Void, Never>?
+
+    init(firstGID: String) {
+        self.firstGID = firstGID
+    }
+
+    func run(gid: String) async {
+        if gid == firstGID {
+            await waitForRelease()
+        } else {
+            startSecond()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(10))
+            }
+        }
+    }
+
+    func waitForFirstArrival() async {
+        guard !firstArrived else { return }
+        await withCheckedContinuation { continuation in
+            firstArrivalContinuation = continuation
+        }
+    }
+
+    func waitForSecondStart() async {
+        guard !secondStarted else { return }
+        await withCheckedContinuation { continuation in
+            secondStartContinuation = continuation
+        }
+    }
+
+    func releaseFirst() {
+        releaseFirstContinuation?.resume()
+        releaseFirstContinuation = nil
+    }
+
+    private func waitForRelease() async {
+        firstArrived = true
+        firstArrivalContinuation?.resume()
+        firstArrivalContinuation = nil
+        await withCheckedContinuation { continuation in
+            releaseFirstContinuation = continuation
+        }
+    }
+
+    private func startSecond() {
+        secondStarted = true
+        secondStartContinuation?.resume()
+        secondStartContinuation = nil
     }
 }

@@ -154,6 +154,7 @@ actor DownloadManager {
     var queuedPageSelections = [String: [Int]]()
     var activeGalleryID: String?
     var activeTask: Task<Void, Never>?
+    var activeTaskGeneration = 0
     var schedulingBlockedGalleryIDs = Set<String>()
 #if DEBUG
     var testingPersistFailureHook: (@Sendable () async -> Void)?

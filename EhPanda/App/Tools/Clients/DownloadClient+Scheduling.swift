@@ -37,25 +37,36 @@ extension DownloadManager {
 #if DEBUG
         testingScheduledGalleryIDHistory.append(nextDownload.gid)
 #endif
+        activeTaskGeneration += 1
+        let generation = activeTaskGeneration
         activeGalleryID = nextDownload.gid
         activeTask = Task { [weak self] in
             guard let self else { return }
-            await self.processScheduledDownload(gid: nextDownload.gid)
+            await self.processScheduledDownload(
+                gid: nextDownload.gid,
+                generation: generation
+            )
         }
     }
 
-    private func processScheduledDownload(gid: String) async {
+    private func processScheduledDownload(
+        gid: String,
+        generation: Int
+    ) async {
 #if DEBUG
         if let testingScheduledProcessHook {
             defer {
-                activeTask = nil
-                activeGalleryID = nil
+                finishActiveTaskIfOwned(
+                    gid: gid,
+                    generation: generation,
+                    schedulesNext: false
+                )
             }
             await testingScheduledProcessHook(gid)
             return
         }
 #endif
-        await processDownload(gid: gid)
+        await processDownload(gid: gid, generation: generation)
     }
 
     private func nextQueuedDownload(

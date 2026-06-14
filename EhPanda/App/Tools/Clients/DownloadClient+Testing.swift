@@ -11,6 +11,7 @@ extension DownloadManager {
         gid: String,
         task: Task<Void, Never>
     ) {
+        activeTaskGeneration += 1
         activeGalleryID = gid
         activeTask = task
     }
