@@ -95,6 +95,10 @@ struct DownloadStore: Sendable {
         rootURL.appendingPathComponent(".queue.json")
     }
 
+    func backgroundTaskRegistryURL() -> URL {
+        rootURL.appendingPathComponent(".background-tasks.json")
+    }
+
     func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
         let pageIndices = Set(manifest.pages.keys)
         guard !pageIndices.isEmpty else { return [:] }
