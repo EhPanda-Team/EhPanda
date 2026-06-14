@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Network
-extension DownloadManager {
+extension DownloadCoordinator {
     func downloadResponse(
         url: URL,
         allowsCellular: Bool,
@@ -165,7 +165,7 @@ extension DownloadManager {
 }
 
 // MARK: - File Operations
-extension DownloadManager {
+extension DownloadCoordinator {
     func fileExtension(
         for url: URL,
         response: URLResponse?,

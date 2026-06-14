@@ -38,7 +38,7 @@ extension DownloadClient {
         urlSession: URLSession = .shared,
         fileManager: sending FileManager = .default
     ) -> Self {
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: .init(rootURL: rootURL, fileManager: fileManager),
             urlSession: urlSession,
             downloadOptionsProvider: {
@@ -53,7 +53,7 @@ extension DownloadClient {
     }
 
     private static func makeObserveDownloadsStream(
-        manager: DownloadManager
+        manager: DownloadCoordinator
     ) -> AsyncStream<[DownloadedGallery]> {
         AsyncStream { continuation in
             let task = Task {
@@ -70,7 +70,7 @@ extension DownloadClient {
     }
 
     private static func makeDownloadClient(
-        manager: DownloadManager
+        manager: DownloadCoordinator
     ) -> Self {
         .init(
             observeDownloads: { makeObserveDownloadsStream(manager: manager) },

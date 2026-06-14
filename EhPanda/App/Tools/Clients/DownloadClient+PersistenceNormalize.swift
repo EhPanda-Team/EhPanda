@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Manifest, Folder & Normalize
-extension DownloadManager {
+extension DownloadCoordinator {
     func validatedManifest(
         at folderURL: URL,
         gid: String,

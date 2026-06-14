@@ -6,7 +6,7 @@
 import Foundation
 
 #if DEBUG
-extension DownloadManager {
+extension DownloadCoordinator {
     func testingInstallActiveTask(
         gid: String,
         task: Task<Void, Never>

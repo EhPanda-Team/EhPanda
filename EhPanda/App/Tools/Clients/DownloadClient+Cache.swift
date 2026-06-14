@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Cache Operations
-extension DownloadManager {
+extension DownloadCoordinator {
     func cacheKeys(
         for url: URL,
         includeStableAlias: Bool

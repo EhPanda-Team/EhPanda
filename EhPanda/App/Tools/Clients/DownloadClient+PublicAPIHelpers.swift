@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Private helpers for public API
-extension DownloadManager {
+extension DownloadCoordinator {
     func buildInspectionPages(
         download: DownloadedGallery,
         activeFolderURL: URL?,

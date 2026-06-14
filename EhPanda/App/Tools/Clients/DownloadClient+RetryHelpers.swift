@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Retry & RetryPages
-extension DownloadManager {
+extension DownloadCoordinator {
     func retry(
         gid: String,
         mode: DownloadStartMode

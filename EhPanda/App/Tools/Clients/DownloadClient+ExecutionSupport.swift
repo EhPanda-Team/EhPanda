@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Execution Support
-extension DownloadManager {
+extension DownloadCoordinator {
     func makeInitialManifest(payload: DownloadRequestPayload) -> DownloadManifest {
         let pageCount = payload.galleryDetail.pageCount
         let pages = pageCount > 0

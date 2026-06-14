@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Sanitization
-extension DownloadManager {
+extension DownloadCoordinator {
     @discardableResult
     func sanitizeLocalFilesIfNeeded(
         gid: String,

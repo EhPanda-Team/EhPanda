@@ -40,7 +40,9 @@ struct DownloadTaskRunner: Sendable {
     }
 }
 
-actor DownloadManager {
+typealias DownloadManager = DownloadCoordinator
+
+actor DownloadCoordinator {
     static let retryLimit = 3
     static let progressFlushPageInterval = 8
     static let progressFlushMinimumInterval: TimeInterval = 0.4
@@ -253,7 +255,7 @@ actor DownloadObserverHub {
     }
 }
 
-extension DownloadManager {
+extension DownloadCoordinator {
     func clearDownloadFailureState(
         gid: String,
         includePageFailures: Bool = true

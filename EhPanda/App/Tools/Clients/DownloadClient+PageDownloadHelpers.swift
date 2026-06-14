@@ -6,7 +6,7 @@
 import Foundation
 
 // MARK: - Download Single Page
-extension DownloadManager {
+extension DownloadCoordinator {
     func downloadPage(
         index: Int,
         context: PageDownloadContext,
