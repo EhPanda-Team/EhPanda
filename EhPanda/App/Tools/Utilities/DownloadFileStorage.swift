@@ -158,10 +158,6 @@ struct DownloadFileStorage: Sendable {
         name.range(of: #"^\[[^\]]*_[^\]]*\] "#, options: .regularExpression) != nil
     }
 
-    func isGalleryFolderLikeName(_ name: String) -> Bool {
-        Self.isGalleryFolderLikeName(name)
-    }
-
     static func normalizedUserFolderName(_ name: String) -> String? {
         guard let limitedName = normalizedFolderName(
             name,
@@ -347,7 +343,7 @@ struct DownloadFileStorage: Sendable {
             // manifest-less ones, are invisible to the app and never become
             // user folders.
             guard (try? readManifest(folderURL: folderURL)) == nil else { continue }
-            guard !isGalleryFolderLikeName(folderName) else { continue }
+            guard !Self.isGalleryFolderLikeName(folderName) else { continue }
 
             userFolders.append(folderName)
             for galleryFolderURL in directoryURLs(in: folderURL) {
@@ -459,7 +455,7 @@ private extension String {
         var byteCount = 0
         var result = ""
         for character in self {
-            let characterByteCount = String(character).utf8.count
+            let characterByteCount = character.utf8.count
             guard byteCount + characterByteCount <= maximumByteCount else {
                 break
             }
