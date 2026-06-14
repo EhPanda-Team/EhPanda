@@ -1,0 +1,289 @@
+//
+//  DataCache.swift
+//  EhPanda
+//
+
+import CryptoKit
+import Foundation
+import UIKit
+
+actor DataCache {
+    struct Configuration: Equatable, Sendable {
+        var rootURL: URL
+        var memoryCostLimit: Int
+        var maxDiskAge: TimeInterval
+        var diskSizeLimit: UInt64
+        var sweepByteInterval: UInt64
+
+        init(
+            rootURL: URL = FileUtil.cachesDirectory
+                .appendingPathComponent("DataCache.reading", isDirectory: true),
+            memoryCostLimit: Int = Int(ProcessInfo.processInfo.physicalMemory / 4),
+            maxDiskAge: TimeInterval = 7 * 24 * 60 * 60,
+            diskSizeLimit: UInt64 = 0
+        ) {
+            self.rootURL = rootURL
+            self.memoryCostLimit = memoryCostLimit
+            self.maxDiskAge = maxDiskAge
+            self.diskSizeLimit = diskSizeLimit
+            self.sweepByteInterval = diskSizeLimit == 0 ? 0 : max(diskSizeLimit / 8, 1)
+        }
+    }
+
+    static let shared = DataCache()
+
+    private let configuration: Configuration
+    private let fileManager: FileManager
+    private let memoryCache = NSCache<NSString, NSData>()
+    private var bytesWrittenSinceSweep: UInt64 = 0
+
+    init(
+        configuration: Configuration = .init(),
+        fileManager: sending FileManager = .default
+    ) {
+        self.configuration = configuration
+        self.fileManager = fileManager
+        memoryCache.totalCostLimit = configuration.memoryCostLimit
+    }
+
+    nonisolated static func installSystemPurgeObservers() {
+        Task { @MainActor in
+            _ = dataCacheSystemPurgeObserver
+        }
+    }
+
+    func data(forKey key: String) throws -> Data? {
+        if let data = memoryCache.object(forKey: key as NSString) {
+            return Data(referencing: data)
+        }
+
+        let fileURL = fileURL(forKey: key)
+        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+        if isExpired(fileURL) {
+            try? fileManager.removeItem(at: fileURL)
+            return nil
+        }
+
+        let data = try Data(contentsOf: fileURL)
+        memoryCache.setObject(data as NSData, forKey: key as NSString, cost: data.count)
+        try touchAccessDate(for: fileURL)
+        return data
+    }
+
+    func store(_ data: Data, forKey key: String) throws {
+        memoryCache.setObject(data as NSData, forKey: key as NSString, cost: data.count)
+        let fileURL = fileURL(forKey: key)
+        try write(data, to: fileURL, canRetryDirectoryCreation: true)
+        bytesWrittenSinceSweep += UInt64(data.count)
+        if configuration.sweepByteInterval > 0,
+           bytesWrittenSinceSweep >= configuration.sweepByteInterval {
+            bytesWrittenSinceSweep = 0
+            try sweepDisk()
+        }
+    }
+
+    func removeData(forKey key: String) throws {
+        memoryCache.removeObject(forKey: key as NSString)
+        let fileURL = fileURL(forKey: key)
+        guard fileManager.fileExists(atPath: fileURL.path) else { return }
+        try fileManager.removeItem(at: fileURL)
+    }
+
+    func removeAll() throws {
+        memoryCache.removeAllObjects()
+        if fileManager.fileExists(atPath: configuration.rootURL.path) {
+            try fileManager.removeItem(at: configuration.rootURL)
+        }
+        try ensureDirectory()
+        bytesWrittenSinceSweep = 0
+    }
+
+    func removeAllMemory() {
+        memoryCache.removeAllObjects()
+    }
+
+    func totalSize() throws -> UInt64 {
+        guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return 0 }
+        guard let enumerator = fileManager.enumerator(
+            at: configuration.rootURL,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return 0
+        }
+
+        var total: UInt64 = 0
+        for case let fileURL as URL in enumerator {
+            autoreleasepool {
+                let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+                guard values?.isRegularFile == true else { return }
+                total += UInt64(values?.fileSize ?? 0)
+            }
+        }
+        return total
+    }
+
+    func sweepDisk() throws {
+        guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return }
+        var didRemoveDiskEntries = false
+        defer {
+            if didRemoveDiskEntries {
+                memoryCache.removeAllObjects()
+            }
+        }
+        var entries = try diskEntries()
+        let now = Date()
+        if configuration.maxDiskAge > 0 {
+            for entry in entries where now.timeIntervalSince(entry.accessDate) > configuration.maxDiskAge {
+                try? fileManager.removeItem(at: entry.url)
+                didRemoveDiskEntries = true
+            }
+            entries.removeAll { now.timeIntervalSince($0.accessDate) > configuration.maxDiskAge }
+        }
+
+        guard configuration.diskSizeLimit > 0 else { return }
+        var totalSize = entries.reduce(UInt64(0)) { $0 + $1.size }
+        guard totalSize > configuration.diskSizeLimit else { return }
+        let targetSize = configuration.diskSizeLimit / 2
+        for entry in entries.sorted(by: { $0.accessDate < $1.accessDate }) {
+            try? fileManager.removeItem(at: entry.url)
+            didRemoveDiskEntries = true
+            totalSize = totalSize > entry.size ? totalSize - entry.size : 0
+            guard totalSize > targetSize else { break }
+        }
+    }
+
+    private func write(
+        _ data: Data,
+        to fileURL: URL,
+        canRetryDirectoryCreation: Bool
+    ) throws {
+        do {
+            try ensureDirectory()
+            try data.write(to: fileURL, options: .atomic)
+            try touchAccessDate(for: fileURL)
+        } catch {
+            guard canRetryDirectoryCreation else { throw error }
+            try? fileManager.removeItem(at: configuration.rootURL)
+            try ensureDirectory()
+            try write(data, to: fileURL, canRetryDirectoryCreation: false)
+        }
+    }
+
+    private func ensureDirectory() throws {
+        try fileManager.createDirectory(
+            at: configuration.rootURL,
+            withIntermediateDirectories: true
+        )
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        var directoryURL = configuration.rootURL
+        try? directoryURL.setResourceValues(resourceValues)
+    }
+
+    private func fileURL(forKey key: String) -> URL {
+        configuration.rootURL.appendingPathComponent(Self.filename(forKey: key))
+    }
+
+    private static func filename(forKey key: String) -> String {
+        SHA256.hash(data: Data(key.utf8))
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+
+    private func isExpired(_ fileURL: URL) -> Bool {
+        guard configuration.maxDiskAge > 0 else { return false }
+        let accessDate = accessDate(for: fileURL)
+        return Date().timeIntervalSince(accessDate) > configuration.maxDiskAge
+    }
+
+    private func touchAccessDate(for fileURL: URL) throws {
+        try fileManager.setAttributes(
+            [.creationDate: Date(), .modificationDate: Date()],
+            ofItemAtPath: fileURL.path
+        )
+        var resourceValues = URLResourceValues()
+        resourceValues.contentAccessDate = Date()
+        var mutableURL = fileURL
+        try? mutableURL.setResourceValues(resourceValues)
+    }
+
+    private func accessDate(for fileURL: URL) -> Date {
+        if let date = try? fileURL.resourceValues(forKeys: [.contentAccessDateKey]).contentAccessDate {
+            return date
+        }
+        let attributes = try? fileManager.attributesOfItem(atPath: fileURL.path)
+        return attributes?[.modificationDate] as? Date ?? .distantPast
+    }
+
+    private func diskEntries() throws -> [DiskEntry] {
+        guard let enumerator = fileManager.enumerator(
+            at: configuration.rootURL,
+            includingPropertiesForKeys: [
+                .contentAccessDateKey,
+                .fileSizeKey,
+                .isRegularFileKey
+            ],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return []
+        }
+
+        var entries = [DiskEntry]()
+        for case let fileURL as URL in enumerator {
+            let values = try fileURL.resourceValues(forKeys: [
+                .contentAccessDateKey,
+                .fileSizeKey,
+                .isRegularFileKey
+            ])
+            guard values.isRegularFile == true else { continue }
+            entries.append(
+                DiskEntry(
+                    url: fileURL,
+                    size: UInt64(values.fileSize ?? 0),
+                    accessDate: values.contentAccessDate ?? accessDate(for: fileURL)
+                )
+            )
+        }
+        return entries
+    }
+}
+
+@MainActor
+private let dataCacheSystemPurgeObserver = DataCacheSystemPurgeObserver(cache: .shared)
+
+@MainActor
+private final class DataCacheSystemPurgeObserver {
+    private let tokens: [NSObjectProtocol]
+
+    init(cache: DataCache) {
+        let center = NotificationCenter.default
+        tokens = [
+            center.addObserver(
+                forName: UIApplication.didReceiveMemoryWarningNotification,
+                object: nil,
+                queue: .main
+            ) { [weak cache] _ in
+                Task {
+                    await cache?.removeAllMemory()
+                }
+            },
+            center.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil,
+                queue: .main
+            ) { [weak cache] _ in
+                Task {
+                    await cache?.removeAllMemory()
+                    try? await cache?.sweepDisk()
+                }
+            }
+        ]
+    }
+}
+
+private struct DiskEntry {
+    let url: URL
+    let size: UInt64
+    let accessDate: Date
+}
