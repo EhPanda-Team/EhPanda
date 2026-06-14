@@ -234,28 +234,40 @@ actor DownloadCoordinator {
 actor DownloadObserverHub {
     private var lastObservedDownloads = [DownloadedGallery]()
     private var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
+    private var notifyGeneration = 0
 
     func observe(
-        initialDownloads: [DownloadedGallery]
-    ) -> AsyncStream<[DownloadedGallery]> {
+        snapshot: @Sendable () async -> [DownloadedGallery]
+    ) async -> AsyncStream<[DownloadedGallery]> {
         let identifier = UUID()
         let (stream, continuation) = AsyncStream.makeStream(
             of: [DownloadedGallery].self
         )
+        // Register before the snapshot resolves so a `notify` landing while the
+        // snapshot is in flight reaches this observer instead of being missed.
         observers[identifier] = continuation
-        continuation.yield(initialDownloads)
         continuation.onTermination = { [weak self] _ in
             guard let self else { return }
             Task {
                 await self.removeObserver(id: identifier)
             }
         }
+
+        let generationBeforeSnapshot = notifyGeneration
+        let initialDownloads = await snapshot()
+        if notifyGeneration == generationBeforeSnapshot {
+            // No notify reached this observer during resolution; deliver the snapshot.
+            continuation.yield(initialDownloads)
+        }
+        // Otherwise a fresher value already arrived via notify; skipping the now-stale
+        // snapshot keeps emissions ordered newest-last.
         return stream
     }
 
     func notify(_ downloads: [DownloadedGallery]) {
         guard downloads != lastObservedDownloads else { return }
         lastObservedDownloads = downloads
+        notifyGeneration += 1
         observers.values.forEach { $0.yield(downloads) }
     }
 
