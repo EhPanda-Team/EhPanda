@@ -7,25 +7,9 @@ import Foundation
 
 // MARK: - Observer Management & Scheduling
 extension DownloadManager {
-    func addObserver(
-        id: UUID,
-        continuation: AsyncStream<[DownloadedGallery]>.Continuation
-    ) async {
-        observers[id] = continuation
-        let downloads = await fetchDownloads()
-        lastObservedDownloads = downloads
-        continuation.yield(downloads)
-    }
-
-    func removeObserver(id: UUID) {
-        observers[id] = nil
-    }
-
     func notifyObservers() async {
-        let downloads = await fetchDownloads()
-        guard downloads != lastObservedDownloads else { return }
-        lastObservedDownloads = downloads
-        observers.values.forEach { $0.yield(downloads) }
+        let downloads = await indexedDownloads()
+        await observerHub.notify(downloads)
     }
 
     func scheduleNextIfNeeded() async {

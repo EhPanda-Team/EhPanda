@@ -7,19 +7,9 @@ import Foundation
 
 // MARK: - Public API
 extension DownloadManager {
-    func observeDownloads() -> AsyncStream<[DownloadedGallery]> {
-        let identifier = UUID()
-        return AsyncStream { continuation in
-            continuation.onTermination = { [weak self] _ in
-                guard let self else { return }
-                Task {
-                    await self.removeObserver(id: identifier)
-                }
-            }
-            Task {
-                await self.addObserver(id: identifier, continuation: continuation)
-            }
-        }
+    func observeDownloads() async -> AsyncStream<[DownloadedGallery]> {
+        let downloads = await indexedDownloads()
+        return await observerHub.observe(initialDownloads: downloads)
     }
 
     func fetchDownloads() async -> [DownloadedGallery] {
