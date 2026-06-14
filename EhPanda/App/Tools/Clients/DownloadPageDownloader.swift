@@ -50,6 +50,34 @@ struct DownloadPageDownloader: Sendable {
     }
 }
 
+enum DownloadBackgroundSessionEvents {
+    static var pageSessionIdentifier: String {
+        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.ehpanda"
+        return "\(bundleIdentifier).downloads.pages"
+    }
+
+    @MainActor
+    private static var completionHandlers = [String: () -> Void]()
+
+    @MainActor
+    static func setCompletionHandler(
+        _ completionHandler: @escaping () -> Void,
+        for identifier: String
+    ) {
+        completionHandlers[identifier] = completionHandler
+    }
+
+    @MainActor
+    static func finishEvents(for identifier: String?) {
+        guard let identifier,
+              let completionHandler = completionHandlers.removeValue(
+                forKey: identifier
+              )
+        else { return }
+        completionHandler()
+    }
+}
+
 private actor BackgroundDownloadTaskHub {
     private enum Failure: Error, Sendable {
         case cancelled
@@ -283,6 +311,16 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
     ) {
         guard let error else { return }
         complete(taskIdentifier: task.taskIdentifier, error: error)
+    }
+
+    func urlSessionDidFinishEvents(
+        forBackgroundURLSession session: URLSession
+    ) {
+        Task { @MainActor in
+            DownloadBackgroundSessionEvents.finishEvents(
+                for: session.configuration.identifier
+            )
+        }
     }
 
     private func complete(

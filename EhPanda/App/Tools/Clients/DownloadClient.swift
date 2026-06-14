@@ -38,14 +38,34 @@ extension DownloadClient {
         urlSession: URLSession = .shared,
         fileManager: sending FileManager = .default
     ) -> Self {
+        let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
+        let backgroundTaskStore = DownloadBackgroundTaskStore(
+            fileURL: storage.backgroundTaskRegistryURL()
+        )
+        let completionReceiver = BackgroundPageCompletionReceiver()
+        let pageDownloader = DownloadPageDownloader.background(
+            identifier: DownloadBackgroundSessionEvents.pageSessionIdentifier,
+            taskStore: backgroundTaskStore,
+            holdingDirectory: storage.backgroundTransferHoldingDirectoryURL(),
+            orphanedCompletionHandler: { taskIdentifier, fileURL, response in
+                await completionReceiver.handleCompletion(
+                    taskIdentifier: taskIdentifier,
+                    fileURL: fileURL,
+                    response: response
+                )
+            }
+        )
         let manager = DownloadCoordinator(
-            storage: .init(rootURL: rootURL, fileManager: fileManager),
+            storage: storage,
             urlSession: urlSession,
+            pageDownloader: pageDownloader,
+            backgroundTaskStore: backgroundTaskStore,
             downloadOptionsProvider: {
                 await DatabaseClient.live.fetchAppEnv().setting.downloadRequestOptions
             }
         )
         Task {
+            await completionReceiver.setCoordinator(manager)
             await manager.reconcileDownloads()
             await manager.resumeQueue()
         }
