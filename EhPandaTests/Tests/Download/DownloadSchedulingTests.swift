@@ -16,7 +16,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(
+        let storage = DownloadStore(
             rootURL: rootURL,
             fileManager: .default
         )
@@ -99,7 +99,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(
+        let storage = DownloadStore(
             rootURL: rootURL,
             fileManager: .default
         )
@@ -152,7 +152,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
 
 private extension DownloadSchedulingTests {
     func writeQueuedManifest(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         title: String
     ) throws {

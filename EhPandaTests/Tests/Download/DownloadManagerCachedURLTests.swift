@@ -15,7 +15,7 @@ struct DownloadManagerCachedURLTests {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         let folderRelativePath = "Folder/[900_token] Cached"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)

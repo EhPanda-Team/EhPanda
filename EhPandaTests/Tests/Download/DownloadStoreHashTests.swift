@@ -1,5 +1,5 @@
 //
-//  DownloadFileStorageHashTests.swift
+//  DownloadStoreHashTests.swift
 //  EhPandaTests
 //
 
@@ -7,7 +7,7 @@ import Foundation
 import Testing
 @testable import EhPanda
 
-struct DownloadFileStorageHashTests {
+struct DownloadStoreHashTests {
     @Test
     func testValidateReportsCorruptedPageImageData() throws {
         let (storage, rootURL) = makeStorage()
@@ -81,7 +81,7 @@ struct DownloadFileStorageHashTests {
     }
 
     private func makePreparedDownload(
-        storage: DownloadFileStorage
+        storage: DownloadStore
     ) throws -> (DownloadedGallery, URL) {
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "123 - Sample")
@@ -106,11 +106,11 @@ struct DownloadFileStorageHashTests {
         return (download, folderURL)
     }
 
-    private func makeStorage() -> (DownloadFileStorage, URL) {
+    private func makeStorage() -> (DownloadStore, URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return (
-            DownloadFileStorage(rootURL: rootURL, fileManager: .default),
+            DownloadStore(rootURL: rootURL, fileManager: .default),
             rootURL
         )
     }

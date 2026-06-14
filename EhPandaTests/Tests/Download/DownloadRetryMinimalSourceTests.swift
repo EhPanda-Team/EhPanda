@@ -134,7 +134,7 @@ private struct MinimalSourceTestResult {
 }
 
 private struct MinimalSourceRetrySkipContext {
-    let storage: DownloadFileStorage
+    let storage: DownloadStore
     let manager: DownloadManager
     let gid: String
     let pageIndex: Int
@@ -168,7 +168,7 @@ private extension DownloadRetryMinimalSourceTests {
     }
 
     func writeFinalManifest(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         manifest: DownloadManifest,
         missingPageIndex: Int
@@ -182,7 +182,7 @@ private extension DownloadRetryMinimalSourceTests {
     }
 
     func writeFinalManifest(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         manifest: DownloadManifest,
         missingPageIndices: Set<Int>

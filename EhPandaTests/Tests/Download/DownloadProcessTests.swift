@@ -214,7 +214,7 @@ private struct ProcessVerificationContext {
 
 private extension DownloadProcessTests {
     func writeProcessManifestFolder(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         title: String,
         pageCount: Int
@@ -266,7 +266,7 @@ private extension DownloadProcessTests {
     }
 
     func prepareStaleExistingFolder(
-        storage: DownloadFileStorage, gid: String, pageIndex: Int,
+        storage: DownloadStore, gid: String, pageIndex: Int,
         oldPageCount: Int
     ) throws -> URL {
         let staleManifest = try sampleManifest(
@@ -293,7 +293,7 @@ private extension DownloadProcessTests {
 
     func verifyCompletedProcess(
         manager: DownloadManager,
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         context: ProcessVerificationContext
     ) async throws {
         let completedDownload = await manager.testingFetchDownload(gid: context.gid)

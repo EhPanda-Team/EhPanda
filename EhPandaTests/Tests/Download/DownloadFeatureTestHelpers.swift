@@ -158,7 +158,7 @@ extension DownloadFeatureTestCase {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return DownloadManager(
-            storage: DownloadFileStorage(rootURL: rootURL, fileManager: .default),
+            storage: DownloadStore(rootURL: rootURL, fileManager: .default),
             urlSession: .shared,
             storedCookiesProvider: storedCookiesProvider
         )

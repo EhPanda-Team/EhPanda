@@ -16,7 +16,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(storage: storage, urlSession: .shared)
         try writeManifestFolder(
             storage: storage,
@@ -60,7 +60,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let storage = DownloadFileStorage(rootURL: rootURL, fileManager: .default)
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let manager = DownloadManager(
             storage: storage,
             urlSession: .shared
@@ -99,7 +99,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
 private extension DownloadRetryPagesTests {
     @discardableResult
     func writeManifestFolder(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         gid: String,
         title: String,
         pageHashes: [String]

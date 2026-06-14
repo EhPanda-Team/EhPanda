@@ -1,11 +1,11 @@
 //
-//  DownloadFileStorage+Operations.swift
+//  DownloadStore+Operations.swift
 //  EhPanda
 //
 
 import Foundation
 
-extension DownloadFileStorage {
+extension DownloadStore {
     func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
             throw AppError.fileOperationFailed(
