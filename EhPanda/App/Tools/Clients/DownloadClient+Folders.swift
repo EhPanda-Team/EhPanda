@@ -128,6 +128,7 @@ extension DownloadCoordinator {
         for gid in containedGIDs {
             clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
             await queueStore.remove(gid)
+            await backgroundTaskStore.removeAll(for: gid)
             downloadIndex[gid] = nil
         }
         userFolders.removeAll { $0 == name }
