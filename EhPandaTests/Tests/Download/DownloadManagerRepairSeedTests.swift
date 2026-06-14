@@ -261,6 +261,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         let client = ImageClient(
             prefetchImages: { _ in },
             saveImageToPhotoLibrary: { _, _ in false },
+            saveImageDataToPhotoLibrary: { _ in false },
             downloadImage: { _ in
                 Issue.record("Expected ImageClient to use the cached SDWebImage data.")
                 return .failure(AppError.notFound)
@@ -284,12 +285,17 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         let expectedCacheKeys = url.imageCacheKeys(includeStableAlias: true)
         let retrievedCacheKeys = UncheckedBox([String]())
         let downloadedURLs = UncheckedBox([URL]())
+        let downloadedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(.init(x: 0, y: 0, width: 1, height: 1))
+        }
         let client = ImageClient(
             prefetchImages: { _ in },
             saveImageToPhotoLibrary: { _, _ in false },
+            saveImageDataToPhotoLibrary: { _ in false },
             downloadImage: { downloadURL in
                 downloadedURLs.value.append(downloadURL)
-                return .success(UIImage())
+                return .success(downloadedImage)
             },
             retrieveImage: { cacheKey in
                 retrievedCacheKeys.value.append(cacheKey)

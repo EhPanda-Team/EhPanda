@@ -137,7 +137,7 @@ extension ReadingReducer {
         let requestID = UUID()
         state.localPageRequestID = requestID
         return .run { send in
-            let localPageURLs = (try? await downloadClient.loadLocalPageURLs(gid)) ?? [:]
+            let localPageURLs = await downloadClient.loadLocalPageURLs(gid) ?? [:]
             await send(.loadLocalPageURLsDone(requestID, localPageURLs))
         }
         .cancellable(id: ReadingCancelID.loadLocalPageURLs, cancelInFlight: true)

@@ -70,6 +70,15 @@ actor DataCache {
         return data
     }
 
+    func data(forKeys keys: [String]) throws -> Data? {
+        for key in Self.uniqued(keys) {
+            if let data = try data(forKey: key) {
+                return data
+            }
+        }
+        return nil
+    }
+
     func store(_ data: Data, forKey key: String) throws {
         memoryCache.setObject(data as NSData, forKey: key as NSString, cost: data.count)
         let fileURL = fileURL(forKey: key)
@@ -82,11 +91,23 @@ actor DataCache {
         }
     }
 
+    func store(_ data: Data, forKeys keys: [String]) throws {
+        for key in Self.uniqued(keys) {
+            try store(data, forKey: key)
+        }
+    }
+
     func removeData(forKey key: String) throws {
         memoryCache.removeObject(forKey: key as NSString)
         let fileURL = fileURL(forKey: key)
         guard fileManager.fileExists(atPath: fileURL.path) else { return }
         try fileManager.removeItem(at: fileURL)
+    }
+
+    func removeData(forKeys keys: [String]) throws {
+        for key in Self.uniqued(keys) {
+            try removeData(forKey: key)
+        }
     }
 
     func removeAll() throws {
@@ -189,6 +210,11 @@ actor DataCache {
         SHA256.hash(data: Data(key.utf8))
             .map { String(format: "%02x", $0) }
             .joined()
+    }
+
+    private nonisolated static func uniqued(_ keys: [String]) -> [String] {
+        var seen = Set<String>()
+        return keys.filter { seen.insert($0).inserted }
     }
 
     private func isExpired(_ fileURL: URL) -> Bool {

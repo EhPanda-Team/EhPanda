@@ -118,7 +118,7 @@ extension DetailReducer {
         let requestID = UUID()
         state.localPreviewRequestID = requestID
         return .run { [galleryID = state.gid] send in
-            let localPreviewURLs = (try? await downloadClient.loadLocalPageURLs(galleryID)) ?? [:]
+            let localPreviewURLs = await downloadClient.loadLocalPageURLs(galleryID) ?? [:]
             await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
         }
         .cancellable(id: CancelID.loadLocalPreviewURLs(state.cancellationGalleryID), cancelInFlight: true)

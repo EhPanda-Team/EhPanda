@@ -3,7 +3,6 @@
 //  EhPandaTests
 //
 
-import Kingfisher
 import UIKit
 import Foundation
 import Testing
@@ -45,12 +44,8 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
-        let cacheKey = try #require(imageURL.stableImageCacheKey)
-        try await KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
-        defer {
-            KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
-            KingfisherManager.shared.cache.removeImage(forKey: imageURL.absoluteString)
-        }
+        let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
+        try await DataCache.shared.store(imageData, forKeys: cacheKeys)
 
         await manager.captureCachedPage(
             gid: gid,
@@ -69,6 +64,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
                 )
             )
         )
+        try? await DataCache.shared.removeData(forKeys: cacheKeys)
     }
 
     @MainActor
@@ -85,11 +81,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             rootURL: rootURL, gid: gid
         )
         await manager.reloadDownloadIndex()
-        let (imageURL, cacheKey) = try await setupCaptureCachedImage(gid: gid)
-        defer {
-            KingfisherManager.shared.cache.removeImage(forKey: cacheKey)
-            KingfisherManager.shared.cache.removeImage(forKey: imageURL.absoluteString)
-        }
+        let (imageURL, cacheKeys) = try await setupCaptureCachedImage(gid: gid)
 
         await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
 
@@ -106,6 +98,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
             fileExtension: "jpg"
         )
         #expect(pageURLs[1] == completedFolderURL.appendingPathComponent(pageRelativePath))
+        try? await DataCache.shared.removeData(forKeys: cacheKeys)
     }
 
 }
@@ -153,15 +146,15 @@ private extension DownloadManagerCaptureTests {
     }
 
     @MainActor
-    func setupCaptureCachedImage(gid: String) async throws -> (URL, String) {
+    func setupCaptureCachedImage(gid: String) async throws -> (URL, [String]) {
         let imageURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
         let image = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
             UIColor.systemOrange.setFill()
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
-        let cacheKey = try #require(imageURL.stableImageCacheKey)
-        try await KingfisherManager.shared.cache.store(image, original: imageData, forKey: cacheKey)
-        return (imageURL, cacheKey)
+        let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
+        try await DataCache.shared.store(imageData, forKeys: cacheKeys)
+        return (imageURL, cacheKeys)
     }
 }

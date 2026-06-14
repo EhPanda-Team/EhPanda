@@ -140,7 +140,7 @@ struct ReadingReducer {
         case saveImageDone(Bool)
         case shareImage(URL)
         case fetchImage(ImageAction, URL)
-        case fetchImageDone(ImageAction, Result<UIImage, Error>)
+        case fetchImageDone(ImageAction, Result<ImageClient.ImageAsset, Error>)
 
         case syncReadingProgress(Int)
         case syncPreviewURLs([Int: URL])

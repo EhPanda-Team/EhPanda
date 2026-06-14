@@ -116,11 +116,11 @@ private extension PreviewsReducerDownloadTests {
     }
 
     func makePreviewsNoManifestClient(loadLocalPageURLs: Bool) -> DownloadClient {
-        let loadLocalPageURLsResult: @Sendable (String) async throws -> [Int: URL]
+        let loadLocalPageURLsResult: @Sendable (String) async -> [Int: URL]?
         if loadLocalPageURLs {
             loadLocalPageURLsResult = { _ in [:] }
         } else {
-            loadLocalPageURLsResult = { _ in throw AppError.notFound }
+            loadLocalPageURLsResult = { _ in nil }
         }
         var client = DownloadClient()
         client.observeDownloads = { AsyncStream { continuation in continuation.finish() } }

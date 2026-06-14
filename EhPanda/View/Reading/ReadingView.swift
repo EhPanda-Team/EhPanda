@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import Observation
 import SwiftUIPager
 import ComposableArchitecture
@@ -302,48 +301,44 @@ extension ReadingView {
             analyzeLocalImage(at: imageURL, index: index)
             return
         }
-        let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
         Task {
-            await retrieveCachedImage(cacheKeys: ArraySlice(cacheKeys), index: index)
+            await analyzeCachedImageData(
+                cacheKeys: imageURL.imageCacheKeys(includeStableAlias: true),
+                index: index
+            )
         }
     }
 
     private func analyzeLocalImage(at imageURL: URL, index: Int) {
-        if let image = UIImage(contentsOfFile: imageURL.path)
-            ?? ((try? Data(contentsOf: imageURL)).flatMap(UIImage.init(data:))),
-           let cgImage = image.cgImage {
-            liveTextHandler.analyzeImage(
-                cgImage, size: image.size, index: index, recognitionLanguages:
-                    store.language?.codes
-            )
-        } else {
+        guard let data = try? Data(contentsOf: imageURL),
+              !data.isAnimatedImageData,
+              let image = data.decodedImage,
+              let cgImage = image.cgImage
+        else {
             Logger.info("analyzeImageForLiveText local image not found", context: ["index": index])
+            return
         }
+
+        liveTextHandler.analyzeImage(
+            cgImage, size: image.size, index: index, recognitionLanguages:
+                store.language?.codes
+        )
     }
 
-    private func retrieveCachedImage(cacheKeys: ArraySlice<String>, index: Int) async {
-        guard let cacheKey = cacheKeys.first else {
+    private func analyzeCachedImageData(cacheKeys: [String], index: Int) async {
+        guard let data = try? await DataCache.shared.data(forKeys: cacheKeys),
+              !data.isAnimatedImageData,
+              let image = data.decodedImage,
+              let cgImage = image.cgImage
+        else {
             Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
             return
         }
 
-        do {
-            let result = try await KingfisherManager.shared.cache.retrieveImage(forKey: cacheKey)
-            if let image = result.image, let cgImage = image.cgImage {
-                liveTextHandler.analyzeImage(
-                    cgImage, size: image.size, index: index, recognitionLanguages:
-                        store.language?.codes
-                )
-            } else {
-                await retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
-            }
-        } catch {
-            if cacheKeys.count > 1 {
-                await retrieveCachedImage(cacheKeys: cacheKeys.dropFirst(), index: index)
-            } else {
-                Logger.info("analyzeImageForLiveText failed", context: ["index": index])
-            }
-        }
+        liveTextHandler.analyzeImage(
+            cgImage, size: image.size, index: index, recognitionLanguages:
+                store.language?.codes
+        )
     }
 }
 
