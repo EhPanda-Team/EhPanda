@@ -69,10 +69,12 @@ extension LibraryClient {
                 forHTTPHeaderField: "Accept"
             )
             SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
+            DataCache.installSystemPurgeObservers()
         },
         removeAllCachedImages: {
             KingfisherManager.shared.cache.clearMemoryCache()
             SDImageCache.shared.clearMemory()
+            async let dataCacheClear: Void = DataCache.shared.removeAll()
             async let kingfisherClear: Void = withCheckedContinuation { continuation in
                 KingfisherManager.shared.cache.clearDiskCache {
                     continuation.resume()
@@ -83,7 +85,7 @@ extension LibraryClient {
                     continuation.resume()
                 }
             }
-            _ = await (kingfisherClear, sdWebImageClear)
+            _ = try? await (dataCacheClear, kingfisherClear, sdWebImageClear)
         },
         cachedImage: { key in
             if let image = await kingfisherCachedImage(forKey: key) {
@@ -141,7 +143,8 @@ extension LibraryClient {
                     continuation.resume(returning: UInt(totalSize))
                 }
             }
-            return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0)
+            async let dataCacheSize = try? DataCache.shared.totalSize()
+            return await (kingfisherSize ?? 0) + (sdWebImageSize ?? 0) + UInt(dataCacheSize ?? 0)
         }
     )
 }
