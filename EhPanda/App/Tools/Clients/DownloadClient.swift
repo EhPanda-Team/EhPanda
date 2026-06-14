@@ -54,6 +54,12 @@ extension DownloadClient {
                     fileURL: fileURL,
                     response: response
                 )
+            },
+            orphanedFailureHandler: { taskIdentifier, error in
+                await completionReceiver.handleFailure(
+                    taskIdentifier: taskIdentifier,
+                    error: error
+                )
             }
         )
         let manager = DownloadCoordinator(

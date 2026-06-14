@@ -35,14 +35,16 @@ struct DownloadPageDownloader: Sendable {
         taskStore: DownloadBackgroundTaskStore,
         holdingDirectory: URL,
         fileManager: sending FileManager = .default,
-        orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void = { _, _, _ in }
+        orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void = { _, _, _ in },
+        orphanedFailureHandler: @escaping @Sendable (Int, AppError?) async -> Void = { _, _ in }
     ) -> Self {
         let session = BackgroundPageDownloadSession(
             identifier: identifier,
             taskStore: taskStore,
             holdingDirectory: holdingDirectory,
             fileManager: fileManager,
-            orphanedCompletionHandler: orphanedCompletionHandler
+            orphanedCompletionHandler: orphanedCompletionHandler,
+            orphanedFailureHandler: orphanedFailureHandler
         )
         return .init { request, context in
             try await session.download(for: request, context: context)
@@ -225,6 +227,17 @@ private actor BackgroundDownloadTaskHub {
         }
         return .app(.unknown)
     }
+
+    // Classifies a delegate error for the orphaned-failure route: `nil` for a
+    // cancellation (clean up the task record only), the AppError otherwise.
+    static func orphanedFailureError(from error: Error) -> AppError? {
+        switch failure(from: error) {
+        case .cancelled:
+            return nil
+        case .app(let appError):
+            return appError
+        }
+    }
 }
 
 private actor BackgroundPageDownloadSession {
@@ -238,7 +251,8 @@ private actor BackgroundPageDownloadSession {
         taskStore: DownloadBackgroundTaskStore,
         holdingDirectory: URL,
         fileManager: sending FileManager,
-        orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void
+        orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void,
+        orphanedFailureHandler: @escaping @Sendable (Int, AppError?) async -> Void
     ) {
         self.taskStore = taskStore
         let delegate = BackgroundPageDownloadDelegate(
@@ -246,7 +260,8 @@ private actor BackgroundPageDownloadSession {
             taskStore: taskStore,
             holdingDirectory: holdingDirectory,
             fileManager: fileManager,
-            orphanedCompletionHandler: orphanedCompletionHandler
+            orphanedCompletionHandler: orphanedCompletionHandler,
+            orphanedFailureHandler: orphanedFailureHandler
         )
         self.delegate = delegate
         let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
@@ -289,19 +304,22 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
     private let holdingDirectory: URL
     private let fileManager: DownloadFileManager
     private let orphanedCompletionHandler: @Sendable (Int, URL, URLResponse) async -> Void
+    private let orphanedFailureHandler: @Sendable (Int, AppError?) async -> Void
 
     init(
         hub: BackgroundDownloadTaskHub,
         taskStore: DownloadBackgroundTaskStore,
         holdingDirectory: URL,
         fileManager: sending FileManager,
-        orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void
+        orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void,
+        orphanedFailureHandler: @escaping @Sendable (Int, AppError?) async -> Void
     ) {
         self.hub = hub
         self.taskStore = taskStore
         self.holdingDirectory = holdingDirectory
         self.fileManager = DownloadFileManager(fileManager)
         self.orphanedCompletionHandler = orphanedCompletionHandler
+        self.orphanedFailureHandler = orphanedFailureHandler
         super.init()
     }
 
@@ -368,11 +386,19 @@ private final class BackgroundPageDownloadDelegate: NSObject, URLSessionDownload
         error: Error
     ) {
         Task {
-            _ = await taskStore.remove(taskIdentifier: taskIdentifier)
-            _ = await hub.fail(
+            // The in-process waiter removes its own task record when `wait` throws;
+            // an orphaned failure (no waiter) is routed instead, mirroring the
+            // orphaned-completion path, so it isn't stashed and dropped silently.
+            let consumed = await hub.fail(
                 taskIdentifier: taskIdentifier,
                 error: error
             )
+            if !consumed {
+                await orphanedFailureHandler(
+                    taskIdentifier,
+                    BackgroundDownloadTaskHub.orphanedFailureError(from: error)
+                )
+            }
         }
     }
 
