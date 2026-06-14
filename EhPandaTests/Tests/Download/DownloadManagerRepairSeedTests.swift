@@ -283,6 +283,10 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
             URL(string: "https://ehgt.org/ab/cd/0001-1234567890.jpg?download=1")
         )
         let expectedCacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        // Earlier serialized tests in this suite warm DataCache.shared for these
+        // keys, which would short-circuit fetchImage before the retrieve/download
+        // fallback this test asserts on. Clear them so the fallback path runs.
+        try await DataCache.shared.removeData(forKeys: expectedCacheKeys)
         let retrievedCacheKeys = UncheckedBox([String]())
         let downloadedURLs = UncheckedBox([URL]())
         let downloadedImage = UIGraphicsImageRenderer(size: .init(width: 1, height: 1)).image { context in
