@@ -51,22 +51,25 @@ extension Data {
 
     var isAPNGFormat: Bool {
         guard starts(with: ImageDataSignature.pngComplete) else { return false }
-        let bytes = Array(self)
-        var offset = ImageDataSignature.pngComplete.count
-        while offset + 12 <= bytes.count {
-            let chunkLength = Int(Self.bigEndianUInt32(bytes, offset: offset))
-            let chunkTypeOffset = offset + 4
-            let chunkDataOffset = offset + 8
-            guard chunkDataOffset + chunkLength + 4 <= bytes.count else { return false }
-            if Self.matches(ImageDataSignature.apngAnimationControl, in: bytes, at: chunkTypeOffset) {
-                return true
+        // Walk the chunk headers in place; a still PNG returns at the first `IDAT`
+        // after reading only a few header bytes, so no full-image copy is needed.
+        return withUnsafeBytes { bytes in
+            var offset = ImageDataSignature.pngComplete.count
+            while offset + 12 <= bytes.count {
+                let chunkLength = Int(Self.bigEndianUInt32(bytes, offset: offset))
+                let chunkTypeOffset = offset + 4
+                let chunkDataOffset = offset + 8
+                guard chunkDataOffset + chunkLength + 4 <= bytes.count else { return false }
+                if Self.matches(ImageDataSignature.apngAnimationControl, in: bytes, at: chunkTypeOffset) {
+                    return true
+                }
+                if Self.matches(ImageDataSignature.pngImageData, in: bytes, at: chunkTypeOffset) {
+                    return false
+                }
+                offset = chunkDataOffset + chunkLength + 4
             }
-            if Self.matches(ImageDataSignature.pngImageData, in: bytes, at: chunkTypeOffset) {
-                return false
-            }
-            offset = chunkDataOffset + chunkLength + 4
+            return false
         }
-        return false
     }
 
     var isGIFFormat: Bool {
@@ -111,72 +114,74 @@ extension Data {
 
     private var isAnimatedGIFFormat: Bool {
         guard isGIFFormat else { return false }
-        let bytes = Array(self)
-        guard bytes.count >= 13 else { return false }
+        return withUnsafeBytes { bytes in
+            guard bytes.count >= 13 else { return false }
 
-        var offset = 13
-        if bytes[10] & 0x80 != 0 {
-            offset += Self.colorTableByteCount(packedField: bytes[10])
-        }
-
-        var imageCount = 0
-        while offset < bytes.count {
-            switch bytes[offset] {
-            case 0x2C:
-                imageCount += 1
-                guard imageCount <= 1 else { return true }
-                guard offset + 10 <= bytes.count else { return false }
-                let packedField = bytes[offset + 9]
-                offset += 10
-                if packedField & 0x80 != 0 {
-                    offset += Self.colorTableByteCount(packedField: packedField)
-                }
-                guard offset < bytes.count else { return false }
-                offset += 1
-                guard Self.skipGIFSubBlocks(bytes, offset: &offset) else { return false }
-
-            case 0x21:
-                offset += 2
-                guard Self.skipGIFSubBlocks(bytes, offset: &offset) else { return false }
-
-            case 0x3B:
-                return false
-
-            default:
-                return false
+            var offset = 13
+            if bytes[10] & 0x80 != 0 {
+                offset += Self.colorTableByteCount(packedField: bytes[10])
             }
+
+            var imageCount = 0
+            while offset < bytes.count {
+                switch bytes[offset] {
+                case 0x2C:
+                    imageCount += 1
+                    guard imageCount <= 1 else { return true }
+                    guard offset + 10 <= bytes.count else { return false }
+                    let packedField = bytes[offset + 9]
+                    offset += 10
+                    if packedField & 0x80 != 0 {
+                        offset += Self.colorTableByteCount(packedField: packedField)
+                    }
+                    guard offset < bytes.count else { return false }
+                    offset += 1
+                    guard Self.skipGIFSubBlocks(bytes, offset: &offset) else { return false }
+
+                case 0x21:
+                    offset += 2
+                    guard Self.skipGIFSubBlocks(bytes, offset: &offset) else { return false }
+
+                case 0x3B:
+                    return false
+
+                default:
+                    return false
+                }
+            }
+            return false
         }
-        return false
     }
 
     private var isAnimatedWebPFormat: Bool {
         guard isWebPFormat else { return false }
-        let bytes = Array(self)
-        var offset = 12
-        while offset + 8 <= bytes.count {
-            let chunkTypeOffset = offset
-            let chunkSize = Int(Self.littleEndianUInt32(bytes, offset: offset + 4))
-            let chunkDataOffset = offset + 8
-            let paddedChunkSize = chunkSize + (chunkSize % 2)
-            guard chunkDataOffset + paddedChunkSize <= bytes.count else { return false }
+        return withUnsafeBytes { bytes in
+            var offset = 12
+            while offset + 8 <= bytes.count {
+                let chunkTypeOffset = offset
+                let chunkSize = Int(Self.littleEndianUInt32(bytes, offset: offset + 4))
+                let chunkDataOffset = offset + 8
+                let paddedChunkSize = chunkSize + (chunkSize % 2)
+                guard chunkDataOffset + paddedChunkSize <= bytes.count else { return false }
 
-            if Self.matches(ImageDataSignature.webPExtended, in: bytes, at: chunkTypeOffset) {
-                guard chunkSize >= 1 else { return false }
-                return bytes[chunkDataOffset] & 0x02 != 0
+                if Self.matches(ImageDataSignature.webPExtended, in: bytes, at: chunkTypeOffset) {
+                    guard chunkSize >= 1 else { return false }
+                    return bytes[chunkDataOffset] & 0x02 != 0
+                }
+                if Self.matches(ImageDataSignature.webPAnimation, in: bytes, at: chunkTypeOffset) {
+                    return true
+                }
+                offset = chunkDataOffset + paddedChunkSize
             }
-            if Self.matches(ImageDataSignature.webPAnimation, in: bytes, at: chunkTypeOffset) {
-                return true
-            }
-            offset = chunkDataOffset + paddedChunkSize
+            return false
         }
-        return false
     }
 
     private static func colorTableByteCount(packedField: UInt8) -> Int {
         3 * (1 << Int((packedField & 0x07) + 1))
     }
 
-    private static func skipGIFSubBlocks(_ bytes: [UInt8], offset: inout Int) -> Bool {
+    private static func skipGIFSubBlocks(_ bytes: UnsafeRawBufferPointer, offset: inout Int) -> Bool {
         while offset < bytes.count {
             let blockSize = Int(bytes[offset])
             offset += 1
@@ -187,7 +192,7 @@ extension Data {
         return false
     }
 
-    private static func matches(_ expected: [UInt8], in bytes: [UInt8], at offset: Int) -> Bool {
+    private static func matches(_ expected: [UInt8], in bytes: UnsafeRawBufferPointer, at offset: Int) -> Bool {
         guard offset >= 0, offset + expected.count <= bytes.count else { return false }
         for index in expected.indices where bytes[offset + index] != expected[index] {
             return false
@@ -195,7 +200,7 @@ extension Data {
         return true
     }
 
-    private static func littleEndianUInt32(_ bytes: [UInt8], offset: Int) -> UInt32 {
+    private static func littleEndianUInt32(_ bytes: UnsafeRawBufferPointer, offset: Int) -> UInt32 {
         guard offset + 4 <= bytes.count else { return 0 }
         return UInt32(bytes[offset])
             | UInt32(bytes[offset + 1]) << 8
@@ -203,7 +208,7 @@ extension Data {
             | UInt32(bytes[offset + 3]) << 24
     }
 
-    private static func bigEndianUInt32(_ bytes: [UInt8], offset: Int) -> UInt32 {
+    private static func bigEndianUInt32(_ bytes: UnsafeRawBufferPointer, offset: Int) -> UInt32 {
         guard offset + 4 <= bytes.count else { return 0 }
         return UInt32(bytes[offset]) << 24
             | UInt32(bytes[offset + 1]) << 16
