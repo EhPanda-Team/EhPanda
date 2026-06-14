@@ -244,7 +244,7 @@ struct ImageContainer: View {
         ByteRoutedReaderImage(
             url: url,
             isActive: isActive,
-            placeholder: { placeholder(nil) },
+            placeholder: { progress in placeholder(progress) },
             onSucceeded: { loadSucceededAction(index) },
             onFailed: { loadFailedAction(index) }
         )
@@ -294,15 +294,18 @@ struct ImageContainer: View {
 // (DataCache → cookied URLSession), routing animated bytes to SDWebImage and
 // still bytes to UIImage so the engine decides by content, not URL extension.
 private struct ByteRoutedReaderImage<Placeholder: View>: View {
+    private static var progressUnitCount: Int64 { 10_000 }
+
     let url: URL?
     let isActive: Bool
-    @ViewBuilder let placeholder: () -> Placeholder
+    @ViewBuilder let placeholder: (Progress?) -> Placeholder
     let onSucceeded: () -> Void
     let onFailed: () -> Void
 
     @Dependency(\.imageClient) private var imageClient
     @State private var stillImage: UIImage?
     @State private var animatedData: Data?
+    @State private var progress: Progress?
 
     var body: some View {
         content.task(id: url) { await load() }
@@ -315,15 +318,22 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
         } else if let stillImage {
             Image(uiImage: stillImage).resizable()
         } else {
-            placeholder()
+            placeholder(progress)
         }
     }
 
-    private func load() async {
+    @MainActor private func load() async {
         stillImage = nil
         animatedData = nil
+        progress = nil
         guard let url else { return }
-        guard let asset = await imageClient.fetchReaderImageAsset(url: url) else {
+        let downloadProgress = Progress(totalUnitCount: Self.progressUnitCount)
+        progress = downloadProgress
+        let asset = await imageClient.fetchReaderImageAsset(url: url) { fraction in
+            downloadProgress.completedUnitCount = Int64(fraction * Double(Self.progressUnitCount))
+        }
+        progress = nil
+        guard let asset else {
             onFailed()
             return
         }
