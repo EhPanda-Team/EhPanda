@@ -142,6 +142,7 @@ actor DownloadManager {
     /// a gallery is queued apply to the eventual detail fetch and page workers.
     let downloadOptionsProvider: @Sendable () async -> DownloadRequestOptions
     let queueStore: DownloadQueueStore
+    let observerHub = DownloadObserverHub()
     var downloadIndex = [String: DownloadFolderRecord]()
     var hasLoadedIndex = false
     var userFolders = [String]()
@@ -151,8 +152,6 @@ actor DownloadManager {
     var updatedGalleryIDs = Set<String>()
     var queuedModes = [String: DownloadStartMode]()
     var queuedPageSelections = [String: [Int]]()
-    var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
-    var lastObservedDownloads = [DownloadedGallery]()
     var activeGalleryID: String?
     var activeTask: Task<Void, Never>?
     var schedulingBlockedGalleryIDs = Set<String>()
@@ -185,6 +184,39 @@ actor DownloadManager {
 
     var fileManager: DownloadFileManager {
         storage.fileManager
+    }
+}
+
+actor DownloadObserverHub {
+    private var lastObservedDownloads = [DownloadedGallery]()
+    private var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()
+
+    func observe(
+        initialDownloads: [DownloadedGallery]
+    ) -> AsyncStream<[DownloadedGallery]> {
+        let identifier = UUID()
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: [DownloadedGallery].self
+        )
+        observers[identifier] = continuation
+        continuation.yield(initialDownloads)
+        continuation.onTermination = { [weak self] _ in
+            guard let self else { return }
+            Task {
+                await self.removeObserver(id: identifier)
+            }
+        }
+        return stream
+    }
+
+    func notify(_ downloads: [DownloadedGallery]) {
+        guard downloads != lastObservedDownloads else { return }
+        lastObservedDownloads = downloads
+        observers.values.forEach { $0.yield(downloads) }
+    }
+
+    private func removeObserver(id: UUID) {
+        observers[id] = nil
     }
 }
 

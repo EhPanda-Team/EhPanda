@@ -144,4 +144,80 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         #expect(emissionCount < pageCount)
         #expect(emissionCount <= 2 + Int(ceil(Double(pageCount) / 8.0)))
     }
+
+    @Test
+    func testObserverHubBroadcastIsNotSuppressedByLateObserverInitialSnapshot() async throws {
+        let hub = DownloadObserverHub()
+        let initialDownload = sampleDownload(
+            gid: "observer-race",
+            title: "Observer Race",
+            status: .queued,
+            completedPageCount: 0
+        )
+        let updatedDownload = sampleDownload(
+            gid: initialDownload.gid,
+            title: initialDownload.title,
+            status: .completed,
+            completedPageCount: initialDownload.pageCount
+        )
+
+        await hub.notify([initialDownload])
+        let existingObserverStream = await hub.observe(initialDownloads: [initialDownload])
+        let existingObserverTask = collectEmissions(
+            from: existingObserverStream,
+            count: 2
+        )
+
+        let lateObserverStream = await hub.observe(initialDownloads: [updatedDownload])
+        let lateObserverTask = collectEmissions(
+            from: lateObserverStream,
+            count: 1
+        )
+        let lateObserverEmissions = try await waitForTaskValue(
+            lateObserverTask,
+            timeout: .seconds(1),
+            description: "late observer initial snapshot"
+        )
+        #expect(lateObserverEmissions == [[updatedDownload]])
+
+        await hub.notify([updatedDownload])
+
+        let existingObserverEmissions = try await waitForTaskValue(
+            existingObserverTask,
+            timeout: .seconds(1),
+            description: "existing observer update after late observer registration"
+        )
+        #expect(existingObserverEmissions == [[initialDownload], [updatedDownload]])
+    }
+
+    @Test
+    func testObserverHubRegistersObserverBeforeReturningStream() async {
+        let hub = DownloadObserverHub()
+        let initialDownload = sampleDownload(
+            gid: "observer-registration",
+            title: "Observer Registration",
+            status: .completed
+        )
+        let stream = await hub.observe(initialDownloads: [initialDownload])
+        let observerTask = collectEmissions(from: stream, count: 1)
+
+        let emissions = await observerTask.value
+        #expect(emissions == [[initialDownload]])
+    }
+}
+
+private func collectEmissions(
+    from stream: AsyncStream<[DownloadedGallery]>,
+    count: Int
+) -> Task<[[DownloadedGallery]], Never> {
+    Task {
+        var emissions = [[DownloadedGallery]]()
+        for await downloads in stream {
+            emissions.append(downloads)
+            if emissions.count == count {
+                break
+            }
+        }
+        return emissions
+    }
 }
