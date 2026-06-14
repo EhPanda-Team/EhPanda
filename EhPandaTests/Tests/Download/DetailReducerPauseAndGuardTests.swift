@@ -24,17 +24,19 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
 
-        let store = TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.appLaunchAutomationClient = appLaunchAutomationClient(
-                autoDownloadGID: gallery.gid
-            )
-            $0.downloadClient = .noop
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.appLaunchAutomationClient = appLaunchAutomationClient(
+                    autoDownloadGID: gallery.gid
+                )
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.fetchDownloadBadgeDone(completedDownload)) {
@@ -60,33 +62,35 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         initialState.galleryDetail = detail
         initialState.isPreparingDownload = true
 
-        let store = TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in
-                    enqueueCount.value += 1
-                    return .success(())
-                },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in
+                        enqueueCount.value += 1
+                        return .success(())
+                    },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
 
         await store.send(.startDownload(options, "Folder"))
 
@@ -151,29 +155,31 @@ private extension DetailReducerPauseAndGuardTests {
         pausedDownload: DownloadedGallery,
         togglePauseCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
-        let store = TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: { AsyncStream { continuation in continuation.finish() } },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in pausedDownload },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in
-                    togglePauseCount.value += 1
-                    return .success(())
-                },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: { AsyncStream { continuation in continuation.finish() } },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in pausedDownload },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in
+                        togglePauseCount.value += 1
+                        return .success(())
+                    },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }

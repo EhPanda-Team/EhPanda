@@ -167,36 +167,38 @@ private extension DownloadObserverReadingTests {
         expectedGID: String,
         loadCount: UncheckedBox<Int>
     ) -> TestStoreOf<ReadingReducer> {
-        let store = TestStore(initialState: initialState) {
-            ReadingReducer()
-        } withDependencies: {
-            $0.appDelegateClient = .noop
-            $0.clipboardClient = .noop
-            $0.cookieClient = .noop
-            $0.databaseClient = .noop
-            $0.deviceClient = .noop
-            $0.downloadClient = .init(
-                observeDownloads: { stream },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadLocalPageURLs: { gid in
-                    #expect(gid == expectedGID)
-                    loadCount.value += 1
-                    return .success([:])
-                }
-            )
-            $0.hapticsClient = .noop
-            $0.imageClient = .noop
-            $0.urlClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: ReadingReducer.init,
+            withDependencies: {
+                $0.appDelegateClient = .noop
+                $0.clipboardClient = .noop
+                $0.cookieClient = .noop
+                $0.databaseClient = .noop
+                $0.deviceClient = .noop
+                $0.downloadClient = .init(
+                    observeDownloads: { stream },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadLocalPageURLs: { gid in
+                        #expect(gid == expectedGID)
+                        loadCount.value += 1
+                        return .success([:])
+                    }
+                )
+                $0.hapticsClient = .noop
+                $0.imageClient = .noop
+                $0.urlClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }
@@ -207,30 +209,32 @@ private extension DownloadObserverReadingTests {
         expectedGID: String,
         loadCount: UncheckedBox<Int>
     ) -> TestStoreOf<PreviewsReducer> {
-        let store = TestStore(initialState: initialState) {
-            PreviewsReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: { stream },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadLocalPageURLs: { gid in
-                    #expect(gid == expectedGID)
-                    loadCount.value += 1
-                    return .success([:])
-                }
-            )
-            $0.databaseClient = .noop
-            $0.hapticsClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: PreviewsReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: { stream },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadLocalPageURLs: { gid in
+                        #expect(gid == expectedGID)
+                        loadCount.value += 1
+                        return .success([:])
+                    }
+                )
+                $0.databaseClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
         store.exhaustivity = .off
         return store
     }

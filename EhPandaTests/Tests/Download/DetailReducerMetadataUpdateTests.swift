@@ -91,14 +91,16 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
         initialState.didRequestVersionMetadata = true
         initialState.shouldCheckForRemoteUpdates = true
 
-        let store = TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = makeDeleteTestClient(download: download)
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = makeDeleteTestClient(download: download)
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.deleteDownloadDone(.success(()))) {
@@ -127,36 +129,38 @@ private extension DetailReducerMetadataUpdateTests {
         initialState.gid = gid
         initialState.gallery = gallery
         initialState.galleryDetail = detail
-        return TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in continuation.finish() }
-                },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in updatedDownload },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                fetchVersionMetadata: { _, _ in
-                    .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
-                },
-                updateRemoteVersion: { _, _ in
-                    updateCheckCount.value += 1
-                    return updatedDownload
-                },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadLocalPageURLs: { _ in .success([:]) }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in continuation.finish() }
+                    },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in updatedDownload },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    fetchVersionMetadata: { _, _ in
+                        .success(sampleVersionMetadata(gid: gallery.gid, token: gallery.token))
+                    },
+                    updateRemoteVersion: { _, _ in
+                        updateCheckCount.value += 1
+                        return updatedDownload
+                    },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadLocalPageURLs: { _ in .success([:]) }
+                )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
     }
 
     func makeDeleteTestClient(download: DownloadedGallery) -> DownloadClient {

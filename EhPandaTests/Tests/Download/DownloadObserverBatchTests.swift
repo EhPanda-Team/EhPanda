@@ -25,30 +25,32 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         initialState.retryingPageIndices = [2]
         initialState.loadingState = .idle
 
-        let store = TestStore(initialState: initialState) {
-            DownloadInspectorReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: {
-                    AsyncStream { continuation in
-                        continuation.yield([download])
-                        continuation.yield([])
-                        continuation.finish()
-                    }
-                },
-                fetchDownloads: { [download] },
-                fetchDownload: { gid in gid == download.gid ? download : nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) },
-                loadInspection: { _ in .success(inspection) }
-            )
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadInspectorReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: {
+                        AsyncStream { continuation in
+                            continuation.yield([download])
+                            continuation.yield([])
+                            continuation.finish()
+                        }
+                    },
+                    fetchDownloads: { [download] },
+                    fetchDownload: { gid in gid == download.gid ? download : nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) },
+                    loadInspection: { _ in .success(inspection) }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.observeDownloads)

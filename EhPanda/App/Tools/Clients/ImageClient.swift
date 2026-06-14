@@ -7,7 +7,7 @@ import Photos
 import SwiftUI
 import Combine
 import Kingfisher
-@preconcurrency import SDWebImage
+import SDWebImage
 import Synchronization
 import ComposableArchitecture
 
@@ -81,11 +81,15 @@ extension ImageClient {
         isCached: LibraryClient.live.isCached
     )
 
+    // Runs on the `MainActor` so the non-`Sendable` `SDWebImageCombinedOperation` it creates
+    // never leaves a single isolation domain, see `AnimatedImageOperationBox`.
+    @MainActor
     static func downloadAnimatedImage(
         url: URL,
         manager: SDWebImageManager = .shared
     ) async -> Result<UIImage, Error> {
         let continuationBox = ImageDownloadContinuationBox()
+        let operationBox = AnimatedImageOperationBox()
         let result: Result<UIImage, Error> = await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
                 continuationBox.setContinuation(continuation)
@@ -105,8 +109,9 @@ extension ImageClient {
                     continuationBox.resume(returning: .failure(AppError.notFound))
                     return
                 }
+                operationBox.track(operation)
                 continuationBox.setCancelOperation {
-                    operation.cancel()
+                    Task { @MainActor in operationBox.cancel() }
                 }
             }
         } onCancel: {
@@ -255,6 +260,24 @@ private final class ImageDownloadContinuationBox: Sendable {
 
         cancellation.cancelOperation?()
         cancellation.continuation?.resume(returning: .failure(CancellationError()))
+    }
+}
+
+// Holds the in-flight `SDWebImageCombinedOperation` so it can be cancelled when the awaiting task
+// is cancelled. The operation is an Objective-C type with no `Sendable` annotation and models live
+// work, so it cannot be transferred across isolation domains; confining the box to the `MainActor`
+// keeps it within the actor that `downloadAnimatedImage` already runs on. The cancel handle stored
+// in `ImageDownloadContinuationBox` reaches it by hopping back to the `MainActor`.
+@MainActor private final class AnimatedImageOperationBox {
+    private var operation: SDWebImageCombinedOperation?
+
+    func track(_ operation: SDWebImageCombinedOperation) {
+        self.operation = operation
+    }
+
+    func cancel() {
+        operation?.cancel()
+        operation = nil
     }
 }
 

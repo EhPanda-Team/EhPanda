@@ -92,14 +92,16 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         initialState.gallery = download.gallery
         initialState.galleryDetail = sampleGalleryDetail(gid: download.gid, title: download.title)
 
-        let store = TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = makeLocalManifestClient(download: download, manifest: manifest)
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = makeLocalManifestClient(download: download, manifest: manifest)
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.openReading)
@@ -122,14 +124,16 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         initialState.gallery = gallery
         initialState.galleryDetail = detail
 
-        let store = TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = makeNoManifestClient()
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = makeNoManifestClient()
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.openReading)
@@ -154,26 +158,28 @@ private extension DetailReducerObserveTests {
         var initialState = DetailReducer.State()
         initialState.gallery = gallery
         initialState.galleryDetail = detail
-        return TestStore(initialState: initialState) {
-            DetailReducer()
-        } withDependencies: {
-            $0.downloadClient = .init(
-                observeDownloads: { stream },
-                fetchDownloads: { [] },
-                fetchDownload: { _ in nil },
-                refreshDownloads: {},
-                resumeQueue: {},
-                badges: { _ in [:] },
-                enqueue: { _ in .success(()) },
-                togglePause: { _ in .success(()) },
-                retry: { _, _ in .success(()) },
-                delete: { _ in .success(()) },
-                loadManifest: { _ in .failure(.notFound) }
-            )
-            $0.hapticsClient = .noop
-            $0.databaseClient = .noop
-            $0.cookieClient = .noop
-        }
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = .init(
+                    observeDownloads: { stream },
+                    fetchDownloads: { [] },
+                    fetchDownload: { _ in nil },
+                    refreshDownloads: {},
+                    resumeQueue: {},
+                    badges: { _ in [:] },
+                    enqueue: { _ in .success(()) },
+                    togglePause: { _ in .success(()) },
+                    retry: { _, _ in .success(()) },
+                    delete: { _ in .success(()) },
+                    loadManifest: { _ in .failure(.notFound) }
+                )
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+            }
+        )
     }
 
     func makeLocalManifestClient(

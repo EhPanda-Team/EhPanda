@@ -15,13 +15,15 @@ struct DownloadsReducerReadingDismissTests {
         var initialState = DownloadsReducer.State()
         initialState.route = .reading(gid)
 
-        let store = TestStore(initialState: initialState) {
-            DownloadsReducer()
-        } withDependencies: {
-            $0.appDelegateClient = .noop
-            $0.deviceClient = .noop
-            $0.hapticsClient = .noop
-        }
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.appDelegateClient = .noop
+                $0.deviceClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.reading(.onPerformDismiss))
