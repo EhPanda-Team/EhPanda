@@ -16,19 +16,19 @@ extension ReadingReducer {
                 }
 
             case .syncPreviewURLs(let previewURLs):
-                guard state.contentSource == .remote else { return .none }
+                guard !state.isOffline else { return .none }
                 return .run { [state] _ in
                     await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
                 }
 
             case .syncThumbnailURLs(let thumbnailURLs):
-                guard state.contentSource == .remote else { return .none }
+                guard !state.isOffline else { return .none }
                 return .run { [state] _ in
                     await databaseClient.updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs)
                 }
 
             case .syncImageURLs(let imageURLs, let originalImageURLs):
-                guard state.contentSource == .remote else { return .none }
+                guard !state.isOffline else { return .none }
                 return .run { [state] _ in
                     await databaseClient.updateImageURLs(
                         gid: state.gallery.id,

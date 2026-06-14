@@ -67,7 +67,7 @@ extension ReadingReducer {
     }
 
     func reduceFetchPreviewURLs(state: inout State, index: Int) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.previewLoadingStates[index] = .idle
             return .none
         }
@@ -102,7 +102,7 @@ extension ReadingReducer {
     }
 
     func reduceFetchImageURLs(state: inout State, index: Int) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -118,7 +118,7 @@ extension ReadingReducer {
     }
 
     func reduceRefetchImageURLs(state: inout State, index: Int) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -136,7 +136,7 @@ extension ReadingReducer {
     func reducePrefetchImages(
         state: inout State, index: Int, prefetchLimit: Int
     ) -> Effect<Action> {
-        guard state.contentSource == .remote else { return .none }
+        guard !state.isOffline else { return .none }
         func getPrefetchImageURLs(range: ClosedRange<Int>) -> [URL] {
             (range.lowerBound...range.upperBound).compactMap { index in
                 if let url = state.localPageURLs[index], !url.isFileURL {
@@ -187,7 +187,7 @@ extension ReadingReducer {
     }
 
     func reduceFetchThumbnailURLs(state: inout State, index: Int) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -237,7 +237,7 @@ extension ReadingReducer {
     func reduceFetchNormalImageURLs(
         state: inout State, index: Int, thumbnailURLs: [Int: URL]
     ) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -275,7 +275,7 @@ extension ReadingReducer {
     }
 
     func reduceRefetchNormalImageURLs(state: inout State, index: Int) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -329,7 +329,7 @@ extension ReadingReducer {
     func reduceFetchMPVKeys(
         state: inout State, index: Int, mpvURL: URL
     ) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -375,7 +375,7 @@ extension ReadingReducer {
     func reduceFetchMPVImageURL(
         state: inout State, index: Int, isRefresh: Bool
     ) -> Effect<Action> {
-        guard state.contentSource == .remote else {
+        guard !state.isOffline else {
             state.imageURLLoadingStates[index] = .idle
             return .none
         }
@@ -420,7 +420,7 @@ extension ReadingReducer {
     }
 
     func reduceCaptureCachedPage(state: inout State, index: Int) -> Effect<Action> {
-        guard state.contentSource == .remote,
+        guard !state.isOffline,
               state.gallery.id.isValidGID
         else {
             return .none
