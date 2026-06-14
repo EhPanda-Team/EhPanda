@@ -97,7 +97,7 @@ private extension DownloadObserverRefreshTests {
     func makeReadingObserverStore(
         initialState: ReadingReducer.State,
         stream: AsyncStream<[DownloadedGallery]>,
-        loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
+        loadLocalPageURLs: @escaping @Sendable (String) async -> [Int: URL]?
     ) -> TestStoreOf<ReadingReducer> {
         let store = TestStore(
             initialState: initialState,
@@ -123,7 +123,7 @@ private extension DownloadObserverRefreshTests {
     func makePreviewsObserverStore(
         initialState: PreviewsReducer.State,
         stream: AsyncStream<[DownloadedGallery]>,
-        loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
+        loadLocalPageURLs: @escaping @Sendable (String) async -> [Int: URL]?
     ) -> TestStoreOf<PreviewsReducer> {
         let store = TestStore(
             initialState: initialState,
@@ -142,7 +142,7 @@ private extension DownloadObserverRefreshTests {
 
     func makeObserveDownloadClient(
         stream: AsyncStream<[DownloadedGallery]>,
-        loadLocalPageURLs: @escaping @Sendable (String) async throws -> [Int: URL]
+        loadLocalPageURLs: @escaping @Sendable (String) async -> [Int: URL]?
     ) -> DownloadClient {
         var client = DownloadClient()
         client.observeDownloads = { stream }

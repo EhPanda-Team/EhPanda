@@ -156,7 +156,7 @@ struct PreviewsReducer {
                 let requestID = UUID()
                 state.localPreviewRequestID = requestID
                 return .run { send in
-                    let localPreviewURLs = (try? await downloadClient.loadLocalPageURLs(gid)) ?? [:]
+                    let localPreviewURLs = await downloadClient.loadLocalPageURLs(gid) ?? [:]
                     await send(.loadLocalPreviewURLsDone(requestID, localPreviewURLs))
                 }
                 .cancellable(id: CancelID.loadLocalPreviewURLs, cancelInFlight: true)

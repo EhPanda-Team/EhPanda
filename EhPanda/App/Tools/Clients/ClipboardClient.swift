@@ -11,6 +11,7 @@ struct ClipboardClient: Sendable {
     let changeCount: @Sendable () -> Int
     let saveText: @Sendable (String) -> Void
     let saveImage: @Sendable (UIImage, Bool) -> Void
+    let saveImageData: @Sendable (Data) -> Bool
 }
 
 extension ClipboardClient {
@@ -41,6 +42,17 @@ extension ClipboardClient {
             } else {
                 UIPasteboard.general.image = image
             }
+        },
+        saveImageData: { data in
+            if let pasteboardType = data.animatedImagePasteboardType {
+                UIPasteboard.general.setData(data, forPasteboardType: pasteboardType)
+                return true
+            }
+            guard let image = data.decodedImage else {
+                return false
+            }
+            UIPasteboard.general.image = image
+            return true
         }
     )
 }
@@ -65,7 +77,8 @@ extension ClipboardClient {
         url: { nil },
         changeCount: { 0 },
         saveText: { _ in },
-        saveImage: { _, _ in }
+        saveImage: { _, _ in },
+        saveImageData: { _ in false }
     )
 
     static func placeholder<Result>() -> Result { fatalError() }
@@ -74,6 +87,7 @@ extension ClipboardClient {
         url: IssueReporting.unimplemented(placeholder: placeholder()),
         changeCount: IssueReporting.unimplemented(placeholder: placeholder()),
         saveText: IssueReporting.unimplemented(placeholder: placeholder()),
-        saveImage: IssueReporting.unimplemented(placeholder: placeholder())
+        saveImage: IssueReporting.unimplemented(placeholder: placeholder()),
+        saveImageData: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

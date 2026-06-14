@@ -31,6 +31,25 @@ struct DataCacheTests {
     }
 
     @Test
+    func testStoreReadAndRemoveDataForOrderedKeys() async throws {
+        let rootURL = makeRootURL()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let cache = DataCache(configuration: .init(rootURL: rootURL))
+        let data = Data([0x0A, 0x0B])
+
+        try await cache.store(data, forKeys: ["stable", "absolute", "stable"])
+
+        #expect(try await cache.data(forKeys: ["missing", "absolute"]) == data)
+        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
+        #expect(files.count == 2)
+
+        try await cache.removeData(forKeys: ["stable", "absolute", "stable"])
+
+        #expect(try await cache.data(forKeys: ["stable", "absolute"]) == nil)
+        #expect(try await cache.totalSize() == 0)
+    }
+
+    @Test
     func testExpiredDataIsRemovedOnRead() async throws {
         let rootURL = makeRootURL()
         defer { try? FileManager.default.removeItem(at: rootURL) }

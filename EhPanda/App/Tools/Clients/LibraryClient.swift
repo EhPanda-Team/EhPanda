@@ -228,11 +228,7 @@ private func sdWebImageCachedImageData(forKey key: String) async -> Data? {
 }
 
 private func image(from data: Data) -> UIImage? {
-    if data.animatedImagePasteboardType != nil,
-       let animatedImage = SDAnimatedImage(data: data) {
-        return animatedImage
-    }
-    return UIImage(data: data)
+    data.decodedImage
 }
 
 // MARK: API

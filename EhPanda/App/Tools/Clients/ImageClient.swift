@@ -12,8 +12,18 @@ import Synchronization
 import ComposableArchitecture
 
 struct ImageClient: Sendable {
+    struct ImageAsset {
+        let image: UIImage
+        let data: Data
+
+        var isAnimated: Bool {
+            data.isAnimatedImageData || image.hasAnimatedFrames
+        }
+    }
+
     let prefetchImages: @Sendable ([URL]) -> Void
     let saveImageToPhotoLibrary: @Sendable (UIImage, Bool) async -> Bool
+    let saveImageDataToPhotoLibrary: @Sendable (Data) async -> Bool
     let downloadImage: @Sendable (URL) async -> Result<UIImage, Error>
     let retrieveImage: @Sendable (String) async -> Result<UIImage, Error>
     let isCached: @Sendable (String) -> Bool
@@ -66,6 +76,9 @@ extension ImageClient {
                 }
             }
         },
+        saveImageDataToPhotoLibrary: { data in
+            await Self.saveImageDataToPhotoLibrary(data)
+        },
         downloadImage: { url in
             if url.isPotentiallyAnimatedImage {
                 return await ImageClient.downloadAnimatedImage(url: url)
@@ -80,6 +93,17 @@ extension ImageClient {
         },
         isCached: LibraryClient.live.isCached
     )
+
+    static func saveImageDataToPhotoLibrary(_ data: Data) async -> Bool {
+        await withCheckedContinuation { continuation in
+            PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetCreationRequest.forAsset()
+                request.addResource(with: .photo, data: data, options: nil)
+            } completionHandler: { isSuccess, _ in
+                continuation.resume(returning: isSuccess)
+            }
+        }
+    }
 
     // Runs on the `MainActor` so the non-`Sendable` `SDWebImageCombinedOperation` it creates
     // never leaves a single isolation domain, see `AnimatedImageOperationBox`.
@@ -98,8 +122,16 @@ extension ImageClient {
                     options: [.retryFailed, .continueInBackground, .handleCookies],
                     context: [.callbackQueue: SDCallbackQueue.main],
                     progress: nil
-                ) { image, _, error, _, _, _ in
+                ) { image, data, error, _, _, _ in
                     if let image {
+                        if let data {
+                            Task {
+                                try? await DataCache.shared.store(
+                                    data,
+                                    forKeys: url.imageCacheKeys(includeStableAlias: true)
+                                )
+                            }
+                        }
                         continuationBox.resume(returning: .success(image))
                     } else {
                         continuationBox.resume(returning: .failure(error ?? AppError.notFound))
@@ -135,6 +167,12 @@ extension ImageClient {
                 ) { result in
                     switch result {
                     case .success(let downloadResult):
+                        Task {
+                            try? await DataCache.shared.store(
+                                downloadResult.originalData,
+                                forKeys: url.imageCacheKeys(includeStableAlias: true)
+                            )
+                        }
                         cache.store(
                             downloadResult.image,
                             original: downloadResult.originalData,
@@ -157,25 +195,65 @@ extension ImageClient {
         return result
     }
 
+    func fetchImageAsset(url: URL) async -> Result<ImageAsset, Error> {
+        do {
+            let data = try await imageData(url: url)
+            guard let image = data.decodedImage else {
+                return .failure(AppError.parseFailed)
+            }
+            return .success(.init(image: image, data: data))
+        } catch {
+            return .failure(error)
+        }
+    }
+
     func fetchImage(url: URL) async -> Result<UIImage, Error> {
+        switch await fetchImageAsset(url: url) {
+        case .success(let asset):
+            return .success(asset.image)
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+
+    private func imageData(url: URL) async throws -> Data {
         if url.isFileURL {
-            if let image = UIImage(contentsOfFile: url.path) {
-                return .success(image)
-            }
-            if let data = try? Data(contentsOf: url),
-               let image = UIImage(data: data) {
-                return .success(image)
-            }
-            return .failure(AppError.notFound)
+            return try Data(contentsOf: url)
         }
-        for key in url.imageCacheKeys(includeStableAlias: true)
-        where isCached(key) {
-            let result = await retrieveImage(key)
-            if case .success = result {
-                return result
-            }
+
+        let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        if let data = try await DataCache.shared.data(forKeys: cacheKeys) {
+            return data
         }
-        return await downloadImage(url)
+
+        for key in cacheKeys {
+            guard isCached(key) else { continue }
+            guard case .success(let image) = await retrieveImage(key),
+                  let data = Self.data(from: image)
+            else {
+                continue
+            }
+            try? await DataCache.shared.store(data, forKeys: cacheKeys)
+            return data
+        }
+
+        switch await downloadImage(url) {
+        case .success(let image):
+            guard let data = Self.data(from: image) else {
+                throw AppError.notFound
+            }
+            try? await DataCache.shared.store(data, forKeys: cacheKeys)
+            return data
+
+        case .failure(let error):
+            throw error
+        }
+    }
+
+    private static func data(from image: UIImage) -> Data? {
+        image.animatedSourceData
+            ?? image.sd_imageData()
+            ?? image.kf.data(format: .unknown)
     }
 }
 
@@ -300,6 +378,7 @@ extension ImageClient {
     static let noop: Self = .init(
         prefetchImages: { _ in },
         saveImageToPhotoLibrary: { _, _ in false },
+        saveImageDataToPhotoLibrary: { _ in false },
         downloadImage: { _ in .success(UIImage()) },
         retrieveImage: { _ in .success(UIImage()) },
         isCached: { _ in false }
@@ -310,6 +389,7 @@ extension ImageClient {
     static let unimplemented: Self = .init(
         prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
         saveImageToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
+        saveImageDataToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
         downloadImage: IssueReporting.unimplemented(placeholder: placeholder()),
         retrieveImage: IssueReporting.unimplemented(placeholder: placeholder()),
         isCached: IssueReporting.unimplemented(placeholder: placeholder())

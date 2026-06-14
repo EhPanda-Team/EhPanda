@@ -105,7 +105,7 @@ extension ReadingReducer {
 
             case .fetchImage(let action, let imageURL):
                 return .run { send in
-                    let result = await imageClient.fetchImage(url: imageURL)
+                    let result = await imageClient.fetchImageAsset(url: imageURL)
                     await send(.fetchImageDone(action, result))
                 }
                 .cancellable(id: ReadingCancelID.fetchImage)
@@ -198,30 +198,26 @@ extension ReadingReducer {
     func reduceFetchImageDone(
         state: inout State,
         action: ImageAction,
-        result: Result<UIImage, Error>
+        result: Result<ImageClient.ImageAsset, Error>
     ) -> Effect<Action> {
-        if case .success(let image) = result {
+        if case .success(let asset) = result {
             switch action {
             case .copy:
-                let isAnimated = image.hasAnimatedFrames
                 state.hudConfig = .copiedToClipboardSucceeded
                 return .merge(
                     .send(.setNavigation(.hud)),
-                    .run(operation: { _ in clipboardClient.saveImage(image, isAnimated) })
+                    .run(operation: { _ in _ = clipboardClient.saveImageData(asset.data) })
                 )
             case .save:
-                let isAnimated = image.hasAnimatedFrames
                 return .run { send in
-                    let success = await imageClient.saveImageToPhotoLibrary(image, isAnimated)
+                    let success = await imageClient.saveImageDataToPhotoLibrary(asset.data)
                     await send(.saveImageDone(success))
                 }
             case .share:
-                let isAnimated = image.hasAnimatedFrames
-                if isAnimated, let data = image.animatedSourceData {
-                    return .send(.setNavigation(.share(.init(value: .data(data)))))
-                } else {
-                    return .send(.setNavigation(.share(.init(value: .image(image)))))
-                }
+                let shareItem: ShareItem = asset.isAnimated
+                    ? .data(asset.data)
+                    : .image(asset.image)
+                return .send(.setNavigation(.share(.init(value: shareItem))))
             }
         } else {
             state.hudConfig = .error()

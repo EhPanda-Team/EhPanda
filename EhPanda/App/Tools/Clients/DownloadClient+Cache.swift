@@ -24,7 +24,9 @@ extension DownloadCoordinator {
                 cacheKeys(for: $0, includeStableAlias: includeStableAlias)
             }
 
-        for key in Set(keys) {
+        let uniqueKeys = Array(Set(keys))
+        try? await DataCache.shared.removeData(forKeys: uniqueKeys)
+        for key in uniqueKeys {
             await libraryClient.removeCachedImage(key)
         }
     }
@@ -121,8 +123,12 @@ extension DownloadCoordinator {
                 partialResult.append(key)
             }
 
+        if let data = try? await DataCache.shared.data(forKeys: keys) {
+            return data
+        }
         for key in keys {
             if let data = await cachedImageData(forKey: key) {
+                try? await DataCache.shared.store(data, forKeys: keys)
                 return data
             }
         }
@@ -130,7 +136,14 @@ extension DownloadCoordinator {
     }
 
     func cachedImageData(forKey key: String) async -> Data? {
-        await libraryClient.cachedImageData(key)
+        if let data = try? await DataCache.shared.data(forKey: key) {
+            return data
+        }
+        guard let data = await libraryClient.cachedImageData(key) else {
+            return nil
+        }
+        try? await DataCache.shared.store(data, forKey: key)
+        return data
     }
 
     func validatedCachedAssetData(

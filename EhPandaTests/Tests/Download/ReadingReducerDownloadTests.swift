@@ -145,7 +145,7 @@ private extension ReadingReducerDownloadTests {
                 $0.downloadClient.delete = { _ in }
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.downloadClient.loadLocalPageURLs = { gid in
-                    guard gid == gallery.gid else { throw AppError.notFound }
+                    guard gid == gallery.gid else { return nil }
                     return [1: localPageURL]
                 }
                 $0.hapticsClient = .noop

@@ -254,7 +254,13 @@ struct ImageContainer: View {
                     imageView.stopAnimating()
                 }
             }
-            .onSuccess(perform: { _, _, _ in loadSucceededAction(index) })
+            .onSuccess(perform: { image, data, _ in
+                cacheImageData(
+                    data ?? image.animatedSourceData ?? image.sd_imageData(),
+                    for: url
+                )
+                loadSucceededAction(index)
+            })
             .onFailure(perform: { _ in loadFailedAction(index) })
             .clipped()
         } else {
@@ -311,7 +317,10 @@ struct ImageContainer: View {
             }
         }
     }
-    private func onSuccess(_: RetrieveImageResult) {
+    private func onSuccess(_ result: RetrieveImageResult) {
+        if let imageURL {
+            cacheImageData(result.data(), for: imageURL)
+        }
         loadSucceededAction(index)
     }
     private func onFailure(_: KingfisherError) {
@@ -333,5 +342,13 @@ struct ImageContainer: View {
             .timeIntervalSinceReferenceDate ?? .zero
         let fileSize = resourceValues?.fileSize ?? 0
         return "local::\(url.path)#\(fileSize)#\(modificationStamp)"
+    }
+
+    private func cacheImageData(_ data: Data?, for url: URL) {
+        guard let data, !url.isFileURL else { return }
+        let keys = url.imageCacheKeys(includeStableAlias: true)
+        Task {
+            try? await DataCache.shared.store(data, forKeys: keys)
+        }
     }
 }
