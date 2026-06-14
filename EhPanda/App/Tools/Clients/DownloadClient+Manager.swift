@@ -167,7 +167,7 @@ actor DownloadManager {
         let existingDownload: DownloadedGallery
     }
 
-    let storage: DownloadFileStorage
+    let storage: DownloadStore
     let urlSession: URLSession
     let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     let libraryClient: LibraryClient
@@ -194,7 +194,7 @@ actor DownloadManager {
     var schedulingBlockedGalleryIDs = Set<String>()
 
     init(
-        storage: DownloadFileStorage,
+        storage: DownloadStore,
         urlSession: URLSession,
         storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie] = {
             HTTPCookieStorage.shared.cookies(for: $0) ?? []
