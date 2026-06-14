@@ -109,52 +109,58 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testFetchLatestPayloadUsesLiveDownloadOptionsProvider() async throws {
+    func testProcessDownloadUsesLiveOptionsWhenQueuedDownloadStarts() async throws {
         let sessionID = UUID().uuidString
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 403)
-        let pageIndex = 42
-        let options = DownloadRequestOptions(
+        let latestOptions = DownloadRequestOptions(
             threadLimit: 3,
             allowCellular: false,
             autoRetryFailedPages: false
         )
+        let optionsBox = UncheckedBox(DownloadRequestOptions(allowCellular: true))
+        let detailAllowsCellular = UncheckedBox<Bool?>(nil)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (_, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadManager(
             rootURL: rootURL,
             sessionID: sessionID,
-            downloadOptionsProvider: { options }
+            downloadOptionsProvider: { optionsBox.value }
         )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
 
-        let stubContent = StubHandlerContent(
-            detailHTML: try fixtureData(resource: "GalleryDetail", pathExtension: "html"),
-            mpvHTML: try fixtureData(resource: "GalleryMPVKeys", pathExtension: "html"),
-            metadataResponse: try makeMetadataResponseData(gid: gid)
-        )
-        installDownloadStubHandler(
-            sessionID: sessionID,
-            gid: gid,
-            pageIndex: pageIndex,
-            content: stubContent
-        )
+        let detailHTML = try fixtureData(resource: "GalleryDetail", pathExtension: "html")
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { request in
+            guard let url = request.url else { throw URLError(.badURL) }
+            if url.path.contains("/g/\(gid)/token") {
+                detailAllowsCellular.value = request.allowsCellularAccess
+                return (
+                    try #require(HTTPURLResponse(
+                        url: url,
+                        statusCode: 200,
+                        httpVersion: nil,
+                        headerFields: ["Content-Type": "text/html; charset=utf-8"]
+                    )),
+                    detailHTML
+                )
+            }
+            throw URLError(.notConnectedToInternet)
+        }
 
-        let download = sampleDownload(
+        try writeProcessManifestFolder(
+            storage: storage,
             gid: gid,
-            title: "Options Gallery",
-            status: .partial,
-            pageCount: 156,
-            completedPageCount: 155
+            title: "Queued Options",
+            pageCount: 2
         )
-        let payload = try await manager.testingFetchLatestPayload(
-            for: download,
-            mode: .redownload,
-            pageSelection: [pageIndex]
-        )
+        await manager.reloadDownloadIndex()
+        await manager.testingSetQueuedGalleryIDs([gid])
 
-        #expect(payload.options == options)
+        optionsBox.value = latestOptions
+        await manager.testingProcessDownload(gid: gid)
+
+        #expect(detailAllowsCellular.value == false)
     }
 }
 

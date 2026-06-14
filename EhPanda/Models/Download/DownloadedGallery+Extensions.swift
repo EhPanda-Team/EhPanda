@@ -38,7 +38,6 @@ struct DownloadRequestPayload: Equatable, Sendable {
     let host: GalleryHost
     let folderName: String
     let versionMetadata: DownloadVersionMetadata?
-    let options: DownloadRequestOptions
     let mode: DownloadStartMode
     let pageSelection: Set<Int>?
 
@@ -50,7 +49,6 @@ struct DownloadRequestPayload: Equatable, Sendable {
         host: GalleryHost,
         folderName: String,
         versionMetadata: DownloadVersionMetadata? = nil,
-        options: DownloadRequestOptions,
         mode: DownloadStartMode,
         pageSelection: Set<Int>? = nil
     ) {
@@ -61,7 +59,6 @@ struct DownloadRequestPayload: Equatable, Sendable {
         self.host = host
         self.folderName = folderName
         self.versionMetadata = versionMetadata
-        self.options = options
         self.mode = mode
         self.pageSelection = pageSelection
     }

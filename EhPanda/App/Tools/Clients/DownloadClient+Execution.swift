@@ -20,6 +20,7 @@ extension DownloadManager {
             return
         }
         let mode = queuedMode(for: download)
+        let options = await downloadOptionsProvider()
 
         do {
             clearDownloadFailureState(gid: gid, includePageFailures: false)
@@ -27,7 +28,8 @@ extension DownloadManager {
             let result = try await fetchNormalizeAndDownload(
                 gid: gid,
                 download: download,
-                mode: mode
+                mode: mode,
+                options: options
             )
             guard !Task.isCancelled else { return }
             await completeDownload(
@@ -120,12 +122,14 @@ extension DownloadManager {
     private func fetchNormalizeAndDownload(
         gid: String,
         download: DownloadedGallery,
-        mode: DownloadStartMode
+        mode: DownloadStartMode,
+        options: DownloadRequestOptions
     ) async throws -> ProcessDownloadResult {
         let rawPageSelection = queuedPageSelections[gid]
         let fetchedPayload = try await fetchLatestPayload(
             for: download,
             mode: mode,
+            options: options,
             pageSelection: rawPageSelection
         )
         let payload = normalizeFetchedPayload(
@@ -139,6 +143,7 @@ extension DownloadManager {
         )
         _ = try await performDownload(
             payload: payload,
+            options: options,
             folderRelativePath: folderRelativePath,
             existingDownload: download
         )

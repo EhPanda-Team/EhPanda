@@ -81,6 +81,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
             rootURL: rootURL, gid: gid, storage: storage
         )
+        await manager.reloadDownloadIndex()
 
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
@@ -374,7 +375,7 @@ private extension DownloadManagerRepairSeedTests {
                 sizeCount: 1, sizeType: "MB", torrentCount: 0
             ),
             previewURLs: [:], previewConfig: .normal(rows: 4),
-            host: .ehentai, folderName: "Folder", options: .init(), mode: .repair
+            host: .ehentai, folderName: "Folder", mode: .repair
         )
     }
 

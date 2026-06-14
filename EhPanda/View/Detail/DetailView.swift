@@ -165,7 +165,7 @@ private extension DetailView {
                             showFullTitleAction: { store.send(.toggleShowFullTitle) },
                             downloadAction: { handleDownloadAction() },
                             downloadToFolderAction: {
-                                store.send(.startDownload(setting.downloadRequestOptions, $0))
+                                store.send(.startDownload($0))
                             },
                             manageFoldersAction: { store.send(.setNavigation(.folderManager())) },
                             favorAction: { store.send(.favorGallery($0)) },
@@ -363,7 +363,7 @@ private extension DetailView {
     }
 
     private func runLaunchAutomationIfNeeded() {
-        store.send(.runLaunchAutomationIfNeeded(setting.downloadRequestOptions))
+        store.send(.runLaunchAutomationIfNeeded)
     }
 
     @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {

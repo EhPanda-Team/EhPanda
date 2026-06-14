@@ -10,11 +10,11 @@ extension DownloadManager {
     func fetchLatestPayload(
         for download: DownloadedGallery,
         mode: DownloadStartMode,
+        options: DownloadRequestOptions,
         pageSelection: [Int]?
     ) async throws -> DownloadRequestPayload {
         let galleryURL = download.gallery.galleryURL
         guard let galleryURL else { throw AppError.notFound }
-        let options = await downloadOptionsProvider()
         let detailResponse = try await GalleryDetailRequest(
             gid: download.gid,
             galleryURL: galleryURL,
@@ -44,7 +44,6 @@ extension DownloadManager {
             fetchedData: fetchedData,
             components: components,
             mode: mode,
-            options: options,
             pageSelection: pageSelection
         )
     }
@@ -59,7 +58,6 @@ extension DownloadManager {
         fetchedData: FetchedGalleryData,
         components: GalleryComponents,
         mode: DownloadStartMode,
-        options: DownloadRequestOptions,
         pageSelection: [Int]?
     ) -> DownloadRequestPayload {
         let download = fetchedData.download
@@ -73,7 +71,6 @@ extension DownloadManager {
             host: download.host,
             folderName: download.folderName,
             versionMetadata: versionMetadata,
-            options: options,
             mode: mode,
             pageSelection: pageSelection.map(Set.init)
         )
@@ -160,7 +157,6 @@ extension DownloadManager {
             host: payload.host,
             folderName: payload.folderName,
             versionMetadata: payload.versionMetadata,
-            options: payload.options,
             mode: payload.mode,
             pageSelection: pageSelection.map(Set.init)
         )

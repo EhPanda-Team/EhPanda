@@ -46,6 +46,7 @@ extension DownloadManager {
 
     func downloadCoverImage(
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         folderURL: URL,
         existingCoverRelativePath: String?
     ) async throws -> String? {
@@ -77,7 +78,7 @@ extension DownloadManager {
             coverURL: coverURL,
             payload: payload,
             folderURL: folderURL,
-            allowsCellular: payload.options.allowCellular
+            allowsCellular: options.allowCellular
         )
     }
 
@@ -160,6 +161,7 @@ extension DownloadManager {
 
     func resolveSource(
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         requiredPageIndices: [Int]
     ) async throws -> ResolvedSource {
         let requiredPageNumbers = Array(
@@ -174,7 +176,7 @@ extension DownloadManager {
                 galleryURL: payload.gallery.galleryURL.forceUnwrapped,
                 pageNum: pageNumber,
                 urlSession: urlSession,
-                allowsCellular: payload.options.allowCellular
+                allowsCellular: options.allowCellular
             )
             .response()
             .get()
@@ -192,7 +194,7 @@ extension DownloadManager {
             let (mpvKey, imageKeys) = try await MPVKeysRequest(
                 mpvURL: firstURL,
                 urlSession: urlSession,
-                allowsCellular: payload.options.allowCellular
+                allowsCellular: options.allowCellular
             )
             .response()
             .get()
@@ -317,6 +319,7 @@ extension DownloadManager {
     func resolvedImageSource(
         index: Int,
         payload: DownloadRequestPayload,
+        options: DownloadRequestOptions,
         source: ResolvedSource
     ) async throws -> ResolvedImageSource {
         switch source {
@@ -327,7 +330,7 @@ extension DownloadManager {
             let (imageURLs, _) = try await GalleryNormalImageURLsRequest(
                 thumbnailURLs: [index: thumbnailURL],
                 urlSession: urlSession,
-                allowsCellular: payload.options.allowCellular
+                allowsCellular: options.allowCellular
             )
             .response()
             .get()
@@ -351,7 +354,7 @@ extension DownloadManager {
                 skipServerIdentifier: nil,
                 apiURL: payload.host.url.appendingPathComponent("api.php"),
                 urlSession: urlSession,
-                allowsCellular: payload.options.allowCellular,
+                allowsCellular: options.allowCellular,
                 requiresSkipServerIdentifier: false
             )
             .response()

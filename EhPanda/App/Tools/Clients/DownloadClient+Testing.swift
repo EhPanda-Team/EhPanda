@@ -99,11 +99,13 @@ extension DownloadManager {
     func testingFetchLatestPayload(
         for download: DownloadedGallery,
         mode: DownloadStartMode,
+        options: DownloadRequestOptions = .init(),
         pageSelection: [Int]? = nil
     ) async throws -> DownloadRequestPayload {
         try await fetchLatestPayload(
             for: download,
             mode: mode,
+            options: options,
             pageSelection: pageSelection
         )
     }

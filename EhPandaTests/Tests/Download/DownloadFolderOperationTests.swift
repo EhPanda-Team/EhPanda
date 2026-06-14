@@ -215,7 +215,6 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             previewConfig: .normal(rows: 4),
             host: .ehentai,
             folderName: "Requested Elsewhere",
-            options: .init(),
             mode: .initial
         )
         let result = await environment.manager.enqueue(payload: payload)

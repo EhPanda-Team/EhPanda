@@ -40,10 +40,10 @@ extension DetailReducer {
                 return handleOpenReading(state: &state)
             case .openReadingDone(let result):
                 return handleOpenReadingDone(result: result, state: &state)
-            case .runLaunchAutomationIfNeeded(let options):
-                return handleRunLaunchAutomation(options: options, state: &state)
-            case .startDownload(let options, let folderName):
-                return handleStartDownload(options: options, folderName: folderName, state: &state)
+            case .runLaunchAutomationIfNeeded:
+                return handleRunLaunchAutomation(state: &state)
+            case .startDownload(let folderName):
+                return handleStartDownload(folderName: folderName, state: &state)
             case .startDownloadDone(let result):
                 return handleStartDownloadDone(result: result, state: &state)
             case .toggleDownloadPause:
@@ -166,10 +166,7 @@ extension DetailReducer {
         return .none
     }
 
-    private func handleRunLaunchAutomation(
-        options: DownloadRequestOptions,
-        state: inout State
-    ) -> Effect<Action> {
+    private func handleRunLaunchAutomation(state: inout State) -> Effect<Action> {
         guard !state.didRunLaunchAutomation,
               let automation = appLaunchAutomationClient.current(),
               automation.autoDownloadGID == state.gallery.id,
@@ -179,15 +176,11 @@ extension DetailReducer {
         state.didRunLaunchAutomation = true
         guard state.downloadBadge == nil else { return .none }
         return .send(
-            .startDownload(
-                options,
-                automation.downloadFolderName ?? Defaults.FilePath.automationDownloadFolder
-            )
+            .startDownload(automation.downloadFolderName ?? Defaults.FilePath.automationDownloadFolder)
         )
     }
 
     private func handleStartDownload(
-        options: DownloadRequestOptions,
         folderName: String,
         state: inout State
     ) -> Effect<Action> {
@@ -203,7 +196,6 @@ extension DetailReducer {
             host: AppUtil.galleryHost,
             folderName: folderName,
             versionMetadata: state.galleryVersionMetadata,
-            options: options,
             mode: .initial
         )
         return .run { send in

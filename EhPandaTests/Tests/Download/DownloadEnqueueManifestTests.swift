@@ -32,7 +32,6 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
             previewConfig: .normal(rows: 4),
             host: .ehentai,
             folderName: "Folder",
-            options: .init(threadLimit: 3),
             mode: .initial
         )
 
@@ -132,7 +131,6 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
             previewConfig: .normal(rows: 4),
             host: .ehentai,
             folderName: "Folder",
-            options: .init(threadLimit: 3),
             mode: .initial
         ))
 

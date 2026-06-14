@@ -19,7 +19,6 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         let completedDownload = sampleDownload(
             gid: gallery.gid, title: gallery.title, status: .completed
         )
-        let options = DownloadRequestOptions()
         var initialState = DetailReducer.State()
         initialState.gallery = gallery
         initialState.galleryDetail = detail
@@ -43,7 +42,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
             $0.downloadBadge = completedDownload.badge
             $0.hasLoadedDownloadBadge = true
         }
-        await store.send(.runLaunchAutomationIfNeeded(options)) {
+        await store.send(.runLaunchAutomationIfNeeded) {
             $0.didRunLaunchAutomation = true
         }
     }
@@ -54,7 +53,6 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let enqueueCount = UncheckedBox(0)
-        let options = DownloadRequestOptions()
 
         var initialState = DetailReducer.State()
         initialState.gid = gallery.gid
@@ -92,7 +90,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
             }
         )
 
-        await store.send(.startDownload(options, "Folder"))
+        await store.send(.startDownload("Folder"))
 
         #expect(enqueueCount.value == 0)
         #expect(store.state.isPreparingDownload)

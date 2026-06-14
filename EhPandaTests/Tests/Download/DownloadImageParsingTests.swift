@@ -203,7 +203,6 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             previewConfig: .normal(rows: 4),
             host: .ehentai,
             folderName: "Folder",
-            options: options,
             mode: .initial
         )
         let galleryFolderName = storage.makeFolderRelativePath(
@@ -226,6 +225,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let batchResult = try await manager.downloadPages(
             context: .init(
                 payload: payload,
+                options: options,
                 source: .normal([
                     1: try #require(URL(string: "https://example.com/1.html")),
                     2: try #require(URL(string: "https://example.com/2.html")),
