@@ -94,16 +94,26 @@ struct DownloadFileStorage: Sendable {
     }
 
     func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
+        let pageIndices = Set(manifest.pages.keys)
+        guard !pageIndices.isEmpty else { return [:] }
+
         let fileURLs = existingAssetFileURLs(folderURL: folderURL)
-        return manifest.pages.keys.sorted().reduce(into: [:]) { result, index in
-            guard let fileURL = existingAssetFileURL(
-                in: fileURLs,
-                prefix: pageFilePrefix(
-                    gid: manifest.gid,
-                    token: manifest.token,
-                    index: index
-                )
-            ) else { return }
+        let identityPrefix =
+            "\(normalizedIdentityComponent(manifest.gid))_\(normalizedIdentityComponent(manifest.token))_"
+
+        return fileURLs.reduce(into: [:]) { result, fileURL in
+            let fileName = fileURL.lastPathComponent
+            guard fileName.hasPrefix(identityPrefix) else { return }
+            let suffix = fileName.dropFirst(identityPrefix.count)
+            guard let dotIndex = suffix.firstIndex(of: ".") else { return }
+            let indexText = String(suffix[..<dotIndex])
+            guard let index = Int(indexText),
+                  String(index) == indexText,
+                  pageIndices.contains(index),
+                  result[index] == nil,
+                  sanitizeAssetFileIfNeeded(at: fileURL)
+            else { return }
+
             result[index] = fileURL.lastPathComponent
         }
     }
