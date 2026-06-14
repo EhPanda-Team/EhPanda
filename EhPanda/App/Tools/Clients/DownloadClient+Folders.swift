@@ -112,11 +112,6 @@ extension DownloadManager {
             self.activeGalleryID = nil
             await taskToCancel?.value
         }
-        for gid in containedGIDs {
-            clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
-            await queueStore.remove(gid)
-            downloadIndex[gid] = nil
-        }
         do {
             try storage.removeFolder(at: folderURL)
         } catch let error as AppError {
@@ -126,6 +121,14 @@ extension DownloadManager {
             Logger.error(error)
             await reloadDownloadRecords(containedRecords)
             return .failure(.fileOperationFailed(error.localizedDescription))
+        }
+        // Clear session and queue state only once the folder is gone; a failed
+        // removal above leaves the galleries intact and must not silently
+        // dequeue a download that lived inside the folder.
+        for gid in containedGIDs {
+            clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
+            await queueStore.remove(gid)
+            downloadIndex[gid] = nil
         }
         userFolders.removeAll { $0 == name }
         await notifyObservers()

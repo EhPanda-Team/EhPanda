@@ -183,23 +183,29 @@ extension DownloadManager {
             taskToCancel = nil
         }
         await taskToCancel?.value
-        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
-        await queueStore.remove(gid)
         guard let download = await fetchDownload(gid: gid) else {
+            clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
+            await queueStore.remove(gid)
             return .failure(.notFound)
         }
         do {
             try removeGalleryFolders(gid: download.gid, token: download.token)
-            downloadIndex[gid] = nil
-            await notifyObservers()
-            await scheduleNextIfNeeded()
-            return .success(())
         } catch let error as AppError {
+            await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(error)
         } catch {
             Logger.error(error)
+            await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
+        // Clear session and queue state only once the folders are gone; a failed
+        // removal above leaves the gallery intact and must not silently dequeue it.
+        clearDownloadSessionState(gid: gid, includeUpdateFlag: true)
+        await queueStore.remove(gid)
+        downloadIndex[gid] = nil
+        await notifyObservers()
+        await scheduleNextIfNeeded()
+        return .success(())
     }
 
     func loadManifest(
