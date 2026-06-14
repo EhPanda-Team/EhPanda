@@ -229,6 +229,11 @@ extension ImageClient {
               (200..<300).contains(httpResponse.statusCode) else {
             throw AppError.networkingFailed
         }
+        // Only cache decodable image bytes so a 200 carrying an HTML/error body
+        // (e.g. an E-H bandwidth notice) can't poison the key until expiry.
+        guard data.decodedImage != nil else {
+            throw AppError.parseFailed
+        }
         try? await dataCache.store(data, forKeys: cacheKeys)
         return data
     }
