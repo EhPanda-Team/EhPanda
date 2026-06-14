@@ -28,36 +28,22 @@ struct ImageClient: Sendable {
     let retrieveImage: @Sendable (String) async -> Result<UIImage, Error>
     let isCached: @Sendable (String) -> Bool
     var dataCache: DataCache = .shared
+    var urlSession: URLSession = .shared
 }
 
 extension ImageClient {
     static let live: Self = .init(
         prefetchImages: { urls in
-            let (sdWebImageURLs, kingfisherResources) = urls.reduce(
-                into: ([URL](), [any Resource]())
-            ) { result, url in
-                if url.isPotentiallyAnimatedImage {
-                    result.0.append(url)
-                } else {
-                    result.1.append(
-                        KF.ImageResource(
-                            downloadURL: url,
-                            cacheKey: url.stableImageCacheKey ?? url.absoluteString
-                        )
-                    )
+            Task {
+                await withTaskGroup(of: Void.self) { group in
+                    for url in urls {
+                        group.addTask {
+                            _ = try? await ImageClient.readerImageData(
+                                url: url, dataCache: .shared, urlSession: .shared
+                            )
+                        }
+                    }
                 }
-            }
-            if !kingfisherResources.isEmpty {
-                ImagePrefetcher(resources: kingfisherResources).start()
-            }
-            if !sdWebImageURLs.isEmpty {
-                SDWebImagePrefetcher.shared.prefetchURLs(
-                    sdWebImageURLs,
-                    options: [.lowPriority, .continueInBackground, .handleCookies],
-                    context: [.animatedImageClass: SDAnimatedImage.self],
-                    progress: nil,
-                    completed: nil
-                )
             }
         },
         saveImageToPhotoLibrary: { (image, isAnimated) in
@@ -215,6 +201,36 @@ extension ImageClient {
         case .failure(let error):
             return .failure(error)
         }
+    }
+
+    func fetchReaderImageAsset(url: URL) async -> ImageAsset? {
+        guard let data = try? await Self.readerImageData(
+            url: url, dataCache: dataCache, urlSession: urlSession
+        ), let image = data.decodedImage else {
+            return nil
+        }
+        return .init(image: image, data: data)
+    }
+
+    static func readerImageData(
+        url: URL,
+        dataCache: DataCache,
+        urlSession: URLSession
+    ) async throws -> Data {
+        if url.isFileURL {
+            return try Data(contentsOf: url)
+        }
+        let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        if let data = try await dataCache.data(forKeys: cacheKeys) {
+            return data
+        }
+        let (data, response) = try await urlSession.data(for: URLRequest(url: url))
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw AppError.networkingFailed
+        }
+        try? await dataCache.store(data, forKeys: cacheKeys)
+        return data
     }
 
     private func imageData(url: URL) async throws -> Data {
