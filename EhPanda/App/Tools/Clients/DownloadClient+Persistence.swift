@@ -140,22 +140,12 @@ extension DownloadManager {
     }
 
     func fetchDownloadsFromStore() async -> [DownloadedGallery] {
-#if DEBUG
-        if let testingFetchDownloadsFromStoreHook {
-            await testingFetchDownloadsFromStoreHook()
-        }
-#endif
         return await reloadDownloadIndex()
     }
 
     func fetchDownloadsFromStore(
         gids: [String]
     ) async -> [DownloadedGallery] {
-#if DEBUG
-        if let testingFetchDownloadsFromStoreHook {
-            await testingFetchDownloadsFromStoreHook()
-        }
-#endif
         let gidSet = Set(gids)
         return await reloadDownloadIndex()
             .filter { gidSet.contains($0.gid) }

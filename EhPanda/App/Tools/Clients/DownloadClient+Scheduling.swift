@@ -33,6 +33,11 @@ extension DownloadManager {
         let downloads = queuedGIDs.isEmpty
             ? await indexedDownloads()
             : await indexedDownloads(gids: queuedGIDs)
+#if DEBUG
+        if let testingScheduleBeforeActiveCheckHook {
+            await testingScheduleBeforeActiveCheckHook()
+        }
+#endif
         guard activeTask == nil else {
             await reconcileActiveDownloadState()
             return

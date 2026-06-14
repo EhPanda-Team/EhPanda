@@ -58,7 +58,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         await manager.testingSetQueuedGalleryIDs([gid])
 
         let gate = ScheduleFetchGate()
-        await manager.testingSetFetchDownloadsFromStoreHook {
+        await manager.testingSetScheduleBeforeActiveCheckHook {
             await gate.waitAtGate()
         }
 
@@ -70,7 +70,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         await gate.waitForBothArrivals()
         await gate.releaseAll()
         _ = await (firstSchedule, secondSchedule)
-        await manager.testingSetFetchDownloadsFromStoreHook(nil)
+        await manager.testingSetScheduleBeforeActiveCheckHook(nil)
 
         let scheduledGalleryIDs = await manager
             .testingScheduledGalleryIDs()
