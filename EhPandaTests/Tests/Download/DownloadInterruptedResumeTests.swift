@@ -52,6 +52,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             title: "Redownload",
             pageHashes: ["sha256:done", ""]
         )
+        await manager.reloadDownloadIndex()
         let stalePageURL = folderURL.appendingPathComponent("\(gid)_token_1.jpg")
         let download = sampleDownload(
             gid: gid, title: "Redownload",
@@ -90,6 +91,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             title: "Pause Survives",
             pageHashes: ["sha256:done", ""]
         )
+        await manager.reloadDownloadIndex()
         let download = sampleDownload(
             gid: gid, title: "Pause Survives",
             status: .queued, pageCount: 2, completedPageCount: 1,

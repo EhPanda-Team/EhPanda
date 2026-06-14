@@ -767,6 +767,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
             to: folderURL.appendingPathComponent(pageRelativePath),
             options: .atomic
         )
+        await manager.reloadDownloadIndex()
         var pendingResolvedPages = [
             DownloadManager.PageResult(
                 index: 1,

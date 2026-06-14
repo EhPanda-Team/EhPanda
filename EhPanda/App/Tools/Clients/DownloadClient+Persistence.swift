@@ -146,7 +146,6 @@ extension DownloadManager {
     @discardableResult
     func reloadDownloadRecord(gid: String, token: String) async -> DownloadedGallery? {
         let records = storage.galleryFolderRecords(gid: gid, token: token)
-        hasLoadedIndex = true
         guard let record = deduplicatedDownloadIndex(from: records).values.first else {
             downloadIndex[gid] = nil
             return nil
@@ -225,7 +224,6 @@ extension DownloadManager {
     }
 
     func updateDownloadIndex(folderURL: URL, manifest: DownloadManifest) {
-        hasLoadedIndex = true
         downloadIndex[manifest.gid] = storage.galleryFolderRecord(
             folderURL: folderURL,
             manifest: manifest,
