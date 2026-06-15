@@ -119,6 +119,33 @@ struct ReaderImageDataTests {
         #expect(cached == nil)
     }
 
+    @Test
+    func testFetchImageAssetServesOwnedCacheAndRoutesByBytes() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://example.com/reader/export.png"))
+        let imageData = try makePNGData()
+        try await cache.store(
+            imageData, forKeys: url.imageCacheKeys(includeStableAlias: true)
+        )
+        let requestCount = UncheckedBox(0)
+        let (session, sessionID) = makeStubbedSession()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            requestCount.value += 1
+            return (try makeHTTPResponse(url: url, statusCode: 200), imageData)
+        }
+        var client = ImageClient.live
+        client.dataCache = cache
+        client.urlSession = session
+
+        let asset = try await client.fetchImageAsset(url: url).get()
+
+        #expect(asset.data == imageData)
+        #expect(asset.isAnimated == false)
+        #expect(requestCount.value == 0)
+    }
+
     private func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
