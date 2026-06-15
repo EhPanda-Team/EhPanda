@@ -18,7 +18,7 @@ struct DownloadManifest: Codable, Equatable, Sendable {
     let tags: [GalleryTag]
     let postedDate: Date
     let rating: Float
-    let pages: [Int: String]
+    var pages: [Int: String]
 }
 
 extension DownloadManifest {
