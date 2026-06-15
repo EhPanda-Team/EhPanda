@@ -45,13 +45,9 @@ actor DownloadCoordinator {
     static let progressFlushPageInterval = 8
     static let progressFlushMinimumInterval: TimeInterval = 0.4
     static let responseInspectionPrefixLength = 4096
-    static let kokomadeImageByteCount = 144844
-    static let kokomadeImageSHA1 = "e48ed350e902a51581246d2a764fa7827e8e6988"
     static let kokomadeImageURLSuffixes = [
         "exhentai.org/img/kokomade.jpg"
     ]
-    static let quotaExceededImageByteCount = 28658
-    static let quotaExceededImageSHA1 = "f54b887b017694dc25eb1a1404f71981885f8ed9"
     static let quotaExceededImageURLSuffixes = [
         "exhentai.org/img/509.gif",
         "ehgt.org/g/509.gif"

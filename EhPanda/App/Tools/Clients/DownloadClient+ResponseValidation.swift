@@ -4,7 +4,6 @@
 //
 
 import Kanna
-import CryptoKit
 import Foundation
 import ImageIO
 
@@ -279,8 +278,8 @@ extension DownloadCoordinator {
         let byteCount = responseContentLength(response)
             ?? fileSize(at: fileURL)
         guard let byteCount,
-              byteCount == Self.kokomadeImageByteCount
-                || byteCount == Self.quotaExceededImageByteCount
+              byteCount == ImagePlaceholderFingerprint.authenticationRequiredByteCount
+                || byteCount == ImagePlaceholderFingerprint.quotaExceededByteCount
         else {
             return nil
         }

@@ -4,7 +4,6 @@
 //
 
 import Kanna
-import CryptoKit
 import Foundation
 import ImageIO
 
@@ -142,7 +141,7 @@ extension DownloadCoordinator {
         let byteCount = fullData?.count
             ?? responseContentLength(response)
             ?? fileSize(at: fileURL)
-        guard byteCount == Self.quotaExceededImageByteCount
+        guard byteCount == ImagePlaceholderFingerprint.quotaExceededByteCount
         else {
             return false
         }
@@ -301,26 +300,11 @@ extension DownloadCoordinator {
     func isAuthenticationRequiredPlaceholderImageData(
         _ data: Data
     ) -> Bool {
-        guard data.count == Self.kokomadeImageByteCount else {
-            return false
-        }
-        return sha1Hex(for: data) == Self.kokomadeImageSHA1
+        ImagePlaceholderFingerprint.match(data) == .authenticationRequired
     }
 
     func isQuotaExceededAssetData(_ data: Data) -> Bool {
-        guard data.count == Self.quotaExceededImageByteCount
-        else {
-            return false
-        }
-        return sha1Hex(for: data)
-            == Self.quotaExceededImageSHA1
-    }
-
-    func sha1Hex(for data: Data) -> String {
-        let digest = Insecure.SHA1.hash(data: data)
-        return digest
-            .map { String(format: "%02x", $0) }
-            .joined()
+        ImagePlaceholderFingerprint.match(data) == .quotaExceeded
     }
 
     func isDecodableImageData(_ data: Data) -> Bool {
