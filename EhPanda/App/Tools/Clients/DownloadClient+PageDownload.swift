@@ -313,7 +313,7 @@ extension DownloadCoordinator {
     /// Gallery-level errors (`.expunged`, `.copyrightClaim`) are deliberately *not* fatal here — they
     /// mean the gallery is gone, but they surface before per-page download and are handled upstream,
     /// so a per-page occurrence is treated like any other page failure rather than aborting the batch.
-    private func isFatalAccountAppError(_ error: AppError) -> Bool {
+    func isFatalAccountAppError(_ error: AppError) -> Bool {
         switch error {
         case .quotaExceeded, .authenticationRequired, .ipBanned:
             return true

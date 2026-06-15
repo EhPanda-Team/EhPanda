@@ -57,6 +57,12 @@ extension DownloadCoordinator {
         } catch {
             Logger.error(error)
             removeStagedBackgroundFile(fileURL)
+            // A fatal account error (quota/auth/ban) detected on an orphaned page must
+            // settle the whole download like the foreground does, so scheduleNextIfNeeded
+            // below can't auto-resume it against the ban (BUG-6 / no-auto-retry).
+            if let appError = error as? AppError, isFatalAccountAppError(appError) {
+                await settleDownloadFailure(gid: record.gid, error: appError)
+            }
         }
 
         await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
@@ -87,6 +93,9 @@ extension DownloadCoordinator {
                     relativePath: nil,
                     error: error
                 )
+            }
+            if isFatalAccountAppError(error) {
+                await settleDownloadFailure(gid: record.gid, error: error)
             }
         }
 
