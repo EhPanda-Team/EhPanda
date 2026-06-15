@@ -175,7 +175,7 @@ extension DownloadCoordinator {
         )
     }
 
-    private func removeStagedBackgroundFile(_ fileURL: URL) {
+    func removeStagedBackgroundFile(_ fileURL: URL) {
         try? fileManager.operate {
             guard $0.fileExists(atPath: fileURL.path) else { return }
             try $0.removeItem(at: fileURL)

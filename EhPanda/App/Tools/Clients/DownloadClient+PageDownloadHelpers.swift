@@ -136,6 +136,9 @@ extension DownloadCoordinator {
         } catch {
             if let taskIdentifier = transfer.taskIdentifier {
                 await backgroundTaskStore.remove(taskIdentifier: taskIdentifier)
+                // The move never consumed the staged file; drop it so it doesn't
+                // strand in the holding dir, matching the sibling failure paths.
+                removeStagedBackgroundFile(transfer.fileURL)
             }
             throw error
         }

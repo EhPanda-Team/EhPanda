@@ -40,6 +40,10 @@ extension DownloadClient {
         fileManager: sending FileManager = FileManager()
     ) -> Self {
         let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
+        // Reclaim any background-transfer files stranded by a prior process that died
+        // between staging and consuming them. Safe here because the background session
+        // does not exist yet, so the holding dir can only hold orphans.
+        storage.purgeBackgroundTransferHoldingDirectory()
         let backgroundTaskStore = DownloadBackgroundTaskStore(
             fileURL: storage.backgroundTaskRegistryURL()
         )

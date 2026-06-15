@@ -101,6 +101,21 @@ struct DownloadStore: Sendable {
         rootURL.appendingPathComponent(".background-downloads", isDirectory: true)
     }
 
+    /// Removes the background-transfer holding directory and everything in it.
+    ///
+    /// The holding dir is hidden, so the launch scan (`.skipsHiddenFiles`) can't see
+    /// it, and a process that dies between staging and consuming a file leaves it
+    /// stranded. Call this only while no background session exists (e.g. at `.live`
+    /// construction) so anything present is definitionally an orphan; the downloader
+    /// recreates the directory on the next stage.
+    func purgeBackgroundTransferHoldingDirectory() {
+        let holdingDirectory = backgroundTransferHoldingDirectoryURL()
+        try? fileManager.operate {
+            guard $0.fileExists(atPath: holdingDirectory.path) else { return }
+            try $0.removeItem(at: holdingDirectory)
+        }
+    }
+
     func existingPageRelativePaths(folderURL: URL, manifest: DownloadManifest) -> [Int: String] {
         let pageIndices = Set(manifest.pages.keys)
         guard !pageIndices.isEmpty else { return [:] }
