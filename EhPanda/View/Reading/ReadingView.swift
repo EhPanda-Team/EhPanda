@@ -326,7 +326,7 @@ extension ReadingView {
     }
 
     private func analyzeCachedImageData(cacheKeys: [String], index: Int) async {
-        guard let data = try? await DataCache.shared.data(forKeys: cacheKeys),
+        guard let data = await DataCache.shared.data(forKeys: cacheKeys),
               !data.isAnimatedImageData,
               let image = data.decodedImage,
               let cgImage = image.cgImage

@@ -30,7 +30,7 @@ struct ReaderImageDataTests {
 
         #expect(data == imageData)
         #expect(requestCount.value == 1)
-        let cached = try await cache.data(
+        let cached = await cache.data(
             forKeys: url.imageCacheKeys(includeStableAlias: true)
         )
         #expect(cached == imageData)
@@ -83,7 +83,7 @@ struct ReaderImageDataTests {
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
-        let cached = try await cache.data(
+        let cached = await cache.data(
             forKeys: url.imageCacheKeys(includeStableAlias: true)
         )
         #expect(cached == nil)
@@ -111,7 +111,7 @@ struct ReaderImageDataTests {
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
-        let cached = try await cache.data(
+        let cached = await cache.data(
             forKeys: url.imageCacheKeys(includeStableAlias: true)
         )
         #expect(cached == nil)
