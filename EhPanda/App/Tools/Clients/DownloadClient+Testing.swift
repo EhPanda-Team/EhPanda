@@ -43,16 +43,6 @@ extension DownloadCoordinator {
         )
     }
 
-    func testingSanitizeLocalFilesIfNeeded(
-        gid: String,
-        clearingLastError: Bool = false
-    ) async -> DownloadedGallery? {
-        await sanitizeLocalFilesIfNeeded(
-            gid: gid,
-            clearingLastError: clearingLastError
-        )
-    }
-
     func testingSetUpdatedGalleryIDs(_ gids: Set<String>) {
         updatedGalleryIDs = gids
     }
