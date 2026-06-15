@@ -100,16 +100,16 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
             return
         }
 
-        let fileURL = fileURL
-        let maxPixelSize = maxPixelSize
-        let generatedThumbnail = await Task.detached(priority: .utility) {
-            LocalPreviewThumbnailGenerator.make(
-                fileURL: fileURL,
-                maxPixelSize: maxPixelSize
-            )
-        }
-        .value
+        // Decode off the main actor via `@concurrent`; awaiting it directly (instead
+        // of a detached task) lets the SwiftUI `.task` cancellation propagate, so a
+        // cell that scrolls off screen sheds its in-flight decode rather than piling
+        // up un-sheddable work during fast scrolling.
+        let generatedThumbnail = await LocalPreviewThumbnailGenerator.make(
+            fileURL: fileURL,
+            maxPixelSize: maxPixelSize
+        )
 
+        guard !Task.isCancelled else { return }
         if let generatedThumbnail {
             LocalPreviewThumbnailCache.shared.store(generatedThumbnail, forKey: cacheKey)
         }
@@ -119,8 +119,10 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
 }
 
 private enum LocalPreviewThumbnailGenerator {
-    static func make(fileURL: URL, maxPixelSize: CGFloat) -> UIImage? {
-        guard let imageSource = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {
+    @concurrent
+    static func make(fileURL: URL, maxPixelSize: CGFloat) async -> UIImage? {
+        guard !Task.isCancelled,
+              let imageSource = CGImageSourceCreateWithURL(fileURL as CFURL, nil) else {
             return nil
         }
 
@@ -131,11 +133,12 @@ private enum LocalPreviewThumbnailGenerator {
             kCGImageSourceThumbnailMaxPixelSize: max(Int(maxPixelSize.rounded(.up)), 1)
         ]
 
-        guard let imageRef = CGImageSourceCreateThumbnailAtIndex(
-            imageSource,
-            .zero,
-            options as CFDictionary
-        ) else {
+        guard !Task.isCancelled,
+              let imageRef = CGImageSourceCreateThumbnailAtIndex(
+                imageSource,
+                .zero,
+                options as CFDictionary
+              ) else {
             return nil
         }
 
