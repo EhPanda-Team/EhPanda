@@ -144,6 +144,32 @@ struct ReaderImageDataTests {
         #expect(requestCount.value == 0)
     }
 
+    @Test
+    func testCancellationStopsTheOwnedFetch() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://example.com/reader/hang.png"))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+
+        // Dismissing the reader mid-fetch cancels the Task; the owned URLSession
+        // fetch must honor that and stop instead of completing (BUG-24).
+        let task = Task {
+            try await ImageClient.readerImageData(url: url, dataCache: cache, urlSession: session)
+        }
+        task.cancel()
+
+        do {
+            _ = try await task.value
+            Issue.record("Expected the cancelled owned fetch to throw")
+        } catch is CancellationError {
+        } catch let error as URLError where error.code == .cancelled {
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
     private func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
