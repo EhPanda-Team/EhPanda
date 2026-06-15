@@ -37,7 +37,7 @@ extension DownloadClient {
     static func live(
         rootURL: URL = FileUtil.downloadsDirectoryURL,
         urlSession: URLSession = .shared,
-        fileManager: sending FileManager = .default
+        fileManager: sending FileManager = FileManager()
     ) -> Self {
         let storage = DownloadStore(rootURL: rootURL, fileManager: fileManager)
         let backgroundTaskStore = DownloadBackgroundTaskStore(

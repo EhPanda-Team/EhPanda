@@ -34,7 +34,7 @@ struct DownloadPageDownloader: Sendable {
         identifier: String,
         taskStore: DownloadBackgroundTaskStore,
         holdingDirectory: URL,
-        fileManager: sending FileManager = .default,
+        fileManager: sending FileManager = FileManager(),
         orphanedCompletionHandler: @escaping @Sendable (Int, URL, URLResponse) async -> Void = { _, _, _ in },
         orphanedFailureHandler: @escaping @Sendable (Int, AppError?) async -> Void = { _, _ in }
     ) -> Self {

@@ -39,7 +39,7 @@ actor DataCache {
 
     init(
         configuration: Configuration = .init(),
-        fileManager: sending FileManager = .default
+        fileManager: sending FileManager = FileManager()
     ) {
         self.configuration = configuration
         self.fileManager = fileManager

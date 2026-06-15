@@ -34,7 +34,7 @@ struct DownloadStore: Sendable {
 
     init(
         rootURL: URL = FileUtil.downloadsDirectoryURL,
-        fileManager: sending FileManager = .default
+        fileManager: sending FileManager = FileManager()
     ) {
         self.rootURL = rootURL
         self.fileManager = DownloadFileManager(fileManager)
