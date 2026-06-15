@@ -11,7 +11,7 @@ import Testing
 struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
     @Test
     func testInterruptedSessionResolvesNonDestructiveResumeMode() async throws {
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
 
         let queuedPartial = sampleDownload(
             gid: "913000001", title: "Interrupted",
@@ -44,7 +44,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         let folderURL = try writeManifestFolder(
             storage: storage,
@@ -83,7 +83,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         let folderURL = try writeManifestFolder(
             storage: storage,
@@ -136,7 +136,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         let oldFolderURL = try writeManifestFolder(
             storage: storage, gid: gid, title: "Old Title",

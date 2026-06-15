@@ -232,7 +232,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
 
 private struct DownloadFolderOperationTestEnvironment {
     let storage: DownloadStore
-    let manager: DownloadManager
+    let manager: DownloadCoordinator
     let rootURL: URL
 }
 
@@ -241,7 +241,7 @@ private extension DownloadFolderOperationTests {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         return .init(storage: storage, manager: manager, rootURL: rootURL)
     }
 

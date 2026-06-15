@@ -40,8 +40,6 @@ struct DownloadTaskRunner: Sendable {
     }
 }
 
-typealias DownloadManager = DownloadCoordinator
-
 actor DownloadCoordinator {
     static let retryLimit = 3
     static let progressFlushPageInterval = 8

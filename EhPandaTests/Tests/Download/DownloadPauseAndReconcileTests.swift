@@ -29,7 +29,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
         )
@@ -81,7 +81,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         try writeManifestFolder(
             storage: storage,
@@ -125,7 +125,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
         )
@@ -190,7 +190,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
         )
@@ -223,7 +223,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
         )
@@ -260,7 +260,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [FailFastURLProtocol.self]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage, urlSession: URLSession(configuration: configuration)
         )
         try writeManifestFolder(

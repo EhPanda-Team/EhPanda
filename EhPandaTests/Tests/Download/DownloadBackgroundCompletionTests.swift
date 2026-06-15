@@ -18,7 +18,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             backgroundTaskStore: taskStore
@@ -75,7 +75,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             backgroundTaskStore: taskStore
@@ -109,7 +109,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             backgroundTaskStore: taskStore
@@ -143,7 +143,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             backgroundTaskStore: taskStore
@@ -173,7 +173,7 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             backgroundTaskStore: taskStore

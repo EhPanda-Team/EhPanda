@@ -27,7 +27,7 @@ protocol DownloadFeatureTestCase: TestHelper {
 
     func sampleGalleryState(gid: String) throws -> GalleryState
     func sampleVersionMetadata(gid: String, token: String) -> DownloadVersionMetadata
-    func makeTestingDownloadManager() -> DownloadManager
+    func makeTestingDownloadCoordinator() -> DownloadCoordinator
     func makeResponse(
         url: URL,
         statusCode: Int,
@@ -148,16 +148,16 @@ extension DownloadFeatureTestCase {
         )
     }
 
-    func makeTestingDownloadManager() -> DownloadManager {
-        makeTestingDownloadManager(storedCookiesProvider: { _ in [] })
+    func makeTestingDownloadCoordinator() -> DownloadCoordinator {
+        makeTestingDownloadCoordinator(storedCookiesProvider: { _ in [] })
     }
 
-    func makeTestingDownloadManager(
+    func makeTestingDownloadCoordinator(
         storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie]
-    ) -> DownloadManager {
+    ) -> DownloadCoordinator {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        return DownloadManager(
+        return DownloadCoordinator(
             storage: DownloadStore(rootURL: rootURL, fileManager: .default),
             urlSession: .shared,
             storedCookiesProvider: storedCookiesProvider

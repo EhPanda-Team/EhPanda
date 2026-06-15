@@ -14,7 +14,7 @@ import Testing
 struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLIsRejected() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 33)
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let normalImageURL = try #require(
             URL(string: "https://exhentai.org/fullimg.php?gid=\(gid)&page=1&key=normal-cache-key")
         )
@@ -39,7 +39,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(filename: .exLoginRequired)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let response = try makeResponse(
             url: Defaults.URL.exhentai,
             contentType: "text/html",
@@ -74,7 +74,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         """.utf8)
         try authHTMLData.write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let response = try makeResponse(
             url: Defaults.URL.exhentai,
             contentType: "text/html"

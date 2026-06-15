@@ -22,7 +22,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         """.utf8)
         try invalidPageData.write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let galleryURL = try #require(URL(string: "https://e-hentai.org/g/1/1/"))
         let response = try makeResponse(
             url: galleryURL,
@@ -49,7 +49,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         )
         try keepTryingData.write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let pageURL = try #require(URL(string: "https://e-hentai.org/s/1/1-1"))
         let response = try makeResponse(
             url: pageURL,
@@ -73,7 +73,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
 
         try Data("Not here".utf8).write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let notFoundURL = try #require(URL(string: "https://e-hentai.org/g/1/1/"))
         let response = try makeResponse(
             url: notFoundURL,
@@ -104,7 +104,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         """.utf8)
         try galleryNotAvailableData.write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let galleryURL = try #require(URL(string: "https://e-hentai.org/g/1/1/"))
         let response = try makeResponse(
             url: galleryURL,
@@ -125,7 +125,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(filename: .ipBanned)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let bannedURL = try #require(URL(string: "https://example.com/banned"))
         let response = try makeResponse(
             url: bannedURL,
@@ -146,7 +146,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
 
     @Test
     func testTextHTMLJSONAPIResponseDoesNotMapToParseFailed() async throws {
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let apiURL = try #require(URL(string: "https://e-hentai.org/api.php"))
         let response = try makeResponse(
             url: apiURL,

@@ -1,5 +1,5 @@
 //
-//  DownloadManagerCaptureTests.swift
+//  DownloadCoordinatorCaptureTests.swift
 //  EhPandaTests
 //
 
@@ -9,16 +9,16 @@ import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
-struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
+struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerCaptureCachedPageRestoresFinalPage() async throws {
+    func testDownloadCoordinatorCaptureCachedPageRestoresFinalPage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 27)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -69,14 +69,14 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDownloadManagerCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
+    func testDownloadCoordinatorCaptureCachedPageRepairsCompletedDownloadWithLatestRemoteImage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 28)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         let completedFolderURL = try setupCaptureMissingFilesFolder(
             rootURL: rootURL, gid: gid
         )
@@ -105,7 +105,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
 
 // MARK: - Setup Helpers
 
-private extension DownloadManagerCaptureTests {
+private extension DownloadCoordinatorCaptureTests {
     func setupCaptureMissingFilesFolder(rootURL: URL, gid: String) throws -> URL {
         let completedFolderURL = rootURL.appendingPathComponent("Folder/\(gid) - Pause Race", isDirectory: true)
         try FileManager.default.createDirectory(

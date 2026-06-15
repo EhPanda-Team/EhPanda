@@ -1,5 +1,5 @@
 //
-//  DownloadManagerCachedURLTests.swift
+//  DownloadCoordinatorCachedURLTests.swift
 //  EhPandaTests
 //
 
@@ -8,7 +8,7 @@ import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
-struct DownloadManagerCachedURLTests {
+struct DownloadCoordinatorCachedURLTests {
     @Test
     func testIndexedDownloadUsesCachedLocalURLsUntilExplicitReload() async throws {
         let rootURL = FileManager.default.temporaryDirectory
@@ -16,7 +16,7 @@ struct DownloadManagerCachedURLTests {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         let folderRelativePath = "Folder/[900_token] Cached"
         let folderURL = storage.folderURL(relativePath: folderRelativePath)
         let page1URL = folderURL.appendingPathComponent("900_token_1.jpg")
@@ -54,7 +54,7 @@ struct DownloadManagerCachedURLTests {
     }
 }
 
-private extension DownloadManagerCachedURLTests {
+private extension DownloadCoordinatorCachedURLTests {
     func manifest() -> DownloadManifest {
         DownloadManifest(
             gid: "900",

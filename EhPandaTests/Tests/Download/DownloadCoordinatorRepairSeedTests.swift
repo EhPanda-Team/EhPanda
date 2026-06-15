@@ -1,5 +1,5 @@
 //
-//  DownloadManagerRepairSeedTests.swift
+//  DownloadCoordinatorRepairSeedTests.swift
 //  EhPandaTests
 //
 
@@ -8,7 +8,7 @@ import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
-struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
+struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     @Test
     func testRepairSeedReusesCompletedFilesWhenPageCountMatches() async throws {
         let gid = "repair-seed-\(UUID().uuidString)"
@@ -17,7 +17,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
 
         let sourceFolderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Existing")
@@ -74,14 +74,14 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerLoadLocalPageURLsRemovesZeroBytePage() async throws {
+    func testDownloadCoordinatorLoadLocalPageURLsRemovesZeroBytePage() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 13)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         let (emptyPageURL, goodPageURL) = try setupZeroBytePageFiles(
             rootURL: rootURL, gid: gid, storage: storage
@@ -103,7 +103,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         let folderURL = rootURL.appendingPathComponent(
             "Folder/\(gid) - Rescan", isDirectory: true
@@ -136,7 +136,7 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
 
 // MARK: - Repair Seed Helpers
 
-private extension DownloadManagerRepairSeedTests {
+private extension DownloadCoordinatorRepairSeedTests {
     func setupRepairSeedFiles(
         storage: DownloadStore,
         sourceFolderURL: URL,

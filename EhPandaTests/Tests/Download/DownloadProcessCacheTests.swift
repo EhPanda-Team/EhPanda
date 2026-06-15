@@ -78,13 +78,13 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
 
 struct CacheTestManagerResult {
     let storage: DownloadStore
-    let manager: DownloadManager
+    let manager: DownloadCoordinator
     let metadataResponse: Data
 }
 
 private struct CacheTestDownloadSetup {
     let storage: DownloadStore
-    let manager: DownloadManager
+    let manager: DownloadCoordinator
     let gid: String
     let pageIndex: Int
 }
@@ -103,7 +103,7 @@ private extension DownloadProcessCacheTests {
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [SharedSessionStubURLProtocol.headerKey: sessionID]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration),
             libraryClient: libraryClient
@@ -202,7 +202,7 @@ private extension DownloadProcessCacheTests {
 
     @MainActor
     func prepareCacheTestAssets(
-        manager: DownloadManager, gid: String,
+        manager: DownloadCoordinator, gid: String,
         pageIndex: Int,
         cachedKeysBox: UncheckedBox<Set<String>>
     ) async throws -> Set<String> {

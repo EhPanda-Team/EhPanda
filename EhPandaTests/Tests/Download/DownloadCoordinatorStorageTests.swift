@@ -1,5 +1,5 @@
 //
-//  DownloadManagerStorageTests.swift
+//  DownloadCoordinatorStorageTests.swift
 //  EhPandaTests
 //
 
@@ -10,15 +10,15 @@ import Testing
 @testable import EhPanda
 
 @Suite(.serialized)
-struct DownloadManagerStorageTests: DownloadFeatureTestCase {
+struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerReloadDownloadIndexScansManifestFolders() async throws {
+    func testDownloadCoordinatorReloadDownloadIndexScansManifestFolders() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -64,13 +64,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerReloadDownloadIndexKeepsNewestDuplicateFolder() async throws {
+    func testDownloadCoordinatorReloadDownloadIndexKeepsNewestDuplicateFolder() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -120,13 +120,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerFetchesDownloadsFromManifestIndex() async throws {
+    func testDownloadCoordinatorFetchesDownloadsFromManifestIndex() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -156,13 +156,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerWarmIndexMissDoesNotRescanDisk() async throws {
+    func testDownloadCoordinatorWarmIndexMissDoesNotRescanDisk() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         try storage.ensureRootDirectory()
         try writeIndexedManifest(
@@ -181,13 +181,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerObserverInitialSnapshotUsesManifestIndex() async throws {
+    func testDownloadCoordinatorObserverInitialSnapshotUsesManifestIndex() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -224,13 +224,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerIndexAppliesSessionOnlyFlags() async throws {
+    func testDownloadCoordinatorIndexAppliesSessionOnlyFlags() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -270,13 +270,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerReconcileClearsIndexedCancellationError() async throws {
+    func testDownloadCoordinatorReconcileClearsIndexedCancellationError() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -309,13 +309,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerReconcileClearsIndexedInterruptedActiveFlag() async throws {
+    func testDownloadCoordinatorReconcileClearsIndexedInterruptedActiveFlag() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -341,13 +341,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerSanitizeClearsIndexedError() async throws {
+    func testDownloadCoordinatorSanitizeClearsIndexedError() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -380,13 +380,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerValidateIndexedMissingFileUsesSessionError() async throws {
+    func testDownloadCoordinatorValidateIndexedMissingFileUsesSessionError() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -413,14 +413,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerRetryIndexedDownloadUsesQueueIntent() async throws {
+    func testDownloadCoordinatorRetryIndexedDownloadUsesQueueIntent() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore
@@ -458,14 +458,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerRetryPagesIndexedDownloadUsesQueueIntent() async throws {
+    func testDownloadCoordinatorRetryPagesIndexedDownloadUsesQueueIntent() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore
@@ -514,14 +514,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerFailureSettlesQueueIntent() async throws {
+    func testDownloadCoordinatorFailureSettlesQueueIntent() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore
@@ -560,14 +560,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerCompletionSettlesQueueIntent() async throws {
+    func testDownloadCoordinatorCompletionSettlesQueueIntent() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore
@@ -613,14 +613,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerPauseAndResumeMutateQueueIntent() async throws {
+    func testDownloadCoordinatorPauseAndResumeMutateQueueIntent() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore
@@ -677,7 +677,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerSchedulesManifestQueueOrder() async throws {
+    func testDownloadCoordinatorSchedulesManifestQueueOrder() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -696,7 +696,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
                 return .skippedOperation
             }
         )
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore,
@@ -741,13 +741,13 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerFlushProgressUpdatesManifestPageHash() async throws {
+    func testDownloadCoordinatorFlushProgressUpdatesManifestPageHash() async throws {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -771,7 +771,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         )
         await manager.reloadDownloadIndex()
         var pendingResolvedPages = [
-            DownloadManager.PageResult(
+            DownloadCoordinator.PageResult(
                 index: 1,
                 relativePath: pageRelativePath,
                 imageURL: nil
@@ -796,14 +796,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerLoadInspectionUsesFinalFailedPagesSnapshot() async throws {
+    func testDownloadCoordinatorLoadInspectionUsesFinalFailedPagesSnapshot() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000))
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -849,14 +849,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerLoadLocalPageURLsPrefersCompletedFolderForCompletedDownload() async throws {
+    func testDownloadCoordinatorLoadLocalPageURLsPrefersCompletedFolderForCompletedDownload() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 11)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -894,14 +894,14 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
     }
 
     @Test
-    func testDownloadManagerLoadLocalPageURLsUsesReadableCompletedPages() async throws {
+    func testDownloadCoordinatorLoadLocalPageURLsUsesReadableCompletedPages() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 12)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )
@@ -940,7 +940,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
 
 }
 
-private extension DownloadManagerStorageTests {
+private extension DownloadCoordinatorStorageTests {
     func writeIndexedManifest(
         storage: DownloadStore,
         relativePath: String,

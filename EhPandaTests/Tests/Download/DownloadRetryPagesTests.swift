@@ -17,7 +17,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         try writeManifestFolder(
             storage: storage,
             gid: gid,
@@ -61,7 +61,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )

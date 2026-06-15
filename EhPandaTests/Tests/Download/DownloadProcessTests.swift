@@ -27,7 +27,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
                 await persistenceGate.waitAtGate()
             }
         )
-        let (storage, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL,
             sessionID: sessionID,
             taskRunner: taskRunner
@@ -80,7 +80,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID
         )
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
@@ -126,7 +126,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL,
             sessionID: sessionID,
             downloadOptionsProvider: { optionsBox.value }
@@ -232,7 +232,7 @@ private extension DownloadProcessTests {
     }
 
     func fetchAndInstallStub(
-        manager: DownloadManager, sessionID: String, gid: String,
+        manager: DownloadCoordinator, sessionID: String, gid: String,
         pageIndex: Int
     ) async throws -> Int {
         let stubContent = StubHandlerContent(
@@ -292,7 +292,7 @@ private extension DownloadProcessTests {
     }
 
     func verifyCompletedProcess(
-        manager: DownloadManager,
+        manager: DownloadCoordinator,
         storage: DownloadStore,
         context: ProcessVerificationContext
     ) async throws {
