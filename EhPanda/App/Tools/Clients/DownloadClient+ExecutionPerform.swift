@@ -39,18 +39,11 @@ extension DownloadCoordinator {
             options: options,
             existingDownload: existingDownload
         )
-        do {
-            let batchAndCover = try await executePageDownloads(
-                context: executionContext,
-                workingSeed: workingSeed,
-                pendingIndices: pendingIndices
-            )
-            return batchAndCover
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            throw error
-        }
+        return try await executePageDownloads(
+            context: executionContext,
+            workingSeed: workingSeed,
+            pendingIndices: pendingIndices
+        )
     }
 
     private func executePageDownloads(
@@ -61,7 +54,7 @@ extension DownloadCoordinator {
         let payload = context.payload
         let options = context.options
         let folderURL = workingSeed.folderURL
-        let coverRelativePath = try await downloadCoverIfNeeded(
+        let coverRelativePath = try await downloadCoverImage(
             payload: payload,
             options: options,
             folderURL: folderURL,
@@ -99,20 +92,6 @@ extension DownloadCoordinator {
         return PerformDownloadResult(
             coverRelativePath: coverRelativePath,
             pages: batchResult.pages
-        )
-    }
-
-    private func downloadCoverIfNeeded(
-        payload: DownloadRequestPayload,
-        options: DownloadRequestOptions,
-        folderURL: URL,
-        existingCoverRelativePath: String?
-    ) async throws -> String? {
-        try await downloadCoverImage(
-            payload: payload,
-            options: options,
-            folderURL: folderURL,
-            existingCoverRelativePath: existingCoverRelativePath
         )
     }
 
