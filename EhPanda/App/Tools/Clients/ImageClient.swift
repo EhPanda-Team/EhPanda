@@ -94,13 +94,25 @@ extension ImageClient {
         }
         let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
         if let data = await dataCache.data(forKeys: cacheKeys) {
-            return data
+            // A known placeholder (quota/login wall) that was cached before this
+            // guard existed must not be re-served; purge it and re-fetch so a
+            // since-lifted limit recovers on its own.
+            if ImagePlaceholderFingerprint.match(data) == nil {
+                return data
+            }
+            try? await dataCache.removeData(forKeys: cacheKeys)
         }
         let data = try await downloadReaderData(
             url: url, urlSession: urlSession, onProgress: onProgress
         )
+        // E-H serves quota/auth placeholders as valid 200 images; reject them as the
+        // errors they are (matching the download pipeline) so they're never cached,
+        // displayed, or exported as the real page.
+        if let placeholder = ImagePlaceholderFingerprint.match(data) {
+            throw placeholder.error
+        }
         // Only cache decodable image bytes so a 200 carrying an HTML/error body
-        // (e.g. an E-H bandwidth notice) can't poison the key until expiry.
+        // (e.g. an unexpected notice page) can't poison the key until expiry.
         guard data.decodedImage != nil else {
             throw AppError.parseFailed
         }

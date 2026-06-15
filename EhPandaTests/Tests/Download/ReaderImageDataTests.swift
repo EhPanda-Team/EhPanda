@@ -118,6 +118,93 @@ struct ReaderImageDataTests {
     }
 
     @Test
+    func testRejectsAndSkipsCacheForQuotaPlaceholderFromNetwork() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://ehgt.org/g/509.gif"))
+        let placeholderData = try fixtureData(resource: "BandwidthExceeded", pathExtension: "html")
+        let (session, sessionID) = makeStubbedSession()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            (try makeHTTPResponse(url: url, statusCode: 200), placeholderData)
+        }
+
+        // The H@H `509` notice is a valid 200 GIF; the owned fetch must surface it as
+        // `.quotaExceeded` and never cache it, or it would poison the key until expiry.
+        do {
+            _ = try await ImageClient.readerImageData(
+                url: url, dataCache: cache, urlSession: session
+            )
+            Issue.record("Expected readerImageData to reject the quota placeholder")
+        } catch let error as AppError {
+            #expect(error == .quotaExceeded)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+        let cached = await cache.data(
+            forKeys: url.imageCacheKeys(includeStableAlias: true)
+        )
+        #expect(cached == nil)
+    }
+
+    @Test
+    func testRejectsAndSkipsCacheForAuthPlaceholderFromNetwork() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://exhentai.org/img/kokomade.jpg"))
+        let placeholderData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
+        let (session, sessionID) = makeStubbedSession()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            (try makeHTTPResponse(url: url, statusCode: 200), placeholderData)
+        }
+
+        do {
+            _ = try await ImageClient.readerImageData(
+                url: url, dataCache: cache, urlSession: session
+            )
+            Issue.record("Expected readerImageData to reject the auth placeholder")
+        } catch let error as AppError {
+            #expect(error == .authenticationRequired)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+        let cached = await cache.data(
+            forKeys: url.imageCacheKeys(includeStableAlias: true)
+        )
+        #expect(cached == nil)
+    }
+
+    @Test
+    func testPurgesCachedPlaceholderAndRefetches() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://ehgt.org/g/509.gif"))
+        let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        let placeholderData = try fixtureData(resource: "BandwidthExceeded", pathExtension: "html")
+        try await cache.store(placeholderData, forKeys: cacheKeys)
+        let realImageData = try makePNGData()
+        let requestCount = UncheckedBox(0)
+        let (session, sessionID) = makeStubbedSession()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            requestCount.value += 1
+            return (try makeHTTPResponse(url: url, statusCode: 200), realImageData)
+        }
+
+        // A placeholder cached before the guard existed must be purged and re-fetched,
+        // so a lifted limit recovers without the user clearing the cache by hand.
+        let data = try await ImageClient.readerImageData(
+            url: url, dataCache: cache, urlSession: session
+        )
+
+        #expect(data == realImageData)
+        #expect(requestCount.value == 1)
+        let cached = await cache.data(forKeys: cacheKeys)
+        #expect(cached == realImageData)
+    }
+
+    @Test
     func testFetchImageAssetServesOwnedCacheAndRoutesByBytes() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
         defer { try? FileManager.default.removeItem(at: rootURL) }
@@ -188,6 +275,13 @@ struct ReaderImageDataTests {
         let asset = await task.value
 
         #expect(asset == nil)
+    }
+
+    private func fixtureData(resource: String, pathExtension: String) throws -> Data {
+        let fixtureURL = try #require(
+            Bundle(for: TestBundleLocator.self).url(forResource: resource, withExtension: pathExtension)
+        )
+        return try Data(contentsOf: fixtureURL)
     }
 
     private func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
