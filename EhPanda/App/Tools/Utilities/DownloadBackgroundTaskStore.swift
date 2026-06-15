@@ -17,7 +17,7 @@ actor DownloadBackgroundTaskStore {
 
     init(
         fileURL: URL,
-        fileManager: sending FileManager = .default
+        fileManager: sending FileManager = FileManager()
     ) {
         self.fileURL = fileURL
         self.fileManager = DownloadFileManager(fileManager)
