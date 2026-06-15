@@ -369,7 +369,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         await manager.testingSetDownloadError(failure, gid: "430")
 
-        let sanitizedDownload = await manager.testingSanitizeLocalFilesIfNeeded(
+        let sanitizedDownload = await manager.sanitizeLocalFilesIfNeeded(
             gid: "430",
             clearingLastError: true
         )
