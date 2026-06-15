@@ -1002,11 +1002,6 @@
 "download_setting_view.title.retry_failed_pages_automatically" = "失敗したページを自動で再試行";
 "download_setting_view.title.allow_cellular_downloads" = "モバイル通信でのダウンロードを許可";
 "download_setting_view.footer.network" = "一度にダウンロードされるギャラリーは 1 件だけです。この設定では、1 つのギャラリー内で同時にダウンロードするページ数、モバイル通信の許可または禁止、そしてファイルをアプリの Downloads フォルダに保存する動作を管理します。";
-"enum.download_thread_mode.value.single" = "1 枚ずつダウンロード";
-"enum.download_thread_mode.value.double" = "2 枚ずつダウンロード";
-"enum.download_thread_mode.value.triple" = "3 枚ずつダウンロード";
-"enum.download_thread_mode.value.quadruple" = "4 枚ずつダウンロード";
-"enum.download_thread_mode.value.quintuple" = "5 枚ずつダウンロード";
 "struct.download_badge.text.queued" = "待機中";
 "struct.download_badge.text.downloading" = "ダウンロード中";
 "struct.download_badge.text.paused" = "一時停止";

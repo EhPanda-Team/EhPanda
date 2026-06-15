@@ -1002,11 +1002,6 @@
 "download_setting_view.title.retry_failed_pages_automatically" = "Fehlgeschlagene Seiten automatisch erneut versuchen";
 "download_setting_view.title.allow_cellular_downloads" = "Downloads über Mobilfunk erlauben";
 "download_setting_view.footer.network" = "Es wird immer nur eine Galerie gleichzeitig heruntergeladen. Mit dieser Einstellung steuerst du, wie viele Galerieseiten parallel geladen werden, ob Mobilfunk erlaubt ist und dass Dateien im Downloads-Ordner der App gespeichert werden.";
-"enum.download_thread_mode.value.single" = "1 Bild gleichzeitig";
-"enum.download_thread_mode.value.double" = "2 Bilder gleichzeitig";
-"enum.download_thread_mode.value.triple" = "3 Bilder gleichzeitig";
-"enum.download_thread_mode.value.quadruple" = "4 Bilder gleichzeitig";
-"enum.download_thread_mode.value.quintuple" = "5 Bilder gleichzeitig";
 "struct.download_badge.text.queued" = "In Warteschlange";
 "struct.download_badge.text.downloading" = "Lädt herunter";
 "struct.download_badge.text.paused" = "Pausiert";

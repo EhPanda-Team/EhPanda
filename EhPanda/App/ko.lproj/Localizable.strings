@@ -1002,11 +1002,6 @@
 "download_setting_view.title.retry_failed_pages_automatically" = "실패한 페이지 자동 재시도";
 "download_setting_view.title.allow_cellular_downloads" = "셀룰러 다운로드 허용";
 "download_setting_view.footer.network" = "한 번에 하나의 갤러리만 다운로드됩니다. 이 설정으로 한 갤러리 안에서 동시에 다운로드할 페이지 수, 셀룰러 다운로드 허용 여부, 그리고 파일을 앱의 Downloads 폴더에 저장하는 방식을 제어합니다.";
-"enum.download_thread_mode.value.single" = "한 번에 1장 다운로드";
-"enum.download_thread_mode.value.double" = "한 번에 2장 다운로드";
-"enum.download_thread_mode.value.triple" = "한 번에 3장 다운로드";
-"enum.download_thread_mode.value.quadruple" = "한 번에 4장 다운로드";
-"enum.download_thread_mode.value.quintuple" = "한 번에 5장 다운로드";
 "struct.download_badge.text.queued" = "대기 중";
 "struct.download_badge.text.downloading" = "다운로드 중";
 "struct.download_badge.text.paused" = "일시 정지";
