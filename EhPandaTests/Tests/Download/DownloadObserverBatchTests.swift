@@ -138,7 +138,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             timeout: .seconds(2),
             description: "observer updates for progress flush"
         )
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
 
         #expect(stored?.completedPageCount == pageCount)
         #expect(emissionCount < pageCount)

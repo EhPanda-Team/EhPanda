@@ -143,13 +143,6 @@ actor DownloadCoordinator {
         let preferredRelativePath: String?
     }
 
-    struct PrepareWorkingSeedResult: Sendable {
-        let folderURL: URL
-        let manifest: DownloadManifest
-        let existingPages: [Int: String]
-        let coverRelativePath: String?
-    }
-
     struct HTMLResponseContext {
         let prefixData: Data
         let fullData: Data?

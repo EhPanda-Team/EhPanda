@@ -728,7 +728,7 @@ struct DownloadManagerStorageTests: DownloadFeatureTestCase {
         await queueStore.enqueue("830")
         await queueStore.enqueue("831")
 
-        await manager.testingScheduleNextIfNeeded()
+        await manager.scheduleNextIfNeeded()
 
         let scheduledGalleryIDs = scheduledRecorder.snapshot()
         #expect(scheduledGalleryIDs == ["830"])

@@ -20,10 +20,6 @@ extension DownloadCoordinator {
         activeGalleryID = gid
     }
 
-    func testingScheduleNextIfNeeded() async {
-        await scheduleNextIfNeeded()
-    }
-
     func testingSetQueuedGalleryIDs(_ gids: [String]) async {
         await queueStore.removeAll()
         for gid in gids {
@@ -65,82 +61,8 @@ extension DownloadCoordinator {
         activeTask != nil
     }
 
-    func testingFetchDownload(
-        gid: String
-    ) async -> DownloadedGallery? {
-        await fetchDownload(gid: gid)
-    }
-
     func testingActiveGalleryID() -> String? {
         activeGalleryID
-    }
-
-    func testingFetchLatestPayload(
-        for download: DownloadedGallery,
-        mode: DownloadStartMode,
-        options: DownloadRequestOptions = .init(),
-        pageSelection: [Int]? = nil
-    ) async throws -> DownloadRequestPayload {
-        try await fetchLatestPayload(
-            for: download,
-            mode: mode,
-            options: options,
-            pageSelection: pageSelection
-        )
-    }
-
-    func testingPrepareWorkingSeed(
-        payload: DownloadRequestPayload,
-        existingDownload: DownloadedGallery
-    ) throws -> PrepareWorkingSeedResult {
-        let folderURL = storage.folderURL(
-            relativePath: folderRelativePath(
-                for: payload,
-                parentFolderName: existingDownload.folderName
-            )
-        )
-        try? fileManager.operate {
-            try $0.removeItem(at: folderURL)
-        }
-        let workingSeed = try prepareWorkingSeed(
-            payload: payload,
-            existingDownload: existingDownload,
-            folderURL: folderURL
-        )
-        return PrepareWorkingSeedResult(
-            folderURL: workingSeed.folderURL,
-            manifest: workingSeed.manifest,
-            existingPages: workingSeed.existingPages,
-            coverRelativePath: workingSeed.coverRelativePath
-        )
-    }
-
-    func testingProcessDownload(gid: String) async {
-        await processDownload(gid: gid)
-    }
-
-    func testingDetectResponseError(
-        fileURL: URL,
-        response: URLResponse,
-        requestURL: URL?
-    ) -> AppError? {
-        detectResponseError(
-            fileURL: fileURL,
-            response: response,
-            requestURL: requestURL
-        )
-    }
-
-    func testingDetectResponseError(
-        data: Data,
-        response: URLResponse,
-        requestURL: URL?
-    ) -> AppError? {
-        detectResponseError(
-            data: data,
-            response: response,
-            requestURL: requestURL
-        )
     }
 }
 #endif

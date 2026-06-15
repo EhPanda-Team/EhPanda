@@ -71,7 +71,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         )
         #expect(manifestObject["downloadOptions"] == nil)
 
-        let queuedDownload = await manager.testingFetchDownload(gid: gallery.gid)
+        let queuedDownload = await manager.fetchDownload(gid: gallery.gid)
         #expect(queuedDownload?.displayStatus == .queued)
         #expect(queuedDownload?.onlineCoverURL == detail.coverURL)
         #expect(queuedDownload?.pageCount == detail.pageCount)
@@ -146,6 +146,6 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
         let preservedManifest = try storage.readManifest(folderURL: folderURL)
         #expect(preservedManifest.pages == pages)
         #expect(queueStore.gids == [gallery.gid])
-        #expect(await manager.testingFetchDownload(gid: gallery.gid)?.completedPageCount == detail.pageCount)
+        #expect(await manager.fetchDownload(gid: gallery.gid)?.completedPageCount == detail.pageCount)
     }
 }

@@ -47,7 +47,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             do {
                 try await Task.sleep(for: .seconds(60))
             } catch is CancellationError {
-                await manager.testingScheduleNextIfNeeded()
+                await manager.scheduleNextIfNeeded()
             } catch {}
         }
         await manager.testingInstallActiveTask(gid: gid, task: activeTask)
@@ -61,7 +61,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         try await Task.sleep(for: .milliseconds(100))
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         let activeGalleryID = await manager.testingActiveGalleryID()
         #expect(stored?.displayStatus == .inactive)
         #expect(
@@ -107,7 +107,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             return
         }
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         let activeGalleryID = await manager.testingActiveGalleryID()
         let hasActiveTask = await manager.testingHasActiveTask()
         #expect(stored?.displayStatus == .inactive)
@@ -156,7 +156,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             do {
                 try await Task.sleep(for: .seconds(60))
             } catch is CancellationError {
-                await manager.testingScheduleNextIfNeeded()
+                await manager.scheduleNextIfNeeded()
             } catch {}
         }
         await manager.testingInstallActiveTask(gid: gid, task: activeTask)
@@ -168,7 +168,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
             return
         }
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.displayStatus == .inactive)
         #expect(stored?.completedPageCount == 1)
         #expect(
@@ -208,7 +208,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         await manager.reconcileDownloads()
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.displayStatus == .error)
         #expect(stored?.lastError?.code == .networkingFailed)
     }
@@ -245,7 +245,7 @@ struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
 
         await manager.reconcileDownloads()
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.lastError == nil)
         #expect(stored?.displayStatus == .inactive)
     }

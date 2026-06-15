@@ -70,9 +70,9 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         await manager.testingSetQueuedGalleryIDs([gid])
 
         async let firstSchedule: Void =
-            manager.testingScheduleNextIfNeeded()
+            manager.scheduleNextIfNeeded()
         async let secondSchedule: Void =
-            manager.testingScheduleNextIfNeeded()
+            manager.scheduleNextIfNeeded()
 
         await gate.waitForBothArrivals()
         await gate.releaseAll()
@@ -121,7 +121,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         await manager.reloadDownloadIndex()
         await manager.testingSetQueuedGalleryIDs([firstGID, secondGID])
 
-        await manager.testingScheduleNextIfNeeded()
+        await manager.scheduleNextIfNeeded()
         await gate.waitForFirstArrival()
 
         let pauseTask = Task {
@@ -129,7 +129,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         }
         try await waitForActiveGalleryID(manager, toEqual: nil)
 
-        await manager.testingScheduleNextIfNeeded()
+        await manager.scheduleNextIfNeeded()
         await gate.waitForSecondStart()
         await gate.releaseFirst()
 

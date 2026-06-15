@@ -46,7 +46,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             return
         }
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.displayStatus == .queued)
         #expect(stored?.badge.status == .queued)
         #expect(stored?.lastError == nil)
@@ -81,7 +81,7 @@ struct DownloadRetryPagesTests: DownloadFeatureTestCase {
             return
         }
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.displayStatus == .inactive)
         #expect(stored?.completedPageCount == 1)
         #expect(

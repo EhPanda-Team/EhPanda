@@ -36,8 +36,16 @@ struct DownloadManagerRepairSeedTests: DownloadFeatureTestCase {
         )
 
         let payload = makeRepairSeedPayload(gid: gid)
-        let workingSeed = try await manager.testingPrepareWorkingSeed(
-            payload: payload, existingDownload: existingDownload
+        let folderRelativePath = await manager.folderRelativePath(
+            for: payload,
+            parentFolderName: existingDownload.folderName
+        )
+        let folderURL = storage.folderURL(relativePath: folderRelativePath)
+        try? FileManager.default.removeItem(at: folderURL)
+        let workingSeed = try await manager.prepareWorkingSeed(
+            payload: payload,
+            existingDownload: existingDownload,
+            folderURL: folderURL
         )
 
         let pageOneRelativePath = storage.makePageRelativePath(

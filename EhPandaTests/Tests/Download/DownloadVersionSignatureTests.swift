@@ -41,7 +41,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
 
         await manager.reconcileDownloads()
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         let localPages = try await manager.loadLocalPageURLs(gid: gid).get()
 
         #expect(stored?.displayStatus == .inactive)
@@ -102,7 +102,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 firstKey: "token"
             )
         )
-        let updatedDownload = await manager.testingFetchDownload(gid: gid)
+        let updatedDownload = await manager.fetchDownload(gid: gid)
 
         #expect(updateResult?.displayStatus == .updateAvailable)
         #expect(updatedDownload?.displayStatus == .updateAvailable)
@@ -121,7 +121,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
                 firstKey: "token"
             )
         )
-        let currentDownload = await manager.testingFetchDownload(gid: gid)
+        let currentDownload = await manager.fetchDownload(gid: gid)
 
         #expect(currentResult?.displayStatus == .completed)
         #expect(currentDownload?.displayStatus == .completed)

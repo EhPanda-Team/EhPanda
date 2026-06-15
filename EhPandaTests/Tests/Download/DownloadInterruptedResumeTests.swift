@@ -71,7 +71,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
         #expect(persistedManifest == workingSeed.manifest)
         #expect(persistedManifest.pageCount == 2)
         #expect(persistedManifest.completedPageCount == 0)
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored != nil)
     }
 
@@ -117,7 +117,7 @@ struct DownloadInterruptedResumeTests: DownloadFeatureTestCase {
             Issue.record("Pause should succeed, got \(result)")
             return
         }
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.displayStatus == .inactive)
         #expect(
             stored?.badge == DownloadBadge(
