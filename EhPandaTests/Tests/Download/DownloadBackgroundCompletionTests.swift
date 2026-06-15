@@ -67,6 +67,58 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testReceiverReplaysCompletionBufferedBeforeCoordinatorIsSet() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 908)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: .shared,
+            backgroundTaskStore: taskStore
+        )
+        let folderURL = try writeDownloadFolder(storage: storage, gid: gid)
+        await manager.reloadDownloadIndex()
+
+        let taskIdentifier = 88
+        let stagedURL = try writeStagedBackgroundFile(storage: storage)
+        await taskStore.record(taskIdentifier: taskIdentifier, gid: gid, pageIndex: 1)
+        let responseURL = try #require(URL(string: "https://ehgt.org/ab/cd/0001-\(gid).jpg"))
+        let response = try #require(HTTPURLResponse(
+            url: responseURL,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: ["Content-Type": "image/jpeg"]
+        ))
+
+        // A completion replayed by iOS in the window before the coordinator is installed
+        // must be buffered and drained on setCoordinator, not dropped against a nil
+        // coordinator (which would strand the page and let resumeQueue re-download it).
+        let receiver = BackgroundPageCompletionReceiver()
+        await receiver.handleCompletion(
+            taskIdentifier: taskIdentifier,
+            fileURL: stagedURL,
+            response: response
+        )
+        await receiver.setCoordinator(manager)
+
+        let pageRelativePath = storage.makePageRelativePath(
+            gid: gid,
+            token: "token",
+            index: 1,
+            fileExtension: "jpg"
+        )
+        let pageURL = folderURL.appendingPathComponent(pageRelativePath)
+
+        #expect(await taskStore.record(taskIdentifier: taskIdentifier) == nil)
+        #expect(FileManager.default.fileExists(atPath: pageURL.path))
+        #expect(FileManager.default.fileExists(atPath: stagedURL.path) == false)
+    }
+
+    @Test
     func testOrphanedBackgroundFailureRecordsPageFailureAndClearsTaskRecord() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 904)
         let rootURL = FileManager.default.temporaryDirectory

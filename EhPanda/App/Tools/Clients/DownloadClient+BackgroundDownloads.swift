@@ -6,10 +6,26 @@
 import Foundation
 
 actor BackgroundPageCompletionReceiver {
-    private var coordinator: DownloadCoordinator?
+    private enum PendingEvent {
+        case completion(taskIdentifier: Int, fileURL: URL, response: URLResponse)
+        case failure(taskIdentifier: Int, error: AppError?)
+    }
 
-    func setCoordinator(_ coordinator: DownloadCoordinator) {
+    private var coordinator: DownloadCoordinator?
+    private var pendingEvents = [PendingEvent]()
+
+    // The background URLSession is live the moment it's created, so iOS can replay a
+    // stored completion before the coordinator is installed one task-hop later. Buffer
+    // anything that arrives in that window and drain it here, or the event would no-op
+    // against a nil coordinator — stranding the staged file and letting resumeQueue
+    // re-download an already-finished page (defeats the offline-finish guarantee).
+    func setCoordinator(_ coordinator: DownloadCoordinator) async {
         self.coordinator = coordinator
+        let bufferedEvents = pendingEvents
+        pendingEvents.removeAll()
+        for event in bufferedEvents {
+            await deliver(event, to: coordinator)
+        }
     }
 
     func handleCompletion(
@@ -17,7 +33,13 @@ actor BackgroundPageCompletionReceiver {
         fileURL: URL,
         response: URLResponse
     ) async {
-        await coordinator?.handleBackgroundPageDownloadCompleted(
+        guard let coordinator else {
+            pendingEvents.append(
+                .completion(taskIdentifier: taskIdentifier, fileURL: fileURL, response: response)
+            )
+            return
+        }
+        await coordinator.handleBackgroundPageDownloadCompleted(
             taskIdentifier: taskIdentifier,
             fileURL: fileURL,
             response: response
@@ -28,10 +50,33 @@ actor BackgroundPageCompletionReceiver {
         taskIdentifier: Int,
         error: AppError?
     ) async {
-        await coordinator?.handleBackgroundPageDownloadFailed(
+        guard let coordinator else {
+            pendingEvents.append(.failure(taskIdentifier: taskIdentifier, error: error))
+            return
+        }
+        await coordinator.handleBackgroundPageDownloadFailed(
             taskIdentifier: taskIdentifier,
             error: error
         )
+    }
+
+    private func deliver(
+        _ event: PendingEvent,
+        to coordinator: DownloadCoordinator
+    ) async {
+        switch event {
+        case let .completion(taskIdentifier, fileURL, response):
+            await coordinator.handleBackgroundPageDownloadCompleted(
+                taskIdentifier: taskIdentifier,
+                fileURL: fileURL,
+                response: response
+            )
+        case let .failure(taskIdentifier, error):
+            await coordinator.handleBackgroundPageDownloadFailed(
+                taskIdentifier: taskIdentifier,
+                error: error
+            )
+        }
     }
 }
 
