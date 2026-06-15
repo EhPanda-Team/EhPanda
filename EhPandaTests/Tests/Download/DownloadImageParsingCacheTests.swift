@@ -12,6 +12,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
+    @Test
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLIsRejected() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 33)
         let manager = makeTestingDownloadCoordinator()

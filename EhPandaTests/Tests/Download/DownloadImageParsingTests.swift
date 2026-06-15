@@ -12,6 +12,7 @@ import Testing
 
 @Suite(.serialized)
 struct DownloadImageParsingTests: DownloadFeatureTestCase {
+    @Test
     func testFileBasedQuotaImageMapsToQuotaExceeded() async throws {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }

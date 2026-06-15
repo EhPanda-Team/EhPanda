@@ -27,6 +27,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     }
 
     @MainActor
+    @Test
     func testReadingReducerOnWebImageSucceededDoesNotCaptureAlreadyLocalPage() async {
         let capturedCalls = UncheckedBox([(String, Int, URL?)]())
         let gallery = sampleGallery()
