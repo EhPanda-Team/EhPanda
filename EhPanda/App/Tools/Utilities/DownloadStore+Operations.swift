@@ -304,20 +304,8 @@ private extension DownloadManifest {
     func replacing(
         pages: [Int: String]
     ) -> DownloadManifest {
-        DownloadManifest(
-            gid: gid,
-            host: host,
-            token: token,
-            title: title,
-            jpnTitle: jpnTitle,
-            category: category,
-            language: language,
-            remoteCoverURL: remoteCoverURL,
-            uploader: uploader,
-            tags: tags,
-            postedDate: postedDate,
-            rating: rating,
-            pages: pages
-        )
+        var manifest = self
+        manifest.pages = pages
+        return manifest
     }
 }
