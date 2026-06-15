@@ -1000,11 +1000,6 @@
 "download_setting_view.title.retry_failed_pages_automatically" = "自動重試失敗頁面";
 "download_setting_view.title.allow_cellular_downloads" = "允許流動網絡下載";
 "download_setting_view.footer.network" = "每次只會下載一個畫廊。此設定用於控制單個畫廊內頁面的並行下載數量、是否允許流動網絡下載，以及檔案在應用程式 Downloads 資料夾中的儲存方式。";
-"enum.download_thread_mode.value.single" = "同時下載 1 張圖片";
-"enum.download_thread_mode.value.double" = "同時下載 2 張圖片";
-"enum.download_thread_mode.value.triple" = "同時下載 3 張圖片";
-"enum.download_thread_mode.value.quadruple" = "同時下載 4 張圖片";
-"enum.download_thread_mode.value.quintuple" = "同時下載 5 張圖片";
 "struct.download_badge.text.queued" = "已排隊";
 "struct.download_badge.text.downloading" = "下載中";
 "struct.download_badge.text.paused" = "已暫停";
