@@ -189,8 +189,7 @@ extension DownloadCoordinator {
         else {
             throw AppError.notFound
         }
-        if firstURL.pathComponents.count > 1,
-           firstURL.pathComponents[1] == "mpv" {
+        if URLClient.isMPVURL(firstURL) {
             let (mpvKey, imageKeys) = try await MPVKeysRequest(
                 mpvURL: firstURL,
                 urlSession: urlSession,
