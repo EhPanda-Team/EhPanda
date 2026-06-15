@@ -94,9 +94,7 @@ struct ReaderImageDataTests {
         let (cache, rootURL) = makeIsolatedDataCache()
         defer { try? FileManager.default.removeItem(at: rootURL) }
         let url = try #require(URL(string: "https://example.com/reader/notimage.png"))
-        let htmlData = try #require(
-            "<html><body>Your IP has been temporarily banned</body></html>".data(using: .utf8)
-        )
+        let htmlData = Data("<html><body>Your IP has been temporarily banned</body></html>".utf8)
         let (session, sessionID) = makeStubbedSession()
         defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
         SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
