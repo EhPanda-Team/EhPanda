@@ -21,7 +21,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
         )
 
         let imageData = try fixtureData(resource: "Kokomade", pathExtension: "jpg")
-        let cacheKeys = normalImageURL.imageCacheKeys(includeStableAlias: true)
+        let cacheKeys = normalImageURL.imageCacheKeys
         for cacheKey in cacheKeys {
             try await KingfisherManager.shared.cache.storeToDisk(imageData, forKey: cacheKey)
         }

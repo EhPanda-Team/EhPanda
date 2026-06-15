@@ -44,7 +44,7 @@ struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
-        let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
+        let cacheKeys = imageURL.imageCacheKeys
         try await DataCache.shared.store(imageData, forKeys: cacheKeys)
 
         await manager.captureCachedPage(
@@ -153,7 +153,7 @@ private extension DownloadCoordinatorCaptureTests {
             context.fill(.init(x: 0, y: 0, width: 1, height: 1))
         }
         let imageData = try #require(image.jpegData(compressionQuality: 1))
-        let cacheKeys = imageURL.imageCacheKeys(includeStableAlias: true)
+        let cacheKeys = imageURL.imageCacheKeys
         try await DataCache.shared.store(imageData, forKeys: cacheKeys)
         return (imageURL, cacheKeys)
     }

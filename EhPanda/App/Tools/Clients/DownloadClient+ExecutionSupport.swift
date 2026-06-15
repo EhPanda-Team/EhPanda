@@ -156,7 +156,7 @@ extension DownloadCoordinator {
 
         let urls = Array(Set(previewURLs + pageURLs + coverURLs))
             .map(Optional.some)
-        await removeCachedImages(for: urls, includeStableAlias: true)
+        await removeCachedImages(for: urls)
     }
 
     func resolveSource(
