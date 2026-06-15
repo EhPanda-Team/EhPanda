@@ -10,14 +10,14 @@ import Testing
 @Suite(.serialized)
 struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     @Test
-    func testDownloadManagerReconcilePreservesIndexedFinalFolder() async throws {
+    func testDownloadCoordinatorReconcilePreservesIndexedFinalFolder() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 31)
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
         try storage.ensureRootDirectory()
         let folderURL = storage.folderURL(relativePath: "Folder/[\(gid)_token] Indexed")
         try FileManager.default.createDirectory(
@@ -59,7 +59,7 @@ struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared
         )

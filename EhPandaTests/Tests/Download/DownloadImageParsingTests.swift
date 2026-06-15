@@ -16,7 +16,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let quotaImageURL = try #require(URL(string: "https://ehgt.org/g/509.gif"))
         let response = try makeResponse(
             url: quotaImageURL,
@@ -37,7 +37,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         var data = try Data(contentsOf: fileURL)
         data[0] = 0
         try data.write(to: fileURL, options: .atomic)
@@ -66,7 +66,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let imageData = try #require(Data(base64Encoded: "R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs="))
         try imageData.write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let kokomadeURL = try #require(URL(string: "https://exhentai.org/img/kokomade.jpg"))
         let response = try makeResponse(
             url: kokomadeURL,
@@ -87,7 +87,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let normalImageURL = try #require(URL(string: "https://ehgt.org/h/normal-image-cache-key/1"))
         let response = try makeResponse(
             url: normalImageURL,
@@ -108,7 +108,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let fileURL = try writeFixtureToTemporaryFile(resource: "Kokomade", pathExtension: "jpg")
         defer { try? FileManager.default.removeItem(at: fileURL) }
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let normalImageURL = try #require(
             URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key")
         )
@@ -137,7 +137,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         """.utf8)
         try htmlData.write(to: fileURL, options: .atomic)
 
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let quotaURL = try #require(URL(string: "https://e-hentai.org/s/1/1-1"))
         let response = try makeResponse(
             url: quotaURL,
@@ -165,7 +165,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             SharedSessionStubURLProtocol.headerKey: sessionID
         ]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
         )
@@ -247,7 +247,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testCachedQuotaPlaceholderStoredUnderNormalImageURLIsRejected() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1_000_000) + 32)
-        let manager = makeTestingDownloadManager()
+        let manager = makeTestingDownloadCoordinator()
         let normalImageURL = try #require(
             URL(string: "https://ehgt.org/h/quota-placeholder-cache-\(gid)/1")
         )
@@ -282,7 +282,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             SharedSessionStubURLProtocol.headerKey: sessionID
         ]
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration)
         )
@@ -318,7 +318,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             folderName: "Folder",
             mode: .initial
         )
-        let source = DownloadManager.ResolvedSource.mpv("mpvkey", [1: "imgkey1"])
+        let source = DownloadCoordinator.ResolvedSource.mpv("mpvkey", [1: "imgkey1"])
 
         let first = try await manager.resolvedImageSource(
             index: 1, payload: payload, options: .init(), source: source, failover: nil

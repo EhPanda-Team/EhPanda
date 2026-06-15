@@ -36,7 +36,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
                 return .skippedOperation
             }
         )
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             taskRunner: taskRunner
@@ -110,7 +110,7 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
                 return .skippedOperation
             }
         )
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             taskRunner: taskRunner
@@ -169,7 +169,7 @@ private extension DownloadSchedulingTests {
     }
 
     func waitForActiveGalleryID(
-        _ manager: DownloadManager,
+        _ manager: DownloadCoordinator,
         toEqual expected: String?,
         timeout: Duration = .seconds(1)
     ) async throws {

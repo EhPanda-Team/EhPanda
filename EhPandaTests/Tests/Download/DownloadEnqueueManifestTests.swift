@@ -16,7 +16,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore
@@ -85,7 +85,7 @@ struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
         let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: .shared,
             queueStore: queueStore

@@ -62,7 +62,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDownloadManagerBatchesObserverUpdatesDuringProgressFlush() async throws {
+    func testDownloadCoordinatorBatchesObserverUpdatesDuringProgressFlush() async throws {
         let pageCount = 20
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 104)
         let rootURL = FileManager.default.temporaryDirectory
@@ -70,7 +70,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
         let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
-        let manager = DownloadManager(storage: storage, urlSession: .shared)
+        let manager = DownloadCoordinator(storage: storage, urlSession: .shared)
 
         // Warm the (empty) index before seeding so the gallery surfaces only
         // through flush updates, mirroring an active download whose folder is
@@ -103,7 +103,7 @@ struct DownloadObserverBatchTests: DownloadFeatureTestCase {
             return emissionCount
         }
 
-        var pendingResolvedPages = [DownloadManager.PageResult]()
+        var pendingResolvedPages = [DownloadCoordinator.PageResult]()
         var lastFlushDate = Date.distantPast
         for index in 1...pageCount {
             let relativePath = storage.makePageRelativePath(

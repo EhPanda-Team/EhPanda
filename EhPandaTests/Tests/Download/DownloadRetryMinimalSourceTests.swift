@@ -18,7 +18,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID
         )
         let setup = try await setupMinimalSourceTest(
@@ -81,7 +81,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: rootURL) }
 
-        let (storage, manager) = makeStubbedDownloadManager(
+        let (storage, manager) = makeStubbedDownloadCoordinator(
             rootURL: rootURL, sessionID: sessionID
         )
         let setup = try await setupMinimalSourceTest(
@@ -135,7 +135,7 @@ private struct MinimalSourceTestResult {
 
 private struct MinimalSourceRetrySkipContext {
     let storage: DownloadStore
-    let manager: DownloadManager
+    let manager: DownloadCoordinator
     let gid: String
     let pageIndex: Int
     let setup: MinimalSourceTestResult
@@ -207,7 +207,7 @@ private extension DownloadRetryMinimalSourceTests {
     }
 
     func setupMinimalSourceTest(
-        manager: DownloadManager, sessionID: String, gid: String, pageIndex: Int
+        manager: DownloadCoordinator, sessionID: String, gid: String, pageIndex: Int
     ) async throws -> MinimalSourceTestResult {
         let recorder = RequestRecorder()
         let stubContent = StubHandlerContent(

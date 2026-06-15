@@ -331,14 +331,14 @@ struct StubRouteContext: Sendable {
 // MARK: - Stub Manager & Handler Helpers
 
 extension DownloadFeatureTestCase {
-    func makeStubbedDownloadManager(
+    func makeStubbedDownloadCoordinator(
         rootURL: URL,
         sessionID: String,
         downloadOptionsProvider: @escaping @Sendable () async -> DownloadRequestOptions = {
             DownloadRequestOptions()
         },
         taskRunner: DownloadTaskRunner = .init()
-    ) -> (DownloadStore, DownloadManager) {
+    ) -> (DownloadStore, DownloadCoordinator) {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [SharedSessionStubURLProtocol.self]
         configuration.httpAdditionalHeaders = [
@@ -347,7 +347,7 @@ extension DownloadFeatureTestCase {
         let storage = DownloadStore(
             rootURL: rootURL, fileManager: .default
         )
-        let manager = DownloadManager(
+        let manager = DownloadCoordinator(
             storage: storage,
             urlSession: URLSession(configuration: configuration),
             downloadOptionsProvider: downloadOptionsProvider,
