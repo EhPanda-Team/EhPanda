@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 // MARK: - Network
 extension DownloadCoordinator {
@@ -279,7 +280,8 @@ extension DownloadCoordinator {
         case "image/webp":
             return "webp"
         default:
-            return nil
+            guard mimeType.hasPrefix("image/") else { return nil }
+            return UTType(mimeType: mimeType)?.preferredFilenameExtension
         }
     }
 
