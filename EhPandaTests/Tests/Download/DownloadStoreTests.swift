@@ -42,6 +42,25 @@ struct DownloadStoreTests {
     }
 
     @Test
+    func testPurgeBackgroundTransferHoldingDirectoryRemovesOrphans() throws {
+        let (storage, rootURL) = makeStorage()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let holdingDirectory = storage.backgroundTransferHoldingDirectoryURL()
+        try FileManager.default.createDirectory(
+            at: holdingDirectory, withIntermediateDirectories: true
+        )
+        let orphan = holdingDirectory.appendingPathComponent("orphan.tmp")
+        try Data([0x01]).write(to: orphan, options: .atomic)
+        #expect(FileManager.default.fileExists(atPath: orphan.path))
+
+        storage.purgeBackgroundTransferHoldingDirectory()
+
+        #expect(FileManager.default.fileExists(atPath: orphan.path) == false)
+        #expect(FileManager.default.fileExists(atPath: holdingDirectory.path) == false)
+    }
+
+    @Test
     func testReadManifestRejectsEmptyPages() throws {
         let (storage, rootURL) = makeStorage()
         defer { try? FileManager.default.removeItem(at: rootURL) }
