@@ -6,7 +6,6 @@
 import Photos
 import SwiftUI
 import Combine
-import Kingfisher
 import ComposableArchitecture
 
 struct ImageClient: Sendable {
@@ -20,7 +19,6 @@ struct ImageClient: Sendable {
     }
 
     let prefetchImages: @Sendable ([URL]) -> Void
-    let saveImageToPhotoLibrary: @Sendable (UIImage, Bool) async -> Bool
     let saveImageDataToPhotoLibrary: @Sendable (Data) async -> Bool
     var dataCache: DataCache = .shared
     var urlSession: URLSession = .shared
@@ -38,23 +36,6 @@ extension ImageClient {
                             )
                         }
                     }
-                }
-            }
-        },
-        saveImageToPhotoLibrary: { (image, isAnimated) in
-            await withCheckedContinuation { continuation in
-                let data = isAnimated
-                    ? image.animatedSourceData
-                    : image.kf.data(format: .unknown)
-                if let data {
-                    PHPhotoLibrary.shared().performChanges {
-                        let request = PHAssetCreationRequest.forAsset()
-                        request.addResource(with: .photo, data: data, options: nil)
-                    } completionHandler: { (isSuccess, _) in
-                        continuation.resume(returning: isSuccess)
-                    }
-                } else {
-                    continuation.resume(returning: false)
                 }
             }
         },
@@ -186,7 +167,6 @@ extension DependencyValues {
 extension ImageClient {
     static let noop: Self = .init(
         prefetchImages: { _ in },
-        saveImageToPhotoLibrary: { _, _ in false },
         saveImageDataToPhotoLibrary: { _ in false }
     )
 
@@ -194,7 +174,6 @@ extension ImageClient {
 
     static let unimplemented: Self = .init(
         prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
-        saveImageToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder()),
         saveImageDataToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
