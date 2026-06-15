@@ -112,7 +112,7 @@ extension ImageClient {
             return try Data(contentsOf: url)
         }
         let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
-        if let data = try await dataCache.data(forKeys: cacheKeys) {
+        if let data = await dataCache.data(forKeys: cacheKeys) {
             return data
         }
         let data = try await downloadReaderData(

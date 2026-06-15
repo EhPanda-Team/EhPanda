@@ -22,7 +22,7 @@ struct DataCacheTests {
         try await cache.store(data, forKey: key)
         await cache.removeAllMemory()
 
-        #expect(try await cache.data(forKey: key) == data)
+        #expect(await cache.data(forKey: key) == data)
         let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
         #expect(files.count == 1)
         #expect(files.first != key)
@@ -39,13 +39,13 @@ struct DataCacheTests {
 
         try await cache.store(data, forKeys: ["stable", "absolute", "stable"])
 
-        #expect(try await cache.data(forKeys: ["missing", "absolute"]) == data)
+        #expect(await cache.data(forKeys: ["missing", "absolute"]) == data)
         let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
         #expect(files.count == 2)
 
         try await cache.removeData(forKeys: ["stable", "absolute", "stable"])
 
-        #expect(try await cache.data(forKeys: ["stable", "absolute"]) == nil)
+        #expect(await cache.data(forKeys: ["stable", "absolute"]) == nil)
         #expect(try await cache.totalSize() == 0)
     }
 
@@ -61,7 +61,7 @@ struct DataCacheTests {
         try await Task.sleep(for: .milliseconds(20))
         await cache.removeAllMemory()
 
-        #expect(try await cache.data(forKey: "expired") == nil)
+        #expect(await cache.data(forKey: "expired") == nil)
         #expect(try await cache.totalSize() == 0)
     }
 
@@ -83,9 +83,9 @@ struct DataCacheTests {
         try await Task.sleep(for: .milliseconds(10))
         try await cache.store(Data(repeating: 0x03, count: 4), forKey: "new")
 
-        #expect(try await cache.data(forKey: "old") == nil)
-        #expect(try await cache.data(forKey: "middle") == nil)
-        #expect(try await cache.data(forKey: "new") == Data(repeating: 0x03, count: 4))
+        #expect(await cache.data(forKey: "old") == nil)
+        #expect(await cache.data(forKey: "middle") == nil)
+        #expect(await cache.data(forKey: "new") == Data(repeating: 0x03, count: 4))
         #expect(try await cache.totalSize() <= 5)
     }
 
@@ -100,7 +100,28 @@ struct DataCacheTests {
         try await cache.store(Data([0x01]), forKey: "page")
         try await cache.removeAll()
 
-        #expect(try await cache.data(forKey: "page") == nil)
+        #expect(await cache.data(forKey: "page") == nil)
+        #expect(try await cache.totalSize() == 0)
+    }
+
+    @Test
+    func testUnreadableDiskEntryIsTreatedAsMissAndRemoved() async throws {
+        let rootURL = makeRootURL()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let cache = DataCache(configuration: .init(rootURL: rootURL))
+
+        try await cache.store(Data([0x01, 0x02]), forKey: "page")
+        await cache.removeAllMemory()
+
+        // Make the on-disk entry unreadable by replacing the cached file with a
+        // directory, which `Data(contentsOf:)` cannot read — the same failure mode
+        // as a corrupt or mid-read-purged file.
+        let files = try FileManager.default.contentsOfDirectory(atPath: rootURL.path)
+        let entryURL = rootURL.appendingPathComponent(try #require(files.first))
+        try FileManager.default.removeItem(at: entryURL)
+        try FileManager.default.createDirectory(at: entryURL, withIntermediateDirectories: false)
+
+        #expect(await cache.data(forKey: "page") == nil)
         #expect(try await cache.totalSize() == 0)
     }
 

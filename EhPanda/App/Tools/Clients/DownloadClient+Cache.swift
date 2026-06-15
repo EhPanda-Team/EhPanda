@@ -115,7 +115,7 @@ extension DownloadCoordinator {
                     includeStableAlias: includeStableAlias
                 )
             }
-        return try? await DataCache.shared.data(forKeys: keys)
+        return await DataCache.shared.data(forKeys: keys)
     }
 
     func validatedCachedAssetData(

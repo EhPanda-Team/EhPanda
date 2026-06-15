@@ -52,7 +52,7 @@ actor DataCache {
         }
     }
 
-    func data(forKey key: String) throws -> Data? {
+    func data(forKey key: String) -> Data? {
         let filename = Self.filename(forKey: key)
         if let data = memoryCache.object(forKey: filename as NSString) {
             return Data(referencing: data)
@@ -65,16 +65,23 @@ actor DataCache {
             return nil
         }
 
-        let data = try Data(contentsOf: fileURL)
+        // A file that exists but can't be read — corrupt, truncated, or purged
+        // between the existence check and the read — is treated as a miss and
+        // removed, so the caller re-downloads instead of sticking on the broken
+        // entry until it expires.
+        guard let data = try? Data(contentsOf: fileURL) else {
+            try? fileManager.removeItem(at: fileURL)
+            return nil
+        }
         memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
         // A failed access-date bump must not fail an otherwise-successful read.
         try? touchAccessDate(for: fileURL)
         return data
     }
 
-    func data(forKeys keys: [String]) throws -> Data? {
+    func data(forKeys keys: [String]) -> Data? {
         for key in Self.uniqued(keys) {
-            if let data = try data(forKey: key) {
+            if let data = data(forKey: key) {
                 return data
             }
         }
