@@ -303,7 +303,7 @@ extension ReadingView {
         }
         Task {
             await analyzeCachedImageData(
-                cacheKeys: imageURL.imageCacheKeys(includeStableAlias: true),
+                cacheKeys: imageURL.imageCacheKeys,
                 index: index
             )
         }

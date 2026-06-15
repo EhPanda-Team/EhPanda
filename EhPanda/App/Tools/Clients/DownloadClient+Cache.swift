@@ -7,22 +7,12 @@ import Foundation
 
 // MARK: - Cache Operations
 extension DownloadCoordinator {
-    func cacheKeys(
-        for url: URL,
-        includeStableAlias: Bool
-    ) -> [String] {
-        url.imageCacheKeys(includeStableAlias: includeStableAlias)
-    }
-
     func removeCachedImages(
-        for urls: [URL?],
-        includeStableAlias: Bool
+        for urls: [URL?]
     ) async {
         let keys = urls
             .compactMap(\.self)
-            .flatMap {
-                cacheKeys(for: $0, includeStableAlias: includeStableAlias)
-            }
+            .flatMap(\.imageCacheKeys)
 
         let uniqueKeys = Array(Set(keys))
         try? await DataCache.shared.removeData(forKeys: uniqueKeys)
@@ -96,45 +86,26 @@ extension DownloadCoordinator {
         imageURL
     }
 
-    func cachedImageData(for url: URL) async -> Data? {
-        await cachedImageData(
-            for: [url],
-            includeStableAlias: false
-        )
-    }
-
     func cachedImageData(
-        for urls: [URL?],
-        includeStableAlias: Bool
+        for urls: [URL?]
     ) async -> Data? {
         let keys = urls
             .compactMap { $0 }
-            .flatMap {
-                cacheKeys(
-                    for: $0,
-                    includeStableAlias: includeStableAlias
-                )
-            }
+            .flatMap(\.imageCacheKeys)
         return await DataCache.shared.data(forKeys: keys)
     }
 
     func validatedCachedAssetData(
         for urls: [URL?]
     ) async -> Data? {
-        guard let cachedData = await cachedImageData(
-            for: urls,
-            includeStableAlias: true
-        ) else {
+        guard let cachedData = await cachedImageData(for: urls) else {
             return nil
         }
         guard detectCachedAssetError(
             data: cachedData,
             referenceURLs: urls
         ) == nil else {
-            await removeCachedImages(
-                for: urls,
-                includeStableAlias: true
-            )
+            await removeCachedImages(for: urls)
             return nil
         }
         return cachedData

@@ -52,7 +52,7 @@ struct SettingDownloadTests {
         let url = try #require(URL(string: "https://alpha.hath.network/h/123/456/image.webp?download=1"))
 
         #expect(
-            url.imageCacheKeys(includeStableAlias: true) == [
+            url.imageCacheKeys == [
                 "download::h/123/456/image.webp",
                 "https://alpha.hath.network/h/123/456/image.webp?download=1"
             ]

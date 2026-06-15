@@ -30,9 +30,13 @@ extension URL {
         return "download::\(normalizedPath)?\(normalizedQuery)"
     }
 
-    func imageCacheKeys(includeStableAlias: Bool) -> [String] {
+    /// The keys an image is cached under, primary first: the stable alias (when the
+    /// path yields one) so differing query/host variants of the same page collide,
+    /// then the absolute URL as an exact-match fallback. Writers store under the
+    /// primary key; readers check them in order.
+    var imageCacheKeys: [String] {
         var keys = [String]()
-        if includeStableAlias, let stableImageCacheKey {
+        if let stableImageCacheKey {
             keys.append(stableImageCacheKey)
         }
         keys.append(absoluteString)

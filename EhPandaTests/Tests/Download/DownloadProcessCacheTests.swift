@@ -220,7 +220,7 @@ private extension DownloadProcessCacheTests {
             latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL
         )
         let cachedURLs = [currentPageImageURL, coverURL]
-        let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys(includeStableAlias: true) })
+        let cachedKeys = Set(cachedURLs.flatMap { $0.imageCacheKeys })
         cachedKeysBox.value = cachedKeys
         return cachedKeys
     }

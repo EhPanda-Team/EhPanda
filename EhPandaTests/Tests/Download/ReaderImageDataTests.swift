@@ -31,7 +31,7 @@ struct ReaderImageDataTests {
         #expect(data == imageData)
         #expect(requestCount.value == 1)
         let cached = await cache.data(
-            forKeys: url.imageCacheKeys(includeStableAlias: true)
+            forKeys: url.imageCacheKeys
         )
         #expect(cached == imageData)
     }
@@ -66,7 +66,7 @@ struct ReaderImageDataTests {
         let url = try #require(URL(string: "https://example.com/reader/cached.png"))
         let imageData = try makePNGData()
         try await cache.store(
-            imageData, forKeys: url.imageCacheKeys(includeStableAlias: true)
+            imageData, forKeys: url.imageCacheKeys
         )
         let requestCount = UncheckedBox(0)
         let (session, sessionID) = makeStubbedSession()
@@ -107,7 +107,7 @@ struct ReaderImageDataTests {
             Issue.record("Unexpected error: \(error)")
         }
         let cached = await cache.data(
-            forKeys: url.imageCacheKeys(includeStableAlias: true)
+            forKeys: url.imageCacheKeys
         )
         #expect(cached == nil)
     }
@@ -135,7 +135,7 @@ struct ReaderImageDataTests {
             Issue.record("Unexpected error: \(error)")
         }
         let cached = await cache.data(
-            forKeys: url.imageCacheKeys(includeStableAlias: true)
+            forKeys: url.imageCacheKeys
         )
         #expect(cached == nil)
     }
@@ -165,7 +165,7 @@ struct ReaderImageDataTests {
             Issue.record("Unexpected error: \(error)")
         }
         let cached = await cache.data(
-            forKeys: url.imageCacheKeys(includeStableAlias: true)
+            forKeys: url.imageCacheKeys
         )
         #expect(cached == nil)
     }
@@ -193,7 +193,7 @@ struct ReaderImageDataTests {
             Issue.record("Unexpected error: \(error)")
         }
         let cached = await cache.data(
-            forKeys: url.imageCacheKeys(includeStableAlias: true)
+            forKeys: url.imageCacheKeys
         )
         #expect(cached == nil)
     }
@@ -203,7 +203,7 @@ struct ReaderImageDataTests {
         let (cache, rootURL) = makeIsolatedDataCache()
         defer { try? FileManager.default.removeItem(at: rootURL) }
         let url = try #require(URL(string: "https://ehgt.org/g/509.gif"))
-        let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        let cacheKeys = url.imageCacheKeys
         let placeholderData = try fixtureData(resource: "BandwidthExceeded", pathExtension: "html")
         try await cache.store(placeholderData, forKeys: cacheKeys)
         let realImageData = try makePNGData()
@@ -234,7 +234,7 @@ struct ReaderImageDataTests {
         let url = try #require(URL(string: "https://example.com/reader/export.png"))
         let imageData = try makePNGData()
         try await cache.store(
-            imageData, forKeys: url.imageCacheKeys(includeStableAlias: true)
+            imageData, forKeys: url.imageCacheKeys
         )
         let requestCount = UncheckedBox(0)
         let (session, sessionID) = makeStubbedSession()

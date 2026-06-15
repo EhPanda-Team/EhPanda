@@ -256,7 +256,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let placeholderURL = try writeFixtureToTemporaryFile(filename: .bandwidthExceeded)
         defer { try? FileManager.default.removeItem(at: placeholderURL) }
         let placeholderData = try Data(contentsOf: placeholderURL)
-        let cacheKeys = normalImageURL.imageCacheKeys(includeStableAlias: true)
+        let cacheKeys = normalImageURL.imageCacheKeys
         for cacheKey in cacheKeys {
             try await KingfisherManager.shared.cache.storeToDisk(placeholderData, forKey: cacheKey)
         }

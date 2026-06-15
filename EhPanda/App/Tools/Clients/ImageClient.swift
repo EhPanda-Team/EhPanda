@@ -92,7 +92,7 @@ extension ImageClient {
         if url.isFileURL {
             return try Data(contentsOf: url)
         }
-        let cacheKeys = url.imageCacheKeys(includeStableAlias: true)
+        let cacheKeys = url.imageCacheKeys
         if let data = await dataCache.data(forKeys: cacheKeys) {
             // A known placeholder (quota/login wall) that was cached before this
             // guard existed must not be re-served; purge it and re-fetch so a
