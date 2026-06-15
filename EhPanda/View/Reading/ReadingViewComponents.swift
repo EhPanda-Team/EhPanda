@@ -333,6 +333,9 @@ private struct ByteRoutedReaderImage<Placeholder: View>: View {
             downloadProgress.completedUnitCount = Int64(fraction * Double(Self.progressUnitCount))
         }
         progress = nil
+        // A cancelled `.task(id:)` (scrolled off screen, URL changed) surfaces as a
+        // nil asset; it is not a load failure, so report neither success nor failure.
+        guard !Task.isCancelled else { return }
         guard let asset else {
             onFailed()
             return

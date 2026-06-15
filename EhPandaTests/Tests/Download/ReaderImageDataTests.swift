@@ -170,6 +170,26 @@ struct ReaderImageDataTests {
         }
     }
 
+    @Test
+    func testCancelledReaderImageAssetFetchReturnsNil() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://example.com/reader/hang-asset.png"))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingURLProtocol.self]
+        var client = ImageClient.noop
+        client.dataCache = cache
+        client.urlSession = URLSession(configuration: configuration)
+
+        // A cancelled fetch must surface as nil (not a thrown failure), so the reader
+        // can distinguish "scrolled away" from a real load failure via Task.isCancelled.
+        let task = Task { await client.fetchReaderImageAsset(url: url) }
+        task.cancel()
+        let asset = await task.value
+
+        #expect(asset == nil)
+    }
+
     private func makeIsolatedDataCache() -> (cache: DataCache, rootURL: URL) {
         let rootURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
