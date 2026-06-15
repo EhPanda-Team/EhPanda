@@ -19,6 +19,11 @@ struct URLClient: Sendable {
 }
 
 extension URLClient {
+    static func isMPVURL(_ url: URL?) -> Bool {
+        guard let url else { return false }
+        return url.pathComponents.count >= 2 && url.pathComponents[1] == "mpv"
+    }
+
     static let live: Self = .init(
         checkIfHandleable: { url in
             (url.absoluteString.contains(Defaults.URL.ehentai.absoluteString)
@@ -26,10 +31,7 @@ extension URLClient {
                 && url.pathComponents.count >= 4 && ["g", "s"].contains(url.pathComponents[1])
                 && !url.pathComponents[2].isEmpty && !url.pathComponents[3].isEmpty
         },
-        checkIfMPVURL: {
-            guard let url = $0 else { return false }
-            return url.pathComponents.count >= 2 && url.pathComponents[1] == "mpv"
-        },
+        checkIfMPVURL: Self.isMPVURL,
         parseGalleryID: { url in
             var gid = url.pathComponents[2]
             let token = url.pathComponents[3]
