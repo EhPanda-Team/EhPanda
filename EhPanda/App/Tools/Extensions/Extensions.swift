@@ -61,13 +61,6 @@ extension Float {
 extension URL {
     static let mock = Defaults.URL.ehentai
 
-    var isPotentiallyAnimatedImage: Bool {
-        switch pathExtension.lowercased() {
-        case "apng", "gif", "png", "webp": true
-        default: false
-        }
-    }
-
     func previewCacheCleanupURLs() -> [URL] {
         guard let info = Parser.parsePreviewConfigs(url: self),
               info.plainURL != self
