@@ -116,7 +116,12 @@ extension ImageClient {
         guard data.decodedImage != nil else {
             throw AppError.parseFailed
         }
-        try? await dataCache.store(data, forKeys: cacheKeys)
+        // Store under the primary key only. Reads check the stable alias first and
+        // it's non-nil for ~all page URLs, so also writing the absolute-URL alias
+        // doubled disk + memory for an entry that retrieval never reaches.
+        if let primaryKey = cacheKeys.first {
+            try? await dataCache.store(data, forKey: primaryKey)
+        }
         return data
     }
 

@@ -37,6 +37,29 @@ struct ReaderImageDataTests {
     }
 
     @Test
+    func testStoresUnderPrimaryKeyOnly() async throws {
+        let (cache, rootURL) = makeIsolatedDataCache()
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+        let url = try #require(URL(string: "https://ehgt.org/h/abc/primary-key-page/1.jpg"))
+        let stableKey = try #require(url.stableImageCacheKey)
+        let imageData = try makePNGData()
+        let (session, sessionID) = makeStubbedSession()
+        defer { SharedSessionStubURLProtocol.removeHandler(for: sessionID) }
+        SharedSessionStubURLProtocol.setHandler(for: sessionID) { _ in
+            (try makeHTTPResponse(url: url, statusCode: 200), imageData)
+        }
+
+        _ = try await ImageClient.readerImageData(
+            url: url, dataCache: cache, urlSession: session
+        )
+
+        // The bytes are written under the stable primary key only; the absolute-URL
+        // alias stays a read fallback, never a second stored copy.
+        #expect(await cache.data(forKeys: [stableKey]) == imageData)
+        #expect(await cache.data(forKeys: [url.absoluteString]) == nil)
+    }
+
+    @Test
     func testReturnsCachedBytesWithoutNetwork() async throws {
         let (cache, rootURL) = makeIsolatedDataCache()
         defer { try? FileManager.default.removeItem(at: rootURL) }
