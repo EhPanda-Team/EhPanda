@@ -37,7 +37,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
         )
         await queueingManager.reloadDownloadIndex()
         await queueingManager.testingSetUpdatedGalleryIDs([gid])
-        let queuedCandidate = await queueingManager.testingFetchDownload(gid: gid)
+        let queuedCandidate = await queueingManager.fetchDownload(gid: gid)
         #expect(queuedCandidate?.hasUpdate == true)
 
         let blockerTask = Task<Void, Never> { try? await Task.sleep(nanoseconds: 5_000_000_000) }
@@ -50,7 +50,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             return
         }
 
-        let queued = await queueingManager.testingFetchDownload(gid: gid)
+        let queued = await queueingManager.fetchDownload(gid: gid)
         #expect(queued?.displayStatus == .queued)
         #expect(queued?.badge.status == .queued)
         #expect(queued?.lastError == nil)
@@ -95,7 +95,7 @@ struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
             return
         }
 
-        let resumedDownload = await immediateManager.testingFetchDownload(gid: gid)
+        let resumedDownload = await immediateManager.fetchDownload(gid: gid)
         #expect(resumedDownload?.displayStatus == .active)
         #expect(resumedDownload?.lastError == nil)
     }
@@ -134,8 +134,8 @@ private extension DownloadRetryUpdateFallbackTests {
             gid: gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155
         )
-        let fetchedPayload = try await manager.testingFetchLatestPayload(
-            for: scaffoldDownload, mode: .update
+        let fetchedPayload = try await manager.fetchLatestPayload(
+            for: scaffoldDownload, mode: .update, options: .init(), pageSelection: nil
         )
         let pageCount = fetchedPayload.galleryDetail.pageCount
         #expect(pageCount > pageIndex)

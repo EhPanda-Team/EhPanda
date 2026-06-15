@@ -47,7 +47,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
                 "Set-Cookie": "\(Defaults.Cookie.yay)=louder; Path=/"
             ]
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: URL(string: "https://exhentai.org/g/1/1/")
@@ -79,7 +79,7 @@ struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
             url: Defaults.URL.exhentai,
             contentType: "text/html"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: URL(string: "https://exhentai.org/g/1/1/")

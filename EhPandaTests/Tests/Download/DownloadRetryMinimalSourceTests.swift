@@ -50,7 +50,7 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             Issue.record("retryPages should queue the selected page.")
             return
         }
-        await manager.testingProcessDownload(gid: gid)
+        await manager.processDownload(gid: gid)
 
         let firstRunSnapshot = setup.recorder.snapshot()
         #expect(
@@ -114,12 +114,12 @@ struct DownloadRetryMinimalSourceTests: DownloadFeatureTestCase {
             return
         }
 
-        await manager.testingProcessDownload(gid: gid)
+        await manager.processDownload(gid: gid)
 
         let snapshot = setup.recorder.snapshot()
         #expect(snapshot.previewPageNumbers == [0], "\(snapshot)")
 
-        let stored = try #require(await manager.testingFetchDownload(gid: gid))
+        let stored = try #require(await manager.fetchDownload(gid: gid))
         #expect(stored.displayStatus == .inactive)
         #expect(stored.lastError == nil)
         #expect(stored.completedPageCount == setup.pageCount - 1)
@@ -160,7 +160,7 @@ private extension DownloadRetryMinimalSourceTests {
             Issue.record("retryPages should queue the selected page.")
             return
         }
-        await context.manager.testingProcessDownload(gid: context.gid)
+        await context.manager.processDownload(gid: context.gid)
         let snapshot = context.setup.recorder.snapshot()
         #expect(snapshot.previewPageNumbers.isEmpty, "\(snapshot)")
         #expect(snapshot.mpvRequests == 0)
@@ -223,8 +223,8 @@ private extension DownloadRetryMinimalSourceTests {
             gid: gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155
         )
-        let fetchedPayload = try await manager.testingFetchLatestPayload(
-            for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
+        let fetchedPayload = try await manager.fetchLatestPayload(
+            for: scaffoldDownload, mode: .redownload, options: .init(), pageSelection: [pageIndex]
         )
         recorder.reset()
         return MinimalSourceTestResult(

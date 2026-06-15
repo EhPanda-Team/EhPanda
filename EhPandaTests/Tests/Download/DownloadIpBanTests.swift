@@ -49,9 +49,11 @@ struct DownloadIpBanTests: DownloadFeatureTestCase {
         )
 
         do {
-            _ = try await manager.testingFetchLatestPayload(
+            _ = try await manager.fetchLatestPayload(
                 for: download,
-                mode: .redownload
+                mode: .redownload,
+                options: .init(),
+                pageSelection: nil
             )
             Issue.record("Expected ipBanned error")
         } catch let error as AppError {

@@ -55,7 +55,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             return
         }
 
-        let download = await environment.manager.testingFetchDownload(gid: gid)
+        let download = await environment.manager.fetchDownload(gid: gid)
         #expect(await environment.manager.fetchFolders() == ["New Name"])
         #expect(download?.folderName == "New Name")
         #expect(download?.folderURL.path.contains("/New Name/") == true)
@@ -96,7 +96,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         }
 
         #expect(await environment.manager.fetchFolders().isEmpty)
-        #expect(await environment.manager.testingFetchDownload(gid: gid) == nil)
+        #expect(await environment.manager.fetchDownload(gid: gid) == nil)
         #expect(!FileManager.default.fileExists(atPath: folderURL.path))
     }
 
@@ -126,7 +126,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
         }
 
         await environment.manager.reconcileDownloads()
-        #expect(await environment.manager.testingFetchDownload(gid: gid) == nil)
+        #expect(await environment.manager.fetchDownload(gid: gid) == nil)
         #expect(!FileManager.default.fileExists(atPath: oldFolderURL.path))
         #expect(!FileManager.default.fileExists(atPath: currentFolderURL.path))
     }
@@ -145,7 +145,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             return
         }
 
-        let download = await environment.manager.testingFetchDownload(gid: gid)
+        let download = await environment.manager.fetchDownload(gid: gid)
         #expect(download?.folderName == "Target")
         #expect(download?.folderURL.path.contains("/Target/") == true)
         #expect(!FileManager.default.fileExists(atPath: sourceURL.path))
@@ -223,7 +223,7 @@ struct DownloadFolderOperationTests: DownloadFeatureTestCase {
             return
         }
 
-        let download = await environment.manager.testingFetchDownload(gid: gallery.gid)
+        let download = await environment.manager.fetchDownload(gid: gallery.gid)
         #expect(download?.folderName == "Original")
     }
 }

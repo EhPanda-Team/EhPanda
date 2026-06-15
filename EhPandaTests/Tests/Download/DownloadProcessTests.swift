@@ -48,7 +48,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
 
         let completionProbe = ProcessCompletionProbe()
         let processTask = Task {
-            await manager.testingProcessDownload(gid: gid)
+            await manager.processDownload(gid: gid)
             await completionProbe.finish()
         }
 
@@ -62,11 +62,11 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await persistenceGate.release()
         await processTask.value
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         #expect(stored?.displayStatus == .error)
         #expect(stored?.lastError?.code == .networkingFailed)
 
-        await manager.testingScheduleNextIfNeeded()
+        await manager.scheduleNextIfNeeded()
         let scheduledAfterFailure = scheduledRecorder.snapshot()
         #expect(scheduledAfterFailure.isEmpty)
     }
@@ -96,10 +96,10 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
             oldPageCount: oldPageCount
         )
         await manager.reloadDownloadIndex()
-        let beforeProcess = await manager.testingFetchDownload(gid: gid)
+        let beforeProcess = await manager.fetchDownload(gid: gid)
         #expect(beforeProcess?.hasUpdate ?? true == false)
 
-        await manager.testingProcessDownload(gid: gid)
+        await manager.processDownload(gid: gid)
 
         try await verifyCompletedProcess(
             manager: manager, storage: storage,
@@ -161,7 +161,7 @@ struct DownloadProcessTests: DownloadFeatureTestCase {
         await manager.testingSetQueuedGalleryIDs([gid])
 
         optionsBox.value = latestOptions
-        await manager.testingProcessDownload(gid: gid)
+        await manager.processDownload(gid: gid)
 
         #expect(detailAllowsCellular.value == false)
     }
@@ -249,8 +249,8 @@ private extension DownloadProcessTests {
             gid: gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155
         )
-        let latestPayload = try await manager.testingFetchLatestPayload(
-            for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
+        let latestPayload = try await manager.fetchLatestPayload(
+            for: scaffoldDownload, mode: .redownload, options: .init(), pageSelection: [pageIndex]
         )
         if let coverURL = latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL {
             allowedImageURLs.insert(coverURL.absoluteString)
@@ -296,7 +296,7 @@ private extension DownloadProcessTests {
         storage: DownloadStore,
         context: ProcessVerificationContext
     ) async throws {
-        let completedDownload = await manager.testingFetchDownload(gid: context.gid)
+        let completedDownload = await manager.fetchDownload(gid: context.gid)
         let unwrapped = try #require(completedDownload)
         #expect(unwrapped.displayStatus == .completed)
         #expect(unwrapped.pageCount == context.updatedPageCount)

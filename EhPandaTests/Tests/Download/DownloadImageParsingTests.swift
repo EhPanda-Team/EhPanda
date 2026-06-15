@@ -23,7 +23,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             contentType: "image/gif",
             contentLength: 28658
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: quotaImageURL
@@ -47,7 +47,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             contentType: "image/gif",
             contentLength: data.count
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: quotaImageURL
@@ -73,7 +73,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             contentType: "image/gif",
             contentLength: imageData.count
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1")
@@ -94,7 +94,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             contentType: "image/gif",
             contentLength: 28658
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: normalImageURL
@@ -112,7 +112,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
         let normalImageURL = try #require(
             URL(string: "https://exhentai.org/fullimg.php?gid=1&page=1&key=normal-cache-key")
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: try makeResponse(
                 url: normalImageURL,
@@ -143,7 +143,7 @@ struct DownloadImageParsingTests: DownloadFeatureTestCase {
             url: quotaURL,
             contentType: "text/html"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: quotaURL

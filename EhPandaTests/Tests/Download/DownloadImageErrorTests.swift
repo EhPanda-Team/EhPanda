@@ -28,7 +28,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
             url: galleryURL,
             contentType: "text/html"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: galleryURL
@@ -55,7 +55,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
             url: pageURL,
             contentType: "text/html"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: pageURL
@@ -80,7 +80,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
             statusCode: 404,
             contentType: "text/html"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: notFoundURL
@@ -111,7 +111,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
             statusCode: 404,
             contentType: "text/html"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: galleryURL
@@ -131,7 +131,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
             url: bannedURL,
             contentType: "text/html; charset=utf-8"
         )
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             fileURL: fileURL,
             response: response,
             requestURL: bannedURL
@@ -169,7 +169,7 @@ struct DownloadImageErrorTests: DownloadFeatureTestCase {
         ]
         let data = try JSONSerialization.data(withJSONObject: responsePayload)
 
-        let error = await manager.testingDetectResponseError(
+        let error = await manager.detectResponseError(
             data: data,
             response: response,
             requestURL: apiURL

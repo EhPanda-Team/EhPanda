@@ -53,9 +53,9 @@ struct DownloadProcessCacheTests: DownloadFeatureTestCase {
         )
         await manager.reloadDownloadIndex()
 
-        await manager.testingProcessDownload(gid: gid)
+        await manager.processDownload(gid: gid)
 
-        let completedDownload = await manager.testingFetchDownload(gid: gid)
+        let completedDownload = await manager.fetchDownload(gid: gid)
         #expect(completedDownload?.displayStatus == .completed)
 
         try await waitUntilCacheCleared(
@@ -213,8 +213,8 @@ private extension DownloadProcessCacheTests {
             gid: gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155
         )
-        let latestPayload = try await manager.testingFetchLatestPayload(
-            for: scaffoldDownload, mode: .redownload, pageSelection: [pageIndex]
+        let latestPayload = try await manager.fetchLatestPayload(
+            for: scaffoldDownload, mode: .redownload, options: .init(), pageSelection: [pageIndex]
         )
         let coverURL = try #require(
             latestPayload.galleryDetail.coverURL ?? latestPayload.gallery.coverURL
@@ -230,9 +230,9 @@ private extension DownloadProcessCacheTests {
             gid: setup.gid, title: "Pause Race", status: .partial,
             pageCount: 156, completedPageCount: 155
         )
-        let latestPayload = try await setup.manager.testingFetchLatestPayload(
+        let latestPayload = try await setup.manager.fetchLatestPayload(
             for: scaffoldDownload, mode: .redownload,
-            pageSelection: [setup.pageIndex]
+            options: .init(), pageSelection: [setup.pageIndex]
         )
         let updatedPageCount = latestPayload.galleryDetail.pageCount
         #expect(updatedPageCount > setup.pageIndex)

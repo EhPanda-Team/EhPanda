@@ -85,7 +85,7 @@ struct DownloadManagerCaptureTests: DownloadFeatureTestCase {
 
         await manager.captureCachedPage(gid: gid, index: 1, imageURL: imageURL)
 
-        let stored = await manager.testingFetchDownload(gid: gid)
+        let stored = await manager.fetchDownload(gid: gid)
         let pageURLs = try await manager.loadLocalPageURLs(gid: gid).get()
 
         #expect(stored?.displayStatus == .completed)
