@@ -168,9 +168,16 @@ extension DownloadCoordinator {
         context: FailureContext
     ) async {
         await taskRunner.beforeFailurePersistence()
-        downloadErrors[context.gid] = DownloadFailure(error: error)
-        clearDownloadQueueIntent(gid: context.gid)
-        await queueStore.remove(context.gid)
+        await settleDownloadFailure(gid: context.gid, error: error)
+    }
+
+    /// Surfaces a download-level failure and clears its queue intent so it does not
+    /// auto-resume. Shared by the foreground `persistFailure` and the background/orphan
+    /// fatal-error paths so a fatal 509/auth/ban settles identically either way.
+    func settleDownloadFailure(gid: String, error: AppError) async {
+        downloadErrors[gid] = DownloadFailure(error: error)
+        clearDownloadQueueIntent(gid: gid)
+        await queueStore.remove(gid)
     }
 
     func flushDownloadProgress(

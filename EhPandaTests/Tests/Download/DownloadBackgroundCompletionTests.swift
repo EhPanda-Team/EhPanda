@@ -101,6 +101,42 @@ struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     }
 
     @Test
+    func testOrphanedBackgroundFatalFailureSettlesQueueAndSurfacesError() async throws {
+        let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 907)
+        let rootURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: rootURL) }
+
+        let storage = DownloadStore(rootURL: rootURL, fileManager: .default)
+        let taskStore = DownloadBackgroundTaskStore(fileURL: storage.backgroundTaskRegistryURL())
+        let queueStore = DownloadQueueStore(fileURL: storage.queueURL())
+        let manager = DownloadCoordinator(
+            storage: storage,
+            urlSession: .shared,
+            backgroundTaskStore: taskStore,
+            queueStore: queueStore
+        )
+        _ = try writeDownloadFolder(storage: storage, gid: gid)
+        await manager.reloadDownloadIndex()
+        await queueStore.enqueue(gid)
+
+        let taskIdentifier = 92
+        await taskStore.record(taskIdentifier: taskIdentifier, gid: gid, pageIndex: 1)
+
+        // A fatal account error on an orphaned background page must settle the whole
+        // download like the foreground path, not just record a page failure.
+        await manager.handleBackgroundPageDownloadFailed(
+            taskIdentifier: taskIdentifier,
+            error: .authenticationRequired
+        )
+
+        let failed = try #require(await manager.fetchDownload(gid: gid))
+        #expect(queueStore.gids == [])
+        #expect(failed.displayStatus == .error)
+        #expect(failed.lastError?.code == .authenticationRequired)
+    }
+
+    @Test
     func testOrphanedBackgroundCancellationClearsTaskRecordWithoutPageFailure() async throws {
         let gid = String(Int(Date().timeIntervalSince1970 * 1000) + 905)
         let rootURL = FileManager.default.temporaryDirectory
