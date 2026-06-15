@@ -44,10 +44,8 @@ struct DownloadInspectorReducer {
         case loadInspectionDone(UUID, Result<DownloadInspection, AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
-        case retryPage(Int)
-        case retryPageDone(Result<Void, AppError>)
-        case retryFailedPages
-        case retryFailedPagesDone(Result<Void, AppError>)
+        case retryPages([Int])
+        case retryPagesDone(Result<Void, AppError>)
         case toggleDownloadPause
         case toggleDownloadPauseDone(Result<Void, AppError>)
         case validateImageData
@@ -146,60 +144,19 @@ struct DownloadInspectorReducer {
                 guard previousDownload != latestDownload else { return .none }
                 return .send(.loadInspection)
 
-            case .retryPage(let index):
-                guard !state.gid.isEmpty else { return .none }
+            case .retryPages(let indices):
+                let retryingPageIndices = Set(indices)
+                let pageIndices = retryingPageIndices.sorted()
+                guard !state.gid.isEmpty, !pageIndices.isEmpty else { return .none }
                 state.inspectionRequestID = UUID()
-                state.retryingPageIndices.insert(index)
+                state.retryingPageIndices.formUnion(retryingPageIndices)
                 state.stableInspection = state.inspection ?? state.stableInspection
                 if let inspection = state.inspection {
                     state.inspection = .init(
                         download: inspection.download,
                         coverURL: inspection.coverURL,
                         pages: inspection.pages.map { page in
-                            guard page.index == index else { return page }
-                            return .init(
-                                index: index,
-                                status: .pending,
-                                relativePath: page.relativePath,
-                                fileURL: nil,
-                                failure: nil
-                            )
-                        }
-                    )
-                }
-                return .merge(
-                    .cancel(id: CancelID.loadInspection),
-                    .run { [gid = state.gid] send in
-                        try await downloadClient.retryPages(gid, [index])
-                        await send(.retryPageDone(.success(())))
-                    } catch: { error, send in
-                        await send(.retryPageDone(.failure(AppError(error))))
-                    }
-                )
-
-            case .retryPageDone(let result):
-                if case .failure = result {
-                    state.retryingPageIndices = .init()
-                    return .send(.loadInspection)
-                }
-                return .none
-
-            case .retryFailedPages:
-                guard let failedPageIndices = state.inspection?.failedPageIndices,
-                      let gid = state.inspection?.download.gid,
-                      !failedPageIndices.isEmpty
-                else {
-                    return .none
-                }
-                state.inspectionRequestID = UUID()
-                state.retryingPageIndices.formUnion(failedPageIndices)
-                state.stableInspection = state.inspection ?? state.stableInspection
-                if let inspection = state.inspection {
-                    state.inspection = .init(
-                        download: inspection.download,
-                        coverURL: inspection.coverURL,
-                        pages: inspection.pages.map { page in
-                            guard failedPageIndices.contains(page.index) else { return page }
+                            guard retryingPageIndices.contains(page.index) else { return page }
                             return .init(
                                 index: page.index,
                                 status: .pending,
@@ -212,15 +169,15 @@ struct DownloadInspectorReducer {
                 }
                 return .merge(
                     .cancel(id: CancelID.loadInspection),
-                    .run { send in
-                        try await downloadClient.retryPages(gid, failedPageIndices)
-                        await send(.retryFailedPagesDone(.success(())))
+                    .run { [gid = state.gid] send in
+                        try await downloadClient.retryPages(gid, pageIndices)
+                        await send(.retryPagesDone(.success(())))
                     } catch: { error, send in
-                        await send(.retryFailedPagesDone(.failure(AppError(error))))
+                        await send(.retryPagesDone(.failure(AppError(error))))
                     }
                 )
 
-            case .retryFailedPagesDone(let result):
+            case .retryPagesDone(let result):
                 if case .failure = result {
                     state.retryingPageIndices = .init()
                     return .send(.loadInspection)

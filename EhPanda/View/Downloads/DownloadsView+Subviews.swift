@@ -84,7 +84,7 @@ struct DownloadInspectorView: View {
                             .disabled(isPauseResumeDisabled)
 
                             Button {
-                                store.send(.retryFailedPages)
+                                store.send(.retryPages(inspection.failedPageIndices))
                             } label: {
                                 Label(
                                     L10n.Localizable.DownloadsView.Inspector.Button.retryFailedPages,
@@ -324,78 +324,5 @@ struct DownloadListRow: View {
         .onTapGesture(perform: openAction)
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(download.title)
-    }
-}
-
-struct DownloadInspectorPageRow: View {
-    let page: DownloadPageInspection
-    let retryAction: () -> Void
-
-    private var symbol: SFSymbol {
-        switch page.status {
-        case .pending:
-            return .clock
-        case .downloaded:
-            return .checkmarkCircle
-        case .failed:
-            return .exclamationmarkCircle
-        }
-    }
-
-    private var tint: Color {
-        switch page.status {
-        case .pending:
-            return .secondary
-        case .downloaded:
-            return .green
-        case .failed:
-            return .red
-        }
-    }
-
-    private var subtitle: String {
-        switch page.status {
-        case .pending:
-            return L10n.Localizable.DownloadsView.Inspector.Page.pending
-        case .downloaded:
-            return page.relativePath ?? L10n.Localizable.Struct.DownloadBadge.Text.downloaded
-        case .failed:
-            return page.failure?.message ?? L10n.Localizable.DownloadsView.Inspector.Page.tapToRetry
-        }
-    }
-
-    var body: some View {
-        Group {
-            if page.status == .failed {
-                Button(action: retryAction) {
-                    rowContent
-                }
-                .buttonStyle(.plain)
-            } else {
-                rowContent
-            }
-        }
-    }
-
-    private var rowContent: some View {
-        HStack(spacing: 12) {
-            Image(systemSymbol: symbol)
-                .foregroundStyle(tint)
-                .font(.title3)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(L10n.Localizable.DownloadsView.Inspector.Page.title(page.index))
-                    .font(.body.weight(.medium))
-                Text(subtitle)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-            Spacer()
-            if page.status == .failed {
-                Image(systemSymbol: .arrowClockwise)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.vertical, 4)
     }
 }

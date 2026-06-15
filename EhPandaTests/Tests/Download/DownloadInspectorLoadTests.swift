@@ -35,7 +35,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDownloadInspectorReducerRetryPageUsesDownloadClientRetryPages() async {
+    func testDownloadInspectorReducerRetryPagesUsesDownloadClientRetryPages() async {
         await confirmation(expectedCount: 1) { confirm in
             let retried = UncheckedBox<[Int]>([])
             let download = sampleDownload(
@@ -61,7 +61,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
             )
             store.exhaustivity = .off
 
-            await store.send(.retryPage(2))
+            await store.send(.retryPages([2]))
             #expect(retried.value == [2])
         }
     }
@@ -92,7 +92,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.retryFailedPages) {
+        await store.send(.retryPages([2])) {
             guard let inspection = $0.inspection else { return }
             $0.inspection = .init(
                 download: inspection.download,
