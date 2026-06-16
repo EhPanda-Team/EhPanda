@@ -26,6 +26,76 @@ extension Parser {
         return date
     }
 
+    static func parseScriptVariable(name: String, doc: HTMLDocument) -> String? {
+        let escapedName = NSRegularExpression.escapedPattern(for: name)
+        let pattern = #"var\s+\#(escapedName)\s*=\s*["']([^"']*)["']\s*;"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+
+        for script in doc.xpath("//script") {
+            guard let text = script.text else { continue }
+            let range = NSRange(text.startIndex..., in: text)
+            guard let match = regex.firstMatch(in: text, range: range),
+                  let valueRange = Range(match.range(at: 1), in: text)
+            else { continue }
+
+            return String(text[valueRange])
+        }
+        return nil
+    }
+
+    static func parseScriptURL(name: String, doc: HTMLDocument) -> URL? {
+        guard var value = parseScriptVariable(name: name, doc: doc)?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !value.isEmpty
+        else { return nil }
+        value = value
+            .replacingOccurrences(of: "&amp;", with: "&")
+            .replacingOccurrences(of: "\\u0026", with: "&")
+
+        let baseURL = Defaults.URL.host
+        let parsedURL: URL?
+        if let url = URL(string: value), url.scheme != nil {
+            parsedURL = url
+        } else {
+            parsedURL = URL(string: value, relativeTo: baseURL)?.absoluteURL
+        }
+
+        guard let parsedURL else { return nil }
+        guard var components = URLComponents(url: parsedURL, resolvingAgainstBaseURL: false) else {
+            return parsedURL
+        }
+
+        let knownGalleryHosts = [
+            Defaults.URL.ehentai.host,
+            Defaults.URL.exhentai.host,
+            Defaults.URL.sexhentai.host
+        ]
+        .compactMap { $0?.lowercased() }
+
+        if let host = components.host?.lowercased(),
+           knownGalleryHosts.contains(host),
+           let baseComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
+        {
+            components.scheme = baseComponents.scheme
+            components.host = baseComponents.host
+        }
+        return components.url
+    }
+
+    static func parseScriptDate(name: String, doc: HTMLDocument) -> Date? {
+        guard let value = parseScriptVariable(name: name, doc: doc), !value.isEmpty else { return nil }
+        return try? parseDate(time: value, format: "yyyy-MM-dd")
+    }
+
+    static func parsePageJumpNavigation(doc: HTMLDocument) -> PageJumpNavigation? {
+        let navigation = PageJumpNavigation(
+            previousURL: parseScriptURL(name: "prevurl", doc: doc),
+            nextURL: parseScriptURL(name: "nexturl", doc: doc),
+            minimumDate: parseScriptDate(name: "mindate", doc: doc),
+            maximumDate: parseScriptDate(name: "maxdate", doc: doc)
+        )
+        return navigation.isEnabled ? navigation : nil
+    }
+
     // swiftlint:disable cyclomatic_complexity
     /// Returns ratings parsed from stars image / text and if the return contains a userRating .
     static func parseRating(node: XMLElement) throws -> RatingResult {

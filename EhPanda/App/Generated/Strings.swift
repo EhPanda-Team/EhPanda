@@ -2227,6 +2227,24 @@ internal enum L10n {
         internal static let success = L10n.tr("Localizable", "hud.title.success", fallback: "Success")
       }
     }
+    internal enum DateJumpView {
+      internal enum Button {
+        /// Seek Newer
+        internal static let seekNewer = L10n.tr("Localizable", "date_jump_view.button.seek_newer", fallback: "Seek Newer")
+        /// Seek Older
+        internal static let seekOlder = L10n.tr("Localizable", "date_jump_view.button.seek_older", fallback: "Seek Older")
+      }
+      internal enum Footer {
+        /// Seek to galleries around the selected date.
+        internal static let seekAroundDate = L10n.tr("Localizable", "date_jump_view.footer.seek_around_date", fallback: "Seek to galleries around the selected date.")
+      }
+      internal enum Title {
+        /// Date
+        internal static let date = L10n.tr("Localizable", "date_jump_view.title.date", fallback: "Date")
+        /// Date Jump
+        internal static let dateJump = L10n.tr("Localizable", "date_jump_view.title.date_jump", fallback: "Date Jump")
+      }
+    }
     internal enum JumpPageView {
       internal enum Button {
         /// Confirm
@@ -2519,6 +2537,8 @@ internal enum L10n {
     }
     internal enum ToolbarItem {
       internal enum Button {
+        /// Date Jump
+        internal static let dateJump = L10n.tr("Localizable", "toolbar_item.button.date_jump", fallback: "Date Jump")
         /// Filters
         internal static let filters = L10n.tr("Localizable", "toolbar_item.button.filters", fallback: "Filters")
         /// Jump page

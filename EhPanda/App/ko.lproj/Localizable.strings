@@ -52,10 +52,18 @@
 "toolbar_item.button.filters" = "필터";
 "toolbar_item.button.jump_page" = "페이지 이동";
 "toolbar_item.button.quick_search" = "빠른 검색";
+"toolbar_item.button.date_jump" = "날짜 이동";
 
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "페이지 이동";
 "jump_page_view.button.confirm" = "확인";
+
+// MARK: DateJump
+"date_jump_view.title.date_jump" = "날짜 이동";
+"date_jump_view.title.date" = "날짜";
+"date_jump_view.footer.seek_around_date" = "선택한 날짜 근처의 갤러리로 이동합니다.";
+"date_jump_view.button.seek_newer" = "새 항목으로 이동";
+"date_jump_view.button.seek_older" = "오래된 항목으로 이동";
 
 // MARK: AlertView
 "loading_view.title.loading" = "로딩 중...";
