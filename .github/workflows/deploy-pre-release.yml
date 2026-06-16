@@ -11,7 +11,7 @@ on:
         required: false
         type: string
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26.5.app
+  DEVELOPER_DIR: /Applications/Xcode_26.4.1.app
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'

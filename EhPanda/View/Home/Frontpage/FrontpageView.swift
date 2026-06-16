@@ -44,6 +44,15 @@ struct FrontpageView: View {
                 FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
+            .sheet(isPresented: $store.dateJumpSheetPresented) {
+                DateJumpView(
+                    pageNumber: store.pageNumber,
+                    selectedDate: $store.dateJumpDate,
+                    jumpAction: { store.send(.jumpToDate($0)) }
+                )
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
             .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
             .onAppear {
                 if store.galleries.isEmpty {
@@ -86,6 +95,9 @@ struct FrontpageView: View {
     }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
+            DateJumpButton(pageNumber: store.pageNumber, hideText: true) {
+                store.send(.presentDateJump)
+            }
             FiltersButton(hideText: true) {
                 store.send(.setNavigation(.filters()))
             }
