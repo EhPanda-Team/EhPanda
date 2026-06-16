@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 struct FrontpageReducer {
@@ -14,7 +15,7 @@ struct FrontpageReducer {
     }
 
     private enum CancelID: CaseIterable {
-        case fetchGalleries, fetchMoreGalleries
+        case fetchGalleries, fetchMoreGalleries, fetchJumpGalleries
     }
 
     @ObservableState
@@ -28,6 +29,8 @@ struct FrontpageReducer {
         }
         var galleries = [Gallery]()
         var pageNumber = PageNumber()
+        var dateJumpDate = Date()
+        var dateJumpSheetPresented = false
         var loadingState: LoadingState = .idle
         var footerLoadingState: LoadingState = .idle
 
@@ -57,6 +60,9 @@ struct FrontpageReducer {
         case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
+        case presentDateJump
+        case jumpToDate(PageJumpDirection)
+        case jumpToDateDone(Result<(PageNumber, [Gallery]), AppError>)
 
         case filters(FiltersReducer.Action)
         case detail(DetailReducer.Action)
@@ -149,6 +155,51 @@ struct FrontpageReducer {
 
                 case .failure(let error):
                     state.footerLoadingState = .failed(error)
+                }
+                return .none
+
+            case .presentDateJump:
+                guard let navigation = state.pageNumber.jumpNavigation, navigation.isEnabled else {
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+                state.dateJumpDate = navigation.clampedDate(state.dateJumpDate)
+                state.dateJumpSheetPresented = true
+                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
+
+            case .jumpToDate(let direction):
+                guard state.loadingState != .loading,
+                      let url = state.pageNumber.jumpNavigation?.seekURL(
+                        date: state.dateJumpDate, direction: direction
+                      )
+                else { return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) }) }
+
+                state.dateJumpSheetPresented = false
+                state.loadingState = .loading
+                state.footerLoadingState = .idle
+                state.pageNumber.resetPages()
+                return .run { send in
+                    let response = await JumpGalleriesRequest(url: url).response()
+                    await send(.jumpToDateDone(response))
+                }
+                .cancellable(id: CancelID.fetchJumpGalleries)
+
+            case .jumpToDateDone(let result):
+                state.loadingState = .idle
+                switch result {
+                case .success(let (pageNumber, galleries)):
+                    guard !galleries.isEmpty else {
+                        state.loadingState = .failed(.notFound)
+                        guard pageNumber.hasNextPage() else { return .none }
+                        return .send(.fetchMoreGalleries)
+                    }
+                    state.pageNumber = pageNumber
+                    if let navigation = pageNumber.jumpNavigation {
+                        state.dateJumpDate = navigation.clampedDate(state.dateJumpDate)
+                    }
+                    state.galleries = galleries
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                case .failure(let error):
+                    state.loadingState = .failed(error)
                 }
                 return .none
 

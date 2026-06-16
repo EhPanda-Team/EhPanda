@@ -77,3 +77,64 @@ private struct JumpPageAlert<Content: View>: View {
         .synchronize($isPresented, $manager.isPresented)
     }
 }
+
+struct DateJumpView: View {
+    let pageNumber: PageNumber
+    @Binding var selectedDate: Date
+    let jumpAction: (PageJumpDirection) -> Void
+
+    private var navigation: PageJumpNavigation? {
+        pageNumber.jumpNavigation
+    }
+    private var dateRange: ClosedRange<Date> {
+        navigation?.dateRange ?? Date.distantPast...Date.distantFuture
+    }
+    private var showsNewerButton: Bool {
+        navigation?.previousURL != nil
+    }
+    private var showsOlderButton: Bool {
+        navigation?.nextURL != nil
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section {
+                    DatePicker(
+                        L10n.Localizable.DateJumpView.Title.date,
+                        selection: $selectedDate,
+                        in: dateRange,
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+                } footer: {
+                    Text(L10n.Localizable.DateJumpView.Footer.seekAroundDate)
+                }
+
+                Section {
+                    if showsNewerButton {
+                        Button {
+                            jumpAction(.newer)
+                        } label: {
+                            Label(L10n.Localizable.DateJumpView.Button.seekNewer, systemImage: "chevron.left")
+                        }
+                    }
+                    if showsOlderButton {
+                        Button {
+                            jumpAction(.older)
+                        } label: {
+                            Label(L10n.Localizable.DateJumpView.Button.seekOlder, systemImage: "chevron.right")
+                        }
+                    }
+                }
+            }
+            .navigationTitle(L10n.Localizable.DateJumpView.Title.dateJump)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .onAppear {
+            if let navigation {
+                selectedDate = navigation.clampedDate(selectedDate)
+            }
+        }
+    }
+}

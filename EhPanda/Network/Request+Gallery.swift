@@ -49,6 +49,23 @@ struct MoreSearchGalleriesRequest: Request {
     }
 }
 
+struct JumpGalleriesRequest: Request {
+    let url: URL
+
+    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+        URLSession.shared.dataTaskPublisher(for: url)
+            .genericRetry()
+            .tryMap { try htmlDocument(data: $0.data) }
+            .tryMap {
+                try parseResponse(doc: $0) {
+                    (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                }
+            }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
 struct FrontpageGalleriesRequest: Request {
     let filter: Filter
 
