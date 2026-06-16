@@ -52,9 +52,16 @@ extension Parser {
                     break
                 }
 
-                return PageNumber(lastItemTimestamp: timestamp, isNextButtonEnabled: isEnabled)
+                return PageNumber(
+                    lastItemTimestamp: timestamp,
+                    isNextButtonEnabled: isEnabled,
+                    jumpNavigation: parsePageJumpNavigation(doc: doc)
+                )
             } else {
-                return PageNumber(isNextButtonEnabled: false)
+                return PageNumber(
+                    isNextButtonEnabled: false,
+                    jumpNavigation: parsePageJumpNavigation(doc: doc)
+                )
             }
         }
 

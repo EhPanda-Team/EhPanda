@@ -111,6 +111,28 @@ struct JumpPageButton: View {
     }
 }
 
+struct DateJumpButton: View {
+    private let pageNumber: PageNumber
+    private let hideText: Bool
+    private let action: () -> Void
+
+    init(pageNumber: PageNumber, hideText: Bool = false, action: @escaping () -> Void) {
+        self.pageNumber = pageNumber
+        self.hideText = hideText
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "calendar")
+            if !hideText {
+                Text(L10n.Localizable.ToolbarItem.Button.dateJump)
+            }
+        }
+        .disabled(pageNumber.jumpNavigation?.isEnabled != true)
+    }
+}
+
 struct FavoritesIndexMenu: View {
     private let user: User
     private let index: Int

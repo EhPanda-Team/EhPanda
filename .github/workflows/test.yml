@@ -2,7 +2,7 @@ name: Test
 on: [push, workflow_dispatch]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_26.5.app
+   DEVELOPER_DIR: /Applications/Xcode_26.4.1.app
 jobs:
   Test:
     runs-on: macos-26

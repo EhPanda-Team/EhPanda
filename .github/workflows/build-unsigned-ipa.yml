@@ -1,0 +1,70 @@
+name: Build Unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_26.4.1.app
+  SCHEME_NAME: EhPanda
+  BUILDS_PATH: /tmp/action-builds
+  PAYLOAD_PATH: /tmp/action-builds/Payload
+  ARCHIVE_PATH: /tmp/action-builds/EhPanda.xcarchive
+  IPA_OUTPUT_PATH: /tmp/action-builds/EhPanda-unsigned.ipa
+  THIN_PAYLOAD_SCRIPT_PATH: ./actions-tool/thin-payload.sh
+
+jobs:
+  build-unsigned-ipa:
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install iOS 26 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Run tests
+        run: xcodebuild clean test
+          -skipMacroValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'platform=iOS Simulator,name=iPhone Air'
+
+      - name: Xcode archive without signing
+        run: xcodebuild archive
+          -skipMacroValidation
+          -scheme ${{ env.SCHEME_NAME }}
+          -destination 'generic/platform=iOS'
+          -archivePath ${{ env.ARCHIVE_PATH }}
+          CODE_SIGN_IDENTITY=
+          CODE_SIGN_ENTITLEMENTS=
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          GCC_OPTIMIZATION_LEVEL=s
+          SWIFT_OPTIMIZATION_LEVEL=-O
+
+      - name: Export unsigned IPA
+        run: |
+          mkdir -p "${{ env.PAYLOAD_PATH }}"
+          mv "${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app" "${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app"
+          sh "${{ env.THIN_PAYLOAD_SCRIPT_PATH }}" "${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app"
+          pushd "${{ env.BUILDS_PATH }}"
+          zip -r "${{ env.IPA_OUTPUT_PATH }}" ./Payload
+          popd
+          test -f "${{ env.IPA_OUTPUT_PATH }}"
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v5
+        with:
+          name: EhPanda-unsigned-ipa
+          path: ${{ env.IPA_OUTPUT_PATH }}
+          if-no-files-found: error
