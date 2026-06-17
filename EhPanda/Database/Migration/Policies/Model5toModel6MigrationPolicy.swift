@@ -5,6 +5,7 @@
 
 import CoreData
 
+// reason: the migration policy name must encode both the source and destination model versions
 // swiftlint:disable type_name
 final class GalleryMO5toGalleryMO6MigrationPolicy: NSEntityMigrationPolicy {
     override func createDestinationInstances(

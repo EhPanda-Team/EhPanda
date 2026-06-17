@@ -31,7 +31,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
                 gid: "100",
                 title: "Complete",
                 pageHashes: ["sha256:1", "sha256:2"],
-                modifiedAt: Date(timeIntervalSince1970: 100)
+                modificationDate: Date(timeIntervalSince1970: 100)
             )
         )
         try writeIndexedManifest(
@@ -41,7 +41,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
                 gid: "200",
                 title: "Queued",
                 pageHashes: ["sha256:1", ""],
-                modifiedAt: Date(timeIntervalSince1970: 200)
+                modificationDate: Date(timeIntervalSince1970: 200)
             )
         )
         try FileManager.default.createDirectory(
@@ -85,7 +85,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
                 gid: "500",
                 title: "Old",
                 pageHashes: ["sha256:old"],
-                modifiedAt: olderDate
+                modificationDate: olderDate
             )
         )
         try setFolderModificationDate(
@@ -100,7 +100,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
                 gid: "500",
                 title: "New",
                 pageHashes: ["sha256:new"],
-                modifiedAt: newerDate
+                modificationDate: newerDate
             )
         )
         try setFolderModificationDate(
@@ -115,7 +115,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
         let download = try #require(downloads.first)
         #expect(download.title == "New")
         #expect(download.folderURL == storage.folderURL(relativePath: "Folder/[500_token] New"))
-        #expect(download.lastDownloadedAt == newerDate)
+        #expect(download.lastDownloadedDate == newerDate)
         #expect((await manager.indexedDownload(gid: "500")) == download)
     }
 
@@ -711,7 +711,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
                 gid: "830",
                 title: "First",
                 pageHashes: [""],
-                modifiedAt: Date(timeIntervalSince1970: 100)
+                modificationDate: Date(timeIntervalSince1970: 100)
             )
         )
         try writeIndexedManifest(
@@ -721,7 +721,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
                 gid: "831",
                 title: "Newer",
                 pageHashes: [""],
-                modifiedAt: Date(timeIntervalSince1970: 200)
+                modificationDate: Date(timeIntervalSince1970: 200)
             )
         )
         await manager.reloadDownloadIndex()
@@ -962,7 +962,7 @@ private extension DownloadCoordinatorStorageTests {
         gid: String,
         title: String,
         pageHashes: [String],
-        modifiedAt: Date = .now
+        modificationDate: Date = .now
     ) throws -> DownloadManifest {
         DownloadManifest(
             gid: gid,
@@ -975,7 +975,7 @@ private extension DownloadCoordinatorStorageTests {
             remoteCoverURL: URL(string: "https://example.com/cover.jpg"),
             uploader: "Uploader",
             tags: [],
-            postedDate: modifiedAt,
+            postedDate: modificationDate,
             rating: 4,
             pages: Dictionary(
                 uniqueKeysWithValues:

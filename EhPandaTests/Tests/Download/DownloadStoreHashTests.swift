@@ -132,7 +132,7 @@ struct DownloadStoreHashTests {
             folderURL: folderURL,
             displayStatus: .completed,
             completedPageCount: 2,
-            lastDownloadedAt: .now,
+            lastDownloadedDate: .now,
             lastError: nil
         )
     }

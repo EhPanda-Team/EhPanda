@@ -84,8 +84,8 @@ extension DownloadCoordinator {
                 if lhsIsDownloading != rhsIsDownloading {
                     return lhsIsDownloading
                 }
-                return (lhs.lastDownloadedAt ?? .distantPast)
-                    < (rhs.lastDownloadedAt ?? .distantPast)
+                return (lhs.lastDownloadedDate ?? .distantPast)
+                    < (rhs.lastDownloadedDate ?? .distantPast)
             }
             .first
     }

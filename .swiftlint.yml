@@ -25,10 +25,36 @@ file_length:
   error: 1000
 
 custom_rules:
+  accessibility_empty_string:
+    name: "Accessibility Empty String"
+    regex: '\.accessibility(Label|Value|Hint|InputLabels)\s*\((?:[^()]|\([^()]*\))*?(?:Text\s*\(\s*(?:verbatim:\s*)?""|"")'
+    message: 'Accessibility modifiers should not receive an empty string. Apply the modifier conditionally instead of passing "" or Text(verbatim: "").'
+    excluded_match_kinds:
+      - comment
+    severity: error
+
+  accessibility_text_argument:
+    name: "Accessibility Text Argument"
+    regex: '\.accessibility(Label|Value|Hint|InputLabels)\s*\((?:[^()]|\([^()]*\))*?\bText\s*\('
+    message: "Accessibility modifiers should not wrap their content in Text. Pass a LocalizedStringResource (or String) directly, e.g. .accessibilityLabel(.someKey)."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+#  binding_initializer:
+#    name: "Binding Initializer"
+#    regex: "\\bBinding\\s*<[^>]+>\\s*\\(|\\bBinding\\s*\\("
+#    message: "Manual Binding initializers should be avoided. Prefer a projected Binding."
+#    excluded_match_kinds:
+#      - comment
+#      - string
+#    severity: error
+
   child_reducer_shorthand_foreach:
     name: "Child reducer shorthand (forEach)"
-    regex: 'forEach\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
-    message: "Use .forEach(_:action:element: Reducer.init) instead of expanding a closure for a single bare Reducer()."
+    regex: 'forEach\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}|forEach\((?:[^()]|\([^()]*\))*?\belement:\s*\{\s*[A-Z]\w*\(\)\s*\}'
+    message: "Use .forEach(_:action:element: Reducer.init) instead of wrapping a single bare Reducer() in a closure."
     excluded_match_kinds:
       - comment
       - string
@@ -36,8 +62,8 @@ custom_rules:
 
   child_reducer_shorthand_scope:
     name: "Child reducer shorthand (Scope)"
-    regex: 'Scope\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
-    message: "Use Scope(state:action:child: Reducer.init) instead of expanding a closure for a single bare Reducer()."
+    regex: 'Scope\([^)]*\)\s*\{\s*[A-Z]\w*\(\)\s*\}|Scope\((?:[^()]|\([^()]*\))*?\bchild:\s*\{\s*[A-Z]\w*\(\)\s*\}'
+    message: "Use Scope(state:action:child: Reducer.init) instead of wrapping a single bare Reducer() in a closure."
     excluded_match_kinds:
       - comment
       - string
@@ -45,8 +71,44 @@ custom_rules:
 
   child_reducer_shorthand_store:
     name: "Child reducer shorthand (Store)"
-    regex: '\b(?:Store|TestStore)\(\s*initialState:\s*(?:[^()]|\([^()]*\))*\)\s*\{\s*[A-Z]\w*\(\)\s*\}'
-    message: "Use Store/TestStore initialState:reducer: instead of expanding a closure for a single bare Reducer()."
+    regex: '\b(?:Store|TestStore)\(\s*initialState:\s*(?:[^()]|\([^()]*\))*\)\s*\{\s*[A-Z]\w*\(\)\s*\}|\b(?:Store|TestStore)\((?:[^()]|\([^()]*\))*?\breducer:\s*\{\s*[A-Z]\w*\(\)\s*\}'
+    message: "Use Store/TestStore(initialState:reducer:) with reducer: Reducer.init instead of wrapping a single bare Reducer() in a closure."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  date_property_at_suffix:
+    name: "Date Property At Suffix"
+    regex: '\b(?:let|var)\s+\w*[a-z]At\b'
+    message: "Avoid the 'At' suffix on date properties. Use a noun form, e.g. creationDate instead of createdAt."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+  label_text_image_shorthand:
+    name: "Label Text + Image Shorthand"
+    regex: 'Label\s*\{\s*Text\s*\((?:[^()]|\([^()]*\))*\)\s*\}\s*icon:\s*\{\s*Image\s*\(\s*systemSymbol:\s*(?:[^()]|\([^()]*\))*\)\s*\}'
+    message: "Use Label(_ titleResource:systemSymbol:) instead of an unmodified Text + Image(systemSymbol:) Label."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+#  lifecycle_modifiers:
+#    name: "Lifecycle Modifiers"
+#    regex: "\\.(onAppear|onDisappear|task)\\s*(\\(|\\{)"
+#    message: "SwiftUI lifecycle modifiers should be avoided. Prefer a reducer action."
+#    excluded_match_kinds:
+#      - comment
+#      - string
+#    severity: error
+
+  no_case_check_property:
+    name: "No Case-Check Property"
+    regex: '\bvar\s+\w+\s*:\s*Bool\s*\{\s*if\s+case\s+\.[A-Za-z_]\w*[^{}]*\{\s*return\s+\w+\s*\}\s*(?:else\s*\{\s*return\s+\w+\s*\}|;?\s*return\s+\w+)\s*\}'
+    message: 'Avoid computed properties that only translate an if-case enum check into a Bool. Check the case at the call site instead, e.g. value.is(\.case) for @CasePathable types.'
     excluded_match_kinds:
       - comment
       - string
@@ -78,6 +140,63 @@ custom_rules:
       - comment
       - string
     severity: error
+
+#  optional_try:
+#    name: "try?"
+#    regex: "\\btry\\?\\s*"
+#    message: "try? should be avoided. Properly handle every errors."
+#    excluded_match_kinds:
+#      - comment
+#      - string
+#    severity: error
+
+  shape_initializer_argument:
+    name: "Shape Initializer Argument"
+    regex: '(?:[,(]\s*(?:[A-Za-z_][A-Za-z0-9_]*\s*:\s*)?)(?:SwiftUI\.|SwiftUICore\.)?(?:Rectangle|RoundedRectangle|UnevenRoundedRectangle|Capsule|Ellipse|Circle|ConcentricRectangle|ContainerRelativeShape|ButtonBorderShape)\s*\((?:[^()]|\([^()]*\))*\)(?!\s*\.)'
+    message: "Use the corresponding SwiftUI shape shorthand when passing a standalone shape as an argument. `Shape().modifier()` is allowed."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+#  single_line_trailing_closure:
+#    name: "Single-Line Trailing Closure"
+#    regex: '\.(map|compactMap|flatMap|filter|reduce|sorted|sort|forEach|first|last|firstIndex|contains|allSatisfy|withValue|withLock|withDependencies|onSubmit|onChange|onAppear|onDisappear|sink|task)\s*(?:\([^()\n]*\))?\s*\{(?!\s*(?:return|break|continue|throw|fallthrough)\b)[^{}\n]*\}'
+#    message: "Wrap a single-line trailing closure in parentheses, e.g. foo.map({ ... }), or break the closure onto multiple lines."
+#    excluded_match_kinds:
+#      - comment
+#      - string
+#    severity: error
+
+  swiftlint_disable_requires_reason:
+    name: "SwiftLint Disable Requires Reason"
+    regex: "(?m)^(?!//\\s*reason:)[^\\n]*\\n(//\\s*swiftlint:disable(?::(?:next|this|previous))?\\s+[^\\n]+)$"
+    match_kinds:
+      - comment
+    message: "swiftlint:disable should include a preceding reason comment, for example: // reason: explanation"
+    severity: error
+    capture_group: 1
+
+  system_name_parameter:
+    name: "systemName Parameter"
+    regex: "\\bsystemName\\s*:"
+    message: "`systemName` parameters should be avoided. Prefer `systemSymbol`."
+    excluded_match_kinds:
+      - comment
+      - string
+    severity: error
+
+#  unchecked_subscript_index_access:
+#    name: "Unchecked Subscript Index Access"
+#    regex: "\\b[A-Za-z_][A-Za-z0-9_]*\\s*\\[(?:\\d+|[A-Za-z_][A-Za-z0-9_]*\\s*[+\\-]\\s*\\d+|i|j|k|idx|index|offset|position|row|section)\\]"
+#    message: "Subscript index access should be guarded by an index check."
+#    excluded_match_kinds:
+#      - comment
+#      - string
+#    severity: error
+#    excluded:
+#      - ".*/[^/]*Tests\\.swift$"
+#      - "\\[validatedIndex\\]"
 
 excluded:
   - EhPanda/App/Generated

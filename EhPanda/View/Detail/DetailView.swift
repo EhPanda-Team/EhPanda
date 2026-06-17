@@ -384,7 +384,7 @@ private extension DetailView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(.regularMaterial, in: .rect(cornerRadius: 18))
     }
 }
 
