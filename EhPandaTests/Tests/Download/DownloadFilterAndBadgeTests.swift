@@ -50,7 +50,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             folderURL: URL(fileURLWithPath: "/tmp/111 - Solo Title", isDirectory: true),
             displayStatus: .completed,
             completedPageCount: 1,
-            lastDownloadedAt: .now,
+            lastDownloadedDate: .now,
             lastError: nil
         )
 

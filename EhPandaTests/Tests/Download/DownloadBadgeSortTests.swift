@@ -83,7 +83,7 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             gid: "707",
             title: "Completed Archive",
             status: .completed,
-            lastDownloadedAt: .distantFuture
+            lastDownloadedDate: .distantFuture
         )
 
         let queuedRedownload = sampleDownload(
@@ -91,14 +91,14 @@ struct DownloadBadgeSortTests: DownloadFeatureTestCase {
             title: "Queued Archive",
             status: .queued,
             completedPageCount: 12,
-            lastDownloadedAt: .distantPast
+            lastDownloadedDate: .distantPast
         )
 
         let sortedDownloads = [completedDownload, queuedRedownload].sorted { lhs, rhs in
             if lhs.displayStatus != rhs.displayStatus {
                 return lhs.displayStatus.sortPriority < rhs.displayStatus.sortPriority
             }
-            return (lhs.lastDownloadedAt ?? .distantPast) > (rhs.lastDownloadedAt ?? .distantPast)
+            return (lhs.lastDownloadedDate ?? .distantPast) > (rhs.lastDownloadedDate ?? .distantPast)
         }
 
         #expect(queuedRedownload.displayStatus == .queued)

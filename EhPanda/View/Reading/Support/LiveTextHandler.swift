@@ -2,8 +2,9 @@
 //  LiveTextHandler.swift
 //  EhPanda
 //
+//  reason: the reference URLs below exceed the line-length limit and cannot wrap
 //  swiftlint:disable line_length
-//  Refercence
+//  Reference
 //  https://www.codeproject.com/Articles/15573/2D-Polygon-Collision-Detection
 //  https://developer.apple.com/documentation/vision/recognizing_text_in_images
 //  https://github.com/TelegramMessenger/Telegram-iOS/blob/2a32c871882c4e1b1ccdecd34fccd301723b30d9/submodules/Translate/Sources/Translate.swift

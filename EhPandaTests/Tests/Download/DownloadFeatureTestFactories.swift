@@ -80,7 +80,7 @@ extension DownloadedGallery {
         localPageURLs: [Int: URL] = [:],
         displayStatus: DownloadDisplayStatus,
         completedPageCount: Int,
-        lastDownloadedAt: Date?,
+        lastDownloadedDate: Date?,
         lastError: DownloadFailure?
     ) {
         let clampedCompletedPageCount = min(max(completedPageCount, 0), pageCount)
@@ -111,7 +111,7 @@ extension DownloadedGallery {
             folderName: folderName,
             localCoverURL: localCoverURL,
             localPageURLs: localPageURLs,
-            modifiedAt: lastDownloadedAt,
+            modificationDate: lastDownloadedDate,
             displayStatus: displayStatus,
             lastError: lastError
         )
@@ -195,7 +195,7 @@ extension DownloadFeatureTestCase {
         category: EhPanda.Category = .doujinshi,
         pageCount: Int = 12,
         completedPageCount: Int? = nil,
-        lastDownloadedAt: Date? = .now,
+        lastDownloadedDate: Date? = .now,
         lastError: DownloadFailure? = nil,
         folderURL: URL? = nil,
         folderName: String = "Folder",
@@ -225,7 +225,7 @@ extension DownloadFeatureTestCase {
             displayStatus: status.displayStatus,
             completedPageCount: completedPageCount
                 ?? status.defaultCompletedPageCount(pageCount: pageCount),
-            lastDownloadedAt: lastDownloadedAt,
+            lastDownloadedDate: lastDownloadedDate,
             lastError: lastError ?? status.defaultLastError
         )
     }

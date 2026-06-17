@@ -521,7 +521,7 @@ private extension DownloadStoreTests {
             folderURL: folderURL,
             displayStatus: displayStatus,
             completedPageCount: displayStatus == .completed ? 2 : 0,
-            lastDownloadedAt: .now,
+            lastDownloadedDate: .now,
             lastError: nil
         )
     }

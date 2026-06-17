@@ -81,7 +81,7 @@ extension DownloadCoordinator {
             folderName: record.parentFolderName,
             localCoverURL: record.localCoverURL,
             localPageURLs: record.localPageURLs,
-            modifiedAt: record.modifiedAt,
+            modificationDate: record.modificationDate,
             displayStatus: displayStatus(for: record),
             lastError: validationErrors[gid] ?? downloadErrors[gid]
         )
@@ -120,14 +120,14 @@ extension DownloadCoordinator {
         if lhs.displayStatus != rhs.displayStatus {
             return lhs.displayStatus.sortPriority < rhs.displayStatus.sortPriority
         }
-        return (lhs.lastDownloadedAt ?? .distantPast)
-            > (rhs.lastDownloadedAt ?? .distantPast)
+        return (lhs.lastDownloadedDate ?? .distantPast)
+            > (rhs.lastDownloadedDate ?? .distantPast)
     }
 }
 
 private extension DownloadFolderRecord {
     var displayDate: Date {
-        modifiedAt ?? .distantPast
+        modificationDate ?? .distantPast
     }
 }
 

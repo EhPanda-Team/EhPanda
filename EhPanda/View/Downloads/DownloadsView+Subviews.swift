@@ -320,7 +320,7 @@ struct DownloadListRow: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
+        .contentShape(.rect)
         .onTapGesture(perform: openAction)
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(download.title)

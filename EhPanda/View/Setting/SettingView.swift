@@ -138,7 +138,7 @@ private struct SettingRow: View {
                 .font(.title3).foregroundColor(color)
             Spacer()
         }
-        .contentShape(Rectangle()).padding(.vertical, 10)
+        .contentShape(.rect).padding(.vertical, 10)
         .padding(.horizontal, 20).background(backgroundColor)
         .cornerRadius(10).onTapGesture { tapAction(rowType) }
         .onLongPressGesture(

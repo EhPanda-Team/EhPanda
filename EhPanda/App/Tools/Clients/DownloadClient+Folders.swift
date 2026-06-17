@@ -218,7 +218,7 @@ extension DownloadCoordinator {
                 localPageURLs: record.localPageURLs.mapValues {
                     destinationFolderURL.appendingPathComponent($0.lastPathComponent)
                 },
-                modifiedAt: record.modifiedAt,
+                modificationDate: record.modificationDate,
                 parentFolderName: newName
             )
         }

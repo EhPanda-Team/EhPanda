@@ -17,7 +17,7 @@ struct DownloadFolderRecord: Equatable, Sendable {
     let manifest: DownloadManifest
     let localCoverURL: URL?
     let localPageURLs: [Int: URL]
-    let modifiedAt: Date?
+    let modificationDate: Date?
     let parentFolderName: String
 }
 
@@ -444,7 +444,7 @@ struct DownloadStore: Sendable {
             manifest: manifest,
             localCoverURL: localCoverURL(folderURL: folderURL, manifest: manifest),
             localPageURLs: imageURLs(folderURL: folderURL, manifest: manifest),
-            modifiedAt: resourceValues?.contentModificationDate,
+            modificationDate: resourceValues?.contentModificationDate,
             parentFolderName: parentFolderName
         )
     }

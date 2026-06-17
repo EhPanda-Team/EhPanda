@@ -78,12 +78,7 @@ private struct LocalPreviewImageView<Placeholder: View>: View {
                 Image(uiImage: thumbnail)
                     .resizable()
                     .scaledToFit()
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: 5,
-                            style: .continuous
-                        )
-                    )
+                    .clipShape(.rect(cornerRadius: 5))
             } else {
                 placeholder
             }

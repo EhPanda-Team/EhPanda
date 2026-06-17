@@ -126,7 +126,7 @@ private struct AppIconView: View {
                         filename: icon.filename,
                         isSelected: icon == appIconType
                     )
-                    .contentShape(Rectangle())
+                    .contentShape(.rect)
                     .onTapGesture { appIconType = icon }
                 }
             }
@@ -154,7 +154,7 @@ private struct AppIconRow: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 60, height: 60)
-                .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                .clipShape(.rect(cornerRadius: 15))
                 .padding(.vertical, 10)
 
             Text(iconName)

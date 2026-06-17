@@ -196,6 +196,7 @@ extension ListDisplayMode {
     }
 }
 
+// reason: the manual Decodable initializer has long per-key decode/default lines
 // swiftlint:disable line_length
 // MARK: Manually decode
 extension Setting {
