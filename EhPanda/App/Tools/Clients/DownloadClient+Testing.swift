@@ -54,5 +54,9 @@ extension DownloadCoordinator {
     func testingActiveGalleryID() -> String? {
         activeGalleryID
     }
+
+    func testingHasBackgroundAssertion() -> Bool {
+        backgroundAssertionToken != nil
+    }
 }
 #endif

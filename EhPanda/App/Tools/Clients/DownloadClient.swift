@@ -71,6 +71,7 @@ extension DownloadClient {
             urlSession: urlSession,
             pageDownloader: pageDownloader,
             backgroundTaskStore: backgroundTaskStore,
+            backgroundTaskClient: .live,
             downloadOptionsProvider: {
                 await DatabaseClient.live.fetchAppEnv().setting.downloadRequestOptions
             }
