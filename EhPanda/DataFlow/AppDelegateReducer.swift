@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import BackgroundTasks
 import SwiftyBeaver
 import ComposableArchitecture
 
@@ -67,8 +68,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         if !AppUtil.isTesting {
             store.send(.appDelegate(.onLaunchFinish))
+            // Must register before launch completes so iOS can relaunch us later to
+            // drain the download queue in a discretionary background window.
+            _ = BackgroundProcessingClient.live.register { task in
+                AppDelegate.handleProcessingTask(task)
+            }
         }
         return true
+    }
+
+    /// Drains the download queue in the granted background window. On expiration the
+    /// in-flight work is cancelled and a fresh request is scheduled so iOS can hand the
+    /// remaining work back later.
+    @MainActor
+    static func handleProcessingTask(_ task: BGProcessingTask) {
+        @Dependency(\.downloadClient) var downloadClient
+        @Dependency(\.backgroundProcessingClient) var backgroundProcessingClient
+
+        let work = Task { @MainActor in
+            await downloadClient.runBackgroundProcessing()
+            // Reschedule only if we stopped on our own with work still pending; an
+            // expiration cancels this task and reschedules from its own handler.
+            if !Task.isCancelled, await downloadClient.hasPendingWork() {
+                _ = backgroundProcessingClient.schedule()
+            }
+            task.setTaskCompleted(success: !Task.isCancelled)
+        }
+        task.expirationHandler = {
+            work.cancel()
+            _ = backgroundProcessingClient.schedule()
+        }
     }
 
     func application(

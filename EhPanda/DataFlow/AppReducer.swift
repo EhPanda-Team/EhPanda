@@ -48,6 +48,7 @@ struct AppReducer {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.backgroundProcessingClient) private var backgroundProcessingClient
     @Dependency(\.appLaunchAutomationClient) private var appLaunchAutomationClient
     @Dependency(\.urlClient) private var urlClient
 
@@ -98,7 +99,14 @@ struct AppReducer {
 
                     case .background:
                         state.hasEnteredBackground = true
-                        return .none
+                        // Ask iOS for a later background window to finish the queue; the
+                        // beginBackgroundTask assertion only covers the brief grace
+                        // period right after backgrounding.
+                        return .run { _ in
+                            if await downloadClient.hasPendingWork() {
+                                _ = backgroundProcessingClient.schedule()
+                            }
+                        }
 
                     default:
                         return .none

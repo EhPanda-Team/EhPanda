@@ -31,6 +31,8 @@ struct DownloadClient: Sendable {
     var renameFolder: @Sendable (String, String) async throws -> Void
     var deleteFolder: @Sendable (String) async throws -> Void
     var moveDownload: @Sendable (String, String) async throws -> Void
+    var hasPendingWork: @Sendable () async -> Bool = { false }
+    var runBackgroundProcessing: @Sendable () async -> Void
 }
 
 extension DownloadClient {
@@ -139,7 +141,9 @@ extension DownloadClient {
             deleteFolder: { name in try await manager.deleteFolder(name: name).get() },
             moveDownload: { gid, folderName in
                 try await manager.moveDownload(gid: gid, toFolderName: folderName).get()
-            }
+            },
+            hasPendingWork: { await manager.hasPendingWork() },
+            runBackgroundProcessing: { await manager.runQueueUntilIdle() }
         )
     }
 }
@@ -183,6 +187,8 @@ extension DownloadClient {
         createFolder: { _ in },
         renameFolder: { _, _ in },
         deleteFolder: { _ in },
-        moveDownload: { _, _ in }
+        moveDownload: { _, _ in },
+        hasPendingWork: { false },
+        runBackgroundProcessing: {}
     )
 }
