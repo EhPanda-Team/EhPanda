@@ -251,7 +251,12 @@ extension DownloadCoordinator {
         }
         activeTask = nil
         activeGalleryID = nil
-        guard schedulesNext else { return }
+        guard schedulesNext else {
+            // The collision-cleanup path skips rescheduling, but the assertion still
+            // has to be released if this was the last in-flight download.
+            Task { await self.reconcileBackgroundAssertion() }
+            return
+        }
         Task {
             await self.scheduleNextIfNeeded()
         }

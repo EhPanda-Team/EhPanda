@@ -13,6 +13,13 @@ extension DownloadCoordinator {
     }
 
     func scheduleNextIfNeeded() async {
+        await scheduleNextIfNeededCore()
+        // Reconcile on every exit path of the core (both early-return guards and the
+        // happy path), so the background-task assertion always matches queue state.
+        await reconcileBackgroundAssertion()
+    }
+
+    private func scheduleNextIfNeededCore() async {
         let queuedGIDs = queueStore.gids
         let downloads = queuedGIDs.isEmpty
             ? await indexedDownloads()

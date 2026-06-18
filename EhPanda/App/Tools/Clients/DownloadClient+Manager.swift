@@ -161,6 +161,7 @@ actor DownloadCoordinator {
     let urlSession: URLSession
     let pageDownloader: DownloadPageDownloader
     let backgroundTaskStore: DownloadBackgroundTaskStore
+    let backgroundTaskClient: BackgroundTaskClient
     let storedCookiesProvider: @Sendable (URL) -> [HTTPCookie]
     let libraryClient: LibraryClient
     /// Supplies the latest runtime settings immediately before a queued download starts.
@@ -184,12 +185,17 @@ actor DownloadCoordinator {
     var activeTask: Task<Void, Never>?
     var activeTaskGeneration = 0
     var schedulingBlockedGalleryIDs = Set<String>()
+    var backgroundAssertionToken: BackgroundTaskToken?
+    /// Set synchronously across the `begin` MainActor hop so a concurrent reconcile
+    /// cannot issue a second assertion before the first token is recorded.
+    var isBeginningBackgroundAssertion = false
 
     init(
         storage: DownloadStore,
         urlSession: URLSession,
         pageDownloader: DownloadPageDownloader? = nil,
         backgroundTaskStore: DownloadBackgroundTaskStore? = nil,
+        backgroundTaskClient: BackgroundTaskClient = .noop,
         storedCookiesProvider: @escaping @Sendable (URL) -> [HTTPCookie] = {
             HTTPCookieStorage.shared.cookies(for: $0) ?? []
         },
@@ -206,6 +212,7 @@ actor DownloadCoordinator {
         self.backgroundTaskStore = backgroundTaskStore ?? DownloadBackgroundTaskStore(
             fileURL: storage.backgroundTaskRegistryURL()
         )
+        self.backgroundTaskClient = backgroundTaskClient
         self.storedCookiesProvider = storedCookiesProvider
         self.libraryClient = libraryClient
         self.downloadOptionsProvider = downloadOptionsProvider
