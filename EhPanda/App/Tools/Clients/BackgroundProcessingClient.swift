@@ -7,8 +7,7 @@ import BackgroundTasks
 import ComposableArchitecture
 
 enum BackgroundProcessing {
-    /// Fixed task identifier, independent of the bundle id, so the local
-    /// `app.ehpanda.personal` re-sign does not change it. Must stay in sync with the
+    /// Fixed task identifier, independent of the bundle id. Must stay in sync with the
     /// `BGTaskSchedulerPermittedIdentifiers` entry in Info.plist.
     static let downloadTaskIdentifier = "app.ehpanda.downloads.processing"
 }
@@ -36,15 +35,11 @@ extension BackgroundProcessingClient {
                 forTaskWithIdentifier: BackgroundProcessing.downloadTaskIdentifier,
                 using: .main
             ) { task in
-                // Registered against the main queue, so the launch handler runs on the
-                // main thread; bridge the un-annotated callback onto the main actor.
-                MainActor.assumeIsolated {
-                    guard let processingTask = task as? BGProcessingTask else {
-                        task.setTaskCompleted(success: false)
-                        return
-                    }
-                    handler(processingTask)
+                guard let processingTask = task as? BGProcessingTask else {
+                    task.setTaskCompleted(success: false)
+                    return
                 }
+                handler(processingTask)
             }
         },
         schedule: {
