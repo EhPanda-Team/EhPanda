@@ -26,6 +26,11 @@ struct DownloadScanResult: Equatable, Sendable {
     let userFolders: [String]
 }
 
+/// Pure filesystem / manifest / hash I/O for downloads. The filesystem is the source of
+/// truth (per-folder `manifest.json` + page files), so this type holds no cross-call
+/// in-memory state and is race-free by construction: every method reads or writes disk and
+/// returns. It is the I/O half of the download subsystem split; the `DownloadCoordinator`
+/// actor owns the mutable read model and scheduling on top of it.
 struct DownloadStore: Sendable {
     private static let maxFolderComponentByteCount = 255
 
@@ -160,6 +165,11 @@ struct DownloadStore: Sendable {
             .lastPathComponent
     }
 
+    /// Builds the on-disk folder name as `[gid_token] Title`. The readable title is a
+    /// deliberate Files-app-integration bet (the app sets `UIFileSharingEnabled` /
+    /// `LSSupportsOpeningDocumentsInPlace`), and the `[gid_token]` prefix keeps identity
+    /// resolvable from the name alone. The title is truncated to keep the whole component
+    /// within the filesystem's per-name byte limit.
     func makeFolderRelativePath(gid: String, token: String, title: String) -> String {
         let prefix = galleryFolderNamePrefix(gid: gid, token: token)
         let titleByteCount = max(Self.maxFolderComponentByteCount - prefix.utf8.count, 0)
@@ -170,6 +180,10 @@ struct DownloadStore: Sendable {
         "[\(normalizedIdentityComponent(gid))_\(normalizedIdentityComponent(token))] "
     }
 
+    /// Finds every folder belonging to a gallery, because folder membership follows
+    /// filesystem location, not a stored list. A folder the user moved in the Files app is
+    /// still found. The `[gid_token]` name prefix is the fast path; any folder without it is
+    /// confirmed by reading its manifest's `gid` / `token`, so a renamed folder still matches.
     func galleryFolderURLs(gid: String, token: String) -> [URL] {
         guard fileManager.operate({ $0.fileExists(atPath: rootURL.path) }) else {
             return []

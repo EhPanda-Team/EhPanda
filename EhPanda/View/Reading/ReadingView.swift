@@ -309,6 +309,9 @@ extension ReadingView {
         }
     }
 
+    /// Runs Live Text over a downloaded page file. Animated images are skipped by design
+    /// (Live Text scans still images only), so a single non-animating frame is never lifted
+    /// out of an animation.
     private func analyzeLocalImage(at imageURL: URL, index: Int) {
         guard let data = try? Data(contentsOf: imageURL),
               !data.isAnimatedImageData,
@@ -325,6 +328,9 @@ extension ReadingView {
         )
     }
 
+    /// Runs Live Text over a remote page's cached bytes, read from the owned `DataCache`
+    /// (the reader's cache, not Kingfisher's). Animated images are skipped by design
+    /// (Live Text scans still images only).
     private func analyzeCachedImageData(cacheKeys: [String], index: Int) async {
         guard let data = await DataCache.shared.data(forKeys: cacheKeys),
               !data.isAnimatedImageData,

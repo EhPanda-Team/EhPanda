@@ -81,6 +81,12 @@ extension Data {
             && hasBytes(ImageDataSignature.webp, at: 8)
     }
 
+    /// Whether the bytes are an image that *actually animates*. This is the routing key for
+    /// rendering and export: animated data is rendered by SDWebImage, still data by
+    /// Kingfisher / `UIImage`. The decision is made from the bytes themselves (GIF frame
+    /// count, APNG `acTL` before `IDAT`, WebP VP8X animation bit), never the URL's file
+    /// extension: the extension is known before any bytes exist and is wrong for mislabeled
+    /// or content-negotiated images.
     var isAnimatedImageData: Bool {
         isAnimatedGIFFormat || isAPNGFormat || isAnimatedWebPFormat
     }
