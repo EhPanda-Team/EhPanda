@@ -42,17 +42,13 @@ struct GalleryCardCell: View {
         return trimmedTitle
     }
 
-    private var resolvedCoverURL: URL? {
-        gallery.coverURL
-    }
-
     var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
             ColorfulView(animated: animated, animation: animation, colors: colors)
                 .id(currentID + animated.description)
             HStack {
-                KFImage(resolvedCoverURL)
+                KFImage(gallery.coverURL)
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                     .onSuccess(webImageSuccessAction).defaultModifier().scaledToFill()
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)

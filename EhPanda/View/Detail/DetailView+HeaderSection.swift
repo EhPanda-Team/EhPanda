@@ -263,11 +263,10 @@ struct HeaderSection: View {
         default: return .icloudAndArrowDown
         }
     }
-    private var resolvedCoverURL: URL? { gallery.coverURL }
 
     var body: some View {
         HStack {
-            KFImage(resolvedCoverURL)
+            KFImage(gallery.coverURL)
                 .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) })
                 .defaultModifier()
                 .scaledToFit()
