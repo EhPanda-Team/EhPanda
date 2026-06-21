@@ -40,6 +40,15 @@ struct DownloadTaskRunner: Sendable {
     }
 }
 
+/// The brain of the download subsystem: the in-memory read model (`downloadIndex`,
+/// `userFolders`) fused with scheduling (`activeGalleryID`, `activeTask`, queued
+/// modes / selections). It is one of three types the old monolith was split into by
+/// invariant ownership, alongside `DownloadStore` (pure disk I/O) and
+/// `DownloadObserverHub` (observer fan-out), all behind the unchanged `DownloadClient`
+/// facade. Read model and scheduling stay fused on purpose: only one gallery downloads at
+/// a time (E-Hentai rate-limits gallery downloads, so concurrency is unwanted), and
+/// scheduling reads and writes the index on every step, so splitting them would buy nothing
+/// and reintroduce the cross-actor races this single actor exists to prevent.
 actor DownloadCoordinator {
     static let retryLimit = 3
     static let progressFlushPageInterval = 8
@@ -172,9 +181,20 @@ actor DownloadCoordinator {
     let queueStore: DownloadQueueStore
     let taskRunner: DownloadTaskRunner
     let observerHub = DownloadObserverHub()
+    /// Write-through cache of the on-disk download tree and the read authority between the
+    /// explicit scan boundaries (see `indexedDownload(gid:)`). The filesystem stays the
+    /// source of truth, so this is rebuilt from disk only at those boundaries, never on a
+    /// hot lookup.
     var downloadIndex = [String: DownloadFolderRecord]()
     var hasLoadedIndex = false
     var userFolders = [String]()
+    /// Transient, session-scoped status: deliberately in-memory only, never written to disk.
+    /// Download-level errors, per-page failures, validation results, and the update-available
+    /// set are status *about* a download, not durable properties of it; they are cheap to
+    /// re-derive and re-derivation yields the *current* truth (e.g. a lifted quota simply
+    /// succeeds on the next attempt). Durable facts (downloaded pages, hashes, metadata)
+    /// live in the manifest. The accepted cost is that after relaunch a failed download
+    /// surfaces as inactive ("Paused") until its error re-surfaces on the next manual retry.
     var downloadErrors = [String: DownloadFailure]()
     var validationErrors = [String: DownloadFailure]()
     var failedPageErrors = [String: [Int: PageFailure]]()
@@ -225,6 +245,10 @@ actor DownloadCoordinator {
     }
 }
 
+/// Owns the observer continuations and the last snapshot broadcast to them, kept apart from
+/// the coordinator's state so notification can never interleave with a state mutation. The
+/// coordinator computes a snapshot and hands it here to fan out; this type holds no download
+/// state of its own.
 actor DownloadObserverHub {
     private var lastObservedDownloads = [DownloadedGallery]()
     private var observers = [UUID: AsyncStream<[DownloadedGallery]>.Continuation]()

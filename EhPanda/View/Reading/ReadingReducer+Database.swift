@@ -147,6 +147,7 @@ extension ReadingReducer {
         state: inout State, requestID: UUID, localPageURLs: [Int: URL]
     ) -> Effect<Action> {
         guard state.localPageRequestID == requestID else { return .none }
+        // Local files turned up empty; fall back to remote so the gallery is still readable.
         if case .local = state.contentSource,
            localPageURLs.isEmpty {
             state.contentSource = .remote
@@ -164,6 +165,9 @@ extension ReadingReducer {
         return .none
     }
 
+    /// Enters offline mode: seeds the gallery and language from the manifest (so a downloaded
+    /// gallery reads with no database record) and makes `localPageURLs` the only page source,
+    /// clearing the remote URL maps that don't apply offline.
     func applyLocalSource(
         state: inout State,
         download: DownloadedGallery,

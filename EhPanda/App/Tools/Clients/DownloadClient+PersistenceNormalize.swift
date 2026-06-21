@@ -75,6 +75,11 @@ extension DownloadCoordinator {
         downloadErrors[activeGalleryID] = nil
     }
 
+    /// User-initiated integrity check (the inspector's "validate" action): the only path
+    /// that re-reads page bytes and verifies them against their recorded hashes
+    /// (`verifiesContentHashes: true`). Routine scans and opens check file *presence* only;
+    /// automatic content re-validation was removed because it re-hashed whole galleries on
+    /// hot paths. The result is session-scoped status (`validationErrors`), not persisted.
     func validateImageData(gid: String) async -> DownloadValidationState? {
         guard let download = await fetchDownload(gid: gid),
               download.canValidateImageData

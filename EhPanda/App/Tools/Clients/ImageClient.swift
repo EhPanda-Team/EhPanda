@@ -13,6 +13,9 @@ struct ImageClient: Sendable {
         let image: UIImage
         let data: Data
 
+        /// Render / export routing for this asset: `true` → SDWebImage (animated),
+        /// `false` → Kingfisher / `UIImage` (still). Decided from the actual bytes, not the
+        /// request URL. See `Data.isAnimatedImageData`.
         var isAnimated: Bool {
             data.isAnimatedImageData || image.hasAnimatedFrames
         }

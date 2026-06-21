@@ -7,6 +7,18 @@ import CryptoKit
 import Foundation
 import UIKit
 
+/// Owned byte-level cache for the reader page pipeline and its export actions
+/// (copy / save / share). It is the one place the app downloads and stores reading-page
+/// image bytes itself instead of letting an image library own the transfer.
+///
+/// Two render engines are kept on purpose: Kingfisher is primary, and SDWebImage stays
+/// only because it renders animated images (WebP / APNG / GIF) that KingfisherWebP
+/// renders poorly. Letting each engine fetch and cache on its own split one logical cache
+/// in two and forced animated-vs-still routing to be decided from the URL before any bytes
+/// existed. Owning the bytes here collapses that into a single fetch + cache; the decoded
+/// data is then handed to whichever engine renders it (routed by `Data.isAnimatedImageData`).
+/// Scope is deliberately the reader and its exports only. Covers, previews, and cells stay
+/// on plain Kingfisher URL-mode caching.
 actor DataCache {
     struct Configuration: Equatable, Sendable {
         var rootURL: URL
