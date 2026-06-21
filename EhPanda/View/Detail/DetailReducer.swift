@@ -143,6 +143,8 @@ struct DetailReducer {
         case fetchDownloadBadgeDone(DownloadedGallery?)
         case fetchDownloadFolders
         case fetchDownloadFoldersDone([String])
+        case createDefaultFolder
+        case createDefaultFolderDone(Result<Void, AppError>)
         case observeDownload
         case observeDownloadDone(DownloadedGallery?)
         case loadLocalPreviewURLs

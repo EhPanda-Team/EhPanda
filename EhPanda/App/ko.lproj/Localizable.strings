@@ -959,6 +959,7 @@
 "detail_view.offline_notice.saved_details" = "온라인 세부 정보를 새로고침할 수 없어 저장된 세부 정보를 표시합니다.";
 "enum.download_folder_filter.title.all" = "All";
 "detail_view.menu.button.manage_folders" = "Manage Folders";
+"detail_view.menu.button.create_default_folder" = "Create Default Folder";
 "detail_view.menu.text.no_folders" = "No folders yet";
 "downloads_view.menu.button.manage_folders" = "Manage Folders";
 "downloads_view.menu.button.move_to_folder" = "Move to Folder";

@@ -24,6 +24,10 @@ extension DetailReducer {
             case .fetchDownloadFoldersDone(let folders):
                 state.downloadFolders = folders
                 return .none
+            case .createDefaultFolder:
+                return handleCreateDefaultFolder()
+            case .createDefaultFolderDone(let result):
+                return handleCreateDefaultFolderDone(result: result)
             case .folderManager(.createFolderDone),
                  .folderManager(.renameFolderDone),
                  .folderManager(.deleteFolderDone):
@@ -83,6 +87,27 @@ extension DetailReducer {
             effects.append(.send(.fetchVersionMetadataIfNeeded))
         }
         return .merge(effects)
+    }
+
+    private func handleCreateDefaultFolder() -> Effect<Action> {
+        .run { send in
+            try await downloadClient.createFolder(Defaults.FilePath.defaultDownloadFolder)
+            await send(.createDefaultFolderDone(.success(())))
+        } catch: { error, send in
+            await send(.createDefaultFolderDone(.failure(AppError(error))))
+        }
+    }
+
+    private func handleCreateDefaultFolderDone(
+        result: Result<Void, AppError>
+    ) -> Effect<Action> {
+        if case .success = result {
+            return .merge(
+                .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }),
+                .send(.fetchDownloadFolders)
+            )
+        }
+        return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
     }
 
     private func handleObserveDownload(state: inout State) -> Effect<Action> {

@@ -168,6 +168,7 @@ private extension DetailView {
                                 store.send(.startDownload($0))
                             },
                             manageFoldersAction: { store.send(.setNavigation(.folderManager())) },
+                            createDefaultFolderAction: { store.send(.createDefaultFolder) },
                             favorAction: { store.send(.favorGallery($0)) },
                             unfavorAction: { store.send(.unfavorGallery) },
                             navigateReadingAction: { store.send(.openReading) },
