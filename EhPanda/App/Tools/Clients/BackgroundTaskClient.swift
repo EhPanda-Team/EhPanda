@@ -14,9 +14,9 @@ typealias BackgroundTaskToken = UIBackgroundTaskIdentifier
 /// instead of being suspended within seconds.
 ///
 /// Mirrors `AppDelegateClient`: a plain `Sendable` struct of `@MainActor` closures
-/// rather than a `@DependencyClient`, because `begin` both returns a value and takes
-/// an escaping handler. It is injected straight into `DownloadCoordinator` (like
-/// `pageDownloader`) instead of being resolved through `DependencyValues`.
+/// rather than a `@DependencyClient`. It is injected straight into `DownloadCoordinator`
+/// (like `pageDownloader`) rather than being resolved through `DependencyValues`, so it
+/// has no place for the macro's auto-generated unimplemented `testValue` to live.
 struct BackgroundTaskClient: Sendable {
     /// Begins a background-task assertion and returns its token. `expirationHandler`
     /// fires when the OS is about to reclaim the assertion; the caller must end it then.
