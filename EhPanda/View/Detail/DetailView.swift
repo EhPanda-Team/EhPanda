@@ -168,6 +168,7 @@ private extension DetailView {
                                 store.send(.startDownload($0))
                             },
                             manageFoldersAction: { store.send(.setNavigation(.folderManager())) },
+                            createDefaultFolderAction: { store.send(.createDefaultFolder) },
                             favorAction: { store.send(.favorGallery($0)) },
                             unfavorAction: { store.send(.unfavorGallery) },
                             navigateReadingAction: { store.send(.openReading) },
@@ -384,7 +385,7 @@ private extension DetailView {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(.regularMaterial, in: .rect(cornerRadius: 18))
     }
 }
 

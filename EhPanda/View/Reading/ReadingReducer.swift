@@ -50,6 +50,9 @@ struct ReadingReducer {
         var previewConfig: PreviewConfig = .normal(rows: 4)
 
         var previewURLs = [Int: URL]()
+        /// The single source of truth for downloaded page files. It is not copied into the
+        /// other URL maps; both offline reads and the opportunistic "use the downloaded file
+        /// if present" check in remote mode resolve a page through this map alone.
         var localPageURLs = [Int: URL]()
         var localPageRequestID = UUID()
 

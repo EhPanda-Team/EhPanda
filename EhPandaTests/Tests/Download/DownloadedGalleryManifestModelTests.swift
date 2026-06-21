@@ -36,7 +36,7 @@ struct DownloadedGalleryManifestModelTests {
 
     @Test
     func testDownloadedGalleryViewModelUsesManifestAndRuntimeStatus() throws {
-        let modifiedAt = Date(timeIntervalSince1970: 1_234)
+        let modificationDate = Date(timeIntervalSince1970: 1_234)
         let manifest = try sampleManifest(pageHashes: [1: "sha256:a", 2: "sha256:b"])
 
         let download = DownloadedGallery(
@@ -45,7 +45,7 @@ struct DownloadedGalleryManifestModelTests {
             folderName: "Folder",
             localCoverURL: nil,
             localPageURLs: [:],
-            modifiedAt: modifiedAt,
+            modificationDate: modificationDate,
             displayStatus: .queued
         )
 
@@ -54,7 +54,7 @@ struct DownloadedGalleryManifestModelTests {
         #expect(download.displayStatus == .queued)
         #expect(download.onlineCoverURL == manifest.remoteCoverURL)
         #expect(download.completedPageCount == 2)
-        #expect(download.lastDownloadedAt == modifiedAt)
+        #expect(download.lastDownloadedDate == modificationDate)
     }
 }
 

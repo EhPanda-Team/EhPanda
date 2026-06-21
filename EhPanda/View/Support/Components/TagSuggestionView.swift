@@ -93,7 +93,7 @@ private struct SuggestionCell: View {
 
                 Spacer()
             }
-            .contentShape(Rectangle())
+            .contentShape(.rect)
             .onTapGesture(perform: action)
         } else {
             Text("\(Text(displayValue.localizedKey))\n\(Text(suggestion.displayKey.localizedKey))")

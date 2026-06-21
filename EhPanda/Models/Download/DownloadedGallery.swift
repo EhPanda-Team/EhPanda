@@ -14,7 +14,7 @@ struct DownloadedGallery: Identifiable, Equatable {
     let localCoverURL: URL?
     let localPageURLs: [Int: URL]
     let displayStatus: DownloadDisplayStatus
-    let lastDownloadedAt: Date?
+    let lastDownloadedDate: Date?
     let lastError: DownloadFailure?
 
     var gid: String { manifest.gid }
@@ -37,7 +37,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         folderName: String,
         localCoverURL: URL?,
         localPageURLs: [Int: URL],
-        modifiedAt: Date?,
+        modificationDate: Date?,
         displayStatus: DownloadDisplayStatus,
         lastError: DownloadFailure? = nil
     ) {
@@ -47,7 +47,7 @@ struct DownloadedGallery: Identifiable, Equatable {
         self.localCoverURL = localCoverURL
         self.localPageURLs = localPageURLs
         self.displayStatus = displayStatus
-        self.lastDownloadedAt = modifiedAt
+        self.lastDownloadedDate = modificationDate
         self.lastError = lastError
     }
 }

@@ -5,6 +5,7 @@
 
 import Foundation
 
+// reason: the exhaustive ISO country list is kept dense, one case per line
 // swiftlint:disable line_length
 extension EhSetting {
     enum BrowsingCountry: String, CaseIterable, Identifiable, Equatable {

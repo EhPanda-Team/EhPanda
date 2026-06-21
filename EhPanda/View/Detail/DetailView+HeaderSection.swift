@@ -5,6 +5,7 @@
 
 import SwiftUI
 import Kingfisher
+import SFSafeSymbols
 
 // MARK: HeaderSection
 struct HeaderSection: View {
@@ -22,6 +23,7 @@ struct HeaderSection: View {
     let downloadAction: () -> Void
     let downloadToFolderAction: (String) -> Void
     let manageFoldersAction: () -> Void
+    let createDefaultFolderAction: () -> Void
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
     let navigateReadingAction: () -> Void
@@ -67,7 +69,7 @@ struct HeaderSection: View {
                     progressIndicator(
                         progress: progress,
                         isDeterminate: true,
-                        centerSystemName: activeDownloadIconSystemName
+                        centerSymbol: activeDownloadIconSymbol
                     )
                 }
                 .buttonStyle(.glass(.regular.interactive()))
@@ -77,7 +79,7 @@ struct HeaderSection: View {
                     progressIndicator(
                         progress: progress,
                         isDeterminate: false,
-                        centerSystemName: activeDownloadIconSystemName
+                        centerSymbol: activeDownloadIconSymbol
                     )
                 }
                 .buttonStyle(.glass(.regular.interactive()))
@@ -90,6 +92,18 @@ struct HeaderSection: View {
                                 L10n.Localizable.DetailView.Menu.Button.manageFolders,
                                 systemSymbol: .folderBadgeGearshape
                             )
+                        }
+                        // Without any folder there is nowhere to download to, so offer a
+                        // one-tap shortcut to bootstrap one instead of forcing a trip
+                        // through the folder manager.
+                        if downloadFolders.isEmpty {
+                            Button(action: createDefaultFolderAction) {
+                                Label(
+                                    L10n.Localizable.DetailView.Menu.Button.createDefaultFolder,
+                                    systemSymbol: .folderBadgePlus
+                                )
+                            }
+                            .menuActionDismissBehavior(.disabled)
                         }
                     }
                     Section {
@@ -128,12 +142,12 @@ struct HeaderSection: View {
         .accessibilityLabel(downloadButtonAccessibilityLabel)
     }
     private var downloadIconLabel: some View {
-        Image(systemName: downloadIconSystemName)
+        Image(systemSymbol: downloadIconSymbol)
             .font(actionIconFont)
             .foregroundStyle(canDownload ? downloadButtonTint : .secondary)
             .rotationEffect(.degrees(showsMetadataPreparation ? 360 : 0))
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
-            .contentShape(Circle())
+            .contentShape(.circle)
     }
     private var favoriteButton: some View {
         ZStack {
@@ -171,7 +185,7 @@ struct HeaderSection: View {
         .accessibilityLabel(L10n.Localizable.DetailView.Button.read)
     }
     private func progressIndicator(
-        progress: Double, isDeterminate: Bool, centerSystemName: String
+        progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol
     ) -> some View {
         ZStack {
             if isDeterminate {
@@ -187,7 +201,7 @@ struct HeaderSection: View {
                     .tint(downloadButtonTint)
                     .controlSize(.small)
             }
-            Image(systemName: centerSystemName)
+            Image(systemSymbol: centerSymbol)
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(downloadButtonTint)
         }
@@ -230,30 +244,29 @@ struct HeaderSection: View {
         else { return nil }
         return badge.progress.fraction
     }
-    private var activeDownloadIconSystemName: String {
+    private var activeDownloadIconSymbol: SFSymbol {
         switch downloadBadge?.status {
-        case .inactive: return "play.fill"
-        case .active: return "pause.fill"
-        default: return downloadIconSystemName
+        case .inactive: return .playFill
+        case .active: return .pauseFill
+        default: return downloadIconSymbol
         }
     }
-    private var downloadIconSystemName: String {
+    private var downloadIconSymbol: SFSymbol {
         switch downloadBadge?.status {
-        case .completed: return "trash"
-        case .updateAvailable: return "arrow.triangle.2.circlepath"
+        case .completed: return .trash
+        case .updateAvailable: return .arrowTrianglehead2ClockwiseRotate90
         case .error:
             return downloadNeedsRepair
-                ? "wrench.and.screwdriver"
-                : "exclamationmark.circle"
-        case .inactive: return "play.fill"
-        default: return "icloud.and.arrow.down"
+                ? .wrenchAndScrewdriver
+                : .exclamationmarkCircle
+        case .inactive: return .playFill
+        default: return .icloudAndArrowDown
         }
     }
-    private var resolvedCoverURL: URL? { gallery.coverURL }
 
     var body: some View {
         HStack {
-            KFImage(resolvedCoverURL)
+            KFImage(gallery.coverURL)
                 .placeholder({ Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) })
                 .defaultModifier()
                 .scaledToFit()

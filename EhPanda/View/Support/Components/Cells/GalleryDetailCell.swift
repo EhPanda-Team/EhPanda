@@ -97,13 +97,13 @@ private struct GalleryDetailCellContent: View {
 
                 HStack {
                     Text(gallery.uploader ?? "")
-                        .lineLimit(1)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     Text(gallery.language?.value ?? "")
                 }
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+                .lineLimit(1)
 
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {

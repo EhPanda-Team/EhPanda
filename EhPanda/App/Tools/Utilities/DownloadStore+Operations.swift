@@ -73,6 +73,11 @@ extension DownloadStore {
         }
     }
 
+    /// Returns the manifest with any missing page hashes filled in. Hashes are recorded at
+    /// write time (per page as it downloads, and on capture-restore), so finalize only
+    /// *merges*: it hashes a page solely when its recorded hash is empty, never re-hashing
+    /// the whole gallery. There is no automatic re-validation anywhere; verifying existing
+    /// bytes against their hashes is a user-initiated action (`validateImageData(gid:)`).
     func addingCurrentFileHashes(
         to manifest: DownloadManifest,
         folderURL: URL
