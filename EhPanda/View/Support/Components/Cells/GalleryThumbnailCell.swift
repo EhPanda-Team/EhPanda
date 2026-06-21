@@ -33,13 +33,9 @@ struct GalleryThumbnailCell: View {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
 
-    private var resolvedCoverURL: URL? {
-        gallery.coverURL
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            KFImage(resolvedCoverURL)
+            KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
                 .imageModifier(WebtoonModifier(
                     minAspect: Defaults.ImageSize.webtoonMinAspect,
