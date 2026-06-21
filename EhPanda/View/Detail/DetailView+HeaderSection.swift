@@ -23,6 +23,7 @@ struct HeaderSection: View {
     let downloadAction: () -> Void
     let downloadToFolderAction: (String) -> Void
     let manageFoldersAction: () -> Void
+    let createDefaultFolderAction: () -> Void
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
     let navigateReadingAction: () -> Void
@@ -91,6 +92,18 @@ struct HeaderSection: View {
                                 L10n.Localizable.DetailView.Menu.Button.manageFolders,
                                 systemSymbol: .folderBadgeGearshape
                             )
+                        }
+                        // Without any folder there is nowhere to download to, so offer a
+                        // one-tap shortcut to bootstrap one instead of forcing a trip
+                        // through the folder manager.
+                        if downloadFolders.isEmpty {
+                            Button(action: createDefaultFolderAction) {
+                                Label(
+                                    L10n.Localizable.DetailView.Menu.Button.createDefaultFolder,
+                                    systemSymbol: .folderBadgePlus
+                                )
+                            }
+                            .menuActionDismissBehavior(.disabled)
                         }
                     }
                     Section {

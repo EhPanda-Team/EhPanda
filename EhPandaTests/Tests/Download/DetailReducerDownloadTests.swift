@@ -101,6 +101,31 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testDetailReducerCreateDefaultFolderCreatesNamedFolderAndRefetches() async {
+        let capturedFolderName = UncheckedBox<String?>(nil)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: nil,
+            folders: { [Defaults.FilePath.defaultDownloadFolder] },
+            createFolder: { name in capturedFolderName.value = name },
+            enqueue: { _ in }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.createDefaultFolder)
+        await store.receive(\.createDefaultFolderDone)
+        await store.receive(\.fetchDownloadFolders)
+        await store.receive(\.fetchDownloadFoldersDone, [Defaults.FilePath.defaultDownloadFolder]) {
+            $0.downloadFolders = [Defaults.FilePath.defaultDownloadFolder]
+        }
+
+        #expect(capturedFolderName.value == Defaults.FilePath.defaultDownloadFolder)
+    }
+
+    @MainActor
+    @Test
     func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async throws {
         let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
         let gallery = sampleGallery()
@@ -147,6 +172,7 @@ private extension DetailReducerDownloadTests {
         downloadValue: DownloadedGallery?,
         automationGID: String? = nil,
         folders: @escaping @Sendable () -> [String] = { [] },
+        createFolder: @escaping @Sendable (String) async throws -> Void = { _ in },
         configure: (inout DetailReducer.State) -> Void = { _ in },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async throws -> Void
     ) -> TestStoreOf<DetailReducer> {
@@ -174,6 +200,7 @@ private extension DetailReducerDownloadTests {
                 $0.downloadClient.loadLocalPageURLs = { _ in [:] }
                 $0.downloadClient.fetchVersionMetadata = { _, _ in nil }
                 $0.downloadClient.fetchFolders = { folders() }
+                $0.downloadClient.createFolder = createFolder
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop

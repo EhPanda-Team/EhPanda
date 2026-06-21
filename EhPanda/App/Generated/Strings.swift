@@ -564,6 +564,8 @@ internal enum L10n {
       }
       internal enum Menu {
         internal enum Button {
+          /// Create Default Folder
+          internal static let createDefaultFolder = L10n.tr("Localizable", "detail_view.menu.button.create_default_folder", fallback: "Create Default Folder")
           /// Manage Folders
           internal static let manageFolders = L10n.tr("Localizable", "detail_view.menu.button.manage_folders", fallback: "Manage Folders")
         }
