@@ -3,10 +3,11 @@
 //  EhPanda
 //
 
-import Dependencies
+import ComposableArchitecture
 
+@DependencyClient
 struct AppLaunchAutomationClient: Sendable {
-    let current: @Sendable () -> AppLaunchAutomation?
+    var current: @Sendable () -> AppLaunchAutomation?
 }
 
 extension AppLaunchAutomationClient {
@@ -20,7 +21,7 @@ extension AppLaunchAutomationClient {
 enum AppLaunchAutomationClientKey: DependencyKey {
     static let liveValue = AppLaunchAutomationClient.live
     static let previewValue = AppLaunchAutomationClient.none
-    static let testValue = AppLaunchAutomationClient.unimplemented
+    static let testValue = AppLaunchAutomationClient()
 }
 
 extension DependencyValues {
@@ -33,11 +34,5 @@ extension DependencyValues {
 extension AppLaunchAutomationClient {
     static let none: Self = .init(
         current: { nil }
-    )
-
-    static func placeholder<Result>() -> Result { fatalError() }
-
-    static let unimplemented: Self = .init(
-        current: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
