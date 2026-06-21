@@ -179,10 +179,9 @@ private extension DownloadBackgroundProcessingTests {
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.hasPendingWork = { hasPendingWork }
                 $0.backgroundProcessingClient = BackgroundProcessingClient(
-                    register: { _ in true },
+                    register: { _ in },
                     schedule: {
                         scheduleCount.value += 1
-                        return true
                     },
                     cancel: {}
                 )

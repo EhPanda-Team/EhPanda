@@ -104,7 +104,7 @@ struct AppReducer {
                         // period right after backgrounding.
                         return .run { _ in
                             if await downloadClient.hasPendingWork() {
-                                _ = backgroundProcessingClient.schedule()
+                                backgroundProcessingClient.schedule()
                             }
                         }
 
