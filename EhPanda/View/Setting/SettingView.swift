@@ -133,7 +133,7 @@ private struct SettingRow: View {
         HStack {
             Image(systemSymbol: rowType.symbol)
                 .font(.largeTitle).foregroundColor(color)
-                .padding(.trailing, 20).frame(width: 45)
+                .padding(.trailing, 20).frame(width: 45, height: 45)
             Text(rowType.value).fontWeight(.medium)
                 .font(.title3).foregroundColor(color)
             Spacer()
@@ -158,10 +158,10 @@ extension SettingReducer.Route {
             return L10n.Localizable.Enum.SettingStateRoute.Value.general
         case .appearance:
             return L10n.Localizable.Enum.SettingStateRoute.Value.appearance
-        case .reading:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.reading
         case .download:
             return L10n.Localizable.Enum.SettingStateRoute.Value.download
+        case .reading:
+            return L10n.Localizable.Enum.SettingStateRoute.Value.reading
         case .laboratory:
             return L10n.Localizable.Enum.SettingStateRoute.Value.laboratory
         case .about:
@@ -176,14 +176,14 @@ extension SettingReducer.Route {
             return .switch2
         case .appearance:
             return .circleRighthalfFilled
-        case .reading:
-            return .newspaperFill
         case .download:
-            return .squareAndArrowDownOnSquareFill
+            return .squareAndArrowDownOnSquare
+        case .reading:
+            return .newspaper
         case .laboratory:
             return .testtube2
         case .about:
-            return .infoCircleFill
+            return .infoCircle
         }
     }
 }

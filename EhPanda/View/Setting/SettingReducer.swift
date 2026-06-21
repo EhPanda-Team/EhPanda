@@ -15,8 +15,8 @@ struct SettingReducer {
         case account
         case general
         case appearance
-        case reading
         case download
+        case reading
         case laboratory
         case about
     }
