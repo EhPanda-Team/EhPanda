@@ -17,13 +17,15 @@ enum BackgroundProcessing {
 /// grace period ends. Unlike `BackgroundTaskClient`, this is resolved through
 /// `DependencyValues` because both the AppDelegate (registration) and `AppReducer`
 /// (scheduling) need it.
+@DependencyClient
 struct BackgroundProcessingClient: Sendable {
     /// Registers the launch handler for the download processing task. Must be called
-    /// before the app finishes launching. Returns whether registration succeeded.
-    var register: @MainActor @Sendable (_ handler: @escaping @MainActor @Sendable (BGProcessingTask) -> Void) -> Bool
-    /// Submits a processing-task request. Returns `false` when the system refuses it
-    /// (Background App Refresh disabled, identifier not permitted, etc.) — tolerated.
-    var schedule: @Sendable () -> Bool
+    /// before the app finishes launching.
+    var register: @MainActor @Sendable (@escaping @MainActor @Sendable (BGProcessingTask) -> Void) -> Void
+    /// Submits a processing-task request. Best-effort and fire-and-forget: the system may
+    /// refuse it (Background App Refresh disabled, identifier not permitted), which the
+    /// live implementation logs and tolerates.
+    var schedule: @Sendable () -> Void
     /// Cancels any pending download processing-task request.
     var cancel: @Sendable () -> Void
 }
@@ -31,7 +33,7 @@ struct BackgroundProcessingClient: Sendable {
 extension BackgroundProcessingClient {
     static let live = Self(
         register: { handler in
-            BGTaskScheduler.shared.register(
+            _ = BGTaskScheduler.shared.register(
                 forTaskWithIdentifier: BackgroundProcessing.downloadTaskIdentifier,
                 using: .main
             ) { task in
@@ -51,10 +53,8 @@ extension BackgroundProcessingClient {
             request.earliestBeginDate = nil
             do {
                 try BGTaskScheduler.shared.submit(request)
-                return true
             } catch {
                 Logger.error(error)
-                return false
             }
         },
         cancel: {
@@ -69,7 +69,7 @@ extension BackgroundProcessingClient {
 enum BackgroundProcessingClientKey: DependencyKey {
     static let liveValue = BackgroundProcessingClient.live
     static let previewValue = BackgroundProcessingClient.noop
-    static let testValue = BackgroundProcessingClient.unimplemented
+    static let testValue = BackgroundProcessingClient()
 }
 
 extension DependencyValues {
@@ -82,16 +82,8 @@ extension DependencyValues {
 // MARK: Test
 extension BackgroundProcessingClient {
     static let noop = Self(
-        register: { _ in false },
-        schedule: { false },
+        register: { _ in },
+        schedule: {},
         cancel: {}
-    )
-
-    static func placeholder<Result>() -> Result { fatalError() }
-
-    static let unimplemented = Self(
-        register: IssueReporting.unimplemented(placeholder: placeholder()),
-        schedule: IssueReporting.unimplemented(placeholder: placeholder()),
-        cancel: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             store.send(.appDelegate(.onLaunchFinish))
             // Must register before launch completes so iOS can relaunch us later to
             // drain the download queue in a discretionary background window.
-            _ = BackgroundProcessingClient.live.register { task in
+            BackgroundProcessingClient.live.register { task in
                 AppDelegate.handleProcessingTask(task)
             }
         }
@@ -90,13 +90,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Reschedule only if we stopped on our own with work still pending; an
             // expiration cancels this task and reschedules from its own handler.
             if !Task.isCancelled, await downloadClient.hasPendingWork() {
-                _ = backgroundProcessingClient.schedule()
+                backgroundProcessingClient.schedule()
             }
             task.setTaskCompleted(success: !Task.isCancelled)
         }
         task.expirationHandler = {
             work.cancel()
-            _ = backgroundProcessingClient.schedule()
+            backgroundProcessingClient.schedule()
         }
     }
 
