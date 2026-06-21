@@ -9,9 +9,9 @@
 /// per run (see `downloadOptionsProvider`) and threaded to the workers, so a settings change
 /// while a gallery sits queued takes effect when it finally starts.
 struct DownloadRequestOptions: Equatable, Sendable {
-    var threadLimit = 1
-    var allowCellular = true
-    var autoRetryFailedPages = true
+    var threadLimit = Setting.downloadThreadLimitDefaultValue
+    var allowCellular = Setting.downloadAllowCellularDefaultValue
+    var autoRetryFailedPages = Setting.downloadAutoRetryFailedPagesDefaultValue
 
     var workerCount: Int {
         threadLimit

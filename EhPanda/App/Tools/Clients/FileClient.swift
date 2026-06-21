@@ -76,7 +76,7 @@ extension FileClient {
     )
 
     func saveTorrent(hash: String, data: Data) -> URL? {
-        let torrentDirectory = FileUtil.cachesDirectory.appendingPathComponent("\(hash).torrent")
+        let torrentDirectory = URL.cachesDirectory.appendingPathComponent("\(hash).torrent")
         return createFile(torrentDirectory.path, data) ? torrentDirectory : nil
     }
 }
