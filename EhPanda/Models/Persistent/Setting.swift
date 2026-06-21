@@ -50,9 +50,13 @@ struct Setting: Codable, Equatable {
     var doubleTapScaleFactor: Double = 2
 
     // Downloads
-    var downloadThreadLimit = 1
-    var downloadAllowCellular = true
-    var downloadAutoRetryFailedPages = true
+    static let downloadThreadLimitDefaultValue = 1
+    static let downloadAllowCellularDefaultValue = true
+    static let downloadAutoRetryFailedPagesDefaultValue = true
+
+    var downloadThreadLimit = Self.downloadThreadLimitDefaultValue
+    var downloadAllowCellular = Self.downloadAllowCellularDefaultValue
+    var downloadAutoRetryFailedPages = Self.downloadAutoRetryFailedPagesDefaultValue
 
     // Laboratory
     var bypassesSNIFiltering = false

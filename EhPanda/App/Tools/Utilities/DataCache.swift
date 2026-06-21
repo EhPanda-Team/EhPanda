@@ -28,7 +28,7 @@ actor DataCache {
         var sweepByteInterval: UInt64
 
         init(
-            rootURL: URL = FileUtil.cachesDirectory
+            rootURL: URL = URL.cachesDirectory
                 .appendingPathComponent("DataCache.reading", isDirectory: true),
             memoryCostLimit: Int = Int(ProcessInfo.processInfo.physicalMemory / 4),
             maxDiskAge: TimeInterval = 7 * 24 * 60 * 60,

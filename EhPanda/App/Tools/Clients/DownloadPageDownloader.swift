@@ -53,10 +53,7 @@ struct DownloadPageDownloader: Sendable {
 }
 
 enum DownloadBackgroundSessionEvents {
-    static var pageSessionIdentifier: String {
-        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.ehpanda"
-        return "\(bundleIdentifier).downloads.pages"
-    }
+    static let pageSessionIdentifier: String = "app.ehpanda.downloads.pages"
 
     @MainActor
     private static var completionHandlers = [String: () -> Void]()
