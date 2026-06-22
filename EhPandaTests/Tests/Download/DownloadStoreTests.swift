@@ -133,7 +133,9 @@ struct DownloadStoreTests {
         )
 
         #expect(
-            storage.validate(download: download, verifiesContentHashes: true) == .missingFiles("Page 2 is missing.")
+            storage.validate(download: download, verifiesContentHashes: true) == .missingFiles(
+                L10n.Localizable.DownloadStore.Validation.pageMissing(2)
+            )
         )
     }
 
@@ -168,7 +170,9 @@ struct DownloadStoreTests {
         )
 
         #expect(
-            storage.validate(download: download, verifiesContentHashes: true) == .missingFiles("Page 1 is missing.")
+            storage.validate(download: download, verifiesContentHashes: true) == .missingFiles(
+                L10n.Localizable.DownloadStore.Validation.pageMissing(1)
+            )
         )
         #expect(
             FileManager.default.fileExists(

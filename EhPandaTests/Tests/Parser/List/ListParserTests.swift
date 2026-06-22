@@ -3,8 +3,10 @@
 //  EhPandaTests
 //
 
+import Foundation
 import Kanna
 import Testing
+import XCTest
 @testable import EhPanda
 
 struct ListParserTests: TestHelper {

@@ -25,7 +25,9 @@ struct DownloadStoreHashTests {
 
         #expect(
             storage.validate(download: download, verifiesContentHashes: true)
-                == .missingFiles("Page 2 image data is corrupted.")
+                == .missingFiles(
+                    L10n.Localizable.DownloadStore.Validation.pageImageCorrupted(2)
+                )
         )
     }
 
