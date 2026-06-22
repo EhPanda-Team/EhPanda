@@ -124,7 +124,7 @@ struct DateJumpButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "calendar")
+            Image(systemSymbol: .calendar)
             if !hideText {
                 Text(L10n.Localizable.ToolbarItem.Button.dateJump)
             }
