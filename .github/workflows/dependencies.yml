@@ -10,7 +10,7 @@ jobs:
   dependencies:
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: develop
       - name: Resolve Dependencies
