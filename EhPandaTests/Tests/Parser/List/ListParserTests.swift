@@ -6,7 +6,6 @@
 import Foundation
 import Kanna
 import Testing
-import XCTest
 @testable import EhPanda
 
 struct ListParserTests: TestHelper {
@@ -27,32 +26,37 @@ struct ListParserTests: TestHelper {
         }
     }
 
+    @Test
     func testDateSeekNavigation() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
         let pageNumber = Parser.parsePageNum(doc: document)
-        let navigation = try XCTUnwrap(pageNumber.dateSeekNavigation)
+        let navigation = try #require(pageNumber.dateSeekNavigation)
+        let minimumDate = try #require(navigation.minimumDate)
+        let maximumDate = try #require(navigation.maximumDate)
 
-        XCTAssertTrue(pageNumber.hasNextPage())
-        XCTAssertEqual(pageNumber.lastItemTimestamp, "2668517")
-        XCTAssertNil(navigation.previousURL)
-        XCTAssertEqual(navigation.nextURL?.absoluteString, "https://e-hentai.org/?next=2668517")
-        XCTAssertEqual(Self.dateFormatter.string(from: try XCTUnwrap(navigation.minimumDate)), "2007-03-20")
-        XCTAssertEqual(Self.dateFormatter.string(from: try XCTUnwrap(navigation.maximumDate)), "2023-09-08")
+        #expect(pageNumber.hasNextPage())
+        #expect(pageNumber.lastItemTimestamp == "2668517")
+        #expect(navigation.previousURL == nil)
+        #expect(navigation.nextURL?.absoluteString == "https://e-hentai.org/?next=2668517")
+        #expect(Self.dateFormatter.string(from: minimumDate) == "2007-03-20")
+        #expect(Self.dateFormatter.string(from: maximumDate) == "2023-09-08")
     }
 
+    @Test
     func testDateSeekURL() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
         let pageNumber = Parser.parsePageNum(doc: document)
-        let navigation = try XCTUnwrap(pageNumber.dateSeekNavigation)
-        let maximumDate = try XCTUnwrap(navigation.maximumDate)
-        let url = try XCTUnwrap(navigation.seekURL(date: maximumDate, direction: .older))
+        let navigation = try #require(pageNumber.dateSeekNavigation)
+        let maximumDate = try #require(navigation.maximumDate)
+        let url = try #require(navigation.seekURL(date: maximumDate, direction: .older))
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
 
-        XCTAssertEqual(queryItems?.first(where: { $0.name == "next" })?.value, "2668517")
-        XCTAssertEqual(queryItems?.first(where: { $0.name == "seek" })?.value, "2023-09-08")
-        XCTAssertNil(navigation.seekURL(date: maximumDate, direction: .newer))
+        #expect(queryItems?.first(where: { $0.name == "next" })?.value == "2668517")
+        #expect(queryItems?.first(where: { $0.name == "seek" })?.value == "2023-09-08")
+        #expect(navigation.seekURL(date: maximumDate, direction: .newer) == nil)
     }
 
+    @Test
     func testDateSeekNavigationNormalizesExHentaiHost() throws {
         let originalHost: String? = UserDefaultsUtil.value(forKey: .galleryHost)
         UserDefaults.standard.set(GalleryHost.exhentai.rawValue, forKey: AppUserDefaults.galleryHost.rawValue)
@@ -78,26 +82,27 @@ struct ListParserTests: TestHelper {
         </html>
         """, encoding: .utf8)
 
-        let navigation = try XCTUnwrap(Parser.parsePageNum(doc: document).dateSeekNavigation)
+        let navigation = try #require(Parser.parsePageNum(doc: document).dateSeekNavigation)
+        let previousURL = try #require(navigation.previousURL)
+        let nextURL = try #require(navigation.nextURL)
 
-        XCTAssertEqual(navigation.previousURL?.host, "exhentai.org")
-        XCTAssertEqual(navigation.nextURL?.host, "exhentai.org")
-        XCTAssertEqual(
-            URLComponents(url: try XCTUnwrap(navigation.previousURL), resolvingAgainstBaseURL: false)?
+        #expect(previousURL.host == "exhentai.org")
+        #expect(nextURL.host == "exhentai.org")
+        #expect(
+            URLComponents(url: previousURL, resolvingAgainstBaseURL: false)?
                 .queryItems?
                 .first(where: { $0.name == "page" })?
-                .value,
-            "1"
+                .value == "1"
         )
-        XCTAssertEqual(
-            URLComponents(url: try XCTUnwrap(navigation.nextURL), resolvingAgainstBaseURL: false)?
+        #expect(
+            URLComponents(url: nextURL, resolvingAgainstBaseURL: false)?
                 .queryItems?
                 .first(where: { $0.name == "next" })?
-                .value,
-            "456"
+                .value == "456"
         )
     }
 
+    @Test
     func testDateSeekNavigationIsPreservedWithNumericPager() throws {
         let document = try Kanna.HTML(html: """
         <html>
@@ -120,12 +125,12 @@ struct ListParserTests: TestHelper {
         """, encoding: .utf8)
 
         let pageNumber = Parser.parsePageNum(doc: document)
-        let navigation = try XCTUnwrap(pageNumber.dateSeekNavigation)
+        let navigation = try #require(pageNumber.dateSeekNavigation)
 
-        XCTAssertEqual(pageNumber.current, 1)
-        XCTAssertEqual(pageNumber.maximum, 2)
-        XCTAssertEqual(navigation.previousURL?.absoluteString, "https://e-hentai.org/?prev=123")
-        XCTAssertEqual(navigation.nextURL?.absoluteString, "https://e-hentai.org/?next=456")
+        #expect(pageNumber.current == 1)
+        #expect(pageNumber.maximum == 2)
+        #expect(navigation.previousURL?.absoluteString == "https://e-hentai.org/?prev=123")
+        #expect(navigation.nextURL?.absoluteString == "https://e-hentai.org/?next=456")
     }
 
     private static let dateFormatter: DateFormatter = {
