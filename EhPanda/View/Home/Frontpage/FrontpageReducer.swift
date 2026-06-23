@@ -189,8 +189,7 @@ struct FrontpageReducer {
                 case .success(let (pageNumber, galleries)):
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
-                        guard pageNumber.hasNextPage() else { return .none }
-                        return .send(.fetchMoreGalleries)
+                        return .none
                     }
                     state.pageNumber = pageNumber
                     if let navigation = pageNumber.dateSeekNavigation {
