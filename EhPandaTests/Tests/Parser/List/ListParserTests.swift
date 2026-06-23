@@ -27,10 +27,10 @@ struct ListParserTests: TestHelper {
         }
     }
 
-    func testPageJumpNavigation() throws {
+    func testDateSeekNavigation() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
         let pageNumber = Parser.parsePageNum(doc: document)
-        let navigation = try XCTUnwrap(pageNumber.jumpNavigation)
+        let navigation = try XCTUnwrap(pageNumber.dateSeekNavigation)
 
         XCTAssertTrue(pageNumber.hasNextPage())
         XCTAssertEqual(pageNumber.lastItemTimestamp, "2668517")
@@ -40,10 +40,10 @@ struct ListParserTests: TestHelper {
         XCTAssertEqual(Self.dateFormatter.string(from: try XCTUnwrap(navigation.maximumDate)), "2023-09-08")
     }
 
-    func testPageJumpSeekURL() throws {
+    func testDateSeekURL() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
         let pageNumber = Parser.parsePageNum(doc: document)
-        let navigation = try XCTUnwrap(pageNumber.jumpNavigation)
+        let navigation = try XCTUnwrap(pageNumber.dateSeekNavigation)
         let maximumDate = try XCTUnwrap(navigation.maximumDate)
         let url = try XCTUnwrap(navigation.seekURL(date: maximumDate, direction: .older))
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
@@ -53,7 +53,7 @@ struct ListParserTests: TestHelper {
         XCTAssertNil(navigation.seekURL(date: maximumDate, direction: .newer))
     }
 
-    func testPageJumpNavigationNormalizesExHentaiHost() throws {
+    func testDateSeekNavigationNormalizesExHentaiHost() throws {
         let originalHost: String? = UserDefaultsUtil.value(forKey: .galleryHost)
         UserDefaults.standard.set(GalleryHost.exhentai.rawValue, forKey: AppUserDefaults.galleryHost.rawValue)
         defer {
@@ -78,7 +78,7 @@ struct ListParserTests: TestHelper {
         </html>
         """, encoding: .utf8)
 
-        let navigation = try XCTUnwrap(Parser.parsePageNum(doc: document).jumpNavigation)
+        let navigation = try XCTUnwrap(Parser.parsePageNum(doc: document).dateSeekNavigation)
 
         XCTAssertEqual(navigation.previousURL?.host, "exhentai.org")
         XCTAssertEqual(navigation.nextURL?.host, "exhentai.org")
@@ -98,7 +98,7 @@ struct ListParserTests: TestHelper {
         )
     }
 
-    func testPageJumpNavigationIsPreservedWithNumericPager() throws {
+    func testDateSeekNavigationIsPreservedWithNumericPager() throws {
         let document = try Kanna.HTML(html: """
         <html>
         <body>
@@ -120,7 +120,7 @@ struct ListParserTests: TestHelper {
         """, encoding: .utf8)
 
         let pageNumber = Parser.parsePageNum(doc: document)
-        let navigation = try XCTUnwrap(pageNumber.jumpNavigation)
+        let navigation = try XCTUnwrap(pageNumber.dateSeekNavigation)
 
         XCTAssertEqual(pageNumber.current, 1)
         XCTAssertEqual(pageNumber.maximum, 2)

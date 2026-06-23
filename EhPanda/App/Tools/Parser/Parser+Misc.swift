@@ -55,12 +55,12 @@ extension Parser {
                 return PageNumber(
                     lastItemTimestamp: timestamp,
                     isNextButtonEnabled: isEnabled,
-                    jumpNavigation: parsePageJumpNavigation(doc: doc)
+                    dateSeekNavigation: parseDateSeekNavigation(doc: doc)
                 )
             } else {
                 return PageNumber(
                     isNextButtonEnabled: false,
-                    jumpNavigation: parsePageJumpNavigation(doc: doc)
+                    dateSeekNavigation: parseDateSeekNavigation(doc: doc)
                 )
             }
         }

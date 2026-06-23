@@ -78,13 +78,13 @@ private struct JumpPageAlert<Content: View>: View {
     }
 }
 
-struct DateJumpView: View {
+struct DateSeekView: View {
     let pageNumber: PageNumber
     @Binding var selectedDate: Date
-    let jumpAction: (PageJumpDirection) -> Void
+    let jumpAction: (DateSeekDirection) -> Void
 
-    private var navigation: PageJumpNavigation? {
-        pageNumber.jumpNavigation
+    private var navigation: DateSeekNavigation? {
+        pageNumber.dateSeekNavigation
     }
     private var dateRange: ClosedRange<Date> {
         navigation?.dateRange ?? Date.distantPast...Date.distantFuture
@@ -101,14 +101,14 @@ struct DateJumpView: View {
             Form {
                 Section {
                     DatePicker(
-                        L10n.Localizable.DateJumpView.Title.date,
+                        L10n.Localizable.DateSeekView.Title.date,
                         selection: $selectedDate,
                         in: dateRange,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
                 } footer: {
-                    Text(L10n.Localizable.DateJumpView.Footer.seekAroundDate)
+                    Text(L10n.Localizable.DateSeekView.Footer.seekAroundDate)
                 }
 
                 Section {
@@ -116,19 +116,19 @@ struct DateJumpView: View {
                         Button {
                             jumpAction(.newer)
                         } label: {
-                            Label(L10n.Localizable.DateJumpView.Button.seekNewer, systemImage: "chevron.left")
+                            Label(L10n.Localizable.DateSeekView.Button.seekNewer, systemImage: "chevron.left")
                         }
                     }
                     if showsOlderButton {
                         Button {
                             jumpAction(.older)
                         } label: {
-                            Label(L10n.Localizable.DateJumpView.Button.seekOlder, systemImage: "chevron.right")
+                            Label(L10n.Localizable.DateSeekView.Button.seekOlder, systemImage: "chevron.right")
                         }
                     }
                 }
             }
-            .navigationTitle(L10n.Localizable.DateJumpView.Title.dateJump)
+            .navigationTitle(L10n.Localizable.DateSeekView.Title.dateSeek)
             .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {

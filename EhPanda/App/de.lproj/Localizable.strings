@@ -51,15 +51,15 @@
 // MARK: ToolbarItem
 "toolbar_item.button.filters" = "Filters";
 "toolbar_item.button.jump_page" = "Jump page";
-"toolbar_item.button.date_jump" = "Datumssprung";
+"toolbar_item.button.date_seek" = "Datum aufsuchen";
 "toolbar_item.button.quick_search" = "Quick search";
 
-// MARK: DateJump
-"date_jump_view.title.date_jump" = "Datumssprung";
-"date_jump_view.title.date" = "Datum";
-"date_jump_view.footer.seek_around_date" = "Zu Galerien um das ausgewählte Datum springen.";
-"date_jump_view.button.seek_newer" = "Zu neueren springen";
-"date_jump_view.button.seek_older" = "Zu älteren springen";
+// MARK: DateSeek
+"date_seek_view.title.date_seek" = "Datum aufsuchen";
+"date_seek_view.title.date" = "Datum";
+"date_seek_view.footer.seek_around_date" = "Zu Galerien um das ausgewählte Datum springen.";
+"date_seek_view.button.seek_newer" = "Zu neueren springen";
+"date_seek_view.button.seek_older" = "Zu älteren springen";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "Jump page";
 "jump_page_view.button.confirm" = "Confirm";

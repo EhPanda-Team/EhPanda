@@ -51,15 +51,15 @@
 // MARK: ToolbarItem
 "toolbar_item.button.filters" = "フィルター";
 "toolbar_item.button.jump_page" = "ページジャンプ";
-"toolbar_item.button.date_jump" = "日付ジャンプ";
+"toolbar_item.button.date_seek" = "日付指定";
 "toolbar_item.button.quick_search" = "クイック検索";
 
-// MARK: DateJump
-"date_jump_view.title.date_jump" = "日付ジャンプ";
-"date_jump_view.title.date" = "日付";
-"date_jump_view.footer.seek_around_date" = "選択した日付付近のギャラリーへ移動します。";
-"date_jump_view.button.seek_newer" = "新しい方へ移動";
-"date_jump_view.button.seek_older" = "古い方へ移動";
+// MARK: DateSeek
+"date_seek_view.title.date_seek" = "日付指定";
+"date_seek_view.title.date" = "日付";
+"date_seek_view.footer.seek_around_date" = "選択した日付付近のギャラリーへ移動します。";
+"date_seek_view.button.seek_newer" = "新しい方へ移動";
+"date_seek_view.button.seek_older" = "古い方へ移動";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "ページジャンプ";
 "jump_page_view.button.confirm" = "確認";

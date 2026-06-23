@@ -49,7 +49,7 @@ struct MoreSearchGalleriesRequest: Request {
     }
 }
 
-struct JumpGalleriesRequest: Request {
+struct DateSeekGalleriesRequest: Request {
     let url: URL
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
