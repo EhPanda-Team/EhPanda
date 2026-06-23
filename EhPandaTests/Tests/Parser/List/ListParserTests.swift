@@ -38,8 +38,8 @@ struct ListParserTests: TestHelper {
         #expect(pageNumber.lastItemTimestamp == "2668517")
         #expect(navigation.previousURL == nil)
         #expect(navigation.nextURL?.absoluteString == "https://e-hentai.org/?next=2668517")
-        #expect(Self.dateFormatter.string(from: minimumDate) == "2007-03-20")
-        #expect(Self.dateFormatter.string(from: maximumDate) == "2023-09-08")
+        #expect(DateSeekNavigation.dateFormatter.string(from: minimumDate) == "2007-03-20")
+        #expect(DateSeekNavigation.dateFormatter.string(from: maximumDate) == "2023-09-08")
     }
 
     @Test
@@ -132,12 +132,4 @@ struct ListParserTests: TestHelper {
         #expect(navigation.previousURL?.absoluteString == "https://e-hentai.org/?prev=123")
         #expect(navigation.nextURL?.absoluteString == "https://e-hentai.org/?next=456")
     }
-
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter
-    }()
 }

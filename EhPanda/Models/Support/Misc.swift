@@ -49,7 +49,8 @@ struct DateSeekNavigation: Equatable {
         return baseURL?.appending(queryItems: ["seek": Self.dateFormatter.string(from: date)])
     }
 
-    private static let dateFormatter: DateFormatter = {
+    /// Formatter for the `seek` query parameter: fixed `yyyy-MM-dd`, UTC, POSIX locale.
+    static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
