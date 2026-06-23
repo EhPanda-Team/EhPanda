@@ -10,12 +10,12 @@ import SwiftyBeaver
 typealias Logger = SwiftyBeaver
 typealias FavoritesSortOrder = EhSetting.FavoritesSortOrder
 
-enum PageJumpDirection: Equatable {
+enum DateSeekDirection: Equatable {
     case newer
     case older
 }
 
-struct PageJumpNavigation: Equatable {
+struct DateSeekNavigation: Equatable {
     var previousURL: URL?
     var nextURL: URL?
     var minimumDate: Date?
@@ -38,7 +38,7 @@ struct PageJumpNavigation: Equatable {
         return date
     }
 
-    func seekURL(date: Date, direction: PageJumpDirection) -> URL? {
+    func seekURL(date: Date, direction: DateSeekDirection) -> URL? {
         let baseURL: URL?
         switch direction {
         case .newer:
@@ -77,7 +77,7 @@ struct PageNumber: Equatable {
     var maximum = 0
     var lastItemTimestamp: String?
     var isNextButtonEnabled = false
-    var jumpNavigation: PageJumpNavigation?
+    var dateSeekNavigation: DateSeekNavigation?
 
     var isSinglePage: Bool {
         current == 0 && maximum == 0

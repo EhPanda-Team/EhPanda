@@ -44,11 +44,11 @@ struct FrontpageView: View {
                 FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
-            .sheet(isPresented: $store.dateJumpSheetPresented) {
-                DateJumpView(
+            .sheet(isPresented: $store.dateSeekSheetPresented) {
+                DateSeekView(
                     pageNumber: store.pageNumber,
-                    selectedDate: $store.dateJumpDate,
-                    jumpAction: { store.send(.jumpToDate($0)) }
+                    selectedDate: $store.dateSeekDate,
+                    jumpAction: { store.send(.performDateSeek($0)) }
                 )
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
@@ -95,8 +95,8 @@ struct FrontpageView: View {
     }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            DateJumpButton(pageNumber: store.pageNumber, hideText: true) {
-                store.send(.presentDateJump)
+            DateSeekButton(pageNumber: store.pageNumber, hideText: true) {
+                store.send(.presentDateSeek)
             }
             FiltersButton(hideText: true) {
                 store.send(.setNavigation(.filters()))

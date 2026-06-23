@@ -51,15 +51,15 @@
 // MARK: ToolbarItem
 "toolbar_item.button.filters" = "過濾";
 "toolbar_item.button.jump_page" = "跳到...";
-"toolbar_item.button.date_jump" = "日期跳轉";
+"toolbar_item.button.date_seek" = "日期定位";
 "toolbar_item.button.quick_search" = "快速搜尋";
 
-// MARK: DateJump
-"date_jump_view.title.date_jump" = "日期跳轉";
-"date_jump_view.title.date" = "日期";
-"date_jump_view.footer.seek_around_date" = "跳轉到所選日期附近的畫廊。";
-"date_jump_view.button.seek_newer" = "跳到較新";
-"date_jump_view.button.seek_older" = "跳到較舊";
+// MARK: DateSeek
+"date_seek_view.title.date_seek" = "日期定位";
+"date_seek_view.title.date" = "日期";
+"date_seek_view.footer.seek_around_date" = "跳轉到所選日期附近的畫廊。";
+"date_seek_view.button.seek_newer" = "跳到較新";
+"date_seek_view.button.seek_older" = "跳到較舊";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "跳到...";
 "jump_page_view.button.confirm" = "確定";
