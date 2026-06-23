@@ -86,8 +86,8 @@ extension Parser {
         return try? parseDate(time: value, format: "yyyy-MM-dd")
     }
 
-    static func parsePageJumpNavigation(doc: HTMLDocument) -> PageJumpNavigation? {
-        let navigation = PageJumpNavigation(
+    static func parseDateSeekNavigation(doc: HTMLDocument) -> DateSeekNavigation? {
+        let navigation = DateSeekNavigation(
             previousURL: parseScriptURL(name: "prevurl", doc: doc),
             nextURL: parseScriptURL(name: "nexturl", doc: doc),
             minimumDate: parseScriptDate(name: "mindate", doc: doc),

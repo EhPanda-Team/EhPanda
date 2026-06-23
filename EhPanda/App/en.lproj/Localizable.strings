@@ -55,15 +55,15 @@
 // MARK: ToolbarItem
 "toolbar_item.button.filters" = "Filters";
 "toolbar_item.button.jump_page" = "Jump page";
-"toolbar_item.button.date_jump" = "Date Jump";
+"toolbar_item.button.date_seek" = "Seek to Date";
 "toolbar_item.button.quick_search" = "Quick search";
 
-// MARK: DateJump
-"date_jump_view.title.date_jump" = "Date Jump";
-"date_jump_view.title.date" = "Date";
-"date_jump_view.footer.seek_around_date" = "Seek to galleries around the selected date.";
-"date_jump_view.button.seek_newer" = "Seek Newer";
-"date_jump_view.button.seek_older" = "Seek Older";
+// MARK: DateSeek
+"date_seek_view.title.date_seek" = "Seek to Date";
+"date_seek_view.title.date" = "Date";
+"date_seek_view.footer.seek_around_date" = "Seek to galleries around the selected date.";
+"date_seek_view.button.seek_newer" = "Seek Newer";
+"date_seek_view.button.seek_older" = "Seek Older";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "Jump page";
 "jump_page_view.button.confirm" = "Confirm";

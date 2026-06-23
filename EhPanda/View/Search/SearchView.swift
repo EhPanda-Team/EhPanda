@@ -56,11 +56,11 @@ struct SearchView: View {
                 FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
             }
-            .sheet(isPresented: $store.dateJumpSheetPresented) {
-                DateJumpView(
+            .sheet(isPresented: $store.dateSeekSheetPresented) {
+                DateSeekView(
                     pageNumber: store.pageNumber,
-                    selectedDate: $store.dateJumpDate,
-                    jumpAction: { store.send(.jumpToDate($0)) }
+                    selectedDate: $store.dateSeekDate,
+                    jumpAction: { store.send(.performDateSeek($0)) }
                 )
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
@@ -118,8 +118,8 @@ struct SearchView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
-                DateJumpButton(pageNumber: store.pageNumber) {
-                    store.send(.presentDateJump)
+                DateSeekButton(pageNumber: store.pageNumber) {
+                    store.send(.presentDateSeek)
                 }
                 FiltersButton {
                     store.send(.setNavigation(.filters()))
