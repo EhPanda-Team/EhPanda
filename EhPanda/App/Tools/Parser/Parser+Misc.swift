@@ -31,6 +31,7 @@ extension Parser {
     /// gallery host; it defaults to the current host but is injectable so parsing stays deterministic
     /// (independent of global state) in tests.
     static func parsePageNum(doc: HTMLDocument, host: URL = Defaults.URL.host) -> PageNumber {
+        let dateSeekNavigation = parseDateSeekNavigation(doc: doc, host: host)
         var current = 0
         var maximum = 0
 
@@ -58,12 +59,12 @@ extension Parser {
                 return PageNumber(
                     lastItemTimestamp: timestamp,
                     isNextButtonEnabled: isEnabled,
-                    dateSeekNavigation: parseDateSeekNavigation(doc: doc, host: host)
+                    dateSeekNavigation: dateSeekNavigation
                 )
             } else {
                 return PageNumber(
                     isNextButtonEnabled: false,
-                    dateSeekNavigation: parseDateSeekNavigation(doc: doc, host: host)
+                    dateSeekNavigation: dateSeekNavigation
                 )
             }
         }
@@ -78,6 +79,6 @@ extension Parser {
                 maximum = num - 1
             }
         }
-        return PageNumber(current: current, maximum: maximum)
+        return PageNumber(current: current, maximum: maximum, dateSeekNavigation: dateSeekNavigation)
     }
 }
