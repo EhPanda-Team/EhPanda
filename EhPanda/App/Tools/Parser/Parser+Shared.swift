@@ -43,7 +43,7 @@ extension Parser {
         return nil
     }
 
-    static func parseScriptURL(name: String, doc: HTMLDocument) -> URL? {
+    static func parseScriptURL(name: String, doc: HTMLDocument, host: URL) -> URL? {
         guard var value = parseScriptVariable(name: name, doc: doc)?.trimmingCharacters(in: .whitespacesAndNewlines),
               !value.isEmpty
         else { return nil }
@@ -51,7 +51,7 @@ extension Parser {
             .replacingOccurrences(of: "&amp;", with: "&")
             .replacingOccurrences(of: "\\u0026", with: "&")
 
-        let baseURL = Defaults.URL.host
+        let baseURL = host
         let parsedURL: URL?
         if let url = URL(string: value), url.scheme != nil {
             parsedURL = url
@@ -86,10 +86,10 @@ extension Parser {
         return try? parseDate(time: value, format: "yyyy-MM-dd")
     }
 
-    static func parseDateSeekNavigation(doc: HTMLDocument) -> DateSeekNavigation? {
+    static func parseDateSeekNavigation(doc: HTMLDocument, host: URL) -> DateSeekNavigation? {
         let navigation = DateSeekNavigation(
-            previousURL: parseScriptURL(name: "prevurl", doc: doc),
-            nextURL: parseScriptURL(name: "nexturl", doc: doc),
+            previousURL: parseScriptURL(name: "prevurl", doc: doc, host: host),
+            nextURL: parseScriptURL(name: "nexturl", doc: doc, host: host),
             minimumDate: parseScriptDate(name: "mindate", doc: doc),
             maximumDate: parseScriptDate(name: "maxdate", doc: doc)
         )

@@ -29,7 +29,7 @@ struct ListParserTests: TestHelper {
     @Test
     func testDateSeekNavigation() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
-        let pageNumber = Parser.parsePageNum(doc: document)
+        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
         let navigation = try #require(pageNumber.dateSeekNavigation)
         let minimumDate = try #require(navigation.minimumDate)
         let maximumDate = try #require(navigation.maximumDate)
@@ -45,7 +45,7 @@ struct ListParserTests: TestHelper {
     @Test
     func testDateSeekURL() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
-        let pageNumber = Parser.parsePageNum(doc: document)
+        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
         let navigation = try #require(pageNumber.dateSeekNavigation)
         let maximumDate = try #require(navigation.maximumDate)
         let url = try #require(navigation.seekURL(date: maximumDate, direction: .older))
@@ -58,16 +58,6 @@ struct ListParserTests: TestHelper {
 
     @Test
     func testDateSeekNavigationNormalizesExHentaiHost() throws {
-        let originalHost: String? = UserDefaultsUtil.value(forKey: .galleryHost)
-        UserDefaults.standard.set(GalleryHost.exhentai.rawValue, forKey: AppUserDefaults.galleryHost.rawValue)
-        defer {
-            if let originalHost {
-                UserDefaults.standard.set(originalHost, forKey: AppUserDefaults.galleryHost.rawValue)
-            } else {
-                UserDefaults.standard.removeObject(forKey: AppUserDefaults.galleryHost.rawValue)
-            }
-        }
-
         let document = try Kanna.HTML(html: """
         <html>
         <body>
@@ -82,7 +72,8 @@ struct ListParserTests: TestHelper {
         </html>
         """, encoding: .utf8)
 
-        let navigation = try #require(Parser.parsePageNum(doc: document).dateSeekNavigation)
+        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.exhentai)
+        let navigation = try #require(pageNumber.dateSeekNavigation)
         let previousURL = try #require(navigation.previousURL)
         let nextURL = try #require(navigation.nextURL)
 
@@ -124,7 +115,7 @@ struct ListParserTests: TestHelper {
         </html>
         """, encoding: .utf8)
 
-        let pageNumber = Parser.parsePageNum(doc: document)
+        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
         let navigation = try #require(pageNumber.dateSeekNavigation)
 
         #expect(pageNumber.current == 1)
