@@ -433,6 +433,24 @@ internal enum L10n {
         internal static let reset = L10n.tr("Localizable", "confirmation_dialog.title.reset", fallback: "Are you sure to reset?")
       }
     }
+    internal enum DateSeekView {
+      internal enum Button {
+        /// Seek Newer
+        internal static let seekNewer = L10n.tr("Localizable", "date_seek_view.button.seek_newer", fallback: "Seek Newer")
+        /// Seek Older
+        internal static let seekOlder = L10n.tr("Localizable", "date_seek_view.button.seek_older", fallback: "Seek Older")
+      }
+      internal enum Footer {
+        /// Seek to galleries around the selected date.
+        internal static let seekAroundDate = L10n.tr("Localizable", "date_seek_view.footer.seek_around_date", fallback: "Seek to galleries around the selected date.")
+      }
+      internal enum Title {
+        /// Date
+        internal static let date = L10n.tr("Localizable", "date_seek_view.title.date", fallback: "Date")
+        /// Seek to Date
+        internal static let dateSeek = L10n.tr("Localizable", "date_seek_view.title.date_seek", fallback: "Seek to Date")
+      }
+    }
     internal enum DetailView {
       internal enum Accessibility {
         internal enum DownloadButton {
@@ -2227,24 +2245,6 @@ internal enum L10n {
         internal static let success = L10n.tr("Localizable", "hud.title.success", fallback: "Success")
       }
     }
-    internal enum DateSeekView {
-      internal enum Button {
-        /// Seek Newer
-        internal static let seekNewer = L10n.tr("Localizable", "date_seek_view.button.seek_newer", fallback: "Seek Newer")
-        /// Seek Older
-        internal static let seekOlder = L10n.tr("Localizable", "date_seek_view.button.seek_older", fallback: "Seek Older")
-      }
-      internal enum Footer {
-        /// Seek to galleries around the selected date.
-        internal static let seekAroundDate = L10n.tr("Localizable", "date_seek_view.footer.seek_around_date", fallback: "Seek to galleries around the selected date.")
-      }
-      internal enum Title {
-        /// Date
-        internal static let date = L10n.tr("Localizable", "date_seek_view.title.date", fallback: "Date")
-        /// Date Jump
-        internal static let dateSeek = L10n.tr("Localizable", "date_seek_view.title.date_seek", fallback: "Seek to Date")
-      }
-    }
     internal enum JumpPageView {
       internal enum Button {
         /// Confirm
@@ -2537,7 +2537,7 @@ internal enum L10n {
     }
     internal enum ToolbarItem {
       internal enum Button {
-        /// Date Jump
+        /// Seek to Date
         internal static let dateSeek = L10n.tr("Localizable", "toolbar_item.button.date_seek", fallback: "Seek to Date")
         /// Filters
         internal static let filters = L10n.tr("Localizable", "toolbar_item.button.filters", fallback: "Filters")
