@@ -61,9 +61,9 @@
 // MARK: DateSeek
 "date_seek_view.title.date_seek" = "日期定位";
 "date_seek_view.title.date" = "日期";
-"date_seek_view.footer.seek_around_date" = "跳转到所选日期附近的画廊。";
-"date_seek_view.button.seek_newer" = "跳到较新";
-"date_seek_view.button.seek_older" = "跳到较旧";
+"date_seek_view.footer.seek_around_date" = "前往所选日期附近的画廊。";
+"date_seek_view.button.seek_newer" = "前往较新";
+"date_seek_view.button.seek_older" = "前往较旧";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "页码跳转";
 "jump_page_view.button.confirm" = "确认";

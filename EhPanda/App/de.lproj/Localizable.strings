@@ -57,9 +57,9 @@
 // MARK: DateSeek
 "date_seek_view.title.date_seek" = "Datum aufsuchen";
 "date_seek_view.title.date" = "Datum";
-"date_seek_view.footer.seek_around_date" = "Zu Galerien um das ausgewählte Datum springen.";
-"date_seek_view.button.seek_newer" = "Zu neueren springen";
-"date_seek_view.button.seek_older" = "Zu älteren springen";
+"date_seek_view.footer.seek_around_date" = "Galerien rund um das gewählte Datum aufsuchen.";
+"date_seek_view.button.seek_newer" = "Neuere";
+"date_seek_view.button.seek_older" = "Ältere";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "Jump page";
 "jump_page_view.button.confirm" = "Confirm";
