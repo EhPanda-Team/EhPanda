@@ -64,13 +64,15 @@ struct FavoritesView: View {
                     .autoBlur(radius: blurRadius)
                 }
                 .sheet(isPresented: $store.dateSeek.sheetPresented) {
-                    DateSeekPickerView(
-                        navigation: store.dateSeek.navigation,
-                        selectedDate: $store.dateSeek.date,
-                        seekAction: { store.send(.dateSeek(.performSeek($0))) }
-                    )
-                    .accentColor(setting.accentColor)
-                    .autoBlur(radius: blurRadius)
+                    if let navigation = store.dateSeek.navigation {
+                        DateSeekPickerView(
+                            navigation: navigation,
+                            selectedDate: $store.dateSeek.date,
+                            seekAction: { store.send(.dateSeek(.performSeek($0))) }
+                        )
+                        .accentColor(setting.accentColor)
+                        .autoBlur(radius: blurRadius)
+                    }
                 }
                 .searchable(text: $store.keyword)
                 .searchSuggestions {
@@ -136,7 +138,7 @@ struct FavoritesView: View {
                 }
             }
             if let pageNumber = store.pageNumber {
-                DateSeekButton(pageNumber: pageNumber, hideText: true) {
+                DateSeekButton(pageNumber: pageNumber) {
                     store.send(.dateSeek(.present))
                 }
             }

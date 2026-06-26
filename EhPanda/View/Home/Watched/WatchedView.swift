@@ -61,13 +61,15 @@ struct WatchedView: View {
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
             .sheet(isPresented: $store.dateSeek.sheetPresented) {
-                DateSeekPickerView(
-                    navigation: store.dateSeek.navigation,
-                    selectedDate: $store.dateSeek.date,
-                    seekAction: { store.send(.dateSeek(.performSeek($0))) }
-                )
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                if let navigation = store.dateSeek.navigation {
+                    DateSeekPickerView(
+                        navigation: navigation,
+                        selectedDate: $store.dateSeek.date,
+                        seekAction: { store.send(.dateSeek(.performSeek($0))) }
+                    )
+                    .accentColor(setting.accentColor)
+                    .autoBlur(radius: blurRadius)
+                }
             }
             .searchable(text: $store.keyword)
             .searchSuggestions {

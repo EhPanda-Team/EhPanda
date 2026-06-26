@@ -11,18 +11,15 @@ import SwiftUI
 /// not by a dedicated reducer. Hosts typically wire it to an embedded `DateSeekReducer`, but it
 /// has no dependency on one.
 struct DateSeekPickerView: View {
-    let navigation: DateSeekNavigation?
+    let navigation: DateSeekNavigation
     @Binding var selectedDate: Date
     let seekAction: (DateSeekDirection) -> Void
 
-    private var dateRange: ClosedRange<Date> {
-        navigation?.dateRange ?? Date.distantPast...Date.distantFuture
-    }
     private var showsNewerButton: Bool {
-        navigation?.previousURL != nil
+        navigation.previousURL != nil
     }
     private var showsOlderButton: Bool {
-        navigation?.nextURL != nil
+        navigation.nextURL != nil
     }
 
     var body: some View {
@@ -32,7 +29,7 @@ struct DateSeekPickerView: View {
                     DatePicker(
                         L10n.Localizable.DateSeekView.Title.date,
                         selection: $selectedDate,
-                        in: dateRange,
+                        in: navigation.dateRange,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
@@ -61,9 +58,7 @@ struct DateSeekPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .onAppear {
-            if let navigation {
-                selectedDate = navigation.clampedDate(selectedDate)
-            }
+            selectedDate = navigation.clampedDate(selectedDate)
         }
     }
 }

@@ -113,21 +113,16 @@ struct JumpPageButton: View {
 
 struct DateSeekButton: View {
     private let pageNumber: PageNumber
-    private let hideText: Bool
     private let action: () -> Void
 
-    init(pageNumber: PageNumber, hideText: Bool = false, action: @escaping () -> Void) {
+    init(pageNumber: PageNumber, action: @escaping () -> Void) {
         self.pageNumber = pageNumber
-        self.hideText = hideText
         self.action = action
     }
 
     var body: some View {
         Button(action: action) {
-            Image(systemSymbol: .calendar)
-            if !hideText {
-                Text(L10n.Localizable.ToolbarItem.Button.dateSeek)
-            }
+            Label(L10n.Localizable.ToolbarItem.Button.dateSeek, systemSymbol: .calendar)
         }
         .disabled(pageNumber.dateSeekNavigation?.isEnabled != true)
     }
