@@ -87,13 +87,14 @@ extension Parser {
     }
 
     static func parseDateSeekNavigation(doc: HTMLDocument, host: URL) -> DateSeekNavigation? {
-        let navigation = DateSeekNavigation(
-            previousURL: parseScriptURL(name: "prevurl", doc: doc, host: host),
-            nextURL: parseScriptURL(name: "nexturl", doc: doc, host: host),
-            minimumDate: parseScriptDate(name: "mindate", doc: doc),
-            maximumDate: parseScriptDate(name: "maxdate", doc: doc)
-        )
-        return navigation.isEnabled ? navigation : nil
+        guard let minimumDate = parseScriptDate(name: "mindate", doc: doc),
+              let maximumDate = parseScriptDate(name: "maxdate", doc: doc),
+              let directions = DateSeekNavigation.Directions(
+                newer: parseScriptURL(name: "prevurl", doc: doc, host: host),
+                older: parseScriptURL(name: "nexturl", doc: doc, host: host)
+              )
+        else { return nil }
+        return DateSeekNavigation(directions: directions, minimumDate: minimumDate, maximumDate: maximumDate)
     }
 
     // swiftlint:disable cyclomatic_complexity

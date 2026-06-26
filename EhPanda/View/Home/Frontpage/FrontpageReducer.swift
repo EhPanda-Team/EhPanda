@@ -193,10 +193,6 @@ struct FrontpageReducer {
                 return .none
             }
         }
-        .onChange(of: \.pageNumber) { _, state in
-            state.dateSeek.navigation = state.pageNumber.dateSeekNavigation
-            return .none
-        }
         .haptics(
             unwrapping: \.route,
             case: \.filters,
