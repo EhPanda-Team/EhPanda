@@ -63,6 +63,15 @@ struct FavoritesView: View {
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
                 }
+                .sheet(isPresented: $store.dateSeekSheetPresented) {
+                    DateSeekView(
+                        pageNumber: store.pageNumber ?? .init(),
+                        selectedDate: $store.dateSeekDate,
+                        jumpAction: { store.send(.performDateSeek($0)) }
+                    )
+                    .accentColor(setting.accentColor)
+                    .autoBlur(radius: blurRadius)
+                }
                 .searchable(text: $store.keyword)
                 .searchSuggestions {
                     TagSuggestionView(
@@ -125,6 +134,9 @@ struct FavoritesView: View {
                 if store.sortOrder != order {
                     store.send(.fetchGalleries(nil, order))
                 }
+            }
+            DateSeekButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
+                store.send(.presentDateSeek)
             }
             QuickSearchButton(hideText: true) {
                 store.send(.setNavigation(.quickSearch()))

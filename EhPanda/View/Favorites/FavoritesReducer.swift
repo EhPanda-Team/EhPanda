@@ -26,6 +26,8 @@ struct FavoritesReducer {
 
         var index = -1
         var sortOrder: FavoritesSortOrder?
+        var dateSeekDate = Date()
+        var dateSeekSheetPresented = false
 
         var rawGalleries = [Int: [Gallery]]()
         var rawPageNumber = [Int: PageNumber]()
@@ -76,6 +78,9 @@ struct FavoritesReducer {
         case fetchMoreGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
+        case presentDateSeek
+        case performDateSeek(DateSeekDirection)
+        case performDateSeekDone(Int, Result<(PageNumber, [Gallery]), AppError>)
 
         case detail(DetailReducer.Action)
         case quickSearch(QuickSearchReducer.Action)
@@ -210,6 +215,49 @@ struct FavoritesReducer {
                 state.downloadBadges = Dictionary(
                     uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
+                return .none
+
+            case .presentDateSeek:
+                guard let navigation = state.pageNumber?.dateSeekNavigation, navigation.isEnabled else {
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+                state.dateSeekDate = navigation.clampedDate(state.dateSeekDate)
+                state.dateSeekSheetPresented = true
+                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
+
+            case .performDateSeek(let direction):
+                guard state.loadingState != .loading,
+                      let url = state.pageNumber?.dateSeekNavigation?.seekURL(
+                        date: state.dateSeekDate, direction: direction
+                      )
+                else { return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) }) }
+
+                state.dateSeekSheetPresented = false
+                state.rawLoadingState[state.index] = .loading
+                state.rawFooterLoadingState[state.index] = .idle
+                state.rawPageNumber[state.index]?.resetPages()
+                return .run { [index = state.index] send in
+                    let response = await DateSeekGalleriesRequest(url: url).response()
+                    await send(.performDateSeekDone(index, response))
+                }
+
+            case .performDateSeekDone(let targetFavIndex, let result):
+                state.rawLoadingState[targetFavIndex] = .idle
+                switch result {
+                case .success(let (pageNumber, galleries)):
+                    guard !galleries.isEmpty else {
+                        state.rawLoadingState[targetFavIndex] = .failed(.notFound)
+                        return .none
+                    }
+                    state.rawPageNumber[targetFavIndex] = pageNumber
+                    if let navigation = pageNumber.dateSeekNavigation {
+                        state.dateSeekDate = navigation.clampedDate(state.dateSeekDate)
+                    }
+                    state.rawGalleries[targetFavIndex] = galleries
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                case .failure(let error):
+                    state.rawLoadingState[targetFavIndex] = .failed(error)
+                }
                 return .none
 
             case .detail:

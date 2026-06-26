@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 struct WatchedReducer {
@@ -15,7 +16,7 @@ struct WatchedReducer {
     }
 
     private enum CancelID: CaseIterable {
-        case fetchGalleries, fetchMoreGalleries, observeDownloads
+        case fetchGalleries, fetchMoreGalleries, observeDownloads, fetchDateSeekGalleries
     }
 
     @ObservableState
@@ -25,6 +26,8 @@ struct WatchedReducer {
 
         var galleries = [Gallery]()
         var pageNumber = PageNumber()
+        var dateSeekDate = Date()
+        var dateSeekSheetPresented = false
         var loadingState: LoadingState = .idle
         var footerLoadingState: LoadingState = .idle
         var downloadBadges = [String: DownloadBadge]()
@@ -60,6 +63,9 @@ struct WatchedReducer {
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
+        case presentDateSeek
+        case performDateSeek(DateSeekDirection)
+        case performDateSeekDone(Result<(PageNumber, [Gallery]), AppError>)
 
         case filters(FiltersReducer.Action)
         case detail(DetailReducer.Action)
@@ -185,6 +191,50 @@ struct WatchedReducer {
                 state.downloadBadges = Dictionary(
                     uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
+                return .none
+
+            case .presentDateSeek:
+                guard let navigation = state.pageNumber.dateSeekNavigation, navigation.isEnabled else {
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
+                state.dateSeekDate = navigation.clampedDate(state.dateSeekDate)
+                state.dateSeekSheetPresented = true
+                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
+
+            case .performDateSeek(let direction):
+                guard state.loadingState != .loading,
+                      let url = state.pageNumber.dateSeekNavigation?.seekURL(
+                        date: state.dateSeekDate, direction: direction
+                      )
+                else { return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) }) }
+
+                state.dateSeekSheetPresented = false
+                state.loadingState = .loading
+                state.footerLoadingState = .idle
+                state.pageNumber.resetPages()
+                return .run { send in
+                    let response = await DateSeekGalleriesRequest(url: url).response()
+                    await send(.performDateSeekDone(response))
+                }
+                .cancellable(id: CancelID.fetchDateSeekGalleries)
+
+            case .performDateSeekDone(let result):
+                state.loadingState = .idle
+                switch result {
+                case .success(let (pageNumber, galleries)):
+                    guard !galleries.isEmpty else {
+                        state.loadingState = .failed(.notFound)
+                        return .none
+                    }
+                    state.pageNumber = pageNumber
+                    if let navigation = pageNumber.dateSeekNavigation {
+                        state.dateSeekDate = navigation.clampedDate(state.dateSeekDate)
+                    }
+                    state.galleries = galleries
+                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                case .failure(let error):
+                    state.loadingState = .failed(error)
+                }
                 return .none
 
             case .quickSearch:
