@@ -122,8 +122,8 @@ struct WatchedView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
-                DateSeekButton(pageNumber: store.pageNumber) {
-                    store.send(.dateSeek(.present(store.pageNumber.dateSeekNavigation)))
+                DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                    store.send(.dateSeek(.present(navigation)))
                 }
                 FiltersButton {
                     store.send(.setNavigation(.filters()))

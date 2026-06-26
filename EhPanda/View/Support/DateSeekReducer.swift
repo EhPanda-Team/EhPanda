@@ -27,7 +27,7 @@ struct DateSeekReducer {
     }
 
     enum Action {
-        case present(DateSeekNavigation?)
+        case present(DateSeekNavigation)
         case setNavigation(DateSeekNavigation?)
         case performSeek(DateSeekDirection)
         case delegate(Delegate)
@@ -44,9 +44,6 @@ struct DateSeekReducer {
         Reduce { state, action in
             switch action {
             case .present(let navigation):
-                guard let navigation else {
-                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
-                }
                 state.date = navigation.clampedDate(state.date)
                 state.navigation = navigation
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })

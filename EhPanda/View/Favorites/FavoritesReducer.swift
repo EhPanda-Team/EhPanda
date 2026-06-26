@@ -29,6 +29,7 @@ struct FavoritesReducer {
 
         var rawGalleries = [Int: [Gallery]]()
         var rawPageNumber = [Int: PageNumber]()
+        var rawDateSeekNavigation = [Int: DateSeekNavigation]()
         var rawLoadingState = [Int: LoadingState]()
         var rawFooterLoadingState = [Int: LoadingState]()
         var downloadBadges = [String: DownloadBadge]()
@@ -38,6 +39,9 @@ struct FavoritesReducer {
         }
         var pageNumber: PageNumber? {
             rawPageNumber[index]
+        }
+        var dateSeekNavigation: DateSeekNavigation? {
+            rawDateSeekNavigation[index]
         }
         var loadingState: LoadingState? {
             rawLoadingState[index]
@@ -77,7 +81,7 @@ struct FavoritesReducer {
         case fetchMoreGalleriesDone(Int, Result<FavoritesGalleriesResult, AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
-        case performDateSeekDone(Int, Result<(PageNumber, [Gallery]), AppError>)
+        case performDateSeekDone(Int, Result<GalleriesResult, AppError>)
 
         case dateSeek(DateSeekReducer.Action)
         case detail(DetailReducer.Action)
@@ -149,6 +153,7 @@ struct FavoritesReducer {
                         return .send(.fetchMoreGalleries)
                     }
                     state.rawPageNumber[targetFavIndex] = pageNumber
+                    state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = fetchResult.sortOrder
                     return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
@@ -183,6 +188,7 @@ struct FavoritesReducer {
                     let pageNumber = fetchResult.pageNumber
                     let galleries = fetchResult.galleries
                     state.rawPageNumber[targetFavIndex] = pageNumber
+                    state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
                     state.insertGalleries(index: targetFavIndex, galleries: galleries)
                     state.sortOrder = fetchResult.sortOrder
 
@@ -228,12 +234,14 @@ struct FavoritesReducer {
             case .performDateSeekDone(let targetFavIndex, let result):
                 state.rawLoadingState[targetFavIndex] = .idle
                 switch result {
-                case .success(let (pageNumber, galleries)):
+                case .success(let response):
+                    let galleries = response.galleries
                     guard !galleries.isEmpty else {
                         state.rawLoadingState[targetFavIndex] = .failed(.notFound)
                         return .none
                     }
-                    state.rawPageNumber[targetFavIndex] = pageNumber
+                    state.rawPageNumber[targetFavIndex] = response.pageNumber
+                    state.rawDateSeekNavigation[targetFavIndex] = response.dateSeekNavigation
                     state.rawGalleries[targetFavIndex] = galleries
                     return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):

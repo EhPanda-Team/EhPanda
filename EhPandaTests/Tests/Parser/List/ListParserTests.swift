@@ -29,8 +29,8 @@ struct ListParserTests: TestHelper {
     @Test
     func testDateSeekNavigation() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
-        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
-        let navigation = try #require(pageNumber.dateSeekNavigation)
+        let pageNumber = Parser.parsePageNum(doc: document)
+        let navigation = try #require(Parser.parseDateSeekNavigation(doc: document, host: Defaults.URL.ehentai))
 
         #expect(pageNumber.hasNextPage())
         #expect(pageNumber.lastItemTimestamp == "2668517")
@@ -43,8 +43,7 @@ struct ListParserTests: TestHelper {
     @Test
     func testDateSeekURL() throws {
         let document = try htmlDocument(filename: .frontPageMinimalList)
-        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
-        let navigation = try #require(pageNumber.dateSeekNavigation)
+        let navigation = try #require(Parser.parseDateSeekNavigation(doc: document, host: Defaults.URL.ehentai))
         let url = try #require(navigation.seekURL(date: navigation.maximumDate, direction: .older))
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
 
@@ -69,8 +68,7 @@ struct ListParserTests: TestHelper {
         </html>
         """, encoding: .utf8)
 
-        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.exhentai)
-        let navigation = try #require(pageNumber.dateSeekNavigation)
+        let navigation = try #require(Parser.parseDateSeekNavigation(doc: document, host: Defaults.URL.exhentai))
         let newerURL = try #require(navigation.newerURL)
         let olderURL = try #require(navigation.olderURL)
 
@@ -112,8 +110,8 @@ struct ListParserTests: TestHelper {
         </html>
         """, encoding: .utf8)
 
-        let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
-        let navigation = try #require(pageNumber.dateSeekNavigation)
+        let pageNumber = Parser.parsePageNum(doc: document)
+        let navigation = try #require(Parser.parseDateSeekNavigation(doc: document, host: Defaults.URL.ehentai))
 
         #expect(pageNumber.current == 1)
         #expect(pageNumber.maximum == 2)
