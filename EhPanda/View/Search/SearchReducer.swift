@@ -27,12 +27,11 @@ struct SearchReducer {
 
         var galleries = [Gallery]()
         var pageNumber = PageNumber()
-        var dateSeekDate = Date()
-        var dateSeekSheetPresented = false
         var loadingState: LoadingState = .idle
         var footerLoadingState: LoadingState = .idle
         var downloadBadges = [String: DownloadBadge]()
 
+        var dateSeek = DateSeekReducer.State()
         var filtersState = FiltersReducer.State()
         var detailState: Heap<DetailReducer.State?>
         var quickSearchState = QuickSearchReducer.State()
@@ -63,10 +62,9 @@ struct SearchReducer {
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
-        case presentDateSeek
-        case performDateSeek(DateSeekDirection)
         case performDateSeekDone(Result<(PageNumber, [Gallery]), AppError>)
 
+        case dateSeek(DateSeekReducer.Action)
         case detail(DetailReducer.Action)
         case filters(FiltersReducer.Action)
         case quickSearch(QuickSearchReducer.Action)
@@ -197,22 +195,8 @@ struct SearchReducer {
                 )
                 return .none
 
-            case .presentDateSeek:
-                guard let navigation = state.pageNumber.dateSeekNavigation, navigation.isEnabled else {
-                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
-                }
-                state.dateSeekDate = navigation.clampedDate(state.dateSeekDate)
-                state.dateSeekSheetPresented = true
-                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
-
-            case .performDateSeek(let direction):
-                guard state.loadingState != .loading,
-                      let url = state.pageNumber.dateSeekNavigation?.seekURL(
-                        date: state.dateSeekDate, direction: direction
-                      )
-                else { return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) }) }
-
-                state.dateSeekSheetPresented = false
+            case .dateSeek(.delegate(.performSeek(let url))):
+                guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
@@ -231,14 +215,14 @@ struct SearchReducer {
                         return .none
                     }
                     state.pageNumber = pageNumber
-                    if let navigation = pageNumber.dateSeekNavigation {
-                        state.dateSeekDate = navigation.clampedDate(state.dateSeekDate)
-                    }
                     state.galleries = galleries
                     return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
+                return .none
+
+            case .dateSeek:
                 return .none
 
             case .detail:
@@ -251,6 +235,10 @@ struct SearchReducer {
                 return .none
             }
         }
+        .onChange(of: \.pageNumber) { _, state in
+            state.dateSeek.navigation = state.pageNumber.dateSeekNavigation
+            return .none
+        }
         .haptics(
             unwrapping: \.route,
             case: \.quickSearch,
@@ -262,6 +250,7 @@ struct SearchReducer {
             hapticsClient: hapticsClient
         )
 
+        Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
         Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
         Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)

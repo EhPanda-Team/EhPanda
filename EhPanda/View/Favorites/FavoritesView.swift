@@ -63,11 +63,11 @@ struct FavoritesView: View {
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
                 }
-                .sheet(isPresented: $store.dateSeekSheetPresented) {
-                    DateSeekView(
-                        pageNumber: store.pageNumber ?? .init(),
-                        selectedDate: $store.dateSeekDate,
-                        jumpAction: { store.send(.performDateSeek($0)) }
+                .sheet(isPresented: $store.dateSeek.sheetPresented) {
+                    DateSeekPickerView(
+                        navigation: store.dateSeek.navigation,
+                        selectedDate: $store.dateSeek.date,
+                        seekAction: { store.send(.dateSeek(.performSeek($0))) }
                     )
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
@@ -136,7 +136,7 @@ struct FavoritesView: View {
                 }
             }
             DateSeekButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
-                store.send(.presentDateSeek)
+                store.send(.dateSeek(.present))
             }
             QuickSearchButton(hideText: true) {
                 store.send(.setNavigation(.quickSearch()))
