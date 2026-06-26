@@ -135,8 +135,10 @@ struct FavoritesView: View {
                     store.send(.fetchGalleries(nil, order))
                 }
             }
-            DateSeekButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
-                store.send(.dateSeek(.present))
+            if let pageNumber = store.pageNumber {
+                DateSeekButton(pageNumber: pageNumber, hideText: true) {
+                    store.send(.dateSeek(.present))
+                }
             }
             QuickSearchButton(hideText: true) {
                 store.send(.setNavigation(.quickSearch()))
