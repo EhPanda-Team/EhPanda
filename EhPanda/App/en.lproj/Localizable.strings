@@ -55,11 +55,11 @@
 // MARK: ToolbarItem
 "toolbar_item.button.filters" = "Filters";
 "toolbar_item.button.jump_page" = "Jump page";
-"toolbar_item.button.date_seek" = "Seek to Date";
+"toolbar_item.button.date_seek" = "Seek to date";
 "toolbar_item.button.quick_search" = "Quick search";
 
 // MARK: DateSeek
-"date_seek_view.title.date_seek" = "Seek to Date";
+"date_seek_view.title.date_seek" = "Seek to date";
 "date_seek_view.title.date" = "Date";
 "date_seek_view.footer.seek_around_date" = "Seek to galleries around the selected date.";
 "date_seek_view.button.seek_newer" = "Seek Newer";
