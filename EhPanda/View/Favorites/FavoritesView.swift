@@ -63,7 +63,7 @@ struct FavoritesView: View {
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
                 }
-                .sheet(item: $store.dateSeek.route.sending(\.dateSeek.setRoute).picker, id: \.self) { navigation in
+                .sheet(item: $store.dateSeek.navigation.sending(\.dateSeek.setNavigation), id: \.self) { navigation in
                     DateSeekPickerView(
                         navigation: navigation.wrappedValue,
                         selectedDate: $store.dateSeek.date,
@@ -137,7 +137,7 @@ struct FavoritesView: View {
             }
             if let pageNumber = store.pageNumber {
                 DateSeekButton(pageNumber: pageNumber) {
-                    store.send(.dateSeek(.present))
+                    store.send(.dateSeek(.present(pageNumber.dateSeekNavigation)))
                 }
             }
             QuickSearchButton(hideText: true) {

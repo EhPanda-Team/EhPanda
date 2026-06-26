@@ -124,7 +124,7 @@ struct DateSeekButton: View {
         Button(action: action) {
             Label(L10n.Localizable.ToolbarItem.Button.dateSeek, systemSymbol: .calendar)
         }
-        .disabled(pageNumber.dateSeekNavigation?.isEnabled != true)
+        .disabled(pageNumber.dateSeekNavigation == nil)
     }
 }
 

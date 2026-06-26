@@ -44,7 +44,7 @@ struct FrontpageView: View {
                 FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
-            .sheet(item: $store.dateSeek.route.sending(\.dateSeek.setRoute).picker, id: \.self) { navigation in
+            .sheet(item: $store.dateSeek.navigation.sending(\.dateSeek.setNavigation), id: \.self) { navigation in
                 DateSeekPickerView(
                     navigation: navigation.wrappedValue,
                     selectedDate: $store.dateSeek.date,
@@ -96,7 +96,7 @@ struct FrontpageView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             DateSeekButton(pageNumber: store.pageNumber) {
-                store.send(.dateSeek(.present))
+                store.send(.dateSeek(.present(store.pageNumber.dateSeekNavigation)))
             }
             FiltersButton(hideText: true) {
                 store.send(.setNavigation(.filters()))

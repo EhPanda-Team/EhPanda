@@ -16,10 +16,10 @@ struct DateSeekPickerView: View {
     let seekAction: (DateSeekDirection) -> Void
 
     private var showsNewerButton: Bool {
-        navigation.previousURL != nil
+        navigation.newerURL != nil
     }
     private var showsOlderButton: Bool {
-        navigation.nextURL != nil
+        navigation.olderURL != nil
     }
 
     var body: some View {
