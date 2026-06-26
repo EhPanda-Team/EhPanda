@@ -447,8 +447,8 @@ internal enum L10n {
       internal enum Title {
         /// Date
         internal static let date = L10n.tr("Localizable", "date_seek_view.title.date", fallback: "Date")
-        /// Seek to Date
-        internal static let dateSeek = L10n.tr("Localizable", "date_seek_view.title.date_seek", fallback: "Seek to Date")
+        /// Seek to date
+        internal static let dateSeek = L10n.tr("Localizable", "date_seek_view.title.date_seek", fallback: "Seek to date")
       }
     }
     internal enum DetailView {
@@ -2537,8 +2537,8 @@ internal enum L10n {
     }
     internal enum ToolbarItem {
       internal enum Button {
-        /// Seek to Date
-        internal static let dateSeek = L10n.tr("Localizable", "toolbar_item.button.date_seek", fallback: "Seek to Date")
+        /// Seek to date
+        internal static let dateSeek = L10n.tr("Localizable", "toolbar_item.button.date_seek", fallback: "Seek to date")
         /// Filters
         internal static let filters = L10n.tr("Localizable", "toolbar_item.button.filters", fallback: "Filters")
         /// Jump page
