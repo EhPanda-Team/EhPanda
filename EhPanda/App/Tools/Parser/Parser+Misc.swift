@@ -27,11 +27,9 @@ extension Parser {
         return apikey
     }
 
-    /// Parses the gallery-list pager. `host` normalizes the date-seek script URLs to the user's
-    /// gallery host; it defaults to the current host but is injectable so parsing stays deterministic
-    /// (independent of global state) in tests.
-    static func parsePageNum(doc: HTMLDocument, host: URL = Defaults.URL.host) -> PageNumber {
-        let dateSeekNavigation = parseDateSeekNavigation(doc: doc, host: host)
+    /// Parses the gallery-list pager. Date-seek navigation is a separate concern parsed via
+    /// `parseDateSeekNavigation`, so the page cursor stays independent of the jumpbar.
+    static func parsePageNum(doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
 
@@ -58,14 +56,10 @@ extension Parser {
 
                 return PageNumber(
                     lastItemTimestamp: timestamp,
-                    isNextButtonEnabled: isEnabled,
-                    dateSeekNavigation: dateSeekNavigation
+                    isNextButtonEnabled: isEnabled
                 )
             } else {
-                return PageNumber(
-                    isNextButtonEnabled: false,
-                    dateSeekNavigation: dateSeekNavigation
-                )
+                return PageNumber(isNextButtonEnabled: false)
             }
         }
 
@@ -79,6 +73,6 @@ extension Parser {
                 maximum = num - 1
             }
         }
-        return PageNumber(current: current, maximum: maximum, dateSeekNavigation: dateSeekNavigation)
+        return PageNumber(current: current, maximum: maximum)
     }
 }

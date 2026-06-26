@@ -29,6 +29,7 @@ struct FrontpageReducer {
         }
         var galleries = [Gallery]()
         var pageNumber = PageNumber()
+        var dateSeekNavigation: DateSeekNavigation?
         var loadingState: LoadingState = .idle
         var footerLoadingState: LoadingState = .idle
 
@@ -56,10 +57,10 @@ struct FrontpageReducer {
 
         case teardown
         case fetchGalleries
-        case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
+        case fetchGalleriesDone(Result<GalleriesResult, AppError>)
         case fetchMoreGalleries
-        case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
-        case performDateSeekDone(Result<(PageNumber, [Gallery]), AppError>)
+        case fetchMoreGalleriesDone(Result<GalleriesResult, AppError>)
+        case performDateSeekDone(Result<GalleriesResult, AppError>)
 
         case dateSeek(DateSeekReducer.Action)
         case filters(FiltersReducer.Action)
@@ -106,13 +107,15 @@ struct FrontpageReducer {
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
                 switch result {
-                case .success(let (pageNumber, galleries)):
+                case .success(let response):
+                    let galleries = response.galleries
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
-                        guard pageNumber.hasNextPage() else { return .none }
+                        guard response.pageNumber.hasNextPage() else { return .none }
                         return .send(.fetchMoreGalleries)
                     }
-                    state.pageNumber = pageNumber
+                    state.pageNumber = response.pageNumber
+                    state.dateSeekNavigation = response.dateSeekNavigation
                     state.galleries = galleries
                     return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):
@@ -137,14 +140,16 @@ struct FrontpageReducer {
             case .fetchMoreGalleriesDone(let result):
                 state.footerLoadingState = .idle
                 switch result {
-                case .success(let (pageNumber, galleries)):
-                    state.pageNumber = pageNumber
+                case .success(let response):
+                    let galleries = response.galleries
+                    state.pageNumber = response.pageNumber
+                    state.dateSeekNavigation = response.dateSeekNavigation
                     state.insertGalleries(galleries)
 
                     var effects: [Effect<Action>] = [
                         .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                     ]
-                    if galleries.isEmpty, pageNumber.hasNextPage() {
+                    if galleries.isEmpty, response.pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
                         state.loadingState = .idle
@@ -170,12 +175,14 @@ struct FrontpageReducer {
             case .performDateSeekDone(let result):
                 state.loadingState = .idle
                 switch result {
-                case .success(let (pageNumber, galleries)):
+                case .success(let response):
+                    let galleries = response.galleries
                     guard !galleries.isEmpty else {
                         state.loadingState = .failed(.notFound)
                         return .none
                     }
-                    state.pageNumber = pageNumber
+                    state.pageNumber = response.pageNumber
+                    state.dateSeekNavigation = response.dateSeekNavigation
                     state.galleries = galleries
                     return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
                 case .failure(let error):

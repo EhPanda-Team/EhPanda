@@ -109,7 +109,7 @@ struct DetailSearchReducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .search)
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).response()
-                    await send(.fetchGalleriesDone(response))
+                    await send(.fetchGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -143,7 +143,7 @@ struct DetailSearchReducer {
                         keyword: lastKeyword, filter: filter, lastID: lastID
                     )
                     .response()
-                    await send(.fetchMoreGalleriesDone(response))
+                    await send(.fetchMoreGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 

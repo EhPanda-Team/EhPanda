@@ -95,8 +95,8 @@ struct FrontpageView: View {
     }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            DateSeekButton(pageNumber: store.pageNumber) {
-                store.send(.dateSeek(.present(store.pageNumber.dateSeekNavigation)))
+            DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                store.send(.dateSeek(.present(navigation)))
             }
             FiltersButton(hideText: true) {
                 store.send(.setNavigation(.filters()))
