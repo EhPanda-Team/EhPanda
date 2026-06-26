@@ -13,22 +13,29 @@ import Foundation
 /// presentation component, while `DateSeekReducer` is logic-only, designed to be embedded — via
 /// `Scope` — into any gallery-list reducer that exposes a `DateSeekNavigation`.
 ///
-/// It owns the picker's UI state (selected date, sheet flag), validates and clamps the date, and
-/// resolves a seek `URL`, which it hands back to its host through `delegate(.performSeek)`. The
-/// host performs the request and stores the result, because the gallery list and its loading state
-/// belong to the host — not to this control.
+/// It owns the picker's UI state (selected date, presentation route), validates and clamps the
+/// date, and resolves a seek `URL`, which it hands back to its host through `delegate(.performSeek)`.
+/// The host performs the request and stores the result, because the gallery list and its loading
+/// state belong to the host — not to this control.
 @Reducer
 struct DateSeekReducer {
+    @CasePathable
+    enum Route: Equatable {
+        /// Carries the navigation in scope, so the picker is only ever entered with a non-optional one.
+        case picker(DateSeekNavigation)
+    }
+
     @ObservableState
     struct State: Equatable {
         /// Kept in sync by the host whenever its page number changes.
         var navigation: DateSeekNavigation?
         var date = Date()
-        var sheetPresented = false
+        var route: Route?
     }
 
     enum Action {
         case present
+        case setRoute(Route?)
         case performSeek(DateSeekDirection)
         case delegate(Delegate)
     }
@@ -48,14 +55,20 @@ struct DateSeekReducer {
                     return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
                 }
                 state.date = navigation.clampedDate(state.date)
-                state.sheetPresented = true
+                state.route = .picker(navigation)
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
+            case .setRoute(let route):
+                state.route = route
+                return .none
+
             case .performSeek(let direction):
-                guard let url = state.navigation?.seekURL(date: state.date, direction: direction) else {
+                guard case let .picker(navigation)? = state.route,
+                      let url = navigation.seekURL(date: state.date, direction: direction)
+                else {
                     return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
                 }
-                state.sheetPresented = false
+                state.route = nil
                 return .send(.delegate(.performSeek(url)))
 
             case .delegate:

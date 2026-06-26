@@ -15,7 +15,7 @@ enum DateSeekDirection: Equatable {
     case older
 }
 
-struct DateSeekNavigation: Equatable {
+struct DateSeekNavigation: Hashable {
     var previousURL: URL?
     var nextURL: URL?
     var minimumDate: Date?
