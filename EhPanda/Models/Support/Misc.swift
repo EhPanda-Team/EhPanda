@@ -108,7 +108,6 @@ struct PageNumber: Equatable {
     var maximum = 0
     var lastItemTimestamp: String?
     var isNextButtonEnabled = false
-    var dateSeekNavigation: DateSeekNavigation?
 
     var isSinglePage: Bool {
         current == 0 && maximum == 0

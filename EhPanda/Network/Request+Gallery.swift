@@ -12,7 +12,7 @@ struct SearchGalleriesRequest: Request {
     let keyword: String
     let filter: Filter
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.searchList(keyword: keyword, filter: filter)
         )
@@ -20,7 +20,11 @@ struct SearchGalleriesRequest: Request {
         .tryMap { try htmlDocument(data: $0.data) }
         .tryMap {
             try parseResponse(doc: $0) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
             }
         }
         .mapError(mapAppError)
@@ -33,7 +37,7 @@ struct MoreSearchGalleriesRequest: Request {
     let filter: Filter
     let lastID: String
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.moreSearchList(keyword: keyword, filter: filter, lastID: lastID)
         )
@@ -41,7 +45,11 @@ struct MoreSearchGalleriesRequest: Request {
         .tryMap { try htmlDocument(data: $0.data) }
         .tryMap {
             try parseResponse(doc: $0) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
             }
         }
         .mapError(mapAppError)
@@ -52,13 +60,17 @@ struct MoreSearchGalleriesRequest: Request {
 struct DateSeekGalleriesRequest: Request {
     let url: URL
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap {
                 try parseResponse(doc: $0) {
-                    (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                    GalleriesResult(
+                        pageNumber: Parser.parsePageNum(doc: $0),
+                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                        galleries: try Parser.parseGalleries(doc: $0)
+                    )
                 }
             }
             .mapError(mapAppError)
@@ -69,13 +81,17 @@ struct DateSeekGalleriesRequest: Request {
 struct FrontpageGalleriesRequest: Request {
     let filter: Filter
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.frontpageList(filter: filter))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap {
                 try parseResponse(doc: $0) {
-                    (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                    GalleriesResult(
+                        pageNumber: Parser.parsePageNum(doc: $0),
+                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                        galleries: try Parser.parseGalleries(doc: $0)
+                    )
                 }
             }
             .mapError(mapAppError)
@@ -87,13 +103,17 @@ struct MoreFrontpageGalleriesRequest: Request {
     let filter: Filter
     let lastID: String
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.moreFrontpageList(filter: filter, lastID: lastID))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap {
                 try parseResponse(doc: $0) {
-                    (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                    GalleriesResult(
+                        pageNumber: Parser.parsePageNum(doc: $0),
+                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                        galleries: try Parser.parseGalleries(doc: $0)
+                    )
                 }
             }
             .mapError(mapAppError)
@@ -118,13 +138,17 @@ struct WatchedGalleriesRequest: Request {
     let filter: Filter
     let keyword: String
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.watchedList(filter: filter, keyword: keyword))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap {
                 try parseResponse(doc: $0) {
-                    (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                    GalleriesResult(
+                        pageNumber: Parser.parsePageNum(doc: $0),
+                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                        galleries: try Parser.parseGalleries(doc: $0)
+                    )
                 }
             }
             .mapError(mapAppError)
@@ -137,7 +161,7 @@ struct MoreWatchedGalleriesRequest: Request {
     let lastID: String
     let keyword: String
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.moreWatchedList(filter: filter, lastID: lastID, keyword: keyword)
         )
@@ -145,7 +169,11 @@ struct MoreWatchedGalleriesRequest: Request {
         .tryMap { try htmlDocument(data: $0.data) }
         .tryMap {
             try parseResponse(doc: $0) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
             }
         }
         .mapError(mapAppError)
@@ -168,6 +196,7 @@ struct FavoritesGalleriesRequest: Request {
             try parseResponse(doc: doc) {
                 FavoritesGalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
                     sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )
@@ -196,6 +225,7 @@ struct MoreFavoritesGalleriesRequest: Request {
             try parseResponse(doc: doc) {
                 FavoritesGalleriesResult(
                     pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
                     sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
                     galleries: try Parser.parseGalleries(doc: $0)
                 )

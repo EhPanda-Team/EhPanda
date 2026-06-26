@@ -97,7 +97,7 @@ extension HomeReducer {
                 let filter = databaseClient.fetchFilterSynchronously(range: .global)
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
-                    await send(.fetchFrontpageGalleriesDone(response))
+                    await send(.fetchFrontpageGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
                 }
 
             case .fetchFrontpageGalleriesDone(let result):

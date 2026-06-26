@@ -204,8 +204,15 @@ private extension URL {
 
 // MARK: - Response Types
 
+struct GalleriesResult {
+    let pageNumber: PageNumber
+    let dateSeekNavigation: DateSeekNavigation?
+    let galleries: [Gallery]
+}
+
 struct FavoritesGalleriesResult {
     let pageNumber: PageNumber
+    let dateSeekNavigation: DateSeekNavigation?
     let sortOrder: FavoritesSortOrder?
     let galleries: [Gallery]
 }

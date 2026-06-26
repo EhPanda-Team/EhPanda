@@ -112,19 +112,21 @@ struct JumpPageButton: View {
 }
 
 struct DateSeekButton: View {
-    private let pageNumber: PageNumber
-    private let action: () -> Void
+    private let navigation: DateSeekNavigation?
+    private let action: (DateSeekNavigation) -> Void
 
-    init(pageNumber: PageNumber, action: @escaping () -> Void) {
-        self.pageNumber = pageNumber
+    init(navigation: DateSeekNavigation?, action: @escaping (DateSeekNavigation) -> Void) {
+        self.navigation = navigation
         self.action = action
     }
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            navigation.map(action)
+        } label: {
             Label(L10n.Localizable.ToolbarItem.Button.dateSeek, systemSymbol: .calendar)
         }
-        .disabled(pageNumber.dateSeekNavigation == nil)
+        .disabled(navigation == nil)
     }
 }
 
