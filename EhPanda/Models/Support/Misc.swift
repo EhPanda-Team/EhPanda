@@ -16,35 +16,65 @@ enum DateSeekDirection: Equatable {
 }
 
 struct DateSeekNavigation: Hashable {
-    var previousURL: URL?
-    var nextURL: URL?
-    var minimumDate: Date?
-    var maximumDate: Date?
+    /// The seekable directions available from the current page. Non-optional: a navigation only
+    /// exists when at least one direction is, so the "neither" state is unrepresentable here — it
+    /// is the `nil` of a `DateSeekNavigation?` instead.
+    enum Directions: Hashable {
+        case newer(URL)
+        case older(URL)
+        case both(newer: URL, older: URL)
 
-    var isEnabled: Bool {
-        previousURL != nil || nextURL != nil
+        /// `nil` when neither URL is present — i.e. the page offers no date seek.
+        init?(newer: URL?, older: URL?) {
+            switch (newer, older) {
+            case let (newer?, older?):
+                self = .both(newer: newer, older: older)
+            case let (newer?, nil):
+                self = .newer(newer)
+            case let (nil, older?):
+                self = .older(older)
+            case (nil, nil):
+                return nil
+            }
+        }
+
+        var newerURL: URL? {
+            switch self {
+            case .newer(let url), .both(newer: let url, older: _):
+                return url
+            case .older:
+                return nil
+            }
+        }
+        var olderURL: URL? {
+            switch self {
+            case .older(let url), .both(newer: _, older: let url):
+                return url
+            case .newer:
+                return nil
+            }
+        }
     }
-    var dateRange: ClosedRange<Date> {
-        (minimumDate ?? .distantPast)...(maximumDate ?? .distantFuture)
-    }
+
+    var directions: Directions
+    var minimumDate: Date
+    var maximumDate: Date
+
+    var newerURL: URL? { directions.newerURL }
+    var olderURL: URL? { directions.olderURL }
+    var dateRange: ClosedRange<Date> { minimumDate...maximumDate }
 
     func clampedDate(_ date: Date = Date()) -> Date {
-        if let maximumDate, date > maximumDate {
-            return maximumDate
-        }
-        if let minimumDate, date < minimumDate {
-            return minimumDate
-        }
-        return date
+        min(max(date, minimumDate), maximumDate)
     }
 
     func seekURL(date: Date, direction: DateSeekDirection) -> URL? {
         let baseURL: URL?
         switch direction {
         case .newer:
-            baseURL = previousURL
+            baseURL = newerURL
         case .older:
-            baseURL = nextURL
+            baseURL = olderURL
         }
         return baseURL?.appending(queryItems: ["seek": Self.dateFormatter.string(from: date)])
     }

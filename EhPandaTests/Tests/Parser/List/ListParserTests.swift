@@ -31,15 +31,13 @@ struct ListParserTests: TestHelper {
         let document = try htmlDocument(filename: .frontPageMinimalList)
         let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
         let navigation = try #require(pageNumber.dateSeekNavigation)
-        let minimumDate = try #require(navigation.minimumDate)
-        let maximumDate = try #require(navigation.maximumDate)
 
         #expect(pageNumber.hasNextPage())
         #expect(pageNumber.lastItemTimestamp == "2668517")
-        #expect(navigation.previousURL == nil)
-        #expect(navigation.nextURL?.absoluteString == "https://e-hentai.org/?next=2668517")
-        #expect(DateSeekNavigation.dateFormatter.string(from: minimumDate) == "2007-03-20")
-        #expect(DateSeekNavigation.dateFormatter.string(from: maximumDate) == "2023-09-08")
+        #expect(navigation.newerURL == nil)
+        #expect(navigation.olderURL?.absoluteString == "https://e-hentai.org/?next=2668517")
+        #expect(DateSeekNavigation.dateFormatter.string(from: navigation.minimumDate) == "2007-03-20")
+        #expect(DateSeekNavigation.dateFormatter.string(from: navigation.maximumDate) == "2023-09-08")
     }
 
     @Test
@@ -47,13 +45,12 @@ struct ListParserTests: TestHelper {
         let document = try htmlDocument(filename: .frontPageMinimalList)
         let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.ehentai)
         let navigation = try #require(pageNumber.dateSeekNavigation)
-        let maximumDate = try #require(navigation.maximumDate)
-        let url = try #require(navigation.seekURL(date: maximumDate, direction: .older))
+        let url = try #require(navigation.seekURL(date: navigation.maximumDate, direction: .older))
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
 
         #expect(queryItems?.first(where: { $0.name == "next" })?.value == "2668517")
         #expect(queryItems?.first(where: { $0.name == "seek" })?.value == "2023-09-08")
-        #expect(navigation.seekURL(date: maximumDate, direction: .newer) == nil)
+        #expect(navigation.seekURL(date: navigation.maximumDate, direction: .newer) == nil)
     }
 
     @Test
@@ -74,19 +71,19 @@ struct ListParserTests: TestHelper {
 
         let pageNumber = Parser.parsePageNum(doc: document, host: Defaults.URL.exhentai)
         let navigation = try #require(pageNumber.dateSeekNavigation)
-        let previousURL = try #require(navigation.previousURL)
-        let nextURL = try #require(navigation.nextURL)
+        let newerURL = try #require(navigation.newerURL)
+        let olderURL = try #require(navigation.olderURL)
 
-        #expect(previousURL.host == "exhentai.org")
-        #expect(nextURL.host == "exhentai.org")
+        #expect(newerURL.host == "exhentai.org")
+        #expect(olderURL.host == "exhentai.org")
         #expect(
-            URLComponents(url: previousURL, resolvingAgainstBaseURL: false)?
+            URLComponents(url: newerURL, resolvingAgainstBaseURL: false)?
                 .queryItems?
                 .first(where: { $0.name == "page" })?
                 .value == "1"
         )
         #expect(
-            URLComponents(url: nextURL, resolvingAgainstBaseURL: false)?
+            URLComponents(url: olderURL, resolvingAgainstBaseURL: false)?
                 .queryItems?
                 .first(where: { $0.name == "next" })?
                 .value == "456"
@@ -120,7 +117,7 @@ struct ListParserTests: TestHelper {
 
         #expect(pageNumber.current == 1)
         #expect(pageNumber.maximum == 2)
-        #expect(navigation.previousURL?.absoluteString == "https://e-hentai.org/?prev=123")
-        #expect(navigation.nextURL?.absoluteString == "https://e-hentai.org/?next=456")
+        #expect(navigation.newerURL?.absoluteString == "https://e-hentai.org/?prev=123")
+        #expect(navigation.olderURL?.absoluteString == "https://e-hentai.org/?next=456")
     }
 }
