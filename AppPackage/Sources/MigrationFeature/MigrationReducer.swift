@@ -4,19 +4,21 @@ import ComposableArchitecture
 import DatabaseClient
 
 @Reducer
-struct MigrationReducer {
+public struct MigrationReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable {
         case dropDialog
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var databaseState: LoadingState = .loading
+    public struct State: Equatable {
+        public var route: Route?
+        public var databaseState: LoadingState = .loading
+
+        public init() {}
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case onDatabasePreparationSuccess
@@ -29,7 +31,9 @@ struct MigrationReducer {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

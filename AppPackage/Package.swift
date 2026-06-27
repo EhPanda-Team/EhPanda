@@ -87,6 +87,7 @@ enum Module: String {
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
     case loggerClient = "LoggerClient"
+    case migrationFeature = "MigrationFeature"
     case networking = "Networking"
     case parser = "Parser"
     case resources = "Resources"
@@ -252,6 +253,7 @@ let targets: [PackageDescription.Target] = [
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
+            .module(.migrationFeature),
             .module(.networking),
             .module(.parser),
             .module(.resources),
@@ -509,6 +511,19 @@ let targets: [PackageDescription.Target] = [
         module: .sdWebImageExt,
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .migrationFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.databaseClient),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

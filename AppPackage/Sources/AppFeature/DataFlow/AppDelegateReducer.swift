@@ -9,6 +9,7 @@ import DatabaseClient
 import DownloadClient
 import BackgroundProcessingClient
 import CookieClient
+import MigrationFeature
 
 @Reducer
 struct AppDelegateReducer {
