@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 extension DetailView {
     struct CommentCell: View {

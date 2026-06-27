@@ -1,4 +1,5 @@
 import SFSafeSymbols
+import Resources
 import SwiftUI
 
 /// The "Seek to date" sheet content: a graphical date picker plus newer/older direction buttons.

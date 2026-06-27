@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 struct SubSection<Content: View>: View {
     private let title: String

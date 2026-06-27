@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let placement: ToolbarItemPlacement

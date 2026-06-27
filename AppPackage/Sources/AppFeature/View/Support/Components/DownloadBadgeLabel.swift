@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 struct DownloadBadgeLabel: View {
     private let badge: DownloadBadge

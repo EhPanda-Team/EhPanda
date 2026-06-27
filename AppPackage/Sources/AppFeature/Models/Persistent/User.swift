@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 struct User: Codable, Equatable {
     static let empty = User()

@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 import AlertKit
 import ComposableArchitecture
 

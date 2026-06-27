@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 import ComposableArchitecture
 import Testing
 @testable import AppFeature
