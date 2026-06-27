@@ -14,15 +14,15 @@ import AppDelegateClient
 import DesignSystem
 
 @Reducer
-struct ReadingReducer {
+public struct ReadingReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case hud
         case share(IdentifiableBox<ShareItem>)
         case readingSetting(EquatableVoid = .init())
     }
 
-    enum ShareItem: Equatable {
+    public enum ShareItem: Equatable, Sendable {
         var associatedValue: Any {
             switch self {
             case .data(let data):
@@ -35,46 +35,46 @@ struct ReadingReducer {
         case image(UIImage)
     }
 
-    enum ImageAction {
+    public enum ImageAction: Sendable {
         case copy, save, share
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var contentSource: ReadingContentSource = .remote
-        var gallery: Gallery = .empty
-        var language: Language?
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var contentSource: ReadingContentSource = .remote
+        public var gallery: Gallery = .empty
+        public var language: Language?
 
-        var readingProgress: Int = .zero
-        var forceRefreshID: UUID = .init()
-        var hudConfig: ProgressHUDConfigState = .loading()
+        public var readingProgress: Int = .zero
+        public var forceRefreshID: UUID = .init()
+        public var hudConfig: ProgressHUDConfigState = .loading()
 
-        var webImageLoadSuccessIndices = Set<Int>()
-        var imageURLLoadingStates = [Int: LoadingState]()
-        var previewLoadingStates = [Int: LoadingState]()
-        var databaseLoadingState: LoadingState = .loading
-        var previewConfig: PreviewConfig = .normal(rows: 4)
+        public var webImageLoadSuccessIndices = Set<Int>()
+        public var imageURLLoadingStates = [Int: LoadingState]()
+        public var previewLoadingStates = [Int: LoadingState]()
+        public var databaseLoadingState: LoadingState = .loading
+        public var previewConfig: PreviewConfig = .normal(rows: 4)
 
-        var previewURLs = [Int: URL]()
+        public var previewURLs = [Int: URL]()
         /// The single source of truth for downloaded page files. It is not copied into the
         /// other URL maps; both offline reads and the opportunistic "use the downloaded file
         /// if present" check in remote mode resolve a page through this map alone.
-        var localPageURLs = [Int: URL]()
-        var localPageRequestID = UUID()
+        public var localPageURLs = [Int: URL]()
+        public var localPageRequestID = UUID()
 
-        var thumbnailURLs = [Int: URL]()
-        var imageURLs = [Int: URL]()
-        var originalImageURLs = [Int: URL]()
+        public var thumbnailURLs = [Int: URL]()
+        public var imageURLs = [Int: URL]()
+        public var originalImageURLs = [Int: URL]()
 
-        var mpvKey: String?
-        var mpvImageKeys = [Int: String]()
-        var mpvSkipServerIdentifiers = [Int: String]()
+        public var mpvKey: String?
+        public var mpvImageKeys = [Int: String]()
+        public var mpvSkipServerIdentifiers = [Int: String]()
 
-        var showsPanel = false
-        var showsSliderPreview = false
+        public var showsPanel = false
+        public var showsSliderPreview = false
 
-        init(contentSource: ReadingContentSource = .remote) {
+        public init(contentSource: ReadingContentSource = .remote) {
             self.contentSource = contentSource
         }
 
@@ -132,7 +132,7 @@ struct ReadingReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
 
@@ -198,5 +198,7 @@ struct ReadingReducer {
     @Dependency(\.imageClient) var imageClient
     @Dependency(\.urlClient) var urlClient
 
-    var body: some Reducer<State, Action> { makeBody() }
+    public init() {}
+
+    public var body: some Reducer<State, Action> { makeBody() }
 }

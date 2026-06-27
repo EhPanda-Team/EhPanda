@@ -8,6 +8,7 @@ import ComposableArchitecture
 import Utilities
 import ImageClient
 import AppComponents
+import SFSafeSymbols
 
 // MARK: ImageStackConfig
 struct ImageStackConfig {

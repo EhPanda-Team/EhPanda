@@ -1,10 +1,9 @@
 import SwiftUI
 import AppModels
 import Resources
-import ComposableArchitecture
 import Utilities
 
-struct ReadingSettingView: View {
+public struct ReadingSettingView: View {
     @Binding private var readingDirection: ReadingDirection
     @Binding private var prefetchLimit: Int
     @Binding private var enablesLandscape: Bool
@@ -12,7 +11,7 @@ struct ReadingSettingView: View {
     @Binding private var maximumScaleFactor: Double
     @Binding private var doubleTapScaleFactor: Double
 
-    init(
+    public init(
         readingDirection: Binding<ReadingDirection>, prefetchLimit: Binding<Int>,
         enablesLandscape: Binding<Bool>, contentDividerHeight: Binding<Double>,
         maximumScaleFactor: Binding<Double>, doubleTapScaleFactor: Binding<Double>
@@ -25,7 +24,7 @@ struct ReadingSettingView: View {
         _doubleTapScaleFactor = doubleTapScaleFactor
     }
 
-    var body: some View {
+    public var body: some View {
         Form {
             Section {
                 Picker(L10n.Localizable.ReadingSettingView.Title.direction, selection: $readingDirection) {

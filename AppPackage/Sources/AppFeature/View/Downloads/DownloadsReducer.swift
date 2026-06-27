@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import FoundationExt
 import DownloadClient
+import ReadingFeature
 
 @Reducer
 struct DownloadsReducer {

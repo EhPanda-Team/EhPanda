@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import Observation
+import SFSafeSymbols
 import SwiftUIPager
 import ComposableArchitecture
 import FoundationExt
@@ -9,7 +10,7 @@ import SDWebImageExt
 import DesignSystem
 import AppComponents
 
-struct ReadingView: View {
+public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var store: StoreOf<ReadingReducer>
@@ -23,7 +24,7 @@ struct ReadingView: View {
     @State private var pageHandler = PageHandler()
     @StateObject var page: Page = .first()
 
-    init(
+    public init(
         store: StoreOf<ReadingReducer>,
         gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
@@ -52,7 +53,7 @@ struct ReadingView: View {
         return store.localPageURLs.merging(store.originalImageURLs, uniquingKeysWith: { local, _ in local })
     }
 
-    var body: some View {
+    public var body: some View {
         @Bindable var bindableLiveTextHandler = liveTextHandler
         @Bindable var bindablePageHandler = pageHandler
 

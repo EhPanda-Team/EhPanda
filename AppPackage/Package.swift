@@ -93,6 +93,7 @@ enum Module: String {
     case networking = "Networking"
     case parser = "Parser"
     case quickSearchFeature = "QuickSearchFeature"
+    case readingFeature = "ReadingFeature"
     case resources = "Resources"
     case sdWebImageExt = "SDWebImageExt"
     case swiftUINavigationExt = "SwiftUINavigationExt"
@@ -262,6 +263,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networking),
             .module(.parser),
             .module(.quickSearchFeature),
+            .module(.readingFeature),
             .module(.resources),
             .module(.sdWebImageExt),
             .module(.swiftUINavigationExt),
@@ -472,6 +474,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .hapticsClient,
         dependencies: [
+            .module(.swiftUINavigationExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
@@ -569,6 +572,37 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .readingFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appDelegateClient),
+            .module(.appModels),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.databaseClient),
+            .module(.designSystem),
+            .module(.deviceClient),
+            .module(.downloadClient),
+            .module(.foundationExt),
+            .module(.hapticsClient),
+            .module(.imageClient),
+            .module(.networking),
+            .module(.resources),
+            .module(.sdWebImageExt),
+            .module(.swiftUINavigationExt),
+            .module(.urlClient),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.swiftUIPager),
+            .targetDependency(.ttProgressHUD)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -675,6 +709,7 @@ let targets: [PackageDescription.Target] = [
             .module(.loggerClient),
             .module(.networking),
             .module(.parser),
+            .module(.readingFeature),
             .module(.sdWebImageExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
