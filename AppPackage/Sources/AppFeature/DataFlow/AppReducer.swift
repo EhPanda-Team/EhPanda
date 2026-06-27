@@ -8,6 +8,7 @@ import CookieClient
 import AppLaunchAutomationClient
 import DeviceClient
 import HomeFeature
+import SearchFeature
 
 @Reducer
 struct AppReducer {
