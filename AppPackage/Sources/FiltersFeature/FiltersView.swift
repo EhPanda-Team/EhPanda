@@ -6,12 +6,12 @@ import SwiftUINavigationExt
 import DesignSystem
 import AppComponents
 
-struct FiltersView: View {
+public struct FiltersView: View {
     @Bindable private var store: StoreOf<FiltersReducer>
 
     @FocusState private var focusedBound: FiltersReducer.FocusedBound?
 
-    init(store: StoreOf<FiltersReducer>) {
+    public init(store: StoreOf<FiltersReducer>) {
         self.store = store
     }
 
@@ -27,7 +27,7 @@ struct FiltersView: View {
     }
 
     // MARK: FilterView
-    var body: some View {
+    public var body: some View {
         NavigationView {
             Form {
                 BasicSection(
