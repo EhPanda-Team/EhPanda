@@ -3,29 +3,31 @@ import AppModels
 import DatabaseClient
 
 @Reducer
-struct FiltersReducer {
+public struct FiltersReducer: Sendable {
     @CasePathable
-    enum Route {
+    public enum Route {
         case resetFilters
     }
 
-    enum FocusedBound {
+    public enum FocusedBound {
         case lower
         case upper
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var filterRange: FilterRange = .search
-        var focusedBound: FocusedBound?
+    public struct State: Equatable {
+        public var route: Route?
+        public var filterRange: FilterRange = .search
+        public var focusedBound: FocusedBound?
 
-        var searchFilter = Filter()
-        var globalFilter = Filter()
-        var watchedFilter = Filter()
+        public var searchFilter = Filter()
+        public var globalFilter = Filter()
+        public var watchedFilter = Filter()
+
+        public init() {}
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case onTextFieldSubmitted
@@ -38,7 +40,9 @@ struct FiltersReducer {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.searchFilter) { _, state in
                 state.searchFilter.fixInvalidData()

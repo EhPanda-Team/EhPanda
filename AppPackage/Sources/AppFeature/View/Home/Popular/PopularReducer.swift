@@ -5,6 +5,7 @@ import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import Networking
+import FiltersFeature
 
 @Reducer
 struct PopularReducer {

@@ -7,6 +7,7 @@ import SwiftUINavigationExt
 import Utilities
 import DesignSystem
 import AppComponents
+import FiltersFeature
 
 struct FrontpageView: View {
     @Bindable private var store: StoreOf<FrontpageReducer>

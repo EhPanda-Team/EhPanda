@@ -5,6 +5,7 @@ import HapticsClient
 import DatabaseClient
 import Networking
 import DownloadClient
+import FiltersFeature
 
 @Reducer
 struct WatchedReducer {
