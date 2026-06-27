@@ -1,20 +1,21 @@
 import SwiftUI
 import Kingfisher
+import SFSafeSymbols
 import FoundationExt
 import Parser
 
 extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+    public func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
 
-    @ViewBuilder func withHorizontalSpacing(width: CGFloat = 8, height: CGFloat? = nil) -> some View {
+    @ViewBuilder public func withHorizontalSpacing(width: CGFloat = 8, height: CGFloat? = nil) -> some View {
         Color.clear.frame(width: width, height: height)
         self
         Color.clear.frame(width: width, height: height)
     }
 
-    func withArrow(isVisible: Bool = true) -> some View {
+    public func withArrow(isVisible: Bool = true) -> some View {
         HStack {
             self
             Spacer()
@@ -25,13 +26,13 @@ extension View {
         }
     }
 
-    func autoBlur(radius: Double) -> some View {
+    public func autoBlur(radius: Double) -> some View {
         blur(radius: radius)
             .allowsHitTesting(radius < 1)
             .animation(.linear(duration: 0.1), value: radius)
     }
 
-    func synchronize<Value: Equatable>(
+    public func synchronize<Value: Equatable>(
         _ first: Binding<Value>,
         _ second: Binding<Value>,
         initial: (first: Bool, second: Bool) = (false, false)
@@ -45,7 +46,7 @@ extension View {
             }
     }
 
-    func synchronize<Value>(
+    public func synchronize<Value>(
         _ first: Binding<Value>,
         _ second: FocusState<Value>.Binding,
         initial: (first: Bool, second: Bool) = (false, false)
@@ -60,26 +61,28 @@ extension View {
     }
 }
 
-struct PlainLinearProgressViewStyle: ProgressViewStyle {
-    func makeBody(configuration: ProgressViewStyleConfiguration) -> some View {
+public struct PlainLinearProgressViewStyle: ProgressViewStyle {
+    public init() {}
+
+    public func makeBody(configuration: ProgressViewStyleConfiguration) -> some View {
         ProgressView(value: CGFloat(configuration.fractionCompleted ?? 0), total: 1)
     }
 }
 extension ProgressViewStyle where Self == PlainLinearProgressViewStyle {
-    static var plainLinear: PlainLinearProgressViewStyle {
+    public static var plainLinear: PlainLinearProgressViewStyle {
         PlainLinearProgressViewStyle()
     }
 }
 
 // MARK: Image Modifier
-struct CornersModifier: ImageModifier {
+public struct CornersModifier: ImageModifier {
     let radius: CGFloat?
 
-    init(radius: CGFloat? = nil) {
+    public init(radius: CGFloat? = nil) {
         self.radius = radius
     }
 
-    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+    public func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
         if let radius = radius {
             return image.withRoundedCorners(radius: radius) ?? image
         } else {
@@ -88,16 +91,16 @@ struct CornersModifier: ImageModifier {
     }
 }
 
-struct OffsetModifier: ImageModifier {
+public struct OffsetModifier: ImageModifier {
     private let size: CGSize?
     private let offset: CGSize?
 
-    init(size: CGSize?, offset: CGSize?) {
+    public init(size: CGSize?, offset: CGSize?) {
         self.size = size
         self.offset = offset
     }
 
-    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+    public func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
         guard let size = size, let offset = offset
         else { return image }
 
@@ -105,16 +108,16 @@ struct OffsetModifier: ImageModifier {
     }
 }
 
-struct RoundedOffsetModifier: ImageModifier {
+public struct RoundedOffsetModifier: ImageModifier {
     private let size: CGSize?
     private let offset: CGSize?
 
-    init(size: CGSize?, offset: CGSize?) {
+    public init(size: CGSize?, offset: CGSize?) {
         self.size = size
         self.offset = offset
     }
 
-    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+    public func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
         guard let size = size, let offset = offset,
               let croppedImg = image.cropping(size: size, offset: offset),
               let roundedCroppedImg = croppedImg.withRoundedCorners(radius: 5)
@@ -124,16 +127,16 @@ struct RoundedOffsetModifier: ImageModifier {
     }
 }
 
-struct WebtoonModifier: ImageModifier {
+public struct WebtoonModifier: ImageModifier {
     private let minAspect: CGFloat
     private let idealAspect: CGFloat
 
-    init(minAspect: CGFloat, idealAspect: CGFloat) {
+    public init(minAspect: CGFloat, idealAspect: CGFloat) {
         self.minAspect = minAspect
         self.idealAspect = idealAspect
     }
 
-    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+    public func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
         let width = image.size.width
         let height = image.size.height
         let idealHeight = width / idealAspect
@@ -143,7 +146,7 @@ struct WebtoonModifier: ImageModifier {
 }
 
 extension KFImage {
-    func defaultModifier(withRoundedCorners: Bool = true) -> KFImage {
+    public func defaultModifier(withRoundedCorners: Bool = true) -> KFImage {
         self
             .imageModifier(CornersModifier(
                 radius: withRoundedCorners ? 5 : nil
@@ -153,11 +156,16 @@ extension KFImage {
     }
 }
 
-struct RoundedCorner: Shape {
+public struct RoundedCorner: Shape {
     var radius: CGFloat = .infinity
     var corners: UIRectCorner = .allCorners
 
-    func path(in rect: CGRect) -> Path {
+    public init(radius: CGFloat = .infinity, corners: UIRectCorner = .allCorners) {
+        self.radius = radius
+        self.corners = corners
+    }
+
+    public func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(
             roundedRect: rect,
             byRoundingCorners: corners,
@@ -170,8 +178,8 @@ struct RoundedCorner: Shape {
     }
 }
 
-struct PreviewResolver {
-    static func getPreviewConfigs(originalURL: URL?) -> (URL?, ImageModifier) {
+public struct PreviewResolver {
+    public static func getPreviewConfigs(originalURL: URL?) -> (URL?, ImageModifier) {
         guard let url = originalURL,
               let info = Parser.parsePreviewConfigs(url: url)
         else {

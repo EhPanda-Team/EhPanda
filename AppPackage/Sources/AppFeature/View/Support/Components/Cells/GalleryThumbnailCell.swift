@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import Kingfisher
+import DesignSystem
 
 struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme

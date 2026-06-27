@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import HapticsClient
 import ClipboardClient
+import DesignSystem
 
 @Reducer
 struct GalleryInfosReducer {

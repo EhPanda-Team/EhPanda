@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
+import DesignSystem
 
 struct DetailSearchView: View {
     @Bindable private var store: StoreOf<DetailSearchReducer>

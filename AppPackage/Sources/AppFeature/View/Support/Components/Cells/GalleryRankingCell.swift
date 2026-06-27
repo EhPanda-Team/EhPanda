@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import Kingfisher
+import DesignSystem
 
 struct GalleryRankingCell: View {
     private let gallery: Gallery

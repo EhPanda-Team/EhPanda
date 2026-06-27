@@ -1,6 +1,7 @@
 import SwiftUI
 import Resources
 import SFSafeSymbols
+import DesignSystem
 
 struct LaboratorySettingView: View {
     @Binding private var bypassesSNIFiltering: Bool
