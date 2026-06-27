@@ -10,8 +10,8 @@ public struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let content: Content
 
     public init(placement: ToolbarItemPlacement = .navigationBarTrailing,
-         tint: Color? = nil, disabled: Bool = false,
-         @ViewBuilder content: () -> Content
+                tint: Color? = nil, disabled: Bool = false,
+                @ViewBuilder content: () -> Content
     ) {
         self.placement = placement
         self.tint = tint
