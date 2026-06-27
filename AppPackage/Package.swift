@@ -67,6 +67,7 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 // MARK: Module
 enum Module: String {
     case appFeature = "AppFeature"
+    case appModels = "AppModels"
     case resources = "Resources"
 
     // Test targets
@@ -204,6 +205,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appFeature,
         dependencies: [
+            .module(.appModels),
             .module(.resources),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
@@ -229,6 +231,19 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .appModels,
+        dependencies: [
+            .module(.resources),
+            .targetDependency(.commonMark),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.openCC),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.swiftyBeaver)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .resources,
         resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
@@ -240,6 +255,7 @@ let targets: [PackageDescription.Target] = [
         module: .appFeatureTests,
         dependencies: [
             .module(.appFeature),
+            .module(.appModels),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
             .targetDependency(.kingfisher),

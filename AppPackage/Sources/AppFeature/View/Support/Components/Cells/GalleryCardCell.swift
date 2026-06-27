@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Colorful
 import Kingfisher
 import UIImageColors

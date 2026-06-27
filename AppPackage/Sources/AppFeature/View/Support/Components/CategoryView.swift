@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 
 // MARK: CategoryLabel
 struct CategoryLabel: View {
@@ -37,8 +38,8 @@ struct CategoryView: View {
     private let gridItems = [
         GridItem(.adaptive(minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100))
     ]
-    private var tuples: [(Binding<Bool>, Category)] {
-        Category.allFiltersCases.enumerated().map { value in
+    private var tuples: [(Binding<Bool>, AppModels.Category)] {
+        AppModels.Category.allFiltersCases.enumerated().map { value in
             (bindings[value.offset], value.element)
         }
     }
@@ -61,9 +62,9 @@ struct CategoryView: View {
 // MARK: CategoryCell
 private struct CategoryCell: View {
     @Binding private var isFiltered: Bool
-    private let category: Category
+    private let category: AppModels.Category
 
-    init(isFiltered: Binding<Bool>, category: Category) {
+    init(isFiltered: Binding<Bool>, category: AppModels.Category) {
         _isFiltered = isFiltered
         self.category = category
     }

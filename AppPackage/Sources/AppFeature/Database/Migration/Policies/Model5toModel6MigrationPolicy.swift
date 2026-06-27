@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 // reason: the migration policy name must encode both the source and destination model versions
 // swiftlint:disable type_name

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Kingfisher
 
 struct GalleryRankingCell: View {

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Foundation
 import SFSafeSymbols
 import ComposableArchitecture
@@ -49,7 +50,7 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             lastError: nil
         )
 
-        #expect(download.searchableText == ["Solo Title", Category.doujinshi.value].joined(separator: " "))
+        #expect(download.searchableText == ["Solo Title", AppModels.Category.doujinshi.value].joined(separator: " "))
         #expect(!download.searchableText.contains("  "))
         #expect(download.searchableText == download.searchableText.trimmingCharacters(in: .whitespaces))
     }

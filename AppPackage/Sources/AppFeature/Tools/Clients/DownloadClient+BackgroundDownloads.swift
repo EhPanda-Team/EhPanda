@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 actor BackgroundPageCompletionReceiver {
     private enum PendingEvent {

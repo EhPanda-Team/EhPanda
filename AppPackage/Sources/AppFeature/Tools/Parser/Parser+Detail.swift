@@ -1,4 +1,5 @@
 import Kanna
+import AppModels
 import Foundation
 
 extension Parser {
@@ -34,7 +35,7 @@ extension Parser {
                   let uploader = try? parseUploader(node: gd3Node),
                   let ratingResult = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
-                  let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
+                  let category = AppModels.Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
             else { continue }
 

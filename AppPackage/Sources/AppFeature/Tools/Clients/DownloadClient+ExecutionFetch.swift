@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Fetch & Normalize Payload
 extension DownloadCoordinator {

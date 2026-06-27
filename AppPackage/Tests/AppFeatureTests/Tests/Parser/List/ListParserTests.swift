@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import Kanna
 import Testing
 @testable import AppFeature

@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import ComposableArchitecture
 
 // MARK: - Download Action Handlers
