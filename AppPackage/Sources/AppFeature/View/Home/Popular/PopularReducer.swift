@@ -2,6 +2,7 @@ import ComposableArchitecture
 import AppModels
 import FoundationExt
 import SwiftUINavigationExt
+import HapticsClient
 
 @Reducer
 struct PopularReducer {

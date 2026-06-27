@@ -71,6 +71,7 @@ enum Module: String {
     case authorizationClient = "AuthorizationClient"
     case composableArchitectureExt = "ComposableArchitectureExt"
     case foundationExt = "FoundationExt"
+    case hapticsClient = "HapticsClient"
     case loggerClient = "LoggerClient"
     case resources = "Resources"
     case swiftUINavigationExt = "SwiftUINavigationExt"
@@ -218,6 +219,7 @@ let targets: [PackageDescription.Target] = [
             .module(.authorizationClient),
             .module(.composableArchitectureExt),
             .module(.foundationExt),
+            .module(.hapticsClient),
             .module(.loggerClient),
             .module(.resources),
             .module(.swiftUINavigationExt),
@@ -305,6 +307,15 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .hapticsClient,
+        dependencies: [
+            .module(.utilities),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .loggerClient,
         dependencies: [
             .module(.appModels),
@@ -350,6 +361,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appFeature),
             .module(.appModels),
             .module(.foundationExt),
+            .module(.hapticsClient),
             .module(.loggerClient),
             .module(.uiApplicationClient),
             .module(.urlClient),

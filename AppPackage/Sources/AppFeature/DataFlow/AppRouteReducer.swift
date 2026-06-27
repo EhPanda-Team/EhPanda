@@ -4,6 +4,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import URLClient
 import UserDefaultsClient
+import HapticsClient
 
 @Reducer
 struct AppRouteReducer {

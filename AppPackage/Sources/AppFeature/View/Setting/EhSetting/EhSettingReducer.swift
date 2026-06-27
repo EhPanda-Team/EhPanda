@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
 import UIApplicationClient
+import HapticsClient
 
 @Reducer
 struct EhSettingReducer {

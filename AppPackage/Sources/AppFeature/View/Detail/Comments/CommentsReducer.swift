@@ -4,6 +4,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import URLClient
 import UIApplicationClient
+import HapticsClient
 
 @Reducer
 struct CommentsReducer {

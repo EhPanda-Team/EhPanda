@@ -3,6 +3,7 @@ import AppModels
 import Foundation
 import FoundationExt
 import SwiftUINavigationExt
+import HapticsClient
 
 @Reducer
 struct FrontpageReducer {
