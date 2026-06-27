@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import URLClient
 import HapticsClient
+import ImageClient
 
 @Reducer
 struct ReadingReducer {

@@ -3,6 +3,7 @@ import AppModels
 import Kingfisher
 import ComposableArchitecture
 import FoundationExt
+import LibraryClient
 
 @Reducer
 struct HomeReducer {

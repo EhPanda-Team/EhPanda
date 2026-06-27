@@ -5,6 +5,7 @@ import LoggerClient
 import UserDefaultsClient
 import UIApplicationClient
 import HapticsClient
+import LibraryClient
 
 @Reducer
 struct SettingReducer {
