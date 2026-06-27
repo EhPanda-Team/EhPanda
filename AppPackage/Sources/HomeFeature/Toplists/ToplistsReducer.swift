@@ -8,9 +8,9 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct ToplistsReducer {
+public struct ToplistsReducer: Sendable {
     @dynamicMemberLookup @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case detail(String)
     }
 
@@ -19,24 +19,24 @@ struct ToplistsReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
-        var jumpPageIndex = ""
-        var jumpPageAlertFocused = false
-        var jumpPageAlertPresented = false
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
+        public var jumpPageIndex = ""
+        public var jumpPageAlertFocused = false
+        public var jumpPageAlertPresented = false
 
-        var type: ToplistsType = .yesterday
+        public var type: ToplistsType = .yesterday
 
         var filteredGalleries: [Gallery]? {
             guard !keyword.isEmpty else { return galleries }
             return galleries?.filter({ $0.title.caseInsensitiveContains(keyword) })
         }
 
-        var rawGalleries = [ToplistsType: [Gallery]]()
-        var rawPageNumber = [ToplistsType: PageNumber]()
-        var rawLoadingState = [ToplistsType: LoadingState]()
-        var rawFooterLoadingState = [ToplistsType: LoadingState]()
+        public var rawGalleries = [ToplistsType: [Gallery]]()
+        public var rawPageNumber = [ToplistsType: PageNumber]()
+        public var rawLoadingState = [ToplistsType: LoadingState]()
+        public var rawFooterLoadingState = [ToplistsType: LoadingState]()
 
         var galleries: [Gallery]? {
             rawGalleries[type]
@@ -51,9 +51,9 @@ struct ToplistsReducer {
             rawFooterLoadingState[type]
         }
 
-        var detailState: Heap<DetailReducer.State?>
+        public var detailState: Heap<DetailReducer.State?>
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
 
@@ -66,7 +66,7 @@ struct ToplistsReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case setToplistsType(ToplistsType)
@@ -88,7 +88,9 @@ struct ToplistsReducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none
