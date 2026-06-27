@@ -1,4 +1,5 @@
 import SwiftUI
+import DesignSystem
 
 struct PostCommentView: View {
     private let title: String

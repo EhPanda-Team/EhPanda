@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import Utilities
+import DesignSystem
 
 struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme

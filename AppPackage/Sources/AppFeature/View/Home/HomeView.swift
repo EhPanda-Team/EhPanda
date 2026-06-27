@@ -6,6 +6,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
+import DesignSystem
 
 struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>

@@ -77,6 +77,7 @@ enum Module: String {
     case cookieClient = "CookieClient"
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
+    case designSystem = "DesignSystem"
     case deviceClient = "DeviceClient"
     case downloadClient = "DownloadClient"
     case fileClient = "FileClient"
@@ -239,6 +240,7 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.cookieClient),
             .module(.databaseClient),
+            .module(.designSystem),
             .module(.dfClient),
             .module(.deviceClient),
             .module(.downloadClient),
@@ -462,6 +464,23 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.utilities),
             .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .designSystem,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .module(.parser),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .module(.utilities),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.swiftUINavigation),
+            .targetDependency(.ttProgressHUD)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

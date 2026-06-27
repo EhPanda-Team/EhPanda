@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import Kingfisher
 import FoundationExt
+import DesignSystem
 
 struct TagDetailView: View {
     private let detail: TagDetail

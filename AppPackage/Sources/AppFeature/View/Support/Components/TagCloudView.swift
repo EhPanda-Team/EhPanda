@@ -4,6 +4,7 @@
 import SwiftUI
 import Kingfisher
 import FoundationExt
+import DesignSystem
 
 struct TagCloudView<Element, ID, TagCell>: View
 where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {

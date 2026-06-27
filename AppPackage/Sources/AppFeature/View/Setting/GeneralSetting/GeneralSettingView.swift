@@ -4,6 +4,7 @@ import Resources
 import FilePicker
 import ComposableArchitecture
 import SwiftUINavigationExt
+import DesignSystem
 
 struct GeneralSettingView: View {
     @Bindable private var store: StoreOf<GeneralSettingReducer>
