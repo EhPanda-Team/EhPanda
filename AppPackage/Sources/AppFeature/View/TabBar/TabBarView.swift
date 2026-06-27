@@ -5,6 +5,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import Utilities
 import DesignSystem
+import AppComponents
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase
