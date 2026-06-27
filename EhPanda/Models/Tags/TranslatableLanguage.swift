@@ -1,8 +1,3 @@
-//
-//  TranslatableLanguage.swift
-//  EhPanda
-//
-
 import Foundation
 
 enum TranslatableLanguage: Codable, CaseIterable {

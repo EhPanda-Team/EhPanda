@@ -1,8 +1,3 @@
-//
-//  DownloadFileManager.swift
-//  EhPanda
-//
-
 import Foundation
 import Synchronization
 

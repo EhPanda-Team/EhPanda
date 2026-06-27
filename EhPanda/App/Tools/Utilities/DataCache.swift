@@ -1,8 +1,3 @@
-//
-//  DataCache.swift
-//  EhPanda
-//
-
 import CryptoKit
 import Foundation
 import UIKit

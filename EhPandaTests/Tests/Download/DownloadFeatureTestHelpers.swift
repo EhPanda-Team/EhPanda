@@ -1,8 +1,3 @@
-//
-//  DownloadFeatureTestHelpers.swift
-//  EhPandaTests
-//
-
 import Foundation
 import CoreData
 import ComposableArchitecture

@@ -1,8 +1,3 @@
-//
-//  GalleryDetailCell.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 

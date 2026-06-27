@@ -1,7 +1,3 @@
-//
-//  LinkedText.swift
-//  EhPanda
-//
 //  Copied from https://gist.github.com/mjm/0581781f85db45b05e8e2c5c33696f88
 //
 

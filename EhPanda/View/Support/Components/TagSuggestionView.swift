@@ -1,8 +1,3 @@
-//
-//  TagSuggestionView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 import Observation

@@ -1,8 +1,3 @@
-//
-//  HistoryView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

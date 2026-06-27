@@ -1,8 +1,3 @@
-//
-//  ToplistsReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

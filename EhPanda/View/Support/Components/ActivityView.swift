@@ -1,8 +1,3 @@
-//
-//  ActivityView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct ActivityView: UIViewControllerRepresentable {

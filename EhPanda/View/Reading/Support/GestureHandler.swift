@@ -1,8 +1,3 @@
-//
-//  GestureHandler.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Observation
 

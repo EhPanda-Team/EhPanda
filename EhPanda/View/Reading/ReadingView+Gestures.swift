@@ -1,8 +1,3 @@
-//
-//  ReadingView+Gestures.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 // MARK: Gesture

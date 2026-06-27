@@ -1,8 +1,3 @@
-//
-//  LogsReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

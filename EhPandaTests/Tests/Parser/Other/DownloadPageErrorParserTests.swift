@@ -1,8 +1,3 @@
-//
-//  DownloadPageErrorParserTests.swift
-//  EhPandaTests
-//
-
 import Kanna
 import Combine
 import Testing

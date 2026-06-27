@@ -1,8 +1,3 @@
-//
-//  CoreDataMigrator.swift
-//  CoreDataMigration-Example
-//
-
 import CoreData
 
 protocol CoreDataMigratorProtocol {

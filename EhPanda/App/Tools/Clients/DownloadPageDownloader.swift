@@ -1,8 +1,3 @@
-//
-//  DownloadPageDownloader.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct DownloadPageTaskContext: Equatable, Sendable {

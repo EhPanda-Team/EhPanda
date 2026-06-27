@@ -1,7 +1,3 @@
-//
-//  WaveForm.swift
-//  WaveForm
-//
 //  Copied from Kavsoft
 //
 

@@ -1,8 +1,3 @@
-//
-//  DetailView+Subviews.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 

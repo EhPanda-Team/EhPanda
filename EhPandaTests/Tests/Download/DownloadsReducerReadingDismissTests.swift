@@ -1,8 +1,3 @@
-//
-//  DownloadsReducerReadingDismissTests.swift
-//  EhPandaTests
-//
-
 import ComposableArchitecture
 import Testing
 @testable import EhPanda

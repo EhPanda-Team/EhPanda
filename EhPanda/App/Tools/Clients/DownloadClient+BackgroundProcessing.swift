@@ -1,8 +1,3 @@
-//
-//  DownloadClient+BackgroundProcessing.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Background Processing Drain

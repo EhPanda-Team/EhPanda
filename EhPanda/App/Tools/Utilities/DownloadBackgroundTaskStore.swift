@@ -1,8 +1,3 @@
-//
-//  DownloadBackgroundTaskStore.swift
-//  EhPanda
-//
-
 import Foundation
 
 actor DownloadBackgroundTaskStore {

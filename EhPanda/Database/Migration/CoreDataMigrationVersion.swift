@@ -1,8 +1,3 @@
-//
-//  CoreDataVersion.swift
-//  CoreDataMigration-Example
-//
-
 import Foundation
 import CoreData
 

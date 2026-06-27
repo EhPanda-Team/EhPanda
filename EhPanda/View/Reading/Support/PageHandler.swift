@@ -1,8 +1,3 @@
-//
-//  PageHandler.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Observation
 

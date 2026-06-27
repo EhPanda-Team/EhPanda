@@ -1,8 +1,3 @@
-//
-//  AlertView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import SFSafeSymbols
 

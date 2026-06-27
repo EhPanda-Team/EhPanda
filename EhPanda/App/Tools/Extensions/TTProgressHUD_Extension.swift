@@ -1,8 +1,3 @@
-//
-//  TTProgressHUD_Extension.swift
-//  EhPanda
-//
-
 import TTProgressHUD
 
 enum ProgressHUDConfigState: Equatable, Sendable {

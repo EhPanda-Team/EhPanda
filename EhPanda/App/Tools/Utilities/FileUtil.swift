@@ -1,8 +1,3 @@
-//
-//  FileUtil.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct FileUtil {

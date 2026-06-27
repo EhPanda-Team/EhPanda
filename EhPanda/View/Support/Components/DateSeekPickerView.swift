@@ -1,8 +1,3 @@
-//
-//  DateSeekPickerView.swift
-//  EhPanda
-//
-
 import SFSafeSymbols
 import SwiftUI
 

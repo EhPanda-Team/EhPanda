@@ -1,8 +1,3 @@
-//
-//  Request+Image.swift
-//  EhPanda
-//
-
 import Kanna
 import Combine
 import Foundation

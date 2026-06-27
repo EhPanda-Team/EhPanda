@@ -1,8 +1,3 @@
-//
-//  Greeting.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct Greeting: Codable, Equatable, Hashable, Identifiable {

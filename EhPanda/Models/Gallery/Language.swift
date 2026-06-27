@@ -1,8 +1,3 @@
-//
-//  Language.swift
-//  EhPanda
-//
-
 enum Language: String, Codable, Sendable {
     static let allExcludedCases: [Self] = [
         .japanese, .english, .chinese, .dutch, .french, .german, .hungarian, .italian,

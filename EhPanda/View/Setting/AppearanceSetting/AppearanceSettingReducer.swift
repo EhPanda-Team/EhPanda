@@ -1,8 +1,3 @@
-//
-//  AppearanceSettingReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

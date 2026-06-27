@@ -1,8 +1,3 @@
-//
-//  DownloadRequestOptions.swift
-//  EhPanda
-//
-
 /// Execution policy for a download: *how* to fetch (thread limit, cellular, auto-retry),
 /// not *what* to fetch. Deliberately separate from `DownloadRequestPayload` and never
 /// persisted to a manifest or request: it is resolved fresh from the latest settings once

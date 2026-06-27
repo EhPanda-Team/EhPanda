@@ -1,8 +1,3 @@
-//
-//  TestHelper.swift
-//  TestHelper
-//
-
 import Kanna
 import Testing
 import Foundation

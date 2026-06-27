@@ -1,8 +1,3 @@
-//
-//  DetailView+Navigation.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

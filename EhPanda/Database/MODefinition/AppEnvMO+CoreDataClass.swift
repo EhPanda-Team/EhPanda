@@ -1,8 +1,3 @@
-//
-//  AppEnvMO+CoreDataClass.swift
-//  EhPanda
-//
-
 import CoreData
 
 public class AppEnvMO: NSManagedObject {}

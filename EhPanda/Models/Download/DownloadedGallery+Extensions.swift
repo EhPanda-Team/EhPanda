@@ -1,8 +1,3 @@
-//
-//  DownloadedGallery+Extensions.swift
-//  EhPanda
-//
-
 import SwiftUI
 import SFSafeSymbols
 

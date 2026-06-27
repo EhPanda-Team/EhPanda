@@ -1,8 +1,3 @@
-//
-//  Request+Account.swift
-//  EhPanda
-//
-
 import Kanna
 import Combine
 import Foundation

@@ -1,8 +1,3 @@
-//
-//  DownloadClient+PublicAPI.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Public API

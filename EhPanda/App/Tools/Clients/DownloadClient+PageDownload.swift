@@ -1,8 +1,3 @@
-//
-//  DownloadClient+PageDownload.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Download Pages

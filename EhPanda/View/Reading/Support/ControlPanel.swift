@@ -1,8 +1,3 @@
-//
-//  ControlPanel.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 // MARK: ControlPanel

@@ -1,8 +1,3 @@
-//
-//  DetailView+CommentCells.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 extension DetailView {

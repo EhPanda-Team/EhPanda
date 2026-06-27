@@ -1,8 +1,3 @@
-//
-//  PostCommentView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct PostCommentView: View {

@@ -1,8 +1,3 @@
-//
-//  TestError.swift
-//  EhPandaTests
-//
-
 enum TestError: Error {
     case htmlDocumentNotFound(HTMLFilename)
     case parsingFailed(String)

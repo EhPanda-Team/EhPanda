@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Cache.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Cache Operations

@@ -1,8 +1,3 @@
-//
-//  NSPersistentStoreCoordinator+SQLite.swift
-//  CoreDataMigration-Example
-//
-
 import CoreData
 
 extension NSPersistentStoreCoordinator {

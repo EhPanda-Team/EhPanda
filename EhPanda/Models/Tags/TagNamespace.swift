@@ -1,8 +1,3 @@
-//
-//  TagCategory.swift
-//  EhPanda
-//
-
 enum TagNamespace: String, Codable, CaseIterable, Sendable {
     case reclass
     case language

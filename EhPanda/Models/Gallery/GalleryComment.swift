@@ -1,8 +1,3 @@
-//
-//  GalleryComment.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct GalleryComment: Identifiable, Equatable, Codable {

@@ -1,8 +1,3 @@
-//
-//  DownloadClient+RetryHelpers.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Retry & RetryPages

@@ -1,8 +1,3 @@
-//
-//  DownloadFeatureTestSupportTypes.swift
-//  EhPandaTests
-//
-
 import Foundation
 import Synchronization
 @testable import EhPanda

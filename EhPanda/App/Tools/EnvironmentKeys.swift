@@ -1,8 +1,3 @@
-//
-//  EnvironmentKeys.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct InSheetKey: EnvironmentKey {

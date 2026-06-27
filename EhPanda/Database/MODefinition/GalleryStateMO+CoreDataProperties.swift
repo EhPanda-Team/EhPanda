@@ -1,8 +1,3 @@
-//
-//  GalleryStateMO+CoreDataProperties.swift
-//  EhPanda
-//
-
 import CoreData
 
 extension GalleryStateMO: GalleryIdentifiable {

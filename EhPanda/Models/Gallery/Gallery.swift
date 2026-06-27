@@ -1,8 +1,3 @@
-//
-//  Gallery.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {

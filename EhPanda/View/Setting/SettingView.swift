@@ -1,8 +1,3 @@
-//
-//  SettingView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import SFSafeSymbols
 import ComposableArchitecture

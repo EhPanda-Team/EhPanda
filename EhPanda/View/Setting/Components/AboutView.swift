@@ -1,8 +1,3 @@
-//
-//  AboutView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct AboutView: View {

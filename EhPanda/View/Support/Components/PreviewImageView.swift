@@ -1,8 +1,3 @@
-//
-//  PreviewImageView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ImageIO
 import Kingfisher

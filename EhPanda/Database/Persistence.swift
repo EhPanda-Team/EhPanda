@@ -1,8 +1,3 @@
-//
-//  Persistence.swift
-//  EhPanda
-//
-
 import CoreData
 
 struct PersistenceController: Sendable {

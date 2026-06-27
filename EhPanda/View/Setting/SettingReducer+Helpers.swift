@@ -1,8 +1,3 @@
-//
-//  SettingReducer+Helpers.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 

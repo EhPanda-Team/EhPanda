@@ -1,7 +1,3 @@
-//
-//  LiveTextHandler.swift
-//  EhPanda
-//
 //  reason: the reference URLs below exceed the line-length limit and cannot wrap
 //  swiftlint:disable line_length
 //  Reference

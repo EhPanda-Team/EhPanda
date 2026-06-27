@@ -1,8 +1,3 @@
-//
-//  AnimatedImage_Extension.swift
-//  EhPanda
-//
-
 import UIKit
 import SDWebImage
 import UniformTypeIdentifiers

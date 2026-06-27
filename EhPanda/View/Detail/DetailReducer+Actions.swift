@@ -1,8 +1,3 @@
-//
-//  DetailReducer+Actions.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 

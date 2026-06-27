@@ -1,8 +1,3 @@
-//
-//  Setting.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Foundation
 import ComposableArchitecture

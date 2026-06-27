@@ -1,8 +1,3 @@
-//
-//  DownloadAutomationTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import SwiftUI
 import ComposableArchitecture

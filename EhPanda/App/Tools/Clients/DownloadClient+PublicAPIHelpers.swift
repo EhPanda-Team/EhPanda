@@ -1,8 +1,3 @@
-//
-//  DownloadClient+PublicAPIHelpers.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Private helpers for public API

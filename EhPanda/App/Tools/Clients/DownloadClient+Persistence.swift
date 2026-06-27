@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Persistence.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Disk Index

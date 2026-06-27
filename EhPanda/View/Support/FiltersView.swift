@@ -1,8 +1,3 @@
-//
-//  FiltersView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

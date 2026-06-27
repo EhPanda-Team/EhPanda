@@ -1,8 +1,3 @@
-//
-//  LaboratorySettingView.swift
-//  LabSettingView
-//
-
 import SwiftUI
 import SFSafeSymbols
 

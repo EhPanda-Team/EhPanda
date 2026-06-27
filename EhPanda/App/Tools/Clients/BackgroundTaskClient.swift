@@ -1,8 +1,3 @@
-//
-//  BackgroundTaskClient.swift
-//  EhPanda
-//
-
 import UIKit
 import ComposableArchitecture
 

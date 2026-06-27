@@ -1,8 +1,3 @@
-//
-//  DownloadFilterAndBadgeTests.swift
-//  EhPandaTests
-//
-
 import SwiftUI
 import Foundation
 import SFSafeSymbols

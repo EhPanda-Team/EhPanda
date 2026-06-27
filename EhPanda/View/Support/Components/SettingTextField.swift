@@ -1,8 +1,3 @@
-//
-//  SettingTextField.swift
-//  SettingTextField
-//
-
 import SwiftUI
 
 struct SettingTextField: View {

@@ -1,8 +1,3 @@
-//
-//  SearchReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 import Foundation
 

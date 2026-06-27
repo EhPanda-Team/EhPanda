@@ -1,8 +1,3 @@
-//
-//  DownloadInspectorReducer.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 

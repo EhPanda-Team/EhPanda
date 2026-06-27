@@ -1,8 +1,3 @@
-//
-//  ToolbarItems.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct CustomToolbarItem<Content: View>: ToolbarContent {

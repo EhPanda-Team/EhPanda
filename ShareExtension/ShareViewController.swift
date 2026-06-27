@@ -1,8 +1,3 @@
-//
-//  ShareViewController.swift
-//  ShareExtension
-//
-
 import AppIntents
 import UIKit
 

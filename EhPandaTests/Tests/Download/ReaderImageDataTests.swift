@@ -1,8 +1,3 @@
-//
-//  ReaderImageDataTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import Testing
 import UIKit

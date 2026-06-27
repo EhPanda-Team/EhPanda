@@ -1,8 +1,3 @@
-//
-//  HTMLFilename.swift
-//  EhPandaTests
-//
-
 enum HTMLFilename: String {
     // List
     // FrontPage

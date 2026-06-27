@@ -1,8 +1,3 @@
-//
-//  DownloadCoordinatorStorageTests.swift
-//  EhPandaTests
-//
-
 import Kingfisher
 import UIKit
 import Foundation

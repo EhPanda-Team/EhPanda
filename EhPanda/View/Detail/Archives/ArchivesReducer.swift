@@ -1,8 +1,3 @@
-//
-//  ArchivesReducer.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 

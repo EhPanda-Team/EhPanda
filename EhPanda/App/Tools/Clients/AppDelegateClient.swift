@@ -1,8 +1,3 @@
-//
-//  AppDelegateClient.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

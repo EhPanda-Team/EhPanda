@@ -1,8 +1,3 @@
-//
-//  AuthorizationClient.swift
-//  EhPanda
-//
-
 import Combine
 import LocalAuthentication
 import ComposableArchitecture

@@ -1,8 +1,3 @@
-//
-//  DomainResolver.swift
-//  EhPanda
-//
-
 struct DomainResolver {
     static func resolve(domain: String) -> String? {
         ResolvableDomain(rawValue: domain)?.ipPool.randomElement()

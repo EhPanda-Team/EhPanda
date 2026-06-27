@@ -1,8 +1,3 @@
-//
-//  Extensions.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Foundation
 

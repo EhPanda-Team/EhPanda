@@ -1,8 +1,3 @@
-//
-//  DownloadDisplayStatus.swift
-//  EhPanda
-//
-
 enum DownloadDisplayStatus: Equatable, CaseIterable, Sendable {
     case active
     case queued

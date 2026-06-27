@@ -1,8 +1,3 @@
-//
-//  TabBarReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

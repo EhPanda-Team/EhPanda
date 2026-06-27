@@ -1,8 +1,3 @@
-//
-//  DFURLProtocol.swift
-//  EhPanda
-//
-
 import Foundation
 
 class DFURLProtocol: URLProtocol {

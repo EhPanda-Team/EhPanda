@@ -1,8 +1,3 @@
-//
-//  FrontpageReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 import Foundation
 

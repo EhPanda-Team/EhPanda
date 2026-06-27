@@ -1,8 +1,3 @@
-//
-//  RatingView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct RatingView: View {

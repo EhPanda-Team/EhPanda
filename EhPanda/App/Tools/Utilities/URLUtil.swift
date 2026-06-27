@@ -1,8 +1,3 @@
-//
-//  URLUtil.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct URLUtil {

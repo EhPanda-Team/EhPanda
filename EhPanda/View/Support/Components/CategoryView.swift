@@ -1,8 +1,3 @@
-//
-//  CategoryView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 // MARK: CategoryLabel

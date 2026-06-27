@@ -1,8 +1,3 @@
-//
-//  ReadingView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Observation
 import SwiftUIPager

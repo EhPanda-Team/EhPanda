@@ -1,8 +1,3 @@
-//
-//  GalleryCardCell.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Colorful
 import Kingfisher

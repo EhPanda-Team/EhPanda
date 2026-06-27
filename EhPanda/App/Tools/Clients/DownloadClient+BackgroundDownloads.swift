@@ -1,8 +1,3 @@
-//
-//  DownloadClient+BackgroundDownloads.swift
-//  EhPanda
-//
-
 import Foundation
 
 actor BackgroundPageCompletionReceiver {

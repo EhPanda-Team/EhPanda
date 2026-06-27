@@ -1,8 +1,3 @@
-//
-//  DownloadFolderFilter.swift
-//  EhPanda
-//
-
 enum DownloadFolderFilter: Equatable {
     case all
     case folder(String)

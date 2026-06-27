@@ -1,8 +1,3 @@
-//
-//  SwiftUINavigation_Extension.swift
-//  EhPanda
-//
-
 import SwiftUI
 import TTProgressHUD
 import SwiftUINavigation
