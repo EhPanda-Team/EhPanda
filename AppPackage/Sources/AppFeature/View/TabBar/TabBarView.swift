@@ -9,6 +9,7 @@ import AppComponents
 import DetailFeature
 import HomeFeature
 import SearchFeature
+import FavoritesFeature
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase
