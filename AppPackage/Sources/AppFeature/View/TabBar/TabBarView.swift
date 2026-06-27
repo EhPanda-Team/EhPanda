@@ -8,6 +8,7 @@ import DesignSystem
 import AppComponents
 import DetailFeature
 import HomeFeature
+import SearchFeature
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase
