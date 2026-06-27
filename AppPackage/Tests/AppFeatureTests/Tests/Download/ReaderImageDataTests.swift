@@ -3,6 +3,7 @@ import AppModels
 import Testing
 import UIKit
 import FoundationExt
+import Utilities
 @testable import AppFeature
 
 @Suite(.serialized)
