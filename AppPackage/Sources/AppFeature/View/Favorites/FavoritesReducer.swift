@@ -8,6 +8,7 @@ import DatabaseClient
 import Networking
 import DownloadClient
 import DateSeekFeature
+import QuickSearchFeature
 
 @Reducer
 struct FavoritesReducer {

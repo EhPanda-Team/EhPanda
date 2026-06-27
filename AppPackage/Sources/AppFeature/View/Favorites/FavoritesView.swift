@@ -7,6 +7,7 @@ import SwiftUINavigationExt
 import Utilities
 import DesignSystem
 import AppComponents
+import QuickSearchFeature
 
 struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>

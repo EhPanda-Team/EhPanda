@@ -92,6 +92,7 @@ enum Module: String {
     case migrationFeature = "MigrationFeature"
     case networking = "Networking"
     case parser = "Parser"
+    case quickSearchFeature = "QuickSearchFeature"
     case resources = "Resources"
     case sdWebImageExt = "SDWebImageExt"
     case swiftUINavigationExt = "SwiftUINavigationExt"
@@ -260,6 +261,7 @@ let targets: [PackageDescription.Target] = [
             .module(.migrationFeature),
             .module(.networking),
             .module(.parser),
+            .module(.quickSearchFeature),
             .module(.resources),
             .module(.sdWebImageExt),
             .module(.swiftUINavigationExt),
@@ -552,6 +554,21 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.hapticsClient),
             .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .quickSearchFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.databaseClient),
+            .module(.designSystem),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

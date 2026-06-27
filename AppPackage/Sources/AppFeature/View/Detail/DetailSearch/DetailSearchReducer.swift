@@ -5,6 +5,7 @@ import HapticsClient
 import DatabaseClient
 import Networking
 import FiltersFeature
+import QuickSearchFeature
 
 @Reducer
 struct DetailSearchReducer {
