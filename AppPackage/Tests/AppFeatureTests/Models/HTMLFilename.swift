@@ -1,3 +1,5 @@
+import AppModels
+
 enum HTMLFilename: String {
     // List
     // FrontPage

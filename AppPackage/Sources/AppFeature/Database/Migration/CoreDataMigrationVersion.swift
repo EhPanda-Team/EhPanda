@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import CoreData
 
 enum CoreDataMigrationVersion: String, CaseIterable {

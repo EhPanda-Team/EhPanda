@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Retry & RetryPages
 extension DownloadCoordinator {

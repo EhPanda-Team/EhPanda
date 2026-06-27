@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 struct FileUtil {
     static var logsDirectoryURL: URL {

@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 class DFURLProtocol: URLProtocol {
     private var dfRequest: DFRequest?

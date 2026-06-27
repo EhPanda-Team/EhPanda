@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 import Foundation
 import Testing
 @testable import AppFeature
@@ -63,7 +64,7 @@ extension DownloadedGallery {
         title: String,
         jpnTitle: String?,
         uploader: String?,
-        category: AppFeature.Category,
+        category: AppModels.Category,
         tags: [GalleryTag],
         pageCount: Int,
         postedDate: Date,
@@ -187,7 +188,7 @@ extension DownloadFeatureTestCase {
         gid: String,
         title: String,
         status: DownloadFixtureStatus,
-        category: AppFeature.Category = .doujinshi,
+        category: AppModels.Category = .doujinshi,
         pageCount: Int = 12,
         completedPageCount: Int? = nil,
         lastDownloadedDate: Date? = .now,

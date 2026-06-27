@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Disk Index
 extension DownloadCoordinator {

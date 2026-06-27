@@ -1,4 +1,5 @@
 import Kanna
+import AppModels
 import SwiftUI
 
 extension Parser {
@@ -161,7 +162,7 @@ private extension Parser {
 private extension Parser {
     static func parseThumbnailPanel(node: XMLElement) throws -> ThumbnailPanelInfo {
         var tmpCoverURL: URL?
-        var tmpCategory: Category?
+        var tmpCategory: AppModels.Category?
         var tmpPublishedDate: Date?
         var tmpPageCount: Int?
         var uploader: String?
@@ -173,7 +174,7 @@ private extension Parser {
                 .contains(where: { $0 == urlString }) == false, imgNode["alt"] != "T" {
                 tmpCoverURL = url
             }
-            if let rawValue = div.text, let category = Category(rawValue: rawValue) {
+            if let rawValue = div.text, let category = AppModels.Category(rawValue: rawValue) {
                 tmpCategory = category
             }
             if let onClick = div["onclick"], !onClick.isEmpty, let dateString = div.text,

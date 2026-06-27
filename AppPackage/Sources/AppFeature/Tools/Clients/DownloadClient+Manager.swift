@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 typealias ScheduledDownloadOperation = @Sendable () async -> Void
 

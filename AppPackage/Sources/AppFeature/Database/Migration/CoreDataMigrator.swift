@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 protocol CoreDataMigratorProtocol {
     func requiresMigration(at storeURL: URL, toVersion version: CoreDataMigrationVersion) throws -> Bool

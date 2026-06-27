@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 struct URLUtil {
     // Fetch
@@ -158,16 +159,16 @@ private extension URL {
         queryItems1: inout [Defaults.URL.Component.Key: String]
     ) {
         var categoryValue = 0
-        categoryValue += filter.doujinshi ? Category.doujinshi.filterValue : 0
-        categoryValue += filter.manga ? Category.manga.filterValue : 0
-        categoryValue += filter.artistCG ? Category.artistCG.filterValue : 0
-        categoryValue += filter.gameCG ? Category.gameCG.filterValue : 0
-        categoryValue += filter.western ? Category.western.filterValue : 0
-        categoryValue += filter.nonH ? Category.nonH.filterValue : 0
-        categoryValue += filter.imageSet ? Category.imageSet.filterValue : 0
-        categoryValue += filter.cosplay ? Category.cosplay.filterValue : 0
-        categoryValue += filter.asianPorn ? Category.asianPorn.filterValue : 0
-        categoryValue += filter.misc ? Category.misc.filterValue : 0
+        categoryValue += filter.doujinshi ? AppModels.Category.doujinshi.filterValue : 0
+        categoryValue += filter.manga ? AppModels.Category.manga.filterValue : 0
+        categoryValue += filter.artistCG ? AppModels.Category.artistCG.filterValue : 0
+        categoryValue += filter.gameCG ? AppModels.Category.gameCG.filterValue : 0
+        categoryValue += filter.western ? AppModels.Category.western.filterValue : 0
+        categoryValue += filter.nonH ? AppModels.Category.nonH.filterValue : 0
+        categoryValue += filter.imageSet ? AppModels.Category.imageSet.filterValue : 0
+        categoryValue += filter.cosplay ? AppModels.Category.cosplay.filterValue : 0
+        categoryValue += filter.asianPorn ? AppModels.Category.asianPorn.filterValue : 0
+        categoryValue += filter.misc ? AppModels.Category.misc.filterValue : 0
         if ![0, 1023].contains(categoryValue) {
             queryItems1[.fCats] = String(categoryValue)
         }

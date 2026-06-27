@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 extension NSPersistentStoreCoordinator {
     static func destroyStore(at storeURL: URL) throws {

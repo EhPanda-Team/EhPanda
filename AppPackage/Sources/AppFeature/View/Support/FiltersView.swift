@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Resources
 import ComposableArchitecture
 
@@ -207,7 +208,7 @@ private struct TupleCategory: Identifiable {
     var id: String { category.rawValue }
 
     let isFiltered: Binding<Bool>
-    let category: Category
+    let category: AppModels.Category
 }
 
 enum FilterRange: Int, CaseIterable, Identifiable {

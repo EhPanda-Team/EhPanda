@@ -1,4 +1,5 @@
 import CryptoKit
+import AppModels
 import Foundation
 
 /// A known E-H asset placeholder that decodes as a valid image but is *not* page

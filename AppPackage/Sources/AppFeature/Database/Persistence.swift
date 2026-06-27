@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 struct PersistenceController: Sendable {
     static let shared = PersistenceController()

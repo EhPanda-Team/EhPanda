@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 class DFStreamEventHandler: NSObject {
     private var request: DFRequest

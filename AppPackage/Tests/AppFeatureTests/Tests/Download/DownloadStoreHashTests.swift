@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import Resources
 import Testing
 @testable import AppFeature

@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 struct AppLaunchAutomation: Sendable {
     struct LoginCookies: Sendable {

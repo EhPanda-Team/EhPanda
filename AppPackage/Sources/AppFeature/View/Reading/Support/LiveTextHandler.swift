@@ -9,6 +9,7 @@
 //
 
 import Vision
+import AppModels
 import SwiftUI
 import Foundation
 import Observation

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Foundation
 
 // MARK: Encodable
@@ -66,46 +67,10 @@ extension URL {
         return [self, info.plainURL]
     }
 
-    func appending(queryItems: [URLQueryItem]) -> URL {
-        guard !queryItems.isEmpty else { return self }
-        var components: URLComponents = .init(
-            url: self, resolvingAgainstBaseURL: false
-        )
-        .forceUnwrapped
-        if components.queryItems == nil {
-            components.queryItems = []
-        }
-        components.queryItems?.append(contentsOf: queryItems)
-        return components.url.forceUnwrapped
-    }
-    func appending(queryItems: [String: String]) -> URL {
-        appending(queryItems: queryItems.map(URLQueryItem.init))
-    }
-    func appending(queryItems: [Defaults.URL.Component.Key: Defaults.URL.Component.Value]) -> URL {
-        appending(queryItems: queryItems.map({ URLQueryItem(name: $0.rawValue, value: $1.rawValue) }))
-    }
-    func appending(queryItems: [Defaults.URL.Component.Key: String]) -> URL {
-        appending(queryItems: queryItems.map({ URLQueryItem(name: $0.rawValue, value: $1) }))
-    }
-    mutating func append(queryItems: [URLQueryItem]) {
-        self = appending(queryItems: queryItems)
-    }
-    mutating func append(queryItems: [String: String]) {
-        self = appending(queryItems: queryItems)
-    }
-    mutating func append(queryItems: [Defaults.URL.Component.Key: Defaults.URL.Component.Value]) {
-        self = appending(queryItems: queryItems)
-    }
-    mutating func append(queryItems: [Defaults.URL.Component.Key: String]) {
-        self = appending(queryItems: queryItems)
-    }
 }
 
 // MARK: String
 extension String {
-    var nonEmpty: String? {
-        isEmpty ? nil : self
-    }
     var isInteger: Bool {
         Int(self) != nil
     }
@@ -114,16 +79,6 @@ extension String {
     }
     var localizedKey: LocalizedStringKey {
         .init(self)
-    }
-    var linkStyled: String {
-        "[\(self)](\(Defaults.URL.ehentai.absoluteString))"
-    }
-    var stringsBesideColon: (String?, String) {
-        let strings = split(separator: ":").map(String.init)
-        if strings.count == 2, !strings[0].isEmpty {
-            return (strings[0], strings[1])
-        }
-        return (nil, self)
     }
     var emojisRipped: String {
         unicodeScalars
@@ -137,10 +92,6 @@ extension String {
         ) ?? ""
     }
 
-    var firstLetterCapitalized: String {
-        prefix(1).capitalized + dropFirst()
-    }
-
     var isValidURL: Bool {
         if let detector = try? NSDataDetector(
             types: NSTextCheckingResult.CheckingType.link.rawValue
@@ -151,30 +102,6 @@ extension String {
                 return match.range.length == utf16.count
             } else { return false }
         } else { return false }
-    }
-
-    var barcesAndSpacesRemoved: String {
-        replacingOccurrences(from: "(", to: ")", with: "")
-            .replacingOccurrences(from: "[", to: "]", with: "")
-            .replacingOccurrences(from: "{", to: "}", with: "")
-            .replacingOccurrences(from: "【", to: "】", with: "")
-            .replacingOccurrences(from: "「", to: "」", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    func replacingOccurrences(
-        from subString1: String, to subString2: String, with replacement: String
-    ) -> String {
-        var result = self
-
-        while let rangeA = result.range(of: subString1),
-              let rangeB = result.range(of: subString2),
-              rangeA.lowerBound < rangeB.upperBound {
-            let unwanted = result[rangeA.lowerBound..<rangeB.upperBound]
-            result = result.replacingOccurrences(of: unwanted, with: replacement)
-        }
-
-        return result
     }
 
     func caseInsensitiveContains(_ other: String) -> Bool {
@@ -224,20 +151,6 @@ extension UIImage {
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
-    }
-}
-
-// MARK: Optional
-extension Optional {
-    var forceUnwrapped: Wrapped! {
-        if let value = self {
-            return value
-        }
-        Logger.error(
-            "Failed in force unwrapping...",
-            context: ["type": Wrapped.self]
-        )
-        return nil
     }
 }
 

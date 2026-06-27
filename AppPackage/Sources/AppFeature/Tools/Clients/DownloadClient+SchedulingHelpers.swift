@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Mode Resolution
 extension DownloadCoordinator {

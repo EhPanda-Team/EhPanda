@@ -1,4 +1,5 @@
 import Kanna
+import AppModels
 import Combine
 import Foundation
 import ComposableArchitecture
@@ -268,7 +269,7 @@ struct TagTranslatorRequest: Request {
     }
 
     var publisher: AnyPublisher<TagTranslator, AppError> {
-        URLSession.shared.dataTaskPublisher(for: language.checkUpdateURL)
+        URLSession.shared.dataTaskPublisher(for: URLUtil.githubAPI(repoName: language.repoName))
             .genericRetry().tryMap { data, _ -> Date in
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let postedDateString = dict["published_at"] as? String,
@@ -280,7 +281,9 @@ struct TagTranslatorRequest: Request {
                 return postedDate
             }
             .flatMap { date in
-                URLSession.shared.dataTaskPublisher(for: language.downloadURL)
+                URLSession.shared.dataTaskPublisher(
+                    for: URLUtil.githubDownload(repoName: language.repoName, fileName: language.remoteFilename)
+                )
                     .tryMap { data, _ in
                         let response = try JSONDecoder().decode(
                             EhTagTranslationDatabaseResponse.self, from: data

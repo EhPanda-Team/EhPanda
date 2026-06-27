@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Manifest, Folder & Normalize
 extension DownloadCoordinator {

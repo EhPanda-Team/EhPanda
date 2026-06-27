@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 struct CoreDataMigrationStep {
     let sourceModel: NSManagedObjectModel

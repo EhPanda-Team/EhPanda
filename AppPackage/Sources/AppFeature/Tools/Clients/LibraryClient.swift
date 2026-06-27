@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Combine
 import Foundation
 import Kingfisher
