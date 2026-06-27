@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
+import Utilities
 
 struct PopularView: View {
     @Bindable private var store: StoreOf<PopularReducer>

@@ -4,6 +4,7 @@ import Combine
 import Foundation
 import ComposableArchitecture
 import FoundationExt
+import Utilities
 
 protocol Request {
     associatedtype Response: Sendable

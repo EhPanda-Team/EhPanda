@@ -2,13 +2,13 @@ import Foundation
 import AppModels
 
 // MARK: Cookie
-struct CookieUtil {
-    static var didLogin: Bool {
+public struct CookieUtil {
+    public static var didLogin: Bool {
         CookieUtil.verify(for: Defaults.URL.ehentai, isEx: false)
             || CookieUtil.verify(for: Defaults.URL.exhentai, isEx: true)
     }
 
-    static func verify(for url: URL, isEx: Bool) -> Bool {
+    public static func verify(for url: URL, isEx: Bool) -> Bool {
         guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return false }
 
         var igneous, memberID, passHash: String?

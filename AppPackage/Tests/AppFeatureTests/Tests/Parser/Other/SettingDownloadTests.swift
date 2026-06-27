@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Testing
 import FoundationExt
+import Utilities
 @testable import AppFeature
 
 struct SettingDownloadTests {

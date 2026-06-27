@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import SwiftUIPager
 import SFSafeSymbols
+import Utilities
 
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {

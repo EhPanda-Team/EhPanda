@@ -4,6 +4,7 @@ import Resources
 import AlertKit
 import ComposableArchitecture
 import SwiftUINavigationExt
+import Utilities
 
 struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>

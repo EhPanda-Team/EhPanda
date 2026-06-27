@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import Testing
+import Utilities
 @testable import AppFeature
 
 @Suite(.serialized)

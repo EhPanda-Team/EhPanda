@@ -3,6 +3,7 @@ import AppModels
 import Foundation
 import Testing
 import FoundationExt
+import Utilities
 @testable import AppFeature
 
 // MARK: - Sample Data Factories & CoreData Helpers

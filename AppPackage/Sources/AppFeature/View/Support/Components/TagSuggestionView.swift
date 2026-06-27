@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import Observation
 import FoundationExt
+import Utilities
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String
