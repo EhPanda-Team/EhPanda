@@ -11,6 +11,7 @@ import ClipboardClient
 import CookieClient
 import DeviceClient
 import AppDelegateClient
+@testable import ReadingFeature
 @testable import AppFeature
 
 @Suite(.serialized)

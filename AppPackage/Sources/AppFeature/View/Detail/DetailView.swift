@@ -7,6 +7,7 @@ import CommonMark
 import Utilities
 import DesignSystem
 import AppComponents
+import ReadingFeature
 
 private enum DownloadDialog: Equatable {
     case delete(isActiveDownload: Bool)

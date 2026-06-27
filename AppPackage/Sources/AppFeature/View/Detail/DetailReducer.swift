@@ -10,6 +10,7 @@ import Networking
 import DownloadClient
 import CookieClient
 import AppLaunchAutomationClient
+import ReadingFeature
 
 @Reducer
 struct DetailReducer {
