@@ -6,11 +6,12 @@ import DatabaseClient
 import Networking
 import FiltersFeature
 import QuickSearchFeature
+import ComposableArchitectureExt
 
 @Reducer
-struct DetailSearchReducer {
+public struct DetailSearchReducer: Sendable {
     @dynamicMemberLookup @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case filters(EquatableVoid = .unique)
         case quickSearch(EquatableVoid = .unique)
         case detail(String)
@@ -21,21 +22,21 @@ struct DetailSearchReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
-        var lastKeyword = ""
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
+        public var lastKeyword = ""
 
-        var galleries = [Gallery]()
-        var pageNumber = PageNumber()
-        var loadingState: LoadingState = .idle
-        var footerLoadingState: LoadingState = .idle
+        public var galleries = [Gallery]()
+        public var pageNumber = PageNumber()
+        public var loadingState: LoadingState = .idle
+        public var footerLoadingState: LoadingState = .idle
 
-        var detailState: Heap<DetailReducer.State?>
-        var filtersState = FiltersReducer.State()
-        var quickDetailSearchState = QuickSearchReducer.State()
+        public var detailState: Heap<DetailReducer.State?>
+        public var filtersState = FiltersReducer.State()
+        public var quickDetailSearchState = QuickSearchReducer.State()
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
 
@@ -48,7 +49,7 @@ struct DetailSearchReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -67,7 +68,9 @@ struct DetailSearchReducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

@@ -8,6 +8,7 @@ import SwiftUINavigationExt
 import Utilities
 import DesignSystem
 import AppComponents
+import DetailFeature
 
 struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>

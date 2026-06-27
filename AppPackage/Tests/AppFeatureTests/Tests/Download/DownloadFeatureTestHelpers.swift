@@ -7,6 +7,7 @@ import UIKit
 import Testing
 import LibraryClient
 import DownloadClient
+@testable import DetailFeature
 @testable import AppFeature
 
 // MARK: - Shared Test Helper Protocol

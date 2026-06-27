@@ -10,9 +10,9 @@ import DownloadClient
 import ReadingFeature
 
 @Reducer
-struct PreviewsReducer {
+public struct PreviewsReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case reading(EquatableVoid = .init())
     }
 
@@ -24,19 +24,19 @@ struct PreviewsReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
+    public struct State: Equatable, Sendable {
+        public var route: Route?
 
-        var gallery: Gallery = .empty
-        var loadingState: LoadingState = .idle
-        var databaseLoadingState: LoadingState = .loading
+        public var gallery: Gallery = .empty
+        public var loadingState: LoadingState = .idle
+        public var databaseLoadingState: LoadingState = .loading
 
-        var previewURLs = [Int: URL]()
-        var localPreviewURLs = [Int: URL]()
-        var previewConfig: PreviewConfig = .normal(rows: 4)
-        var localPreviewRequestID = UUID()
+        public var previewURLs = [Int: URL]()
+        public var localPreviewURLs = [Int: URL]()
+        public var previewConfig: PreviewConfig = .normal(rows: 4)
+        public var localPreviewRequestID = UUID()
 
-        var readingState = ReadingReducer.State()
+        public var readingState = ReadingReducer.State()
 
         mutating func updatePreviewURLs(_ previewURLs: [Int: URL]) {
             self.previewURLs = self.previewURLs.merging(
@@ -45,7 +45,7 @@ struct PreviewsReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -72,7 +72,9 @@ struct PreviewsReducer {
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

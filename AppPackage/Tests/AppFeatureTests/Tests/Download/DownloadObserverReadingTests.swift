@@ -13,6 +13,7 @@ import CookieClient
 import DeviceClient
 import AppDelegateClient
 @testable import ReadingFeature
+@testable import DetailFeature
 @testable import AppFeature
 
 @Suite(.serialized)

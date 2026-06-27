@@ -6,16 +6,16 @@ import SwiftUINavigationExt
 import DesignSystem
 import AppComponents
 
-struct FolderManagerView: View {
+public struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>
     @FocusState private var focusedField: FolderManagerReducer.EditingField?
     @Environment(\.dismiss) private var dismiss
 
-    init(store: StoreOf<FolderManagerReducer>) {
+    public init(store: StoreOf<FolderManagerReducer>) {
         self.store = store
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ZStack {
                 List {

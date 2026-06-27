@@ -4,6 +4,8 @@ import ComposableArchitecture
 import FoundationExt
 import DownloadClient
 import ReadingFeature
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct DownloadsReducer {

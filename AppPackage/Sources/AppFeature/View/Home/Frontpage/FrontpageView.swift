@@ -8,6 +8,7 @@ import Utilities
 import DesignSystem
 import AppComponents
 import FiltersFeature
+import DetailFeature
 
 struct FrontpageView: View {
     @Bindable private var store: StoreOf<FrontpageReducer>

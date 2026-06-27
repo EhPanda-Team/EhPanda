@@ -9,6 +9,8 @@ import Networking
 import DownloadClient
 import DateSeekFeature
 import QuickSearchFeature
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct FavoritesReducer {

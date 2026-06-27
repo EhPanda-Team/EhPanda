@@ -8,6 +8,7 @@ import Utilities
 import DesignSystem
 import AppComponents
 import ReadingFeature
+import DetailFeature
 
 struct DownloadsView: View {
     private enum RowDialog: Identifiable {

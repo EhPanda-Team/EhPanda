@@ -6,6 +6,7 @@ import ComposableArchitecture
 import Utilities
 import DesignSystem
 import AppComponents
+import DetailFeature
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase

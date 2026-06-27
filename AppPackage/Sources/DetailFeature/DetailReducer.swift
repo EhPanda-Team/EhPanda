@@ -13,9 +13,9 @@ import AppLaunchAutomationClient
 import ReadingFeature
 
 @Reducer
-struct DetailReducer {
+public struct DetailReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case reading(EquatableVoid = .init())
         case archives(URL, URL)
         case torrents(EquatableVoid = .init())
@@ -30,7 +30,7 @@ struct DetailReducer {
         case folderManager(EquatableVoid = .init())
     }
 
-    enum CancelID: Hashable {
+    public enum CancelID: Hashable, Sendable {
         case fetchDatabaseInfos(String)
         case fetchGalleryDetail(String)
         case fetchVersionMetadata(String)
@@ -65,30 +65,30 @@ struct DetailReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var commentContent = ""
-        var postCommentFocused = false
-        var showsNewDawnGreeting = false
-        var showsUserRating = false
-        var showsFullTitle = false
-        var userRating = 0
-        var apiKey = ""
-        var gid = ""
-        var loadingState: LoadingState = .idle
-        var gallery: Gallery = .empty
-        var galleryDetail: GalleryDetail?
-        var galleryVersionMetadata: DownloadVersionMetadata?
-        var galleryTags = [GalleryTag]()
-        var galleryPreviewURLs = [Int: URL]()
-        var localPreviewURLs = [Int: URL]()
-        var galleryComments = [GalleryComment]()
-        var previewConfig: PreviewConfig = .normal(rows: 4)
-        var downloadBadge: DownloadBadge?
-        var downloadFailureCode: DownloadFailureCode?
-        var downloadFolders = [String]()
-        var isPreparingDownload = false
-        var hasLoadedDownloadBadge = false
+    public struct State: Equatable {
+        public var route: Route?
+        public var commentContent = ""
+        public var postCommentFocused = false
+        public var showsNewDawnGreeting = false
+        public var showsUserRating = false
+        public var showsFullTitle = false
+        public var userRating = 0
+        public var apiKey = ""
+        public var gid = ""
+        public var loadingState: LoadingState = .idle
+        public var gallery: Gallery = .empty
+        public var galleryDetail: GalleryDetail?
+        public var galleryVersionMetadata: DownloadVersionMetadata?
+        public var galleryTags = [GalleryTag]()
+        public var galleryPreviewURLs = [Int: URL]()
+        public var localPreviewURLs = [Int: URL]()
+        public var galleryComments = [GalleryComment]()
+        public var previewConfig: PreviewConfig = .normal(rows: 4)
+        public var downloadBadge: DownloadBadge?
+        public var downloadFailureCode: DownloadFailureCode?
+        public var downloadFolders = [String]()
+        public var isPreparingDownload = false
+        public var hasLoadedDownloadBadge = false
 
         var cancellationGalleryID: String {
             gid.isEmpty ? gallery.id : gid
@@ -99,20 +99,20 @@ struct DetailReducer {
             return badge.progress.completedPageCount == 0
                 && downloadFailureCode == .fileOperationFailed
         }
-        var didRunLaunchAutomation = false
-        var shouldCheckForRemoteUpdates = false
-        var didRequestVersionMetadata = false
-        var localPreviewRequestID = UUID()
-        var readingState = ReadingReducer.State()
-        var archivesState = ArchivesReducer.State()
-        var torrentsState = TorrentsReducer.State()
-        var previewsState = PreviewsReducer.State()
-        var commentsState: Heap<CommentsReducer.State?>
-        var galleryInfosState = GalleryInfosReducer.State()
-        var folderManagerState = FolderManagerReducer.State()
-        var detailSearchState: Heap<DetailSearchReducer.State?>
+        public var didRunLaunchAutomation = false
+        public var shouldCheckForRemoteUpdates = false
+        public var didRequestVersionMetadata = false
+        public var localPreviewRequestID = UUID()
+        public var readingState = ReadingReducer.State()
+        public var archivesState = ArchivesReducer.State()
+        public var torrentsState = TorrentsReducer.State()
+        public var previewsState = PreviewsReducer.State()
+        public var commentsState: Heap<CommentsReducer.State?>
+        public var galleryInfosState = GalleryInfosReducer.State()
+        public var folderManagerState = FolderManagerReducer.State()
+        public var detailSearchState: Heap<DetailSearchReducer.State?>
 
-        init() {
+        public init() {
             commentsState = .init(nil)
             detailSearchState = .init(nil)
         }
@@ -123,7 +123,7 @@ struct DetailReducer {
         }
     }
 
-    indirect enum Action: BindableAction {
+    public indirect enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -194,7 +194,9 @@ struct DetailReducer {
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
 
-    var body: some Reducer<State, Action> { detailBody }
+    public init() {}
+
+    public var body: some Reducer<State, Action> { detailBody }
 }
 
 // MARK: - Reducer Body
@@ -247,7 +249,7 @@ extension DetailReducer {
 
 // MARK: - Helpers
 extension DetailReducer {
-    func applyDownload(_ download: DownloadedGallery?, state: inout State) -> Bool {
+    public func applyDownload(_ download: DownloadedGallery?, state: inout State) -> Bool {
         let badge = download?.badge
         let didChangeBadge = badge != state.downloadBadge || !state.hasLoadedDownloadBadge
         state.downloadBadge = badge
