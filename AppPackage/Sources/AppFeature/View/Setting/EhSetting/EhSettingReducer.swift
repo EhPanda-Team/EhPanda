@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
+import UIApplicationClient
 
 @Reducer
 struct EhSettingReducer {

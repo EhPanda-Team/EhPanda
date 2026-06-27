@@ -2,13 +2,13 @@ import Combine
 import LocalAuthentication
 import ComposableArchitecture
 
-struct AuthorizationClient: Sendable {
-    let passcodeNotSet: @Sendable () -> Bool
-    let localAuthroize: @Sendable (String) async -> Bool
+public struct AuthorizationClient: Sendable {
+    public let passcodeNotSet: @Sendable () -> Bool
+    public let localAuthroize: @Sendable (String) async -> Bool
 }
 
 extension AuthorizationClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         passcodeNotSet: {
             var error: NSError?
             return !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
@@ -31,14 +31,14 @@ extension AuthorizationClient {
 }
 
 // MARK: API
-enum AuthorizationClientKey: DependencyKey {
-    static let liveValue = AuthorizationClient.live
-    static let previewValue = AuthorizationClient.noop
-    static let testValue = AuthorizationClient.unimplemented
+public enum AuthorizationClientKey: DependencyKey {
+    public static let liveValue = AuthorizationClient.live
+    public static let previewValue = AuthorizationClient.noop
+    public static let testValue = AuthorizationClient.unimplemented
 }
 
 extension DependencyValues {
-    var authorizationClient: AuthorizationClient {
+    public var authorizationClient: AuthorizationClient {
         get { self[AuthorizationClientKey.self] }
         set { self[AuthorizationClientKey.self] = newValue }
     }
@@ -46,14 +46,14 @@ extension DependencyValues {
 
 // MARK: Test
 extension AuthorizationClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         passcodeNotSet: { false },
         localAuthroize: { _ in false }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         passcodeNotSet: IssueReporting.unimplemented(placeholder: placeholder()),
         localAuthroize: IssueReporting.unimplemented(placeholder: placeholder())
     )

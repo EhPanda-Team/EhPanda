@@ -1,13 +1,13 @@
 import ComposableArchitecture
 import AppModels
 
-struct LoggerClient: Sendable {
-    let info: @Sendable (Any, Any?) -> Void
-    let error: @Sendable (Any, Any?) -> Void
+public struct LoggerClient: Sendable {
+    public let info: @Sendable (Any, Any?) -> Void
+    public let error: @Sendable (Any, Any?) -> Void
 }
 
 extension LoggerClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         info: { message, context in
             Logger.info(message, context: context)
         },
@@ -18,14 +18,14 @@ extension LoggerClient {
 }
 
 // MARK: API
-enum LoggerClientKey: DependencyKey {
-    static let liveValue = LoggerClient.live
-    static let previewValue = LoggerClient.noop
-    static let testValue = LoggerClient.unimplemented
+public enum LoggerClientKey: DependencyKey {
+    public static let liveValue = LoggerClient.live
+    public static let previewValue = LoggerClient.noop
+    public static let testValue = LoggerClient.unimplemented
 }
 
 extension DependencyValues {
-    var loggerClient: LoggerClient {
+    public var loggerClient: LoggerClient {
         get { self[LoggerClientKey.self] }
         set { self[LoggerClientKey.self] = newValue }
     }
@@ -33,14 +33,14 @@ extension DependencyValues {
 
 // MARK: Test
 extension LoggerClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         info: { _, _ in },
         error: { _, _ in }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         info: IssueReporting.unimplemented(placeholder: placeholder()),
         error: IssueReporting.unimplemented(placeholder: placeholder())
     )

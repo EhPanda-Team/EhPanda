@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import Testing
+import URLClient
 @testable import AppFeature
 
 @Suite(.serialized)
