@@ -230,6 +230,7 @@ let targets: [PackageDescription.Target] = [
     ),
     .target(
         module: .resources,
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),

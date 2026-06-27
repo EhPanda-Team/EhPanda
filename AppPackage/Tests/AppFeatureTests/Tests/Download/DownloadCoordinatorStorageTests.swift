@@ -1,4 +1,5 @@
 import Kingfisher
+import Resources
 import UIKit
 import Foundation
 import Testing

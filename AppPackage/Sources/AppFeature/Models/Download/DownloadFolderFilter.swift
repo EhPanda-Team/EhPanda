@@ -1,3 +1,5 @@
+import Resources
+
 enum DownloadFolderFilter: Equatable {
     case all
     case folder(String)

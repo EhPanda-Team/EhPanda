@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 import ComposableArchitecture
 #if DEBUG
 import Synchronization

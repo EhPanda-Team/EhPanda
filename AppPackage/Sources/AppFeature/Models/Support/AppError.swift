@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 import SFSafeSymbols
 
 enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {

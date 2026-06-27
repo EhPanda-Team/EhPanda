@@ -1,3 +1,5 @@
+import Resources
+
 // MARK: EhSetting
 struct EhSetting: Equatable {
     // swiftlint:disable line_length

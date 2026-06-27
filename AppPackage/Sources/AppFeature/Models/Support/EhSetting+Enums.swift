@@ -1,3 +1,5 @@
+import Resources
+
 // MARK: CommentsSortOrder
 extension EhSetting {
     enum CommentsSortOrder: Int, CaseIterable, Identifiable {

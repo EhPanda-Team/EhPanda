@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme

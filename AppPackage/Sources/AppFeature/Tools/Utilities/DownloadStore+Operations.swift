@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 extension DownloadStore {
     func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {

@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 // MARK: ControlPanel
 struct ControlPanel<G: Gesture>: View {

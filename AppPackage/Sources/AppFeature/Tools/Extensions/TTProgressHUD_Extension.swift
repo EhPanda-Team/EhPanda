@@ -1,4 +1,5 @@
 import TTProgressHUD
+import Resources
 
 enum ProgressHUDConfigState: Equatable, Sendable {
     case loading(title: String? = nil)

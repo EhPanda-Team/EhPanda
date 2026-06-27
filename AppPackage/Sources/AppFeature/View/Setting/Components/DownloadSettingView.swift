@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 struct DownloadSettingView: View {
     @Binding private var downloadThreadLimit: Int

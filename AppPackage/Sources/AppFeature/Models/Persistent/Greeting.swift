@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 struct Greeting: Codable, Equatable, Hashable, Identifiable {
     static let mock: Self = {

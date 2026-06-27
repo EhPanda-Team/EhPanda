@@ -1,3 +1,5 @@
+import Resources
+
 // MARK: ThumbnailLoadTiming
 extension EhSetting {
     enum ThumbnailLoadTiming: Int, CaseIterable, Identifiable {

@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 struct GalleryArchive: Codable, Equatable {
     struct HathArchive: Codable, Identifiable, Equatable {

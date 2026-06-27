@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 import CryptoKit
 
 enum DownloadValidationState: Equatable, Sendable {

@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 enum Category: String, Codable, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
