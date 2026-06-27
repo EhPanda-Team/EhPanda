@@ -1,4 +1,5 @@
 import SwiftUI
+import SFSafeSymbols
 import Utilities
 
 // MARK: DoubleVerticalKeywordsStack

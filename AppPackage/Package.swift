@@ -97,6 +97,7 @@ enum Module: String {
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
     case resources = "Resources"
+    case searchFeature = "SearchFeature"
     case sdWebImageExt = "SDWebImageExt"
     case swiftUINavigationExt = "SwiftUINavigationExt"
     case uiApplicationClient = "UIApplicationClient"
@@ -269,6 +270,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.readingFeature),
             .module(.resources),
+            .module(.searchFeature),
             .module(.sdWebImageExt),
             .module(.swiftUINavigationExt),
             .module(.uiApplicationClient),
@@ -574,6 +576,31 @@ let targets: [PackageDescription.Target] = [
             .module(.designSystem),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .searchFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.composableArchitectureExt),
+            .module(.databaseClient),
+            .module(.dateSeekFeature),
+            .module(.designSystem),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.filtersFeature),
+            .module(.foundationExt),
+            .module(.hapticsClient),
+            .module(.networking),
+            .module(.quickSearchFeature),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],

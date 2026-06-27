@@ -13,9 +13,9 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct SearchReducer {
+public struct SearchReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case filters(EquatableVoid = .init())
         case quickSearch(EquatableVoid = .init())
         case detail(String)
@@ -26,24 +26,24 @@ struct SearchReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
-        var lastKeyword = ""
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
+        public var lastKeyword = ""
 
-        var galleries = [Gallery]()
-        var pageNumber = PageNumber()
-        var dateSeekNavigation: DateSeekNavigation?
-        var loadingState: LoadingState = .idle
-        var footerLoadingState: LoadingState = .idle
-        var downloadBadges = [String: DownloadBadge]()
+        public var galleries = [Gallery]()
+        public var pageNumber = PageNumber()
+        public var dateSeekNavigation: DateSeekNavigation?
+        public var loadingState: LoadingState = .idle
+        public var footerLoadingState: LoadingState = .idle
+        public var downloadBadges = [String: DownloadBadge]()
 
-        var dateSeek = DateSeekReducer.State()
-        var filtersState = FiltersReducer.State()
-        var detailState: Heap<DetailReducer.State?>
-        var quickSearchState = QuickSearchReducer.State()
+        public var dateSeek = DateSeekReducer.State()
+        public var filtersState = FiltersReducer.State()
+        public var detailState: Heap<DetailReducer.State?>
+        public var quickSearchState = QuickSearchReducer.State()
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
 
@@ -56,7 +56,7 @@ struct SearchReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
         case setNavigation(Route?)
@@ -81,7 +81,9 @@ struct SearchReducer {
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

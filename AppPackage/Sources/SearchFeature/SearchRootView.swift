@@ -11,14 +11,14 @@ import FiltersFeature
 import QuickSearchFeature
 import DetailFeature
 
-struct SearchRootView: View {
+public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
-    init(
+    public init(
         store: StoreOf<SearchRootReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
@@ -29,7 +29,7 @@ struct SearchRootView: View {
         self.tagTranslator = tagTranslator
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             let content =
                 ScrollView(showsIndicators: false) {
