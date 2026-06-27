@@ -13,31 +13,31 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct FavoritesReducer {
+public struct FavoritesReducer: Sendable {
     private enum CancelID {
         case observeDownloads
     }
 
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case quickSearch(EquatableVoid = .init())
         case detail(String)
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
 
-        var index = -1
-        var sortOrder: FavoritesSortOrder?
+        public var index = -1
+        public var sortOrder: FavoritesSortOrder?
 
-        var rawGalleries = [Int: [Gallery]]()
-        var rawPageNumber = [Int: PageNumber]()
-        var rawDateSeekNavigation = [Int: DateSeekNavigation]()
-        var rawLoadingState = [Int: LoadingState]()
-        var rawFooterLoadingState = [Int: LoadingState]()
-        var downloadBadges = [String: DownloadBadge]()
+        public var rawGalleries = [Int: [Gallery]]()
+        public var rawPageNumber = [Int: PageNumber]()
+        public var rawDateSeekNavigation = [Int: DateSeekNavigation]()
+        public var rawLoadingState = [Int: LoadingState]()
+        public var rawFooterLoadingState = [Int: LoadingState]()
+        public var downloadBadges = [String: DownloadBadge]()
 
         var galleries: [Gallery]? {
             rawGalleries[index]
@@ -55,11 +55,11 @@ struct FavoritesReducer {
             rawFooterLoadingState[index]
         }
 
-        var dateSeek = DateSeekReducer.State()
-        var detailState: Heap<DetailReducer.State?>
-        var quickSearchState = QuickSearchReducer.State()
+        public var dateSeek = DateSeekReducer.State()
+        public var detailState: Heap<DetailReducer.State?>
+        public var quickSearchState = QuickSearchReducer.State()
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
 
@@ -72,7 +72,7 @@ struct FavoritesReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
         case setNavigation(Route?)
@@ -97,7 +97,9 @@ struct FavoritesReducer {
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

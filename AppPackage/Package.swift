@@ -83,6 +83,7 @@ enum Module: String {
     case detailFeature = "DetailFeature"
     case deviceClient = "DeviceClient"
     case downloadClient = "DownloadClient"
+    case favoritesFeature = "FavoritesFeature"
     case fileClient = "FileClient"
     case filtersFeature = "FiltersFeature"
     case foundationExt = "FoundationExt"
@@ -256,6 +257,7 @@ let targets: [PackageDescription.Target] = [
             .module(.dfClient),
             .module(.deviceClient),
             .module(.downloadClient),
+            .module(.favoritesFeature),
             .module(.fileClient),
             .module(.filtersFeature),
             .module(.foundationExt),
@@ -578,6 +580,29 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .favoritesFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.composableArchitectureExt),
+            .module(.databaseClient),
+            .module(.dateSeekFeature),
+            .module(.designSystem),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.hapticsClient),
+            .module(.networking),
+            .module(.quickSearchFeature),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .module(.utilities),
+            .targetDependency(.alertKit),
+            .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

@@ -10,14 +10,14 @@ import AppComponents
 import QuickSearchFeature
 import DetailFeature
 
-struct FavoritesView: View {
+public struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
-    init(
+    public init(
         store: StoreOf<FavoritesReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
@@ -33,7 +33,7 @@ struct FavoritesView: View {
         return (store.index == -1 ? L10n.Localizable.FavoritesView.Title.favorites : favoriteCategory)
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             let content =
                 ZStack {
