@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
+import DesignSystem
 
 struct AppearanceSettingView: View {
     @Bindable private var store: StoreOf<AppearanceSettingReducer>

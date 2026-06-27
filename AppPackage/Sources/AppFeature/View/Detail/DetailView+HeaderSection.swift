@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import SFSafeSymbols
 import Utilities
+import DesignSystem
 
 // MARK: HeaderSection
 struct HeaderSection: View {

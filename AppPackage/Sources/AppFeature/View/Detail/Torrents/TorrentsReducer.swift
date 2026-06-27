@@ -6,6 +6,7 @@ import HapticsClient
 import Networking
 import ClipboardClient
 import FileClient
+import DesignSystem
 
 @Reducer
 struct TorrentsReducer {

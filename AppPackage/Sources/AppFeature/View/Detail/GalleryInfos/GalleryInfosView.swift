@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import Utilities
+import DesignSystem
 
 struct GalleryInfosView: View {
     @Bindable private var store: StoreOf<GalleryInfosReducer>

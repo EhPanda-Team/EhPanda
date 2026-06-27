@@ -4,6 +4,7 @@ import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
+import DesignSystem
 
 struct WatchedView: View {
     @Bindable private var store: StoreOf<WatchedReducer>

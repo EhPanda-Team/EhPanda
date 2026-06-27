@@ -3,6 +3,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
+import DesignSystem
 
 struct FolderManagerView: View {
     @Bindable private var store: StoreOf<FolderManagerReducer>

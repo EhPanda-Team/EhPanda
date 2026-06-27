@@ -6,13 +6,13 @@ import Utilities
 // currently browsing. The runtime lookup (UserDefaults via AppUtil) lives here in the app
 // layer so the model types stay free of that dependency.
 extension AppModels.Category {
-    var color: Color {
+    public var color: Color {
         color(host: AppUtil.galleryHost)
     }
 }
 
 extension Gallery {
-    var color: Color {
+    public var color: Color {
         category.color
     }
 }

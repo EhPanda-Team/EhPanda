@@ -4,7 +4,7 @@ import SwiftUINavigation
 import SwiftUINavigationExt
 
 extension View {
-    func progressHUD<Enum: Equatable & Sendable, Case: Sendable>(
+    public func progressHUD<Enum: Equatable & Sendable, Case: Sendable>(
         config: ProgressHUDConfigState,
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>

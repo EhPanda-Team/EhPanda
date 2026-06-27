@@ -5,6 +5,7 @@ import Kingfisher
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
+import DesignSystem
 
 struct CommentsView: View {
     @Bindable private var store: StoreOf<CommentsReducer>

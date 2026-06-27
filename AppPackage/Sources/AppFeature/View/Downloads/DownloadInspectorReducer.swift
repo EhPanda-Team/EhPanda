@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DownloadClient
+import DesignSystem
 
 @Reducer
 struct DownloadInspectorReducer {

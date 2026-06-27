@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import FoundationExt
 import Utilities
+import DesignSystem
 
 // MARK: DescriptionSection
 struct DescriptionSection: View {

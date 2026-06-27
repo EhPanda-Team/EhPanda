@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
+import DesignSystem
 
 struct TorrentsView: View {
     @Bindable private var store: StoreOf<TorrentsReducer>

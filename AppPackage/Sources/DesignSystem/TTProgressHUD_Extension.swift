@@ -1,7 +1,7 @@
 import TTProgressHUD
 import Resources
 
-enum ProgressHUDConfigState: Equatable, Sendable {
+public enum ProgressHUDConfigState: Equatable, Sendable {
     case loading(title: String? = nil)
     case communicating
     case error(caption: String? = nil)
@@ -10,7 +10,7 @@ enum ProgressHUDConfigState: Equatable, Sendable {
     case copiedToClipboardSucceeded
 
     @MainActor
-    var progressHUDConfig: TTProgressHUDConfig {
+    public var progressHUDConfig: TTProgressHUDConfig {
         switch self {
         case .loading(let title):
             return .loading(title: title)
@@ -30,26 +30,30 @@ enum ProgressHUDConfigState: Equatable, Sendable {
 
 extension TTProgressHUDConfig {
     @MainActor
-    static var error: Self { error(caption: nil) }
+    public static var error: Self { error(caption: nil) }
     @MainActor
-    static var loading: Self { loading(title: L10n.Localizable.Hud.Title.loading) }
+    public static var loading: Self { loading(title: L10n.Localizable.Hud.Title.loading) }
     @MainActor
-    static var communicating: Self { loading(title: L10n.Localizable.Hud.Title.communicating) }
+    public static var communicating: Self { loading(title: L10n.Localizable.Hud.Title.communicating) }
     @MainActor
-    static var savedToPhotoLibrary: Self { success(caption: L10n.Localizable.Hud.Caption.savedToPhotoLibrary) }
+    public static var savedToPhotoLibrary: Self {
+        success(caption: L10n.Localizable.Hud.Caption.savedToPhotoLibrary)
+    }
     @MainActor
-    static var copiedToClipboardSucceeded: Self { success(caption: L10n.Localizable.Hud.Caption.copiedToClipboard) }
+    public static var copiedToClipboardSucceeded: Self {
+        success(caption: L10n.Localizable.Hud.Caption.copiedToClipboard)
+    }
 
-    static func loading(title: String? = nil) -> Self {
+    public static func loading(title: String? = nil) -> Self {
         .init(type: .loading, title: title)
     }
-    static func error(caption: String? = nil) -> Self {
+    public static func error(caption: String? = nil) -> Self {
         autoHide(type: .error, title: L10n.Localizable.Hud.Title.error, caption: caption)
     }
-    static func success(caption: String? = nil) -> Self {
+    public static func success(caption: String? = nil) -> Self {
         autoHide(type: .success, title: L10n.Localizable.Hud.Title.success, caption: caption)
     }
-    static func autoHide(type: TTProgressHUDType, title: String? = nil, caption: String? = nil) -> Self {
+    public static func autoHide(type: TTProgressHUDType, title: String? = nil, caption: String? = nil) -> Self {
         .init(type: type, title: title, caption: caption, shouldAutoHide: true, autoHideInterval: 1)
     }
 }

@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
+import DesignSystem
 
 struct DownloadInspectorView: View {
     @Environment(\.dismiss) private var dismiss

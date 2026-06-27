@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import Kingfisher
+import DesignSystem
 
 struct GalleryHistoryCell: View {
     private let gallery: Gallery

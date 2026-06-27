@@ -3,6 +3,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
+import DesignSystem
 
 struct SettingView: View {
     @Bindable private var store: StoreOf<SettingReducer>
