@@ -3,7 +3,7 @@ import AppModels
 import SwiftUI
 
 extension Parser {
-    static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
+    public static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
         let galleries: [Gallery]
         switch try? parseDisplayMode(doc: doc) {
         case "Minimal":

@@ -76,6 +76,7 @@ enum Module: String {
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
     case loggerClient = "LoggerClient"
+    case parser = "Parser"
     case resources = "Resources"
     case sdWebImageExt = "SDWebImageExt"
     case swiftUINavigationExt = "SwiftUINavigationExt"
@@ -228,6 +229,7 @@ let targets: [PackageDescription.Target] = [
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
+            .module(.parser),
             .module(.resources),
             .module(.sdWebImageExt),
             .module(.swiftUINavigationExt),
@@ -380,6 +382,18 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .parser,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .module(.resources),
+            .module(.utilities),
+            .targetDependency(.kanna)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .uiApplicationClient,
         dependencies: [
             .module(.foundationExt),
@@ -421,6 +435,7 @@ let targets: [PackageDescription.Target] = [
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
+            .module(.parser),
             .module(.sdWebImageExt),
             .module(.uiApplicationClient),
             .module(.urlClient),

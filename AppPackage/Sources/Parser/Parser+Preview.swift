@@ -4,7 +4,7 @@ import Foundation
 import Utilities
 
 extension Parser {
-    static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
+    public static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
 
@@ -12,7 +12,7 @@ extension Parser {
         return combinedURLs.isEmpty ? parseStandalonePreviewURLs(node: gdtNode) : combinedURLs
     }
 
-    static func parsePreviewConfigs(url: URL) -> PreviewConfigInfo? {
+    public static func parsePreviewConfigs(url: URL) -> PreviewConfigInfo? {
         guard var components = URLComponents(
                 url: url, resolvingAgainstBaseURL: false
               ),

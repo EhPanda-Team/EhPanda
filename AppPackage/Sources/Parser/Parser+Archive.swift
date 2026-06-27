@@ -3,7 +3,7 @@ import AppModels
 import Foundation
 
 extension Parser {
-    static func parseGalleryArchive(doc: HTMLDocument) throws -> GalleryArchive {
+    public static func parseGalleryArchive(doc: HTMLDocument) throws -> GalleryArchive {
         guard let node = doc.at_xpath("//table")
         else { throw AppError.parseFailed }
 
@@ -54,7 +54,7 @@ extension Parser {
         return GalleryArchive(hathArchives: hathArchives)
     }
 
-    static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> String {
+    public static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> String {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
 

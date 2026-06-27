@@ -3,14 +3,14 @@ import AppModels
 import Foundation
 
 extension Parser {
-    static func parseSkipServerIdentifier(doc: HTMLDocument) throws -> String {
+    public static func parseSkipServerIdentifier(doc: HTMLDocument) throws -> String {
         guard let text = doc.at_xpath("//div [@id='i6']")?.at_xpath("//a [@id='loadfail']")?["onclick"],
               let rangeA = text.range(of: "nl('"), let rangeB = text.range(of: "')")
         else { throw AppError.parseFailed }
         return .init(text[rangeA.upperBound..<rangeB.lowerBound])
     }
 
-    static func parseAPIKey(doc: HTMLDocument) throws -> String {
+    public static func parseAPIKey(doc: HTMLDocument) throws -> String {
         var tmpKey: String?
 
         for link in doc.xpath("//script [@type='text/javascript']") {
@@ -29,7 +29,7 @@ extension Parser {
     }
 
     /// Parses the gallery-list pager.
-    static func parsePageNum(doc: HTMLDocument) -> PageNumber {
+    public static func parsePageNum(doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
 

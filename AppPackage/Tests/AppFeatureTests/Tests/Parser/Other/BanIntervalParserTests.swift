@@ -1,5 +1,6 @@
 import Kanna
 import Testing
+import Parser
 @testable import AppFeature
 
 struct BanIntervalParserTests: TestHelper {

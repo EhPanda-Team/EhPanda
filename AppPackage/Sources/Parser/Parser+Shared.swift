@@ -1,6 +1,7 @@
 import Kanna
 import AppModels
 import Foundation
+import Utilities
 
 extension Parser {
     static func parseGTX00IndexFromTitle(from title: String) -> Int? {
@@ -87,7 +88,9 @@ extension Parser {
         return try? parseDate(time: value, format: "yyyy-MM-dd")
     }
 
-    static func parseDateSeekNavigation(doc: HTMLDocument, host: URL = Defaults.URL.host) -> DateSeekNavigation? {
+    public static func parseDateSeekNavigation(
+        doc: HTMLDocument, host: URL = Defaults.URL.host
+    ) -> DateSeekNavigation? {
         guard let minimumDate = parseScriptDate(name: "mindate", doc: doc),
               let maximumDate = parseScriptDate(name: "maxdate", doc: doc),
               let directions = DateSeekNavigation.Directions(
@@ -146,7 +149,7 @@ extension Parser {
     }
     // swiftlint:enable cyclomatic_complexity
 
-    static func parseBanInterval(doc: HTMLDocument) -> BanInterval? {
+    public static func parseBanInterval(doc: HTMLDocument) -> BanInterval? {
         guard let text = doc.body?.text, let range = text.range(of: "The ban expires in ")
         else { return nil }
 

@@ -4,6 +4,7 @@ import Combine
 import Foundation
 import FoundationExt
 import Utilities
+import Parser
 
 // MARK: Account Ops
 struct LoginRequest: Request {
@@ -43,10 +44,6 @@ struct IgneousRequest: Request {
     }
 }
 
-struct VerifyEhProfileResponse: Equatable {
-    let profileValue: Int?
-    let isProfileNotFound: Bool
-}
 struct VerifyEhProfileRequest: Request {
     var publisher: AnyPublisher<VerifyEhProfileResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)

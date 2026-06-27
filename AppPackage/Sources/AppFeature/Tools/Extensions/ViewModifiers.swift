@@ -1,6 +1,7 @@
 import SwiftUI
 import Kingfisher
 import FoundationExt
+import Parser
 
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
