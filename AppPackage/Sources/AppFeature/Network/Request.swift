@@ -3,6 +3,7 @@ import AppModels
 import Combine
 import Foundation
 import ComposableArchitecture
+import FoundationExt
 
 protocol Request {
     associatedtype Response: Sendable

@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import AppModels
 import Foundation
+import SwiftUINavigationExt
 
 @Reducer
 struct SearchReducer {

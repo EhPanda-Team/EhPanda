@@ -1,10 +1,10 @@
 import SwiftUI
-import AppModels
+import UIKit
 import Foundation
 
 // MARK: Encodable
 extension Encodable {
-    func toData() -> Data? {
+    public func toData() -> Data? {
         try? JSONEncoder().encode(self)
     }
 }
@@ -12,17 +12,17 @@ extension Encodable {
 // MARK: UIApplication
 extension UIApplication {
     @MainActor
-    func endEditing() {
+    public func endEditing() {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
 // MARK: Data
 extension Data {
-    func toObject<O: Decodable>() -> O? {
+    public func toObject<O: Decodable>() -> O? {
         try? JSONDecoder().decode(O.self, from: self)
     }
-    var utf8InvalidCharactersRipped: Data {
+    public var utf8InvalidCharactersRipped: Data {
         var data = self
         data.append(0)
 
@@ -38,7 +38,7 @@ extension Data {
 
 // MARK: Float
 extension Float {
-    var halfRounded: Float {
+    public var halfRounded: Float {
         let lowerbound = Int(self)
         let upperbound = lowerbound + 1
         let decimal: Float = self - Float(lowerbound)
@@ -53,46 +53,30 @@ extension Float {
     }
 }
 
-// MARK: URL
-extension URL {
-    static let mock = Defaults.URL.ehentai
-
-    func previewCacheCleanupURLs() -> [URL] {
-        guard let info = Parser.parsePreviewConfigs(url: self),
-              info.plainURL != self
-        else {
-            return [self]
-        }
-
-        return [self, info.plainURL]
-    }
-
-}
-
 // MARK: String
 extension String {
-    var isInteger: Bool {
+    public var isInteger: Bool {
         Int(self) != nil
     }
-    var isValidGID: Bool {
+    public var isValidGID: Bool {
         !isEmpty && isInteger
     }
-    var localizedKey: LocalizedStringKey {
+    public var localizedKey: LocalizedStringKey {
         .init(self)
     }
-    var emojisRipped: String {
+    public var emojisRipped: String {
         unicodeScalars
             .filter { !$0.properties.isEmojiPresentation }
             .reduce("") { $0 + .init($1) }
     }
 
-    var urlEncoded: String {
+    public var urlEncoded: String {
         addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed
         ) ?? ""
     }
 
-    var isValidURL: Bool {
+    public var isValidURL: Bool {
         if let detector = try? NSDataDetector(
             types: NSTextCheckingResult.CheckingType.link.rawValue
         ) {
@@ -104,17 +88,17 @@ extension String {
         } else { return false }
     }
 
-    func caseInsensitiveContains(_ other: String) -> Bool {
+    public func caseInsensitiveContains(_ other: String) -> Bool {
         range(of: other, options: .caseInsensitive) != nil
     }
-    func caseInsensitiveEqualsTo(_ other: String) -> Bool {
+    public func caseInsensitiveEqualsTo(_ other: String) -> Bool {
         caseInsensitiveContains(other) && count == other.count
     }
 }
 
 // MARK: UIImage
 extension UIImage {
-    func cropping(to rect: CGRect) -> UIImage? {
+    public func cropping(to rect: CGRect) -> UIImage? {
         let scaledRect = CGRect(
             x: rect.origin.x * scale,
             y: rect.origin.y * scale,
@@ -126,13 +110,13 @@ extension UIImage {
         return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
     }
 
-    func cropping(size: CGSize, offset: CGSize) -> UIImage? {
+    public func cropping(size: CGSize, offset: CGSize) -> UIImage? {
         let origin = CGPoint(x: offset.width, y: offset.height)
         let rect = CGRect(origin: origin, size: size)
         return cropping(to: rect)
     }
 
-    func withRoundedCorners(radius: CGFloat) -> UIImage? {
+    public func withRoundedCorners(radius: CGFloat) -> UIImage? {
         let maxRadius = min(size.width, size.height) / 2
 
         let cornerRadius: CGFloat
@@ -156,7 +140,7 @@ extension UIImage {
 
 // MARK: Color
 extension Color {
-    init(hex: String) {
+    public init(hex: String) {
         let hex = hex.trimmingCharacters(
             in: CharacterSet.alphanumerics.inverted
         )
@@ -184,30 +168,30 @@ extension Color {
 
 // MARK: Array
 extension Array {
-    func removeDuplicates(by predicate: (Element, Element) -> Bool) -> Self {
+    public func removeDuplicates(by predicate: (Element, Element) -> Bool) -> Self {
         var result = [Element]()
         for value in self where result.filter({ predicate($0, value) }).isEmpty {
             result.append(value)
         }
         return result
     }
-    func removeDuplicates(by keyPath: KeyPath<Element, String>) -> Self {
+    public func removeDuplicates(by keyPath: KeyPath<Element, String>) -> Self {
         removeDuplicates(by: { $0[keyPath: keyPath] == $1[keyPath: keyPath] })
     }
-    func removeDuplicates() -> Self where Element: Equatable {
+    public func removeDuplicates() -> Self where Element: Equatable {
         removeDuplicates(by: ==)
     }
 }
 
 // MARK: Dictionary
 extension Dictionary {
-    var tuples: [(Key, Value)] {
+    public var tuples: [(Key, Value)] {
         map({ ($0.key, $0.value) })
     }
 }
 
 // MARK: TimeInterval
 extension TimeInterval {
-    static let oneYear: Self = .init(60 * 60 * 24 * 365)
-    static let oneWeek: Self = .init(60 * 60 * 24 * 7)
+    public static let oneYear: Self = .init(60 * 60 * 24 * 365)
+    public static let oneWeek: Self = .init(60 * 60 * 24 * 7)
 }

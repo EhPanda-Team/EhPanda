@@ -1,4 +1,5 @@
 import SwiftUI
+import FoundationExt
 
 struct RatingView: View {
     private let rawRating: Float

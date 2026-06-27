@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct SearchView: View {
     @Bindable private var store: StoreOf<SearchReducer>

@@ -2,6 +2,8 @@ import SwiftUI
 import Kingfisher
 import TTProgressHUD
 import ComposableArchitecture
+import FoundationExt
+import SwiftUINavigationExt
 
 // MARK: - CancelID
 enum ReadingCancelID: CaseIterable {

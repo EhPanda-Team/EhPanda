@@ -1,6 +1,7 @@
 import SwiftUI
 import Resources
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 // MARK: NavigationLinks
 extension DetailView {

@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import AlertKit
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct FrontpageView: View {
     @Bindable private var store: StoreOf<FrontpageReducer>

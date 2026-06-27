@@ -3,6 +3,7 @@ import AppModels
 import Combine
 import CoreData
 import ComposableArchitecture
+import FoundationExt
 
 struct DatabaseClient: Sendable {
     let prepareDatabase: @Sendable () async -> Result<Void, AppError>

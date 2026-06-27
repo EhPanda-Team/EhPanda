@@ -2,6 +2,7 @@ import Kanna
 import AppModels
 import Combine
 import Foundation
+import FoundationExt
 
 // MARK: Account Ops
 struct LoginRequest: Request {

@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import FilePicker
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct GeneralSettingView: View {
     @Bindable private var store: StoreOf<GeneralSettingReducer>
