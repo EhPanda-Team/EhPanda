@@ -3,6 +3,7 @@ import Testing
 import HapticsClient
 import DeviceClient
 import AppDelegateClient
+@testable import DownloadsFeature
 @testable import AppFeature
 
 struct DownloadsReducerReadingDismissTests {
