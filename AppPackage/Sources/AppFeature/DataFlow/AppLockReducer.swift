@@ -1,6 +1,7 @@
 import SwiftUI
 import Resources
 import ComposableArchitecture
+import AuthorizationClient
 
 @Reducer
 struct AppLockReducer {
