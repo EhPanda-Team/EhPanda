@@ -10,14 +10,14 @@ import DesignSystem
 import AppComponents
 import DetailFeature
 
-struct HomeView: View {
+public struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
-    init(
+    public init(
         store: StoreOf<HomeReducer>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
@@ -29,7 +29,7 @@ struct HomeView: View {
     }
 
     // MARK: HomeView
-    var body: some View {
+    public var body: some View {
         NavigationView {
             let content =
                 ZStack {
@@ -192,8 +192,8 @@ private extension HomeView {
 }
 
 // MARK: Definition
-enum HomeMiscGridType: CaseIterable, Identifiable {
-    var id: String { title }
+public enum HomeMiscGridType: CaseIterable, Identifiable, Sendable {
+    public var id: String { title }
 
     case popular
     case watched
@@ -223,8 +223,8 @@ extension HomeMiscGridType {
     }
 }
 
-enum HomeSectionType: String, CaseIterable, Identifiable {
-    var id: String { rawValue }
+public enum HomeSectionType: String, CaseIterable, Identifiable, Sendable {
+    public var id: String { rawValue }
 
     case frontpage
     case toplists
