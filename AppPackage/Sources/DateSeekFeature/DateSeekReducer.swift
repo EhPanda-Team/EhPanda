@@ -2,7 +2,6 @@ import ComposableArchitecture
 import AppModels
 import Foundation
 import HapticsClient
-import AppComponents
 
 /// A headless, reusable sub-reducer for the "Seek to date" control.
 ///
@@ -16,15 +15,17 @@ import AppComponents
 /// The host performs the request and stores the result, because the gallery list and its loading
 /// state belong to the host — not to this control.
 @Reducer
-struct DateSeekReducer {
+public struct DateSeekReducer: Sendable {
     @ObservableState
-    struct State: Equatable {
-        var date = Date()
+    public struct State: Equatable {
+        public var date = Date()
         /// The navigation whose picker is presented; `nil` while the sheet is dismissed.
-        var navigation: DateSeekNavigation?
+        public var navigation: DateSeekNavigation?
+
+        public init() {}
     }
 
-    enum Action {
+    public enum Action {
         case present(DateSeekNavigation)
         case setNavigation(DateSeekNavigation?)
         case performSeek(DateSeekDirection)
@@ -32,13 +33,15 @@ struct DateSeekReducer {
     }
 
     @CasePathable
-    enum Delegate: Equatable {
+    public enum Delegate: Equatable {
         case performSeek(URL)
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .present(let navigation):

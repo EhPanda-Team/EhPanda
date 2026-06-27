@@ -78,6 +78,7 @@ enum Module: String {
     case cookieClient = "CookieClient"
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
+    case dateSeekFeature = "DateSeekFeature"
     case designSystem = "DesignSystem"
     case deviceClient = "DeviceClient"
     case downloadClient = "DownloadClient"
@@ -244,6 +245,7 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.cookieClient),
             .module(.databaseClient),
+            .module(.dateSeekFeature),
             .module(.designSystem),
             .module(.dfClient),
             .module(.deviceClient),
@@ -539,6 +541,16 @@ let targets: [PackageDescription.Target] = [
             .module(.designSystem),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .dateSeekFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.hapticsClient),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,

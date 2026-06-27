@@ -6,6 +6,7 @@ import DatabaseClient
 import Networking
 import DownloadClient
 import FiltersFeature
+import DateSeekFeature
 
 @Reducer
 struct WatchedReducer {
