@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import Kanna
 import Testing
+import Parser
 @testable import AppFeature
 
 struct ListParserTests: TestHelper {

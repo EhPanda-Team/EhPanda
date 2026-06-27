@@ -4,7 +4,7 @@ import Foundation
 
 extension Parser {
     // MARK: ImageURL
-    static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
+    public static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
         var thumbnailURLs = [Int: URL]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
@@ -24,7 +24,7 @@ extension Parser {
         return thumbnailURLs
     }
 
-    static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> GalleryNormalImageInfo {
+    public static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> GalleryNormalImageInfo {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURLString = i3Node.at_css("img")?["src"],
               let imageURL = URL(string: imageURLString)
@@ -48,7 +48,7 @@ extension Parser {
         )
     }
 
-    static func parseMPVKeys(doc: HTMLDocument) throws -> (String, [Int: String]) {
+    public static func parseMPVKeys(doc: HTMLDocument) throws -> (String, [Int: String]) {
         var tmpMPVKey: String?
         var imgKeys = [Int: String]()
 

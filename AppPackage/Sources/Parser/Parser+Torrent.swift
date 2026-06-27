@@ -4,7 +4,7 @@ import Foundation
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    static func parseGalleryTorrents(doc: HTMLDocument) -> [GalleryTorrent] {
+    public static func parseGalleryTorrents(doc: HTMLDocument) -> [GalleryTorrent] {
         var torrents = [GalleryTorrent]()
 
         for link in doc.xpath("//form") {

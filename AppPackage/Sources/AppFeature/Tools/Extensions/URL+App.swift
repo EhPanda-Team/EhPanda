@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Parser
 
 extension URL {
     static let mock = Defaults.URL.ehentai

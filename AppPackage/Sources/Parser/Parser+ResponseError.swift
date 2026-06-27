@@ -3,7 +3,7 @@ import AppModels
 import Resources
 
 extension Parser {
-    static func parseResponseError(doc: HTMLDocument) -> AppError? {
+    public static func parseResponseError(doc: HTMLDocument) -> AppError? {
         if let banInterval = parseBanInterval(doc: doc) {
             return .ipBanned(banInterval)
         }
@@ -21,7 +21,7 @@ extension Parser {
         return nil
     }
 
-    static func parseResponseError(content: String) -> AppError? {
+    public static func parseResponseError(content: String) -> AppError? {
         let normalizedContent = content.lowercased()
         guard !normalizedContent.isEmpty else { return nil }
 

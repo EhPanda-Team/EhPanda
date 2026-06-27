@@ -4,7 +4,7 @@ import Foundation
 
 extension Parser {
     // swiftlint:disable:next cyclomatic_complexity
-    static func parseGreeting(doc: HTMLDocument) throws -> Greeting {
+    public static func parseGreeting(doc: HTMLDocument) throws -> Greeting {
         guard let node = doc.at_xpath("//div [@id='eventpane']")
         else { throw AppError.parseFailed }
 

@@ -3,6 +3,7 @@ import AppModels
 import Combine
 import Foundation
 import Utilities
+import Parser
 
 // MARK: Response Types
 struct GalleryMPVImageURLResponse {

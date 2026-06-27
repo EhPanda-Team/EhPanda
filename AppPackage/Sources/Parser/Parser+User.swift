@@ -3,7 +3,7 @@ import AppModels
 import Foundation
 
 extension Parser {
-    static func parseUserInfo(doc: HTMLDocument) throws -> User {
+    public static func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
         var avatarURL: URL?
 
@@ -29,7 +29,7 @@ extension Parser {
         }
     }
 
-    static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String) {
+    public static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String) {
         var tmpGP: String?
         var tmpCredits: String?
 
