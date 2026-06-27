@@ -5,7 +5,7 @@ import AlertKit
 import DesignSystem
 
 extension View {
-    func jumpPageAlert(
+    public func jumpPageAlert(
         index: Binding<String>, isPresented: Binding<Bool>, isFocused: Binding<Bool>,
         pageNumber: PageNumber, jumpAction: @escaping () -> Void
     ) -> some View {

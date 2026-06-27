@@ -3,6 +3,7 @@ import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import AppModels
+import AppComponents
 
 struct LogsView: View {
     @Bindable private var store: StoreOf<LogsReducer>

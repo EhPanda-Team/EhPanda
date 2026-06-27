@@ -4,6 +4,7 @@ import Resources
 import ComposableArchitecture
 import FoundationExt
 import SwiftUINavigationExt
+import AppComponents
 
 extension EhSettingView {
 

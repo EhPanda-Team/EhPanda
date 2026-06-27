@@ -5,6 +5,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
 import DesignSystem
+import AppComponents
 
 struct ToplistsView: View {
     @Bindable private var store: StoreOf<ToplistsReducer>
@@ -107,43 +108,6 @@ struct ToplistsView: View {
                     }
                 }
             }
-        }
-    }
-}
-
-// MARK: Definition
-enum ToplistsType: Int, Codable, CaseIterable, Identifiable {
-    var id: Int { rawValue }
-
-    case yesterday
-    case pastMonth
-    case pastYear
-    case allTime
-}
-
-extension ToplistsType {
-    var value: String {
-        switch self {
-        case .yesterday:
-            return L10n.Localizable.Enum.ToplistsType.Value.yesterday
-        case .pastMonth:
-            return L10n.Localizable.Enum.ToplistsType.Value.pastMonth
-        case .pastYear:
-            return L10n.Localizable.Enum.ToplistsType.Value.pastYear
-        case .allTime:
-            return L10n.Localizable.Enum.ToplistsType.Value.allTime
-        }
-    }
-    var categoryIndex: Int {
-        switch self {
-        case .yesterday:
-            return 15
-        case .pastMonth:
-            return 13
-        case .pastYear:
-            return 12
-        case .allTime:
-            return 11
         }
     }
 }

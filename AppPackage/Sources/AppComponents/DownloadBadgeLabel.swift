@@ -1,15 +1,16 @@
 import SwiftUI
+import SFSafeSymbols
 import AppModels
 import Resources
 
-struct DownloadBadgeLabel: View {
+public struct DownloadBadgeLabel: View {
     private let badge: DownloadBadge
 
-    init(badge: DownloadBadge) {
+    public init(badge: DownloadBadge) {
         self.badge = badge
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 4) {
             Image(systemSymbol: badge.symbol)
                 .font(.caption.bold())

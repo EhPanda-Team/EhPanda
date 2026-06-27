@@ -3,15 +3,15 @@ import AppModels
 import Utilities
 import DesignSystem
 
-struct Placeholder: View {
+public struct Placeholder: View {
     @Environment(\.inSheet) private var inSheet
     private let style: PlaceholderStyle
 
-    init(style: PlaceholderStyle) {
+    public init(style: PlaceholderStyle) {
         self.style = style
     }
 
-    var body: some View {
+    public var body: some View {
         switch style {
         case .activity(let ratio, let cornerRadius):
             ZStack {
@@ -44,7 +44,7 @@ struct Placeholder: View {
     }
 }
 
-enum PlaceholderStyle {
+public enum PlaceholderStyle {
     case activity(ratio: CGFloat, cornerRadius: CGFloat = 5)
     case progress(pageNumber: Int, progress: Progress?, isDualPage: Bool = false, backgroundColor: Color)
 }
