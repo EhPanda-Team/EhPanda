@@ -70,12 +70,14 @@ enum Module: String {
     case appModels = "AppModels"
     case authorizationClient = "AuthorizationClient"
     case composableArchitectureExt = "ComposableArchitectureExt"
+    case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
     case foundationExt = "FoundationExt"
     case hapticsClient = "HapticsClient"
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
     case loggerClient = "LoggerClient"
+    case networking = "Networking"
     case parser = "Parser"
     case resources = "Resources"
     case sdWebImageExt = "SDWebImageExt"
@@ -224,11 +226,13 @@ let targets: [PackageDescription.Target] = [
             .module(.authorizationClient),
             .module(.composableArchitectureExt),
             .module(.databaseClient),
+            .module(.dfClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
+            .module(.networking),
             .module(.parser),
             .module(.resources),
             .module(.sdWebImageExt),
@@ -311,6 +315,30 @@ let targets: [PackageDescription.Target] = [
         module: .authorizationClient,
         dependencies: [
             .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .dfClient,
+        dependencies: [
+            .module(.networking),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .networking,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .module(.parser),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.deprecatedAPI),
+            .targetDependency(.kanna)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -430,11 +458,13 @@ let targets: [PackageDescription.Target] = [
             .module(.appFeature),
             .module(.appModels),
             .module(.databaseClient),
+            .module(.dfClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
+            .module(.networking),
             .module(.parser),
             .module(.sdWebImageExt),
             .module(.uiApplicationClient),

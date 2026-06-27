@@ -6,6 +6,7 @@ import URLClient
 import UIApplicationClient
 import HapticsClient
 import DatabaseClient
+import Networking
 
 @Reducer
 struct CommentsReducer {

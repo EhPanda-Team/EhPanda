@@ -19,7 +19,7 @@ private func forceDowncast<T>(object: Any) -> T! {
 
 // MARK: URLRequest
 extension URLRequest {
-    var urlContainsImageURL: Bool {
+    public var urlContainsImageURL: Bool {
         var containsTarget = false
         ["jpg", "jpeg", "png", "gif", "bmp"].forEach { type in
             if url?.absoluteString.contains(type) == true {
@@ -32,7 +32,7 @@ extension URLRequest {
 
 // MARK: URLSessionConfiguration
 extension URLSessionConfiguration {
-    static var domainFronting: URLSessionConfiguration {
+    public static var domainFronting: URLSessionConfiguration {
         let config = URLSessionConfiguration.default
         config.protocolClasses = [DFURLProtocol.self]
         return config
@@ -41,18 +41,18 @@ extension URLSessionConfiguration {
 
 // MARK: CFHTTPMessage
 extension CFHTTPMessage {
-    var isCompleted: Bool {
+    public var isCompleted: Bool {
         CFHTTPMessageIsHeaderComplete(self)
     }
-    var url: URL? {
+    public var url: URL? {
         CFHTTPMessageCopyRequestURL(self)?.autorelease()
             .takeUnretainedValue() as URL?
     }
-    var allHeaderFields: [String: String] {
+    public var allHeaderFields: [String: String] {
         CFHTTPMessageCopyAllHeaderFields(self)?.autorelease()
             .takeUnretainedValue() as? [String: String] ?? [String: String]()
     }
-    func httpResponse() -> HTTPURLResponse? {
+    public func httpResponse() -> HTTPURLResponse? {
         guard let url = url as URL? else { return nil }
         let version = CFHTTPMessageCopyVersion(self)
             .autorelease().takeUnretainedValue() as String
@@ -69,12 +69,12 @@ extension CFHTTPMessage {
 
 // MARK: URLRequest
 extension URLRequest {
-    var isHTTPS: Bool { url?.scheme == "https" }
-    var hasHostField: Bool { hostKey?.count ?? 0 > 0 }
-    var hostKey: Dictionary<String, String>.Keys.Element? {
+    public var isHTTPS: Bool { url?.scheme == "https" }
+    public var hasHostField: Bool { hostKey?.count ?? 0 > 0 }
+    public var hostKey: Dictionary<String, String>.Keys.Element? {
         allHTTPHeaderFields?.keys.first(where: { $0.lowercased() == "host" })
     }
-    var domain: String? {
+    public var domain: String? {
         var domain: String? = url?.host
 
         if let allFields = allHTTPHeaderFields, let hostKey = hostKey {
@@ -83,14 +83,14 @@ extension URLRequest {
 
         return domain
     }
-    var domainWithScheme: String? {
+    public var domainWithScheme: String? {
         if let scheme = url?.scheme, let domain = domain {
             return scheme + "://" + domain
         } else {
             return nil
         }
     }
-    func domainIPReplaced() -> URLRequest {
+    public func domainIPReplaced() -> URLRequest {
         var request: URLRequest = self
 
         guard let domain = domain,
@@ -108,7 +108,7 @@ extension URLRequest {
         }
         return request
     }
-    func HTTPBody() -> Data? {
+    public func HTTPBody() -> Data? {
         if httpMethod != "POST" ||
             httpBody != nil { return httpBody }
 
@@ -148,18 +148,18 @@ extension URLRequest {
 
 // MARK: InputStream
 extension InputStream {
-    enum CreateStreamError: Error {
+    public enum CreateStreamError: Error {
         case methodNotFound(msg: String)
         case urlNotFound(msg: String)
         case createStream(msg: String)
     }
 
-    var trust: SecTrust? {
+    public var trust: SecTrust? {
         let key = Stream.PropertyKey(kCFStreamPropertySSLPeerTrust as String)
         guard let value = property(forKey: key) else { return nil }
         return forceDowncast(object: value) as SecTrust
     }
-    func invalidatesCertChain(for host: String) {
+    public func invalidatesCertChain(for host: String) {
         guard host.count > 0 else { return }
         let settings: [AnyHashable: Any] = [
             kCFStreamSSLValidatesCertificateChain: kCFBooleanFalse as Any
@@ -168,7 +168,7 @@ extension InputStream {
         let key = kCFStreamPropertySSLSettings as String
         setProperty(settings, forKey: Stream.PropertyKey(key))
     }
-    func httpMessage() -> CFHTTPMessage? {
+    public func httpMessage() -> CFHTTPMessage? {
         let stream = self as CFReadStream
 
         let key = "kCFStreamPropertyHTTPResponseHeader" as CFString
@@ -179,7 +179,7 @@ extension InputStream {
         return forceDowncast(object: value) as CFHTTPMessage
     }
 
-    static func create(from request: URLRequest) -> Result<InputStream, CreateStreamError> {
+    public static func create(from request: URLRequest) -> Result<InputStream, CreateStreamError> {
         guard let method = request.httpMethod as CFString? else {
             return .failure(.methodNotFound(
                 msg: "HTTPMethod not found: \(request.httpMethod ?? "nil")."

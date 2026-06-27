@@ -1,14 +1,14 @@
 import Foundation
 import AppModels
 
-struct DFRequest {
-    var request: URLRequest
+public struct DFRequest {
+    public var request: URLRequest
     private let stream: InputStream
     private(set) weak var delegate: DFRequestDelegate?
     private lazy var streamHandler: DFStreamEventHandler?
         = DFStreamEventHandler(request: self)
 
-    init?(
+    public init?(
         _ req: URLRequest,
         delegate: DFRequestDelegate? = nil
     ) {
@@ -37,7 +37,7 @@ struct DFRequest {
         }
     }
 
-    mutating func resume() {
+    public mutating func resume() {
         if !request.urlContainsImageURL {
             Logger.verbose("Request from: \(request.url?.absoluteString ?? "")")
         }
@@ -47,7 +47,7 @@ struct DFRequest {
         stream.open()
     }
 
-    mutating func stop() {
+    public mutating func stop() {
         stream.delegate = nil
         streamHandler = nil
         stream.close()
@@ -56,7 +56,7 @@ struct DFRequest {
 }
 
 // MARK: DFRequestDelegate
-protocol DFRequestDelegate: AnyObject {
+public protocol DFRequestDelegate: AnyObject {
     func dfRequestDidFinishLoading(_ request: DFRequest)
     func dfRequest(_ request: DFRequest, didLoad data: Data)
     func dfRequest(_ request: URLRequest, didFailWithError error: Error)

@@ -1,6 +1,7 @@
 import Foundation
 import AppModels
 import URLClient
+import Networking
 
 // MARK: - Execution Support
 extension DownloadCoordinator {
