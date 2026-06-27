@@ -4,3 +4,8 @@
 EhPanda.xcodeproj/xcuserdata
 EhPanda.xcodeproj/project.xcworkspace/xcuserdata
 Config/LocalSigning.xcconfig
+
+# AppPackage (local Swift package)
+AppPackage/.build
+AppPackage/.swiftpm/xcode/xcuserdata
+AppPackage/.swiftpm/xcode/package.xcworkspace/xcuserdata
