@@ -2,6 +2,7 @@ import Foundation
 import ComposableArchitecture
 import Testing
 import DownloadClient
+import BackgroundProcessingClient
 @testable import AppFeature
 
 @Suite(.serialized)

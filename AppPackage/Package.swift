@@ -69,6 +69,8 @@ enum Module: String {
     case appFeature = "AppFeature"
     case appModels = "AppModels"
     case authorizationClient = "AuthorizationClient"
+    case backgroundProcessingClient = "BackgroundProcessingClient"
+    case clipboardClient = "ClipboardClient"
     case composableArchitectureExt = "ComposableArchitectureExt"
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
@@ -225,6 +227,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.authorizationClient),
+            .module(.backgroundProcessingClient),
+            .module(.clipboardClient),
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dfClient),
@@ -335,6 +339,24 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .authorizationClient,
         dependencies: [
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .backgroundProcessingClient,
+        dependencies: [
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .clipboardClient,
+        dependencies: [
+            .module(.sdWebImageExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -478,6 +500,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appFeature),
             .module(.appModels),
+            .module(.backgroundProcessingClient),
+            .module(.clipboardClient),
             .module(.databaseClient),
             .module(.dfClient),
             .module(.downloadClient),
