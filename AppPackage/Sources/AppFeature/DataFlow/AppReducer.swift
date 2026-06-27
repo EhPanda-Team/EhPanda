@@ -3,6 +3,7 @@ import ComposableArchitecture
 import URLClient
 import HapticsClient
 import DownloadClient
+import BackgroundProcessingClient
 
 @Reducer
 struct AppReducer {

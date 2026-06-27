@@ -8,6 +8,7 @@ import HapticsClient
 import ImageClient
 import DatabaseClient
 import DownloadClient
+import ClipboardClient
 @testable import AppFeature
 
 @Suite(.serialized)

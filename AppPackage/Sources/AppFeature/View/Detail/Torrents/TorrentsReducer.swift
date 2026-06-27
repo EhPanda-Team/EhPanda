@@ -4,6 +4,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
 import Networking
+import ClipboardClient
 
 @Reducer
 struct TorrentsReducer {
