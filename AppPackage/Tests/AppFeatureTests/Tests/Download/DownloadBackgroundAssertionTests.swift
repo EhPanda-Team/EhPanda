@@ -2,6 +2,7 @@ import Foundation
 import Synchronization
 import UIKit
 import Testing
+import DownloadClient
 @testable import AppFeature
 
 @Suite

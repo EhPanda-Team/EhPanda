@@ -4,6 +4,7 @@ import ComposableArchitecture
 import Kingfisher
 import UIKit
 import Testing
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)

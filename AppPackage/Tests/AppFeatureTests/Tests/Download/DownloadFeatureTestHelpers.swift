@@ -6,6 +6,7 @@ import Kingfisher
 import UIKit
 import Testing
 import LibraryClient
+import DownloadClient
 @testable import AppFeature
 
 // MARK: - Shared Test Helper Protocol

@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)
