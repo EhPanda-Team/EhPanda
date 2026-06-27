@@ -8,6 +8,7 @@ import URLClient
 import UserDefaultsClient
 import UIApplicationClient
 import HapticsClient
+import LibraryClient
 @testable import AppFeature
 
 @Suite(.serialized)

@@ -72,6 +72,8 @@ enum Module: String {
     case composableArchitectureExt = "ComposableArchitectureExt"
     case foundationExt = "FoundationExt"
     case hapticsClient = "HapticsClient"
+    case imageClient = "ImageClient"
+    case libraryClient = "LibraryClient"
     case loggerClient = "LoggerClient"
     case resources = "Resources"
     case sdWebImageExt = "SDWebImageExt"
@@ -221,6 +223,8 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.foundationExt),
             .module(.hapticsClient),
+            .module(.imageClient),
+            .module(.libraryClient),
             .module(.loggerClient),
             .module(.resources),
             .module(.sdWebImageExt),
@@ -326,6 +330,34 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .imageClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .module(.sdWebImageExt),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .libraryClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.sdWebImageExt),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
+            .targetDependency(.sdWebImageWebPCoder),
+            .targetDependency(.swiftyBeaver),
+            .targetDependency(.uiImageColors)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .loggerClient,
         dependencies: [
             .module(.appModels),
@@ -372,6 +404,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.foundationExt),
             .module(.hapticsClient),
+            .module(.imageClient),
+            .module(.libraryClient),
             .module(.loggerClient),
             .module(.sdWebImageExt),
             .module(.uiApplicationClient),

@@ -6,6 +6,7 @@ import SDWebImage
 import SDWebImageSwiftUI
 import ComposableArchitecture
 import Utilities
+import ImageClient
 
 // MARK: ImageStackConfig
 struct ImageStackConfig {

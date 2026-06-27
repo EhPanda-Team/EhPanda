@@ -11,20 +11,42 @@ import ComposableArchitecture
 import Utilities
 import SDWebImageExt
 
-struct LibraryClient: Sendable {
-    let initializeLogger: @Sendable () -> Void
-    let initializeWebImage: @Sendable () -> Void
-    let removeAllCachedImages: @Sendable () async -> Void
-    let cachedImage: @Sendable (String) async -> UIImage?
-    let cachedImageData: @Sendable (String) async -> Data?
-    let removeCachedImage: @Sendable (String) async -> Void
-    let isCached: @Sendable (String) -> Bool
-    let analyzeImageColors: @Sendable (UIImage) async -> [Color]?
-    let calculateWebImageDiskCacheSize: @Sendable () async -> UInt?
+public struct LibraryClient: Sendable {
+    public let initializeLogger: @Sendable () -> Void
+    public let initializeWebImage: @Sendable () -> Void
+    public let removeAllCachedImages: @Sendable () async -> Void
+    public let cachedImage: @Sendable (String) async -> UIImage?
+    public let cachedImageData: @Sendable (String) async -> Data?
+    public let removeCachedImage: @Sendable (String) async -> Void
+    public let isCached: @Sendable (String) -> Bool
+    public let analyzeImageColors: @Sendable (UIImage) async -> [Color]?
+    public let calculateWebImageDiskCacheSize: @Sendable () async -> UInt?
+
+    public init(
+        initializeLogger: @escaping @Sendable () -> Void,
+        initializeWebImage: @escaping @Sendable () -> Void,
+        removeAllCachedImages: @escaping @Sendable () async -> Void,
+        cachedImage: @escaping @Sendable (String) async -> UIImage?,
+        cachedImageData: @escaping @Sendable (String) async -> Data?,
+        removeCachedImage: @escaping @Sendable (String) async -> Void,
+        isCached: @escaping @Sendable (String) -> Bool,
+        analyzeImageColors: @escaping @Sendable (UIImage) async -> [Color]?,
+        calculateWebImageDiskCacheSize: @escaping @Sendable () async -> UInt?
+    ) {
+        self.initializeLogger = initializeLogger
+        self.initializeWebImage = initializeWebImage
+        self.removeAllCachedImages = removeAllCachedImages
+        self.cachedImage = cachedImage
+        self.cachedImageData = cachedImageData
+        self.removeCachedImage = removeCachedImage
+        self.isCached = isCached
+        self.analyzeImageColors = analyzeImageColors
+        self.calculateWebImageDiskCacheSize = calculateWebImageDiskCacheSize
+    }
 }
 
 extension LibraryClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         initializeLogger: {
             // MARK: SwiftyBeaver
             let file = FileDestination()
@@ -230,14 +252,14 @@ private func image(from data: Data) -> UIImage? {
 }
 
 // MARK: API
-enum LibraryClientKey: DependencyKey {
-    static let liveValue = LibraryClient.live
-    static let previewValue = LibraryClient.noop
-    static let testValue = LibraryClient.unimplemented
+public enum LibraryClientKey: DependencyKey {
+    public static let liveValue = LibraryClient.live
+    public static let previewValue = LibraryClient.noop
+    public static let testValue = LibraryClient.unimplemented
 }
 
 extension DependencyValues {
-    var libraryClient: LibraryClient {
+    public var libraryClient: LibraryClient {
         get { self[LibraryClientKey.self] }
         set { self[LibraryClientKey.self] = newValue }
     }
@@ -245,7 +267,7 @@ extension DependencyValues {
 
 // MARK: Test
 extension LibraryClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         initializeLogger: {},
         initializeWebImage: {},
         removeAllCachedImages: {},
@@ -257,9 +279,9 @@ extension LibraryClient {
         calculateWebImageDiskCacheSize: { .none }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         initializeLogger: IssueReporting.unimplemented(placeholder: placeholder()),
         initializeWebImage: IssueReporting.unimplemented(placeholder: placeholder()),
         removeAllCachedImages: IssueReporting.unimplemented(placeholder: placeholder()),

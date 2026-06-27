@@ -3,6 +3,7 @@ import AppModels
 import Foundation
 import Testing
 import FoundationExt
+import LibraryClient
 @testable import AppFeature
 
 @Suite(.serialized)

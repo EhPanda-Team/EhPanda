@@ -5,6 +5,7 @@ import Testing
 import Utilities
 import URLClient
 import HapticsClient
+import ImageClient
 @testable import AppFeature
 
 @Suite(.serialized)
