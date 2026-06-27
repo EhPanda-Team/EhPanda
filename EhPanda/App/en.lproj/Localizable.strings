@@ -62,8 +62,8 @@
 "date_seek_view.title.date_seek" = "Seek to date";
 "date_seek_view.title.date" = "Date";
 "date_seek_view.footer.seek_around_date" = "Seek to galleries around the selected date.";
-"date_seek_view.button.seek_newer" = "Seek Newer";
-"date_seek_view.button.seek_older" = "Seek Older";
+"date_seek_view.button.seek_newer" = "Newer";
+"date_seek_view.button.seek_older" = "Older";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "Jump page";
 "jump_page_view.button.confirm" = "Confirm";

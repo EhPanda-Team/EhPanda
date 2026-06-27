@@ -177,10 +177,10 @@ custom_rules:
     severity: error
     capture_group: 1
 
-  system_name_parameter:
-    name: "systemName Parameter"
-    regex: "\\bsystemName\\s*:"
-    message: "`systemName` parameters should be avoided. Prefer `systemSymbol`."
+  system_name_image_parameter:
+    name: "systemName / systemImage Parameter"
+    regex: "\\b(?:systemName|systemImage)\\s*:"
+    message: "`systemName` and `systemImage` parameters should be avoided. Prefer `systemSymbol`."
     excluded_match_kinds:
       - comment
       - string

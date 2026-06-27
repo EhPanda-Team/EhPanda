@@ -435,10 +435,10 @@ internal enum L10n {
     }
     internal enum DateSeekView {
       internal enum Button {
-        /// Seek Newer
-        internal static let seekNewer = L10n.tr("Localizable", "date_seek_view.button.seek_newer", fallback: "Seek Newer")
-        /// Seek Older
-        internal static let seekOlder = L10n.tr("Localizable", "date_seek_view.button.seek_older", fallback: "Seek Older")
+        /// Newer
+        internal static let seekNewer = L10n.tr("Localizable", "date_seek_view.button.seek_newer", fallback: "Newer")
+        /// Older
+        internal static let seekOlder = L10n.tr("Localizable", "date_seek_view.button.seek_older", fallback: "Older")
       }
       internal enum Footer {
         /// Seek to galleries around the selected date.

@@ -65,8 +65,8 @@ struct FavoritesView: View {
                 }
                 .sheet(item: $store.dateSeek.navigation.sending(\.dateSeek.setNavigation), id: \.self) { navigation in
                     DateSeekPickerView(
-                        navigation: navigation.wrappedValue,
                         selectedDate: $store.dateSeek.date,
+                        navigation: navigation.wrappedValue,
                         seekAction: { store.send(.dateSeek(.performSeek($0))) }
                     )
                     .accentColor(setting.accentColor)
@@ -135,10 +135,8 @@ struct FavoritesView: View {
                     store.send(.fetchGalleries(nil, order))
                 }
             }
-            if store.pageNumber != nil {
-                DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
-                    store.send(.dateSeek(.present(navigation)))
-                }
+            DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                store.send(.dateSeek(.present(navigation)))
             }
             QuickSearchButton(hideText: true) {
                 store.send(.setNavigation(.quickSearch()))

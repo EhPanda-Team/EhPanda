@@ -371,7 +371,7 @@ private extension DetailView {
         VStack(alignment: .leading, spacing: 10) {
             Label(
                 L10n.Localizable.DetailView.OfflineNotice.savedDetails,
-                systemImage: "wifi.exclamationmark"
+                systemSymbol: .wifiExclamationmark
             )
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.orange)

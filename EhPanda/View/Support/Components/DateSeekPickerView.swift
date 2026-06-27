@@ -3,6 +3,7 @@
 //  EhPanda
 //
 
+import SFSafeSymbols
 import SwiftUI
 
 /// The "Seek to date" sheet content: a graphical date picker plus newer/older direction buttons.
@@ -10,17 +11,14 @@ import SwiftUI
 /// This is a store-agnostic, reusable component — it is driven entirely by the values passed in,
 /// not by a dedicated reducer. Hosts typically wire it to an embedded `DateSeekReducer`, but it
 /// has no dependency on one.
+///
+/// - Precondition: `selectedDate` lies within `navigation.dateRange`. The picker renders the
+///   binding as-is and does not clamp it; keeping the date in range is the responsibility of
+///   whoever owns the date state (the embedded `DateSeekReducer` does so in its `present` action).
 struct DateSeekPickerView: View {
-    let navigation: DateSeekNavigation
     @Binding var selectedDate: Date
+    let navigation: DateSeekNavigation
     let seekAction: (DateSeekDirection) -> Void
-
-    private var showsNewerButton: Bool {
-        navigation.newerURL != nil
-    }
-    private var showsOlderButton: Bool {
-        navigation.olderURL != nil
-    }
 
     var body: some View {
         NavigationView {
@@ -38,27 +36,120 @@ struct DateSeekPickerView: View {
                 }
 
                 Section {
-                    if showsNewerButton {
-                        Button {
-                            seekAction(.newer)
-                        } label: {
-                            Label(L10n.Localizable.DateSeekView.Button.seekNewer, systemImage: "chevron.left")
+                    let seekOlderButton =
+                    SeekButton(
+                        symbol: .chevronLeftChevronLeftDotted,
+                        title: L10n.Localizable.DateSeekView.Button.seekOlder,
+                        reversedIconTitlePosition: false,
+                        action: { seekAction(.older) }
+                    )
+                    .disabled(navigation.olderURL == nil)
+
+                    let seekNewerButton =
+                    SeekButton(
+                        symbol: .chevronRightDottedChevronRight,
+                        title: L10n.Localizable.DateSeekView.Button.seekNewer,
+                        reversedIconTitlePosition: true,
+                        action: { seekAction(.newer) }
+                    )
+                    .disabled(navigation.newerURL == nil)
+
+                    ViewThatFits(in: .horizontal) {
+                        HStack {
+                            seekOlderButton
+                            Spacer(minLength: 8)
+                            seekNewerButton
+                        }
+                        VStack {
+                            seekOlderButton
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            seekNewerButton
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }
                     }
-                    if showsOlderButton {
-                        Button {
-                            seekAction(.older)
-                        } label: {
-                            Label(L10n.Localizable.DateSeekView.Button.seekOlder, systemImage: "chevron.right")
-                        }
-                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(.init())
                 }
             }
             .navigationTitle(L10n.Localizable.DateSeekView.Title.dateSeek)
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .onAppear {
-            selectedDate = navigation.clampedDate(selectedDate)
+            .navigationBarTitleDisplayMode(.large)
         }
     }
+}
+
+private struct SeekButton: View {
+    let symbol: SFSymbol
+    let title: String
+    let reversedIconTitlePosition: Bool
+    let action: () -> Void
+
+    var symbolImage: some View {
+        Image(systemSymbol: symbol)
+    }
+
+    var titleLabel: some View {
+        Text(title)
+            .font(.subheadline.bold())
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if reversedIconTitlePosition {
+                    titleLabel
+                    symbolImage
+                } else {
+                    symbolImage
+                    titleLabel
+                }
+            }
+            .lineLimit(1)
+            .padding(.vertical, 4)
+            .padding(.horizontal, 8)
+        }
+        .buttonBorderShape(.buttonBorder)
+        .buttonStyle(.glass(.clear))
+    }
+}
+
+private extension DateSeekNavigation {
+    /// A navigation spanning a fixed sample range, used only to drive the previews below.
+    static func preview(_ directions: Directions) -> Self {
+        .init(
+            directions: directions,
+            minimumDate: dateFormatter.date(from: "2007-03-20").forceUnwrapped,
+            maximumDate: dateFormatter.date(from: "2023-09-08").forceUnwrapped
+        )
+    }
+}
+
+private let previewNewerURL: URL = .init(string: "https://e-hentai.org/?prev=2563984").forceUnwrapped
+private let previewOlderURL: URL = .init(string: "https://e-hentai.org/?next=2668517").forceUnwrapped
+
+#Preview("Both directions") {
+    @Previewable @State var date: Date = DateSeekNavigation.dateFormatter.date(from: "2015-06-01").forceUnwrapped
+    DateSeekPickerView(
+        selectedDate: $date,
+        navigation: .preview(.both(newer: previewNewerURL, older: previewOlderURL)),
+        seekAction: { _ in }
+    )
+}
+
+#Preview("Newer only") {
+    @Previewable @State var date: Date = DateSeekNavigation.dateFormatter.date(from: "2015-06-01").forceUnwrapped
+    DateSeekPickerView(
+        selectedDate: $date,
+        navigation: .preview(.newer(previewNewerURL)),
+        seekAction: { _ in }
+    )
+}
+
+#Preview("Older only") {
+    @Previewable @State var date: Date = DateSeekNavigation.dateFormatter.date(from: "2015-06-01").forceUnwrapped
+    DateSeekPickerView(
+        selectedDate: $date,
+        navigation: .preview(.older(previewOlderURL)),
+        seekAction: { _ in }
+    )
 }
