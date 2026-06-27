@@ -7,6 +7,7 @@ import HapticsClient
 import DatabaseClient
 import Networking
 import FiltersFeature
+import DateSeekFeature
 
 @Reducer
 struct FrontpageReducer {
