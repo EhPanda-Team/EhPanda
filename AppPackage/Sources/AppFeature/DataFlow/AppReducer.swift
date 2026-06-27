@@ -9,6 +9,7 @@ import AppLaunchAutomationClient
 import DeviceClient
 import HomeFeature
 import SearchFeature
+import FavoritesFeature
 
 @Reducer
 struct AppReducer {
