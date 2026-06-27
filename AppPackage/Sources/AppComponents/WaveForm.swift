@@ -3,18 +3,18 @@
 
 import SwiftUI
 
-struct WaveForm: View {
+public struct WaveForm: View {
     private let color: Color
     private let amplify: CGFloat
     private let isReversed: Bool
 
-    init(color: Color, amplify: CGFloat, isReversed: Bool) {
+    public init(color: Color, amplify: CGFloat, isReversed: Bool) {
         self.color = color
         self.amplify = amplify
         self.isReversed = isReversed
     }
 
-    var body: some View {
+    public var body: some View {
         TimelineView(.animation) { timeLine in
             Canvas { context, size in
                 let timeNow = timeLine.date.timeIntervalSinceReferenceDate

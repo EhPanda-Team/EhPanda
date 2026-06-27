@@ -6,7 +6,7 @@ import UIImageColors
 import Utilities
 import DesignSystem
 
-struct GalleryCardCell: View {
+public struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let currentID: String
@@ -18,7 +18,7 @@ struct GalleryCardCell: View {
     private let animation: Animation =
         .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
 
-    init(
+    public init(
         gallery: Gallery, currentID: String, colors: [Color],
         webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
     ) {
@@ -40,7 +40,7 @@ struct GalleryCardCell: View {
         return trimmedTitle
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
             ColorfulView(animated: animated, animation: animation, colors: colors)

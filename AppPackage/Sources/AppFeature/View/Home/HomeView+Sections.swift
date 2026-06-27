@@ -6,6 +6,7 @@ import SwiftUIPager
 import SFSafeSymbols
 import Utilities
 import DesignSystem
+import AppComponents
 
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {

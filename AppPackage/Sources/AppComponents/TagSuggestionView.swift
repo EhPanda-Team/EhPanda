@@ -1,4 +1,5 @@
 import SwiftUI
+import SFSafeSymbols
 import AppModels
 import Resources
 import Kingfisher
@@ -6,7 +7,7 @@ import Observation
 import FoundationExt
 import Utilities
 
-struct TagSuggestionView: View {
+public struct TagSuggestionView: View {
     @Binding private var keyword: String
     private let translations: [String: TagTranslation]
     private let showsImages: Bool
@@ -14,14 +15,14 @@ struct TagSuggestionView: View {
 
     @State private var translationHandler = TagTranslationHandler()
 
-    init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
+    public init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
         _keyword = keyword
         self.translations = translations
         self.showsImages = showsImages
         self.isEnabled = isEnabled
     }
 
-    var body: some View {
+    public var body: some View {
         if isEnabled {
             if DeviceUtil.isPhone {
                 Text(L10n.Localizable.Searchable.Title.matchesCount(translationHandler.suggestions.count))

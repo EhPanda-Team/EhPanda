@@ -66,6 +66,7 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 
 // MARK: Module
 enum Module: String {
+    case appComponents = "AppComponents"
     case appDelegateClient = "AppDelegateClient"
     case appFeature = "AppFeature"
     case appLaunchAutomationClient = "AppLaunchAutomationClient"
@@ -231,6 +232,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appFeature,
         dependencies: [
+            .module(.appComponents),
             .module(.appDelegateClient),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
@@ -481,6 +483,24 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUINavigation),
             .targetDependency(.ttProgressHUD)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .appComponents,
+        dependencies: [
+            .module(.appModels),
+            .module(.designSystem),
+            .module(.foundationExt),
+            .module(.resources),
+            .module(.utilities),
+            .targetDependency(.alertKit),
+            .targetDependency(.colorful),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.uiImageColors),
+            .targetDependency(.waterfallGrid)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

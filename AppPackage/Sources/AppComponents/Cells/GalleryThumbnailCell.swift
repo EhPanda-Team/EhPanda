@@ -1,9 +1,10 @@
 import SwiftUI
+import SFSafeSymbols
 import AppModels
 import Kingfisher
 import DesignSystem
 
-struct GalleryThumbnailCell: View {
+public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let gallery: Gallery
@@ -11,7 +12,7 @@ struct GalleryThumbnailCell: View {
     private let translateAction: ((String) -> (String, TagTranslation?))?
     private let downloadBadge: DownloadBadge?
 
-    init(
+    public init(
         gallery: Gallery,
         setting: Setting,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
@@ -30,7 +31,7 @@ struct GalleryThumbnailCell: View {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }

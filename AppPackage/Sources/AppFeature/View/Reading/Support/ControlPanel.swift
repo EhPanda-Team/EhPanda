@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import Utilities
 import DesignSystem
+import AppComponents
 
 // MARK: ControlPanel
 struct ControlPanel<G: Gesture>: View {

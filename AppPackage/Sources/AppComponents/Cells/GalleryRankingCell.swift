@@ -3,16 +3,16 @@ import AppModels
 import Kingfisher
 import DesignSystem
 
-struct GalleryRankingCell: View {
+public struct GalleryRankingCell: View {
     private let gallery: Gallery
     private let ranking: Int
 
-    init(gallery: Gallery, ranking: Int) {
+    public init(gallery: Gallery, ranking: Int) {
         self.gallery = gallery
         self.ranking = ranking
     }
 
-    var body: some View {
+    public var body: some View {
         HStack {
             KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }.defaultModifier()

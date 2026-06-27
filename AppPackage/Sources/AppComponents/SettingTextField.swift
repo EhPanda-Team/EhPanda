@@ -1,7 +1,7 @@
 import SwiftUI
 import DesignSystem
 
-struct SettingTextField: View {
+public struct SettingTextField: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @Binding private var text: String
@@ -19,7 +19,7 @@ struct SettingTextField: View {
         return Text(text)
     }
 
-    init(
+    public init(
         text: Binding<String>, promptText: String? = nil, width: CGFloat? = 50,
         alignment: TextAlignment = .center, background: Color? = nil
     ) {
@@ -30,7 +30,7 @@ struct SettingTextField: View {
         self.background = background
     }
 
-    var body: some View {
+    public var body: some View {
         TextField("", text: $text, prompt: prompt).keyboardType(.numbersAndPunctuation)
             .textInputAutocapitalization(.none).multilineTextAlignment(alignment)
             .disableAutocorrection(true).background(color).frame(width: width).cornerRadius(5)

@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import FoundationExt
 import DesignSystem
+import AppComponents
 
 struct TagDetailView: View {
     private let detail: TagDetail

@@ -2,6 +2,7 @@ import SwiftUI
 import Kingfisher
 import ComposableArchitecture
 import Networking
+import AppModels
 
 extension HomeReducer {
     @ReducerBuilder<State, Action>

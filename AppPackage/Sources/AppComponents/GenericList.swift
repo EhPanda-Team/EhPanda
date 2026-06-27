@@ -1,10 +1,10 @@
 import SwiftUI
+import SFSafeSymbols
 import AppModels
 import WaterfallGrid
-import ComposableArchitecture
 import Utilities
 
-struct GenericList: View {
+public struct GenericList: View {
     private let galleries: [Gallery]
     private let setting: Setting
     private let downloadBadges: [String: DownloadBadge]
@@ -16,7 +16,7 @@ struct GenericList: View {
     private let navigateAction: ((String) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
-    init(
+    public init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
         loadingState: LoadingState, footerLoadingState: LoadingState,
         fetchAction: (() -> Void)? = nil,
@@ -37,7 +37,7 @@ struct GenericList: View {
         self.translateAction = translateAction
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             VStack(spacing: 0) {
                 switch setting.listDisplayMode {
