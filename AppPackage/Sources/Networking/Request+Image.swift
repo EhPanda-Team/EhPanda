@@ -6,19 +6,37 @@ import Utilities
 import Parser
 
 // MARK: Response Types
-struct GalleryMPVImageURLResponse {
-    let imageURL: URL
-    let originalImageURL: URL?
-    let skipServerIdentifier: String
+public struct GalleryMPVImageURLResponse: Sendable {
+    public init(
+        imageURL: URL,
+        originalImageURL: URL? = nil,
+        skipServerIdentifier: String
+    ) {
+        self.imageURL = imageURL
+        self.originalImageURL = originalImageURL
+        self.skipServerIdentifier = skipServerIdentifier
+    }
+    public let imageURL: URL
+    public let originalImageURL: URL?
+    public let skipServerIdentifier: String
 }
 
 // MARK: Image Requests
-struct MPVKeysRequest: Request {
-    let mpvURL: URL
-    var urlSession: URLSession = .shared
-    var allowsCellular = true
+public struct MPVKeysRequest: Request {
+    public init(
+        mpvURL: URL,
+        urlSession: URLSession = .shared,
+        allowsCellular: Bool = true
+    ) {
+        self.mpvURL = mpvURL
+        self.urlSession = urlSession
+        self.allowsCellular = allowsCellular
+    }
+    public let mpvURL: URL
+    public var urlSession: URLSession = .shared
+    public var allowsCellular = true
 
-    var publisher: AnyPublisher<(String, [Int: String]), AppError> {
+    public var publisher: AnyPublisher<(String, [Int: String]), AppError> {
         urlSession.dataTaskPublisher(
             for: urlRequest(url: mpvURL, allowsCellular: allowsCellular)
         )
@@ -30,13 +48,24 @@ struct MPVKeysRequest: Request {
     }
 }
 
-struct ThumbnailURLsRequest: Request {
-    let galleryURL: URL
-    let pageNum: Int
-    var urlSession: URLSession = .shared
-    var allowsCellular = true
+public struct ThumbnailURLsRequest: Request {
+    public init(
+        galleryURL: URL,
+        pageNum: Int,
+        urlSession: URLSession = .shared,
+        allowsCellular: Bool = true
+    ) {
+        self.galleryURL = galleryURL
+        self.pageNum = pageNum
+        self.urlSession = urlSession
+        self.allowsCellular = allowsCellular
+    }
+    public let galleryURL: URL
+    public let pageNum: Int
+    public var urlSession: URLSession = .shared
+    public var allowsCellular = true
 
-    var publisher: AnyPublisher<[Int: URL], AppError> {
+    public var publisher: AnyPublisher<[Int: URL], AppError> {
         urlSession.dataTaskPublisher(
             for: urlRequest(
                 url: URLUtil.detailPage(url: galleryURL, pageNum: pageNum),
@@ -51,12 +80,21 @@ struct ThumbnailURLsRequest: Request {
     }
 }
 
-struct GalleryNormalImageURLsRequest: Request {
-    let thumbnailURLs: [Int: URL]
-    var urlSession: URLSession = .shared
-    var allowsCellular = true
+public struct GalleryNormalImageURLsRequest: Request {
+    public init(
+        thumbnailURLs: [Int: URL],
+        urlSession: URLSession = .shared,
+        allowsCellular: Bool = true
+    ) {
+        self.thumbnailURLs = thumbnailURLs
+        self.urlSession = urlSession
+        self.allowsCellular = allowsCellular
+    }
+    public let thumbnailURLs: [Int: URL]
+    public var urlSession: URLSession = .shared
+    public var allowsCellular = true
 
-    var publisher: AnyPublisher<([Int: URL], [Int: URL]), AppError> {
+    public var publisher: AnyPublisher<([Int: URL], [Int: URL]), AppError> {
         thumbnailURLs.publisher
             .flatMap { index, url in
                 urlSession.dataTaskPublisher(
@@ -91,22 +129,48 @@ struct GalleryNormalImageURLsRequest: Request {
     }
 }
 
-struct ImageURLRefetchResult {
-    let imageURL: URL
-    let anotherImageURL: URL
-    let response: HTTPURLResponse?
+public struct ImageURLRefetchResult: Sendable {
+    public init(
+        imageURL: URL,
+        anotherImageURL: URL,
+        response: HTTPURLResponse? = nil
+    ) {
+        self.imageURL = imageURL
+        self.anotherImageURL = anotherImageURL
+        self.response = response
+    }
+    public let imageURL: URL
+    public let anotherImageURL: URL
+    public let response: HTTPURLResponse?
 }
 
-struct GalleryNormalImageURLRefetchRequest: Request {
-    let index: Int
-    let pageNum: Int
-    let galleryURL: URL
-    let thumbnailURL: URL?
-    let storedImageURL: URL
-    var urlSession: URLSession = .shared
-    var allowsCellular = true
+public struct GalleryNormalImageURLRefetchRequest: Request {
+    public init(
+        index: Int,
+        pageNum: Int,
+        galleryURL: URL,
+        thumbnailURL: URL? = nil,
+        storedImageURL: URL,
+        urlSession: URLSession = .shared,
+        allowsCellular: Bool = true
+    ) {
+        self.index = index
+        self.pageNum = pageNum
+        self.galleryURL = galleryURL
+        self.thumbnailURL = thumbnailURL
+        self.storedImageURL = storedImageURL
+        self.urlSession = urlSession
+        self.allowsCellular = allowsCellular
+    }
+    public let index: Int
+    public let pageNum: Int
+    public let galleryURL: URL
+    public let thumbnailURL: URL?
+    public let storedImageURL: URL
+    public var urlSession: URLSession = .shared
+    public var allowsCellular = true
 
-    var publisher: AnyPublisher<([Int: URL], HTTPURLResponse?), AppError> {
+    public var publisher: AnyPublisher<([Int: URL], HTTPURLResponse?), AppError> {
         storedThumbnailURL()
             .flatMap(renewThumbnailURL)
             .flatMap(imageURL)
@@ -121,7 +185,7 @@ struct GalleryNormalImageURLRefetchRequest: Request {
             .eraseToAnyPublisher()
     }
 
-    func storedThumbnailURL() -> AnyPublisher<URL, AppError> {
+    public func storedThumbnailURL() -> AnyPublisher<URL, AppError> {
         if let thumbnailURL = thumbnailURL {
             return Just(thumbnailURL)
                 .setFailureType(to: AppError.self)
@@ -141,7 +205,7 @@ struct GalleryNormalImageURLRefetchRequest: Request {
         }
     }
 
-    func renewThumbnailURL(stored: URL)
+    public func renewThumbnailURL(stored: URL)
     -> AnyPublisher<(URL, URL), AppError> {
         urlSession.dataTaskPublisher(
             for: urlRequest(url: stored, allowsCellular: allowsCellular)
@@ -165,7 +229,7 @@ struct GalleryNormalImageURLRefetchRequest: Request {
             .eraseToAnyPublisher()
     }
 
-    func imageURL(thumbnailURL: URL, anotherImageURL: URL)
+    public func imageURL(thumbnailURL: URL, anotherImageURL: URL)
     -> AnyPublisher<ImageURLRefetchResult, AppError> {
         urlSession.dataTaskPublisher(
             for: urlRequest(url: thumbnailURL, allowsCellular: allowsCellular)
@@ -199,18 +263,39 @@ struct GalleryNormalImageURLRefetchRequest: Request {
     }
 }
 
-struct GalleryMPVImageURLRequest: Request {
-    let gid: Int
-    let index: Int
-    let mpvKey: String
-    let mpvImageKey: String
-    let skipServerIdentifier: String?
-    var apiURL: URL = Defaults.URL.api
-    var urlSession: URLSession = .shared
-    var allowsCellular = true
-    var requiresSkipServerIdentifier = true
+public struct GalleryMPVImageURLRequest: Request {
+    public init(
+        gid: Int,
+        index: Int,
+        mpvKey: String,
+        mpvImageKey: String,
+        skipServerIdentifier: String? = nil,
+        apiURL: URL = Defaults.URL.api,
+        urlSession: URLSession = .shared,
+        allowsCellular: Bool = true,
+        requiresSkipServerIdentifier: Bool = true
+    ) {
+        self.gid = gid
+        self.index = index
+        self.mpvKey = mpvKey
+        self.mpvImageKey = mpvImageKey
+        self.skipServerIdentifier = skipServerIdentifier
+        self.apiURL = apiURL
+        self.urlSession = urlSession
+        self.allowsCellular = allowsCellular
+        self.requiresSkipServerIdentifier = requiresSkipServerIdentifier
+    }
+    public let gid: Int
+    public let index: Int
+    public let mpvKey: String
+    public let mpvImageKey: String
+    public let skipServerIdentifier: String?
+    public var apiURL: URL = Defaults.URL.api
+    public var urlSession: URLSession = .shared
+    public var allowsCellular = true
+    public var requiresSkipServerIdentifier = true
 
-    var publisher: AnyPublisher<GalleryMPVImageURLResponse, AppError> {
+    public var publisher: AnyPublisher<GalleryMPVImageURLResponse, AppError> {
         var params: [String: Any] = [
             "method": "imagedispatch",
             "gid": gid,
@@ -278,10 +363,15 @@ struct GalleryMPVImageURLRequest: Request {
 }
 
 // MARK: Tool
-struct DataRequest: Request {
-    let url: URL
+public struct DataRequest: Request {
+    public init(
+        url: URL
+    ) {
+        self.url = url
+    }
+    public let url: URL
 
-    var publisher: AnyPublisher<Data, AppError> {
+    public var publisher: AnyPublisher<Data, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
             .genericRetry()
             .map(\.data)

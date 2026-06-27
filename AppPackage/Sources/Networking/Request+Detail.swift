@@ -6,21 +6,43 @@ import Utilities
 import Parser
 
 // MARK: Response Types
-struct GalleryDetailResponse {
-    let galleryDetail: GalleryDetail
-    let galleryState: GalleryState
-    let apiKey: String
-    let greeting: Greeting?
+public struct GalleryDetailResponse: Sendable {
+    public init(
+        galleryDetail: GalleryDetail,
+        galleryState: GalleryState,
+        apiKey: String,
+        greeting: Greeting? = nil
+    ) {
+        self.galleryDetail = galleryDetail
+        self.galleryState = galleryState
+        self.apiKey = apiKey
+        self.greeting = greeting
+    }
+    public let galleryDetail: GalleryDetail
+    public let galleryState: GalleryState
+    public let apiKey: String
+    public let greeting: Greeting?
 }
 
 // MARK: Fetch others
-struct GalleryDetailRequest: Request {
-    let gid: String
-    let galleryURL: URL
-    var urlSession: URLSession = .shared
-    var allowsCellular = true
+public struct GalleryDetailRequest: Request {
+    public init(
+        gid: String,
+        galleryURL: URL,
+        urlSession: URLSession = .shared,
+        allowsCellular: Bool = true
+    ) {
+        self.gid = gid
+        self.galleryURL = galleryURL
+        self.urlSession = urlSession
+        self.allowsCellular = allowsCellular
+    }
+    public let gid: String
+    public let galleryURL: URL
+    public var urlSession: URLSession = .shared
+    public var allowsCellular = true
 
-    var publisher: AnyPublisher<GalleryDetailResponse, AppError> {
+    public var publisher: AnyPublisher<GalleryDetailResponse, AppError> {
         urlSession.dataTaskPublisher(
             for: urlRequest(
                 url: URLUtil.galleryDetail(url: galleryURL),
@@ -90,18 +112,18 @@ private struct GalleryVersionMetadataAPIResponse: Decodable {
     let gmetadata: [GalleryVersionMetadata]
 }
 
-struct GalleryVersionMetadataRequest: Request {
-    let gid: String
-    let token: String
-    let urlSession: URLSession
+public struct GalleryVersionMetadataRequest: Request {
+    public let gid: String
+    public let token: String
+    public let urlSession: URLSession
 
-    init(gid: String, token: String, urlSession: URLSession = .shared) {
+    public init(gid: String, token: String, urlSession: URLSession = .shared) {
         self.gid = gid
         self.token = token
         self.urlSession = urlSession
     }
 
-    var publisher: AnyPublisher<DownloadVersionMetadata, AppError> {
+    public var publisher: AnyPublisher<DownloadVersionMetadata, AppError> {
         guard let gid = Int(gid) else {
             return Fail(error: AppError.notFound)
                 .eraseToAnyPublisher()
@@ -135,11 +157,18 @@ struct GalleryVersionMetadataRequest: Request {
     }
 }
 
-struct GalleryReverseRequest: Request {
-    let url: URL
-    let isGalleryImageURL: Bool
+public struct GalleryReverseRequest: Request {
+    public init(
+        url: URL,
+        isGalleryImageURL: Bool
+    ) {
+        self.url = url
+        self.isGalleryImageURL = isGalleryImageURL
+    }
+    public let url: URL
+    public let isGalleryImageURL: Bool
 
-    func getGallery(from detail: GalleryDetail?, and url: URL) -> Gallery? {
+    public func getGallery(from detail: GalleryDetail?, and url: URL) -> Gallery? {
         if let detail = detail {
             return Gallery(
                 gid: url.pathComponents[2],
@@ -159,14 +188,14 @@ struct GalleryReverseRequest: Request {
         }
     }
 
-    var publisher: AnyPublisher<Gallery, AppError> {
+    public var publisher: AnyPublisher<Gallery, AppError> {
         galleryURL(url: url)
             .genericRetry()
             .flatMap(gallery)
             .eraseToAnyPublisher()
     }
 
-    func galleryURL(url: URL) -> AnyPublisher<URL, AppError> {
+    public func galleryURL(url: URL) -> AnyPublisher<URL, AppError> {
         switch isGalleryImageURL {
         case true:
             return URLSession.shared.dataTaskPublisher(for: url)
@@ -182,7 +211,7 @@ struct GalleryReverseRequest: Request {
         }
     }
 
-    func gallery(url: URL) -> AnyPublisher<Gallery, AppError> {
+    public func gallery(url: URL) -> AnyPublisher<Gallery, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { doc in
@@ -201,10 +230,15 @@ struct GalleryReverseRequest: Request {
     }
 }
 
-struct GalleryArchiveRequest: Request {
-    let archiveURL: URL
+public struct GalleryArchiveRequest: Request {
+    public init(
+        archiveURL: URL
+    ) {
+        self.archiveURL = archiveURL
+    }
+    public let archiveURL: URL
 
-    var publisher: AnyPublisher<GalleryArchiveResponse, AppError> {
+    public var publisher: AnyPublisher<GalleryArchiveResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: archiveURL)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -224,18 +258,25 @@ struct GalleryArchiveRequest: Request {
     }
 }
 
-struct GalleryArchiveFundsRequest: Request {
-    let gid: String
-    let galleryURL: URL
+public struct GalleryArchiveFundsRequest: Request {
+    public init(
+        gid: String,
+        galleryURL: URL
+    ) {
+        self.gid = gid
+        self.galleryURL = galleryURL
+    }
+    public let gid: String
+    public let galleryURL: URL
 
-    var publisher: AnyPublisher<(String, String), AppError> {
+    public var publisher: AnyPublisher<(String, String), AppError> {
         archiveURL(url: galleryURL)
             .genericRetry()
             .flatMap(funds)
             .eraseToAnyPublisher()
     }
 
-    func archiveURL(url: URL) -> AnyPublisher<URL, AppError> {
+    public func archiveURL(url: URL) -> AnyPublisher<URL, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { doc in
@@ -252,7 +293,7 @@ struct GalleryArchiveFundsRequest: Request {
             .eraseToAnyPublisher()
     }
 
-    func funds(url: URL) -> AnyPublisher<(String, String), AppError> {
+    public func funds(url: URL) -> AnyPublisher<(String, String), AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseCurrentFunds) }
@@ -261,11 +302,18 @@ struct GalleryArchiveFundsRequest: Request {
     }
 }
 
-struct GalleryTorrentsRequest: Request {
-    let gid: String
-    let token: String
+public struct GalleryTorrentsRequest: Request {
+    public init(
+        gid: String,
+        token: String
+    ) {
+        self.gid = gid
+        self.token = token
+    }
+    public let gid: String
+    public let token: String
 
-    var publisher: AnyPublisher<[GalleryTorrent], AppError> {
+    public var publisher: AnyPublisher<[GalleryTorrent], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.galleryTorrents(gid: gid, token: token))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -275,11 +323,18 @@ struct GalleryTorrentsRequest: Request {
     }
 }
 
-struct GalleryPreviewURLsRequest: Request {
-    let galleryURL: URL
-    let pageNum: Int
+public struct GalleryPreviewURLsRequest: Request {
+    public init(
+        galleryURL: URL,
+        pageNum: Int
+    ) {
+        self.galleryURL = galleryURL
+        self.pageNum = pageNum
+    }
+    public let galleryURL: URL
+    public let pageNum: Int
 
-    var publisher: AnyPublisher<[Int: URL], AppError> {
+    public var publisher: AnyPublisher<[Int: URL], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }

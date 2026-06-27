@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
+import Networking
 
 @Reducer
 struct LoginReducer {

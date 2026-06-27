@@ -5,6 +5,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
+import Networking
 
 @Reducer
 struct FavoritesReducer {

@@ -7,7 +7,7 @@ import FoundationExt
 import Utilities
 import Parser
 
-protocol Request {
+public protocol Request {
     associatedtype Response: Sendable
 
     var publisher: AnyPublisher<Response, AppError> { get }
@@ -19,11 +19,11 @@ private struct ResponseParsingError: Error {
 }
 
 extension Request {
-    func response() async -> Result<Response, AppError> {
+    public func response() async -> Result<Response, AppError> {
         await publisher.receive(on: DispatchQueue.main).async()
     }
 
-    func urlRequest(
+    public func urlRequest(
         url: URL,
         allowsCellular: Bool
     ) -> URLRequest {
@@ -32,7 +32,7 @@ extension Request {
         return request
     }
 
-    func htmlDocument(data: Data) throws -> HTMLDocument {
+    public func htmlDocument(data: Data) throws -> HTMLDocument {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
         } catch {
@@ -49,7 +49,7 @@ extension Request {
         }
     }
 
-    func htmlDocumentWithUTF8Fallback(data: Data) throws -> HTMLDocument {
+    public func htmlDocumentWithUTF8Fallback(data: Data) throws -> HTMLDocument {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
         } catch {
@@ -75,7 +75,7 @@ extension Request {
         }
     }
 
-    func parseResponse<T>(
+    public func parseResponse<T>(
         doc: HTMLDocument,
         _ parser: (HTMLDocument) throws -> T
     ) throws -> T {
@@ -89,7 +89,7 @@ extension Request {
         }
     }
 
-    func parseResponse<T>(
+    public func parseResponse<T>(
         data: Data,
         _ parser: (Data) throws -> T
     ) throws -> T {
@@ -109,7 +109,7 @@ extension Request {
         }
     }
 
-    func mapAppError(error: Error) -> AppError {
+    public func mapAppError(error: Error) -> AppError {
         if let responseParsingError = error as? ResponseParsingError {
             if let responseError = parsedResponseError(
                 from: responseParsingError
@@ -144,11 +144,11 @@ extension Request {
 }
 
 extension Publisher {
-    func genericRetry() -> Publishers.Retry<Self> {
+    public func genericRetry() -> Publishers.Retry<Self> {
         retry(3)
     }
 
-    func async() async -> Result<Output, AppError> where Output: Sendable, Failure == AppError {
+    public func async() async -> Result<Output, AppError> where Output: Sendable, Failure == AppError {
         do {
             let output = try await asyncOutput()
             return .success(output)
@@ -180,12 +180,12 @@ extension Publisher {
     }
 }
 extension URLRequest {
-    mutating func setURLEncodedContentType() {
+    public mutating func setURLEncodedContentType() {
         setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     }
 }
 extension Dictionary where Key == String, Value == String {
-    func dictString() -> String {
+    public func dictString() -> String {
         var array = [String]()
         keys.forEach { key in
             array.append(key + "=" + self[key].forceUnwrapped)
@@ -204,28 +204,59 @@ private extension URL {
 
 // MARK: - Response Types
 
-struct GalleriesResult {
-    let pageNumber: PageNumber
-    let dateSeekNavigation: DateSeekNavigation?
-    let galleries: [Gallery]
+public struct GalleriesResult: Sendable {
+    public init(
+        pageNumber: PageNumber,
+        dateSeekNavigation: DateSeekNavigation? = nil,
+        galleries: [Gallery]
+    ) {
+        self.pageNumber = pageNumber
+        self.dateSeekNavigation = dateSeekNavigation
+        self.galleries = galleries
+    }
+    public let pageNumber: PageNumber
+    public let dateSeekNavigation: DateSeekNavigation?
+    public let galleries: [Gallery]
 }
 
-struct FavoritesGalleriesResult {
-    let pageNumber: PageNumber
-    let dateSeekNavigation: DateSeekNavigation?
-    let sortOrder: FavoritesSortOrder?
-    let galleries: [Gallery]
+public struct FavoritesGalleriesResult: Sendable {
+    public init(
+        pageNumber: PageNumber,
+        dateSeekNavigation: DateSeekNavigation? = nil,
+        sortOrder: FavoritesSortOrder? = nil,
+        galleries: [Gallery]
+    ) {
+        self.pageNumber = pageNumber
+        self.dateSeekNavigation = dateSeekNavigation
+        self.sortOrder = sortOrder
+        self.galleries = galleries
+    }
+    public let pageNumber: PageNumber
+    public let dateSeekNavigation: DateSeekNavigation?
+    public let sortOrder: FavoritesSortOrder?
+    public let galleries: [Gallery]
 }
 
-struct GalleryArchiveResponse {
-    let archive: GalleryArchive
-    let galleryPoints: String?
-    let credits: String?
+public struct GalleryArchiveResponse: Sendable {
+    public init(
+        archive: GalleryArchive,
+        galleryPoints: String? = nil,
+        credits: String? = nil
+    ) {
+        self.archive = archive
+        self.galleryPoints = galleryPoints
+        self.credits = credits
+    }
+    public let archive: GalleryArchive
+    public let galleryPoints: String?
+    public let credits: String?
 }
 
 // MARK: Routine
-struct GreetingRequest: Request {
-    var publisher: AnyPublisher<Greeting, AppError> {
+public struct GreetingRequest: Request {
+    public init() {}
+
+    public var publisher: AnyPublisher<Greeting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.news)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -235,10 +266,15 @@ struct GreetingRequest: Request {
     }
 }
 
-struct UserInfoRequest: Request {
-    let uid: String
+public struct UserInfoRequest: Request {
+    public init(
+        uid: String
+    ) {
+        self.uid = uid
+    }
+    public let uid: String
 
-    var publisher: AnyPublisher<User, AppError> {
+    public var publisher: AnyPublisher<User, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.userInfo(uid: uid))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -248,8 +284,10 @@ struct UserInfoRequest: Request {
     }
 }
 
-struct FavoriteCategoriesRequest: Request {
-    var publisher: AnyPublisher<[Int: String], AppError> {
+public struct FavoriteCategoriesRequest: Request {
+    public init() {}
+
+    public var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -259,11 +297,18 @@ struct FavoriteCategoriesRequest: Request {
     }
 }
 
-struct TagTranslatorRequest: Request {
-    let language: TranslatableLanguage
-    let updatedDate: Date
+public struct TagTranslatorRequest: Request {
+    public init(
+        language: TranslatableLanguage,
+        updatedDate: Date
+    ) {
+        self.language = language
+        self.updatedDate = updatedDate
+    }
+    public let language: TranslatableLanguage
+    public let updatedDate: Date
 
-    var dateFormatter: DateFormatter {
+    public var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = Defaults.DateFormat.github
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
@@ -271,7 +316,7 @@ struct TagTranslatorRequest: Request {
         return formatter
     }
 
-    var publisher: AnyPublisher<TagTranslator, AppError> {
+    public var publisher: AnyPublisher<TagTranslator, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.githubAPI(repoName: language.repoName))
             .genericRetry().tryMap { data, _ -> Date in
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
