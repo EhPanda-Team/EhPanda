@@ -4,7 +4,7 @@ import Resources
 import Utilities
 import DesignSystem
 
-struct NewDawnView: View {
+public struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme
     private let greeting: Greeting
 
@@ -23,12 +23,12 @@ struct NewDawnView: View {
         }
     }
 
-    init(greeting: Greeting) {
+    public init(greeting: Greeting) {
         self.greeting = greeting
     }
 
     // MARK: NewDawnView
-    var body: some View {
+    public var body: some View {
         ZStack {
             LinearGradient(
                 gradient: Gradient(colors: gradientColors),
