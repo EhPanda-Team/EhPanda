@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import Kingfisher
 import Observation
+import FoundationExt
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String

@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import IdentifiedCollections
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 @Reducer
 struct FavoritesReducer {

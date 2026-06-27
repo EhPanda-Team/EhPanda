@@ -2,6 +2,7 @@ import Kanna
 import AppModels
 import Foundation
 import ImageIO
+import FoundationExt
 
 // MARK: - Response Error Detection
 extension DownloadCoordinator {

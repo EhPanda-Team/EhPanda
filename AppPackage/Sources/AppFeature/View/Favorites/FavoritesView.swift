@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import AlertKit
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>

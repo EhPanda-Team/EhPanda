@@ -2,6 +2,8 @@ import SwiftUI
 import AppModels
 import Foundation
 import ComposableArchitecture
+import ComposableArchitectureExt
+import SwiftUINavigationExt
 
 @Reducer
 struct DetailReducer {

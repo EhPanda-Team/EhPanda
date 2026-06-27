@@ -3,6 +3,7 @@ import AppModels
 import Observation
 import SwiftUIPager
 import ComposableArchitecture
+import FoundationExt
 
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme

@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import Kingfisher
+import FoundationExt
 
 // MARK: DescriptionSection
 struct DescriptionSection: View {

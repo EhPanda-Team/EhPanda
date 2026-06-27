@@ -2,6 +2,8 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
+import FoundationExt
+import SwiftUINavigationExt
 
 struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>

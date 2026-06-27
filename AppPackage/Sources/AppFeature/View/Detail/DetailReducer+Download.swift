@@ -1,6 +1,7 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
+import FoundationExt
 
 // MARK: - Download Action Handlers
 extension DetailReducer {

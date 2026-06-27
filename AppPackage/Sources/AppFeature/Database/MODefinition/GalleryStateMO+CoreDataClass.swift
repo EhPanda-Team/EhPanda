@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import CoreData
+import FoundationExt
 
 public class GalleryStateMO: NSManagedObject {}
 

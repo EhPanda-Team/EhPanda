@@ -1,5 +1,6 @@
 import CoreData
 import AppModels
+import FoundationExt
 
 public class AppEnvMO: NSManagedObject {}
 

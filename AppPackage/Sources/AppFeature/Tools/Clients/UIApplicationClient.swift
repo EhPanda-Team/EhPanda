@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import ComposableArchitecture
+import FoundationExt
 
 struct UIApplicationClient: Sendable {
     let openURL: @MainActor @Sendable (URL) -> Void

@@ -8,7 +8,7 @@ extension URL {
         "gid", "page", "imgkey", "fileindex", "xres", "p", "key"
     ]
 
-    var stableImageCacheKey: String? {
+    public var stableImageCacheKey: String? {
         let normalizedPath = pathComponents
             .filter { $0 != "/" && !$0.isEmpty }
             .joined(separator: "/")
@@ -29,7 +29,7 @@ extension URL {
     /// path yields one) so differing query/host variants of the same page collide,
     /// then the absolute URL as an exact-match fallback. Writers store under the
     /// primary key; readers check them in order.
-    var imageCacheKeys: [String] {
+    public var imageCacheKeys: [String] {
         var keys = [String]()
         if let stableImageCacheKey {
             keys.append(stableImageCacheKey)
