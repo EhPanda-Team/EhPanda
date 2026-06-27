@@ -9,39 +9,39 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct HistoryReducer {
+public struct HistoryReducer: Sendable {
     private enum CancelID {
         case observeDownloads
     }
 
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case detail(String)
         case clearHistory
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
-        var clearDialogPresented = false
-        var downloadBadges = [String: DownloadBadge]()
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
+        public var clearDialogPresented = false
+        public var downloadBadges = [String: DownloadBadge]()
 
         var filteredGalleries: [Gallery] {
             guard !keyword.isEmpty else { return galleries }
             return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
         }
-        var galleries = [Gallery]()
-        var loadingState: LoadingState = .idle
+        public var galleries = [Gallery]()
+        public var loadingState: LoadingState = .idle
 
-        var detailState: Heap<DetailReducer.State?>
+        public var detailState: Heap<DetailReducer.State?>
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
         case setNavigation(Route?)
@@ -60,7 +60,9 @@ struct HistoryReducer {
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

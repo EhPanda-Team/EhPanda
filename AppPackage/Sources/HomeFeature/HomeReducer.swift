@@ -9,40 +9,40 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct HomeReducer {
+public struct HomeReducer: Sendable {
     @CasePathable
-    enum Route: Equatable, Hashable {
+    public enum Route: Equatable, Hashable, Sendable {
         case detail(String)
         case misc(HomeMiscGridType)
         case section(HomeSectionType)
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var cardPageIndex = 1
-        var currentCardID = ""
-        var allowsCardHitTesting = true
-        var rawCardColors = [String: [Color]]()
+    public struct State: Equatable {
+        public var route: Route?
+        public var cardPageIndex = 1
+        public var currentCardID = ""
+        public var allowsCardHitTesting = true
+        public var rawCardColors = [String: [Color]]()
         var cardColors: [Color] {
             rawCardColors[currentCardID] ?? [.clear]
         }
 
-        var popularGalleries = [Gallery]()
-        var popularLoadingState: LoadingState = .idle
-        var frontpageGalleries = [Gallery]()
-        var frontpageLoadingState: LoadingState = .idle
-        var toplistsGalleries = [Int: [Gallery]]()
-        var toplistsLoadingState = [Int: LoadingState]()
+        public var popularGalleries = [Gallery]()
+        public var popularLoadingState: LoadingState = .idle
+        public var frontpageGalleries = [Gallery]()
+        public var frontpageLoadingState: LoadingState = .idle
+        public var toplistsGalleries = [Int: [Gallery]]()
+        public var toplistsLoadingState = [Int: LoadingState]()
 
-        var frontpageState = FrontpageReducer.State()
-        var toplistsState = ToplistsReducer.State()
-        var popularState = PopularReducer.State()
-        var watchedState = WatchedReducer.State()
-        var historyState = HistoryReducer.State()
-        var detailState: Heap<DetailReducer.State?>
+        public var frontpageState = FrontpageReducer.State()
+        public var toplistsState = ToplistsReducer.State()
+        public var popularState = PopularReducer.State()
+        public var watchedState = WatchedReducer.State()
+        public var historyState = HistoryReducer.State()
+        public var detailState: Heap<DetailReducer.State?>
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
 
@@ -67,7 +67,7 @@ struct HomeReducer {
 
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -95,5 +95,7 @@ struct HomeReducer {
     @Dependency(\.databaseClient) var databaseClient
     @Dependency(\.libraryClient) var libraryClient
 
-    var body: some Reducer<State, Action> { reducerBody }
+    public init() {}
+
+    public var body: some Reducer<State, Action> { reducerBody }
 }

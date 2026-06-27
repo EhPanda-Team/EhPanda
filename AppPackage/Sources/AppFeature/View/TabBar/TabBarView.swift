@@ -7,6 +7,7 @@ import Utilities
 import DesignSystem
 import AppComponents
 import DetailFeature
+import HomeFeature
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase

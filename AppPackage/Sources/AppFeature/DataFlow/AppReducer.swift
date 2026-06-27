@@ -7,6 +7,7 @@ import BackgroundProcessingClient
 import CookieClient
 import AppLaunchAutomationClient
 import DeviceClient
+import HomeFeature
 
 @Reducer
 struct AppReducer {

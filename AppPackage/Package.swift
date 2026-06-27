@@ -87,6 +87,7 @@ enum Module: String {
     case filtersFeature = "FiltersFeature"
     case foundationExt = "FoundationExt"
     case hapticsClient = "HapticsClient"
+    case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
     case loggerClient = "LoggerClient"
@@ -258,6 +259,7 @@ let targets: [PackageDescription.Target] = [
             .module(.filtersFeature),
             .module(.foundationExt),
             .module(.hapticsClient),
+            .module(.homeFeature),
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
@@ -574,6 +576,35 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .homeFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.composableArchitectureExt),
+            .module(.databaseClient),
+            .module(.dateSeekFeature),
+            .module(.designSystem),
+            .module(.detailFeature),
+            .module(.downloadClient),
+            .module(.filtersFeature),
+            .module(.foundationExt),
+            .module(.hapticsClient),
+            .module(.libraryClient),
+            .module(.networking),
+            .module(.quickSearchFeature),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .module(.utilities),
+            .targetDependency(.alertKit),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.swiftUIPager)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

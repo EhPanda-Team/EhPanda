@@ -10,9 +10,9 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct PopularReducer {
+public struct PopularReducer: Sendable {
     @dynamicMemberLookup @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case filters(EquatableVoid = .unique)
         case detail(String)
     }
@@ -22,26 +22,26 @@ struct PopularReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
 
         var filteredGalleries: [Gallery] {
             guard !keyword.isEmpty else { return galleries }
             return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
         }
-        var galleries = [Gallery]()
-        var loadingState: LoadingState = .idle
+        public var galleries = [Gallery]()
+        public var loadingState: LoadingState = .idle
 
-        var filtersState = FiltersReducer.State()
-        var detailState: Heap<DetailReducer.State?>
+        public var filtersState = FiltersReducer.State()
+        public var detailState: Heap<DetailReducer.State?>
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -57,7 +57,9 @@ struct PopularReducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none
