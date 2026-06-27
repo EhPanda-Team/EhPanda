@@ -5,6 +5,7 @@ import ComposableArchitecture
 import Utilities
 import LibraryClient
 import DatabaseClient
+import DownloadClient
 
 @Reducer
 struct AppDelegateReducer {

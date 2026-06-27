@@ -4,6 +4,7 @@ import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import Networking
+import DownloadClient
 
 @Reducer
 struct WatchedReducer {

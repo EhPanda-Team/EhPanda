@@ -72,6 +72,7 @@ enum Module: String {
     case composableArchitectureExt = "ComposableArchitectureExt"
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
+    case downloadClient = "DownloadClient"
     case foundationExt = "FoundationExt"
     case hapticsClient = "HapticsClient"
     case imageClient = "ImageClient"
@@ -227,6 +228,7 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dfClient),
+            .module(.downloadClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
@@ -286,6 +288,25 @@ let targets: [PackageDescription.Target] = [
         module: .composableArchitectureExt,
         dependencies: [
             .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .downloadClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.databaseClient),
+            .module(.foundationExt),
+            .module(.libraryClient),
+            .module(.networking),
+            .module(.parser),
+            .module(.resources),
+            .module(.sdWebImageExt),
+            .module(.urlClient),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kanna)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -459,6 +480,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.databaseClient),
             .module(.dfClient),
+            .module(.downloadClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),

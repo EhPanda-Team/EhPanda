@@ -7,6 +7,7 @@ import URLClient
 import HapticsClient
 import ImageClient
 import DatabaseClient
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)
