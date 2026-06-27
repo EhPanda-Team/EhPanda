@@ -1,7 +1,7 @@
-output_dir: EhPanda/App/Generated
+output_dir: AppPackage/Sources/AppFeature/Generated
 
 strings:
- inputs: EhPanda/App/en.lproj
+ inputs: AppPackage/Sources/AppFeature/Resources/en.lproj
  outputs:
   - templateName: structured-swift5
     output: Strings.swift

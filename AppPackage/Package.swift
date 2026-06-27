@@ -4,7 +4,8 @@ import PackageDescription
 
 // MARK: Dependency
 var dependencies: [PackageDescription.Package.Dependency] = [
-    .package(url: "https://github.com/Co2333/Colorful", from: "1.0.0"),
+    // Pinned to match the app's resolved version; 1.1.x deprecates ColorfulView.
+    .package(url: "https://github.com/Co2333/Colorful", .upToNextMinor(from: "1.0.1")),
     .package(url: "https://github.com/EhPanda-Team/AlertKit", branch: "custom"),
     .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
     .package(url: "https://github.com/EhPanda-Team/TTProgressHUD", branch: "custom"),
@@ -56,10 +57,20 @@ let swiftLintPlugins: [PackageDescription.Target.PluginUsage] = [
     .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")
 ]
 
+// Matches the app target's "Approachable Concurrency" (SWIFT_APPROACHABLE_CONCURRENCY)
+// so code keeps compiling under the same concurrency posture after moving into the package.
+let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault")
+]
+
 // MARK: Module
 enum Module: String {
     case appFeature = "AppFeature"
     case resources = "Resources"
+
+    // Test targets
+    case appFeatureTests = "AppFeatureTests"
 }
 
 extension Module {
@@ -213,10 +224,28 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.uiImageColors),
             .targetDependency(.waterfallGrid)
         ],
+        resources: [.process(.resources)],
+        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
         module: .resources,
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+
+    // MARK: Tests
+    .testTarget(
+        module: .appFeatureTests,
+        dependencies: [
+            .module(.appFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kanna),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols)
+        ],
+        resources: [.process(.resources)],
+        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     )
 ]
