@@ -7,26 +7,26 @@ import LibraryClient
 import DatabaseClient
 
 @Reducer
-struct GeneralSettingReducer {
+public struct GeneralSettingReducer: Sendable {
     @CasePathable
-    enum Route {
+    public enum Route: Sendable {
         case logs
         case clearCache
         case removeCustomTranslations
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
+    public struct State: Equatable, Sendable {
+        public var route: Route?
 
-        var loadingState: LoadingState = .idle
-        var diskImageCacheSize = "0 KB"
-        var passcodeNotSet = false
+        public var loadingState: LoadingState = .idle
+        public var diskImageCacheSize = "0 KB"
+        public var passcodeNotSet = false
 
-        var logsState = LogsReducer.State()
+        public var logsState = LogsReducer.State()
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -47,7 +47,9 @@ struct GeneralSettingReducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

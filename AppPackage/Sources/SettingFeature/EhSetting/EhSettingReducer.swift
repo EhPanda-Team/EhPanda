@@ -8,9 +8,9 @@ import Networking
 import CookieClient
 
 @Reducer
-struct EhSettingReducer {
+public struct EhSettingReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case webView(URL)
         case deleteProfile
     }
@@ -20,13 +20,13 @@ struct EhSettingReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var editingProfileName = ""
-        var ehSetting: EhSetting?
-        var ehProfile: EhProfile?
-        var loadingState: LoadingState = .idle
-        var submittingState: LoadingState = .idle
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var editingProfileName = ""
+        public var ehSetting: EhSetting?
+        public var ehProfile: EhProfile?
+        public var loadingState: LoadingState = .idle
+        public var submittingState: LoadingState = .idle
 
         mutating func setEhSetting(_ ehSetting: EhSetting) {
             let ehProfile: EhProfile = ehSetting.ehProfiles
@@ -37,7 +37,7 @@ struct EhSettingReducer {
         }
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case setKeyboardHidden
@@ -55,6 +55,8 @@ struct EhSettingReducer {
     @Dependency(\.uiApplicationClient) private var uiApplicationClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
+
+    public init() {}
 
     public var body: some Reducer<State, Action> {
         BindingReducer()

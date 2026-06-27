@@ -4,9 +4,9 @@ import UIApplicationClient
 import FileClient
 
 @Reducer
-struct LogsReducer {
+public struct LogsReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case log(Log)
     }
 
@@ -15,13 +15,13 @@ struct LogsReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var loadingState: LoadingState = .idle
-        var logs = [Log]()
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var loadingState: LoadingState = .idle
+        public var logs = [Log]()
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case navigateToFileApp
@@ -36,7 +36,9 @@ struct LogsReducer {
     @Dependency(\.uiApplicationClient) private var uiApplicationClient
     @Dependency(\.fileClient) private var fileClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

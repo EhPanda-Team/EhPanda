@@ -6,17 +6,17 @@ import SwiftUINavigationExt
 import DesignSystem
 import AppComponents
 
-struct SettingView: View {
+public struct SettingView: View {
     @Bindable private var store: StoreOf<SettingReducer>
     private let blurRadius: Double
 
-    init(store: StoreOf<SettingReducer>, blurRadius: Double) {
+    public init(store: StoreOf<SettingReducer>, blurRadius: Double) {
         self.store = store
         self.blurRadius = blurRadius
     }
 
     // MARK: SettingView
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
