@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 public class GalleryDetailMO: NSManagedObject {}
 
@@ -8,7 +9,7 @@ extension GalleryDetailMO: ManagedObjectProtocol {
             gid: gid, title: title, jpnTitle: jpnTitle, isFavorited: isFavorited,
             visibility: visibility?.toObject() ?? GalleryVisibility.yes,
             rating: rating, userRating: userRating, ratingCount: Int(ratingCount),
-            category: Category(rawValue: category).forceUnwrapped,
+            category: AppModels.Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language).forceUnwrapped,
             uploader: uploader, postedDate: postedDate,
             coverURL: coverURL, archiveURL: archiveURL, parentURL: parentURL,

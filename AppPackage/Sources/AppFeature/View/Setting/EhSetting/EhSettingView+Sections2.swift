@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 import Resources
 
 extension EhSettingView {
@@ -27,8 +28,8 @@ struct FavoritesSection: View {
     @Binding var ehSetting: EhSetting
     @FocusState private var isFocused
 
-    private var tuples: [(Category, Binding<String>)] {
-        Category.allFavoritesCases.enumerated().map { index, category in
+    private var tuples: [(AppModels.Category, Binding<String>)] {
+        AppModels.Category.allFavoritesCases.enumerated().map { index, category in
             (category, $ehSetting.favoriteCategories[index])
         }
     }

@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 struct DownloadPageTaskContext: Equatable, Sendable {
     let gid: String

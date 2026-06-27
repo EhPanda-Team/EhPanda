@@ -1,9 +1,10 @@
 import Foundation
+import AppModels
 
 extension Parser {
     struct ThumbnailPanelInfo {
         let coverURL: URL
-        let category: Category
+        let category: AppModels.Category
         let rating: Float
         let publishedDate: Date
         let pageCount: Int

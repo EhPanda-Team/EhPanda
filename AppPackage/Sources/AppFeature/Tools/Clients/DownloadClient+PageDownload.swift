@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Download Pages
 extension DownloadCoordinator {

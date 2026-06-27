@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 actor DownloadBackgroundTaskStore {
     struct Record: Codable, Equatable, Sendable {

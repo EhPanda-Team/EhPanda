@@ -1,4 +1,5 @@
 import UIKit
+import AppModels
 import Foundation
 import Testing
 @testable import AppFeature

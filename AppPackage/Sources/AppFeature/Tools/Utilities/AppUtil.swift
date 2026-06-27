@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 struct AppUtil {
     static var version: String {

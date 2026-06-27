@@ -1,4 +1,5 @@
 import Kingfisher
+import AppModels
 import Resources
 import UIKit
 import Foundation

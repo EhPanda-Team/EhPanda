@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Private helpers for public API
 extension DownloadCoordinator {

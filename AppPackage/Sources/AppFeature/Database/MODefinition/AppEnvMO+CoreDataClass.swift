@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 public class AppEnvMO: NSManagedObject {}
 

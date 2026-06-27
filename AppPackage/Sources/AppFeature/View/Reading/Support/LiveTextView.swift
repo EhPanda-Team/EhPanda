@@ -1,4 +1,5 @@
 import SwiftUI
+import AppModels
 
 struct LiveTextView: View {
     private let liveTextGroups: [LiveTextGroup]

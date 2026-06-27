@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import AppModels
 
 struct LoggerClient: Sendable {
     let info: @Sendable (Any, Any?) -> Void

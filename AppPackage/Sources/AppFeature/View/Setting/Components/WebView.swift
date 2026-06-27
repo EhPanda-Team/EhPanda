@@ -1,4 +1,5 @@
 import WebKit
+import AppModels
 import SwiftUI
 
 struct WebView: UIViewControllerRepresentable {

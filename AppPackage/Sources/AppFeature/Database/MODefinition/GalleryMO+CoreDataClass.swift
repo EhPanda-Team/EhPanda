@@ -1,4 +1,5 @@
 import CoreData
+import AppModels
 
 public class GalleryMO: NSManagedObject {}
 
@@ -8,7 +9,7 @@ extension GalleryMO: ManagedObjectProtocol {
             gid: gid, token: token,
             title: title, rating: rating,
             tags: tags?.toObject() ?? [GalleryTag](),
-            category: Category(rawValue: category) ?? .private,
+            category: AppModels.Category(rawValue: category) ?? .private,
             uploader: uploader, pageCount: Int(pageCount),
             postedDate: postedDate,
             coverURL: coverURL, galleryURL: galleryURL,

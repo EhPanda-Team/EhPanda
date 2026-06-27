@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 // MARK: - Observer Management & Scheduling
 extension DownloadCoordinator {

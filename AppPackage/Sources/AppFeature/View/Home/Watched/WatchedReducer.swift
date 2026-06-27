@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import AppModels
 
 @Reducer
 struct WatchedReducer {

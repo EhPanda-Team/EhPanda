@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import CoreData
 import ComposableArchitecture
 import Kingfisher

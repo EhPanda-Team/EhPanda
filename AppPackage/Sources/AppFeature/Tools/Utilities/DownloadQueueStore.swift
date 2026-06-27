@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import AppModels
 import Foundation
 
 struct DownloadQueueStore: Sendable {

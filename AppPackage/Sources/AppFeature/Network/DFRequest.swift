@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 
 struct DFRequest {
     var request: URLRequest

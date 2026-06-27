@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import ComposableArchitecture
 import Kingfisher
 import UIKit
