@@ -75,6 +75,7 @@ enum Module: String {
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
     case downloadClient = "DownloadClient"
+    case fileClient = "FileClient"
     case foundationExt = "FoundationExt"
     case hapticsClient = "HapticsClient"
     case imageClient = "ImageClient"
@@ -233,6 +234,7 @@ let targets: [PackageDescription.Target] = [
             .module(.databaseClient),
             .module(.dfClient),
             .module(.downloadClient),
+            .module(.fileClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
@@ -311,6 +313,16 @@ let targets: [PackageDescription.Target] = [
             .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .fileClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -505,6 +517,7 @@ let targets: [PackageDescription.Target] = [
             .module(.databaseClient),
             .module(.dfClient),
             .module(.downloadClient),
+            .module(.fileClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),

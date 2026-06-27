@@ -8,6 +8,7 @@ import HapticsClient
 import LibraryClient
 import DatabaseClient
 import DFClient
+import FileClient
 
 @Reducer
 struct SettingReducer {

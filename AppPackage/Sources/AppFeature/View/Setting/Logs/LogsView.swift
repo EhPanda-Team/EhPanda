@@ -2,6 +2,7 @@ import SwiftUI
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
+import AppModels
 
 struct LogsView: View {
     @Bindable private var store: StoreOf<LogsReducer>
@@ -140,29 +141,6 @@ private struct LogView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(log.fileName)
-    }
-}
-
-// MARK: Definition
-struct Log: Identifiable, Comparable {
-    static func < (lhs: Log, rhs: Log) -> Bool {
-        lhs.fileName < rhs.fileName
-    }
-
-    var id: String { fileName }
-    let fileName: String
-    let contents: [String]
-}
-extension Log: CustomStringConvertible {
-    var description: String {
-        let params = String(
-            describing: [
-                "fileName": fileName,
-                "contentsCount": contents.count
-            ]
-            as [String: Any]
-        )
-        return "Log(\(params))"
     }
 }
 

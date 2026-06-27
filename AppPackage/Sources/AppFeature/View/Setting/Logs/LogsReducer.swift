@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import AppModels
 import UIApplicationClient
+import FileClient
 
 @Reducer
 struct LogsReducer {

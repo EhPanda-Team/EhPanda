@@ -12,6 +12,7 @@ import LibraryClient
 import DatabaseClient
 import DFClient
 import DownloadClient
+import FileClient
 @testable import AppFeature
 
 @Suite(.serialized)
