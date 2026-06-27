@@ -1,0 +1,210 @@
+import Foundation
+import ComposableArchitecture
+import Testing
+@testable import AppFeature
+
+@Suite(.serialized)
+@MainActor
+struct DetailReducerDownloadTests: DownloadFeatureTestCase {
+    @MainActor
+    @Test
+    func testDetailReducerStartDownloadEnqueuesGalleryPayload() async throws {
+        let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
+        let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: queuedDownload,
+            configure: { state in
+                state.galleryPreviewURLs = [1: previewURL]
+                state.previewConfig = .large(rows: 2)
+            },
+            enqueue: { payload in
+                capturedPayload.value = payload
+            }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.startDownload("Folder"))
+        await store.skipReceivedActions(strict: false)
+
+        #expect(capturedPayload.value?.gallery.gid == gallery.gid)
+        #expect(capturedPayload.value?.galleryDetail == detail)
+        #expect(capturedPayload.value?.previewConfig == .large(rows: 2))
+        #expect(capturedPayload.value?.mode == .initial)
+        #expect(store.state.downloadBadge == queuedDownload.badge)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerStartDownloadUnlocksActionsAfterQueueing() async throws {
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let queuedDownload = sampleDownload(gid: gallery.gid, title: gallery.title, status: .queued)
+        let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: queuedDownload,
+            configure: { state in state.galleryPreviewURLs = [1: previewURL] },
+            enqueue: { _ in }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.startDownload("Folder")) {
+            $0.isPreparingDownload = true
+            $0.didRunLaunchAutomation = true
+        }
+        await store.receive(\.startDownloadDone) {
+            $0.isPreparingDownload = false
+            $0.downloadBadge = DownloadBadge(
+                status: .queued,
+                progress: .init(completedPageCount: 0, pageCount: detail.pageCount)
+            )
+            $0.hasLoadedDownloadBadge = true
+        }
+        await store.receive(\.fetchDownloadBadge)
+        await store.receive(\.fetchDownloadBadgeDone, queuedDownload) {
+            $0.downloadBadge = queuedDownload.badge
+            $0.hasLoadedDownloadBadge = true
+        }
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerFetchDownloadFoldersPopulatesStateAndRefetchesAfterChanges() async {
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: nil,
+            folders: { ["Library"] },
+            enqueue: { _ in }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.fetchDownloadFolders)
+        await store.receive(\.fetchDownloadFoldersDone, ["Library"]) {
+            $0.downloadFolders = ["Library"]
+        }
+
+        await store.send(.folderManager(.createFolderDone(.success(()))))
+        await store.receive(\.fetchDownloadFolders)
+        await store.skipReceivedActions(strict: false)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerCreateDefaultFolderCreatesNamedFolderAndRefetches() async {
+        let capturedFolderName = UncheckedBox<String?>(nil)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: nil,
+            folders: { [Defaults.FilePath.defaultDownloadFolder] },
+            createFolder: { name in capturedFolderName.value = name },
+            enqueue: { _ in }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.createDefaultFolder)
+        await store.receive(\.createDefaultFolderDone)
+        await store.receive(\.fetchDownloadFolders)
+        await store.receive(\.fetchDownloadFoldersDone, [Defaults.FilePath.defaultDownloadFolder]) {
+            $0.downloadFolders = [Defaults.FilePath.defaultDownloadFolder]
+        }
+
+        #expect(capturedFolderName.value == Defaults.FilePath.defaultDownloadFolder)
+    }
+
+    @MainActor
+    @Test
+    func testDetailReducerLaunchAutomationWaitsForResolvedDownloadBadge() async throws {
+        let capturedPayload = UncheckedBox<DownloadRequestPayload?>(nil)
+        let gallery = sampleGallery()
+        let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
+        let previewURL = try #require(URL(string: "https://example.com/1.jpg"))
+
+        let store = makeDownloadTestStore(
+            gallery: gallery, detail: detail,
+            downloadValue: nil,
+            automationGID: gallery.gid,
+            configure: { state in
+                state.gid = ""
+                state.galleryPreviewURLs = [1: previewURL]
+            },
+            enqueue: { payload in
+                capturedPayload.value = payload
+            }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.runLaunchAutomationIfNeeded)
+        #expect(capturedPayload.value == nil)
+        #expect(store.state.didRunLaunchAutomation == false)
+
+        await store.send(.fetchDownloadBadgeDone(.none)) {
+            $0.hasLoadedDownloadBadge = true
+        }
+        await store.send(.runLaunchAutomationIfNeeded) {
+            $0.didRunLaunchAutomation = true
+        }
+        await store.receive(\.startDownload)
+        await store.skipReceivedActions(strict: false)
+
+        #expect(capturedPayload.value?.gallery.gid == gallery.gid)
+        #expect(capturedPayload.value?.folderName == Defaults.FilePath.automationDownloadFolder)
+    }
+}
+
+// MARK: - Store Factory Helpers
+
+private extension DetailReducerDownloadTests {
+    func makeDownloadTestStore(
+        gallery: Gallery, detail: GalleryDetail,
+        downloadValue: DownloadedGallery?,
+        automationGID: String? = nil,
+        folders: @escaping @Sendable () -> [String] = { [] },
+        createFolder: @escaping @Sendable (String) async throws -> Void = { _ in },
+        configure: (inout DetailReducer.State) -> Void = { _ in },
+        enqueue: @escaping @Sendable (DownloadRequestPayload) async throws -> Void
+    ) -> TestStoreOf<DetailReducer> {
+        var initialState = DetailReducer.State()
+        initialState.gid = gallery.gid
+        initialState.gallery = gallery
+        initialState.galleryDetail = detail
+        configure(&initialState)
+        return TestStore(
+            initialState: initialState,
+            reducer: DetailReducer.init,
+            withDependencies: {
+                $0.downloadClient = DownloadClient()
+                $0.downloadClient.observeDownloads = {
+                    AsyncStream { continuation in continuation.finish() }
+                }
+                $0.downloadClient.fetchDownloads = { [] }
+                $0.downloadClient.fetchDownload = { _ in downloadValue }
+                $0.downloadClient.refreshDownloads = {}
+                $0.downloadClient.enqueue = enqueue
+                $0.downloadClient.togglePause = { _ in }
+                $0.downloadClient.retry = { _, _ in }
+                $0.downloadClient.delete = { _ in }
+                $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
+                $0.downloadClient.loadLocalPageURLs = { _ in [:] }
+                $0.downloadClient.fetchVersionMetadata = { _, _ in nil }
+                $0.downloadClient.fetchFolders = { folders() }
+                $0.downloadClient.createFolder = createFolder
+                $0.hapticsClient = .noop
+                $0.databaseClient = .noop
+                $0.cookieClient = .noop
+                if let automationGID {
+                    $0.appLaunchAutomationClient = appLaunchAutomationClient(
+                        autoDownloadGID: automationGID
+                    )
+                }
+            }
+        )
+    }
+}

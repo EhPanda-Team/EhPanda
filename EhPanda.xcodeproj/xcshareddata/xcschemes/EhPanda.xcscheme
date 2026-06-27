@@ -38,16 +38,6 @@
          </BuildableReference>
       </CodeCoverageTargets>
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "ABF294CB26D20F82004DD03A"
-               BuildableName = "EhPandaTests.xctest"
-               BlueprintName = "EhPandaTests"
-               ReferencedContainer = "container:EhPanda.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

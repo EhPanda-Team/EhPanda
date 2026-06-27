@@ -7,31 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		82E6B0052F185A0000D1F93A /* SDWebImageWebPCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 82E6B0042F185A0000D1F93A /* SDWebImageWebPCoder */; };
-		82E6B0082F185A0000D1F93A /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 82E6B0072F185A0000D1F93A /* SDWebImageSwiftUI */; };
-		AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573C27675B1E00FD64E2 /* Colorful */; };
-		AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573F27678B3400FD64E2 /* UIImageColors */; };
-		AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */ = {isa = PBXBuildFile; productRef = AB1FA94827C62BC80063EF55 /* CommonMark */; };
-		AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AB26F59827ACDB4200AB3468 /* FilePicker */; };
-		AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB99E280251D600011A8A /* TTProgressHUD */; };
-		AB2EB9A2280251F600011A8A /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9A1280251F600011A8A /* AlertKit */; };
-		AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9A42802521700011A8A /* DeprecatedAPI */; };
+		A0F00000000000000000F001 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A0F00000000000000000F002 /* AppFeature */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
-		AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = AB65059F26B0027800F91E9D /* SwiftUIPager */; };
-		AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB86AC0F27831AD100E61E6A /* ComposableArchitecture */; };
-		ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = ABAC82FD26BC4A96009F5026 /* OpenCC */; };
-		ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */ = {isa = PBXBuildFile; productRef = ABBB2635278FB888007B6149 /* SwiftUINavigation */; };
-		ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABC4A0782751B40E00968A4F /* Kingfisher */; };
-		ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */ = {isa = PBXBuildFile; productRef = ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */; };
-		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		EA0C92592C3EB49500D211F6 /* README.cht.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92532C3EB49500D211F6 /* README.cht.md */; };
 		EA0C925A2C3EB49500D211F6 /* README.ko.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92542C3EB49500D211F6 /* README.ko.md */; };
 		EA0C925B2C3EB49500D211F6 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92552C3EB49500D211F6 /* README.md */; };
 		EA0C925C2C3EB49500D211F6 /* README.de.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92562C3EB49500D211F6 /* README.de.md */; };
 		EA0C925D2C3EB49500D211F6 /* README.chs.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92572C3EB49500D211F6 /* README.chs.md */; };
 		EA0C925E2C3EB49500D211F6 /* README.jpn.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92582C3EB49500D211F6 /* README.jpn.md */; };
-		EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = EAE63E2029E2A6330048C601 /* SwiftyBeaver */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,13 +24,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = AB5BE67526B95FDD007D4A55;
 			remoteInfo = ShareExtension;
-		};
-		ABF294D026D20F82004DD03A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = ABC3C7532593696C00E0C11B;
-			remoteInfo = EhPanda;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -66,7 +42,6 @@
 /* Begin PBXFileReference section */
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA0C92482C3EB45E00D211F6 /* AltStore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AltStore.json; sourceTree = "<group>"; };
 		EA0C92492C3EB45E00D211F6 /* swiftgen.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = swiftgen.yml; sourceTree = "<group>"; };
 		EA0C924A2C3EB45E00D211F6 /* .gitattributes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
@@ -81,11 +56,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A6844C242F780C8700BBF6E5 /* Exceptions for "EhPanda" folder in "EhPanda" target */ = {
+		A6844C242F780C8700BBF6E5 /* Exceptions for "App" folder in "EhPanda" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"/Localized: App/Constant.strings",
-				App/Info.plist,
+				Info.plist,
 			);
 			target = ABC3C7532593696C00E0C11B /* EhPanda */;
 		};
@@ -104,12 +78,12 @@
 			path = .github;
 			sourceTree = "<group>";
 		};
-		A6844B3D2F780C8600BBF6E5 /* EhPanda */ = {
+		A6844B3D2F780C8600BBF6E5 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				A6844C242F780C8700BBF6E5 /* Exceptions for "EhPanda" folder in "EhPanda" target */,
+				A6844C242F780C8700BBF6E5 /* Exceptions for "App" folder in "EhPanda" target */,
 			);
-			path = EhPanda;
+			path = App;
 			sourceTree = "<group>";
 		};
 		A6844C272F780C8B00BBF6E5 /* ShareExtension */ = {
@@ -118,11 +92,6 @@
 				A6844C292F780C8D00BBF6E5 /* Exceptions for "ShareExtension" folder in "ShareExtension" target */,
 			);
 			path = ShareExtension;
-			sourceTree = "<group>";
-		};
-		A6844C652F780C9C00BBF6E5 /* EhPandaTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = EhPandaTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -136,29 +105,7 @@
 		ABC3C7512593696C00E0C11B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
-				AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */,
-				AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */,
-				AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */,
-				AB2EB9A2280251F600011A8A /* AlertKit in Frameworks */,
-				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
-				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
-				ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */,
-				EAE63E2129E2A6330048C601 /* SwiftyBeaver in Frameworks */,
-				AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */,
-				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
-				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
-				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
-				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
-				82E6B0052F185A0000D1F93A /* SDWebImageWebPCoder in Frameworks */,
-				82E6B0082F185A0000D1F93A /* SDWebImageSwiftUI in Frameworks */,
-				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
-				AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */,
-				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
-			);
-		};
-		ABF294C926D20F82004DD03A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			files = (
+				A0F00000000000000000F001 /* AppFeature in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -174,9 +121,8 @@
 		ABC3C74B2593696C00E0C11B = {
 			isa = PBXGroup;
 			children = (
-				A6844B3D2F780C8600BBF6E5 /* EhPanda */,
+				A6844B3D2F780C8600BBF6E5 /* App */,
 				A6844C272F780C8B00BBF6E5 /* ShareExtension */,
-				A6844C652F780C9C00BBF6E5 /* EhPandaTests */,
 				EA0C92472C3EB44300D211F6 /* Config */,
 				EA0C92422C3EB40100D211F6 /* GitHub */,
 				EA0C92522C3EB47F00D211F6 /* READMEs */,
@@ -190,7 +136,6 @@
 			children = (
 				ABC3C7542593696C00E0C11B /* EhPanda.app */,
 				AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */,
-				ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -253,7 +198,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ABC3C7632593696E00E0C11B /* Build configuration list for PBXNativeTarget "EhPanda" */;
 			buildPhases = (
-				AB2E936227A24E0A00EA99F1 /* SwiftGen */,
 				ABC3C7502593696C00E0C11B /* Sources */,
 				ABC3C7512593696C00E0C11B /* Frameworks */,
 				ABC3C7522593696C00E0C11B /* Resources */,
@@ -266,54 +210,15 @@
 				AB5BE67F26B95FDD007D4A55 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A6844B3D2F780C8600BBF6E5 /* EhPanda */,
+				A6844B3D2F780C8600BBF6E5 /* App */,
 			);
 			name = EhPanda;
 			packageProductDependencies = (
-				AB65059F26B0027800F91E9D /* SwiftUIPager */,
-				ABD7005826B1C31500DC59C9 /* Kanna */,
-				ABAC82FD26BC4A96009F5026 /* OpenCC */,
-				AB60D0E8274C7ECE00F899AB /* WaterfallGrid */,
-				ABC4A0782751B40E00968A4F /* Kingfisher */,
-				AB17573C27675B1E00FD64E2 /* Colorful */,
-				AB17573F27678B3400FD64E2 /* UIImageColors */,
-				ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */,
-				AB86AC0F27831AD100E61E6A /* ComposableArchitecture */,
-				ABBB2635278FB888007B6149 /* SwiftUINavigation */,
-				AB26F59827ACDB4200AB3468 /* FilePicker */,
-				AB1FA94827C62BC80063EF55 /* CommonMark */,
-				AB2EB99E280251D600011A8A /* TTProgressHUD */,
-				AB2EB9A1280251F600011A8A /* AlertKit */,
-				AB2EB9A42802521700011A8A /* DeprecatedAPI */,
-				EAE63E2029E2A6330048C601 /* SwiftyBeaver */,
-				82E6B0042F185A0000D1F93A /* SDWebImageWebPCoder */,
-				82E6B0072F185A0000D1F93A /* SDWebImageSwiftUI */,
+				A0F00000000000000000F002 /* AppFeature */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
 			productType = "com.apple.product-type.application";
-		};
-		ABF294CB26D20F82004DD03A /* EhPandaTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = ABF294D426D20F82004DD03A /* Build configuration list for PBXNativeTarget "EhPandaTests" */;
-			buildPhases = (
-				ABF294C826D20F82004DD03A /* Sources */,
-				ABF294C926D20F82004DD03A /* Frameworks */,
-				ABF294CA26D20F82004DD03A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				A66A76712F77C89600FC07B8 /* PBXTargetDependency */,
-				ABF294D126D20F82004DD03A /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				A6844C652F780C9C00BBF6E5 /* EhPandaTests */,
-			);
-			name = EhPandaTests;
-			productName = EhPandaTests;
-			productReference = ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -330,10 +235,6 @@
 					};
 					ABC3C7532593696C00E0C11B = {
 						CreatedOnToolsVersion = 12.2;
-					};
-					ABF294CB26D20F82004DD03A = {
-						CreatedOnToolsVersion = 13.0;
-						TestTargetID = ABC3C7532593696C00E0C11B;
 					};
 				};
 			};
@@ -353,24 +254,7 @@
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
-				AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
-				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
-				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
-				AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
-				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
-				AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */,
-				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
-				AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
-				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swift-navigation" */,
-				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
-				AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */,
-				AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */,
-				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
-				EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
-				82E6B0032F185A0000D1F93A /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */,
-				82E6B0062F185A0000D1F93A /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */,
 				A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
 			preferredProjectObjectVersion = 100;
@@ -380,7 +264,6 @@
 			targets = (
 				ABC3C7532593696C00E0C11B /* EhPanda */,
 				AB5BE67526B95FDD007D4A55 /* ShareExtension */,
-				ABF294CB26D20F82004DD03A /* EhPandaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -402,37 +285,9 @@
 				EA0C925E2C3EB49500D211F6 /* README.jpn.md in Resources */,
 			);
 		};
-		ABF294CA26D20F82004DD03A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			files = (
-			);
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AB2E936227A24E0A00EA99F1 /* SwiftGen */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			name = SwiftGen;
-			outputPaths = (
-				$SRCROOT/EhPanda/App/Generated/Strings.swift,
-			);
-			shellPath = /bin/sh;
-			shellScript = (
-				"if test -d \"/opt/homebrew/bin/\"; then",
-				"  PATH=\"/opt/homebrew/bin/:${PATH}\"",
-				"fi",
-				"",
-				"export PATH",
-				"",
-				"if which swiftgen >/dev/null; then",
-				"  swiftgen",
-				"else",
-				"  echo \"warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen\"",
-				"fi",
-				"",
-			);
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -442,11 +297,6 @@
 			);
 		};
 		ABC3C7502593696C00E0C11B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			files = (
-			);
-		};
-		ABF294C826D20F82004DD03A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
 			);
@@ -462,19 +312,10 @@
 			isa = PBXTargetDependency;
 			productRef = A66A766E2F77C89100FC07B8 /* SwiftLintBuildToolPlugin */;
 		};
-		A66A76712F77C89600FC07B8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = A66A76702F77C89600FC07B8 /* SwiftLintBuildToolPlugin */;
-		};
 		AB5BE67F26B95FDD007D4A55 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB5BE67526B95FDD007D4A55 /* ShareExtension */;
 			targetProxy = AB5BE67E26B95FDD007D4A55 /* PBXContainerItemProxy */;
-		};
-		ABF294D126D20F82004DD03A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = ABC3C7532593696C00E0C11B /* EhPanda */;
-			targetProxy = ABF294D026D20F82004DD03A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -666,13 +507,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/EhPanda.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 158;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = EhPanda/App/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -696,13 +537,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/EhPanda.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 158;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = EhPanda/App/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -718,62 +559,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		ABF294D226D20F82004DD03A /* Debug configuration for PBXNativeTarget "EhPandaTests" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 157;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
-			};
-			name = Debug;
-		};
-		ABF294D326D20F82004DD03A /* Release configuration for PBXNativeTarget "EhPandaTests" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 157;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
 			};
 			name = Release;
 		};
@@ -804,33 +589,16 @@
 			);
 			defaultConfigurationName = Release;
 		};
-		ABF294D426D20F82004DD03A /* Build configuration list for PBXNativeTarget "EhPandaTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				ABF294D226D20F82004DD03A /* Debug configuration for PBXNativeTarget "EhPandaTests" */,
-				ABF294D326D20F82004DD03A /* Release configuration for PBXNativeTarget "EhPandaTests" */,
-			);
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = AppPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
-		82E6B0032F185A0000D1F93A /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageWebPCoder";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.14.6;
-			};
-		};
-		82E6B0062F185A0000D1F93A /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
-		};
 		A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
@@ -839,150 +607,13 @@
 				minimumVersion = 0.0.0;
 			};
 		};
-		AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Co2333/Colorful";
-			requirement = {
-				kind = exactVersion;
-				version = 1.0.1;
-			};
-		};
-		AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/jathu/UIImageColors";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
-		AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/SwiftCommonMark";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/markrenaud/FilePicker";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/TTProgressHUD";
-			requirement = {
-				branch = custom;
-				kind = branch;
-			};
-		};
-		AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/AlertKit";
-			requirement = {
-				branch = custom;
-				kind = branch;
-			};
-		};
-		AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EhPanda-Team/DeprecatedAPI";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/fermoya/SwiftUIPager";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
-		AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.25.0;
-			};
-			traits = (
-				ComposableArchitecture2DeprecationOverloads,
-				ComposableArchitecture2Deprecations,
-			);
-		};
-		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ddddxxx/SwiftyOpenCC";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = "2.0.0-beta";
-			};
-		};
-		ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swift-navigation" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-navigation";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
-		ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/onevcat/Kingfisher";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.0.0;
-			};
-		};
-		ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
-			};
-		};
-		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tid-kijyun/Kanna";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.0.0;
-			};
-		};
-		EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		82E6B0042F185A0000D1F93A /* SDWebImageWebPCoder */ = {
+		A0F00000000000000000F002 /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 82E6B0032F185A0000D1F93A /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */;
-			productName = SDWebImageWebPCoder;
-		};
-		82E6B0072F185A0000D1F93A /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 82E6B0062F185A0000D1F93A /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
+			package = A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */;
+			productName = AppFeature;
 		};
 		A66A766C2F77C88A00FC07B8 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -993,91 +624,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-		A66A76702F77C89600FC07B8 /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A66A766B2F77C87400FC07B8 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
-		AB17573C27675B1E00FD64E2 /* Colorful */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */;
-			productName = Colorful;
-		};
-		AB17573F27678B3400FD64E2 /* UIImageColors */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */;
-			productName = UIImageColors;
-		};
-		AB1FA94827C62BC80063EF55 /* CommonMark */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */;
-			productName = CommonMark;
-		};
-		AB26F59827ACDB4200AB3468 /* FilePicker */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */;
-			productName = FilePicker;
-		};
-		AB2EB99E280251D600011A8A /* TTProgressHUD */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
-			productName = TTProgressHUD;
-		};
-		AB2EB9A1280251F600011A8A /* AlertKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */;
-			productName = AlertKit;
-		};
-		AB2EB9A42802521700011A8A /* DeprecatedAPI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
-			productName = DeprecatedAPI;
-		};
-		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */;
-			productName = WaterfallGrid;
-		};
-		AB65059F26B0027800F91E9D /* SwiftUIPager */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */;
-			productName = SwiftUIPager;
-		};
-		AB86AC0F27831AD100E61E6A /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
-		ABAC82FD26BC4A96009F5026 /* OpenCC */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */;
-			productName = OpenCC;
-		};
-		ABBB2635278FB888007B6149 /* SwiftUINavigation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swift-navigation" */;
-			productName = SwiftUINavigation;
-		};
-		ABC4A0782751B40E00968A4F /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
-		ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */;
-			productName = SFSafeSymbols;
-		};
-		ABD7005826B1C31500DC59C9 /* Kanna */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */;
-			productName = Kanna;
-		};
-		EAE63E2029E2A6330048C601 /* SwiftyBeaver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EAE63E1F29E2A6330048C601 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
-			productName = SwiftyBeaver;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

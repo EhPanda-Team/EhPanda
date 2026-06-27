@@ -1,5 +1,5 @@
 {
-  "originHash" : "b1cacab09b6a9292869c6044489096831026b23a039f6b8fb6246abd6fc76d5d",
+  "originHash" : "d65854d8f89be6f47565ce46f0077cc8f97043049a286f7b9261c6fb4d807e0a",
   "pins" : [
     {
       "identity" : "alertkit",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Co2333/Colorful",
       "state" : {
-        "revision" : "d673ab1b5aaaf2f968fdd73830e318fd4c6910f3",
-        "version" : "1.1.1"
+        "revision" : "eb5a350aec759bd413615273cb6d64553aead4d5",
+        "version" : "1.0.1"
       }
     },
     {

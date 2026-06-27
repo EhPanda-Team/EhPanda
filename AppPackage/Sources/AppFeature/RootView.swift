@@ -1,0 +1,53 @@
+import ComposableArchitecture
+import SwiftUI
+import UIKit
+
+// MARK: RootView
+public struct RootView: View {
+    private let appDelegate: AppDelegate
+
+    public init(appDelegate: AppDelegate) {
+        self.appDelegate = appDelegate
+    }
+
+    public var body: some View {
+        ZStack {
+            let databaseState = appDelegate.store.appDelegateState.migrationState.databaseState
+
+            if databaseState == .idle {
+                TabBarView(store: appDelegate.store).onAppear(perform: addTouchHandler).accentColor(.primary)
+            }
+            MigrationView(
+                store: appDelegate.store.scope(
+                    state: \.appDelegateState.migrationState,
+                    action: \.appDelegate.migration
+                )
+            )
+            .opacity(databaseState != .idle ? 1 : 0)
+            .animation(.linear(duration: 0.5), value: databaseState)
+        }
+        .navigationViewStyle(.stack)
+    }
+
+    private func addTouchHandler() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            let tapGesture = UITapGestureRecognizer(target: TouchHandler.shared, action: nil)
+            tapGesture.delegate = TouchHandler.shared
+            DeviceUtil.keyWindow?.addGestureRecognizer(tapGesture)
+        }
+    }
+}
+
+// MARK: TouchHandler
+final class TouchHandler: NSObject, UIGestureRecognizerDelegate {
+    static let shared = TouchHandler()
+    var currentPoint: CGPoint?
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldReceive touch: UITouch
+    ) -> Bool {
+        currentPoint = touch.location(in: touch.window)
+        return false
+    }
+}
