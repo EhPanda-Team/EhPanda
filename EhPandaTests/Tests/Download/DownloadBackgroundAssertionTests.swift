@@ -1,8 +1,3 @@
-//
-//  DownloadBackgroundAssertionTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import Synchronization
 import UIKit

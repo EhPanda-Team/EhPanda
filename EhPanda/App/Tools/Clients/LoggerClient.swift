@@ -1,8 +1,3 @@
-//
-//  LoggerClient.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 struct LoggerClient: Sendable {

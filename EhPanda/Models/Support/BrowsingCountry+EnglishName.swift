@@ -1,8 +1,3 @@
-//
-//  BrowsingCountry+EnglishName.swift
-//  EhPanda
-//
-
 extension EhSetting.BrowsingCountry {
     var englishName: String {
         switch self {

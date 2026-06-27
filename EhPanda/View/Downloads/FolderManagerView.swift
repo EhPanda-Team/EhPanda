@@ -1,8 +1,3 @@
-//
-//  FolderManagerView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import SFSafeSymbols
 import ComposableArchitecture

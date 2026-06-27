@@ -1,7 +1,3 @@
-//
-//  ColorCodable.swift
-//  EhPanda
-//
 //  Copied from https://brunowernimont.me/howtos/make-swiftui-color-codable
 //
 

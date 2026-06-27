@@ -1,8 +1,3 @@
-//
-//  GalleryDetail.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct GalleryDetail: Codable, Equatable, Sendable {

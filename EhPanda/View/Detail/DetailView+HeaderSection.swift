@@ -1,8 +1,3 @@
-//
-//  DetailView+HeaderSection.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 import SFSafeSymbols

@@ -1,8 +1,3 @@
-//
-//  URL+ImageCacheKey.swift
-//  EhPanda
-//
-
 import Foundation
 
 extension URL {

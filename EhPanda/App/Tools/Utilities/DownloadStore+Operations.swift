@@ -1,8 +1,3 @@
-//
-//  DownloadStore+Operations.swift
-//  EhPanda
-//
-
 import Foundation
 
 extension DownloadStore {

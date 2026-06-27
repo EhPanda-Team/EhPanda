@@ -1,8 +1,3 @@
-//
-//  FavoritesView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import AlertKit
 import ComposableArchitecture

@@ -1,8 +1,3 @@
-//
-//  LibraryClient.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Combine
 import Foundation

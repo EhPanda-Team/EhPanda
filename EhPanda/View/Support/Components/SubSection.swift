@@ -1,8 +1,3 @@
-//
-//  SubSection.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct SubSection<Content: View>: View {

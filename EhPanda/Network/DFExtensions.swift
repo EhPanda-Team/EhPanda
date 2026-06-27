@@ -1,8 +1,3 @@
-//
-//  DFExtensions.swift
-//  EhPanda
-//
-
 import Foundation
 import DeprecatedAPI
 

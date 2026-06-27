@@ -1,8 +1,3 @@
-//
-//  UserDefaultsUtil.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct UserDefaultsUtil {

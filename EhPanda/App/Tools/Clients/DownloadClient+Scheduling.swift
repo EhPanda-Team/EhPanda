@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Scheduling.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Observer Management & Scheduling

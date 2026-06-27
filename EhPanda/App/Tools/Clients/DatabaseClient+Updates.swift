@@ -1,8 +1,3 @@
-//
-//  DatabaseClient+Updates.swift
-//  EhPanda
-//
-
 import SwiftUI
 import CoreData
 

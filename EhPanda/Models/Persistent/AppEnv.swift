@@ -1,8 +1,3 @@
-//
-//  AppEnv.swift
-//  EhPanda
-//
-
 struct AppEnv: Codable, Equatable {
     let user: User
     let setting: Setting

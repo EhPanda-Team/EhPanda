@@ -1,8 +1,3 @@
-//
-//  DetailReducer+Download.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 

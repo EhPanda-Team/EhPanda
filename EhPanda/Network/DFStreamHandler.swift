@@ -1,8 +1,3 @@
-//
-//  DFStreamEventHandler.swift
-//  EhPanda
-//
-
 import Foundation
 
 class DFStreamEventHandler: NSObject {

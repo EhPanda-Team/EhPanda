@@ -1,8 +1,3 @@
-//
-//  AppDelegateReducer.swift
-//  EhPanda
-//
-
 import SwiftUI
 import BackgroundTasks
 import SwiftyBeaver

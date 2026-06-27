@@ -1,8 +1,3 @@
-//
-//  GeneralSettingReducer.swift
-//  EhPanda
-//
-
 import LocalAuthentication
 import ComposableArchitecture
 

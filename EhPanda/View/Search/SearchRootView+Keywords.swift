@@ -1,8 +1,3 @@
-//
-//  SearchRootView+Keywords.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 // MARK: DoubleVerticalKeywordsStack

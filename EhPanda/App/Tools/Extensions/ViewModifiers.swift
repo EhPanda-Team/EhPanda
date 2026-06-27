@@ -1,8 +1,3 @@
-//
-//  ViewModifiers.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 

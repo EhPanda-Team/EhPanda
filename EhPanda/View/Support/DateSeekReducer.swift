@@ -1,8 +1,3 @@
-//
-//  DateSeekReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 import Foundation
 

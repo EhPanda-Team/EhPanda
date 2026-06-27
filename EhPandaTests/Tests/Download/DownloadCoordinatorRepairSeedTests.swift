@@ -1,8 +1,3 @@
-//
-//  DownloadCoordinatorRepairSeedTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import Testing
 @testable import EhPanda

@@ -1,8 +1,3 @@
-//
-//  AppUtil.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct AppUtil {

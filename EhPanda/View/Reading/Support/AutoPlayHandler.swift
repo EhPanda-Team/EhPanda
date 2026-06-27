@@ -1,8 +1,3 @@
-//
-//  AutoPlayHandler.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Observation
 

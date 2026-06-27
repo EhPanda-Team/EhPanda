@@ -1,8 +1,3 @@
-//
-//  DeviceUtil.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Foundation
 

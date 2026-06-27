@@ -1,7 +1,3 @@
-//
-//  TagCloudView.swift
-//  EhPanda
-//
 //  Copied from https://stackoverflow.com/questions/62102647/
 //
 

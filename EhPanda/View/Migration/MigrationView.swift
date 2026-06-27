@@ -1,8 +1,3 @@
-//
-//  MigrationView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

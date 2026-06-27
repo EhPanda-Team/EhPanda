@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Manager.swift
-//  EhPanda
-//
-
 import Foundation
 
 typealias ScheduledDownloadOperation = @Sendable () async -> Void

@@ -1,8 +1,3 @@
-//
-//  ListParserTestType.swift
-//  EhPandaTests
-//
-
 enum ListParserTestType: CaseIterable {
     // FrontPage
     case frontPageMinimalList

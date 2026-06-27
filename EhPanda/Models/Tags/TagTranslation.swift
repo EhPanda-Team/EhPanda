@@ -1,8 +1,3 @@
-//
-//  TagTranslation.swift
-//  EhPanda
-//
-
 import OpenCC
 import Foundation
 

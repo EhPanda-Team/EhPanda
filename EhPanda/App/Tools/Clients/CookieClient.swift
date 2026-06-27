@@ -1,8 +1,3 @@
-//
-//  CookieClient.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 #if DEBUG

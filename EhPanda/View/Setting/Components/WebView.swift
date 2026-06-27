@@ -1,8 +1,3 @@
-//
-//  WebView.swift
-//  EhPanda
-//
-
 import WebKit
 import SwiftUI
 

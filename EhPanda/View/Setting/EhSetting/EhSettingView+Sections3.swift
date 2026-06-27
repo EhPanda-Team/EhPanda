@@ -1,8 +1,3 @@
-//
-//  EhSettingView+Sections3.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 extension EhSettingView {

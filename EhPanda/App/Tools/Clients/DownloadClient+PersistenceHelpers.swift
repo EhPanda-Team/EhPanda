@@ -1,8 +1,3 @@
-//
-//  DownloadClient+PersistenceHelpers.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Sanitization

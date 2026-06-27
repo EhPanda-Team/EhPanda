@@ -1,8 +1,3 @@
-//
-//  DownloadProgress.swift
-//  EhPanda
-//
-
 struct DownloadProgress: Equatable, Sendable {
     let completedPageCount: Int
     let pageCount: Int

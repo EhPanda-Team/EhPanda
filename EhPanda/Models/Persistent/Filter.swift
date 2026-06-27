@@ -1,8 +1,3 @@
-//
-//  Filter.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct Filter: Codable, Equatable {

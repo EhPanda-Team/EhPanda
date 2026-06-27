@@ -1,8 +1,3 @@
-//
-//  DownloadClient+BackgroundAssertion.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Background Execution Assertion

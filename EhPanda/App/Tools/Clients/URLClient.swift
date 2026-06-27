@@ -1,8 +1,3 @@
-//
-//  URLClient.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Dependencies
 

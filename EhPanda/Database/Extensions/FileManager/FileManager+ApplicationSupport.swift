@@ -1,8 +1,3 @@
-//
-//  FileManager+ApplicationSupport.swift
-//  CoreDataMigration-Example
-//
-
 import Foundation
 
 extension FileManager {

@@ -1,8 +1,3 @@
-//
-//  HapticsUtil.swift
-//  EhPanda
-//
-
 import SwiftUI
 import AudioToolbox
 

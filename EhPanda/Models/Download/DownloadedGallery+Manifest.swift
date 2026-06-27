@@ -1,8 +1,3 @@
-//
-//  DownloadedGallery+Manifest.swift
-//  EhPanda
-//
-
 import Foundation
 
 /// The identity record for a downloaded gallery, written to `manifest.json` in its folder.

@@ -1,8 +1,3 @@
-//
-//  LiveText.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Foundation
 

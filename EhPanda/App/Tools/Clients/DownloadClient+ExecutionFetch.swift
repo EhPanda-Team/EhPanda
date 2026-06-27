@@ -1,8 +1,3 @@
-//
-//  DownloadClient+ExecutionFetch.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Fetch & Normalize Payload

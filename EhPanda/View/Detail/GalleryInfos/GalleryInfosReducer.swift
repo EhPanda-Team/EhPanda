@@ -1,8 +1,3 @@
-//
-//  GalleryInfosReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

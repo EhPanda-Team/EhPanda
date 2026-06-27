@@ -1,8 +1,3 @@
-//
-//  LiveTextView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct LiveTextView: View {

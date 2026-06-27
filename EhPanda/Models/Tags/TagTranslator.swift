@@ -1,8 +1,3 @@
-//
-//  TagTranslator.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct TagTranslator: Codable, Equatable {

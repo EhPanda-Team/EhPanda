@@ -1,8 +1,3 @@
-//
-//  CoreDataMigrationStep.swift
-//  CoreDataMigration-Example
-//
-
 import CoreData
 
 struct CoreDataMigrationStep {

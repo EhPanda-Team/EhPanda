@@ -1,8 +1,3 @@
-//
-//  AppEnvMO+CoreDataProperties.swift
-//  EhPanda
-//
-
 import CoreData
 
 extension AppEnvMO {

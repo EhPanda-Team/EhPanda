@@ -1,8 +1,3 @@
-//
-//  PopularReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

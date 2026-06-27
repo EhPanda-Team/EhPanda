@@ -1,8 +1,3 @@
-//
-//  EhSetting+Enums.swift
-//  EhPanda
-//
-
 // MARK: CommentsSortOrder
 extension EhSetting {
     enum CommentsSortOrder: Int, CaseIterable, Identifiable {

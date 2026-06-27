@@ -1,8 +1,3 @@
-//
-//  DetailReducerMetadataTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import ComposableArchitecture
 import Testing

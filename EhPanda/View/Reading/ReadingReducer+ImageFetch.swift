@@ -1,7 +1,3 @@
-//
-//  ReadingReducer+ImageFetch.swift
-//  EhPanda
-
 import Foundation
 import ComposableArchitecture
 

@@ -1,8 +1,3 @@
-//
-//  Misc.swift
-//  EhPanda
-//
-
 import CasePaths
 import Foundation
 import SwiftyBeaver

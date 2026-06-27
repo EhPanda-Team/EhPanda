@@ -1,8 +1,3 @@
-//
-//  TagDetail.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct TagDetail: Equatable {

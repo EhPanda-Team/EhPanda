@@ -1,8 +1,3 @@
-//
-//  CookieUtil.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: Cookie

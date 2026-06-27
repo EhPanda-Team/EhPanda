@@ -1,8 +1,3 @@
-//
-//  DFClient.swift
-//  EhPanda
-//
-
 import Foundation
 import Kingfisher
 import ComposableArchitecture

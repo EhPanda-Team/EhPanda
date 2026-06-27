@@ -1,8 +1,3 @@
-//
-//  SearchView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

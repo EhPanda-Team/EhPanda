@@ -1,8 +1,3 @@
-//
-//  GalleryArchive.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct GalleryArchive: Codable, Equatable {

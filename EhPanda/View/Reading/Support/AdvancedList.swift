@@ -1,8 +1,3 @@
-//
-//  AdvancedList.swift
-//  EhPanda
-//
-
 import SwiftUI
 import SwiftUIPager
 

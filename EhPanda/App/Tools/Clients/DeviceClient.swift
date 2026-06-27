@@ -1,8 +1,3 @@
-//
-//  DeviceClient.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Dependencies
 

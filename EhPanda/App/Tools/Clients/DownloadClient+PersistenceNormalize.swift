@@ -1,8 +1,3 @@
-//
-//  DownloadClient+PersistenceNormalize.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Manifest, Folder & Normalize

@@ -1,8 +1,3 @@
-//
-//  Model5toModel6MigrationPolicy.swift
-//  EhPanda
-//
-
 import CoreData
 
 // reason: the migration policy name must encode both the source and destination model versions

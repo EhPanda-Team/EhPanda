@@ -1,8 +1,3 @@
-//
-//  NewDawnView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct NewDawnView: View {

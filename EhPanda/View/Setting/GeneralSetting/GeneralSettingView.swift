@@ -1,8 +1,3 @@
-//
-//  GeneralSettingView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import FilePicker
 import ComposableArchitecture

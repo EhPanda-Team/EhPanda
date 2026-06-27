@@ -1,8 +1,3 @@
-//
-//  DownloadFailure.swift
-//  EhPanda
-//
-
 enum DownloadFailureCode: String, Codable, Equatable, Sendable {
     case quotaExceeded
     case authenticationRequired
