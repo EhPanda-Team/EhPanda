@@ -14,15 +14,15 @@ import UIKit
 /// data is then handed to whichever engine renders it (routed by `Data.isAnimatedImageData`).
 /// Scope is deliberately the reader and its exports only. Covers, previews, and cells stay
 /// on plain Kingfisher URL-mode caching.
-actor DataCache {
-    struct Configuration: Equatable, Sendable {
-        var rootURL: URL
-        var memoryCostLimit: Int
-        var maxDiskAge: TimeInterval
-        var diskSizeLimit: UInt64
-        var sweepByteInterval: UInt64
+public actor DataCache {
+    public struct Configuration: Equatable, Sendable {
+        public var rootURL: URL
+        public var memoryCostLimit: Int
+        public var maxDiskAge: TimeInterval
+        public var diskSizeLimit: UInt64
+        public var sweepByteInterval: UInt64
 
-        init(
+        public init(
             rootURL: URL = URL.cachesDirectory
                 .appendingPathComponent("DataCache.reading", isDirectory: true),
             memoryCostLimit: Int = Int(ProcessInfo.processInfo.physicalMemory / 4),
@@ -37,14 +37,14 @@ actor DataCache {
         }
     }
 
-    static let shared = DataCache()
+    public static let shared = DataCache()
 
     private let configuration: Configuration
     private let fileManager: FileManager
     private let memoryCache = NSCache<NSString, NSData>()
     private var bytesWrittenSinceSweep: UInt64 = 0
 
-    init(
+    public init(
         configuration: Configuration = .init(),
         fileManager: sending FileManager = FileManager()
     ) {
@@ -53,13 +53,13 @@ actor DataCache {
         memoryCache.totalCostLimit = configuration.memoryCostLimit
     }
 
-    nonisolated static func installSystemPurgeObservers() {
+    public nonisolated static func installSystemPurgeObservers() {
         Task { @MainActor in
             _ = dataCacheSystemPurgeObserver
         }
     }
 
-    func data(forKey key: String) -> Data? {
+    public func data(forKey key: String) -> Data? {
         let filename = Self.filename(forKey: key)
         if let data = memoryCache.object(forKey: filename as NSString) {
             return Data(referencing: data)
@@ -86,7 +86,7 @@ actor DataCache {
         return data
     }
 
-    func data(forKeys keys: [String]) -> Data? {
+    public func data(forKeys keys: [String]) -> Data? {
         for key in Self.uniqued(keys) {
             if let data = data(forKey: key) {
                 return data
@@ -95,7 +95,7 @@ actor DataCache {
         return nil
     }
 
-    func store(_ data: Data, forKey key: String) throws {
+    public func store(_ data: Data, forKey key: String) throws {
         let filename = Self.filename(forKey: key)
         memoryCache.setObject(data as NSData, forKey: filename as NSString, cost: data.count)
         let fileURL = configuration.rootURL.appendingPathComponent(filename)
@@ -108,13 +108,13 @@ actor DataCache {
         }
     }
 
-    func store(_ data: Data, forKeys keys: [String]) throws {
+    public func store(_ data: Data, forKeys keys: [String]) throws {
         for key in Self.uniqued(keys) {
             try store(data, forKey: key)
         }
     }
 
-    func removeData(forKey key: String) throws {
+    public func removeData(forKey key: String) throws {
         let filename = Self.filename(forKey: key)
         memoryCache.removeObject(forKey: filename as NSString)
         let fileURL = configuration.rootURL.appendingPathComponent(filename)
@@ -122,13 +122,13 @@ actor DataCache {
         try fileManager.removeItem(at: fileURL)
     }
 
-    func removeData(forKeys keys: [String]) throws {
+    public func removeData(forKeys keys: [String]) throws {
         for key in Self.uniqued(keys) {
             try removeData(forKey: key)
         }
     }
 
-    func removeAll() throws {
+    public func removeAll() throws {
         memoryCache.removeAllObjects()
         if fileManager.fileExists(atPath: configuration.rootURL.path) {
             try fileManager.removeItem(at: configuration.rootURL)
@@ -137,11 +137,11 @@ actor DataCache {
         bytesWrittenSinceSweep = 0
     }
 
-    func removeAllMemory() {
+    public func removeAllMemory() {
         memoryCache.removeAllObjects()
     }
 
-    func totalSize() throws -> UInt64 {
+    public func totalSize() throws -> UInt64 {
         guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return 0 }
         guard let enumerator = fileManager.enumerator(
             at: configuration.rootURL,
@@ -162,7 +162,7 @@ actor DataCache {
         return total
     }
 
-    func sweepDisk() throws {
+    public func sweepDisk() throws {
         guard fileManager.fileExists(atPath: configuration.rootURL.path) else { return }
         var entries = try diskEntries()
         let now = Date()
@@ -297,7 +297,7 @@ private let dataCacheSystemPurgeObserver = DataCacheSystemPurgeObserver(cache: .
 private final class DataCacheSystemPurgeObserver {
     private let tokens: [NSObjectProtocol]
 
-    init(cache: DataCache) {
+    public init(cache: DataCache) {
         let center = NotificationCenter.default
         tokens = [
             center.addObserver(
@@ -324,7 +324,7 @@ private final class DataCacheSystemPurgeObserver {
 }
 
 private struct DiskEntry {
-    let url: URL
-    let size: UInt64
-    let accessDate: Date
+    public let url: URL
+    public let size: UInt64
+    public let accessDate: Date
 }
