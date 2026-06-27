@@ -3,6 +3,7 @@ import ComposableArchitecture
 import Testing
 import DownloadClient
 import BackgroundProcessingClient
+import CookieClient
 @testable import AppFeature
 
 @Suite(.serialized)

@@ -6,6 +6,7 @@ import FoundationExt
 import HapticsClient
 import DatabaseClient
 import Networking
+import CookieClient
 
 @Reducer
 struct ArchivesReducer {

@@ -4,6 +4,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
 import ClipboardClient
+import CookieClient
 
 @Reducer
 struct AccountSettingReducer {
@@ -106,52 +107,4 @@ struct AccountSettingReducer {
         Scope(state: \.loginState, action: \.login, child: LoginReducer.init)
         Scope(state: \.ehSettingState, action: \.ehSetting, child: EhSettingReducer.init)
     }
-}
-
-// MARK: Models
-struct CookieValue: Equatable {
-    static let empty: Self = .init(
-        rawValue: .init(), localizedString: .init()
-    )
-
-    let rawValue: String
-    let localizedString: String
-
-    var isInvalid: Bool {
-        !localizedString.isEmpty && !rawValue.isEmpty
-    }
-    var placeholder: String {
-        localizedString.isEmpty ? rawValue : localizedString
-    }
-}
-
-struct CookiesState: Equatable {
-    static func empty(_ host: GalleryHost) -> Self {
-        .init(
-            host: host,
-            igneous: .empty,
-            memberID: .empty,
-            passHash: .empty
-        )
-    }
-    var allCases: [CookieState] {[
-        igneous, memberID, passHash
-    ]}
-
-    let host: GalleryHost
-    var igneous: CookieState
-    var memberID: CookieState
-    var passHash: CookieState
-}
-
-struct CookieState: Equatable {
-    static let empty: Self = .init(
-        key: "", value: .init(
-            rawValue: "", localizedString: ""
-        )
-    )
-
-    let key: String
-    var value: CookieValue
-    var editingText = ""
 }
