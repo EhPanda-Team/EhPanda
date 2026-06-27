@@ -1,8 +1,3 @@
-//
-//  GalleryState.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Foundation
 

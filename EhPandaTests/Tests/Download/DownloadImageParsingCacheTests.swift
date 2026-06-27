@@ -1,8 +1,3 @@
-//
-//  DownloadImageParsingCacheTests.swift
-//  EhPandaTests
-//
-
 import CoreData
 import Kingfisher
 import UIKit

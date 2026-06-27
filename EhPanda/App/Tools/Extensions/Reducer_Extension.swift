@@ -1,8 +1,3 @@
-//
-//  Reducer_Extension.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

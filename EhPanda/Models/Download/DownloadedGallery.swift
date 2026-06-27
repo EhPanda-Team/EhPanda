@@ -1,8 +1,3 @@
-//
-//  DownloadedGallery.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct DownloadedGallery: Identifiable, Equatable {

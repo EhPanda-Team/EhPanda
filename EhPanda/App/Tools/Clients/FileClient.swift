@@ -1,8 +1,3 @@
-//
-//  FileClient.swift
-//  EhPanda
-//
-
 import Combine
 import Foundation
 import ComposableArchitecture

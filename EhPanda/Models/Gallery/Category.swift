@@ -1,8 +1,3 @@
-//
-//  Category.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 enum Category: String, Codable, CaseIterable, Identifiable, Sendable {

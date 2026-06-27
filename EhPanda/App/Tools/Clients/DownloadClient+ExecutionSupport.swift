@@ -1,8 +1,3 @@
-//
-//  DownloadClient+ExecutionSupport.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Execution Support

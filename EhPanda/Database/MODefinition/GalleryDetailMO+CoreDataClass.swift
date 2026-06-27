@@ -1,8 +1,3 @@
-//
-//  GalleryDetailMO+CoreDataClass.swift
-//  EhPanda
-//
-
 import CoreData
 
 public class GalleryDetailMO: NSManagedObject {}

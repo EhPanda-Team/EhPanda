@@ -1,8 +1,3 @@
-//
-//  AppError.swift
-//  EhPanda
-//
-
 import Foundation
 import SFSafeSymbols
 

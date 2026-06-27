@@ -1,8 +1,3 @@
-//
-//  AppLaunchAutomationClient.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @DependencyClient

@@ -1,8 +1,3 @@
-//
-//  DownloadClient+ResponseValidationHelpers.swift
-//  EhPanda
-//
-
 import Kanna
 import Foundation
 import ImageIO

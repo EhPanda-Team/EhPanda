@@ -1,8 +1,3 @@
-//
-//  PreviewsReducerDownloadTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import ComposableArchitecture
 import Testing

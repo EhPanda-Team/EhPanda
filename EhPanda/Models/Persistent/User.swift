@@ -1,8 +1,3 @@
-//
-//  User.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct User: Codable, Equatable {

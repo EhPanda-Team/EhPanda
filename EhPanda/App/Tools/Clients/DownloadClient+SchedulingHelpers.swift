@@ -1,8 +1,3 @@
-//
-//  DownloadClient+SchedulingHelpers.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Mode Resolution

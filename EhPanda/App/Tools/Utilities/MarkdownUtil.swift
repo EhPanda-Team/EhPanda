@@ -1,8 +1,3 @@
-//
-//  MarkdownUtil.swift
-//  EhPanda
-//
-
 import CasePaths
 import CommonMark
 import Foundation

@@ -1,8 +1,3 @@
-//
-//  FavoritesReducer.swift
-//  EhPanda
-//
-
 import SwiftUI
 import IdentifiedCollections
 import ComposableArchitecture

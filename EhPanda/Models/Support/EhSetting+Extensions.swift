@@ -1,8 +1,3 @@
-//
-//  EhSetting+Extensions.swift
-//  EhPanda
-//
-
 // MARK: ThumbnailLoadTiming
 extension EhSetting {
     enum ThumbnailLoadTiming: Int, CaseIterable, Identifiable {

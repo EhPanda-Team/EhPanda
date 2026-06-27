@@ -1,8 +1,3 @@
-//
-//  DownloadInspection.swift
-//  EhPanda
-//
-
 import Foundation
 
 enum DownloadPageStatus: String, Equatable, CaseIterable, Sendable {

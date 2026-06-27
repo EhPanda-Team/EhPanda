@@ -1,8 +1,3 @@
-//
-//  NSManagedObjectModel+Resource.swift
-//  CoreDataMigration-Example
-//
-
 import Foundation
 import CoreData
 

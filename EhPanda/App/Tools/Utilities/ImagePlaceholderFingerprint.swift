@@ -1,8 +1,3 @@
-//
-//  ImagePlaceholderFingerprint.swift
-//  EhPanda
-//
-
 import CryptoKit
 import Foundation
 

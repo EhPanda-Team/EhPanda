@@ -1,8 +1,3 @@
-//
-//  FiltersReducer.swift
-//  EhPanda
-//
-
 import ComposableArchitecture
 
 @Reducer

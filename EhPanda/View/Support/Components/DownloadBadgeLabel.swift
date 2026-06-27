@@ -1,8 +1,3 @@
-//
-//  DownloadBadgeLabel.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct DownloadBadgeLabel: View {

@@ -1,8 +1,3 @@
-//
-//  TorrentsView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 

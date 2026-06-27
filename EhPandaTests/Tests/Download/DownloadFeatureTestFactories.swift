@@ -1,8 +1,3 @@
-//
-//  DownloadFeatureTestFactories.swift
-//  EhPandaTests
-//
-
 import CoreData
 import Foundation
 import Testing

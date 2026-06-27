@@ -1,8 +1,3 @@
-//
-//  AccountSettingReducer.swift
-//  EhPanda
-//
-
 import Foundation
 import ComposableArchitecture
 

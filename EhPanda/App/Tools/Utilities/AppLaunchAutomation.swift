@@ -1,8 +1,3 @@
-//
-//  AppLaunchAutomation.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct AppLaunchAutomation: Sendable {

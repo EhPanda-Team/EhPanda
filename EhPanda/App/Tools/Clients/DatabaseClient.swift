@@ -1,8 +1,3 @@
-//
-//  DatabaseClient.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Combine
 import CoreData

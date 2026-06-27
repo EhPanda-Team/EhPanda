@@ -1,8 +1,3 @@
-//
-//  GalleryStateMO+CoreDataClass.swift
-//  EhPanda
-//
-
 import SwiftUI
 import CoreData
 

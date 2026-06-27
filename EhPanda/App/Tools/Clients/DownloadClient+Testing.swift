@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Testing.swift
-//  EhPanda
-//
-
 import Foundation
 
 #if DEBUG

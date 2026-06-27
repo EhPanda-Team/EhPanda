@@ -1,8 +1,3 @@
-//
-//  Placeholder.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct Placeholder: View {

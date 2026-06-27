@@ -1,8 +1,3 @@
-//
-//  DownloadSettingView.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct DownloadSettingView: View {

@@ -1,8 +1,3 @@
-//
-//  IdentifiableBox.swift
-//  EhPanda
-//
-
 import Foundation
 
 public struct IdentifiableBox<Value>: Identifiable {

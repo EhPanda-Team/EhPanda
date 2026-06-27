@@ -1,8 +1,3 @@
-//
-//  DownloadProcessCacheTests.swift
-//  EhPandaTests
-//
-
 import UIKit
 import Foundation
 import Testing

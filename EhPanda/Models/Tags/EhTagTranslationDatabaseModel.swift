@@ -1,8 +1,3 @@
-//
-//  EhTagTranslationDatabaseModel.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct EhTagTranslationDatabaseResponse: Codable {

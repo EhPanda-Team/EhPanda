@@ -1,8 +1,3 @@
-//
-//  EquatableVoid.swift
-//  EhPanda
-//
-
 import Foundation
 
 public struct EquatableVoid: Hashable, Sendable, Identifiable {

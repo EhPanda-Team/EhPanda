@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Networking.swift
-//  EhPanda
-//
-
 import Foundation
 import UniformTypeIdentifiers
 

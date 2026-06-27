@@ -1,8 +1,3 @@
-//
-//  DownloadStore+JSONCoding.swift
-//  EhPanda
-//
-
 import Foundation
 
 extension DownloadStore {

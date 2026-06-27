@@ -1,8 +1,3 @@
-//
-//  Heap.swift
-//  EhPanda
-//
-
 private final class Reference<T: Equatable>: Equatable {
     var value: T
     init(_ value: T) {

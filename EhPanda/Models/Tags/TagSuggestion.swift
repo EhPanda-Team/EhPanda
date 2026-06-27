@@ -1,8 +1,3 @@
-//
-//  TagSuggestion.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 struct TagSuggestion: Equatable, Hashable, Identifiable {

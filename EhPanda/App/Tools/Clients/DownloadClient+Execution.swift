@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Execution.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - Process Download

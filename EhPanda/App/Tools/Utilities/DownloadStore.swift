@@ -1,8 +1,3 @@
-//
-//  DownloadStore.swift
-//  EhPanda
-//
-
 import Foundation
 import CryptoKit
 

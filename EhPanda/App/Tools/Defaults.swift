@@ -1,8 +1,3 @@
-//
-//  Defaults.swift
-//  EhPanda
-//
-
 import UIKit
 import Foundation
 

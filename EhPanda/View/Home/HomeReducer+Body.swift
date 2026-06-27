@@ -1,8 +1,3 @@
-//
-//  HomeReducer+Body.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 import ComposableArchitecture

@@ -1,8 +1,3 @@
-//
-//  GenericList.swift
-//  EhPanda
-//
-
 import SwiftUI
 import WaterfallGrid
 import ComposableArchitecture

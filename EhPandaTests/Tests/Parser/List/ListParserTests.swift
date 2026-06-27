@@ -1,8 +1,3 @@
-//
-//  ListParserTests.swift
-//  EhPandaTests
-//
-
 import Foundation
 import Kanna
 import Testing

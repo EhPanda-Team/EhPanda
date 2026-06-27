@@ -1,8 +1,3 @@
-//
-//  AlertKit_Extension.swift
-//  EhPanda
-//
-
 import SwiftUI
 import AlertKit
 

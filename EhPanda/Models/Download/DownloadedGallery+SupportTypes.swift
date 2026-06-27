@@ -1,8 +1,3 @@
-//
-//  DownloadedGallery+SupportTypes.swift
-//  EhPanda
-//
-
 import SwiftUI
 
 // MARK: DownloadedGallery Computed Properties

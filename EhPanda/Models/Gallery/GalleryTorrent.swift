@@ -1,8 +1,3 @@
-//
-//  GalleryTorrent.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct GalleryTorrent: Identifiable, Codable, Equatable {

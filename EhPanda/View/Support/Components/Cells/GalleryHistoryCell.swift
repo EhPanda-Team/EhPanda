@@ -1,8 +1,3 @@
-//
-//  GalleryHistoryCell.swift
-//  EhPanda
-//
-
 import SwiftUI
 import Kingfisher
 

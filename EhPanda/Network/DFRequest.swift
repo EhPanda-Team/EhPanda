@@ -1,8 +1,3 @@
-//
-//  DFRequest.swift
-//  EhPanda
-//
-
 import Foundation
 
 struct DFRequest {

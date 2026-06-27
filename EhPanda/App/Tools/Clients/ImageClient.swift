@@ -1,8 +1,3 @@
-//
-//  ImageClient.swift
-//  EhPanda
-//
-
 import Photos
 import SwiftUI
 import Combine

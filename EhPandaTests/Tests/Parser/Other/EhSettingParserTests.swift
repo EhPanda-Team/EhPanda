@@ -1,8 +1,3 @@
-//
-//  EhSettingParserTests.swift
-//  EhPandaTests
-//
-
 import Kanna
 import Testing
 @testable import EhPanda

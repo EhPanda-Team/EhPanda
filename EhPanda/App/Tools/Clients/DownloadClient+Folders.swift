@@ -1,8 +1,3 @@
-//
-//  DownloadClient+Folders.swift
-//  EhPanda
-//
-
 import Foundation
 
 // MARK: - User Folder Operations

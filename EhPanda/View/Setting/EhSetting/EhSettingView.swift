@@ -1,8 +1,3 @@
-//
-//  EhSettingView.swift
-//  EhPanda
-//
-
 import SwiftUI
 import ComposableArchitecture
 
