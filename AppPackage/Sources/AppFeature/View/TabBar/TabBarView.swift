@@ -11,6 +11,7 @@ import HomeFeature
 import SearchFeature
 import FavoritesFeature
 import DownloadsFeature
+import SettingFeature
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase

@@ -14,10 +14,10 @@ import DeviceClient
 import AppDelegateClient
 
 @Reducer
-struct SettingReducer {
+public struct SettingReducer: Sendable {
     @CasePathable
-    enum Route: Int, Equatable, Hashable, Identifiable, CaseIterable {
-        var id: Int { rawValue }
+    public enum Route: Int, Equatable, Hashable, Identifiable, CaseIterable, Sendable {
+        public var id: Int { rawValue }
 
         case account
         case general
@@ -29,20 +29,22 @@ struct SettingReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
+    public struct State: Equatable, Sendable {
         // AppEnvStorage
-        var setting = Setting()
-        var tagTranslator = TagTranslator()
-        var user = User()
+        public var setting = Setting()
+        public var tagTranslator = TagTranslator()
+        public var user = User()
 
-        var hasLoadedInitialSetting = false
+        public var hasLoadedInitialSetting = false
 
-        var route: Route?
-        var tagTranslatorLoadingState: LoadingState = .idle
+        public var route: Route?
+        public var tagTranslatorLoadingState: LoadingState = .idle
 
-        var accountSettingState = AccountSettingReducer.State()
-        var generalSettingState = GeneralSettingReducer.State()
-        var appearanceSettingState = AppearanceSettingReducer.State()
+        public var accountSettingState = AccountSettingReducer.State()
+        public var generalSettingState = GeneralSettingReducer.State()
+        public var appearanceSettingState = AppearanceSettingReducer.State()
+
+        public init() {}
 
         mutating func setGreeting(_ greeting: Greeting) {
             guard let currDate = greeting.updateTime else { return }
@@ -71,7 +73,7 @@ struct SettingReducer {
         }
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -117,5 +119,7 @@ struct SettingReducer {
     @Dependency(\.fileClient) var fileClient
     @Dependency(\.dfClient) var dfClient
 
-    var body: some Reducer<State, Action> { reducerBody }
+    public init() {}
+
+    public var body: some Reducer<State, Action> { reducerBody }
 }

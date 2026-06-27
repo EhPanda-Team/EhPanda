@@ -8,9 +8,9 @@ import CookieClient
 import DesignSystem
 
 @Reducer
-struct AccountSettingReducer {
+public struct AccountSettingReducer: Sendable {
     @dynamicMemberLookup @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case hud
         case login
         case logout
@@ -19,17 +19,17 @@ struct AccountSettingReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var ehCookiesState: CookiesState = .empty(.ehentai)
-        var exCookiesState: CookiesState = .empty(.exhentai)
-        var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var ehCookiesState: CookiesState = .empty(.ehentai)
+        public var exCookiesState: CookiesState = .empty(.exhentai)
+        public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
 
-        var loginState = LoginReducer.State()
-        var ehSettingState = EhSettingReducer.State()
+        public var loginState = LoginReducer.State()
+        public var ehSettingState = EhSettingReducer.State()
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case onLogoutConfirmButtonTapped
@@ -44,7 +44,9 @@ struct AccountSettingReducer {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none
