@@ -5,6 +5,7 @@ import SwiftUINavigationExt
 import HapticsClient
 import Networking
 import ClipboardClient
+import FileClient
 
 @Reducer
 struct TorrentsReducer {

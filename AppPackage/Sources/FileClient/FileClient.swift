@@ -4,15 +4,15 @@ import Foundation
 import ComposableArchitecture
 import Utilities
 
-struct FileClient: Sendable {
-    let createFile: @Sendable (String, Data?) -> Bool
-    let fetchLogs: @Sendable () async -> Result<[Log], AppError>
-    let deleteLog: @Sendable (String) async -> Result<String, AppError>
-    let importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
+public struct FileClient: Sendable {
+    public let createFile: @Sendable (String, Data?) -> Bool
+    public let fetchLogs: @Sendable () async -> Result<[Log], AppError>
+    public let deleteLog: @Sendable (String) async -> Result<String, AppError>
+    public let importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
 }
 
 extension FileClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         createFile: { path, data in
             FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
         },
@@ -72,21 +72,21 @@ extension FileClient {
         }
     )
 
-    func saveTorrent(hash: String, data: Data) -> URL? {
+    public func saveTorrent(hash: String, data: Data) -> URL? {
         let torrentDirectory = URL.cachesDirectory.appendingPathComponent("\(hash).torrent")
         return createFile(torrentDirectory.path, data) ? torrentDirectory : nil
     }
 }
 
 // MARK: API
-enum FileClientKey: DependencyKey {
-    static let liveValue = FileClient.live
-    static let previewValue = FileClient.noop
-    static let testValue = FileClient.unimplemented
+public enum FileClientKey: DependencyKey {
+    public static let liveValue = FileClient.live
+    public static let previewValue = FileClient.noop
+    public static let testValue = FileClient.unimplemented
 }
 
 extension DependencyValues {
-    var fileClient: FileClient {
+    public var fileClient: FileClient {
         get { self[FileClientKey.self] }
         set { self[FileClientKey.self] = newValue }
     }
@@ -94,16 +94,16 @@ extension DependencyValues {
 
 // MARK: Test
 extension FileClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         createFile: { _, _ in false },
         fetchLogs: { .success([]) },
         deleteLog: { _ in .success("") },
         importTagTranslator: { _ in .success(.init()) }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         createFile: IssueReporting.unimplemented(placeholder: placeholder()),
         fetchLogs: IssueReporting.unimplemented(placeholder: placeholder()),
         deleteLog: IssueReporting.unimplemented(placeholder: placeholder()),
