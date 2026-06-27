@@ -101,6 +101,7 @@ enum Module: String {
     case resources = "Resources"
     case searchFeature = "SearchFeature"
     case sdWebImageExt = "SDWebImageExt"
+    case settingFeature = "SettingFeature"
     case swiftUINavigationExt = "SwiftUINavigationExt"
     case uiApplicationClient = "UIApplicationClient"
     case urlClient = "URLClient"
@@ -276,6 +277,7 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.searchFeature),
             .module(.sdWebImageExt),
+            .module(.settingFeature),
             .module(.swiftUINavigationExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
@@ -625,6 +627,37 @@ let targets: [PackageDescription.Target] = [
             .module(.utilities),
             .targetDependency(.alertKit),
             .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .settingFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appDelegateClient),
+            .module(.appModels),
+            .module(.authorizationClient),
+            .module(.clipboardClient),
+            .module(.cookieClient),
+            .module(.databaseClient),
+            .module(.designSystem),
+            .module(.deviceClient),
+            .module(.dfClient),
+            .module(.fileClient),
+            .module(.foundationExt),
+            .module(.hapticsClient),
+            .module(.libraryClient),
+            .module(.loggerClient),
+            .module(.networking),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .module(.uiApplicationClient),
+            .module(.userDefaultsClient),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.filePicker),
+            .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

@@ -7,28 +7,28 @@ import Networking
 import CookieClient
 
 @Reducer
-struct LoginReducer {
+public struct LoginReducer: Sendable {
     private enum CancelID: Hashable {
         case login
     }
 
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case webView(URL)
     }
 
-    enum FocusedField {
+    public enum FocusedField: Sendable {
         case username
         case password
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var focusedField: FocusedField?
-        var username = ""
-        var password = ""
-        var loginState: LoadingState = .idle
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var focusedField: FocusedField?
+        public var username = ""
+        public var password = ""
+        public var loginState: LoadingState = .idle
 
         var loginButtonDisabled: Bool {
             username.isEmpty || password.isEmpty
@@ -39,7 +39,7 @@ struct LoginReducer {
         }
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
 
@@ -51,7 +51,9 @@ struct LoginReducer {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
