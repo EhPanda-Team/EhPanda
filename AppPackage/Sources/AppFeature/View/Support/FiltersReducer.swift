@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import AppModels
+import DatabaseClient
 
 @Reducer
 struct FiltersReducer {

@@ -3,6 +3,7 @@ import AppModels
 import FoundationExt
 import SwiftUINavigationExt
 import HapticsClient
+import DatabaseClient
 
 @Reducer
 struct SearchRootReducer {

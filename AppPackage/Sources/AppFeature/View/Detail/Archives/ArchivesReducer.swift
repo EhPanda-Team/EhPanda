@@ -4,6 +4,7 @@ import Resources
 import ComposableArchitecture
 import FoundationExt
 import HapticsClient
+import DatabaseClient
 
 @Reducer
 struct ArchivesReducer {

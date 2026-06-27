@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import DatabaseClient
 @testable import AppFeature
 
 struct DatabaseClientUpdateTests: DownloadFeatureTestCase {
