@@ -2,16 +2,16 @@ import SwiftUI
 import ComposableArchitecture
 import SDWebImageExt
 
-struct ClipboardClient: Sendable {
-    let url: @Sendable () -> URL?
-    let changeCount: @Sendable () -> Int
-    let saveText: @Sendable (String) -> Void
-    let saveImage: @Sendable (UIImage, Bool) -> Void
-    let saveImageData: @Sendable (Data) -> Bool
+public struct ClipboardClient: Sendable {
+    public let url: @Sendable () -> URL?
+    public let changeCount: @Sendable () -> Int
+    public let saveText: @Sendable (String) -> Void
+    public let saveImage: @Sendable (UIImage, Bool) -> Void
+    public let saveImageData: @Sendable (Data) -> Bool
 }
 
 extension ClipboardClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         url: {
             if UIPasteboard.general.hasURLs {
                 return UIPasteboard.general.url
@@ -54,14 +54,14 @@ extension ClipboardClient {
 }
 
 // MARK: API
-enum ClipboardClientKey: DependencyKey {
-    static let liveValue = ClipboardClient.live
-    static let previewValue = ClipboardClient.noop
-    static let testValue = ClipboardClient.unimplemented
+public enum ClipboardClientKey: DependencyKey {
+    public static let liveValue = ClipboardClient.live
+    public static let previewValue = ClipboardClient.noop
+    public static let testValue = ClipboardClient.unimplemented
 }
 
 extension DependencyValues {
-    var clipboardClient: ClipboardClient {
+    public var clipboardClient: ClipboardClient {
         get { self[ClipboardClientKey.self] }
         set { self[ClipboardClientKey.self] = newValue }
     }
@@ -69,7 +69,7 @@ extension DependencyValues {
 
 // MARK: Test
 extension ClipboardClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         url: { nil },
         changeCount: { 0 },
         saveText: { _ in },
@@ -77,9 +77,9 @@ extension ClipboardClient {
         saveImageData: { _ in false }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         url: IssueReporting.unimplemented(placeholder: placeholder()),
         changeCount: IssueReporting.unimplemented(placeholder: placeholder()),
         saveText: IssueReporting.unimplemented(placeholder: placeholder()),

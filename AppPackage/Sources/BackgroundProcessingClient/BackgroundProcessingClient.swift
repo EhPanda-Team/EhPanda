@@ -1,12 +1,11 @@
 import BackgroundTasks
 import AppModels
 import ComposableArchitecture
-import DownloadClient
 
-enum BackgroundProcessing {
+public enum BackgroundProcessing {
     /// Fixed task identifier, independent of the bundle id. Must stay in sync with the
     /// `BGTaskSchedulerPermittedIdentifiers` entry in Info.plist.
-    static let downloadTaskIdentifier = "app.ehpanda.downloads.processing"
+    public static let downloadTaskIdentifier = "app.ehpanda.downloads.processing"
 }
 
 /// Wraps `BGTaskScheduler` so the app can ask iOS to relaunch it in a discretionary,
@@ -15,20 +14,20 @@ enum BackgroundProcessing {
 /// `DependencyValues` because both the AppDelegate (registration) and `AppReducer`
 /// (scheduling) need it.
 @DependencyClient
-struct BackgroundProcessingClient: Sendable {
+public struct BackgroundProcessingClient: Sendable {
     /// Registers the launch handler for the download processing task. Must be called
     /// before the app finishes launching.
-    var register: @MainActor @Sendable (@escaping @MainActor @Sendable (BGProcessingTask) -> Void) -> Void
+    public var register: @MainActor @Sendable (@escaping @MainActor @Sendable (BGProcessingTask) -> Void) -> Void
     /// Submits a processing-task request. Best-effort and fire-and-forget: the system may
     /// refuse it (Background App Refresh disabled, identifier not permitted), which the
     /// live implementation logs and tolerates.
-    var schedule: @Sendable () -> Void
+    public var schedule: @Sendable () -> Void
     /// Cancels any pending download processing-task request.
-    var cancel: @Sendable () -> Void
+    public var cancel: @Sendable () -> Void
 }
 
 extension BackgroundProcessingClient {
-    static let live = Self(
+    public static let live = Self(
         register: { handler in
             _ = BGTaskScheduler.shared.register(
                 forTaskWithIdentifier: BackgroundProcessing.downloadTaskIdentifier,
@@ -63,14 +62,14 @@ extension BackgroundProcessingClient {
 }
 
 // MARK: API
-enum BackgroundProcessingClientKey: DependencyKey {
-    static let liveValue = BackgroundProcessingClient.live
-    static let previewValue = BackgroundProcessingClient.noop
-    static let testValue = BackgroundProcessingClient()
+public enum BackgroundProcessingClientKey: DependencyKey {
+    public static let liveValue = BackgroundProcessingClient.live
+    public static let previewValue = BackgroundProcessingClient.noop
+    public static let testValue = BackgroundProcessingClient()
 }
 
 extension DependencyValues {
-    var backgroundProcessingClient: BackgroundProcessingClient {
+    public var backgroundProcessingClient: BackgroundProcessingClient {
         get { self[BackgroundProcessingClientKey.self] }
         set { self[BackgroundProcessingClientKey.self] = newValue }
     }
@@ -78,7 +77,7 @@ extension DependencyValues {
 
 // MARK: Test
 extension BackgroundProcessingClient {
-    static let noop = Self(
+    public static let noop = Self(
         register: { _ in },
         schedule: {},
         cancel: {}

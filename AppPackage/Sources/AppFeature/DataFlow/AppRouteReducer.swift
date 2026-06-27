@@ -7,6 +7,7 @@ import UserDefaultsClient
 import HapticsClient
 import DatabaseClient
 import Networking
+import ClipboardClient
 
 @Reducer
 struct AppRouteReducer {
