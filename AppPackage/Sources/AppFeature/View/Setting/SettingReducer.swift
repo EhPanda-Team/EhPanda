@@ -11,6 +11,7 @@ import DFClient
 import FileClient
 import CookieClient
 import DeviceClient
+import AppDelegateClient
 
 @Reducer
 struct SettingReducer {

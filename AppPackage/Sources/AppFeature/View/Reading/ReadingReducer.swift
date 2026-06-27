@@ -10,6 +10,7 @@ import DownloadClient
 import ClipboardClient
 import CookieClient
 import DeviceClient
+import AppDelegateClient
 
 @Reducer
 struct ReadingReducer {

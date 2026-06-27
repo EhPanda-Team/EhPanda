@@ -3,6 +3,7 @@ import BackgroundTasks
 import SwiftyBeaver
 import ComposableArchitecture
 import Utilities
+import AppDelegateClient
 import LibraryClient
 import DatabaseClient
 import DownloadClient
@@ -61,11 +62,9 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
         super.init()
     }
 
-    static var orientationMask: UIInterfaceOrientationMask = DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
-
     public func application(
         _ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?
-    ) -> UIInterfaceOrientationMask { AppDelegate.orientationMask }
+    ) -> UIInterfaceOrientationMask { AppOrientationMask.current }
 
     public func application(
         _ application: UIApplication, didFinishLaunchingWithOptions

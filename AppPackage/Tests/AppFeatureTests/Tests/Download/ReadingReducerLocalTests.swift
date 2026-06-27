@@ -11,6 +11,7 @@ import DownloadClient
 import ClipboardClient
 import CookieClient
 import DeviceClient
+import AppDelegateClient
 @testable import AppFeature
 
 @Suite(.serialized)
