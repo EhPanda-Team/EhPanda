@@ -74,6 +74,7 @@ enum Module: String {
     case hapticsClient = "HapticsClient"
     case loggerClient = "LoggerClient"
     case resources = "Resources"
+    case sdWebImageExt = "SDWebImageExt"
     case swiftUINavigationExt = "SwiftUINavigationExt"
     case uiApplicationClient = "UIApplicationClient"
     case urlClient = "URLClient"
@@ -222,6 +223,7 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.loggerClient),
             .module(.resources),
+            .module(.sdWebImageExt),
             .module(.swiftUINavigationExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
@@ -316,6 +318,14 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .sdWebImageExt,
+        dependencies: [
+            .targetDependency(.sdWebImageSwiftUI)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .loggerClient,
         dependencies: [
             .module(.appModels),
@@ -363,6 +373,7 @@ let targets: [PackageDescription.Target] = [
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.loggerClient),
+            .module(.sdWebImageExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),

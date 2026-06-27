@@ -5,6 +5,7 @@ import Combine
 import ComposableArchitecture
 import FoundationExt
 import Utilities
+import SDWebImageExt
 
 struct ImageClient: Sendable {
     struct ImageAsset {

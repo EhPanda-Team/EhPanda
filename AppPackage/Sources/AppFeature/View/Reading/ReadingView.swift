@@ -5,6 +5,7 @@ import SwiftUIPager
 import ComposableArchitecture
 import FoundationExt
 import Utilities
+import SDWebImageExt
 
 struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
