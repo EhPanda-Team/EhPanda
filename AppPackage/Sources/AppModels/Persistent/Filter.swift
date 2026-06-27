@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 
 public struct Filter: Codable, Equatable, Sendable {
     public init(
@@ -147,5 +148,25 @@ extension Filter {
         disableLanguage = (try? container?.decodeIfPresent(Bool.self, forKey: .disableLanguage)) ?? false
         disableUploader = (try? container?.decodeIfPresent(Bool.self, forKey: .disableUploader)) ?? false
         disableTags = (try? container?.decodeIfPresent(Bool.self, forKey: .disableTags)) ?? false
+    }
+}
+
+public enum FilterRange: Int, CaseIterable, Identifiable, Sendable {
+    public var id: Int { rawValue }
+
+    case search
+    case global
+    case watched
+}
+public extension FilterRange {
+    var value: String {
+        switch self {
+        case .search:
+            return L10n.Localizable.Enum.FilterRange.Value.search
+        case .global:
+            return L10n.Localizable.Enum.FilterRange.Value.global
+        case .watched:
+            return L10n.Localizable.Enum.FilterRange.Value.watched
+        }
     }
 }
