@@ -4,6 +4,7 @@ import SwiftyBeaver
 import ComposableArchitecture
 import Utilities
 import LibraryClient
+import DatabaseClient
 
 @Reducer
 struct AppDelegateReducer {

@@ -70,6 +70,7 @@ enum Module: String {
     case appModels = "AppModels"
     case authorizationClient = "AuthorizationClient"
     case composableArchitectureExt = "ComposableArchitectureExt"
+    case databaseClient = "DatabaseClient"
     case foundationExt = "FoundationExt"
     case hapticsClient = "HapticsClient"
     case imageClient = "ImageClient"
@@ -221,6 +222,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.authorizationClient),
             .module(.composableArchitectureExt),
+            .module(.databaseClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
@@ -252,7 +254,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.uiImageColors),
             .targetDependency(.waterfallGrid)
         ],
-        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
@@ -309,6 +310,18 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.composableArchitecture)
         ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .databaseClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture)
+        ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
@@ -402,6 +415,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appFeature),
             .module(.appModels),
+            .module(.databaseClient),
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),

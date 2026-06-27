@@ -5,6 +5,7 @@ import SwiftUINavigationExt
 import URLClient
 import UIApplicationClient
 import HapticsClient
+import DatabaseClient
 
 @Reducer
 struct CommentsReducer {

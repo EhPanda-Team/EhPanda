@@ -1,0 +1,39 @@
+import SwiftUI
+import AppModels
+import CoreData
+import FoundationExt
+
+public class GalleryStateMO: NSManagedObject {}
+
+extension GalleryStateMO: ManagedObjectProtocol {
+    public func toEntity() -> GalleryState {
+        GalleryState(
+            gid: gid, tags: tags?.toObject() ?? [GalleryTag](),
+            readingProgress: Int(readingProgress),
+            previewURLs: previewURLs?.toObject() ?? [Int: URL](),
+            previewConfig: previewConfig?.toObject() ?? PreviewConfig.normal(rows: 4),
+            comments: comments?.toObject() ?? [GalleryComment](),
+            imageURLs: imageURLs?.toObject() ?? [Int: URL](),
+            originalImageURLs: originalImageURLs?.toObject() ?? [Int: URL](),
+            thumbnailURLs: thumbnailURLs?.toObject() ?? [Int: URL]()
+        )
+    }
+}
+
+extension GalleryState: ManagedObjectConvertible {
+    @discardableResult public func toManagedObject(in context: NSManagedObjectContext) -> GalleryStateMO {
+        let galleryStateMO = GalleryStateMO(context: context)
+
+        galleryStateMO.gid = gid
+        galleryStateMO.tags = tags.toData()
+        galleryStateMO.readingProgress = Int64(readingProgress)
+        galleryStateMO.previewConfig = previewConfig?.toData()
+        galleryStateMO.previewURLs = previewURLs.toData()
+        galleryStateMO.comments = comments.toData()
+        galleryStateMO.imageURLs = imageURLs.toData()
+        galleryStateMO.originalImageURLs = originalImageURLs.toData()
+        galleryStateMO.thumbnailURLs = thumbnailURLs.toData()
+
+        return galleryStateMO
+    }
+}

@@ -6,6 +6,7 @@ import UserDefaultsClient
 import UIApplicationClient
 import HapticsClient
 import LibraryClient
+import DatabaseClient
 
 @Reducer
 struct SettingReducer {

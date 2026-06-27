@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import ComposableArchitecture
+import DatabaseClient
 
 @Reducer
 struct QuickSearchReducer {

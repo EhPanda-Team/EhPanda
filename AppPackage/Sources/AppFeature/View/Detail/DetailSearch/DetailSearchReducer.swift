@@ -2,6 +2,7 @@ import ComposableArchitecture
 import AppModels
 import SwiftUINavigationExt
 import HapticsClient
+import DatabaseClient
 
 @Reducer
 struct DetailSearchReducer {

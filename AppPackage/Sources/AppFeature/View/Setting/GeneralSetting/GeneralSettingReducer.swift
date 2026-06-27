@@ -4,6 +4,7 @@ import ComposableArchitecture
 import AuthorizationClient
 import UIApplicationClient
 import LibraryClient
+import DatabaseClient
 
 @Reducer
 struct GeneralSettingReducer {

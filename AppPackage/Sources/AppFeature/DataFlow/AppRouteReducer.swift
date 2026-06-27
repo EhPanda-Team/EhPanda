@@ -5,6 +5,7 @@ import SwiftUINavigationExt
 import URLClient
 import UserDefaultsClient
 import HapticsClient
+import DatabaseClient
 
 @Reducer
 struct AppRouteReducer {

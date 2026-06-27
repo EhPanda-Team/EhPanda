@@ -9,6 +9,7 @@ import UserDefaultsClient
 import UIApplicationClient
 import HapticsClient
 import LibraryClient
+import DatabaseClient
 @testable import AppFeature
 
 @Suite(.serialized)

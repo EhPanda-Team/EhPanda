@@ -1,6 +1,7 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
+import DatabaseClient
 
 @Reducer
 struct MigrationReducer {

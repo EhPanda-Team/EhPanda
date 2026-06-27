@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
+import DatabaseClient
 @testable import AppFeature
 
 @Suite(.serialized)

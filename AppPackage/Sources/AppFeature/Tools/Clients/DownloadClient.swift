@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import Utilities
+import DatabaseClient
 
 @DependencyClient
 struct DownloadClient: Sendable {
