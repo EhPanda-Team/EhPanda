@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import SDWebImageExt
 @testable import AppFeature
 
 struct AnimatedImageDataTests {

@@ -3,20 +3,20 @@ import SDWebImage
 import UniformTypeIdentifiers
 
 private enum ImageDataSignature {
-    static let jpeg: [UInt8] = [0xFF, 0xD8, 0xFF]
-    static let png: [UInt8] = [0x89, 0x50, 0x4E, 0x47]
-    static let pngComplete: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
-    static let gif = Array("GIF".utf8)
-    static let riff = Array("RIFF".utf8)
-    static let webp = Array("WEBP".utf8)
-    static let webPExtended = Array("VP8X".utf8)
-    static let webPAnimation = Array("ANIM".utf8)
-    static let apngAnimationControl = Array("acTL".utf8)
-    static let pngImageData = Array("IDAT".utf8)
+    public static let jpeg: [UInt8] = [0xFF, 0xD8, 0xFF]
+    public static let png: [UInt8] = [0x89, 0x50, 0x4E, 0x47]
+    public static let pngComplete: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+    public static let gif = Array("GIF".utf8)
+    public static let riff = Array("RIFF".utf8)
+    public static let webp = Array("WEBP".utf8)
+    public static let webPExtended = Array("VP8X".utf8)
+    public static let webPAnimation = Array("ANIM".utf8)
+    public static let apngAnimationControl = Array("acTL".utf8)
+    public static let pngImageData = Array("IDAT".utf8)
 }
 
 extension Data {
-    var knownBinaryImageFileExtension: String? {
+    public var knownBinaryImageFileExtension: String? {
         if isJPEGFormat {
             return "jpg"
         }
@@ -32,19 +32,19 @@ extension Data {
         return nil
     }
 
-    var isKnownBinaryImageFormat: Bool {
+    public var isKnownBinaryImageFormat: Bool {
         knownBinaryImageFileExtension != nil
     }
 
-    var isJPEGFormat: Bool {
+    public var isJPEGFormat: Bool {
         starts(with: ImageDataSignature.jpeg)
     }
 
-    var isPNGFormat: Bool {
+    public var isPNGFormat: Bool {
         starts(with: ImageDataSignature.png)
     }
 
-    var isAPNGFormat: Bool {
+    public var isAPNGFormat: Bool {
         guard starts(with: ImageDataSignature.pngComplete) else { return false }
         // Walk the chunk headers in place; a still PNG returns at the first `IDAT`
         // after reading only a few header bytes, so no full-image copy is needed.
@@ -67,11 +67,11 @@ extension Data {
         }
     }
 
-    var isGIFFormat: Bool {
+    public var isGIFFormat: Bool {
         starts(with: ImageDataSignature.gif)
     }
 
-    var isWebPFormat: Bool {
+    public var isWebPFormat: Bool {
         starts(with: ImageDataSignature.riff)
             && hasBytes(ImageDataSignature.webp, at: 8)
     }
@@ -82,11 +82,11 @@ extension Data {
     /// count, APNG `acTL` before `IDAT`, WebP VP8X animation bit), never the URL's file
     /// extension: the extension is known before any bytes exist and is wrong for mislabeled
     /// or content-negotiated images.
-    var isAnimatedImageData: Bool {
+    public var isAnimatedImageData: Bool {
         isAnimatedGIFFormat || isAPNGFormat || isAnimatedWebPFormat
     }
 
-    var animatedImagePasteboardType: String? {
+    public var animatedImagePasteboardType: String? {
         if isAnimatedWebPFormat {
             return UTType.webP.identifier
         }
@@ -99,7 +99,7 @@ extension Data {
         return nil
     }
 
-    var decodedImage: UIImage? {
+    public var decodedImage: UIImage? {
         if isAnimatedImageData, let animatedImage = SDAnimatedImage(data: self) {
             return animatedImage
         }
@@ -219,11 +219,11 @@ extension Data {
 }
 
 extension UIImage {
-    var hasAnimatedFrames: Bool {
+    public var hasAnimatedFrames: Bool {
         sd_isAnimated
     }
 
-    var animatedSourceData: Data? {
+    public var animatedSourceData: Data? {
         // Prefer the original downloaded bytes so GIF/APNG/WebP keep their source format.
         if let data = (self as? SDAnimatedImageProvider)?.animatedImageData {
             return data

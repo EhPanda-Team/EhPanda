@@ -4,6 +4,7 @@ import Foundation
 import ImageIO
 import FoundationExt
 import Utilities
+import SDWebImageExt
 
 // MARK: - Response Inspection Helpers
 extension DownloadCoordinator {

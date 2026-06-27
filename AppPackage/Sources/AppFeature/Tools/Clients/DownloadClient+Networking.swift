@@ -1,6 +1,7 @@
 import Foundation
 import AppModels
 import UniformTypeIdentifiers
+import SDWebImageExt
 
 // MARK: - Network
 extension DownloadCoordinator {
