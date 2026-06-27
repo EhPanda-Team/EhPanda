@@ -4,15 +4,15 @@ import ComposableArchitecture
 import DatabaseClient
 
 @Reducer
-struct QuickSearchReducer {
+public struct QuickSearchReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case newWord
         case editWord
         case deleteWord(QuickSearchWord)
     }
 
-    enum FocusField {
+    public enum FocusField: Sendable {
         case name
         case content
     }
@@ -22,21 +22,23 @@ struct QuickSearchReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var focusedField: FocusField?
-        var editingWord: QuickSearchWord = .empty
-        var listEditMode: EditMode = .inactive
-        var isListEditing: Bool {
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var focusedField: FocusField?
+        public var editingWord: QuickSearchWord = .empty
+        public var listEditMode: EditMode = .inactive
+        public var isListEditing: Bool {
             get { listEditMode == .active }
             set { listEditMode = newValue ? .active : .inactive }
         }
 
-        var loadingState: LoadingState = .idle
-        var quickSearchWords = [QuickSearchWord]()
+        public var loadingState: LoadingState = .idle
+        public var quickSearchWords = [QuickSearchWord]()
+
+        public init() {}
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -59,7 +61,9 @@ struct QuickSearchReducer {
 
     @Dependency(\.databaseClient) private var databaseClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

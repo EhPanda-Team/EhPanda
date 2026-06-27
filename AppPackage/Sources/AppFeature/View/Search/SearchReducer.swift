@@ -8,6 +8,7 @@ import Networking
 import DownloadClient
 import FiltersFeature
 import DateSeekFeature
+import QuickSearchFeature
 
 @Reducer
 struct SearchReducer {

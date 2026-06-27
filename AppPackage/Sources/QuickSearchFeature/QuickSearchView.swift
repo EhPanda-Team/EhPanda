@@ -1,23 +1,24 @@
 import SwiftUI
 import AppModels
 import Resources
+import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
 import DesignSystem
 import AppComponents
 
-struct QuickSearchView: View {
+public struct QuickSearchView: View {
     @Bindable private var store: StoreOf<QuickSearchReducer>
     private let searchAction: (String) -> Void
 
     @FocusState private var focusedField: QuickSearchReducer.FocusField?
 
-    init(store: StoreOf<QuickSearchReducer>, searchAction: @escaping (String) -> Void) {
+    public init(store: StoreOf<QuickSearchReducer>, searchAction: @escaping (String) -> Void) {
         self.store = store
         self.searchAction = searchAction
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ZStack {
                 List {
