@@ -214,6 +214,7 @@ let targets: [PackageDescription.Target] = [
             .module(.foundationExt),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.utilities),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.commonMark),
@@ -277,6 +278,14 @@ let targets: [PackageDescription.Target] = [
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
+    .target(
+        module: .utilities,
+        dependencies: [
+            .module(.appModels)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
 
     // MARK: Tests
     .testTarget(
@@ -285,6 +294,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appFeature),
             .module(.appModels),
             .module(.foundationExt),
+            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
             .targetDependency(.kingfisher),

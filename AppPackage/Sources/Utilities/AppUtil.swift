@@ -1,11 +1,11 @@
 import Foundation
 import AppModels
 
-struct AppUtil {
-    static var version: String {
+public struct AppUtil {
+    public static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "null"
     }
-    static var build: String {
+    public static var build: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "null"
     }
 
@@ -18,12 +18,12 @@ struct AppUtil {
         #endif
     }
 
-    static var galleryHost: GalleryHost {
+    public static var galleryHost: GalleryHost {
         let rawValue: String? = UserDefaultsUtil.value(forKey: .galleryHost)
         return GalleryHost(rawValue: rawValue ?? "") ?? .ehentai
     }
 
-    static func dispatchMainSync(execute work: () -> Void) {
+    public static func dispatchMainSync(execute work: () -> Void) {
         if Thread.isMainThread {
             work()
         } else {

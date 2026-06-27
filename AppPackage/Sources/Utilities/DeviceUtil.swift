@@ -2,29 +2,29 @@ import SwiftUI
 import Foundation
 
 @MainActor
-struct DeviceUtil {
-    static var isPad: Bool {
+public struct DeviceUtil {
+    public static var isPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
-    static var isPhone: Bool {
+    public static var isPhone: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
     }
 
-    static var isPadWidth: Bool {
+    public static var isPadWidth: Bool {
         windowW >= 744
     }
 
-    static var isSEWidth: Bool {
+    public static var isSEWidth: Bool {
         windowW <= 320
     }
 
-    static var keyWindow: UIWindow? {
+    public static var keyWindow: UIWindow? {
         UIApplication.shared.connectedScenes
             .filter({ $0.activationState == .foregroundActive })
             .compactMap({ $0 as? UIWindowScene }).last?
             .windows.filter({ $0.isKeyWindow }).last
     }
-    static var anyWindow: UIWindow? {
+    public static var anyWindow: UIWindow? {
         UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene }).last?
             .windows.last
@@ -34,45 +34,45 @@ struct DeviceUtil {
         keyWindow?.windowScene?.screen ?? anyWindow?.windowScene?.screen
     }
 
-    static var isLandscape: Bool {
+    public static var isLandscape: Bool {
         [.landscapeLeft, .landscapeRight]
             .contains(keyWindow?.windowScene?.effectiveGeometry.interfaceOrientation)
     }
 
-    static var isPortrait: Bool {
+    public static var isPortrait: Bool {
         [.portrait, .portraitUpsideDown]
             .contains(keyWindow?.windowScene?.effectiveGeometry.interfaceOrientation)
     }
 
-    static var windowW: CGFloat {
+    public static var windowW: CGFloat {
         min(absWindowW, absWindowH)
     }
 
-    static var windowH: CGFloat {
+    public static var windowH: CGFloat {
         max(absWindowW, absWindowH)
     }
 
-    static var screenW: CGFloat {
+    public static var screenW: CGFloat {
         min(absScreenW, absScreenH)
     }
 
-    static var screenH: CGFloat {
+    public static var screenH: CGFloat {
         max(absScreenW, absScreenH)
     }
 
-    static var absWindowW: CGFloat {
+    public static var absWindowW: CGFloat {
         keyWindow?.frame.size.width ?? absScreenW
     }
 
-    static var absWindowH: CGFloat {
+    public static var absWindowH: CGFloat {
         keyWindow?.frame.size.height ?? absScreenH
     }
 
-    static var absScreenW: CGFloat {
+    public static var absScreenW: CGFloat {
         currentScreen?.bounds.size.width ?? 0
     }
 
-    static var absScreenH: CGFloat {
+    public static var absScreenH: CGFloat {
         currentScreen?.bounds.size.height ?? 0
     }
 }

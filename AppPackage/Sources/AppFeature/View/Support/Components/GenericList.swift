@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import WaterfallGrid
 import ComposableArchitecture
+import Utilities
 
 struct GenericList: View {
     private let galleries: [Gallery]

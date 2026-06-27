@@ -4,6 +4,7 @@ import Foundation
 import SFSafeSymbols
 import ComposableArchitecture
 import Testing
+import Utilities
 @testable import AppFeature
 
 struct DownloadBadgeSortTests: DownloadFeatureTestCase {

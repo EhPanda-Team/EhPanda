@@ -2,6 +2,7 @@ import SwiftUI
 import BackgroundTasks
 import SwiftyBeaver
 import ComposableArchitecture
+import Utilities
 
 @Reducer
 struct AppDelegateReducer {

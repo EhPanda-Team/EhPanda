@@ -2,6 +2,7 @@ import Combine
 import AppModels
 import Foundation
 import ComposableArchitecture
+import Utilities
 
 struct FileClient: Sendable {
     let createFile: @Sendable (String, Data?) -> Bool

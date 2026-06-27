@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
+import Utilities
 
 struct HistoryView: View {
     @Bindable private var store: StoreOf<HistoryReducer>

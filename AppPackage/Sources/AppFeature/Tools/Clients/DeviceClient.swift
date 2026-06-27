@@ -1,5 +1,6 @@
 import SwiftUI
 import Dependencies
+import Utilities
 
 struct DeviceClient: Sendable {
     let isPad: @Sendable () async -> Bool

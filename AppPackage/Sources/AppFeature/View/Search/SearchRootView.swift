@@ -4,6 +4,7 @@ import Resources
 import ComposableArchitecture
 import FoundationExt
 import SwiftUINavigationExt
+import Utilities
 
 struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>

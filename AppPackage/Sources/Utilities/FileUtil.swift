@@ -1,11 +1,11 @@
 import Foundation
 import AppModels
 
-struct FileUtil {
-    static var logsDirectoryURL: URL {
+public struct FileUtil {
+    public static var logsDirectoryURL: URL {
         .documentsDirectory.appendingPathComponent(Defaults.FilePath.logs)
     }
-    static var downloadsDirectoryURL: URL {
+    public static var downloadsDirectoryURL: URL {
         .documentsDirectory.appendingPathComponent(
             Defaults.FilePath.downloads,
             isDirectory: true

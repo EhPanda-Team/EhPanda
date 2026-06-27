@@ -1,5 +1,6 @@
 import Foundation
 import ComposableArchitecture
+import Utilities
 
 struct UserDefaultsClient: Sendable {
     let setValue: @Sendable (Any, AppUserDefaults) -> Void

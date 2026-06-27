@@ -2,6 +2,7 @@ import Kanna
 import AppModels
 import Combine
 import Foundation
+import Utilities
 
 // MARK: Response Types
 struct GalleryDetailResponse {

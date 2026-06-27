@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import Kingfisher
 import SFSafeSymbols
+import Utilities
 
 // MARK: HeaderSection
 struct HeaderSection: View {

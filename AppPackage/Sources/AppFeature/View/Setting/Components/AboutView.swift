@@ -1,5 +1,6 @@
 import SwiftUI
 import Resources
+import Utilities
 
 struct AboutView: View {
     private var version: String {

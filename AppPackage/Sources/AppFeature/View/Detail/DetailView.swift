@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import ComposableArchitecture
 import CommonMark
+import Utilities
 
 private enum DownloadDialog: Equatable {
     case delete(isActiveDownload: Bool)

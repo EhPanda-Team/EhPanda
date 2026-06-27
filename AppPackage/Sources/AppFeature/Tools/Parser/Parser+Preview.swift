@@ -1,6 +1,7 @@
 import Kanna
 import AppModels
 import Foundation
+import Utilities
 
 extension Parser {
     static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
