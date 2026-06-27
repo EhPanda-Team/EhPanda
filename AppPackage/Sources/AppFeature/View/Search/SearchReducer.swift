@@ -4,6 +4,7 @@ import Foundation
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
+import Networking
 
 @Reducer
 struct SearchReducer {

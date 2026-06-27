@@ -1,13 +1,14 @@
 import Foundation
 import Kingfisher
 import ComposableArchitecture
+import Networking
 
-struct DFClient: Sendable {
-    let setActive: @Sendable (Bool) -> Void
+public struct DFClient: Sendable {
+    public let setActive: @Sendable (Bool) -> Void
 }
 
 extension DFClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         setActive: { newValue in
             if newValue {
                 URLProtocol.registerClass(DFURLProtocol.self)
@@ -23,14 +24,14 @@ extension DFClient {
 }
 
 // MARK: API
-enum DFClientKey: DependencyKey {
-    static let liveValue = DFClient.live
-    static let previewValue = DFClient.noop
-    static let testValue = DFClient.unimplemented
+public enum DFClientKey: DependencyKey {
+    public static let liveValue = DFClient.live
+    public static let previewValue = DFClient.noop
+    public static let testValue = DFClient.unimplemented
 }
 
 extension DependencyValues {
-    var dfClient: DFClient {
+    public var dfClient: DFClient {
         get { self[DFClientKey.self] }
         set { self[DFClientKey.self] = newValue }
     }
@@ -38,13 +39,13 @@ extension DependencyValues {
 
 // MARK: Test
 extension DFClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         setActive: { _ in }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         setActive: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

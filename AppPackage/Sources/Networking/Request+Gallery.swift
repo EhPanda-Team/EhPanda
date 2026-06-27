@@ -6,11 +6,18 @@ import Utilities
 import Parser
 
 // MARK: Fetch ListItems
-struct SearchGalleriesRequest: Request {
-    let keyword: String
-    let filter: Filter
+public struct SearchGalleriesRequest: Request {
+    public init(
+        keyword: String,
+        filter: Filter
+    ) {
+        self.keyword = keyword
+        self.filter = filter
+    }
+    public let keyword: String
+    public let filter: Filter
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.searchList(keyword: keyword, filter: filter)
         )
@@ -30,12 +37,21 @@ struct SearchGalleriesRequest: Request {
     }
 }
 
-struct MoreSearchGalleriesRequest: Request {
-    let keyword: String
-    let filter: Filter
-    let lastID: String
+public struct MoreSearchGalleriesRequest: Request {
+    public init(
+        keyword: String,
+        filter: Filter,
+        lastID: String
+    ) {
+        self.keyword = keyword
+        self.filter = filter
+        self.lastID = lastID
+    }
+    public let keyword: String
+    public let filter: Filter
+    public let lastID: String
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.moreSearchList(keyword: keyword, filter: filter, lastID: lastID)
         )
@@ -55,10 +71,15 @@ struct MoreSearchGalleriesRequest: Request {
     }
 }
 
-struct DateSeekGalleriesRequest: Request {
-    let url: URL
+public struct DateSeekGalleriesRequest: Request {
+    public init(
+        url: URL
+    ) {
+        self.url = url
+    }
+    public let url: URL
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: url)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -76,10 +97,15 @@ struct DateSeekGalleriesRequest: Request {
     }
 }
 
-struct FrontpageGalleriesRequest: Request {
-    let filter: Filter
+public struct FrontpageGalleriesRequest: Request {
+    public init(
+        filter: Filter
+    ) {
+        self.filter = filter
+    }
+    public let filter: Filter
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.frontpageList(filter: filter))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -97,11 +123,18 @@ struct FrontpageGalleriesRequest: Request {
     }
 }
 
-struct MoreFrontpageGalleriesRequest: Request {
-    let filter: Filter
-    let lastID: String
+public struct MoreFrontpageGalleriesRequest: Request {
+    public init(
+        filter: Filter,
+        lastID: String
+    ) {
+        self.filter = filter
+        self.lastID = lastID
+    }
+    public let filter: Filter
+    public let lastID: String
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.moreFrontpageList(filter: filter, lastID: lastID))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -119,10 +152,15 @@ struct MoreFrontpageGalleriesRequest: Request {
     }
 }
 
-struct PopularGalleriesRequest: Request {
-    let filter: Filter
+public struct PopularGalleriesRequest: Request {
+    public init(
+        filter: Filter
+    ) {
+        self.filter = filter
+    }
+    public let filter: Filter
 
-    var publisher: AnyPublisher<[Gallery], AppError> {
+    public var publisher: AnyPublisher<[Gallery], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.popularList(filter: filter))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -132,11 +170,18 @@ struct PopularGalleriesRequest: Request {
     }
 }
 
-struct WatchedGalleriesRequest: Request {
-    let filter: Filter
-    let keyword: String
+public struct WatchedGalleriesRequest: Request {
+    public init(
+        filter: Filter,
+        keyword: String
+    ) {
+        self.filter = filter
+        self.keyword = keyword
+    }
+    public let filter: Filter
+    public let keyword: String
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.watchedList(filter: filter, keyword: keyword))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -154,12 +199,21 @@ struct WatchedGalleriesRequest: Request {
     }
 }
 
-struct MoreWatchedGalleriesRequest: Request {
-    let filter: Filter
-    let lastID: String
-    let keyword: String
+public struct MoreWatchedGalleriesRequest: Request {
+    public init(
+        filter: Filter,
+        lastID: String,
+        keyword: String
+    ) {
+        self.filter = filter
+        self.lastID = lastID
+        self.keyword = keyword
+    }
+    public let filter: Filter
+    public let lastID: String
+    public let keyword: String
 
-    var publisher: AnyPublisher<GalleriesResult, AppError> {
+    public var publisher: AnyPublisher<GalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.moreWatchedList(filter: filter, lastID: lastID, keyword: keyword)
         )
@@ -179,12 +233,21 @@ struct MoreWatchedGalleriesRequest: Request {
     }
 }
 
-struct FavoritesGalleriesRequest: Request {
-    let favIndex: Int
-    let keyword: String
-    var sortOrder: FavoritesSortOrder?
+public struct FavoritesGalleriesRequest: Request {
+    public init(
+        favIndex: Int,
+        keyword: String,
+        sortOrder: FavoritesSortOrder? = nil
+    ) {
+        self.favIndex = favIndex
+        self.keyword = keyword
+        self.sortOrder = sortOrder
+    }
+    public let favIndex: Int
+    public let keyword: String
+    public var sortOrder: FavoritesSortOrder?
 
-    var publisher: AnyPublisher<FavoritesGalleriesResult, AppError> {
+    public var publisher: AnyPublisher<FavoritesGalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.favoritesList(favIndex: favIndex, keyword: keyword, sortOrder: sortOrder)
         )
@@ -205,13 +268,24 @@ struct FavoritesGalleriesRequest: Request {
     }
 }
 
-struct MoreFavoritesGalleriesRequest: Request {
-    let favIndex: Int
-    let lastID: String
-    var lastTimestamp: String
-    let keyword: String
+public struct MoreFavoritesGalleriesRequest: Request {
+    public init(
+        favIndex: Int,
+        lastID: String,
+        lastTimestamp: String,
+        keyword: String
+    ) {
+        self.favIndex = favIndex
+        self.lastID = lastID
+        self.lastTimestamp = lastTimestamp
+        self.keyword = keyword
+    }
+    public let favIndex: Int
+    public let lastID: String
+    public var lastTimestamp: String
+    public let keyword: String
 
-    var publisher: AnyPublisher<FavoritesGalleriesResult, AppError> {
+    public var publisher: AnyPublisher<FavoritesGalleriesResult, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.moreFavoritesList(
                 favIndex: favIndex, lastID: lastID, lastTimestamp: lastTimestamp, keyword: keyword
@@ -234,11 +308,18 @@ struct MoreFavoritesGalleriesRequest: Request {
     }
 }
 
-struct ToplistsGalleriesRequest: Request {
-    let catIndex: Int
-    var pageNum: Int?
+public struct ToplistsGalleriesRequest: Request {
+    public init(
+        catIndex: Int,
+        pageNum: Int? = nil
+    ) {
+        self.catIndex = catIndex
+        self.pageNum = pageNum
+    }
+    public let catIndex: Int
+    public var pageNum: Int?
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    public var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.toplistsList(catIndex: catIndex, pageNum: pageNum)
         )
@@ -254,11 +335,18 @@ struct ToplistsGalleriesRequest: Request {
     }
 }
 
-struct MoreToplistsGalleriesRequest: Request {
-    let catIndex: Int
-    let pageNum: Int
+public struct MoreToplistsGalleriesRequest: Request {
+    public init(
+        catIndex: Int,
+        pageNum: Int
+    ) {
+        self.catIndex = catIndex
+        self.pageNum = pageNum
+    }
+    public let catIndex: Int
+    public let pageNum: Int
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    public var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
             for: URLUtil.moreToplistsList(
                 catIndex: catIndex, pageNum: pageNum

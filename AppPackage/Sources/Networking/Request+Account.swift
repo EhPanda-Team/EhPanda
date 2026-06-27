@@ -7,11 +7,18 @@ import Utilities
 import Parser
 
 // MARK: Account Ops
-struct LoginRequest: Request {
-    let username: String
-    let password: String
+public struct LoginRequest: Request {
+    public init(
+        username: String,
+        password: String
+    ) {
+        self.username = username
+        self.password = password
+    }
+    public let username: String
+    public let password: String
 
-    var publisher: AnyPublisher<HTTPURLResponse?, AppError> {
+    public var publisher: AnyPublisher<HTTPURLResponse?, AppError> {
         let params: [String: String] = [
             "b": "d",
             "bt": "1-1",
@@ -34,8 +41,10 @@ struct LoginRequest: Request {
     }
 }
 
-struct IgneousRequest: Request {
-    var publisher: AnyPublisher<HTTPURLResponse, AppError> {
+public struct IgneousRequest: Request {
+    public init() {}
+
+    public var publisher: AnyPublisher<HTTPURLResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai)
             .genericRetry()
             .compactMap { $0.response as? HTTPURLResponse }
@@ -44,8 +53,10 @@ struct IgneousRequest: Request {
     }
 }
 
-struct VerifyEhProfileRequest: Request {
-    var publisher: AnyPublisher<VerifyEhProfileResponse, AppError> {
+public struct VerifyEhProfileRequest: Request {
+    public init() {}
+
+    public var publisher: AnyPublisher<VerifyEhProfileResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -55,12 +66,21 @@ struct VerifyEhProfileRequest: Request {
     }
 }
 
-struct EhProfileRequest: Request {
-    var action: EhProfileAction?
-    var name: String?
-    var set: Int?
+public struct EhProfileRequest: Request {
+    public init(
+        action: EhProfileAction? = nil,
+        name: String? = nil,
+        set: Int? = nil
+    ) {
+        self.action = action
+        self.name = name
+        self.set = set
+    }
+    public var action: EhProfileAction?
+    public var name: String?
+    public var set: Int?
 
-    var publisher: AnyPublisher<EhSetting, AppError> {
+    public var publisher: AnyPublisher<EhSetting, AppError> {
         var params = [String: String]()
 
         if let action = action {
@@ -87,8 +107,10 @@ struct EhProfileRequest: Request {
     }
 }
 
-struct EhSettingRequest: Request {
-    var publisher: AnyPublisher<EhSetting, AppError> {
+public struct EhSettingRequest: Request {
+    public init() {}
+
+    public var publisher: AnyPublisher<EhSetting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
@@ -98,10 +120,15 @@ struct EhSettingRequest: Request {
     }
 }
 
-struct SubmitEhSettingChangesRequest: Request {
-    let ehSetting: EhSetting
+public struct SubmitEhSettingChangesRequest: Request {
+    public init(
+        ehSetting: EhSetting
+    ) {
+        self.ehSetting = ehSetting
+    }
+    public let ehSetting: EhSetting
 
-    var publisher: AnyPublisher<EhSetting, AppError> {
+    public var publisher: AnyPublisher<EhSetting, AppError> {
         let url = Defaults.URL.uConfig
         var params: [String: String] = [
             "uh": String(ehSetting.loadThroughHathSetting.rawValue),
@@ -181,12 +208,21 @@ struct SubmitEhSettingChangesRequest: Request {
     }
 }
 
-struct FavorGalleryRequest: Request {
-    let gid: String
-    let token: String
-    let favIndex: Int
+public struct FavorGalleryRequest: Request {
+    public init(
+        gid: String,
+        token: String,
+        favIndex: Int
+    ) {
+        self.gid = gid
+        self.token = token
+        self.favIndex = favIndex
+    }
+    public let gid: String
+    public let token: String
+    public let favIndex: Int
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let url = URLUtil.addFavorite(gid: gid, token: token)
         let params: [String: String] = [
             "favcat": "\(favIndex)",
@@ -208,10 +244,15 @@ struct FavorGalleryRequest: Request {
     }
 }
 
-struct UnfavorGalleryRequest: Request {
-    let gid: String
+public struct UnfavorGalleryRequest: Request {
+    public init(
+        gid: String
+    ) {
+        self.gid = gid
+    }
+    public let gid: String
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: String] = [
             "ddact": "delete",
             "modifygids[]": gid,
@@ -231,11 +272,18 @@ struct UnfavorGalleryRequest: Request {
     }
 }
 
-struct SendDownloadCommandRequest: Request {
-    let archiveURL: URL
-    let resolution: String
+public struct SendDownloadCommandRequest: Request {
+    public init(
+        archiveURL: URL,
+        resolution: String
+    ) {
+        self.archiveURL = archiveURL
+        self.resolution = resolution
+    }
+    public let archiveURL: URL
+    public let resolution: String
 
-    var publisher: AnyPublisher<String, AppError> {
+    public var publisher: AnyPublisher<String, AppError> {
         let params: [String: String] = [
             "hathdl_xres": resolution
         ]
@@ -256,14 +304,27 @@ struct SendDownloadCommandRequest: Request {
     }
 }
 
-struct RateGalleryRequest: Request {
-    let apiuid: Int
-    let apikey: String
-    let gid: Int
-    let token: String
-    let rating: Int
+public struct RateGalleryRequest: Request {
+    public init(
+        apiuid: Int,
+        apikey: String,
+        gid: Int,
+        token: String,
+        rating: Int
+    ) {
+        self.apiuid = apiuid
+        self.apikey = apikey
+        self.gid = gid
+        self.token = token
+        self.rating = rating
+    }
+    public let apiuid: Int
+    public let apikey: String
+    public let gid: Int
+    public let token: String
+    public let rating: Int
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
             "method": "rategallery",
             "apiuid": apiuid,
@@ -285,11 +346,18 @@ struct RateGalleryRequest: Request {
     }
 }
 
-struct CommentGalleryRequest: Request {
-    let content: String
-    let galleryURL: URL
+public struct CommentGalleryRequest: Request {
+    public init(
+        content: String,
+        galleryURL: URL
+    ) {
+        self.content = content
+        self.galleryURL = galleryURL
+    }
+    public let content: String
+    public let galleryURL: URL
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let params: [String: String] = [
             "commenttext_new": fixedContent
@@ -308,12 +376,21 @@ struct CommentGalleryRequest: Request {
     }
 }
 
-struct EditGalleryCommentRequest: Request {
-    let commentID: String
-    let content: String
-    let galleryURL: URL
+public struct EditGalleryCommentRequest: Request {
+    public init(
+        commentID: String,
+        content: String,
+        galleryURL: URL
+    ) {
+        self.commentID = commentID
+        self.content = content
+        self.galleryURL = galleryURL
+    }
+    public let commentID: String
+    public let content: String
+    public let galleryURL: URL
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let params: [String: String] = [
             "edit_comment": commentID,
@@ -333,15 +410,30 @@ struct EditGalleryCommentRequest: Request {
     }
 }
 
-struct VoteGalleryCommentRequest: Request {
-    let apiuid: Int
-    let apikey: String
-    let gid: Int
-    let token: String
-    let commentID: Int
-    let commentVote: Int
+public struct VoteGalleryCommentRequest: Request {
+    public init(
+        apiuid: Int,
+        apikey: String,
+        gid: Int,
+        token: String,
+        commentID: Int,
+        commentVote: Int
+    ) {
+        self.apiuid = apiuid
+        self.apikey = apikey
+        self.gid = gid
+        self.token = token
+        self.commentID = commentID
+        self.commentVote = commentVote
+    }
+    public let apiuid: Int
+    public let apikey: String
+    public let gid: Int
+    public let token: String
+    public let commentID: Int
+    public let commentVote: Int
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
             "method": "votecomment",
             "apiuid": apiuid,
@@ -364,15 +456,30 @@ struct VoteGalleryCommentRequest: Request {
     }
 }
 
-struct VoteGalleryTagRequest: Request {
-    let apiuid: Int
-    let apikey: String
-    let gid: Int
-    let token: String
-    let tag: String
-    let vote: Int
+public struct VoteGalleryTagRequest: Request {
+    public init(
+        apiuid: Int,
+        apikey: String,
+        gid: Int,
+        token: String,
+        tag: String,
+        vote: Int
+    ) {
+        self.apiuid = apiuid
+        self.apikey = apikey
+        self.gid = gid
+        self.token = token
+        self.tag = tag
+        self.vote = vote
+    }
+    public let apiuid: Int
+    public let apikey: String
+    public let gid: Int
+    public let token: String
+    public let tag: String
+    public let vote: Int
 
-    var publisher: AnyPublisher<Void, AppError> {
+    public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
             "method": "taggallery",
             "apiuid": apiuid,

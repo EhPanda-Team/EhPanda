@@ -6,6 +6,7 @@ import URLClient
 import UserDefaultsClient
 import HapticsClient
 import DatabaseClient
+import Networking
 
 @Reducer
 struct AppRouteReducer {

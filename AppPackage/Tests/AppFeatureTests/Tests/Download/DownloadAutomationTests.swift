@@ -10,6 +10,7 @@ import UIApplicationClient
 import HapticsClient
 import LibraryClient
 import DatabaseClient
+import DFClient
 @testable import AppFeature
 
 @Suite(.serialized)

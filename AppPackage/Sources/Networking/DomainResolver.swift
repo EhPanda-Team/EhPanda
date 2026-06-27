@@ -1,10 +1,10 @@
-struct DomainResolver {
-    static func resolve(domain: String) -> String? {
+public struct DomainResolver {
+    public static func resolve(domain: String) -> String? {
         ResolvableDomain(rawValue: domain)?.ipPool.randomElement()
     }
 }
 
-enum ResolvableDomain: String {
+public enum ResolvableDomain: String {
     case ehgt = "ehgt.org"
     case ehgt0 = "gt0.ehgt.org"
     case ehgt1 = "gt1.ehgt.org"

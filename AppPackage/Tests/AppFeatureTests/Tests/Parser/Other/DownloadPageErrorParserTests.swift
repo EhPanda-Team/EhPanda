@@ -3,6 +3,7 @@ import AppModels
 import Combine
 import Testing
 import Parser
+import Networking
 @testable import AppFeature
 
 struct DownloadPageErrorParserTests: TestHelper {

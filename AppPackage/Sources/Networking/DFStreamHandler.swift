@@ -1,12 +1,12 @@
 import Foundation
 import AppModels
 
-class DFStreamEventHandler: NSObject {
+public class DFStreamEventHandler: NSObject {
     private var request: DFRequest
     private var receivedResponse = false
     private var hasEvaluated = false
 
-    init(request: DFRequest) {
+    public init(request: DFRequest) {
         self.request = request
     }
 }
@@ -85,7 +85,7 @@ private extension DFStreamEventHandler {
 
 // MARK: StreamDelegate
 extension DFStreamEventHandler: StreamDelegate {
-    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
+    public func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
         guard let input = aStream as? InputStream else {
             Logger.error("Unexpected stream, should be a InputStream, but \(aStream).")
             return
