@@ -10,6 +10,7 @@ import DatabaseClient
 import DFClient
 import FileClient
 import CookieClient
+import DeviceClient
 
 @Reducer
 struct SettingReducer {

@@ -38,17 +38,3 @@ public struct RootView: View {
         }
     }
 }
-
-// MARK: TouchHandler
-final class TouchHandler: NSObject, UIGestureRecognizerDelegate {
-    static let shared = TouchHandler()
-    var currentPoint: CGPoint?
-
-    func gestureRecognizer(
-        _ gestureRecognizer: UIGestureRecognizer,
-        shouldReceive touch: UITouch
-    ) -> Bool {
-        currentPoint = touch.location(in: touch.window)
-        return false
-    }
-}
