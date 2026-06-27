@@ -6,6 +6,7 @@ import FoundationExt
 import Utilities
 import DatabaseClient
 import DownloadClient
+import AppLaunchAutomationClient
 @testable import AppFeature
 
 // MARK: - Sample Data Factories & CoreData Helpers

@@ -6,6 +6,7 @@ import HapticsClient
 import DatabaseClient
 import DownloadClient
 import CookieClient
+import AppLaunchAutomationClient
 @testable import AppFeature
 
 @Suite(.serialized)
