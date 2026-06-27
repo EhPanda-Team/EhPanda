@@ -7,6 +7,7 @@ import Utilities
 import DesignSystem
 import AppComponents
 import FiltersFeature
+import DetailFeature
 
 struct PopularView: View {
     @Bindable private var store: StoreOf<PopularReducer>

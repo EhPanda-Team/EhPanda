@@ -8,6 +8,8 @@ import DatabaseClient
 import Networking
 import FiltersFeature
 import DateSeekFeature
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct FrontpageReducer {

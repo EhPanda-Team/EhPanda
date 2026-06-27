@@ -9,11 +9,12 @@ import DatabaseClient
 import Networking
 import CookieClient
 import DesignSystem
+import ComposableArchitectureExt
 
 @Reducer
-struct CommentsReducer {
+public struct CommentsReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case hud
         case detail(String)
         case postComment(String)
@@ -24,23 +25,23 @@ struct CommentsReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var commentContent = ""
-        var postCommentFocused = false
+    public struct State: Equatable {
+        public var route: Route?
+        public var commentContent = ""
+        public var postCommentFocused = false
 
-        var hudConfig: ProgressHUDConfigState = .loading()
-        var scrollCommentID: String?
-        var scrollRowOpacity: Double = 1
+        public var hudConfig: ProgressHUDConfigState = .loading()
+        public var scrollCommentID: String?
+        public var scrollRowOpacity: Double = 1
 
-        var detailState: Heap<DetailReducer.State?>
+        public var detailState: Heap<DetailReducer.State?>
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -74,7 +75,9 @@ struct CommentsReducer {
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.urlClient) private var urlClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none

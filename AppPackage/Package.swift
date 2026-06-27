@@ -80,6 +80,7 @@ enum Module: String {
     case databaseClient = "DatabaseClient"
     case dateSeekFeature = "DateSeekFeature"
     case designSystem = "DesignSystem"
+    case detailFeature = "DetailFeature"
     case deviceClient = "DeviceClient"
     case downloadClient = "DownloadClient"
     case fileClient = "FileClient"
@@ -249,6 +250,7 @@ let targets: [PackageDescription.Target] = [
             .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.designSystem),
+            .module(.detailFeature),
             .module(.dfClient),
             .module(.deviceClient),
             .module(.downloadClient),
@@ -577,6 +579,38 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .detailFeature,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appLaunchAutomationClient),
+            .module(.appModels),
+            .module(.clipboardClient),
+            .module(.composableArchitectureExt),
+            .module(.cookieClient),
+            .module(.databaseClient),
+            .module(.designSystem),
+            .module(.downloadClient),
+            .module(.fileClient),
+            .module(.filtersFeature),
+            .module(.foundationExt),
+            .module(.hapticsClient),
+            .module(.networking),
+            .module(.quickSearchFeature),
+            .module(.readingFeature),
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .module(.uiApplicationClient),
+            .module(.urlClient),
+            .module(.utilities),
+            .targetDependency(.commonMark),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .readingFeature,
         dependencies: [
             .module(.appComponents),
@@ -698,6 +732,7 @@ let targets: [PackageDescription.Target] = [
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.databaseClient),
+            .module(.detailFeature),
             .module(.dfClient),
             .module(.deviceClient),
             .module(.downloadClient),

@@ -8,6 +8,7 @@ import Utilities
 import DesignSystem
 import AppComponents
 import QuickSearchFeature
+import DetailFeature
 
 struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>

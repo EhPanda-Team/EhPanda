@@ -8,14 +8,14 @@ private final class Reference<T: Equatable>: Equatable {
     }
 }
 
-@propertyWrapper struct Heap<T: Equatable>: Equatable {
+@propertyWrapper public struct Heap<T: Equatable>: Equatable {
     private var reference: Reference<T>
 
-    init(_ value: T) {
+    public init(_ value: T) {
         reference = .init(value)
     }
 
-    var wrappedValue: T {
+    public var wrappedValue: T {
         get { reference.value }
         set {
             if !isKnownUniquelyReferenced(&reference) {
@@ -25,7 +25,7 @@ private final class Reference<T: Equatable>: Equatable {
             reference.value = newValue
         }
     }
-    var projectedValue: Heap<T> {
+    public var projectedValue: Heap<T> {
         self
     }
 }

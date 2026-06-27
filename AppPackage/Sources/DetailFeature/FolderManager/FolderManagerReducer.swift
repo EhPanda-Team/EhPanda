@@ -5,13 +5,13 @@ import ComposableArchitecture
 import DownloadClient
 
 @Reducer
-struct FolderManagerReducer {
+public struct FolderManagerReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case deleteFolder(String)
     }
 
-    enum EditingField: Equatable, Hashable {
+    public enum EditingField: Equatable, Hashable {
         case newFolder
         case renameFolder(String)
     }
@@ -27,12 +27,14 @@ struct FolderManagerReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var editingField: EditingField?
-        var editingFolderName = ""
-        var loadingState: LoadingState = .idle
-        var folders = [String]()
+    public struct State: Equatable {
+        public var route: Route?
+        public var editingField: EditingField?
+        public var editingFolderName = ""
+        public var loadingState: LoadingState = .idle
+        public var folders = [String]()
+
+        public init() {}
 
         var normalizedEditingFolderName: String? {
             DownloadStore.normalizedUserFolderName(editingFolderName)
@@ -51,7 +53,7 @@ struct FolderManagerReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case setEditingField(EditingField?)
@@ -71,7 +73,9 @@ struct FolderManagerReducer {
 
     @Dependency(\.downloadClient) private var downloadClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in
