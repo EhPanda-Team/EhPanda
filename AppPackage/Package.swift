@@ -72,6 +72,7 @@ enum Module: String {
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
     case composableArchitectureExt = "ComposableArchitectureExt"
+    case cookieClient = "CookieClient"
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
     case downloadClient = "DownloadClient"
@@ -231,6 +232,7 @@ let targets: [PackageDescription.Target] = [
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.composableArchitectureExt),
+            .module(.cookieClient),
             .module(.databaseClient),
             .module(.dfClient),
             .module(.downloadClient),
@@ -369,6 +371,18 @@ let targets: [PackageDescription.Target] = [
         module: .clipboardClient,
         dependencies: [
             .module(.sdWebImageExt),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .cookieClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .module(.resources),
+            .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -514,6 +528,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
+            .module(.cookieClient),
             .module(.databaseClient),
             .module(.dfClient),
             .module(.downloadClient),

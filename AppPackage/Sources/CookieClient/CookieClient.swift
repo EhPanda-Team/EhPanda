@@ -3,13 +3,14 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import FoundationExt
+import Utilities
 #if DEBUG
 import Synchronization
 #endif
 
-struct CookieClient: Sendable {
-    let clearAll: @Sendable () -> Void
-    let getCookie: @Sendable (URL, String) -> CookieValue
+public struct CookieClient: Sendable {
+    public let clearAll: @Sendable () -> Void
+    public let getCookie: @Sendable (URL, String) -> CookieValue
     private let cookiesForURL: @Sendable (URL) -> [HTTPCookie]
     private let removeCookie: @Sendable (URL, String) -> Void
     private let checkExistence: @Sendable (URL, String) -> Bool
@@ -19,9 +20,9 @@ struct CookieClient: Sendable {
 }
 
 extension CookieClient {
-    static let live: Self = live(cookieStorage: .shared)
+    public static let live: Self = live(cookieStorage: .shared)
 
-    static func live(cookieStorage: HTTPCookieStorage) -> Self {
+    public static func live(cookieStorage: HTTPCookieStorage) -> Self {
         .init(
             clearAll: {
                 if let historyCookies = cookieStorage.cookies {
@@ -113,7 +114,7 @@ extension CookieClient {
 
 // MARK: Foundation
 extension CookieClient {
-    func importAutomationCookies(memberID: String, passHash: String, igneous: String?) {
+    public func importAutomationCookies(memberID: String, passHash: String, igneous: String?) {
         let urls = [Defaults.URL.ehentai, Defaults.URL.exhentai, Defaults.URL.sexhentai]
         let authKeys = [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
 
@@ -163,7 +164,7 @@ extension CookieClient {
     ) {
         setCookieValue(url, key, value, path, expiresTime, sessionOnly)
     }
-    func editCookie(for url: URL, key: String, value: String) {
+    public func editCookie(for url: URL, key: String, value: String) {
         var newCookie: HTTPCookie?
         cookiesForURL(url).forEach { cookie in
             guard cookie.name == key else { return }
@@ -173,21 +174,21 @@ extension CookieClient {
         guard let cookie = newCookie else { return }
         storeCookie(cookie)
     }
-    func setOrEditCookie(for url: URL, key: String, value: String) {
+    public func setOrEditCookie(for url: URL, key: String, value: String) {
         if checkExistence(url, key) {
             editCookie(for: url, key: key, value: value)
         } else {
             setCookie(for: url, key: key, value: value)
         }
     }
-    func cookies(for url: URL) -> [HTTPCookie] {
+    public func cookies(for url: URL) -> [HTTPCookie] {
         cookiesForURL(url)
     }
 }
 
 // MARK: Accessor
 extension CookieClient {
-    var didLogin: Bool {
+    public var didLogin: Bool {
         let ehHasAuth = !getCookie(Defaults.URL.ehentai, Defaults.Cookie.ipbMemberId).rawValue.isEmpty
             && !getCookie(Defaults.URL.ehentai, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
         let exIgneous = getCookie(Defaults.URL.exhentai, Defaults.Cookie.igneous).rawValue
@@ -197,25 +198,25 @@ extension CookieClient {
             && exIgneous != Defaults.Cookie.mystery
         return ehHasAuth || exHasAuth
     }
-    var apiuid: String {
+    public var apiuid: String {
         getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
     }
-    var isSameAccount: Bool {
+    public var isSameAccount: Bool {
         let ehUID = getCookie(Defaults.URL.ehentai, Defaults.Cookie.ipbMemberId).rawValue
         let exUID = getCookie(Defaults.URL.exhentai, Defaults.Cookie.ipbMemberId).rawValue
         if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return false }
     }
-    var shouldFetchIgneous: Bool {
+    public var shouldFetchIgneous: Bool {
         let url = Defaults.URL.exhentai
         return !getCookie(url, Defaults.Cookie.ipbMemberId).rawValue.isEmpty
             && !getCookie(url, Defaults.Cookie.ipbPassHash).rawValue.isEmpty
             && getCookie(url, Defaults.Cookie.igneous).rawValue.isEmpty
     }
-    func removeYay() {
+    public func removeYay() {
         removeCookie(Defaults.URL.exhentai, Defaults.Cookie.yay)
         removeCookie(Defaults.URL.sexhentai, Defaults.Cookie.yay)
     }
-    func syncExCookies() {
+    public func syncExCookies() {
         let cookies = [
             Defaults.Cookie.ipbMemberId,
             Defaults.Cookie.ipbPassHash,
@@ -229,11 +230,11 @@ extension CookieClient {
             )
         }
     }
-    func ignoreOffensive() {
+    public func ignoreOffensive() {
         setOrEditCookie(for: Defaults.URL.ehentai, key: Defaults.Cookie.ignoreOffensive, value: "1")
         setOrEditCookie(for: Defaults.URL.exhentai, key: Defaults.Cookie.ignoreOffensive, value: "1")
     }
-    func fulfillAnotherHostField() {
+    public func fulfillAnotherHostField() {
         let ehURL = Defaults.URL.ehentai
         let exURL = Defaults.URL.exhentai
         let memberIdKey = Defaults.Cookie.ipbMemberId
@@ -251,7 +252,7 @@ extension CookieClient {
             setOrEditCookie(for: ehURL, key: passHashKey, value: exPassHash)
         }
     }
-    func loadCookiesState(host: GalleryHost) -> CookiesState {
+    public func loadCookiesState(host: GalleryHost) -> CookiesState {
         let igneousKey = Defaults.Cookie.igneous
         let memberIDKey = Defaults.Cookie.ipbMemberId
         let passHashKey = Defaults.Cookie.ipbPassHash
@@ -265,7 +266,7 @@ extension CookieClient {
             passHash: .init(key: passHashKey, value: passHash, editingText: passHash.rawValue)
         )
     }
-    func getCookiesDescription(host: GalleryHost) -> String {
+    public func getCookiesDescription(host: GalleryHost) -> String {
         var dictionary = [String: String]()
         [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash].forEach { key in
             let cookieValue = getCookie(host.url, key)
@@ -279,7 +280,7 @@ extension CookieClient {
 
 // MARK: SetCookies
 extension CookieClient {
-    func setCookies(state: CookiesState, trimsSpaces: Bool = true) {
+    public func setCookies(state: CookiesState, trimsSpaces: Bool = true) {
         for subState in state.allCases {
             for cookie in state.host.cookieURLs {
                 setOrEditCookie(
@@ -292,7 +293,7 @@ extension CookieClient {
         }
 
     }
-    func setCredentials(response: HTTPURLResponse) {
+    public func setCredentials(response: HTTPURLResponse) {
         guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
         setString.components(separatedBy: ", ")
             .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
@@ -309,7 +310,7 @@ extension CookieClient {
                 }
             }
     }
-    func setSkipServer(response: HTTPURLResponse) {
+    public func setSkipServer(response: HTTPURLResponse) {
         guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
         setString.components(separatedBy: ", ")
             .flatMap { $0.components(separatedBy: "; ") }
@@ -326,14 +327,14 @@ extension CookieClient {
 }
 
 // MARK: API
-enum CookieClientKey: DependencyKey {
-    static let liveValue = CookieClient.live
-    static let previewValue = CookieClient.noop
-    static let testValue = CookieClient.unimplemented
+public enum CookieClientKey: DependencyKey {
+    public static let liveValue = CookieClient.live
+    public static let previewValue = CookieClient.noop
+    public static let testValue = CookieClient.unimplemented
 }
 
 extension DependencyValues {
-    var cookieClient: CookieClient {
+    public var cookieClient: CookieClient {
         get { self[CookieClientKey.self] }
         set { self[CookieClientKey.self] = newValue }
     }
@@ -341,7 +342,7 @@ extension DependencyValues {
 
 // MARK: Test
 extension CookieClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         clearAll: {},
         getCookie: { _, _ in .empty },
         cookiesForURL: { _ in [] },
@@ -352,9 +353,9 @@ extension CookieClient {
         setCookieValue: { _, _, _, _, _, _ in }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         clearAll: IssueReporting.unimplemented(placeholder: placeholder()),
         getCookie: IssueReporting.unimplemented(placeholder: placeholder()),
         cookiesForURL: IssueReporting.unimplemented(placeholder: placeholder()),
@@ -368,14 +369,14 @@ extension CookieClient {
 
 #if DEBUG
 private struct CookieClientTestingCookie: Sendable {
-    var domain: String
-    var path: String
-    var name: String
-    var value: String
-    var expiresDate: Date?
-    var isSessionOnly: Bool
+    public var domain: String
+    public var path: String
+    public var name: String
+    public var value: String
+    public var expiresDate: Date?
+    public var isSessionOnly: Bool
 
-    func matches(url: URL, key: String? = nil) -> Bool {
+    public func matches(url: URL, key: String? = nil) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let normalizedDomain = domain.lowercased()
             .trimmingCharacters(in: CharacterSet(charactersIn: "."))
@@ -385,7 +386,7 @@ private struct CookieClientTestingCookie: Sendable {
         return domainMatches && keyMatches
     }
 
-    func httpCookie() -> HTTPCookie? {
+    public func httpCookie() -> HTTPCookie? {
         var properties: [HTTPCookiePropertyKey: Any] = [
             .domain: domain,
             .path: path,
@@ -404,15 +405,15 @@ private struct CookieClientTestingCookie: Sendable {
 private final class CookieClientTestingStore: Sendable {
     private let cookies: Mutex<[String: CookieClientTestingCookie]>
 
-    init(cookies: [String: CookieClientTestingCookie]) {
+    public init(cookies: [String: CookieClientTestingCookie]) {
         self.cookies = Mutex(cookies)
     }
 
-    func value(for url: URL, key: String) -> String {
+    public func value(for url: URL, key: String) -> String {
         cookie(for: url, key: key)?.value ?? ""
     }
 
-    func setValue(
+    public func setValue(
         _ value: String,
         for url: URL,
         key: String,
@@ -432,17 +433,17 @@ private final class CookieClientTestingStore: Sendable {
         cookies.withLock { $0[storageKey(domain: domain, key: key)] = cookie }
     }
 
-    func removeValue(for url: URL, key: String) {
+    public func removeValue(for url: URL, key: String) {
         cookies.withLock { storage in
             storage = storage.filter { !$0.value.matches(url: url, key: key) }
         }
     }
 
-    func containsValue(for url: URL, key: String) -> Bool {
+    public func containsValue(for url: URL, key: String) -> Bool {
         cookie(for: url, key: key) != nil
     }
 
-    func cookies(for url: URL) -> [HTTPCookie] {
+    public func cookies(for url: URL) -> [HTTPCookie] {
         cookies.withLock { storage in
             storage.values
                 .filter { $0.matches(url: url) }
@@ -450,7 +451,7 @@ private final class CookieClientTestingStore: Sendable {
         }
     }
 
-    func store(_ cookie: HTTPCookie) {
+    public func store(_ cookie: HTTPCookie) {
         let testingCookie = CookieClientTestingCookie(
             domain: cookie.domain,
             path: cookie.path,
@@ -464,7 +465,7 @@ private final class CookieClientTestingStore: Sendable {
         }
     }
 
-    func removeAll() {
+    public func removeAll() {
         cookies.withLock { $0.removeAll() }
     }
 
@@ -480,7 +481,7 @@ private final class CookieClientTestingStore: Sendable {
 }
 
 extension CookieClient {
-    static func testing(
+    public static func testing(
         memberID: String = "",
         passHash: String = "",
         igneous: String? = nil

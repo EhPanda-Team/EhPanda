@@ -7,6 +7,7 @@ import LibraryClient
 import DatabaseClient
 import DownloadClient
 import BackgroundProcessingClient
+import CookieClient
 
 @Reducer
 struct AppDelegateReducer {
