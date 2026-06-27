@@ -5,6 +5,7 @@ import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import FiltersFeature
+import QuickSearchFeature
 
 @Reducer
 struct SearchRootReducer {

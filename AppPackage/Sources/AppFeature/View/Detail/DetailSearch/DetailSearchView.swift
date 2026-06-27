@@ -6,6 +6,7 @@ import Utilities
 import DesignSystem
 import AppComponents
 import FiltersFeature
+import QuickSearchFeature
 
 struct DetailSearchView: View {
     @Bindable private var store: StoreOf<DetailSearchReducer>
