@@ -1,10 +1,11 @@
 import SwiftUI
+import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import AppComponents
 
-struct MigrationView: View {
+public struct MigrationView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Bindable private var store: StoreOf<MigrationReducer>
 
@@ -12,11 +13,11 @@ struct MigrationView: View {
         colorScheme == .light ? .white : .black
     }
 
-    init(store: StoreOf<MigrationReducer>) {
+    public init(store: StoreOf<MigrationReducer>) {
         self.store = store
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             ZStack {
                 reversedPrimary.ignoresSafeArea()

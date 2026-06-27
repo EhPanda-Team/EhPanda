@@ -2,6 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 import UIKit
 import Utilities
+import MigrationFeature
 
 // MARK: RootView
 public struct RootView: View {
