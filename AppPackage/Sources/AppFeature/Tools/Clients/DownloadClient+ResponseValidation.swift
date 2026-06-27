@@ -4,6 +4,7 @@ import Foundation
 import ImageIO
 import FoundationExt
 import Utilities
+import Parser
 
 // MARK: - Response Error Detection
 extension DownloadCoordinator {

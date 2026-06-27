@@ -4,14 +4,14 @@ import Foundation
 import FoundationExt
 
 extension Parser {
-    static func parseGalleryURL(doc: HTMLDocument) throws -> URL {
+    public static func parseGalleryURL(doc: HTMLDocument) throws -> URL {
         guard let galleryURLString = doc.at_xpath("//div [@class='sb']")?.at_xpath("//a")?["href"],
               let galleryURL = URL(string: galleryURLString) else { throw AppError.parseFailed }
         return galleryURL
     }
 
     // swiftlint:disable:next function_body_length
-    static func parseGalleryDetail(doc: HTMLDocument, gid: String) throws -> (GalleryDetail, GalleryState) {
+    public static func parseGalleryDetail(doc: HTMLDocument, gid: String) throws -> (GalleryDetail, GalleryState) {
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
         for link in doc.xpath("//div [@class='gm']") {

@@ -2,7 +2,7 @@ import Kanna
 import AppModels
 
 extension Parser {
-    static func parseFavoritesSortOrder(doc: HTMLDocument) -> FavoritesSortOrder? {
+    public static func parseFavoritesSortOrder(doc: HTMLDocument) -> FavoritesSortOrder? {
         guard let idoNode = doc.at_xpath("//div [@class='ido']") else { return nil }
         for link in idoNode.xpath("//div") where link.className == nil {
             guard let aText = link.at_xpath("//div")?.at_xpath("//a")?.text else { continue }
@@ -15,7 +15,7 @@ extension Parser {
         return nil
     }
 
-    static func parseFavoriteCategories(doc: HTMLDocument) throws -> [Int: String] {
+    public static func parseFavoriteCategories(doc: HTMLDocument) throws -> [Int: String] {
         var favoriteCategories = [Int: String]()
 
         for link in doc.xpath("//div [@id='favsel']") {

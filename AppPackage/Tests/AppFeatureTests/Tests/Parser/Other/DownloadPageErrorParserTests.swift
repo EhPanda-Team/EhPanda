@@ -2,6 +2,7 @@ import Kanna
 import AppModels
 import Combine
 import Testing
+import Parser
 @testable import AppFeature
 
 struct DownloadPageErrorParserTests: TestHelper {

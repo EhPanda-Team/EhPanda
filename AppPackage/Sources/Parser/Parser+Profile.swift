@@ -2,7 +2,7 @@ import Kanna
 import AppModels
 
 extension Parser {
-    static func parseProfileIndex(doc: HTMLDocument) throws -> VerifyEhProfileResponse {
+    public static func parseProfileIndex(doc: HTMLDocument) throws -> VerifyEhProfileResponse {
         var profileNotFound = true
         var profileValue: Int?
 
@@ -21,7 +21,7 @@ extension Parser {
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    static func parseEhSetting(doc: HTMLDocument) throws -> EhSetting {
+    public static func parseEhSetting(doc: HTMLDocument) throws -> EhSetting {
         var tmpForm: XMLElement?
         for link in doc.xpath("//form [@method='post']")
         where link["id"] == nil {
