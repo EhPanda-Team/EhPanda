@@ -4,6 +4,7 @@ import Resources
 import Kingfisher
 import SFSafeSymbols
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>

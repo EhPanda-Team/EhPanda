@@ -1,6 +1,7 @@
 import SwiftUI
 import Resources
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct MigrationView: View {
     @Environment(\.colorScheme) private var colorScheme

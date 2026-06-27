@@ -68,7 +68,11 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 enum Module: String {
     case appFeature = "AppFeature"
     case appModels = "AppModels"
+    case composableArchitectureExt = "ComposableArchitectureExt"
+    case foundationExt = "FoundationExt"
     case resources = "Resources"
+    case swiftUINavigationExt = "SwiftUINavigationExt"
+    case utilities = "Utilities"
 
     // Test targets
     case appFeatureTests = "AppFeatureTests"
@@ -206,7 +210,10 @@ let targets: [PackageDescription.Target] = [
         module: .appFeature,
         dependencies: [
             .module(.appModels),
+            .module(.composableArchitectureExt),
+            .module(.foundationExt),
             .module(.resources),
+            .module(.swiftUINavigationExt),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.commonMark),
@@ -249,6 +256,27 @@ let targets: [PackageDescription.Target] = [
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
+    .target(
+        module: .composableArchitectureExt,
+        dependencies: [
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .foundationExt,
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .swiftUINavigationExt,
+        dependencies: [
+            .targetDependency(.swiftUINavigation)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
 
     // MARK: Tests
     .testTarget(
@@ -256,6 +284,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appFeature),
             .module(.appModels),
+            .module(.foundationExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
             .targetDependency(.kingfisher),

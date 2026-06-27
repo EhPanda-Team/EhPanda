@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
+import SwiftUINavigationExt
 
 struct DownloadsView: View {
     private enum RowDialog: Identifiable {
