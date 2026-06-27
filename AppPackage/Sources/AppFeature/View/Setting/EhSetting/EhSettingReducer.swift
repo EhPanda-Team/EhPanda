@@ -5,6 +5,7 @@ import SwiftUINavigationExt
 import UIApplicationClient
 import HapticsClient
 import Networking
+import CookieClient
 
 @Reducer
 struct EhSettingReducer {

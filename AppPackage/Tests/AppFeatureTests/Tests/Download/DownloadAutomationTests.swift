@@ -13,6 +13,7 @@ import DatabaseClient
 import DFClient
 import DownloadClient
 import FileClient
+import CookieClient
 @testable import AppFeature
 
 @Suite(.serialized)

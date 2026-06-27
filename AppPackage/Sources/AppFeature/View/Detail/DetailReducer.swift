@@ -8,6 +8,7 @@ import HapticsClient
 import DatabaseClient
 import Networking
 import DownloadClient
+import CookieClient
 
 @Reducer
 struct DetailReducer {

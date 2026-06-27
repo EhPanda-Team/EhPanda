@@ -4,6 +4,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
 import Networking
+import CookieClient
 
 @Reducer
 struct LoginReducer {

@@ -4,6 +4,7 @@ import URLClient
 import HapticsClient
 import DownloadClient
 import BackgroundProcessingClient
+import CookieClient
 
 @Reducer
 struct AppReducer {
