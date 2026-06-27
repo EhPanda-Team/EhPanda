@@ -5,6 +5,7 @@ import HapticsClient
 import DownloadClient
 import BackgroundProcessingClient
 import CookieClient
+import AppLaunchAutomationClient
 
 @Reducer
 struct AppReducer {

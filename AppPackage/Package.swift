@@ -67,6 +67,7 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 // MARK: Module
 enum Module: String {
     case appFeature = "AppFeature"
+    case appLaunchAutomationClient = "AppLaunchAutomationClient"
     case appModels = "AppModels"
     case authorizationClient = "AuthorizationClient"
     case backgroundProcessingClient = "BackgroundProcessingClient"
@@ -227,6 +228,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appFeature,
         dependencies: [
+            .module(.appLaunchAutomationClient),
             .module(.appModels),
             .module(.authorizationClient),
             .module(.backgroundProcessingClient),
@@ -346,6 +348,15 @@ let targets: [PackageDescription.Target] = [
         module: .utilities,
         dependencies: [
             .module(.appModels)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .appLaunchAutomationClient,
+        dependencies: [
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -525,6 +536,7 @@ let targets: [PackageDescription.Target] = [
         module: .appFeatureTests,
         dependencies: [
             .module(.appFeature),
+            .module(.appLaunchAutomationClient),
             .module(.appModels),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),

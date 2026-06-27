@@ -1,20 +1,42 @@
 import Foundation
 import AppModels
 
-struct AppLaunchAutomation: Sendable {
-    struct LoginCookies: Sendable {
-        let memberID: String
-        let passHash: String
-        let igneous: String?
+public struct AppLaunchAutomation: Sendable {
+    public init(
+        initialTab: TabBarItemType? = nil,
+        autoDownloadGID: String? = nil,
+        downloadFolderName: String? = nil,
+        loginCookies: LoginCookies? = nil,
+        galleryURL: URL? = nil
+    ) {
+        self.initialTab = initialTab
+        self.autoDownloadGID = autoDownloadGID
+        self.downloadFolderName = downloadFolderName
+        self.loginCookies = loginCookies
+        self.galleryURL = galleryURL
+    }
+    public struct LoginCookies: Sendable {
+        public let memberID: String
+        public let passHash: String
+        public let igneous: String?
+        public init(
+            memberID: String,
+            passHash: String,
+            igneous: String? = nil
+        ) {
+            self.memberID = memberID
+            self.passHash = passHash
+            self.igneous = igneous
+        }
     }
 
-    let initialTab: TabBarItemType?
-    let autoDownloadGID: String?
-    let downloadFolderName: String?
-    let loginCookies: LoginCookies?
-    let galleryURL: URL?
+    public let initialTab: TabBarItemType?
+    public let autoDownloadGID: String?
+    public let downloadFolderName: String?
+    public let loginCookies: LoginCookies?
+    public let galleryURL: URL?
 
-    static var current: Self? {
+    public static var current: Self? {
         #if DEBUG
         resolve(environment: ProcessInfo.processInfo.environment)
         #else
@@ -22,7 +44,7 @@ struct AppLaunchAutomation: Sendable {
         #endif
     }
 
-    static func resolve(environment: [String: String]) -> Self? {
+    public static func resolve(environment: [String: String]) -> Self? {
         #if DEBUG
         let initialTab = environment["EHPANDA_AUTOMATION_TAB"]
             .flatMap(parseTab(rawValue:))

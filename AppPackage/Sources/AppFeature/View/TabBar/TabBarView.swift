@@ -122,16 +122,6 @@ struct TabBarView: View {
 }
 
 // MARK: TabType
-enum TabBarItemType: Int, CaseIterable, Identifiable, Sendable {
-    var id: Int { rawValue }
-
-    case home
-    case favorites
-    case search
-    case downloads
-    case setting
-}
-
 extension TabBarItemType {
     var title: String {
         switch self {

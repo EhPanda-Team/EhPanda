@@ -4,6 +4,7 @@ import Testing
 import DownloadClient
 import BackgroundProcessingClient
 import CookieClient
+import AppLaunchAutomationClient
 @testable import AppFeature
 
 @Suite(.serialized)

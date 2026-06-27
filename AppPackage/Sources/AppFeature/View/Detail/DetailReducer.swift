@@ -9,6 +9,7 @@ import DatabaseClient
 import Networking
 import DownloadClient
 import CookieClient
+import AppLaunchAutomationClient
 
 @Reducer
 struct DetailReducer {
