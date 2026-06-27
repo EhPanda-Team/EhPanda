@@ -4,6 +4,8 @@ import FoundationExt
 import HapticsClient
 import DatabaseClient
 import Networking
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct ToplistsReducer {

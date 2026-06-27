@@ -6,6 +6,8 @@ import HapticsClient
 import DatabaseClient
 import FiltersFeature
 import QuickSearchFeature
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct SearchRootReducer {

@@ -7,6 +7,7 @@ import DatabaseClient
 import DownloadClient
 import CookieClient
 import AppLaunchAutomationClient
+@testable import DetailFeature
 @testable import AppFeature
 
 @Suite(.serialized)

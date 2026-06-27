@@ -73,7 +73,7 @@ private enum DownloadDialog: Equatable {
     }
 }
 
-struct DetailView: View {
+public struct DetailView: View {
     @Bindable var store: StoreOf<DetailReducer>
     @State private var downloadDialog: DownloadDialog?
     let gid: String
@@ -82,7 +82,7 @@ struct DetailView: View {
     let blurRadius: Double
     let tagTranslator: TagTranslator
 
-    init(
+    public init(
         store: StoreOf<DetailReducer>, gid: String,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
@@ -94,7 +94,7 @@ struct DetailView: View {
         self.tagTranslator = tagTranslator
     }
 
-    var body: some View {
+    public var body: some View {
         modalModifiers(content: { content })
             .animation(.default, value: store.showsUserRating)
             .animation(.default, value: store.showsFullTitle)

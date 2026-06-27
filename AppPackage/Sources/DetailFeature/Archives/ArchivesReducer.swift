@@ -10,9 +10,9 @@ import CookieClient
 import DesignSystem
 
 @Reducer
-struct ArchivesReducer {
+public struct ArchivesReducer: Sendable {
     @CasePathable
-    enum Route {
+    public enum Route: Sendable {
         case messageHUD
         case communicatingHUD
     }
@@ -22,18 +22,18 @@ struct ArchivesReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var selectedArchive: GalleryArchive.HathArchive?
+    public struct State: Equatable {
+        public var route: Route?
+        public var selectedArchive: GalleryArchive.HathArchive?
 
-        var loadingState: LoadingState = .idle
-        var hathArchives = [GalleryArchive.HathArchive]()
+        public var loadingState: LoadingState = .idle
+        public var hathArchives = [GalleryArchive.HathArchive]()
 
-        var messageHUDConfig: ProgressHUDConfigState = .loading()
-        var communicatingHUDConfig: ProgressHUDConfigState = .communicating
+        public var messageHUDConfig: ProgressHUDConfigState = .loading()
+        public var communicatingHUDConfig: ProgressHUDConfigState = .communicating
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
 
@@ -52,7 +52,9 @@ struct ArchivesReducer {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

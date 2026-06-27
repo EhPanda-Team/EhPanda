@@ -6,6 +6,7 @@ import SwiftUINavigationExt
 import Utilities
 import DesignSystem
 import AppComponents
+import DetailFeature
 
 struct ToplistsView: View {
     @Bindable private var store: StoreOf<ToplistsReducer>

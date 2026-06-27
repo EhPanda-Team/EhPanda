@@ -6,6 +6,8 @@ import HapticsClient
 import DatabaseClient
 import Networking
 import FiltersFeature
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct PopularReducer {

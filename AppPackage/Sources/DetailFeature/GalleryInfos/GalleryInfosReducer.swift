@@ -4,19 +4,19 @@ import ClipboardClient
 import DesignSystem
 
 @Reducer
-struct GalleryInfosReducer {
+public struct GalleryInfosReducer: Sendable {
     @CasePathable
-    enum Route {
+    public enum Route: Sendable {
         case hud
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
+    public struct State: Equatable {
+        public var route: Route?
+        public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case copyText(String)
     }
@@ -24,7 +24,9 @@ struct GalleryInfosReducer {
     @Dependency(\.clipboardClient) private var clipboardClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

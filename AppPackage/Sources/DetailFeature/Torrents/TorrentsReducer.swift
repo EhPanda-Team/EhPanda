@@ -9,9 +9,9 @@ import FileClient
 import DesignSystem
 
 @Reducer
-struct TorrentsReducer {
+public struct TorrentsReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case hud
         case share(URL)
     }
@@ -21,14 +21,14 @@ struct TorrentsReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var torrents = [GalleryTorrent]()
-        var loadingState: LoadingState = .idle
-        var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
+    public struct State: Equatable {
+        public var route: Route?
+        public var torrents = [GalleryTorrent]()
+        public var loadingState: LoadingState = .idle
+        public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
     }
 
-    enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
 
@@ -46,7 +46,9 @@ struct TorrentsReducer {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.fileClient) private var fileClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

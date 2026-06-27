@@ -3,6 +3,7 @@ import Kingfisher
 import ComposableArchitecture
 import Networking
 import AppModels
+import DetailFeature
 
 extension HomeReducer {
     @ReducerBuilder<State, Action>

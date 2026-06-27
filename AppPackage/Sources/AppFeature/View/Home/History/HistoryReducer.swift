@@ -5,6 +5,8 @@ import FoundationExt
 import HapticsClient
 import DatabaseClient
 import DownloadClient
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct HistoryReducer {

@@ -8,6 +8,8 @@ import DownloadClient
 import FiltersFeature
 import DateSeekFeature
 import QuickSearchFeature
+import DetailFeature
+import ComposableArchitectureExt
 
 @Reducer
 struct WatchedReducer {

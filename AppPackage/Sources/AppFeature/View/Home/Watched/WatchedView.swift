@@ -8,6 +8,7 @@ import DesignSystem
 import AppComponents
 import FiltersFeature
 import QuickSearchFeature
+import DetailFeature
 
 struct WatchedView: View {
     @Bindable private var store: StoreOf<WatchedReducer>

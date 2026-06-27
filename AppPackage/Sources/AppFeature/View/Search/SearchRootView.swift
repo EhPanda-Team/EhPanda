@@ -9,6 +9,7 @@ import DesignSystem
 import AppComponents
 import FiltersFeature
 import QuickSearchFeature
+import DetailFeature
 
 struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
