@@ -5,6 +5,7 @@ import ComposableArchitecture
 import Kingfisher
 import UIKit
 import Testing
+import LibraryClient
 @testable import AppFeature
 
 // MARK: - Shared Test Helper Protocol

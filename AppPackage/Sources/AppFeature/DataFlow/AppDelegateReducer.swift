@@ -3,6 +3,7 @@ import BackgroundTasks
 import SwiftyBeaver
 import ComposableArchitecture
 import Utilities
+import LibraryClient
 
 @Reducer
 struct AppDelegateReducer {

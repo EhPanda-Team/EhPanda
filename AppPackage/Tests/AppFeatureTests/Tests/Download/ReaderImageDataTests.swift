@@ -4,6 +4,7 @@ import Testing
 import UIKit
 import FoundationExt
 import Utilities
+import ImageClient
 @testable import AppFeature
 
 @Suite(.serialized)

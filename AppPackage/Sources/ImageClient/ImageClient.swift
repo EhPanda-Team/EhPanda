@@ -7,27 +7,27 @@ import FoundationExt
 import Utilities
 import SDWebImageExt
 
-struct ImageClient: Sendable {
-    struct ImageAsset {
-        let image: UIImage
-        let data: Data
+public struct ImageClient: Sendable {
+    public struct ImageAsset: Sendable {
+        public let image: UIImage
+        public let data: Data
 
         /// Render / export routing for this asset: `true` → SDWebImage (animated),
         /// `false` → Kingfisher / `UIImage` (still). Decided from the actual bytes, not the
         /// request URL. See `Data.isAnimatedImageData`.
-        var isAnimated: Bool {
+        public var isAnimated: Bool {
             data.isAnimatedImageData || image.hasAnimatedFrames
         }
     }
 
-    let prefetchImages: @Sendable ([URL]) -> Void
-    let saveImageDataToPhotoLibrary: @Sendable (Data) async -> Bool
-    var dataCache: DataCache = .shared
-    var urlSession: URLSession = .shared
+    public let prefetchImages: @Sendable ([URL]) -> Void
+    public let saveImageDataToPhotoLibrary: @Sendable (Data) async -> Bool
+    public var dataCache: DataCache = .shared
+    public var urlSession: URLSession = .shared
 }
 
 extension ImageClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         prefetchImages: { urls in
             Task {
                 await withTaskGroup(of: Void.self) { group in
@@ -46,7 +46,7 @@ extension ImageClient {
         }
     )
 
-    static func saveImageDataToPhotoLibrary(_ data: Data) async -> Bool {
+    public static func saveImageDataToPhotoLibrary(_ data: Data) async -> Bool {
         await withCheckedContinuation { continuation in
             PHPhotoLibrary.shared().performChanges {
                 let request = PHAssetCreationRequest.forAsset()
@@ -59,7 +59,7 @@ extension ImageClient {
 
     // Exports read the same owned bytes the reader display caches, so save/share/copy
     // route by image content (DES-1) instead of the request URL's extension.
-    func fetchImageAsset(url: URL) async -> Result<ImageAsset, Error> {
+    public func fetchImageAsset(url: URL) async -> Result<ImageAsset, Error> {
         do {
             let data = try await Self.readerImageData(
                 url: url, dataCache: dataCache, urlSession: urlSession
@@ -73,7 +73,7 @@ extension ImageClient {
         }
     }
 
-    func fetchReaderImageAsset(
+    public func fetchReaderImageAsset(
         url: URL,
         onProgress: (@MainActor @Sendable (Double) -> Void)? = nil
     ) async -> ImageAsset? {
@@ -85,7 +85,7 @@ extension ImageClient {
         return .init(image: image, data: data)
     }
 
-    static func readerImageData(
+    public static func readerImageData(
         url: URL,
         dataCache: DataCache,
         urlSession: URLSession,
@@ -169,14 +169,14 @@ extension ImageClient {
 }
 
 // MARK: API
-enum ImageClientKey: DependencyKey {
-    static let liveValue = ImageClient.live
-    static let previewValue = ImageClient.noop
-    static let testValue = ImageClient.unimplemented
+public enum ImageClientKey: DependencyKey {
+    public static let liveValue = ImageClient.live
+    public static let previewValue = ImageClient.noop
+    public static let testValue = ImageClient.unimplemented
 }
 
 extension DependencyValues {
-    var imageClient: ImageClient {
+    public var imageClient: ImageClient {
         get { self[ImageClientKey.self] }
         set { self[ImageClientKey.self] = newValue }
     }
@@ -184,14 +184,14 @@ extension DependencyValues {
 
 // MARK: Test
 extension ImageClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         prefetchImages: { _ in },
         saveImageDataToPhotoLibrary: { _ in false }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         prefetchImages: IssueReporting.unimplemented(placeholder: placeholder()),
         saveImageDataToPhotoLibrary: IssueReporting.unimplemented(placeholder: placeholder())
     )
