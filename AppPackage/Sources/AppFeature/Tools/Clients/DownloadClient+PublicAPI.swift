@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 // MARK: - Public API
 extension DownloadCoordinator {

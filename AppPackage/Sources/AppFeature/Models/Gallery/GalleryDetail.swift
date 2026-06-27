@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 struct GalleryDetail: Codable, Equatable, Sendable {
     static let empty: Self = .init(

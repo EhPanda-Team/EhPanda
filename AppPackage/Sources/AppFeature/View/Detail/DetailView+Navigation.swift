@@ -1,4 +1,5 @@
 import SwiftUI
+import Resources
 import ComposableArchitecture
 
 // MARK: NavigationLinks

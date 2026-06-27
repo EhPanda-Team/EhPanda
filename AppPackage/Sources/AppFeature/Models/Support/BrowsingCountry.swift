@@ -1,4 +1,5 @@
 import Foundation
+import Resources
 
 // reason: the exhaustive ISO country list is kept dense, one case per line
 // swiftlint:disable line_length

@@ -1,4 +1,5 @@
 import Kanna
+import Resources
 
 extension Parser {
     static func parseResponseError(doc: HTMLDocument) -> AppError? {
