@@ -1,6 +1,8 @@
 import LocalAuthentication
 import AppModels
 import ComposableArchitecture
+import AuthorizationClient
+import UIApplicationClient
 
 @Reducer
 struct GeneralSettingReducer {

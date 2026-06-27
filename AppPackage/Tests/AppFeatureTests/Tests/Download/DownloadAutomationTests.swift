@@ -3,6 +3,10 @@ import AppModels
 import SwiftUI
 import ComposableArchitecture
 import Testing
+import LoggerClient
+import URLClient
+import UserDefaultsClient
+import UIApplicationClient
 @testable import AppFeature
 
 @Suite(.serialized)

@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import Utilities
+import URLClient
 @testable import AppFeature
 
 @Suite(.serialized)

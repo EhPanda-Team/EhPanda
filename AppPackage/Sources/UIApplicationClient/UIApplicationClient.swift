@@ -4,16 +4,16 @@ import ComposableArchitecture
 import FoundationExt
 import Utilities
 
-struct UIApplicationClient: Sendable {
-    let openURL: @MainActor @Sendable (URL) -> Void
-    let hideKeyboard: @Sendable () async -> Void
-    let alternateIconName: @MainActor @Sendable () -> String?
-    let setAlternateIconName: @MainActor @Sendable (String?) async -> Bool
-    let setUserInterfaceStyle: @MainActor @Sendable (UIUserInterfaceStyle) -> Void
+public struct UIApplicationClient: Sendable {
+    public let openURL: @MainActor @Sendable (URL) -> Void
+    public let hideKeyboard: @Sendable () async -> Void
+    public let alternateIconName: @MainActor @Sendable () -> String?
+    public let setAlternateIconName: @MainActor @Sendable (String?) async -> Bool
+    public let setUserInterfaceStyle: @MainActor @Sendable (UIUserInterfaceStyle) -> Void
 }
 
 extension UIApplicationClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         openURL: { url in
             UIApplication.shared.open(url, options: [:])
         },
@@ -41,13 +41,13 @@ extension UIApplicationClient {
         }
     )
     @MainActor
-    func openSettings() {
+    public func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             return openURL(url)
         }
     }
     @MainActor
-    func openFileApp() {
+    public func openFileApp() {
         let dirPath = FileUtil.logsDirectoryURL.path
         if let dirURL = URL(string: "shareddocuments://" + dirPath) {
             return openURL(dirURL)
@@ -56,14 +56,14 @@ extension UIApplicationClient {
 }
 
 // MARK: API
-enum UIApplicationClientKey: DependencyKey {
-    static let liveValue = UIApplicationClient.live
-    static let previewValue = UIApplicationClient.noop
-    static let testValue = UIApplicationClient.unimplemented
+public enum UIApplicationClientKey: DependencyKey {
+    public static let liveValue = UIApplicationClient.live
+    public static let previewValue = UIApplicationClient.noop
+    public static let testValue = UIApplicationClient.unimplemented
 }
 
 extension DependencyValues {
-    var uiApplicationClient: UIApplicationClient {
+    public var uiApplicationClient: UIApplicationClient {
         get { self[UIApplicationClientKey.self] }
         set { self[UIApplicationClientKey.self] = newValue }
     }
@@ -71,7 +71,7 @@ extension DependencyValues {
 
 // MARK: Test
 extension UIApplicationClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         openURL: { _ in},
         hideKeyboard: {},
         alternateIconName: { nil },
@@ -79,9 +79,9 @@ extension UIApplicationClient {
         setUserInterfaceStyle: { _ in }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         openURL: IssueReporting.unimplemented(placeholder: placeholder()),
         hideKeyboard: IssueReporting.unimplemented(placeholder: placeholder()),
         alternateIconName: IssueReporting.unimplemented(placeholder: placeholder()),

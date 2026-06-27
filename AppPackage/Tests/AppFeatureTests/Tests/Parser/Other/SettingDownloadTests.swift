@@ -3,6 +3,7 @@ import AppModels
 import Testing
 import FoundationExt
 import Utilities
+import URLClient
 @testable import AppFeature
 
 struct SettingDownloadTests {

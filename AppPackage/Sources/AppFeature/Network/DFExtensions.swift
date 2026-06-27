@@ -1,6 +1,7 @@
 import Foundation
 import AppModels
 import DeprecatedAPI
+import FoundationExt
 
 // MARK: Global
 private func forceDowncast<T>(object: Any) -> T! {
@@ -14,28 +15,6 @@ private func forceDowncast<T>(object: Any) -> T! {
         ]
     )
     return nil
-}
-
-// MARK: URL
-extension URL {
-    func modifyComponent(for url: URL, commitChanges: (inout URLComponents) -> Void) -> URL? {
-        guard var components = URLComponents(
-            url: self, resolvingAgainstBaseURL: false
-        )
-        else { return nil }
-        commitChanges(&components)
-        return components.url
-    }
-    func replaceHost(to newHost: String?) -> URL? {
-        modifyComponent(for: self) { components in
-            components.host = newHost
-        }
-    }
-    func replaceScheme(to newScheme: String?) -> URL? {
-        modifyComponent(for: self) { components in
-            components.scheme = newScheme
-        }
-    }
 }
 
 // MARK: URLRequest

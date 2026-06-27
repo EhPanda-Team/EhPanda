@@ -2,6 +2,8 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
+import URLClient
+import UIApplicationClient
 
 @Reducer
 struct CommentsReducer {

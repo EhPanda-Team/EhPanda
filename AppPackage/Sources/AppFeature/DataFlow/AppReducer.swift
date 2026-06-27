@@ -1,5 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
+import URLClient
 
 @Reducer
 struct AppReducer {

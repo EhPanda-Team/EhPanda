@@ -1,26 +1,37 @@
 import SwiftUI
 import AppModels
 import Dependencies
+import FoundationExt
 
-struct URLAnalysisResult {
-    let isGalleryImageURL: Bool
-    let pageIndex: Int?
-    let commentID: String?
+public struct URLAnalysisResult: Sendable {
+    public let isGalleryImageURL: Bool
+    public let pageIndex: Int?
+    public let commentID: String?
 }
 
-struct URLClient: Sendable {
-    let checkIfHandleable: @Sendable (URL) -> Bool
-    let checkIfMPVURL: @Sendable (URL?) -> Bool
-    let parseGalleryID: @Sendable (URL) -> String
+public struct URLClient: Sendable {
+    public let checkIfHandleable: @Sendable (URL) -> Bool
+    public let checkIfMPVURL: @Sendable (URL?) -> Bool
+    public let parseGalleryID: @Sendable (URL) -> String
+
+    public init(
+        checkIfHandleable: @escaping @Sendable (URL) -> Bool,
+        checkIfMPVURL: @escaping @Sendable (URL?) -> Bool,
+        parseGalleryID: @escaping @Sendable (URL) -> String
+    ) {
+        self.checkIfHandleable = checkIfHandleable
+        self.checkIfMPVURL = checkIfMPVURL
+        self.parseGalleryID = parseGalleryID
+    }
 }
 
 extension URLClient {
-    static func isMPVURL(_ url: URL?) -> Bool {
+    public static func isMPVURL(_ url: URL?) -> Bool {
         guard let url else { return false }
         return url.pathComponents.count >= 2 && url.pathComponents[1] == "mpv"
     }
 
-    static let live: Self = .init(
+    public static let live: Self = .init(
         checkIfHandleable: { url in
             (url.absoluteString.contains(Defaults.URL.ehentai.absoluteString)
                 || url.absoluteString.contains(Defaults.URL.exhentai.absoluteString))
@@ -38,13 +49,13 @@ extension URLClient {
         }
     )
 
-    func resolveAppSchemeURL(_ url: URL) -> URL? {
+    public func resolveAppSchemeURL(_ url: URL) -> URL? {
         guard url.scheme == "ehpanda",
               let newURL = url.replaceScheme(to: "https")
         else { return url }
         return newURL
     }
-    func analyzeURL(_ url: URL) -> URLAnalysisResult {
+    public func analyzeURL(_ url: URL) -> URLAnalysisResult {
         guard checkIfHandleable(url) else {
             return URLAnalysisResult(isGalleryImageURL: false, pageIndex: nil, commentID: nil)
         }
@@ -71,14 +82,14 @@ extension URLClient {
 }
 
 // MARK: API
-enum URLClientKey: DependencyKey {
-    static let liveValue = URLClient.live
-    static let previewValue = URLClient.noop
-    static let testValue = URLClient.unimplemented
+public enum URLClientKey: DependencyKey {
+    public static let liveValue = URLClient.live
+    public static let previewValue = URLClient.noop
+    public static let testValue = URLClient.unimplemented
 }
 
 extension DependencyValues {
-    var urlClient: URLClient {
+    public var urlClient: URLClient {
         get { self[URLClientKey.self] }
         set { self[URLClientKey.self] = newValue }
     }
@@ -86,15 +97,15 @@ extension DependencyValues {
 
 // MARK: Test
 extension URLClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         checkIfHandleable: { _ in false },
         checkIfMPVURL: { _ in false },
         parseGalleryID: { _ in .init() }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         checkIfHandleable: IssueReporting.unimplemented(placeholder: placeholder()),
         checkIfMPVURL: IssueReporting.unimplemented(placeholder: placeholder()),
         parseGalleryID: IssueReporting.unimplemented(placeholder: placeholder())

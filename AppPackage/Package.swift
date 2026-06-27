@@ -68,10 +68,15 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 enum Module: String {
     case appFeature = "AppFeature"
     case appModels = "AppModels"
+    case authorizationClient = "AuthorizationClient"
     case composableArchitectureExt = "ComposableArchitectureExt"
     case foundationExt = "FoundationExt"
+    case loggerClient = "LoggerClient"
     case resources = "Resources"
     case swiftUINavigationExt = "SwiftUINavigationExt"
+    case uiApplicationClient = "UIApplicationClient"
+    case urlClient = "URLClient"
+    case userDefaultsClient = "UserDefaultsClient"
     case utilities = "Utilities"
 
     // Test targets
@@ -210,10 +215,15 @@ let targets: [PackageDescription.Target] = [
         module: .appFeature,
         dependencies: [
             .module(.appModels),
+            .module(.authorizationClient),
             .module(.composableArchitectureExt),
             .module(.foundationExt),
+            .module(.loggerClient),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.uiApplicationClient),
+            .module(.urlClient),
+            .module(.userDefaultsClient),
             .module(.utilities),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
@@ -286,6 +296,52 @@ let targets: [PackageDescription.Target] = [
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
+    .target(
+        module: .authorizationClient,
+        dependencies: [
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .loggerClient,
+        dependencies: [
+            .module(.appModels),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .uiApplicationClient,
+        dependencies: [
+            .module(.foundationExt),
+            .module(.utilities),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .urlClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.foundationExt),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .userDefaultsClient,
+        dependencies: [
+            .module(.utilities),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
 
     // MARK: Tests
     .testTarget(
@@ -294,6 +350,10 @@ let targets: [PackageDescription.Target] = [
             .module(.appFeature),
             .module(.appModels),
             .module(.foundationExt),
+            .module(.loggerClient),
+            .module(.uiApplicationClient),
+            .module(.urlClient),
+            .module(.userDefaultsClient),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
