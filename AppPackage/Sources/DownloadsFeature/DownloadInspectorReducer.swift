@@ -6,9 +6,9 @@ import DownloadClient
 import DesignSystem
 
 @Reducer
-struct DownloadInspectorReducer {
+public struct DownloadInspectorReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case hud
     }
 
@@ -18,24 +18,24 @@ struct DownloadInspectorReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var gid = ""
-        var inspection: DownloadInspection?
-        var stableInspection: DownloadInspection?
-        var loadingState: LoadingState = .loading
-        var hudConfig: ProgressHUDConfigState = .loading()
-        var inspectionRequestID = UUID()
-        var retryingPageIndices = Set<Int>()
-        var isValidatingImageData = false
+    public struct State: Equatable, Sendable {
+        public var route: Route?
+        public var gid = ""
+        public var inspection: DownloadInspection?
+        public var stableInspection: DownloadInspection?
+        public var loadingState: LoadingState = .loading
+        public var hudConfig: ProgressHUDConfigState = .loading()
+        public var inspectionRequestID = UUID()
+        public var retryingPageIndices = Set<Int>()
+        public var isValidatingImageData = false
 
-        init(gid: String = "") {
+        public init(gid: String = "") {
             self.gid = gid
             loadingState = gid.isEmpty ? .idle : .loading
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
         case teardown
@@ -53,7 +53,9 @@ struct DownloadInspectorReducer {
 
     @Dependency(\.downloadClient) private var downloadClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
 
         Reduce { state, action in

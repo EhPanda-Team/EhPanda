@@ -10,6 +10,7 @@ import DeviceClient
 import HomeFeature
 import SearchFeature
 import FavoritesFeature
+import DownloadsFeature
 
 @Reducer
 struct AppReducer {

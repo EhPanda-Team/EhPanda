@@ -10,7 +10,7 @@ import AppComponents
 import ReadingFeature
 import DetailFeature
 
-struct DownloadsView: View {
+public struct DownloadsView: View {
     private enum RowDialog: Identifiable {
         case delete(DownloadedGallery)
 
@@ -30,7 +30,7 @@ struct DownloadsView: View {
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
-    init(
+    public init(
         store: StoreOf<DownloadsReducer>,
         user: User,
         setting: Binding<Setting>,
@@ -44,7 +44,7 @@ struct DownloadsView: View {
         self.tagTranslator = tagTranslator
     }
 
-    var body: some View {
+    public var body: some View {
         NavigationView {
             if DeviceUtil.isPad {
                 contentView

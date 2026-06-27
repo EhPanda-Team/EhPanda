@@ -8,9 +8,9 @@ import DetailFeature
 import ComposableArchitectureExt
 
 @Reducer
-struct DownloadsReducer {
+public struct DownloadsReducer: Sendable {
     @CasePathable
-    enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case inspector(String)
         case detail(String)
         case reading(String)
@@ -23,22 +23,22 @@ struct DownloadsReducer {
     }
 
     @ObservableState
-    struct State: Equatable {
-        var route: Route?
-        var keyword = ""
-        var folderFilter: DownloadFolderFilter = .all
-        var folders = [String]()
-        var downloads = [DownloadedGallery]()
-        var loadingState: LoadingState = .loading
-        var hasLoadedInitialDownloads = false
+    public struct State: Equatable {
+        public var route: Route?
+        public var keyword = ""
+        public var folderFilter: DownloadFolderFilter = .all
+        public var folders = [String]()
+        public var downloads = [DownloadedGallery]()
+        public var loadingState: LoadingState = .loading
+        public var hasLoadedInitialDownloads = false
 
-        var detailState: Heap<DetailReducer.State?>
-        var readingState = ReadingReducer.State()
-        var inspectorState = DownloadInspectorReducer.State()
-        var folderManagerState = FolderManagerReducer.State()
-        var readingRequestID = UUID()
+        public var detailState: Heap<DetailReducer.State?>
+        public var readingState = ReadingReducer.State()
+        public var inspectorState = DownloadInspectorReducer.State()
+        public var folderManagerState = FolderManagerReducer.State()
+        public var readingRequestID = UUID()
 
-        init() {
+        public init() {
             detailState = .init(.init())
         }
 
@@ -53,7 +53,7 @@ struct DownloadsReducer {
         }
     }
 
-    enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
@@ -87,7 +87,9 @@ struct DownloadsReducer {
 
     @Dependency(\.downloadClient) private var downloadClient
 
-    var body: some Reducer<State, Action> {
+    public init() {}
+
+    public var body: some Reducer<State, Action> {
         BindingReducer()
             .onChange(of: \.route) { _, state in
                 state.route == nil ? .send(.clearSubStates) : .none
