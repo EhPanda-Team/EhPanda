@@ -58,8 +58,8 @@ struct SearchView: View {
             }
             .sheet(item: $store.dateSeek.navigation.sending(\.dateSeek.setNavigation), id: \.self) { navigation in
                 DateSeekPickerView(
-                    navigation: navigation.wrappedValue,
                     selectedDate: $store.dateSeek.date,
+                    navigation: navigation.wrappedValue,
                     seekAction: { store.send(.dateSeek(.performSeek($0))) }
                 )
                 .accentColor(setting.accentColor)

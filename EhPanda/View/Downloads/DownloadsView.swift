@@ -205,7 +205,7 @@ private extension DownloadsView {
                         } label: {
                             Label(
                                 L10n.Localizable.DownloadsView.Swipe.Button.pages,
-                                systemImage: "list.bullet.rectangle.portrait"
+                                systemSymbol: .listBulletRectanglePortrait
                             )
                         }
                         .tint(setting.accentColor)
@@ -229,7 +229,7 @@ private extension DownloadsView {
                             } label: {
                                 Label(
                                     L10n.Localizable.DownloadsView.Swipe.Button.update,
-                                    systemImage: "arrow.triangle.2.circlepath"
+                                    systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                                 )
                             }
                             .tint(.orange)
@@ -243,9 +243,9 @@ private extension DownloadsView {
                                     download.displayStatus == .inactive
                                         ? L10n.Localizable.DownloadsView.Swipe.Button.resume
                                         : L10n.Localizable.DownloadsView.Swipe.Button.pause,
-                                    systemImage: download.displayStatus == .inactive
-                                        ? "play.fill"
-                                        : "pause.fill"
+                                    systemSymbol: download.displayStatus == .inactive
+                                        ? .playFill
+                                        : .pauseFill
                                 )
                             }
                             .tint(download.displayStatus == .inactive ? .green : .indigo)
@@ -269,7 +269,7 @@ private extension DownloadsView {
         } label: {
             Label(
                 L10n.Localizable.DetailView.ContextMenu.Button.detail,
-                systemImage: "info.circle"
+                systemSymbol: .infoCircle
             )
         }
 
@@ -278,7 +278,7 @@ private extension DownloadsView {
         } label: {
             Label(
                 L10n.Localizable.DownloadsView.Swipe.Button.pages,
-                systemImage: "list.bullet.rectangle.portrait"
+                systemSymbol: .listBulletRectanglePortrait
             )
         }
 
@@ -303,7 +303,7 @@ private extension DownloadsView {
             } label: {
                 Label(
                     L10n.Localizable.DownloadsView.Swipe.Button.update,
-                    systemImage: "arrow.triangle.2.circlepath"
+                    systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                 )
             }
         }
@@ -316,9 +316,9 @@ private extension DownloadsView {
                     download.displayStatus == .inactive
                         ? L10n.Localizable.DownloadsView.Swipe.Button.resume
                         : L10n.Localizable.DownloadsView.Swipe.Button.pause,
-                    systemImage: download.displayStatus == .inactive
-                        ? "play.fill"
-                        : "pause.fill"
+                    systemSymbol: download.displayStatus == .inactive
+                        ? .playFill
+                        : .pauseFill
                 )
             }
         }

@@ -58,8 +58,8 @@
 "date_seek_view.title.date_seek" = "日付指定";
 "date_seek_view.title.date" = "日付";
 "date_seek_view.footer.seek_around_date" = "選択した日付付近のギャラリーへ移動します。";
-"date_seek_view.button.seek_newer" = "新しい方へ";
-"date_seek_view.button.seek_older" = "古い方へ";
+"date_seek_view.button.seek_newer" = "新しい方";
+"date_seek_view.button.seek_older" = "古い方";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "ページジャンプ";
 "jump_page_view.button.confirm" = "確認";
