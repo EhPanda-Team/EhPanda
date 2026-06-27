@@ -6,6 +6,7 @@ import DownloadClient
 import BackgroundProcessingClient
 import CookieClient
 import AppLaunchAutomationClient
+import DeviceClient
 
 @Reducer
 struct AppReducer {

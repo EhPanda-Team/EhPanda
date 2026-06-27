@@ -15,6 +15,7 @@ import DownloadClient
 import FileClient
 import CookieClient
 import AppLaunchAutomationClient
+import DeviceClient
 @testable import AppFeature
 
 @Suite(.serialized)
