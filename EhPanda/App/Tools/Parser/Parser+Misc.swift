@@ -27,8 +27,7 @@ extension Parser {
         return apikey
     }
 
-    /// Parses the gallery-list pager. Date-seek navigation is a separate concern parsed via
-    /// `parseDateSeekNavigation`, so the page cursor stays independent of the jumpbar.
+    /// Parses the gallery-list pager.
     static func parsePageNum(doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
