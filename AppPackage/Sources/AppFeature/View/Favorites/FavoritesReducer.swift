@@ -3,6 +3,7 @@ import AppModels
 import IdentifiedCollections
 import ComposableArchitecture
 import SwiftUINavigationExt
+import HapticsClient
 
 @Reducer
 struct FavoritesReducer {

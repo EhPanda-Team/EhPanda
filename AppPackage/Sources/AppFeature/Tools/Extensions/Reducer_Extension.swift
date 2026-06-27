@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
+import HapticsClient
 
 extension Reducer {
     func haptics<Enum: Sendable, Case: Sendable>(

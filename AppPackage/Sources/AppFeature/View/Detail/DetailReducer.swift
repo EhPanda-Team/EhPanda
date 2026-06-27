@@ -4,6 +4,7 @@ import Foundation
 import ComposableArchitecture
 import ComposableArchitectureExt
 import SwiftUINavigationExt
+import HapticsClient
 
 @Reducer
 struct DetailReducer {

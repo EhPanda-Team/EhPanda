@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import HapticsClient
 
 @Reducer
 struct GalleryInfosReducer {

@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import FoundationExt
 import SwiftUINavigationExt
+import HapticsClient
 
 @Reducer
 struct PreviewsReducer {
