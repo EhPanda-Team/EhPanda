@@ -7,6 +7,7 @@ import SwiftUINavigationExt
 import Utilities
 import DesignSystem
 import AppComponents
+import ReadingFeature
 
 struct DownloadsView: View {
     private enum RowDialog: Identifiable {
