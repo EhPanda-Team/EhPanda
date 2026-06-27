@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import URLClient
+import HapticsClient
 
 @Reducer
 struct AppReducer {

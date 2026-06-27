@@ -2,8 +2,8 @@ import SwiftUI
 import AudioToolbox
 
 @MainActor
-struct HapticsUtil {
-    static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+public struct HapticsUtil {
+    public static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         guard !isLegacyTapticEngine else {
             generateLegacyFeedback()
             return
@@ -11,7 +11,7 @@ struct HapticsUtil {
         UIImpactFeedbackGenerator(style: style).impactOccurred()
     }
 
-    static func generateNotificationFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+    public static func generateNotificationFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
         guard !isLegacyTapticEngine else {
             generateLegacyFeedback()
             return

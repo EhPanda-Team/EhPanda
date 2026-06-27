@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import AppModels
 import FoundationExt
+import HapticsClient
 
 @Reducer
 struct ToplistsReducer {

@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import FoundationExt
+import HapticsClient
 
 @Reducer
 struct HistoryReducer {

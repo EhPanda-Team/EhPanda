@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import AppModels
 import Foundation
+import HapticsClient
 
 /// A headless, reusable sub-reducer for the "Seek to date" control.
 ///

@@ -4,6 +4,7 @@ import ComposableArchitecture
 import LoggerClient
 import UserDefaultsClient
 import UIApplicationClient
+import HapticsClient
 
 @Reducer
 struct SettingReducer {

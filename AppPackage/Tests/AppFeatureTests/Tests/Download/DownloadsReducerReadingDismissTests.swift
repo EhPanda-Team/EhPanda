@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Testing
+import HapticsClient
 @testable import AppFeature
 
 struct DownloadsReducerReadingDismissTests {

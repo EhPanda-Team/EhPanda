@@ -7,6 +7,7 @@ import LoggerClient
 import URLClient
 import UserDefaultsClient
 import UIApplicationClient
+import HapticsClient
 @testable import AppFeature
 
 @Suite(.serialized)
