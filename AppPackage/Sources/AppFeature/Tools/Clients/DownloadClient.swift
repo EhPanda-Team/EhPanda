@@ -1,6 +1,7 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
+import Utilities
 
 @DependencyClient
 struct DownloadClient: Sendable {

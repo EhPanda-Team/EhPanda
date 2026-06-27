@@ -8,6 +8,7 @@ import SDWebImageWebPCoder
 import SwiftyBeaver
 import UIImageColors
 import ComposableArchitecture
+import Utilities
 
 struct LibraryClient: Sendable {
     let initializeLogger: @Sendable () -> Void

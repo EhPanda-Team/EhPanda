@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import FoundationExt
+import Utilities
 
 extension EhSettingView {
 

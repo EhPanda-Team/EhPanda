@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
+import Utilities
 
 struct EhSettingView: View {
     @Bindable private var store: StoreOf<EhSettingReducer>

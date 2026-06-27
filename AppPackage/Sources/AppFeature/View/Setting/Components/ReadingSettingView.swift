@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
+import Utilities
 
 struct ReadingSettingView: View {
     @Binding private var readingDirection: ReadingDirection

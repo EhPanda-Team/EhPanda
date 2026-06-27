@@ -3,6 +3,7 @@ import AppModels
 import Colorful
 import Kingfisher
 import UIImageColors
+import Utilities
 
 struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme

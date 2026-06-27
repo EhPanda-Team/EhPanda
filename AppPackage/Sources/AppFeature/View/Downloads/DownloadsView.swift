@@ -4,6 +4,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
+import Utilities
 
 struct DownloadsView: View {
     private enum RowDialog: Identifiable {
