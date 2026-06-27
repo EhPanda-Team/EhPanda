@@ -2,15 +2,15 @@ import SwiftUI
 import Dependencies
 import Utilities
 
-struct DeviceClient: Sendable {
-    let isPad: @Sendable () async -> Bool
-    let absWindowW: @MainActor @Sendable () -> Double
-    let absWindowH: @MainActor @Sendable () -> Double
-    let touchPoint: @MainActor @Sendable () -> CGPoint?
+public struct DeviceClient: Sendable {
+    public let isPad: @Sendable () async -> Bool
+    public let absWindowW: @MainActor @Sendable () -> Double
+    public let absWindowH: @MainActor @Sendable () -> Double
+    public let touchPoint: @MainActor @Sendable () -> CGPoint?
 }
 
 extension DeviceClient {
-    static let live: Self = .init(
+    public static let live: Self = .init(
         isPad: {
             await MainActor.run {
                 DeviceUtil.isPad
@@ -29,14 +29,14 @@ extension DeviceClient {
 }
 
 // MARK: API
-enum DeviceClientKey: DependencyKey {
-    static let liveValue = DeviceClient.live
-    static let previewValue = DeviceClient.noop
-    static let testValue = DeviceClient.unimplemented
+public enum DeviceClientKey: DependencyKey {
+    public static let liveValue = DeviceClient.live
+    public static let previewValue = DeviceClient.noop
+    public static let testValue = DeviceClient.unimplemented
 }
 
 extension DependencyValues {
-    var deviceClient: DeviceClient {
+    public var deviceClient: DeviceClient {
         get { self[DeviceClientKey.self] }
         set { self[DeviceClientKey.self] = newValue }
     }
@@ -44,16 +44,16 @@ extension DependencyValues {
 
 // MARK: Test
 extension DeviceClient {
-    static let noop: Self = .init(
+    public static let noop: Self = .init(
         isPad: { false },
         absWindowW: { .zero },
         absWindowH: { .zero },
         touchPoint: { .zero }
     )
 
-    static func placeholder<Result>() -> Result { fatalError() }
+    public static func placeholder<Result>() -> Result { fatalError() }
 
-    static let unimplemented: Self = .init(
+    public static let unimplemented: Self = .init(
         isPad: IssueReporting.unimplemented(placeholder: placeholder()),
         absWindowW: IssueReporting.unimplemented(placeholder: placeholder()),
         absWindowH: IssueReporting.unimplemented(placeholder: placeholder()),

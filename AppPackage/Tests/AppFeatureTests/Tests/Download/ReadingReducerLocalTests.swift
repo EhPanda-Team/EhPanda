@@ -10,6 +10,7 @@ import DatabaseClient
 import DownloadClient
 import ClipboardClient
 import CookieClient
+import DeviceClient
 @testable import AppFeature
 
 @Suite(.serialized)
