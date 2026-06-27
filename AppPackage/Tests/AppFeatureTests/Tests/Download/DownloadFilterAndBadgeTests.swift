@@ -5,6 +5,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import Testing
 import Utilities
+@testable import DownloadsFeature
 @testable import AppFeature
 
 struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
