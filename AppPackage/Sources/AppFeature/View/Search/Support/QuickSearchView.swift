@@ -4,6 +4,7 @@ import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import DesignSystem
+import AppComponents
 
 struct QuickSearchView: View {
     @Bindable private var store: StoreOf<QuickSearchReducer>

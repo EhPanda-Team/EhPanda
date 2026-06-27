@@ -5,28 +5,28 @@ import SFSafeSymbols
 import Utilities
 import DesignSystem
 
-struct LoadingView: View {
+public struct LoadingView: View {
     private let title: String
 
-    init(title: String = L10n.Localizable.LoadingView.Title.loading) {
+    public init(title: String = L10n.Localizable.LoadingView.Title.loading) {
         self.title = title
     }
 
-    var body: some View {
+    public var body: some View {
         ProgressView(title)
     }
 }
 
-struct FetchMoreFooter: View {
+public struct FetchMoreFooter: View {
     private let loadingState: LoadingState
     private let retryAction: (() -> Void)?
 
-    init(loadingState: LoadingState, retryAction: (() -> Void)?) {
+    public init(loadingState: LoadingState, retryAction: (() -> Void)?) {
         self.loadingState = loadingState
         self.retryAction = retryAction
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(alignment: .center) {
             Spacer()
             ZStack {
@@ -45,14 +45,14 @@ struct FetchMoreFooter: View {
     }
 }
 
-struct NotLoginView: View {
+public struct NotLoginView: View {
     private let action: () -> Void
 
-    init(action: @escaping () -> Void) {
+    public init(action: @escaping () -> Void) {
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         AlertView(
             symbol: .personCropCircleBadgeQuestionmarkFill,
             message: L10n.Localizable.NotLoginView.Title.needLogin
@@ -62,12 +62,12 @@ struct NotLoginView: View {
     }
 }
 
-struct ErrorView: View {
+public struct ErrorView: View {
     private let error: AppError
     private let buttonTitle: String
     private let action: (() -> Void)?
 
-    init(
+    public init(
         error: AppError,
         buttonTitle: String = L10n.Localizable.ErrorView.Button.retry,
         action: (() -> Void)? = nil
@@ -77,7 +77,7 @@ struct ErrorView: View {
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         AlertView(symbol: error.symbol, message: error.alertText) {
             if let action = action {
                 AlertViewButton(title: buttonTitle, action: action)
@@ -86,19 +86,19 @@ struct ErrorView: View {
     }
 }
 
-struct AlertView<Content: View>: View {
+public struct AlertView<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
     private let symbol: SFSymbol
     private let message: String
     private let actions: Content
 
-    init(symbol: SFSymbol, message: String, @ViewBuilder actions: () -> Content) {
+    public init(symbol: SFSymbol, message: String, @ViewBuilder actions: () -> Content) {
         self.symbol = symbol
         self.message = message
         self.actions = actions()
     }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             Image(systemSymbol: symbol).font(.system(size: 50)).padding(.bottom, 15)
             Text(message).multilineTextAlignment(.center).foregroundStyle(.gray)
@@ -109,16 +109,16 @@ struct AlertView<Content: View>: View {
     }
 }
 
-struct AlertViewButton: View {
+public struct AlertViewButton: View {
     private let title: String
     private let action: () -> Void
 
-    init(title: String, action: @escaping () -> Void) {
+    public init(title: String, action: @escaping () -> Void) {
         self.title = title
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: action) {
             Text(title)
                 .foregroundColor(.primary.opacity(0.7))
@@ -129,19 +129,19 @@ struct AlertViewButton: View {
     }
 }
 
-struct PageJumpView: View {
+public struct PageJumpView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Binding private var inputText: String
     private var isFocused: FocusState<Bool>.Binding
     private let pageNumber: PageNumber
 
-    init(inputText: Binding<String>, isFocused: FocusState<Bool>.Binding, pageNumber: PageNumber) {
+    public init(inputText: Binding<String>, isFocused: FocusState<Bool>.Binding, pageNumber: PageNumber) {
         _inputText = inputText
         self.isFocused = isFocused
         self.pageNumber = pageNumber
     }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             Text(L10n.Localizable.JumpPageView.Title.jumpPage).bold()
             HStack {

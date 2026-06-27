@@ -4,7 +4,7 @@ import Utilities
 import DesignSystem
 
 // MARK: CategoryLabel
-struct CategoryLabel: View {
+public struct CategoryLabel: View {
     private let text: String
     private let color: Color
     private let font: Font
@@ -12,7 +12,7 @@ struct CategoryLabel: View {
     private let cornerRadius: CGFloat
     private let corners: UIRectCorner
 
-    init(
+    public init(
         text: String, color: Color, font: Font = .footnote,
         insets: EdgeInsets = .init(top: 1, leading: 3, bottom: 1, trailing: 3),
         cornerRadius: CGFloat = 2, corners: UIRectCorner = .allCorners
@@ -25,7 +25,7 @@ struct CategoryLabel: View {
         self.corners = corners
     }
 
-    var body: some View {
+    public var body: some View {
         Text(text).font(font.bold()).lineLimit(1).foregroundStyle(.white)
             .padding(insets).background(
                 Rectangle().foregroundStyle(color).cornerRadius(cornerRadius, corners: corners)
@@ -34,7 +34,7 @@ struct CategoryLabel: View {
 }
 
 // MARK: CategoryView
-struct CategoryView: View {
+public struct CategoryView: View {
     private let bindings: [Binding<Bool>]
 
     private let gridItems = [
@@ -46,12 +46,12 @@ struct CategoryView: View {
         }
     }
 
-    init?(bindings: [Binding<Bool>]) {
+    public init?(bindings: [Binding<Bool>]) {
         guard bindings.count == 10 else { return nil }
         self.bindings = bindings
     }
 
-    var body: some View {
+    public var body: some View {
         LazyVGrid(columns: gridItems) {
             ForEach(tuples, id: \.1) { isFiltered, category in
                 CategoryCell(isFiltered: isFiltered, category: category)

@@ -2,18 +2,19 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
 import Kingfisher
 import FoundationExt
 import DesignSystem
 
-struct TagCloudView<Element, ID, TagCell>: View
+public struct TagCloudView<Element, ID, TagCell>: View
 where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
     private let data: [Element]
     private let id: KeyPath<Element, ID>
     private let spacing: Double
     private let content: (Element) -> TagCell
 
-    init<Data: RandomAccessCollection>(
+    public init<Data: RandomAccessCollection>(
         data: Data, id: KeyPath<Element, ID> = \Element.id, spacing: Double = 4,
         @ViewBuilder content: @escaping (Element) -> TagCell
     ) where Data.Index == Int, Data.Element == Element {
@@ -23,7 +24,7 @@ where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
         self.content = content
     }
 
-    var body: some View {
+    public var body: some View {
         FlowLayout(spacing: spacing) {
             ForEach(data, id: id) { element in
                 content(element)
@@ -94,7 +95,7 @@ private struct FlowLayout: Layout {
     }
 }
 
-struct TagCloudCell: View {
+public struct TagCloudCell: View {
     private let text: String
     private let imageURL: URL?
     private let showsImages: Bool
@@ -103,7 +104,7 @@ struct TagCloudCell: View {
     private let textColor: Color
     private let backgroundColor: Color
 
-    init(
+    public init(
         text: String, imageURL: URL?, showsImages: Bool, font: Font,
         padding: EdgeInsets, textColor: Color, backgroundColor: Color
     ) {
@@ -116,7 +117,7 @@ struct TagCloudCell: View {
         self.backgroundColor = backgroundColor
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 2) {
             Text(showsImages ? text : text.emojisRipped)
             if let imageURL = imageURL, showsImages {

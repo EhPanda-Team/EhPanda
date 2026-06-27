@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DesignSystem
+import AppComponents
 
 struct TorrentsView: View {
     @Bindable private var store: StoreOf<TorrentsReducer>

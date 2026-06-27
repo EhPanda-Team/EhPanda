@@ -12,12 +12,22 @@ import SwiftUI
 /// - Precondition: `selectedDate` lies within `navigation.dateRange`. The picker renders the
 ///   binding as-is and does not clamp it; keeping the date in range is the responsibility of
 ///   whoever owns the date state (the embedded `DateSeekReducer` does so in its `present` action).
-struct DateSeekPickerView: View {
+public struct DateSeekPickerView: View {
     @Binding var selectedDate: Date
     let navigation: DateSeekNavigation
     let seekAction: (DateSeekDirection) -> Void
 
-    var body: some View {
+    public init(
+        selectedDate: Binding<Date>,
+        navigation: DateSeekNavigation,
+        seekAction: @escaping (DateSeekDirection) -> Void
+    ) {
+        _selectedDate = selectedDate
+        self.navigation = navigation
+        self.seekAction = seekAction
+    }
+
+    public var body: some View {
         NavigationView {
             Form {
                 Section {

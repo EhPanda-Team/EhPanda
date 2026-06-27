@@ -7,6 +7,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
 import DesignSystem
+import AppComponents
 
 struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>

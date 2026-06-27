@@ -6,6 +6,7 @@ import ComposableArchitecture
 import CommonMark
 import Utilities
 import DesignSystem
+import AppComponents
 
 private enum DownloadDialog: Equatable {
     case delete(isActiveDownload: Bool)

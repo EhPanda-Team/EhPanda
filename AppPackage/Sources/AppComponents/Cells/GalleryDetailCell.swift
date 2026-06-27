@@ -1,10 +1,11 @@
 import SwiftUI
+import SFSafeSymbols
 import AppModels
 import Kingfisher
 import DesignSystem
 
-struct GalleryDetailCell: View {
-    enum CoverSource {
+public struct GalleryDetailCell: View {
+    public enum CoverSource {
         case dynamic
         case `static`(URL?)
     }
@@ -17,7 +18,7 @@ struct GalleryDetailCell: View {
     private let translateAction: ((String) -> (String, TagTranslation?))?
     private let downloadBadge: DownloadBadge?
 
-    init(
+    public init(
         gallery: Gallery,
         coverSource: CoverSource = .dynamic,
         setting: Setting,
@@ -40,7 +41,7 @@ struct GalleryDetailCell: View {
         }
     }
 
-    var body: some View {
+    public var body: some View {
         GalleryDetailCellContent(
             gallery: gallery,
             resolvedCoverURL: resolvedCoverURL,

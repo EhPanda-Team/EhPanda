@@ -5,12 +5,12 @@ import Kingfisher
 import FoundationExt
 import DesignSystem
 
-struct PreviewImageView: View {
+public struct PreviewImageView: View {
     private let originalURL: URL?
     private let maxPixelSize: CGFloat
-    private static let defaultMaxPixelSize = Defaults.ImageSize.previewMaxW * 3
+    public static let defaultMaxPixelSize = Defaults.ImageSize.previewMaxW * 3
 
-    init(
+    public init(
         originalURL: URL?,
         maxPixelSize: CGFloat = PreviewImageView.defaultMaxPixelSize
     ) {
@@ -18,7 +18,7 @@ struct PreviewImageView: View {
         self.maxPixelSize = maxPixelSize
     }
 
-    var body: some View {
+    public var body: some View {
         if let originalURL, originalURL.isFileURL {
             LocalPreviewImageView(fileURL: originalURL, maxPixelSize: maxPixelSize) {
                 Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect))

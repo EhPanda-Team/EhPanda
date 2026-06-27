@@ -1,14 +1,15 @@
 import SwiftUI
+import SFSafeSymbols
 import AppModels
 import Resources
 
-struct CustomToolbarItem<Content: View>: ToolbarContent {
+public struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let placement: ToolbarItemPlacement
     private let tint: Color?
     private let disabled: Bool
     private let content: Content
 
-    init(placement: ToolbarItemPlacement = .navigationBarTrailing,
+    public init(placement: ToolbarItemPlacement = .navigationBarTrailing,
          tint: Color? = nil, disabled: Bool = false,
          @ViewBuilder content: () -> Content
     ) {
@@ -18,7 +19,7 @@ struct CustomToolbarItem<Content: View>: ToolbarContent {
         self.content = content()
     }
 
-    var body: some ToolbarContent {
+    public var body: some ToolbarContent {
         ToolbarItem(placement: placement) {
             HStack(spacing: 14) {
                 content
@@ -29,16 +30,16 @@ struct CustomToolbarItem<Content: View>: ToolbarContent {
     }
 }
 
-struct ToolbarFeaturesMenu<Content: View>: View {
+public struct ToolbarFeaturesMenu<Content: View>: View {
     private let content: Content
     private let symbolRenderingMode: SymbolRenderingMode
 
-    init(symbolRenderingMode: SymbolRenderingMode = .monochrome, @ViewBuilder content: () -> Content) {
+    public init(symbolRenderingMode: SymbolRenderingMode = .monochrome, @ViewBuilder content: () -> Content) {
         self.content = content()
         self.symbolRenderingMode = symbolRenderingMode
     }
 
-    var body: some View {
+    public var body: some View {
         Menu {
             content
         } label: {
@@ -48,16 +49,16 @@ struct ToolbarFeaturesMenu<Content: View>: View {
     }
 }
 
-struct FiltersButton: View {
+public struct FiltersButton: View {
     private let hideText: Bool
     private let action: () -> Void
 
-    init(hideText: Bool = false, action: @escaping () -> Void) {
+    public init(hideText: Bool = false, action: @escaping () -> Void) {
         self.hideText = hideText
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: action) {
             Image(systemSymbol: .line3HorizontalDecrease)
             if !hideText {
@@ -67,16 +68,16 @@ struct FiltersButton: View {
     }
 }
 
-struct QuickSearchButton: View {
+public struct QuickSearchButton: View {
     private let hideText: Bool
     private let action: () -> Void
 
-    init(hideText: Bool = false, action: @escaping () -> Void) {
+    public init(hideText: Bool = false, action: @escaping () -> Void) {
         self.hideText = hideText
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
             if !hideText {
@@ -86,18 +87,18 @@ struct QuickSearchButton: View {
     }
 }
 
-struct JumpPageButton: View {
+public struct JumpPageButton: View {
     private let pageNumber: PageNumber
     private let hideText: Bool
     private let action: () -> Void
 
-    init(pageNumber: PageNumber, hideText: Bool = false, action: @escaping () -> Void) {
+    public init(pageNumber: PageNumber, hideText: Bool = false, action: @escaping () -> Void) {
         self.pageNumber = pageNumber
         self.hideText = hideText
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
             if !hideText {
@@ -108,16 +109,16 @@ struct JumpPageButton: View {
     }
 }
 
-struct DateSeekButton: View {
+public struct DateSeekButton: View {
     private let navigation: DateSeekNavigation?
     private let action: (DateSeekNavigation) -> Void
 
-    init(navigation: DateSeekNavigation?, action: @escaping (DateSeekNavigation) -> Void) {
+    public init(navigation: DateSeekNavigation?, action: @escaping (DateSeekNavigation) -> Void) {
         self.navigation = navigation
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Button {
             navigation.map(action)
         } label: {
@@ -127,18 +128,18 @@ struct DateSeekButton: View {
     }
 }
 
-struct FavoritesIndexMenu: View {
+public struct FavoritesIndexMenu: View {
     private let user: User
     private let index: Int
     private let action: (Int) -> Void
 
-    init(user: User, index: Int, action: @escaping (Int) -> Void) {
+    public init(user: User, index: Int, action: @escaping (Int) -> Void) {
         self.user = user
         self.index = index
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Menu {
             ForEach(-1..<10) { index in
                 Button {
@@ -157,16 +158,16 @@ struct FavoritesIndexMenu: View {
     }
 }
 
-struct ToplistsTypeMenu: View {
+public struct ToplistsTypeMenu: View {
     private let type: ToplistsType
     private let action: (ToplistsType) -> Void
 
-    init(type: ToplistsType, action: @escaping (ToplistsType) -> Void) {
+    public init(type: ToplistsType, action: @escaping (ToplistsType) -> Void) {
         self.type = type
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Menu {
             ForEach(ToplistsType.allCases) { type in
                 Button {
@@ -185,16 +186,16 @@ struct ToplistsTypeMenu: View {
     }
 }
 
-struct SortOrderMenu: View {
+public struct SortOrderMenu: View {
     private let sortOrder: FavoritesSortOrder?
     private let action: (FavoritesSortOrder) -> Void
 
-    init(sortOrder: FavoritesSortOrder?, action: @escaping (FavoritesSortOrder) -> Void) {
+    public init(sortOrder: FavoritesSortOrder?, action: @escaping (FavoritesSortOrder) -> Void) {
         self.sortOrder = sortOrder
         self.action = action
     }
 
-    var body: some View {
+    public var body: some View {
         Menu {
             ForEach(FavoritesSortOrder.allCases) { order in
                 Button {

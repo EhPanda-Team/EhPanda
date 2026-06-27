@@ -1,14 +1,15 @@
 import SwiftUI
+import SFSafeSymbols
 import FoundationExt
 
-struct RatingView: View {
+public struct RatingView: View {
     private let rawRating: Float
 
-    init(rating: Float) {
+    public init(rating: Float) {
         self.rawRating = rating
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 0) {
             if rating == 0.0 {
                 ForEach(0..<5) { _ in NotFilledStar() }

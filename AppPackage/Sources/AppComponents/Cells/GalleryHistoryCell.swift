@@ -3,14 +3,14 @@ import AppModels
 import Kingfisher
 import DesignSystem
 
-struct GalleryHistoryCell: View {
+public struct GalleryHistoryCell: View {
     private let gallery: Gallery
 
-    init(gallery: Gallery) {
+    public init(gallery: Gallery) {
         self.gallery = gallery
     }
 
-    var body: some View {
+    public var body: some View {
         HStack(spacing: 20) {
             KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }.defaultModifier()

@@ -6,6 +6,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
 import DesignSystem
+import AppComponents
 
 struct DownloadsView: View {
     private enum RowDialog: Identifiable {

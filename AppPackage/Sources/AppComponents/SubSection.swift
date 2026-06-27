@@ -2,7 +2,7 @@ import SwiftUI
 import Resources
 import Utilities
 
-struct SubSection<Content: View>: View {
+public struct SubSection<Content: View>: View {
     private let title: String
     private let showAll: Bool
     private let tint: Color?
@@ -11,7 +11,7 @@ struct SubSection<Content: View>: View {
     private let showAllAction: () -> Void
     private let content: Content
 
-    init(
+    public init(
         title: String, showAll: Bool = true,
         tint: Color? = nil, isLoading: Bool? = nil,
         reloadAction: (() -> Void)? = nil,
@@ -27,7 +27,7 @@ struct SubSection<Content: View>: View {
         self.content = content()
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading) {
             HStack {
                 Button {
