@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import Testing
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)

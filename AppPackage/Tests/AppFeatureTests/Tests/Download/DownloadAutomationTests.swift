@@ -11,6 +11,7 @@ import HapticsClient
 import LibraryClient
 import DatabaseClient
 import DFClient
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)

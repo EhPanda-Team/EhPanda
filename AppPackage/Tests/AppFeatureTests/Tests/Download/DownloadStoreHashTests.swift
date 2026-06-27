@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import Resources
 import Testing
+import DownloadClient
 @testable import AppFeature
 
 struct DownloadStoreHashTests {

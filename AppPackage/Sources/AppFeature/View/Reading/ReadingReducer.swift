@@ -6,6 +6,7 @@ import HapticsClient
 import ImageClient
 import DatabaseClient
 import Networking
+import DownloadClient
 
 @Reducer
 struct ReadingReducer {

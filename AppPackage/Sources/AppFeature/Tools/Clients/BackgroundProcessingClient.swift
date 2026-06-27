@@ -1,6 +1,7 @@
 import BackgroundTasks
 import AppModels
 import ComposableArchitecture
+import DownloadClient
 
 enum BackgroundProcessing {
     /// Fixed task identifier, independent of the bundle id. Must stay in sync with the

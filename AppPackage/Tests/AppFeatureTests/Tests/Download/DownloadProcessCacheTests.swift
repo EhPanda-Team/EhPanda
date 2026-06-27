@@ -4,6 +4,7 @@ import Foundation
 import Testing
 import FoundationExt
 import LibraryClient
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)

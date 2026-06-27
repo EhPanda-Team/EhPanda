@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import FoundationExt
+import DownloadClient
 
 @Reducer
 struct DownloadsReducer {

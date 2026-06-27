@@ -2,6 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 import URLClient
 import HapticsClient
+import DownloadClient
 
 @Reducer
 struct AppReducer {

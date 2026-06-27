@@ -4,6 +4,7 @@ import ComposableArchitecture
 import Testing
 import HapticsClient
 import DatabaseClient
+import DownloadClient
 @testable import AppFeature
 
 @Suite(.serialized)

@@ -2,6 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
+import DownloadClient
 
 @Reducer
 struct FolderManagerReducer {
