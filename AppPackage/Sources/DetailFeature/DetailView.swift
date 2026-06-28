@@ -4,7 +4,7 @@ import Resources
 import Kingfisher
 import ComposableArchitecture
 import CommonMark
-import Utilities
+import AppTools
 import AppComponents
 import ReadingFeature
 

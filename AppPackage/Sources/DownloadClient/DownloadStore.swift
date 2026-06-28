@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import Resources
 import CryptoKit
-import Utilities
+import AppTools
 
 public enum DownloadValidationState: Equatable, Sendable {
     case valid

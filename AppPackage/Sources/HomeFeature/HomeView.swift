@@ -5,7 +5,7 @@ import Kingfisher
 import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import AppComponents
 import DetailFeature
 

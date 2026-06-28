@@ -2,7 +2,7 @@ import CoreData
 import AppModels
 import Foundation
 import Testing
-import Utilities
+import AppTools
 import DatabaseClient
 import DownloadClient
 import AppLaunchAutomationClient

@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import AppModels
 import Foundation
-import Utilities
+import AppTools
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient

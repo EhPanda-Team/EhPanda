@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import Testing
-import Utilities
+import AppTools
 import URLClient
 import HapticsClient
 import ImageClient

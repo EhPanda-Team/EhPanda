@@ -4,7 +4,7 @@ import AppComponents
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import TTProgressHUDExt
 
 struct AccountSettingView: View {

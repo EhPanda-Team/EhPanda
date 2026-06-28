@@ -3,7 +3,7 @@ import AppModels
 import SwiftUI
 import Combine
 import ComposableArchitecture
-import Utilities
+import AppTools
 import AnimatedImageFeature
 
 public struct ImageClient: Sendable {

@@ -1,5 +1,5 @@
 import UIKit
-import Utilities
+import AppTools
 
 /// The app's current supported-interface-orientation mask. The orientation lock is
 /// owned by the orientation-setting client (written through `AppDelegateClient`), and

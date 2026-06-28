@@ -1,6 +1,6 @@
 import ComposableArchitecture
 import AppModels
-import Utilities
+import AppTools
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature

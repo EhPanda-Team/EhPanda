@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import SwiftyBeaverExt
 import DeprecatedAPI
-import Utilities
+import AppTools
 
 // MARK: Global
 private func forceDowncast<T>(object: Any) -> T! {

@@ -1,6 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
-import Utilities
+import AppTools
 
 public struct HapticsClient: Sendable {
     public let generateFeedback: @MainActor @Sendable (UIImpactFeedbackGenerator.FeedbackStyle) -> Void

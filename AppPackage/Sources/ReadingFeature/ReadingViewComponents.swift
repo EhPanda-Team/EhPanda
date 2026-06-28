@@ -5,7 +5,7 @@ import Kingfisher
 import SDWebImage
 import SDWebImageSwiftUI
 import ComposableArchitecture
-import Utilities
+import AppTools
 import ImageClient
 import AppComponents
 import SFSafeSymbols

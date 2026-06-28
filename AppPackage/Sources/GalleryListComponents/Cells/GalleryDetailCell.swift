@@ -3,7 +3,7 @@ import SFSafeSymbols
 import AppModels
 import AppComponents
 import Kingfisher
-import Utilities
+import AppTools
 
 public struct GalleryDetailCell: View {
     public enum CoverSource {

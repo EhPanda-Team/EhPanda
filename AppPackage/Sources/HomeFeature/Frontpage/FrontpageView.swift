@@ -4,7 +4,7 @@ import Resources
 import AlertKit
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import AppComponents
 import DateSeekFeature
 import GalleryListComponents

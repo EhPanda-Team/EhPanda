@@ -8,7 +8,7 @@ import SDWebImageWebPCoder
 import SwiftyBeaver
 import UIImageColors
 import ComposableArchitecture
-import Utilities
+import AppTools
 import AnimatedImageFeature
 
 public struct LibraryClient: Sendable {

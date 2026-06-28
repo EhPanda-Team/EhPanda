@@ -4,7 +4,7 @@ import SwiftyBeaverExt
 import Combine
 import CoreData
 import ComposableArchitecture
-import Utilities
+import AppTools
 
 public struct DatabaseClient: Sendable {
     public let prepareDatabase: @Sendable () async -> Result<Void, AppError>
