@@ -5,7 +5,6 @@ import ComposableArchitecture
 import FoundationExt
 import SwiftUINavigationExt
 import Utilities
-import DesignSystem
 import AppComponents
 import FiltersFeature
 import QuickSearchFeature

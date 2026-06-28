@@ -1,5 +1,5 @@
 import SwiftUI
-import DesignSystem
+import AppComponents
 
 struct PostCommentView: View {
     private let title: String

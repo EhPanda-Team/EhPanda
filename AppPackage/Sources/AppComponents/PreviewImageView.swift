@@ -3,7 +3,6 @@ import AppModels
 import ImageIO
 import Kingfisher
 import FoundationExt
-import DesignSystem
 
 public struct PreviewImageView: View {
     private let originalURL: URL?

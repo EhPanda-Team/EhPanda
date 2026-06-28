@@ -5,7 +5,6 @@ import AlertKit
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
-import DesignSystem
 import AppComponents
 import FiltersFeature
 import DetailFeature
