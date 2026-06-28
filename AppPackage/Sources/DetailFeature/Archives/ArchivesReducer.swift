@@ -5,7 +5,7 @@ import ComposableArchitecture
 import FoundationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import CookieClient
 import DesignSystem
 

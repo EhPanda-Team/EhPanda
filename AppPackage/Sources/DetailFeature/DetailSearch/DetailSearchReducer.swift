@@ -3,7 +3,7 @@ import AppModels
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import FiltersFeature
 import QuickSearchFeature
 import ComposableArchitectureExt

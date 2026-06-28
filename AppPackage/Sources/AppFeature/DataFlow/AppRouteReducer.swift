@@ -6,7 +6,7 @@ import URLClient
 import UserDefaultsClient
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import ClipboardClient
 import DesignSystem
 import DetailFeature

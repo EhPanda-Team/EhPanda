@@ -3,7 +3,7 @@ import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
-import Networking
+import NetworkingFeature
 import CookieClient
 
 @Reducer

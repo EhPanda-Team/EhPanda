@@ -1,7 +1,7 @@
 import Foundation
 import ComposableArchitecture
 import FoundationExt
-import Networking
+import NetworkingFeature
 
 // MARK: - Image URL Fetch Actions
 extension ReadingReducer {

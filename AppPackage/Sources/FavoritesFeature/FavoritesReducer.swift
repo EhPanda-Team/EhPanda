@@ -5,7 +5,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import DownloadClient
 import DateSeekFeature
 import QuickSearchFeature
