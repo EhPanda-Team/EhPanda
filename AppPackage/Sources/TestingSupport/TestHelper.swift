@@ -1,13 +1,10 @@
 import Kanna
-import Testing
 import Foundation
 
-protocol TestHelper {}
-
-final class TestBundleLocator {}
+public protocol TestHelper {}
 
 extension TestHelper {
-    func htmlDocument(filename: HTMLFilename) throws -> HTMLDocument {
+    public func htmlDocument(filename: HTMLFilename) throws -> HTMLDocument {
         guard let url = Bundle.module
                 .url(forResource: filename.rawValue, withExtension: "html")
         else {

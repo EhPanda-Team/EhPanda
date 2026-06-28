@@ -1,3 +1,4 @@
+import TestingSupport
 import Kanna
 import AppModels
 import Testing

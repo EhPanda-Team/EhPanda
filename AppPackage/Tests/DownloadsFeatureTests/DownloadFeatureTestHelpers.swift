@@ -1,3 +1,4 @@
+import TestingSupport
 import AppTools
 import Foundation
 import AppModels
@@ -207,7 +208,7 @@ extension DownloadFeatureTestCase {
         pathExtension: String
     ) throws -> Data {
         let fixtureURL = try #require(
-            Bundle.module.url(forResource: resource, withExtension: pathExtension)
+            TestFixtures.url(forResource: resource, withExtension: pathExtension)
         )
         return try Data(contentsOf: fixtureURL)
     }
