@@ -1,6 +1,6 @@
 import Kanna
 import Testing
-import Parser
+import ParserFeature
 @testable import AppFeature
 
 struct GalleryDetailParserTests: TestHelper {

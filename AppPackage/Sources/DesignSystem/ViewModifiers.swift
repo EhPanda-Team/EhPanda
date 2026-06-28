@@ -2,7 +2,7 @@ import SwiftUI
 import Kingfisher
 import SFSafeSymbols
 import FoundationExt
-import Parser
+import ParserFeature
 
 extension View {
     public func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {

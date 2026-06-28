@@ -3,7 +3,7 @@ import AppModels
 import Combine
 import Foundation
 import Utilities
-import Parser
+import ParserFeature
 
 // MARK: Fetch ListItems
 public struct SearchGalleriesRequest: Request {
