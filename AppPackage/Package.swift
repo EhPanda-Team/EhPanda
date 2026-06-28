@@ -75,6 +75,7 @@ enum Module: String {
     case appFeature = "AppFeature"
     case appLaunchAutomationClient = "AppLaunchAutomationClient"
     case appModels = "AppModels"
+    case appTools = "AppTools"
     case authorizationClient = "AuthorizationClient"
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
@@ -113,7 +114,6 @@ enum Module: String {
     case uiApplicationClient = "UIApplicationClient"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
-    case utilities = "Utilities"
 
     // Test targets
     case appFeatureTests = "AppFeatureTests"
@@ -254,6 +254,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appDelegateClient),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
+            .module(.appTools),
             .module(.authorizationClient),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
@@ -289,7 +290,6 @@ let targets: [PackageDescription.Target] = [
             .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),
-            .module(.utilities),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.commonMark),
@@ -340,7 +340,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .deviceClient,
         dependencies: [
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -350,6 +350,7 @@ let targets: [PackageDescription.Target] = [
         module: .downloadClient,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.databaseClient),
             .module(.libraryClient),
             .module(.networkingFeature),
@@ -358,7 +359,6 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.swiftyBeaverExt),
             .module(.urlClient),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna)
         ],
@@ -369,7 +369,7 @@ let targets: [PackageDescription.Target] = [
         module: .fileClient,
         dependencies: [
             .module(.appModels),
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -395,7 +395,7 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .utilities,
+        module: .appTools,
         dependencies: [
             .module(.appModels)
         ],
@@ -405,7 +405,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appDelegateClient,
         dependencies: [
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -451,8 +451,8 @@ let targets: [PackageDescription.Target] = [
         module: .cookieClient,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.resources),
-            .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -472,10 +472,10 @@ let targets: [PackageDescription.Target] = [
         module: .networkingFeature,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.openCCExt),
             .module(.parserFeature),
             .module(.swiftyBeaverExt),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
             .targetDependency(.kanna)
@@ -487,8 +487,8 @@ let targets: [PackageDescription.Target] = [
         module: .databaseClient,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.swiftyBeaverExt),
-            .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
         resources: [.process(.resources)],
@@ -498,8 +498,8 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .hapticsClient,
         dependencies: [
+            .module(.appTools),
             .module(.swiftUINavigationExt),
-            .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -509,9 +509,9 @@ let targets: [PackageDescription.Target] = [
         module: .appComponents,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.parserFeature),
             .module(.resources),
-            .module(.utilities),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],
@@ -523,8 +523,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.resources),
-            .module(.utilities),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.waterfallGrid)
@@ -619,8 +619,8 @@ let targets: [PackageDescription.Target] = [
         module: .readingSettingFeature,
         dependencies: [
             .module(.appModels),
-            .module(.resources),
-            .module(.utilities)
+            .module(.appTools),
+            .module(.resources)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -644,6 +644,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.composableArchitectureExt),
             .module(.detailFeature),
             .module(.downloadClient),
@@ -652,7 +653,6 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
@@ -664,6 +664,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
@@ -675,7 +676,6 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
-            .module(.utilities),
             .targetDependency(.alertKit),
             .targetDependency(.composableArchitecture)
         ],
@@ -688,6 +688,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appDelegateClient),
             .module(.appModels),
+            .module(.appTools),
             .module(.authorizationClient),
             .module(.clipboardClient),
             .module(.cookieClient),
@@ -706,7 +707,6 @@ let targets: [PackageDescription.Target] = [
             .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.userDefaultsClient),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.filePicker),
             .targetDependency(.sfSafeSymbols)
@@ -719,6 +719,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
@@ -731,7 +732,6 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
@@ -745,6 +745,7 @@ let targets: [PackageDescription.Target] = [
             .module(.alertKitExt),
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
@@ -758,7 +759,6 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
-            .module(.utilities),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.composableArchitecture),
@@ -776,6 +776,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
+            .module(.appTools),
             .module(.clipboardClient),
             .module(.composableArchitectureExt),
             .module(.cookieClient),
@@ -793,7 +794,6 @@ let targets: [PackageDescription.Target] = [
             .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
-            .module(.utilities),
             .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
@@ -808,6 +808,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appDelegateClient),
             .module(.appModels),
+            .module(.appTools),
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.databaseClient),
@@ -823,7 +824,6 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
             .module(.urlClient),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
@@ -839,7 +839,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.animatedImageFeature),
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -850,7 +850,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.animatedImageFeature),
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
@@ -875,9 +875,9 @@ let targets: [PackageDescription.Target] = [
         module: .parserFeature,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.resources),
             .module(.swiftyBeaverExt),
-            .module(.utilities),
             .targetDependency(.kanna)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -886,7 +886,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .uiApplicationClient,
         dependencies: [
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -896,7 +896,7 @@ let targets: [PackageDescription.Target] = [
         module: .urlClient,
         dependencies: [
             .module(.appModels),
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -905,7 +905,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .userDefaultsClient,
         dependencies: [
-            .module(.utilities),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -920,6 +920,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appFeature),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
+            .module(.appTools),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.cookieClient),
@@ -941,7 +942,6 @@ let targets: [PackageDescription.Target] = [
             .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),
-            .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna),
             .targetDependency(.kingfisher),

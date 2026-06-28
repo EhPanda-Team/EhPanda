@@ -2,7 +2,7 @@ import SwiftUI
 import AppModels
 import ImageIO
 import Kingfisher
-import Utilities
+import AppTools
 
 public struct PreviewImageView: View {
     private let originalURL: URL?

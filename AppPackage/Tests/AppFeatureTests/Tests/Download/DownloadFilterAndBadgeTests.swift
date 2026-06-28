@@ -4,7 +4,7 @@ import Foundation
 import SFSafeSymbols
 import ComposableArchitecture
 import Testing
-import Utilities
+import AppTools
 @testable import DownloadsFeature
 @testable import AppFeature
 

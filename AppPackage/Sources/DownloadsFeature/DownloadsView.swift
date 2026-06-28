@@ -4,7 +4,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import AppComponents
 import ReadingFeature
 import DetailFeature

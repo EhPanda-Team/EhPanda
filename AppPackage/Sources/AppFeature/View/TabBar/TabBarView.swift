@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import Utilities
+import AppTools
 import TTProgressHUDExt
 import AppComponents
 import DetailFeature

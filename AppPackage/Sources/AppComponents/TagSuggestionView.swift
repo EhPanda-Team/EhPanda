@@ -4,7 +4,7 @@ import AppModels
 import Resources
 import Kingfisher
 import Observation
-import Utilities
+import AppTools
 
 public struct TagSuggestionView: View {
     @Binding private var keyword: String

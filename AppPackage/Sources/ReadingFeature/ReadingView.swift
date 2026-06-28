@@ -5,7 +5,7 @@ import Observation
 import SFSafeSymbols
 import SwiftUIPager
 import ComposableArchitecture
-import Utilities
+import AppTools
 import AnimatedImageFeature
 import TTProgressHUDExt
 import AppComponents

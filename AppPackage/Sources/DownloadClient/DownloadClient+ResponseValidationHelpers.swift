@@ -2,7 +2,7 @@ import Kanna
 import AppModels
 import Foundation
 import ImageIO
-import Utilities
+import AppTools
 import AnimatedImageFeature
 import ParserFeature
 

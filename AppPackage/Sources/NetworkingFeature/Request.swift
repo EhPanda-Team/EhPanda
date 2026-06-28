@@ -4,7 +4,7 @@ import Combine
 import Foundation
 import ComposableArchitecture
 import OpenCCExt
-import Utilities
+import AppTools
 import ParserFeature
 
 public protocol Request {

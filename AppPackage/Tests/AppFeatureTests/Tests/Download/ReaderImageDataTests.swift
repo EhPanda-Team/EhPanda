@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import Testing
 import UIKit
-import Utilities
+import AppTools
 import ImageClient
 @testable import AppFeature
 

@@ -2,7 +2,7 @@ import SwiftUI
 import Kingfisher
 import TTProgressHUD
 import ComposableArchitecture
-import Utilities
+import AppTools
 import SwiftUINavigationExt
 
 // MARK: - CancelID

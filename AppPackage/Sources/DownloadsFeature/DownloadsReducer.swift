@@ -1,7 +1,7 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
-import Utilities
+import AppTools
 import DownloadClient
 import ReadingFeature
 import DetailFeature

@@ -1,6 +1,6 @@
 import SwiftUI
 import AppModels
-import Utilities
+import AppTools
 
 // MARK: CategoryLabel
 public struct CategoryLabel: View {

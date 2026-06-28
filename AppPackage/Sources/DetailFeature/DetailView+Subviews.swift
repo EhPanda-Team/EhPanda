@@ -2,7 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import Kingfisher
-import Utilities
+import AppTools
 import AppComponents
 
 // MARK: DescriptionSection

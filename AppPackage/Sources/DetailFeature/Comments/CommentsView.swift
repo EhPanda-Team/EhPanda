@@ -4,7 +4,7 @@ import Resources
 import Kingfisher
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import TTProgressHUDExt
 import AppComponents
 

@@ -1,6 +1,6 @@
 import SwiftUI
 import SFSafeSymbols
-import Utilities
+import AppTools
 
 // MARK: DoubleVerticalKeywordsStack
 struct DoubleVerticalKeywordsStack: View {

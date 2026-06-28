@@ -4,7 +4,7 @@ import Resources
 import Kingfisher
 import SwiftUIPager
 import SFSafeSymbols
-import Utilities
+import AppTools
 import AppComponents
 
 // MARK: CardSlideSection

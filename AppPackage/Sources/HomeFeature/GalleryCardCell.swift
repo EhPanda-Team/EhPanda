@@ -4,7 +4,7 @@ import AppComponents
 import Colorful
 import Kingfisher
 import UIImageColors
-import Utilities
+import AppTools
 
 public struct GalleryCardCell: View {
     @Environment(\.colorScheme) private var colorScheme

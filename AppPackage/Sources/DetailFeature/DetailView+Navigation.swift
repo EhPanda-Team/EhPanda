@@ -2,7 +2,7 @@ import SwiftUI
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import AppComponents
 
 // MARK: NavigationLinks
