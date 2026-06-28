@@ -5,7 +5,7 @@ import URLClient
 import HapticsClient
 import ImageClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import DownloadClient
 import ClipboardClient
 import CookieClient

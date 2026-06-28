@@ -94,7 +94,7 @@ enum Module: String {
     case libraryClient = "LibraryClient"
     case loggerClient = "LoggerClient"
     case migrationFeature = "MigrationFeature"
-    case networking = "Networking"
+    case networkingFeature = "NetworkingFeature"
     case parserFeature = "ParserFeature"
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
@@ -270,7 +270,7 @@ let targets: [PackageDescription.Target] = [
             .module(.libraryClient),
             .module(.loggerClient),
             .module(.migrationFeature),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.parserFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),
@@ -348,7 +348,7 @@ let targets: [PackageDescription.Target] = [
             .module(.databaseClient),
             .module(.foundationExt),
             .module(.libraryClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.parserFeature),
             .module(.resources),
             .module(.sdWebImageExt),
@@ -450,7 +450,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .dfClient,
         dependencies: [
-            .module(.networking),
+            .module(.networkingFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher)
         ],
@@ -458,7 +458,7 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .networking,
+        module: .networkingFeature,
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
@@ -620,7 +620,7 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.hapticsClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
@@ -649,7 +649,7 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.loggerClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.uiApplicationClient),
@@ -676,7 +676,7 @@ let targets: [PackageDescription.Target] = [
             .module(.filtersFeature),
             .module(.foundationExt),
             .module(.hapticsClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
@@ -702,7 +702,7 @@ let targets: [PackageDescription.Target] = [
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.libraryClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
@@ -732,7 +732,7 @@ let targets: [PackageDescription.Target] = [
             .module(.filtersFeature),
             .module(.foundationExt),
             .module(.hapticsClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),
             .module(.resources),
@@ -763,7 +763,7 @@ let targets: [PackageDescription.Target] = [
             .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.resources),
             .module(.sdWebImageExt),
             .module(.swiftUINavigationExt),
@@ -881,7 +881,7 @@ let targets: [PackageDescription.Target] = [
             .module(.imageClient),
             .module(.libraryClient),
             .module(.loggerClient),
-            .module(.networking),
+            .module(.networkingFeature),
             .module(.parserFeature),
             .module(.readingFeature),
             .module(.sdWebImageExt),

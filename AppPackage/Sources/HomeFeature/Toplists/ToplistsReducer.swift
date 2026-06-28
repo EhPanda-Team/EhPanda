@@ -3,7 +3,7 @@ import AppModels
 import FoundationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import DetailFeature
 import ComposableArchitectureExt
 

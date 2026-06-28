@@ -1,7 +1,7 @@
 import Foundation
 import Kingfisher
 import ComposableArchitecture
-import Networking
+import NetworkingFeature
 
 public struct DFClient: Sendable {
     public let setActive: @Sendable (Bool) -> Void

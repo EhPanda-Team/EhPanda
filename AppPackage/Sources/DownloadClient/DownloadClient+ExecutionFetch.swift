@@ -1,6 +1,6 @@
 import Foundation
 import AppModels
-import Networking
+import NetworkingFeature
 
 // MARK: - Fetch & Normalize Payload
 extension DownloadCoordinator {

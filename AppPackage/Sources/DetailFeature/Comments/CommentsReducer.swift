@@ -6,7 +6,7 @@ import URLClient
 import UIApplicationClient
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import CookieClient
 import DesignSystem
 import ComposableArchitectureExt
