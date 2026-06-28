@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import Resources
+import Utilities
 import AppComponents
 
 extension EhSettingView {
@@ -40,7 +41,7 @@ struct FavoritesSection: View {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
                     Circle()
-                        .foregroundColor(category.color)
+                        .foregroundColor(category.color(host: AppUtil.galleryHost))
                         .frame(width: 10)
 
                     SettingTextField(text: nameBinding, width: nil, alignment: .leading, background: .clear)

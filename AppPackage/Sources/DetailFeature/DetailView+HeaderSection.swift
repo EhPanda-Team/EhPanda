@@ -4,7 +4,6 @@ import Resources
 import Kingfisher
 import SFSafeSymbols
 import Utilities
-import DesignSystem
 import AppComponents
 
 // MARK: HeaderSection
@@ -56,7 +55,7 @@ struct HeaderSection: View {
     }
     private var categoryLabel: some View {
         CategoryLabel(
-            text: gallery.category.value, color: gallery.color, font: .headline,
+            text: gallery.category.value, color: gallery.color(host: AppUtil.galleryHost), font: .headline,
             insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4), cornerRadius: 3
         )
         .lineLimit(1)
