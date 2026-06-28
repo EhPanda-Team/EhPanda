@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import TagTranslationFeature
 import Resources
 import Kingfisher
 import AppTools
