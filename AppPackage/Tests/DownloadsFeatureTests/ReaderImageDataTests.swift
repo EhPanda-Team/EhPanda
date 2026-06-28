@@ -1,3 +1,4 @@
+import TestingSupport
 import Foundation
 import AppModels
 import Testing
@@ -300,7 +301,7 @@ struct ReaderImageDataTests {
 
     private func fixtureData(resource: String, pathExtension: String) throws -> Data {
         let fixtureURL = try #require(
-            Bundle.module.url(forResource: resource, withExtension: pathExtension)
+            TestFixtures.url(forResource: resource, withExtension: pathExtension)
         )
         return try Data(contentsOf: fixtureURL)
     }

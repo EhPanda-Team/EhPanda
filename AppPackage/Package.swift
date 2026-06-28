@@ -116,8 +116,12 @@ enum Module: String {
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
 
+    // Test support
+    case testingSupport = "TestingSupport"
+
     // Test targets
-    case appFeatureTests = "AppFeatureTests"
+    case parserFeatureTests = "ParserFeatureTests"
+    case downloadsFeatureTests = "DownloadsFeatureTests"
 }
 
 extension Module {
@@ -933,10 +937,38 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
 
+    // MARK: Test Support
+    .target(
+        module: .testingSupport,
+        dependencies: [
+            .targetDependency(.kanna)
+        ],
+        resources: [.process(.resources)],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+
     // MARK: Tests
     .testTarget(
-        module: .appFeatureTests,
+        module: .parserFeatureTests,
         dependencies: [
+            .module(.testingSupport),
+            .module(.animatedImageFeature),
+            .module(.appFeature),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.networkingFeature),
+            .module(.parserFeature),
+            .module(.urlClient),
+            .targetDependency(.kanna)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .downloadsFeatureTests,
+        dependencies: [
+            .module(.testingSupport),
             .module(.appDelegateClient),
             .module(.appFeature),
             .module(.appLaunchAutomationClient),
@@ -958,17 +990,13 @@ let targets: [PackageDescription.Target] = [
             .module(.libraryClient),
             .module(.loggerClient),
             .module(.networkingFeature),
-            .module(.parserFeature),
             .module(.readingFeature),
-            .module(.animatedImageFeature),
             .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.kanna),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],
-        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     )
@@ -980,7 +1008,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [.iOS(.v26)],
     products: targets
-        .filter({ !$0.isTest })
+        .filter({ !$0.isTest && $0.name != Module.testingSupport.rawValue })
         .map(\.name)
         .map({ .library(name: $0, targets: [$0]) }),
     dependencies: dependencies,

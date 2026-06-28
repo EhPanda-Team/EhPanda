@@ -1,6 +1,4 @@
-import AppModels
-
-enum HTMLFilename: String {
+public enum HTMLFilename: String {
     // List
     // FrontPage
     case frontPageMinimalList = "FrontPageMinimalList"

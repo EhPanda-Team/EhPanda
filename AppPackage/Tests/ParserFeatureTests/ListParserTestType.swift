@@ -1,3 +1,4 @@
+import TestingSupport
 enum ListParserTestType: CaseIterable {
     // FrontPage
     case frontPageMinimalList
