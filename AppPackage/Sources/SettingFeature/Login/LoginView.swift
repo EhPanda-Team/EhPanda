@@ -2,7 +2,6 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import DesignSystem
 import AppComponents
 
 struct LoginView: View {

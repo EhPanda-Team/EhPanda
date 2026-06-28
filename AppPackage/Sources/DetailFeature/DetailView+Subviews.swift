@@ -4,7 +4,6 @@ import Resources
 import Kingfisher
 import FoundationExt
 import Utilities
-import DesignSystem
 import AppComponents
 
 // MARK: DescriptionSection
