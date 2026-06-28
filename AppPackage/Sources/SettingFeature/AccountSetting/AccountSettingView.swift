@@ -5,7 +5,7 @@ import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
-import DesignSystem
+import TTProgressHUDExt
 
 struct AccountSettingView: View {
     @Bindable private var store: StoreOf<AccountSettingReducer>

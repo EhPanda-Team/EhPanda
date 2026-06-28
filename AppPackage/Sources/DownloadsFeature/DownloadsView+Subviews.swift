@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import DesignSystem
+import TTProgressHUDExt
 import AppComponents
 
 struct DownloadInspectorView: View {

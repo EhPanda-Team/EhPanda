@@ -7,7 +7,7 @@ import ComposableArchitecture
 import FoundationExt
 import Utilities
 import AnimatedImageFeature
-import DesignSystem
+import TTProgressHUDExt
 import AppComponents
 
 public struct ReadingView: View {

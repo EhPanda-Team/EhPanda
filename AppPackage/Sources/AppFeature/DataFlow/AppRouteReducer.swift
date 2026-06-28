@@ -8,7 +8,7 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import ClipboardClient
-import DesignSystem
+import TTProgressHUDExt
 import DetailFeature
 import ComposableArchitectureExt
 
