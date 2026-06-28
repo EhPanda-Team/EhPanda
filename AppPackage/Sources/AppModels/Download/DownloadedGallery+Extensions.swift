@@ -1,3 +1,4 @@
+import AppTools
 import SwiftUI
 
 // MARK: - DownloadBadge

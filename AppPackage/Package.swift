@@ -316,6 +316,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appModels,
         dependencies: [
+            .module(.appTools),
             .module(.resources),
             .module(.swiftyBeaverExt),
             .targetDependency(.casePaths)
@@ -397,7 +398,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appTools,
         dependencies: [
-            .module(.appModels)
+            .module(.swiftyBeaverExt)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -415,6 +416,7 @@ let targets: [PackageDescription.Target] = [
         module: .appLaunchAutomationClient,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -547,6 +549,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.resources),
             .targetDependency(.alertKit)
         ],
@@ -583,6 +586,7 @@ let targets: [PackageDescription.Target] = [
         module: .tagTranslationFeature,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.commonMarkExt)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -618,6 +622,7 @@ let targets: [PackageDescription.Target] = [
         module: .dateSeekFeature,
         dependencies: [
             .module(.appModels),
+            .module(.appTools),
             .module(.hapticsClient),
             .module(.resources),
             .targetDependency(.composableArchitecture),
