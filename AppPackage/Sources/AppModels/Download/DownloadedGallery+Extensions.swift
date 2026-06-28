@@ -1,19 +1,7 @@
 import SwiftUI
-import SFSafeSymbols
 
 // MARK: - DownloadBadge
 extension DownloadBadge {
-    public var symbol: SFSymbol {
-        switch status {
-        case .active: .playFill
-        case .queued: .listDash
-        case .inactive: .pauseFill
-        case .completed: .checkmarkCircleFill
-        case .updateAvailable: .arrowUpCircleFill
-        case .error: .exclamationmarkTriangleFill
-        }
-    }
-
     public var color: Color {
         switch status {
         case .active, .queued: .green
