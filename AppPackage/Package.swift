@@ -81,7 +81,6 @@ enum Module: String {
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
     case dateSeekFeature = "DateSeekFeature"
-    case designSystem = "DesignSystem"
     case detailFeature = "DetailFeature"
     case deviceClient = "DeviceClient"
     case downloadClient = "DownloadClient"
@@ -256,7 +255,6 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.databaseClient),
             .module(.dateSeekFeature),
-            .module(.designSystem),
             .module(.detailFeature),
             .module(.dfClient),
             .module(.deviceClient),
@@ -508,27 +506,9 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .designSystem,
-        dependencies: [
-            .module(.appModels),
-            .module(.foundationExt),
-            .module(.parserFeature),
-            .module(.resources),
-            .module(.swiftUINavigationExt),
-            .module(.utilities),
-            .targetDependency(.kingfisher),
-            .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUINavigation),
-            .targetDependency(.ttProgressHUD)
-        ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
         module: .appComponents,
         dependencies: [
             .module(.appModels),
-            .module(.designSystem),
             .module(.foundationExt),
             .module(.parserFeature),
             .module(.resources),
@@ -580,7 +560,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.databaseClient),
-            .module(.designSystem),
             .module(.resources),
             .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture)
@@ -604,7 +583,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.databaseClient),
-            .module(.designSystem),
             .module(.resources),
             .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture),
@@ -619,7 +597,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.composableArchitectureExt),
-            .module(.designSystem),
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.foundationExt),
@@ -642,7 +619,6 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
-            .module(.designSystem),
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.hapticsClient),
@@ -667,7 +643,6 @@ let targets: [PackageDescription.Target] = [
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.databaseClient),
-            .module(.designSystem),
             .module(.deviceClient),
             .module(.dfClient),
             .module(.fileClient),
@@ -697,7 +672,6 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
-            .module(.designSystem),
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.filtersFeature),
@@ -723,7 +697,6 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
-            .module(.designSystem),
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.filtersFeature),
@@ -754,7 +727,6 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.cookieClient),
             .module(.databaseClient),
-            .module(.designSystem),
             .module(.downloadClient),
             .module(.fileClient),
             .module(.filtersFeature),
@@ -786,7 +758,6 @@ let targets: [PackageDescription.Target] = [
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.databaseClient),
-            .module(.designSystem),
             .module(.deviceClient),
             .module(.downloadClient),
             .module(.foundationExt),
