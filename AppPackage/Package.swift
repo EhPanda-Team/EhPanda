@@ -317,7 +317,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.casePaths),
             .targetDependency(.commonMark),
             .targetDependency(.openCC),
-            .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftyBeaver)
         ],
         swiftSettings: sharedSwiftSettings,

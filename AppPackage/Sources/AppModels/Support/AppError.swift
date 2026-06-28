@@ -1,6 +1,5 @@
 import Foundation
 import Resources
-import SFSafeSymbols
 
 public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
     public var id: String { localizedDescription }
@@ -63,28 +62,6 @@ extension AppError {
             return L10n.Localizable.AppError.LocalizedDescription.notFound
         case .unknown:
             return L10n.Localizable.AppError.LocalizedDescription.unknownError
-        }
-    }
-    public var symbol: SFSymbol {
-        switch self {
-        case .databaseCorrupted:
-            return .exclamationmarkTriangleFill
-        case .ipBanned:
-            return .networkBadgeShieldHalfFilled
-        case .copyrightClaim, .expunged:
-            return .trashCircleFill
-        case .networkingFailed:
-            return .wifiExclamationmark
-        case .parseFailed:
-            return .rectangleAndTextMagnifyingglass
-        case .quotaExceeded:
-            return .gaugeWithDotsNeedle67percent
-        case .authenticationRequired:
-            return .lockCircleFill
-        case .fileOperationFailed:
-            return .folderFill
-        case .notFound, .unknown, .noUpdates, .webImageFailed:
-            return .questionmarkCircleFill
         }
     }
     public var alertText: String {
