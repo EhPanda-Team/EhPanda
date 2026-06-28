@@ -2,15 +2,15 @@ import CasePaths
 import CommonMark
 import Foundation
 
-struct MarkdownUtil {
-    static func parseTexts(markdown: String) -> [String] {
+public struct MarkdownUtil {
+    public static func parseTexts(markdown: String) -> [String] {
         (try? Document(markdown: markdown))?.blocks
             .compactMap({ $0[case: \.paragraph] })
             .flatMap(\.text)
             .compactMap({ $0[case: \.text] })
             ?? []
     }
-    static func parseLinks(markdown: String) -> [URL] {
+    public static func parseLinks(markdown: String) -> [URL] {
         (try? Document(markdown: markdown))?.blocks
             .compactMap({ $0[case: \.paragraph] })
             .flatMap(\.text)
@@ -18,7 +18,7 @@ struct MarkdownUtil {
             .compactMap(\.url)
             ?? []
     }
-    static func parseImages(markdown: String) -> [URL] {
+    public static func parseImages(markdown: String) -> [URL] {
         (try? Document(markdown: markdown))?.blocks
             .compactMap({ $0[case: \.paragraph] })
             .flatMap(\.text)

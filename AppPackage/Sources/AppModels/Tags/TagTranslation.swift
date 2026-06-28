@@ -1,3 +1,4 @@
+import CommonMarkExt
 import Foundation
 
 public struct TagTranslation: Codable, Equatable, Hashable, Sendable {
