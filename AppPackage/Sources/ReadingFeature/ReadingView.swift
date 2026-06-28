@@ -9,6 +9,7 @@ import Utilities
 import AnimatedImageFeature
 import TTProgressHUDExt
 import AppComponents
+import ReadingSettingFeature
 
 public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme

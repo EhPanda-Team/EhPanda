@@ -100,6 +100,7 @@ enum Module: String {
     case parserFeature = "ParserFeature"
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
+    case readingSettingFeature = "ReadingSettingFeature"
     case resources = "Resources"
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
@@ -590,6 +591,16 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .readingSettingFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.resources),
+            .module(.utilities)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .quickSearchFeature,
         dependencies: [
             .module(.appComponents),
@@ -665,6 +676,7 @@ let targets: [PackageDescription.Target] = [
             .module(.libraryClient),
             .module(.loggerClient),
             .module(.networkingFeature),
+            .module(.readingSettingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
@@ -784,6 +796,7 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.imageClient),
             .module(.networkingFeature),
+            .module(.readingSettingFeature),
             .module(.resources),
             .module(.animatedImageFeature),
             .module(.swiftUINavigationExt),
