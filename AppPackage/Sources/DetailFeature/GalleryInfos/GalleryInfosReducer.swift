@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import HapticsClient
 import ClipboardClient
-import DesignSystem
+import TTProgressHUDExt
 
 @Reducer
 public struct GalleryInfosReducer: Sendable {

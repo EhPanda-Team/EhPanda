@@ -103,6 +103,7 @@ enum Module: String {
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
     case swiftUINavigationExt = "SwiftUINavigationExt"
+    case ttProgressHUDExt = "TTProgressHUDExt"
     case uiApplicationClient = "UIApplicationClient"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
@@ -279,6 +280,7 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.settingFeature),
             .module(.swiftUINavigationExt),
+            .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),
@@ -379,6 +381,17 @@ let targets: [PackageDescription.Target] = [
         module: .swiftUINavigationExt,
         dependencies: [
             .targetDependency(.swiftUINavigation)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .ttProgressHUDExt,
+        dependencies: [
+            .module(.resources),
+            .module(.swiftUINavigationExt),
+            .targetDependency(.swiftUINavigation),
+            .targetDependency(.ttProgressHUD)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -602,6 +615,7 @@ let targets: [PackageDescription.Target] = [
             .module(.readingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.ttProgressHUDExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
@@ -653,6 +667,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.userDefaultsClient),
             .module(.utilities),
@@ -738,6 +753,7 @@ let targets: [PackageDescription.Target] = [
             .module(.readingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.utilities),
@@ -768,6 +784,7 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.animatedImageFeature),
             .module(.swiftUINavigationExt),
+            .module(.ttProgressHUDExt),
             .module(.urlClient),
             .module(.utilities),
             .targetDependency(.composableArchitecture),

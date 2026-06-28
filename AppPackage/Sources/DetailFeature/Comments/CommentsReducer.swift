@@ -8,7 +8,7 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import CookieClient
-import DesignSystem
+import TTProgressHUDExt
 import ComposableArchitectureExt
 
 @Reducer

@@ -7,7 +7,7 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import CookieClient
-import DesignSystem
+import TTProgressHUDExt
 
 @Reducer
 public struct ArchivesReducer: Sendable {

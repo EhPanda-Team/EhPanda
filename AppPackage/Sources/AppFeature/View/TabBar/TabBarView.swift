@@ -4,7 +4,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import Utilities
-import DesignSystem
+import TTProgressHUDExt
 import AppComponents
 import DetailFeature
 import HomeFeature

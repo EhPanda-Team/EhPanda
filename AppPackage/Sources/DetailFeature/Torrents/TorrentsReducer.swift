@@ -6,7 +6,7 @@ import HapticsClient
 import NetworkingFeature
 import ClipboardClient
 import FileClient
-import DesignSystem
+import TTProgressHUDExt
 
 @Reducer
 public struct TorrentsReducer: Sendable {

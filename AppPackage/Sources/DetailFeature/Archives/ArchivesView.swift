@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import Utilities
-import DesignSystem
+import TTProgressHUDExt
 import AppComponents
 
 struct ArchivesView: View {

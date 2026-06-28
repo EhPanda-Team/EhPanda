@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import Utilities
-import DesignSystem
+import TTProgressHUDExt
 
 struct GalleryInfosView: View {
     @Bindable private var store: StoreOf<GalleryInfosReducer>

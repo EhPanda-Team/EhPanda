@@ -5,7 +5,7 @@ import Kingfisher
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
-import DesignSystem
+import TTProgressHUDExt
 import AppComponents
 
 struct CommentsView: View {

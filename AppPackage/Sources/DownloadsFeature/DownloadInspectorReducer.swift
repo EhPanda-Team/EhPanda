@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DownloadClient
-import DesignSystem
+import TTProgressHUDExt
 
 @Reducer
 public struct DownloadInspectorReducer: Sendable {
