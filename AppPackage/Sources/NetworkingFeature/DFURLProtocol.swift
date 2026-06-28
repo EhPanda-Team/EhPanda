@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 public class DFURLProtocol: URLProtocol {
     private var dfRequest: DFRequest?

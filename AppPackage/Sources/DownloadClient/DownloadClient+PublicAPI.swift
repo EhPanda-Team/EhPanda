@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 import Resources
 
 // MARK: - Public API

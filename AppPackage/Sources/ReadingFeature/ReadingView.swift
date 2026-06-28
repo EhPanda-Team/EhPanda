@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import SwiftyBeaverExt
 import Observation
 import SFSafeSymbols
 import SwiftUIPager

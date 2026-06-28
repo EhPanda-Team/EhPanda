@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import AppModels
+import SwiftyBeaverExt
 
 public struct LoggerClient: Sendable {
     public let info: @Sendable (Any, Any?) -> Void

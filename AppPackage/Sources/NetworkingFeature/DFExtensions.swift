@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 import DeprecatedAPI
 import FoundationExt
 
