@@ -2,7 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import Kingfisher
-import FoundationExt
+import Utilities
 import AppComponents
 
 struct TagDetailView: View {

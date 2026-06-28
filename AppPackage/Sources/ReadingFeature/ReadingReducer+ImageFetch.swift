@@ -1,6 +1,6 @@
 import Foundation
 import ComposableArchitecture
-import FoundationExt
+import Utilities
 import NetworkingFeature
 
 // MARK: - Image URL Fetch Actions

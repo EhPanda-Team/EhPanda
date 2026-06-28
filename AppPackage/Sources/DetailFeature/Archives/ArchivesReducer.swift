@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import Resources
 import ComposableArchitecture
-import FoundationExt
+import Utilities
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature

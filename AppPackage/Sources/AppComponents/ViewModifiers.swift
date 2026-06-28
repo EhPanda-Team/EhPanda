@@ -1,7 +1,7 @@
 import SwiftUI
 import Kingfisher
 import SFSafeSymbols
-import FoundationExt
+import Utilities
 import ParserFeature
 
 extension View {

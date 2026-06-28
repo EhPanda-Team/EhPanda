@@ -91,7 +91,6 @@ enum Module: String {
     case favoritesFeature = "FavoritesFeature"
     case fileClient = "FileClient"
     case filtersFeature = "FiltersFeature"
-    case foundationExt = "FoundationExt"
     case galleryListComponents = "GalleryListComponents"
     case hapticsClient = "HapticsClient"
     case homeFeature = "HomeFeature"
@@ -270,7 +269,6 @@ let targets: [PackageDescription.Target] = [
             .module(.favoritesFeature),
             .module(.fileClient),
             .module(.filtersFeature),
-            .module(.foundationExt),
             .module(.hapticsClient),
             .module(.homeFeature),
             .module(.imageClient),
@@ -353,7 +351,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.databaseClient),
-            .module(.foundationExt),
             .module(.libraryClient),
             .module(.networkingFeature),
             .module(.parserFeature),
@@ -375,11 +372,6 @@ let targets: [PackageDescription.Target] = [
             .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .foundationExt,
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
@@ -459,7 +451,6 @@ let targets: [PackageDescription.Target] = [
         module: .cookieClient,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
             .module(.resources),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
@@ -481,7 +472,6 @@ let targets: [PackageDescription.Target] = [
         module: .networkingFeature,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
             .module(.openCCExt),
             .module(.parserFeature),
             .module(.swiftyBeaverExt),
@@ -497,7 +487,6 @@ let targets: [PackageDescription.Target] = [
         module: .databaseClient,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
             .module(.swiftyBeaverExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
@@ -520,7 +509,6 @@ let targets: [PackageDescription.Target] = [
         module: .appComponents,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
             .module(.parserFeature),
             .module(.resources),
             .module(.utilities),
@@ -659,7 +647,6 @@ let targets: [PackageDescription.Target] = [
             .module(.composableArchitectureExt),
             .module(.detailFeature),
             .module(.downloadClient),
-            .module(.foundationExt),
             .module(.galleryListComponents),
             .module(.readingFeature),
             .module(.resources),
@@ -708,7 +695,6 @@ let targets: [PackageDescription.Target] = [
             .module(.deviceClient),
             .module(.dfClient),
             .module(.fileClient),
-            .module(.foundationExt),
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.loggerClient),
@@ -739,7 +725,6 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.filtersFeature),
-            .module(.foundationExt),
             .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.networkingFeature),
@@ -766,7 +751,6 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.filtersFeature),
-            .module(.foundationExt),
             .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.libraryClient),
@@ -799,7 +783,6 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadClient),
             .module(.fileClient),
             .module(.filtersFeature),
-            .module(.foundationExt),
             .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.networkingFeature),
@@ -830,7 +813,6 @@ let targets: [PackageDescription.Target] = [
             .module(.databaseClient),
             .module(.deviceClient),
             .module(.downloadClient),
-            .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
             .module(.networkingFeature),
@@ -856,7 +838,6 @@ let targets: [PackageDescription.Target] = [
         module: .imageClient,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
             .module(.animatedImageFeature),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
@@ -894,7 +875,6 @@ let targets: [PackageDescription.Target] = [
         module: .parserFeature,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
             .module(.resources),
             .module(.swiftyBeaverExt),
             .module(.utilities),
@@ -906,7 +886,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .uiApplicationClient,
         dependencies: [
-            .module(.foundationExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
@@ -917,7 +896,7 @@ let targets: [PackageDescription.Target] = [
         module: .urlClient,
         dependencies: [
             .module(.appModels),
-            .module(.foundationExt),
+            .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -951,7 +930,6 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadClient),
             .module(.downloadsFeature),
             .module(.fileClient),
-            .module(.foundationExt),
             .module(.hapticsClient),
             .module(.imageClient),
             .module(.libraryClient),

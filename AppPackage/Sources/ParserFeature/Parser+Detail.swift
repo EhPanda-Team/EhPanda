@@ -1,7 +1,7 @@
 import Kanna
 import AppModels
 import Foundation
-import FoundationExt
+import Utilities
 
 extension Parser {
     public static func parseGalleryURL(doc: HTMLDocument) throws -> URL {
