@@ -5,6 +5,7 @@ import SFSafeSymbols
 import ComposableArchitecture
 import TTProgressHUDExt
 import AppComponents
+import GalleryListComponents
 
 struct DownloadInspectorView: View {
     @Environment(\.dismiss) private var dismiss
