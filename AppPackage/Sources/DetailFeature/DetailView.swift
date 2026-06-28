@@ -5,7 +5,6 @@ import Kingfisher
 import ComposableArchitecture
 import CommonMark
 import Utilities
-import DesignSystem
 import AppComponents
 import ReadingFeature
 

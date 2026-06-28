@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
-import DesignSystem
 import AppComponents
 
 public struct FiltersView: View {

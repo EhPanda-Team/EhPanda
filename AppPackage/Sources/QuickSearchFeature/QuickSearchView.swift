@@ -4,7 +4,6 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
-import DesignSystem
 import AppComponents
 
 public struct QuickSearchView: View {

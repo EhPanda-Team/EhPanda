@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import Utilities
-import DesignSystem
 
 public struct LoadingView: View {
     private let title: String

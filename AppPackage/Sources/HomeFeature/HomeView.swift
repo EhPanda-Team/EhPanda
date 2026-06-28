@@ -6,7 +6,6 @@ import SFSafeSymbols
 import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
-import DesignSystem
 import AppComponents
 import DetailFeature
 

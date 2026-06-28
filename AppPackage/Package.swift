@@ -516,6 +516,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.designSystem),
             .module(.foundationExt),
+            .module(.parserFeature),
             .module(.resources),
             .module(.utilities),
             .targetDependency(.alertKit),
