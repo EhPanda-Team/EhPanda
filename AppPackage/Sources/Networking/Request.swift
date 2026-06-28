@@ -5,7 +5,7 @@ import Foundation
 import ComposableArchitecture
 import FoundationExt
 import Utilities
-import Parser
+import ParserFeature
 
 public protocol Request {
     associatedtype Response: Sendable

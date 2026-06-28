@@ -1,7 +1,7 @@
 import Kanna
 import AppModels
 import Testing
-import Parser
+import ParserFeature
 @testable import AppFeature
 
 struct EhSettingParserTests: TestHelper {

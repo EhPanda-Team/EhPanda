@@ -95,7 +95,7 @@ enum Module: String {
     case loggerClient = "LoggerClient"
     case migrationFeature = "MigrationFeature"
     case networking = "Networking"
-    case parser = "Parser"
+    case parserFeature = "ParserFeature"
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
     case resources = "Resources"
@@ -271,7 +271,7 @@ let targets: [PackageDescription.Target] = [
             .module(.loggerClient),
             .module(.migrationFeature),
             .module(.networking),
-            .module(.parser),
+            .module(.parserFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),
             .module(.resources),
@@ -349,7 +349,7 @@ let targets: [PackageDescription.Target] = [
             .module(.foundationExt),
             .module(.libraryClient),
             .module(.networking),
-            .module(.parser),
+            .module(.parserFeature),
             .module(.resources),
             .module(.sdWebImageExt),
             .module(.urlClient),
@@ -462,7 +462,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
-            .module(.parser),
+            .module(.parserFeature),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
@@ -498,7 +498,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
-            .module(.parser),
+            .module(.parserFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.utilities),
@@ -817,7 +817,7 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .parser,
+        module: .parserFeature,
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
@@ -882,7 +882,7 @@ let targets: [PackageDescription.Target] = [
             .module(.libraryClient),
             .module(.loggerClient),
             .module(.networking),
-            .module(.parser),
+            .module(.parserFeature),
             .module(.readingFeature),
             .module(.sdWebImageExt),
             .module(.uiApplicationClient),

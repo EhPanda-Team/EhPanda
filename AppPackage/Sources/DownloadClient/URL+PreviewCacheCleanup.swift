@@ -1,6 +1,6 @@
 import Foundation
 import AppModels
-import Parser
+import ParserFeature
 
 extension URL {
     public func previewCacheCleanupURLs() -> [URL] {
