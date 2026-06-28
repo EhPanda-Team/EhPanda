@@ -1,7 +1,6 @@
 import SwiftUI
 import Resources
 import Foundation
-import ComposableArchitecture
 
 public struct Setting: Codable, Equatable, Sendable {
     public init(
