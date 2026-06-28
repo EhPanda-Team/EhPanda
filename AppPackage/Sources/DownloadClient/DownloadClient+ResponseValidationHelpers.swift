@@ -4,7 +4,7 @@ import Foundation
 import ImageIO
 import FoundationExt
 import Utilities
-import SDWebImageExt
+import AnimatedImageFeature
 import ParserFeature
 
 // MARK: - Response Inspection Helpers

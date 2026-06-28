@@ -66,6 +66,7 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 
 // MARK: Module
 enum Module: String {
+    case animatedImageFeature = "AnimatedImageFeature"
     case appComponents = "AppComponents"
     case appDelegateClient = "AppDelegateClient"
     case appFeature = "AppFeature"
@@ -100,7 +101,6 @@ enum Module: String {
     case readingFeature = "ReadingFeature"
     case resources = "Resources"
     case searchFeature = "SearchFeature"
-    case sdWebImageExt = "SDWebImageExt"
     case settingFeature = "SettingFeature"
     case swiftUINavigationExt = "SwiftUINavigationExt"
     case uiApplicationClient = "UIApplicationClient"
@@ -276,7 +276,7 @@ let targets: [PackageDescription.Target] = [
             .module(.readingFeature),
             .module(.resources),
             .module(.searchFeature),
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .module(.settingFeature),
             .module(.swiftUINavigationExt),
             .module(.uiApplicationClient),
@@ -351,7 +351,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.parserFeature),
             .module(.resources),
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .module(.urlClient),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
@@ -429,7 +429,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .clipboardClient,
         dependencies: [
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -529,7 +529,7 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .sdWebImageExt,
+        module: .animatedImageFeature,
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
         ],
@@ -765,7 +765,7 @@ let targets: [PackageDescription.Target] = [
             .module(.imageClient),
             .module(.networkingFeature),
             .module(.resources),
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .module(.swiftUINavigationExt),
             .module(.urlClient),
             .module(.utilities),
@@ -784,7 +784,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
@@ -795,7 +795,7 @@ let targets: [PackageDescription.Target] = [
         module: .libraryClient,
         dependencies: [
             .module(.appModels),
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
@@ -884,7 +884,7 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.parserFeature),
             .module(.readingFeature),
-            .module(.sdWebImageExt),
+            .module(.animatedImageFeature),
             .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),
