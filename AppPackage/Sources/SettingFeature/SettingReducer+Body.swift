@@ -37,7 +37,7 @@ extension SettingReducer {
                 .merge(
                     .send(.syncSetting),
                     .run { [value = state.setting.appIconType.filename] send in
-                        _ = await uiApplicationClient.setAlternateIconName(value)
+                        _ = await applicationClient.setAlternateIconName(value)
                         await send(.syncAppIconType)
                     }
                 )
@@ -109,7 +109,7 @@ extension SettingReducer {
 
             case .syncAppIconType:
                 return .run { send in
-                    await send(.syncAppIconTypeDone(await uiApplicationClient.alternateIconName()))
+                    await send(.syncAppIconTypeDone(await applicationClient.alternateIconName()))
                 }
 
             case .syncAppIconTypeDone(let iconName):
@@ -122,7 +122,7 @@ extension SettingReducer {
 
             case .syncUserInterfaceStyle:
                 let style = state.setting.preferredColorScheme.userInterfaceStyle
-                return .run(operation: { _ in await uiApplicationClient.setUserInterfaceStyle(style) })
+                return .run(operation: { _ in await applicationClient.setUserInterfaceStyle(style) })
 
             case .syncSetting:
                 return .run { [state] _ in

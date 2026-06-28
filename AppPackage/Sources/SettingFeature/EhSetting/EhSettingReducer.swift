@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
-import UIApplicationClient
+import ApplicationClient
 import HapticsClient
 import NetworkingFeature
 import CookieClient
@@ -52,7 +52,7 @@ public struct EhSettingReducer: Sendable {
         case performActionDone(Result<EhSetting, AppError>)
     }
 
-    @Dependency(\.uiApplicationClient) private var uiApplicationClient
+    @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
@@ -71,7 +71,7 @@ public struct EhSettingReducer: Sendable {
                 return .none
 
             case .setKeyboardHidden:
-                return .run(operation: { _ in await uiApplicationClient.hideKeyboard() })
+                return .run(operation: { _ in await applicationClient.hideKeyboard() })
 
             case .setDefaultProfile(let profileSet):
                 return .run { _ in

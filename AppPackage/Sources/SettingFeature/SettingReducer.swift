@@ -3,7 +3,7 @@ import AppModels
 import ComposableArchitecture
 import LoggerClient
 import UserDefaultsClient
-import UIApplicationClient
+import ApplicationClient
 import HapticsClient
 import LibraryClient
 import DatabaseClient
@@ -107,7 +107,7 @@ public struct SettingReducer: Sendable {
         case appearance(AppearanceSettingReducer.Action)
     }
 
-    @Dependency(\.uiApplicationClient) var uiApplicationClient
+    @Dependency(\.applicationClient) var applicationClient
     @Dependency(\.userDefaultsClient) var userDefaultsClient
     @Dependency(\.appDelegateClient) var appDelegateClient
     @Dependency(\.databaseClient) var databaseClient

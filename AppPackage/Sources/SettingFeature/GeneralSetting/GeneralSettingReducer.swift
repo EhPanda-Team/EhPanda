@@ -2,7 +2,7 @@ import LocalAuthentication
 import AppModels
 import ComposableArchitecture
 import AuthorizationClient
-import UIApplicationClient
+import ApplicationClient
 import LibraryClient
 import DatabaseClient
 
@@ -43,7 +43,7 @@ public struct GeneralSettingReducer: Sendable {
     }
 
     @Dependency(\.authorizationClient) private var authorizationClient
-    @Dependency(\.uiApplicationClient) private var uiApplicationClient
+    @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
@@ -89,7 +89,7 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
 
             case .navigateToSystemSetting:
-                return .run(operation: { _ in await uiApplicationClient.openSettings() })
+                return .run(operation: { _ in await applicationClient.openSettings() })
 
             case .calculateWebImageDiskCache:
                 return .run { send in
