@@ -5,7 +5,7 @@ import SwiftUINavigationExt
 import HapticsClient
 import ClipboardClient
 import CookieClient
-import DesignSystem
+import TTProgressHUDExt
 
 @Reducer
 public struct AccountSettingReducer: Sendable {

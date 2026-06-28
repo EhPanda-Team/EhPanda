@@ -11,7 +11,7 @@ import ClipboardClient
 import CookieClient
 import DeviceClient
 import AppDelegateClient
-import DesignSystem
+import TTProgressHUDExt
 
 @Reducer
 public struct ReadingReducer: Sendable {
