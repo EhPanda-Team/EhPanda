@@ -99,6 +99,7 @@ enum Module: String {
     case loggerClient = "LoggerClient"
     case migrationFeature = "MigrationFeature"
     case networkingFeature = "NetworkingFeature"
+    case openCCExt = "OpenCCExt"
     case parserFeature = "ParserFeature"
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
@@ -316,7 +317,6 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .targetDependency(.casePaths),
             .targetDependency(.commonMark),
-            .targetDependency(.openCC),
             .targetDependency(.swiftyBeaver)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -477,6 +477,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
+            .module(.openCCExt),
             .module(.parserFeature),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
@@ -551,6 +552,15 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.resources),
             .targetDependency(.alertKit)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .openCCExt,
+        dependencies: [
+            .module(.appModels),
+            .targetDependency(.openCC)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
