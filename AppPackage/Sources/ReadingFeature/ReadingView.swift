@@ -6,7 +6,7 @@ import SwiftUIPager
 import ComposableArchitecture
 import FoundationExt
 import Utilities
-import SDWebImageExt
+import AnimatedImageFeature
 import DesignSystem
 import AppComponents
 

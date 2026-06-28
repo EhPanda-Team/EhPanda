@@ -5,7 +5,7 @@ import Combine
 import ComposableArchitecture
 import FoundationExt
 import Utilities
-import SDWebImageExt
+import AnimatedImageFeature
 
 public struct ImageClient: Sendable {
     public struct ImageAsset: Sendable {
