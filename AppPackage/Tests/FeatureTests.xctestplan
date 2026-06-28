@@ -15,8 +15,15 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
-        "identifier" : "AppFeatureTests",
-        "name" : "AppFeatureTests"
+        "identifier" : "DownloadsFeatureTests",
+        "name" : "DownloadsFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "ParserFeatureTests",
+        "name" : "ParserFeatureTests"
       }
     }
   ],
