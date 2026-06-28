@@ -1,6 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
-import SDWebImageExt
+import AnimatedImageFeature
 
 public struct ClipboardClient: Sendable {
     public let url: @Sendable () -> URL?

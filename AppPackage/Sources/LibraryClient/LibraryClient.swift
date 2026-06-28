@@ -9,7 +9,7 @@ import SwiftyBeaver
 import UIImageColors
 import ComposableArchitecture
 import Utilities
-import SDWebImageExt
+import AnimatedImageFeature
 
 public struct LibraryClient: Sendable {
     public let initializeLogger: @Sendable () -> Void
