@@ -585,7 +585,9 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.hapticsClient),
-            .targetDependency(.composableArchitecture)
+            .module(.resources),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
