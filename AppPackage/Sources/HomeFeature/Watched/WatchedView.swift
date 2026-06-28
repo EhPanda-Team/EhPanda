@@ -5,6 +5,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import Utilities
 import AppComponents
+import DateSeekFeature
 import GalleryListComponents
 import FiltersFeature
 import QuickSearchFeature
