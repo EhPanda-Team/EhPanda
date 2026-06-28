@@ -1,7 +1,7 @@
 import SwiftUI
 import AppModels
 import Resources
-import Utilities
+import AppTools
 
 public struct ReadingSettingView: View {
     @Binding private var readingDirection: ReadingDirection

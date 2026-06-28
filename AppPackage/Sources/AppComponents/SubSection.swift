@@ -1,6 +1,6 @@
 import SwiftUI
 import Resources
-import Utilities
+import AppTools
 
 public struct SubSection<Content: View>: View {
     private let title: String

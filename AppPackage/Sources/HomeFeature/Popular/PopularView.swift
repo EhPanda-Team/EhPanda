@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
-import Utilities
+import AppTools
 import AppComponents
 import GalleryListComponents
 import FiltersFeature

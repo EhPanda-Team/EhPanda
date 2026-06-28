@@ -1,7 +1,7 @@
 import SwiftUI
 import AppModels
 import CoreData
-import Utilities
+import AppTools
 
 public class GalleryStateMO: NSManagedObject {}
 

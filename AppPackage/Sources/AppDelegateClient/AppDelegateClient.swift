@@ -1,6 +1,6 @@
 import SwiftUI
 import ComposableArchitecture
-import Utilities
+import AppTools
 
 public struct AppDelegateClient: Sendable {
     public let setOrientation: @MainActor @Sendable (UIInterfaceOrientationMask) -> Void

@@ -2,7 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import Utilities
+import AppTools
 import TTProgressHUDExt
 import AppComponents
 

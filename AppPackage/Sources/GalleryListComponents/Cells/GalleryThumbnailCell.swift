@@ -3,7 +3,7 @@ import SFSafeSymbols
 import AppModels
 import AppComponents
 import Kingfisher
-import Utilities
+import AppTools
 
 public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme

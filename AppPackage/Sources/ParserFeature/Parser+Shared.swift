@@ -2,7 +2,7 @@ import Kanna
 import AppModels
 import SwiftyBeaverExt
 import Foundation
-import Utilities
+import AppTools
 
 extension Parser {
     static func parseGTX00IndexFromTitle(from title: String) -> Int? {

@@ -2,7 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import SFSafeSymbols
-import Utilities
+import AppTools
 
 public struct LoadingView: View {
     private let title: String

@@ -1,6 +1,6 @@
 import SwiftUI
 import Resources
-import Utilities
+import AppTools
 import AppComponents
 
 struct AboutView: View {

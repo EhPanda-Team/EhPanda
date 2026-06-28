@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-import Utilities
+import AppTools
 @testable import AppFeature
 
 @Suite(.serialized)

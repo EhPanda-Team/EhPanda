@@ -3,7 +3,7 @@ import SFSafeSymbols
 import AppModels
 import AppComponents
 import WaterfallGrid
-import Utilities
+import AppTools
 
 public struct GenericList: View {
     private let galleries: [Gallery]

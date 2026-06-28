@@ -1,6 +1,6 @@
 import CoreData
 import AppModels
-import Utilities
+import AppTools
 
 public class AppEnvMO: NSManagedObject {}
 

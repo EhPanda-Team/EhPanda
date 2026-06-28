@@ -1,6 +1,6 @@
 import Foundation
 import AppModels
-import Utilities
+import AppTools
 
 // MARK: - Cache Operations
 extension DownloadCoordinator {
