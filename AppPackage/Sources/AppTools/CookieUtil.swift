@@ -1,5 +1,4 @@
 import Foundation
-import AppModels
 
 // MARK: Cookie
 public struct CookieUtil {
