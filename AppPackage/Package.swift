@@ -76,6 +76,7 @@ enum Module: String {
     case appLaunchAutomationClient = "AppLaunchAutomationClient"
     case appModels = "AppModels"
     case appTools = "AppTools"
+    case applicationClient = "ApplicationClient"
     case authorizationClient = "AuthorizationClient"
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
@@ -111,7 +112,6 @@ enum Module: String {
     case swiftUINavigationExt = "SwiftUINavigationExt"
     case swiftyBeaverExt = "SwiftyBeaverExt"
     case ttProgressHUDExt = "TTProgressHUDExt"
-    case uiApplicationClient = "UIApplicationClient"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
 
@@ -255,6 +255,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appLaunchAutomationClient),
             .module(.appModels),
             .module(.appTools),
+            .module(.applicationClient),
             .module(.authorizationClient),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
@@ -287,7 +288,6 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
-            .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.alertKit),
@@ -689,6 +689,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appDelegateClient),
             .module(.appModels),
             .module(.appTools),
+            .module(.applicationClient),
             .module(.authorizationClient),
             .module(.clipboardClient),
             .module(.cookieClient),
@@ -705,7 +706,6 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
-            .module(.uiApplicationClient),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.filePicker),
@@ -777,6 +777,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appLaunchAutomationClient),
             .module(.appModels),
             .module(.appTools),
+            .module(.applicationClient),
             .module(.clipboardClient),
             .module(.composableArchitectureExt),
             .module(.cookieClient),
@@ -792,7 +793,6 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
-            .module(.uiApplicationClient),
             .module(.urlClient),
             .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
@@ -884,7 +884,7 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .uiApplicationClient,
+        module: .applicationClient,
         dependencies: [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
@@ -921,6 +921,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appLaunchAutomationClient),
             .module(.appModels),
             .module(.appTools),
+            .module(.applicationClient),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.cookieClient),
@@ -939,7 +940,6 @@ let targets: [PackageDescription.Target] = [
             .module(.parserFeature),
             .module(.readingFeature),
             .module(.animatedImageFeature),
-            .module(.uiApplicationClient),
             .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),

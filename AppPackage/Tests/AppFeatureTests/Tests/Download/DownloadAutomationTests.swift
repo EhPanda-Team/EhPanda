@@ -6,7 +6,7 @@ import Testing
 import LoggerClient
 import URLClient
 import UserDefaultsClient
-import UIApplicationClient
+import ApplicationClient
 import HapticsClient
 import LibraryClient
 import DatabaseClient
@@ -189,7 +189,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
-                $0.uiApplicationClient = .noop
+                $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
                 $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
@@ -232,7 +232,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
-                $0.uiApplicationClient = .noop
+                $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
                 $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
@@ -292,7 +292,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
-                $0.uiApplicationClient = .noop
+                $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
                 $0.appDelegateClient = .noop
                 $0.libraryClient = .noop

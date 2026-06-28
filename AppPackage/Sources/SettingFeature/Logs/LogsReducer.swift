@@ -1,6 +1,6 @@
 import ComposableArchitecture
 import AppModels
-import UIApplicationClient
+import ApplicationClient
 import FileClient
 
 @Reducer
@@ -33,7 +33,7 @@ public struct LogsReducer: Sendable {
         case deleteLogDone(Result<String, AppError>)
     }
 
-    @Dependency(\.uiApplicationClient) private var uiApplicationClient
+    @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.fileClient) private var fileClient
 
     public init() {}
@@ -51,7 +51,7 @@ public struct LogsReducer: Sendable {
                 return .none
 
             case .navigateToFileApp:
-                return .run(operation: { _ in await uiApplicationClient.openFileApp() })
+                return .run(operation: { _ in await applicationClient.openFileApp() })
 
             case .teardown:
                 return .cancel(id: CancelID.fetchLogs)
