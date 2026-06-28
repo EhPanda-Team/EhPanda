@@ -2,7 +2,7 @@ import SwiftUI
 import SFSafeSymbols
 import AppModels
 import Kingfisher
-import DesignSystem
+import Utilities
 
 public struct GalleryDetailCell: View {
     public enum CoverSource {
@@ -133,7 +133,7 @@ private struct GalleryDetailCellContent: View {
                     }
                 }
                 HStack(alignment: .bottom) {
-                    CategoryLabel(text: gallery.category.value, color: gallery.color)
+                    CategoryLabel(text: gallery.category.value, color: gallery.color(host: AppUtil.galleryHost))
                     Spacer()
                     Text(gallery.formattedDateString).lineLimit(1).font(.footnote)
                         .foregroundStyle(.secondary).minimumScaleFactor(0.75)

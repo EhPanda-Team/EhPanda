@@ -71,9 +71,10 @@ private struct CategoryCell: View {
     }
 
     var body: some View {
+        let color = category.color(host: AppUtil.galleryHost)
         ZStack {
             Rectangle()
-                .foregroundColor(isFiltered ? category.color.opacity(0.3) : category.color)
+                .foregroundColor(isFiltered ? color.opacity(0.3) : color)
             Text(category.value).bold().foregroundStyle(.white)
                 .padding(.vertical, 5).lineLimit(1)
         }

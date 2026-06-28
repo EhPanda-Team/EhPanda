@@ -2,7 +2,7 @@ import SwiftUI
 import SFSafeSymbols
 import AppModels
 import Kingfisher
-import DesignSystem
+import Utilities
 
 public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -44,7 +44,7 @@ public struct GalleryThumbnailCell: View {
                 .scaledToFit()
                 .overlay {
                     CategoryLabel(
-                        text: gallery.category.value, color: gallery.color,
+                        text: gallery.category.value, color: gallery.color(host: AppUtil.galleryHost),
                         insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
                         cornerRadius: 15, corners: .bottomLeft
                     )
