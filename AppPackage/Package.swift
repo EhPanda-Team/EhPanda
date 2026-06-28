@@ -89,6 +89,7 @@ enum Module: String {
     case fileClient = "FileClient"
     case filtersFeature = "FiltersFeature"
     case foundationExt = "FoundationExt"
+    case galleryListComponents = "GalleryListComponents"
     case hapticsClient = "HapticsClient"
     case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
@@ -516,7 +517,20 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.colorful),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.uiImageColors),
+            .targetDependency(.uiImageColors)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .galleryListComponents,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.resources),
+            .module(.utilities),
+            .targetDependency(.kingfisher),
+            .targetDependency(.sfSafeSymbols),
             .targetDependency(.waterfallGrid)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -600,6 +614,7 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.foundationExt),
+            .module(.galleryListComponents),
             .module(.readingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
@@ -621,6 +636,7 @@ let targets: [PackageDescription.Target] = [
             .module(.dateSeekFeature),
             .module(.detailFeature),
             .module(.downloadClient),
+            .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.networkingFeature),
             .module(.quickSearchFeature),
@@ -676,6 +692,7 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadClient),
             .module(.filtersFeature),
             .module(.foundationExt),
+            .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.networkingFeature),
             .module(.quickSearchFeature),
@@ -701,6 +718,7 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadClient),
             .module(.filtersFeature),
             .module(.foundationExt),
+            .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.networkingFeature),
@@ -731,6 +749,7 @@ let targets: [PackageDescription.Target] = [
             .module(.fileClient),
             .module(.filtersFeature),
             .module(.foundationExt),
+            .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.networkingFeature),
             .module(.quickSearchFeature),
