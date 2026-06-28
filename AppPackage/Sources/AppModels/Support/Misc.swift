@@ -1,8 +1,6 @@
 import CasePaths
 import Foundation
-import SwiftyBeaver
 
-public typealias Logger = SwiftyBeaver
 public typealias FavoritesSortOrder = EhSetting.FavoritesSortOrder
 
 public enum DateSeekDirection: Equatable, Sendable {

@@ -109,6 +109,7 @@ enum Module: String {
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
     case swiftUINavigationExt = "SwiftUINavigationExt"
+    case swiftyBeaverExt = "SwiftyBeaverExt"
     case ttProgressHUDExt = "TTProgressHUDExt"
     case uiApplicationClient = "UIApplicationClient"
     case urlClient = "URLClient"
@@ -285,6 +286,7 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.settingFeature),
             .module(.swiftUINavigationExt),
+            .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.urlClient),
@@ -317,8 +319,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.commonMarkExt),
             .module(.resources),
-            .targetDependency(.casePaths),
-            .targetDependency(.swiftyBeaver)
+            .module(.swiftyBeaverExt),
+            .targetDependency(.casePaths)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -357,6 +359,7 @@ let targets: [PackageDescription.Target] = [
             .module(.parserFeature),
             .module(.resources),
             .module(.animatedImageFeature),
+            .module(.swiftyBeaverExt),
             .module(.urlClient),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
@@ -437,6 +440,7 @@ let targets: [PackageDescription.Target] = [
         module: .backgroundProcessingClient,
         dependencies: [
             .module(.appModels),
+            .module(.swiftyBeaverExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -480,6 +484,7 @@ let targets: [PackageDescription.Target] = [
             .module(.foundationExt),
             .module(.openCCExt),
             .module(.parserFeature),
+            .module(.swiftyBeaverExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
@@ -493,6 +498,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.foundationExt),
+            .module(.swiftyBeaverExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture)
         ],
@@ -571,6 +577,14 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .targetDependency(.openCC)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .swiftyBeaverExt,
+        dependencies: [
+            .targetDependency(.swiftyBeaver)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -702,6 +716,7 @@ let targets: [PackageDescription.Target] = [
             .module(.readingSettingFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
             .module(.uiApplicationClient),
             .module(.userDefaultsClient),
@@ -823,6 +838,7 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.animatedImageFeature),
             .module(.swiftUINavigationExt),
+            .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
             .module(.urlClient),
             .module(.utilities),
@@ -868,6 +884,7 @@ let targets: [PackageDescription.Target] = [
         module: .loggerClient,
         dependencies: [
             .module(.appModels),
+            .module(.swiftyBeaverExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -879,6 +896,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.foundationExt),
             .module(.resources),
+            .module(.swiftyBeaverExt),
             .module(.utilities),
             .targetDependency(.kanna)
         ],

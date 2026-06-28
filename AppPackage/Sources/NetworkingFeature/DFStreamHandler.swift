@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 public class DFStreamEventHandler: NSObject {
     private var request: DFRequest

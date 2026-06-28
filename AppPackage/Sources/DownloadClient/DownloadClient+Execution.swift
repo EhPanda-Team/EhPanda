@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 // MARK: - Process Download
 extension DownloadCoordinator {

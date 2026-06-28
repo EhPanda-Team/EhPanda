@@ -10,6 +10,7 @@
 
 import Vision
 import AppModels
+import SwiftyBeaverExt
 import SwiftUI
 import Foundation
 import Observation

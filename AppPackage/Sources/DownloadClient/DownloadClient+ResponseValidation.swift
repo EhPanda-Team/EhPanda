@@ -1,5 +1,6 @@
 import Kanna
 import AppModels
+import SwiftyBeaverExt
 import Foundation
 import ImageIO
 import FoundationExt
