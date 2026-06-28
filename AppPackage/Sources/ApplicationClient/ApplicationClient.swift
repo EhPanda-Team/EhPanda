@@ -3,7 +3,7 @@ import Combine
 import ComposableArchitecture
 import AppTools
 
-public struct UIApplicationClient: Sendable {
+public struct ApplicationClient: Sendable {
     public let openURL: @MainActor @Sendable (URL) -> Void
     public let hideKeyboard: @Sendable () async -> Void
     public let alternateIconName: @MainActor @Sendable () -> String?
@@ -11,7 +11,7 @@ public struct UIApplicationClient: Sendable {
     public let setUserInterfaceStyle: @MainActor @Sendable (UIUserInterfaceStyle) -> Void
 }
 
-extension UIApplicationClient {
+extension ApplicationClient {
     public static let live: Self = .init(
         openURL: { url in
             UIApplication.shared.open(url, options: [:])
@@ -55,21 +55,21 @@ extension UIApplicationClient {
 }
 
 // MARK: API
-public enum UIApplicationClientKey: DependencyKey {
-    public static let liveValue = UIApplicationClient.live
-    public static let previewValue = UIApplicationClient.noop
-    public static let testValue = UIApplicationClient.unimplemented
+public enum ApplicationClientKey: DependencyKey {
+    public static let liveValue = ApplicationClient.live
+    public static let previewValue = ApplicationClient.noop
+    public static let testValue = ApplicationClient.unimplemented
 }
 
 extension DependencyValues {
-    public var uiApplicationClient: UIApplicationClient {
-        get { self[UIApplicationClientKey.self] }
-        set { self[UIApplicationClientKey.self] = newValue }
+    public var applicationClient: ApplicationClient {
+        get { self[ApplicationClientKey.self] }
+        set { self[ApplicationClientKey.self] = newValue }
     }
 }
 
 // MARK: Test
-extension UIApplicationClient {
+extension ApplicationClient {
     public static let noop: Self = .init(
         openURL: { _ in},
         hideKeyboard: {},

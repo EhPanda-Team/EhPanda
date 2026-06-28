@@ -3,7 +3,7 @@ import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
 import URLClient
-import UIApplicationClient
+import ApplicationClient
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -69,7 +69,7 @@ public struct CommentsReducer: Sendable {
         case detail(DetailReducer.Action)
     }
 
-    @Dependency(\.uiApplicationClient) private var uiApplicationClient
+    @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
@@ -136,7 +136,7 @@ public struct CommentsReducer: Sendable {
 
             case .handleCommentLink(let url):
                 guard urlClient.checkIfHandleable(url) else {
-                    return .run(operation: { _ in await uiApplicationClient.openURL(url) })
+                    return .run(operation: { _ in await applicationClient.openURL(url) })
                 }
                 let analysis = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
