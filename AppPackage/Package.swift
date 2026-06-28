@@ -112,6 +112,7 @@ enum Module: String {
     case swiftUINavigationExt = "SwiftUINavigationExt"
     case swiftyBeaverExt = "SwiftyBeaverExt"
     case ttProgressHUDExt = "TTProgressHUDExt"
+    case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
 
@@ -315,7 +316,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appModels,
         dependencies: [
-            .module(.commonMarkExt),
             .module(.resources),
             .module(.swiftyBeaverExt),
             .targetDependency(.casePaths)
@@ -512,6 +512,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.parserFeature),
             .module(.resources),
+            .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],
@@ -525,6 +526,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.resources),
+            .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.waterfallGrid)
@@ -573,6 +575,15 @@ let targets: [PackageDescription.Target] = [
         module: .swiftyBeaverExt,
         dependencies: [
             .targetDependency(.swiftyBeaver)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .tagTranslationFeature,
+        dependencies: [
+            .module(.appModels),
+            .module(.commonMarkExt)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -653,6 +664,7 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
+            .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
@@ -676,6 +688,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.tagTranslationFeature),
             .targetDependency(.alertKit),
             .targetDependency(.composableArchitecture)
         ],
@@ -732,6 +745,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
@@ -759,6 +773,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.swiftUINavigationExt),
+            .module(.tagTranslationFeature),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.composableArchitecture),
@@ -793,6 +808,7 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
+            .module(.tagTranslationFeature),
             .module(.urlClient),
             .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),

@@ -1,6 +1,7 @@
 import SwiftUI
 import SFSafeSymbols
 import AppModels
+import TagTranslationFeature
 import AppComponents
 import Kingfisher
 import AppTools

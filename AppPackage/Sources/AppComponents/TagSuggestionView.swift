@@ -1,6 +1,7 @@
 import SwiftUI
 import SFSafeSymbols
 import AppModels
+import TagTranslationFeature
 import Resources
 import Kingfisher
 import Observation

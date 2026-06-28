@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import TagTranslationFeature
 import ComposableArchitecture
 import SwiftUINavigationExt
 import AppTools
