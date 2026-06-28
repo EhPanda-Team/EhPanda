@@ -66,6 +66,7 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 
 // MARK: Module
 enum Module: String {
+    case alertKitExt = "AlertKitExt"
     case animatedImageFeature = "AnimatedImageFeature"
     case appComponents = "AppComponents"
     case appDelegateClient = "AppDelegateClient"
@@ -532,7 +533,6 @@ let targets: [PackageDescription.Target] = [
             .module(.parserFeature),
             .module(.resources),
             .module(.utilities),
-            .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
@@ -546,6 +546,17 @@ let targets: [PackageDescription.Target] = [
         module: .animatedImageFeature,
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .alertKitExt,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.resources),
+            .targetDependency(.alertKit)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -706,6 +717,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .homeFeature,
         dependencies: [
+            .module(.alertKitExt),
             .module(.appComponents),
             .module(.appModels),
             .module(.composableArchitectureExt),
