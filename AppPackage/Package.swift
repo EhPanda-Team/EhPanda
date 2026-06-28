@@ -514,10 +514,8 @@ let targets: [PackageDescription.Target] = [
             .module(.parserFeature),
             .module(.resources),
             .module(.utilities),
-            .targetDependency(.colorful),
             .targetDependency(.kingfisher),
-            .targetDependency(.sfSafeSymbols),
-            .targetDependency(.uiImageColors)
+            .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -700,6 +698,7 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .module(.utilities),
             .targetDependency(.composableArchitecture),
+            .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -727,10 +726,12 @@ let targets: [PackageDescription.Target] = [
             .module(.swiftUINavigationExt),
             .module(.utilities),
             .targetDependency(.alertKit),
+            .targetDependency(.colorful),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUIPager)
+            .targetDependency(.swiftUIPager),
+            .targetDependency(.uiImageColors)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
