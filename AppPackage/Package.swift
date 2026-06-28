@@ -21,6 +21,7 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/markrenaud/FilePicker", from: "1.0.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/paololeonardi/WaterfallGrid", from: "1.0.0"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
     .package(
         url: "https://github.com/pointfreeco/swift-composable-architecture",
         from: "1.25.0"
@@ -31,6 +32,7 @@ var dependencies: [PackageDescription.Package.Dependency] = [
 
 extension PackageDescription.Target.Dependency {
     static let alertKit: Self = .product(name: "AlertKit", package: "AlertKit")
+    static let casePaths: Self = .product(name: "CasePaths", package: "swift-case-paths")
     static let colorful: Self = .product(name: "Colorful", package: "Colorful")
     static let commonMark: Self = .product(name: "CommonMark", package: "SwiftCommonMark")
     static let composableArchitecture: Self = .product(
@@ -312,8 +314,8 @@ let targets: [PackageDescription.Target] = [
         module: .appModels,
         dependencies: [
             .module(.resources),
+            .targetDependency(.casePaths),
             .targetDependency(.commonMark),
-            .targetDependency(.composableArchitecture),
             .targetDependency(.openCC),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftyBeaver)
