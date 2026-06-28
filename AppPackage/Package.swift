@@ -78,6 +78,7 @@ enum Module: String {
     case authorizationClient = "AuthorizationClient"
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
+    case commonMarkExt = "CommonMarkExt"
     case composableArchitectureExt = "ComposableArchitectureExt"
     case cookieClient = "CookieClient"
     case dfClient = "DFClient"
@@ -314,9 +315,9 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appModels,
         dependencies: [
+            .module(.commonMarkExt),
             .module(.resources),
             .targetDependency(.casePaths),
-            .targetDependency(.commonMark),
             .targetDependency(.swiftyBeaver)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -552,6 +553,15 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.resources),
             .targetDependency(.alertKit)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .commonMarkExt,
+        dependencies: [
+            .targetDependency(.casePaths),
+            .targetDependency(.commonMark)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
