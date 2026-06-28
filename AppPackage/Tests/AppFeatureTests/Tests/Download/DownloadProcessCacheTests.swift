@@ -2,7 +2,7 @@ import UIKit
 import AppModels
 import Foundation
 import Testing
-import FoundationExt
+import Utilities
 import LibraryClient
 import DownloadClient
 @testable import AppFeature

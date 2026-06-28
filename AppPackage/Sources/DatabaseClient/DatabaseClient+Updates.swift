@@ -1,7 +1,7 @@
 import SwiftUI
 import AppModels
 import CoreData
-import FoundationExt
+import Utilities
 
 // MARK: UpdateGalleryState
 extension DatabaseClient {
