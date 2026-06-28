@@ -1,5 +1,5 @@
+import AppTools
 import Foundation
-import AppModels
 
 public struct AppUtil {
     public static var version: String {

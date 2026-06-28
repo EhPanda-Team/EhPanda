@@ -1,3 +1,4 @@
+import AppTools
 import WebKit
 import AppModels
 import SwiftyBeaverExt
