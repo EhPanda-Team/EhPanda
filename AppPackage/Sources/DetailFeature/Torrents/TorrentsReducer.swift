@@ -3,7 +3,7 @@ import AppModels
 import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
-import Networking
+import NetworkingFeature
 import ClipboardClient
 import FileClient
 import DesignSystem

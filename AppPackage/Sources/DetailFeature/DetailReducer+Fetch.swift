@@ -1,6 +1,6 @@
 import Foundation
 import ComposableArchitecture
-import Networking
+import NetworkingFeature
 
 // MARK: - Fetch & Gallery Ops Action Handlers
 extension DetailReducer {

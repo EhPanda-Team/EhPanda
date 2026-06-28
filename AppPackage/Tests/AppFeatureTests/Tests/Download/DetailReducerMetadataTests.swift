@@ -4,7 +4,7 @@ import ComposableArchitecture
 import Testing
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import DownloadClient
 import CookieClient
 @testable import DetailFeature

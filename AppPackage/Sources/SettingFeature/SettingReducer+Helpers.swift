@@ -1,7 +1,7 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
-import Networking
+import NetworkingFeature
 
 extension SettingReducer {
     func handleLoadUserSettings(

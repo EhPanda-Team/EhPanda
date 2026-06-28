@@ -4,7 +4,7 @@ import ComposableArchitecture
 import SwiftUINavigationExt
 import UIApplicationClient
 import HapticsClient
-import Networking
+import NetworkingFeature
 import CookieClient
 
 @Reducer

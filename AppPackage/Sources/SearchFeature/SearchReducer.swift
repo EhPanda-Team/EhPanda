@@ -4,7 +4,7 @@ import Foundation
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import DownloadClient
 import FiltersFeature
 import DateSeekFeature

@@ -6,7 +6,7 @@ import ComposableArchitectureExt
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import DownloadClient
 import CookieClient
 import AppLaunchAutomationClient

@@ -1,7 +1,7 @@
 import SwiftUI
 import Kingfisher
 import ComposableArchitecture
-import Networking
+import NetworkingFeature
 import AppModels
 import DetailFeature
 

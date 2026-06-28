@@ -4,7 +4,7 @@ import FoundationExt
 import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
-import Networking
+import NetworkingFeature
 import FiltersFeature
 import DetailFeature
 import ComposableArchitectureExt
