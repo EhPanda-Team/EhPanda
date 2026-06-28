@@ -4,7 +4,7 @@ import Kingfisher
 import UIKit
 import Foundation
 import Testing
-import FoundationExt
+import Utilities
 @testable import AppFeature
 
 @Suite(.serialized)

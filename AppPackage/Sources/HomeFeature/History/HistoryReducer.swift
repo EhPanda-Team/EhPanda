@@ -1,7 +1,7 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
-import FoundationExt
+import Utilities
 import HapticsClient
 import DatabaseClient
 import DownloadClient

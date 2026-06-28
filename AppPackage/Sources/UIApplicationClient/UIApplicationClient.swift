@@ -1,7 +1,6 @@
 import SwiftUI
 import Combine
 import ComposableArchitecture
-import FoundationExt
 import Utilities
 
 public struct UIApplicationClient: Sendable {

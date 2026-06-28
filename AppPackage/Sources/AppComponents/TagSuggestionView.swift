@@ -4,7 +4,6 @@ import AppModels
 import Resources
 import Kingfisher
 import Observation
-import FoundationExt
 import Utilities
 
 public struct TagSuggestionView: View {

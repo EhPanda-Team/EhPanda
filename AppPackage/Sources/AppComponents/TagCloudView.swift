@@ -4,7 +4,7 @@
 import SwiftUI
 import SFSafeSymbols
 import Kingfisher
-import FoundationExt
+import Utilities
 
 public struct TagCloudView<Element, ID, TagCell>: View
 where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
