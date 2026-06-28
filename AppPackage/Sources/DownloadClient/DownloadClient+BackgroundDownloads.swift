@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 public actor BackgroundPageCompletionReceiver {
     private enum PendingEvent {

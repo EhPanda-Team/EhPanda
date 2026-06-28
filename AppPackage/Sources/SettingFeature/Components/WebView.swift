@@ -1,5 +1,6 @@
 import WebKit
 import AppModels
+import SwiftyBeaverExt
 import SwiftUI
 
 struct WebView: UIViewControllerRepresentable {

@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 public struct DFRequest {
     public var request: URLRequest

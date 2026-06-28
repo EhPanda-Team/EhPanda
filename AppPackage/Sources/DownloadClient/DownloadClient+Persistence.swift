@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 // MARK: - Disk Index
 extension DownloadCoordinator {

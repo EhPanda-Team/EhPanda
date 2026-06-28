@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import AppModels
+import SwiftyBeaverExt
 import Foundation
 
 public struct DownloadQueueStore: Sendable {

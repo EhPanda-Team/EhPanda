@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftyBeaverExt
 import Resources
 
 public enum Category: String, Codable, CaseIterable, Identifiable, Sendable {

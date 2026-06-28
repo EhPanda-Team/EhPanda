@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 public actor DownloadBackgroundTaskStore {
     public struct Record: Codable, Equatable, Sendable {

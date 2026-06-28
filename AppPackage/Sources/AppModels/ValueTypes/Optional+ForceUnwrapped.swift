@@ -1,4 +1,5 @@
 import Foundation
+import SwiftyBeaverExt
 
 extension Optional {
     public var forceUnwrapped: Wrapped! {

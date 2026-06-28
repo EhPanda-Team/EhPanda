@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import SwiftyBeaverExt
 
 // MARK: - Retry & RetryPages
 extension DownloadCoordinator {

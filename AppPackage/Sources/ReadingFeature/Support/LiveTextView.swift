@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import SwiftyBeaverExt
 
 struct LiveTextView: View {
     private let liveTextGroups: [LiveTextGroup]
