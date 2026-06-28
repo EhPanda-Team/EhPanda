@@ -5,7 +5,7 @@ import DatabaseClient
 @Reducer
 public struct FiltersReducer: Sendable {
     @CasePathable
-    public enum Route {
+    public enum Route: Sendable {
         case resetFilters
     }
 

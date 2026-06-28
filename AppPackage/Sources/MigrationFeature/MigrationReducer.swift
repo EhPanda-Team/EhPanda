@@ -6,7 +6,7 @@ import DatabaseClient
 @Reducer
 public struct MigrationReducer: Sendable {
     @CasePathable
-    public enum Route: Equatable {
+    public enum Route: Equatable, Sendable {
         case dropDialog
     }
 
