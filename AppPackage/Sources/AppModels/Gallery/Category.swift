@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftyBeaverExt
 import Resources
 
 public enum Category: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -39,7 +38,7 @@ extension Category {
         case .misc: return 1
         case .private:
             let message = "`Private` doesn't have a `filterValue`!"
-            Logger.error(message)
+            logger.error("\(message, privacy: .public)")
             fatalError(message)
         }
     }

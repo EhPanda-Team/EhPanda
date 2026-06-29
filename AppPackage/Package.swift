@@ -323,7 +323,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appTools),
             .module(.resources),
-            .module(.swiftyBeaverExt),
+            .module(.osLogExt),
             .targetDependency(.casePaths)
         ],
         swiftSettings: sharedSwiftSettings,
