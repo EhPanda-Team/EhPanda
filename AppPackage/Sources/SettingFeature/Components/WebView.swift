@@ -1,7 +1,10 @@
 import AppTools
 import WebKit
 import AppModels
+import OSLogExt
 import SwiftUI
+
+private let logger = Logger(category: .init(describing: WebView.self))
 
 struct WebView: UIViewControllerRepresentable {
     private let url: URL

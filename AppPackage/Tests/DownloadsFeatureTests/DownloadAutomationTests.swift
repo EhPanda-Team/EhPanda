@@ -4,7 +4,6 @@ import AppModels
 import SwiftUI
 import ComposableArchitecture
 import Testing
-import LoggerClient
 import URLClient
 import UserDefaultsClient
 import ApplicationClient
@@ -194,7 +193,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.userDefaultsClient = .noop
                 $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
-                $0.loggerClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
                 $0.urlClient = .noop
@@ -237,7 +235,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.userDefaultsClient = .noop
                 $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
-                $0.loggerClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
                 $0.urlClient = .init(
@@ -297,7 +294,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.userDefaultsClient = .noop
                 $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
-                $0.loggerClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
                 $0.urlClient = .init(

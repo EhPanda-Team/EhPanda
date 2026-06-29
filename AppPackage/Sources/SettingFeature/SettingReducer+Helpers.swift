@@ -1,8 +1,11 @@
 import AppTools
 import Foundation
 import AppModels
+import OSLogExt
 import ComposableArchitecture
 import NetworkingFeature
+
+private let logger = Logger(category: .init(describing: SettingReducer.self))
 
 extension SettingReducer {
     func handleLoadUserSettings(
@@ -123,8 +126,9 @@ extension SettingReducer {
             } else if response.isProfileNotFound {
                 effects.append(.send(.createDefaultEhProfile))
             } else {
-                let message = "Found profile but failed in parsing value."
-                effects.append(.run(operation: { _ in loggerClient.error(message, nil) }))
+                effects.append(.run { _ in
+                    logger.error("Found profile but failed in parsing value.")
+                })
             }
         }
         return effects.isEmpty ? .none : .merge(effects)

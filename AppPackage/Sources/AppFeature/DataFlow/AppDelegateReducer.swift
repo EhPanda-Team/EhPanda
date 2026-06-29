@@ -1,7 +1,6 @@
 import AppModels
 import SwiftUI
 import BackgroundTasks
-import SwiftyBeaver
 import ComposableArchitecture
 import AppTools
 import AppDelegateClient
@@ -35,7 +34,6 @@ struct AppDelegateReducer {
             switch action {
             case .onLaunchFinish:
                 return .merge(
-                    .run(operation: { _ in libraryClient.initializeLogger() }),
                     .run(operation: { _ in libraryClient.initializeWebImage() }),
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),

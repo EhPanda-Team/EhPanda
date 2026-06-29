@@ -1,6 +1,7 @@
 import OSLogExt
 
-let logger = Logger(
-    moduleName: "SettingFeature",
-    category: .init(describing: WebView.self)
-)
+extension Logger {
+    init(category: String) {
+        self.init(moduleName: "SettingFeature", category: category)
+    }
+}
