@@ -1,6 +1,9 @@
+import OSLogExt
 import AppTools
 import Foundation
 import AppModels
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Disk Index
 extension DownloadCoordinator {

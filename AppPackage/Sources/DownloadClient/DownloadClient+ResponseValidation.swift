@@ -1,9 +1,12 @@
 import Kanna
+import OSLogExt
 import AppModels
 import Foundation
 import ImageIO
 import AppTools
 import ParserFeature
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Response Error Detection
 extension DownloadCoordinator {

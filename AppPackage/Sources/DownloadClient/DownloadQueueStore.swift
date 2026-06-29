@@ -1,6 +1,9 @@
+import OSLogExt
 import ComposableArchitecture
 import AppModels
 import Foundation
+
+private let logger = Logger(category: .init(describing: DownloadQueueStore.self))
 
 public struct DownloadQueueStore: Sendable {
     private let identifiers: Shared<[String]>

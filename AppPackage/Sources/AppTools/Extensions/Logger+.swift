@@ -10,5 +10,3 @@ extension Logger {
         )
     }
 }
-
-let logger = Logger(category: "ForceUnwrap")

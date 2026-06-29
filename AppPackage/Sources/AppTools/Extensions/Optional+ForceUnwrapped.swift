@@ -1,4 +1,7 @@
+import OSLog
 import Foundation
+
+private let logger = Logger(category: "ForceUnwrap")
 
 extension Optional {
     public var forceUnwrapped: Wrapped! {

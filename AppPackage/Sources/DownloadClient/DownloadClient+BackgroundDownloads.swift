@@ -1,5 +1,8 @@
+import OSLogExt
 import Foundation
 import AppModels
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 public actor BackgroundPageCompletionReceiver {
     private enum PendingEvent {

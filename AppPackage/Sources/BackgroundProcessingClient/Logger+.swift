@@ -1,6 +1,7 @@
 import OSLogExt
 
-let logger = Logger(
-    moduleName: "BackgroundProcessingClient",
-    category: .init(describing: BackgroundProcessingClient.self)
-)
+extension Logger {
+    init(category: String) {
+        self.init(moduleName: "BackgroundProcessingClient", category: category)
+    }
+}
