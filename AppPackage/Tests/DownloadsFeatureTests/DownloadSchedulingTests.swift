@@ -124,7 +124,12 @@ struct DownloadSchedulingTests: DownloadFeatureTestCase {
         let pauseTask = Task {
             await manager.pause(gid: firstGID)
         }
-        try await waitForActiveGalleryID(manager, toEqual: nil)
+        // Pause cancels the first task and clears the active slot synchronously
+        // before suspending on the cancelled task's completion. Awaiting that
+        // cancellation event (instead of polling activeGalleryID against a
+        // wall-clock deadline) lets actor mutual exclusion guarantee the slot is
+        // already clear by the time the next scheduleNextIfNeeded() runs.
+        await gate.waitForFirstCancellation()
 
         await manager.scheduleNextIfNeeded()
         await gate.waitForSecondStart()
@@ -164,24 +169,6 @@ private extension DownloadSchedulingTests {
             folderURL: folderURL
         )
     }
-
-    func waitForActiveGalleryID(
-        _ manager: DownloadCoordinator,
-        toEqual expected: String?,
-        timeout: Duration = .seconds(1)
-    ) async throws {
-        let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: timeout)
-
-        while await manager.testingActiveGalleryID() != expected,
-              clock.now < deadline {
-            try? await Task.sleep(for: .milliseconds(10))
-        }
-        try #require(
-            await manager.testingActiveGalleryID() == expected,
-            "Timed out waiting for activeGalleryID to become \(String(describing: expected))."
-        )
-    }
 }
 
 private actor ScheduleFetchGate {
@@ -219,8 +206,10 @@ private actor ScheduleFetchGate {
 private actor ScheduledProcessCleanupGate {
     private let firstGID: String
     private var firstArrived = false
+    private var firstCancelled = false
     private var secondStarted = false
     private var firstArrivalContinuation: CheckedContinuation<Void, Never>?
+    private var firstCancellationContinuation: CheckedContinuation<Void, Never>?
     private var secondStartContinuation: CheckedContinuation<Void, Never>?
     private var releaseFirstContinuation: CheckedContinuation<Void, Never>?
 
@@ -246,6 +235,13 @@ private actor ScheduledProcessCleanupGate {
         }
     }
 
+    func waitForFirstCancellation() async {
+        guard !firstCancelled else { return }
+        await withCheckedContinuation { continuation in
+            firstCancellationContinuation = continuation
+        }
+    }
+
     func waitForSecondStart() async {
         guard !secondStarted else { return }
         await withCheckedContinuation { continuation in
@@ -262,9 +258,24 @@ private actor ScheduledProcessCleanupGate {
         firstArrived = true
         firstArrivalContinuation?.resume()
         firstArrivalContinuation = nil
-        await withCheckedContinuation { continuation in
-            releaseFirstContinuation = continuation
+        // Stay parked past cancellation: the first task's cleanup must fire only
+        // after the second task becomes active. The cancellation handler merely
+        // reports that pause() has cancelled this task, which is the point at
+        // which it has cleared the active slot.
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                releaseFirstContinuation = continuation
+            }
+        } onCancel: {
+            Task { await self.markFirstCancelled() }
         }
+    }
+
+    private func markFirstCancelled() {
+        guard !firstCancelled else { return }
+        firstCancelled = true
+        firstCancellationContinuation?.resume()
+        firstCancellationContinuation = nil
     }
 
     private func startSecond() {
