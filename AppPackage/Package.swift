@@ -439,7 +439,7 @@ let targets: [PackageDescription.Target] = [
         module: .backgroundProcessingClient,
         dependencies: [
             .module(.appModels),
-            .module(.swiftyBeaverExt),
+            .module(.osLogExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
