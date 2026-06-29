@@ -36,17 +36,23 @@ public struct LaunchLogFile: Identifiable, Equatable, Sendable {
 
     /// The canonical `ehpanda-<yyyyMMdd>-<launchCount>.jsonl` file name for a launch.
     public static func fileName(date: Date, launchCount: Int) -> String {
-        let dateString = fileNameDateFormatter.string(from: date)
-        return "\(Defaults.FilePath.activityLogPrefix)\(dateString)-\(launchCount)"
+        "\(Defaults.FilePath.activityLogPrefix)\(dayString(for: date))-\(launchCount)"
             + ".\(Defaults.FilePath.activityLogExtension)"
     }
 
+    /// The `yyyyMMdd` day component used in log file names, in the device's local time zone.
+    /// Two launches share a day (and thus the same launch-count sequence) iff these match.
+    public static func dayString(for date: Date) -> String {
+        fileNameDateFormatter.string(from: date)
+    }
+
+    // No explicit time zone: the day rolls over at the device's local midnight, matching how
+    // the picker groups launches and the user's notion of "a different day".
     private static let fileNameDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
         return formatter
     }()
 }

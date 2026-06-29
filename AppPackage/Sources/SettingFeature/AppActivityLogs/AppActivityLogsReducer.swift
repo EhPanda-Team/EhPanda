@@ -63,8 +63,8 @@ public struct AppActivityLogsReducer: Sendable {
                     if let existingURL {
                         fileURL = existingURL
                     } else {
-                        let launchCount = await logsClient.nextLaunchCount()
                         let now = date.now
+                        let launchCount = await logsClient.nextLaunchCount(now)
                         let resolvedURL = logsClient.currentLaunchFileURL(launchCount, now)
                         await send(.setLaunchContext(launchCount: launchCount, date: now, fileURL: resolvedURL))
                         fileURL = resolvedURL
