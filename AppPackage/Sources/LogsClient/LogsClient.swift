@@ -16,8 +16,9 @@ public struct LogsClient: Sendable {
     public var readLaunchFile: @Sendable (_ url: URL) async throws -> [AppActivityLog]
     /// Lists the persisted per-launch log files, newest launch first.
     public var listLaunchFiles: @Sendable () async -> [LaunchLogFile]
-    /// Derives the next launch count from the existing log files (`max + 1`, or `1` when none exist).
-    public var nextLaunchCount: @Sendable () async -> Int
+    /// Derives the next launch count for the given day from the existing log files
+    /// (`max + 1` among that day's files, or `1` — so the count resets each new day).
+    public var nextLaunchCount: @Sendable (_ date: Date) async -> Int
     /// In-memory, case-insensitive keyword filter over already-loaded logs.
     public var query: @Sendable (_ logs: [AppActivityLog], _ keyword: String) -> [AppActivityLog]
     /// The jsonl file URL for a given launch.
@@ -83,15 +84,17 @@ extension LogsClient {
                 .compactMap { LaunchLogFile(fileURL: directory.appendingPathComponent($0)) }
                 .sorted { $0.launchCount > $1.launchCount }
         },
-        nextLaunchCount: {
+        nextLaunchCount: { date in
             let directory = FileUtil.logsDirectoryURL
             guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
                 return 1
             }
-            let counts = names.compactMap {
-                LaunchLogFile(fileURL: directory.appendingPathComponent($0))?.launchCount
-            }
-            return (counts.max() ?? 0) + 1
+            let today = LaunchLogFile.dayString(for: date)
+            let todayCounts = names
+                .compactMap { LaunchLogFile(fileURL: directory.appendingPathComponent($0)) }
+                .filter { LaunchLogFile.dayString(for: $0.date) == today }
+                .map(\.launchCount)
+            return (todayCounts.max() ?? 0) + 1
         },
         query: { logs, keyword in
             guard !keyword.isEmpty else { return logs }
@@ -130,7 +133,7 @@ extension LogsClient {
         appendToLaunchFile: { _, _ in },
         readLaunchFile: { _ in [] },
         listLaunchFiles: { [] },
-        nextLaunchCount: { 1 },
+        nextLaunchCount: { _ in 1 },
         query: { logs, _ in logs },
         currentLaunchFileURL: { _, _ in FileUtil.logsDirectoryURL }
     )
