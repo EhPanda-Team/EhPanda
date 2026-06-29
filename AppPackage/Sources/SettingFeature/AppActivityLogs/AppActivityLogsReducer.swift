@@ -1,7 +1,10 @@
+import OSLogExt
 import Foundation
 import AppModels
 import LogsClient
 import ComposableArchitecture
+
+private let logger = Logger(category: .init(describing: AppActivityLogsReducer.self))
 
 @Reducer
 public struct AppActivityLogsReducer: Sendable {
@@ -65,6 +68,16 @@ public struct AppActivityLogsReducer: Sendable {
                         let resolvedURL = logsClient.currentLaunchFileURL(launchCount, now)
                         await send(.setLaunchContext(launchCount: launchCount, date: now, fileURL: resolvedURL))
                         fileURL = resolvedURL
+                        // A persisted `.notice` so the log always has a baseline entry. Only
+                        // `.notice`/`.error`/`.fault` survive in OSLogStore; `.debug`/`.info` do not.
+                        let appVersion = Bundle.main
+                            .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+                        logger.notice("""
+                            App activity logging started. \
+                            Launch \(launchCount, privacy: .public), \
+                            version \(appVersion, privacy: .public), \
+                            \(ProcessInfo.processInfo.operatingSystemVersionString, privacy: .public).
+                            """)
                     }
                     await send(.refreshAvailableLaunches)
 
