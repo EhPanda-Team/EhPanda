@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 
 // MARK: - Retry & RetryPages
 extension DownloadCoordinator {
@@ -17,7 +16,7 @@ extension DownloadCoordinator {
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             return .failure(.unknown)
         }
     }
@@ -67,7 +66,7 @@ extension DownloadCoordinator {
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             return .failure(.unknown)
         }
     }

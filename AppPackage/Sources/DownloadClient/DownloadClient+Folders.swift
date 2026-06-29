@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 import Resources
 
 // MARK: - User Folder Operations
@@ -29,7 +28,7 @@ extension DownloadCoordinator {
             try storage.ensureRootDirectory()
             try createDirectory(at: folderURL)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
         insertUserFolder(normalizedName)
@@ -77,7 +76,7 @@ extension DownloadCoordinator {
                 try $0.moveItem(at: sourceURL, to: destinationURL)
             }
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             await reloadDownloadRecordIfPossible(gidInFolder: oldName)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
@@ -116,7 +115,7 @@ extension DownloadCoordinator {
             await reloadDownloadRecords(containedRecords)
             return .failure(error)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             await reloadDownloadRecords(containedRecords)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
@@ -182,7 +181,7 @@ extension DownloadCoordinator {
                 try $0.moveItem(at: download.folderURL, to: destinationURL)
             }
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }

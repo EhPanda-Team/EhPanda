@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 
 public actor DownloadBackgroundTaskStore {
     public struct Record: Codable, Equatable, Sendable {
@@ -76,7 +75,7 @@ public actor DownloadBackgroundTaskStore {
             let data = try Data(contentsOf: fileURL)
             return try JSONDecoder().decode([Int: Record].self, from: data)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             return [:]
         }
     }
@@ -92,7 +91,7 @@ public actor DownloadBackgroundTaskStore {
             let data = try JSONEncoder().encode(records)
             try data.write(to: fileURL, options: .atomic)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
         }
     }
 }
