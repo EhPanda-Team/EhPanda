@@ -40,7 +40,7 @@ public struct Defaults: Sendable {
     }
     public struct FilePath: Sendable {
         public static let logs = "logs"
-        public static let activityLogPrefix = "ehpanda-"
+        public static let activityLogPrefix = "ehpanda"
         public static let activityLogExtension = "jsonl"
         public static let downloads = "Downloads"
         public static let downloadPages = "pages"
