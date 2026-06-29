@@ -40,7 +40,7 @@ struct AppActivityLogsView: View {
             }
         }
         .onAppear {
-            store.send(.refreshAvailableLaunches)
+            store.send(.refreshAvailableRuns)
         }
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.AppActivityLogsView.title)
@@ -65,21 +65,21 @@ struct AppActivityLogsView: View {
     private var runMenu: some View {
         Section(L10n.Localizable.AppActivityLogsView.Section.current) {
             RunButton(
-                launchCount: store.currentLaunchCount,
-                isSelected: store.selectedLaunchCount == nil
+                runCount: store.currentRunCount,
+                isSelected: store.selectedRunCount == nil
             ) {
-                store.send(.selectLaunch(nil))
+                store.send(.selectRun(nil))
             }
         }
 
-        ForEach(groupedRuns(Array(store.previousLaunches.prefix(5))), id: \.date) { group in
+        ForEach(groupedRuns(Array(store.previousRuns.prefix(5))), id: \.date) { group in
             Section(runDayFormatter.string(from: group.date)) {
                 ForEach(group.runs) { run in
                     RunButton(
-                        launchCount: run.launchCount,
-                        isSelected: store.selectedLaunchCount == run.launchCount
+                        runCount: run.runCount,
+                        isSelected: store.selectedRunCount == run.runCount
                     ) {
-                        store.send(.selectLaunch(run.launchCount))
+                        store.send(.selectRun(run.runCount))
                     }
                 }
             }
@@ -103,22 +103,22 @@ private struct RunPickerSheet: View {
             List {
                 Section(L10n.Localizable.AppActivityLogsView.Section.current) {
                     RunButton(
-                        launchCount: store.currentLaunchCount,
-                        isSelected: store.selectedLaunchCount == nil
+                        runCount: store.currentRunCount,
+                        isSelected: store.selectedRunCount == nil
                     ) {
-                        store.send(.selectLaunch(nil))
+                        store.send(.selectRun(nil))
                         onSelect()
                     }
                 }
 
-                ForEach(groupedRuns(store.previousLaunches), id: \.date) { group in
+                ForEach(groupedRuns(store.previousRuns), id: \.date) { group in
                     Section(runDayFormatter.string(from: group.date)) {
                         ForEach(group.runs) { run in
                             RunButton(
-                                launchCount: run.launchCount,
-                                isSelected: store.selectedLaunchCount == run.launchCount
+                                runCount: run.runCount,
+                                isSelected: store.selectedRunCount == run.runCount
                             ) {
-                                store.send(.selectLaunch(run.launchCount))
+                                store.send(.selectRun(run.runCount))
                                 onSelect()
                             }
                         }
@@ -140,33 +140,33 @@ private struct RunPickerSheet: View {
 
 // MARK: RunButton
 private struct RunButton: View {
-    let launchCount: Int?
+    let runCount: Int?
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             if isSelected {
-                Label(runTitle(launchCount), systemSymbol: .checkmark)
+                Label(runTitle(runCount), systemSymbol: .checkmark)
             } else {
-                Text(runTitle(launchCount))
+                Text(runTitle(runCount))
             }
         }
         .foregroundStyle(.primary)
     }
 }
 
-// A nil launch count is the current run before its count is resolved; fall back to "Current".
-private func runTitle(_ launchCount: Int?) -> String {
-    guard let launchCount else {
+// A nil run count is the current run before its count is resolved; fall back to "Current".
+private func runTitle(_ runCount: Int?) -> String {
+    guard let runCount else {
         return L10n.Localizable.AppActivityLogsView.Section.current
     }
-    return L10n.Localizable.AppActivityLogsView.run("\(launchCount)")
+    return L10n.Localizable.AppActivityLogsView.run("\(runCount)")
 }
 
-private func groupedRuns(_ runs: [LaunchLogFile]) -> [(date: Date, runs: [LaunchLogFile])] {
+private func groupedRuns(_ runs: [RunLogFile]) -> [(date: Date, runs: [RunLogFile])] {
     Dictionary(grouping: runs, by: \.date)
-        .map { (date: $0.key, runs: $0.value.sorted { $0.launchCount > $1.launchCount }) }
+        .map { (date: $0.key, runs: $0.value.sorted { $0.runCount > $1.runCount }) }
         .sorted { $0.date > $1.date }
 }
 
