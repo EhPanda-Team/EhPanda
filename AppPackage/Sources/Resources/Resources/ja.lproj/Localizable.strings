@@ -1032,3 +1032,6 @@
 "download_store.validation.page_missing" = "ページ %d が見つかりません。";
 "download_store.validation.cover_image_corrupted" = "表紙画像データが破損しています。";
 "download_store.validation.page_image_corrupted" = "ページ %d の画像データが破損しています。";
+
+// MARK: AppActivityLogsView
+"app_activity_logs_view.run" = "起動 %@";

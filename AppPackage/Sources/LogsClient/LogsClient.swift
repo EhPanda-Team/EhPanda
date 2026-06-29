@@ -82,7 +82,8 @@ extension LogsClient {
             }
             return names
                 .compactMap { LaunchLogFile(fileURL: directory.appendingPathComponent($0)) }
-                .sorted { $0.launchCount > $1.launchCount }
+                // Newest first across days: counts reset daily, so order by day then count.
+                .sorted { $0.date != $1.date ? $0.date > $1.date : $0.launchCount > $1.launchCount }
         },
         nextLaunchCount: { date in
             let directory = FileUtil.logsDirectoryURL
