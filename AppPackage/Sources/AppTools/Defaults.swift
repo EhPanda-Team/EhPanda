@@ -2,6 +2,9 @@ import CoreGraphics
 import Foundation
 
 public struct Defaults: Sendable {
+    public struct App: Sendable {
+        public static let identifier = "app.ehpanda"
+    }
     public struct ImageSize: Sendable {
         public static let rowAspect: CGFloat = 8/11
         public static let headerAspect: CGFloat = 8/11
