@@ -1043,3 +1043,6 @@
 "enum.browsing_country.name.yemen" = "也门";
 "enum.browsing_country.name.zambia" = "赞比亚";
 "enum.browsing_country.name.zimbabwe" = "津巴布韦";
+
+// MARK: AppActivityLogsView
+"app_activity_logs_view.run" = "运行 %@";

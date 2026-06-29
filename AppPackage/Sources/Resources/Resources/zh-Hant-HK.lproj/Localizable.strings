@@ -1029,3 +1029,6 @@
 "download_store.validation.page_missing" = "第 %d 頁缺失。";
 "download_store.validation.cover_image_corrupted" = "封面圖片資料已損壞。";
 "download_store.validation.page_image_corrupted" = "第 %d 頁圖片資料已損壞。";
+
+// MARK: AppActivityLogsView
+"app_activity_logs_view.run" = "運行 %@";

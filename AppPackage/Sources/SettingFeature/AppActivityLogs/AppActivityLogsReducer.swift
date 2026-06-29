@@ -74,7 +74,7 @@ public struct AppActivityLogsReducer: Sendable {
                             .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
                         logger.notice("""
                             App activity logging started. \
-                            Launch \(launchCount, privacy: .public), \
+                            Run \(launchCount, privacy: .public), \
                             version \(appVersion, privacy: .public), \
                             \(ProcessInfo.processInfo.operatingSystemVersionString, privacy: .public).
                             """)
@@ -126,7 +126,8 @@ public struct AppActivityLogsReducer: Sendable {
                 }
 
             case .availableLaunchesResponse(let launches):
-                state.previousLaunches = launches.filter { $0.launchCount != state.currentLaunchCount }
+                // Exclude the current run by file (its count can repeat on earlier days).
+                state.previousLaunches = launches.filter { $0.url != state.launchFileURL }
                 return .none
 
             case .selectLaunch(let launchCount):
