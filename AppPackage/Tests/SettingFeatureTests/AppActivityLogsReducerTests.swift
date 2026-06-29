@@ -18,7 +18,7 @@ struct AppActivityLogsReducerTests {
         let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-3.jsonl")
 
         var client = LogsClient.noop
-        client.nextLaunchCount = { 3 }
+        client.nextLaunchCount = { _ in 3 }
         client.currentLaunchFileURL = { _, _ in fileURL }
         client.fetchNewEntries = { _ in
             fetchCount.withValue { $0 += 1 }
