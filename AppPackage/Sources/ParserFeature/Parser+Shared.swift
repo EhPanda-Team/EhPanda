@@ -1,6 +1,5 @@
 import Kanna
 import AppModels
-import SwiftyBeaverExt
 import Foundation
 import AppTools
 
@@ -190,11 +189,7 @@ extension Parser {
                 return .minutes(minutes, seconds: nil)
             }
         } else {
-            Logger.error(
-                "Unrecognized BanInterval format", context: [
-                    "expireDescription": expireDescription
-                ]
-            )
+            logger.error("Unrecognized BanInterval format: \(expireDescription, privacy: .public)")
             return .unrecognized(content: expireDescription)
         }
     }

@@ -911,7 +911,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.resources),
-            .module(.swiftyBeaverExt),
+            .module(.osLogExt),
             .targetDependency(.kanna)
         ],
         swiftSettings: sharedSwiftSettings,
