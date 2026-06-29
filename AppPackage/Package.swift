@@ -102,6 +102,7 @@ enum Module: String {
     case migrationFeature = "MigrationFeature"
     case networkingFeature = "NetworkingFeature"
     case openCCExt = "OpenCCExt"
+    case osLogExt = "OSLogExt"
     case parserFeature = "ParserFeature"
     case quickSearchFeature = "QuickSearchFeature"
     case readingFeature = "ReadingFeature"
@@ -582,6 +583,14 @@ let targets: [PackageDescription.Target] = [
         module: .swiftyBeaverExt,
         dependencies: [
             .targetDependency(.swiftyBeaver)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .osLogExt,
+        dependencies: [
+            .module(.appTools)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
