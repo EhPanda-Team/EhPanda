@@ -1,6 +1,6 @@
 import SwiftUI
 import AppModels
-import SwiftyBeaverExt
+import OSLogExt
 import Observation
 import SFSafeSymbols
 import SwiftUIPager
@@ -10,6 +10,8 @@ import AnimatedImageFeature
 import TTProgressHUDExt
 import AppComponents
 import ReadingSettingFeature
+
+private let logger = Logger(category: .init(describing: ReadingView.self))
 
 public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -181,20 +183,15 @@ public struct ReadingView: View {
         pageAndAutoPlayTriggers(content: content)
             // LiveText
             .onChange(of: liveTextHandler.enablesLiveText) { _, newValue in
-                Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": newValue])
                 if newValue { store.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
             }
             .onChange(of: store.webImageLoadSuccessIndices) { _, newValue in
-                Logger.info("store.webImageLoadSuccessIndices changed", context: [
-                    "count": store.webImageLoadSuccessIndices.count
-                ])
                 if liveTextHandler.enablesLiveText {
                     newValue.forEach(analyzeImageForLiveText)
                 }
             }
             // Orientation
             .onChange(of: setting.enablesLandscape) { _, newValue in
-                Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
                 store.send(.setOrientationPortrait(!newValue))
             }
     }
@@ -204,7 +201,6 @@ public struct ReadingView: View {
         content()
             // Page
             .onChange(of: page.index) { _, newValue in
-                Logger.info("page.index changed", context: ["pageIndex": newValue])
                 let newValue = pageHandler.mapFromPager(
                     index: newValue, pageCount: store.gallery.pageCount, setting: setting
                 )
@@ -214,23 +210,19 @@ public struct ReadingView: View {
                 }
             }
             .onChange(of: pageHandler.sliderValue) { _, newValue in
-                Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": newValue])
                 if !store.showsSliderPreview {
                     setPageIndex(sliderValue: newValue)
                 }
             }
             .onChange(of: store.showsSliderPreview) { _, newValue in
-                Logger.info("store.showsSliderPreview changed", context: ["isShown": newValue])
                 if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
                 setAutoPlayPolocy(.off)
             }
             .onChange(of: store.readingProgress) { _, newValue in
-                Logger.info("store.readingProgress changed", context: ["readingProgress": newValue])
                 pageHandler.sliderValue = .init(newValue)
             }
             // AutoPlay
             .onChange(of: store.route) { _, newValue in
-                Logger.info("store.route changed", context: ["route": newValue])
                 if ![.hud, .none].contains(newValue) {
                     setAutoPlayPolocy(.off)
                 }
@@ -281,23 +273,19 @@ extension ReadingView {
         )
         if page.index != newValue {
             page.update(.new(index: newValue))
-            Logger.info("Pager.update", context: ["update": newValue])
         }
     }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
             page.update(.next)
-            Logger.info("Pager.update", context: ["update": "next"])
         })
     }
     func analyzeImageForLiveText(index: Int) {
-        Logger.info("analyzeImageForLiveText", context: ["index": index])
         guard liveTextHandler.liveTextGroups[index] == nil else {
-            Logger.info("analyzeImageForLiveText duplicated", context: ["index": index])
             return
         }
         guard let imageURL = displayImageURLs[index] else {
-            Logger.info("analyzeImageForLiveText URL not found", context: ["index": index])
+            logger.debug("analyzeImageForLiveText URL not found, index: \(index, privacy: .public)")
             return
         }
         if imageURL.isFileURL {
@@ -321,7 +309,7 @@ extension ReadingView {
               let image = data.decodedImage,
               let cgImage = image.cgImage
         else {
-            Logger.info("analyzeImageForLiveText local image not found", context: ["index": index])
+            logger.debug("analyzeImageForLiveText local image not found, index: \(index, privacy: .public)")
             return
         }
 
@@ -340,7 +328,7 @@ extension ReadingView {
               let image = data.decodedImage,
               let cgImage = image.cgImage
         else {
-            Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
+            logger.debug("analyzeImageForLiveText image not found, index: \(index, privacy: .public)")
             return
         }
 

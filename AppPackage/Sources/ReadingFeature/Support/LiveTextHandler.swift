@@ -10,10 +10,12 @@
 
 import Vision
 import AppModels
-import SwiftyBeaverExt
+import OSLogExt
 import SwiftUI
 import Foundation
 import Observation
+
+private let logger = Logger(category: .init(describing: LiveTextHandler.self))
 
 @Observable
 @MainActor
@@ -30,9 +32,6 @@ final class LiveTextHandler {
     }
 
     func cancelRequests() {
-        Logger.info("cancelRequests", context: [
-            "processingRequestsCount": analysisTasks.count
-        ])
         analysisTasks.values.forEach { task in
             task.cancel()
         }
@@ -40,15 +39,10 @@ final class LiveTextHandler {
     }
 
     func setFocusedLiveTextGroup(_ group: LiveTextGroup) {
-        Logger.info("setFocusedLiveTextGroup", context: ["group": group])
         focusedLiveTextGroup = group
     }
 
     func analyzeImage(_ cgImage: CGImage, size: CGSize, index: Int, recognitionLanguages: [String]?) {
-        Logger.info("analyzeImage", context: [
-            "index": index, "recognitionLanguages": recognitionLanguages as Any
-        ])
-
         analysisTasks[index]?.cancel()
         analysisTasks[index] = Task { [weak self] in
             do {
@@ -61,9 +55,7 @@ final class LiveTextHandler {
                 self?.liveTextGroups[index] = groups
             } catch is CancellationError {
             } catch {
-                Logger.info("Unable to perform the requests.", context: [
-                    "error": error, "index": index
-                ])
+                logger.error("Live Text failed, index \(index, privacy: .public): \(error, privacy: .public)")
             }
         }
     }

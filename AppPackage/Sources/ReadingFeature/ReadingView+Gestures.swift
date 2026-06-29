@@ -1,6 +1,5 @@
 import SwiftUI
 import AppModels
-import SwiftyBeaverExt
 
 // MARK: Gesture
 extension ReadingView {
@@ -12,7 +11,6 @@ extension ReadingView {
                     setPageIndexOffsetAction: {
                         let newValue = page.index + $0
                         page.update(.new(index: newValue))
-                        Logger.info("Pager.update", context: ["update": newValue])
                     },
                     toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
                 )

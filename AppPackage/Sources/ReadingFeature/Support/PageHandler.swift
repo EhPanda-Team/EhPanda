@@ -1,17 +1,12 @@
 import SwiftUI
 import AppModels
-import SwiftyBeaverExt
 import Observation
 import AppTools
 
 @Observable
 @MainActor
 final class PageHandler {
-    var sliderValue: Float = 1 {
-        didSet {
-            Logger.info("sliderValue.didSet", context: ["sliderValue": sliderValue])
-        }
-    }
+    var sliderValue: Float = 1
 
     func mapFromPager(index: Int, pageCount: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
         guard isLandscape && setting.enablesDualPageMode

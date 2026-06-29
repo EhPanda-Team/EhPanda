@@ -1,6 +1,5 @@
 import SwiftUI
 import AppModels
-import SwiftyBeaverExt
 
 struct LiveTextView: View {
     private let liveTextGroups: [LiveTextGroup]
@@ -111,7 +110,6 @@ private struct HighlightView: UIViewRepresentable {
 
         @MainActor
         @objc func onTap(sender: UIView) {
-            Logger.info("onTap", context: ["tappedText": textView?.text])
             guard let textView = textView else { return }
 
             let height = textView.contentSize.height

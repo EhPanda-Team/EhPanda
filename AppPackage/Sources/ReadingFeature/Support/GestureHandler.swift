@@ -1,6 +1,5 @@
 import SwiftUI
 import AppModels
-import SwiftyBeaverExt
 import Observation
 import AppTools
 
@@ -51,7 +50,6 @@ final class GestureHandler {
         setPageIndexOffsetAction: @escaping (Int) -> Void,
         toggleShowsPanelAction: @escaping () -> Void
     ) {
-        Logger.info("onSingleTapGestureEnded", context: ["readingDirection": readingDirection])
         guard readingDirection != .vertical,
               let pointX = TouchHandler.shared.currentPoint?.x
         else {
@@ -69,9 +67,6 @@ final class GestureHandler {
     }
 
     func onDoubleTapGestureEnded(scaleMaximum: Double, doubleTapScale: Double) {
-        Logger.info("onDoubleTapGestureEnded", context: [
-            "scaleMaximum": scaleMaximum, "doubleTapScale": doubleTapScale
-        ])
         let newScale = scale == 1 ? doubleTapScale : 1
         if let point = TouchHandler.shared.currentPoint {
             correctScaleAnchor(point: point)
@@ -81,9 +76,6 @@ final class GestureHandler {
     }
 
     func onMagnificationGestureChanged(value: Double, scaleMaximum: Double) {
-        Logger.info("onMagnificationGestureChanged", context: [
-            "value": value, "scaleMaximum": scaleMaximum
-        ])
         if value == 1 {
             baseScale = scale
         }
@@ -94,9 +86,6 @@ final class GestureHandler {
     }
 
     func onMagnificationGestureEnded(value: Double, scaleMaximum: Double) {
-        Logger.info("onMagnificationGestureEnded", context: [
-            "value": value, "scaleMaximum": scaleMaximum
-        ])
         onMagnificationGestureChanged(value: value, scaleMaximum: scaleMaximum)
         if value * baseScale - 1 < 0.01 {
             setScale(scale: 1, maximum: scaleMaximum)
@@ -105,7 +94,6 @@ final class GestureHandler {
     }
 
     func onDragGestureChanged(value: DragGesture.Value) {
-        Logger.info("onDragGestureChanged", context: ["value": value])
         guard scale > 1 else { return }
         let newX = value.translation.width + newOffset.width
         let newY = value.translation.height + newOffset.height
@@ -115,7 +103,6 @@ final class GestureHandler {
     }
 
     func onDragGestureEnded(value: DragGesture.Value) {
-        Logger.info("onDragGestureEnded", context: ["value": value])
         onDragGestureChanged(value: value)
         if scale > 1 {
             newOffset.width = offset.width
@@ -124,7 +111,6 @@ final class GestureHandler {
     }
 
     func onControlPanelDismissGestureEnded(value: DragGesture.Value, dismissAction: @escaping () -> Void) {
-        Logger.info("onControlPanelDismissGestureEnded", context: ["value": value])
         if value.predictedEndTranslation.height > 30 {
             dismissAction()
         }
