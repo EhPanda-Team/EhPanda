@@ -1,6 +1,5 @@
 import BackgroundTasks
 import AppModels
-import SwiftyBeaverExt
 import ComposableArchitecture
 
 public enum BackgroundProcessing {
@@ -51,7 +50,7 @@ extension BackgroundProcessingClient {
             do {
                 try BGTaskScheduler.shared.submit(request)
             } catch {
-                Logger.error(error)
+                logger.error("\(error, privacy: .public)")
             }
         },
         cancel: {
