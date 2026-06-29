@@ -243,6 +243,16 @@ public enum L10n {
       }
     }
     public enum AppActivityLogsView {
+      /// Launch %1$@ (%2$@)
+      public static func launch(_ p1: Any, _ p2: Any) -> String {
+        return L10n.tr("Localizable", "app_activity_logs_view.launch", String(describing: p1), String(describing: p2), fallback: "Launch %1$@ (%2$@)")
+      }
+      /// App Activity Logs
+      public static let title = L10n.tr("Localizable", "app_activity_logs_view.title", fallback: "App Activity Logs")
+      public enum Launch {
+        /// Current launch
+        public static let current = L10n.tr("Localizable", "app_activity_logs_view.launch.current", fallback: "Current launch")
+      }
       public enum Level {
         /// Debug
         public static let debug = L10n.tr("Localizable", "app_activity_logs_view.level.debug", fallback: "Debug")
@@ -256,6 +266,10 @@ public enum L10n {
         public static let notice = L10n.tr("Localizable", "app_activity_logs_view.level.notice", fallback: "Notice")
         /// Undefined
         public static let undefined = L10n.tr("Localizable", "app_activity_logs_view.level.undefined", fallback: "Undefined")
+      }
+      public enum Placeholder {
+        /// No logs found
+        public static let noLogs = L10n.tr("Localizable", "app_activity_logs_view.placeholder.no_logs", fallback: "No logs found")
       }
     }
     public enum AppError {
