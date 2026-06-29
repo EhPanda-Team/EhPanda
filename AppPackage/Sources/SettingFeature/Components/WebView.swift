@@ -1,7 +1,6 @@
 import AppTools
 import WebKit
 import AppModels
-import SwiftyBeaverExt
 import SwiftUI
 
 struct WebView: UIViewControllerRepresentable {
@@ -39,7 +38,7 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
         }
     }
 
