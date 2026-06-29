@@ -98,7 +98,6 @@ enum Module: String {
     case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
-    case loggerClient = "LoggerClient"
     case migrationFeature = "MigrationFeature"
     case networkingFeature = "NetworkingFeature"
     case openCCExt = "OpenCCExt"
@@ -281,7 +280,6 @@ let targets: [PackageDescription.Target] = [
             .module(.homeFeature),
             .module(.imageClient),
             .module(.libraryClient),
-            .module(.loggerClient),
             .module(.migrationFeature),
             .module(.networkingFeature),
             .module(.parserFeature),
@@ -292,7 +290,6 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.settingFeature),
             .module(.swiftUINavigationExt),
-            .module(.swiftyBeaverExt),
             .module(.ttProgressHUDExt),
             .module(.urlClient),
             .module(.userDefaultsClient),
@@ -310,7 +307,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUINavigation),
             .targetDependency(.swiftUIPager),
-            .targetDependency(.swiftyBeaver),
             .targetDependency(.ttProgressHUD),
             .targetDependency(.uiImageColors),
             .targetDependency(.waterfallGrid)
@@ -728,7 +724,6 @@ let targets: [PackageDescription.Target] = [
             .module(.fileClient),
             .module(.hapticsClient),
             .module(.libraryClient),
-            .module(.loggerClient),
             .module(.networkingFeature),
             .module(.osLogExt),
             .module(.readingSettingFeature),
@@ -887,18 +882,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
-            .targetDependency(.swiftyBeaver),
             .targetDependency(.uiImageColors)
-        ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .loggerClient,
-        dependencies: [
-            .module(.appModels),
-            .module(.swiftyBeaverExt),
-            .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -995,7 +979,6 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.imageClient),
             .module(.libraryClient),
-            .module(.loggerClient),
             .module(.networkingFeature),
             .module(.readingFeature),
             .module(.urlClient),

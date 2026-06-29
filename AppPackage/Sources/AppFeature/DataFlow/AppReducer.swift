@@ -60,245 +60,243 @@ struct AppReducer {
     @Dependency(\.urlClient) private var urlClient
 
     var body: some Reducer<State, Action> {
-        LoggingReducer {
-            BindingReducer()
-                .onChange(of: \.appRouteState.route) { _, state in
-                    state.appRouteState.route == nil ? .send(.appRoute(.clearSubStates)) : .none
-                }
-                .onChange(of: \.settingState.setting) { _, _ in
-                    .send(.setting(.syncSetting))
-                }
+        BindingReducer()
+            .onChange(of: \.appRouteState.route) { _, state in
+                state.appRouteState.route == nil ? .send(.appRoute(.clearSubStates)) : .none
+            }
+            .onChange(of: \.settingState.setting) { _, _ in
+                .send(.setting(.syncSetting))
+            }
 
-            Reduce { state, action in
-                switch action {
-                case .binding:
-                    return .none
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                return .none
 
-                case .onScenePhaseChange(let scenePhase):
-                    state.scenePhase = scenePhase
-                    guard state.settingState.hasLoadedInitialSetting else { return .none }
+            case .onScenePhaseChange(let scenePhase):
+                state.scenePhase = scenePhase
+                guard state.settingState.hasLoadedInitialSetting else { return .none }
 
-                    switch scenePhase {
-                    case .active:
-                        let threshold = state.settingState.setting.autoLockPolicy.rawValue
-                        let blurRadius = state.settingState.setting.backgroundBlurRadius
-                        var effects: [Effect<Action>] = [
-                            .send(.appLock(.onBecomeActive(threshold, blurRadius)))
-                        ]
-                        // iOS interposes .inactive on a foreground return
-                        // (.background -> .inactive -> .active), so the previous
-                        // phase is never .background here. Latch the background
-                        // entry instead: reconcile once per cycle, never on a
-                        // transient .inactive blip (Control Center, notifications).
-                        if state.hasEnteredBackground {
-                            state.hasEnteredBackground = false
-                            effects.append(
-                                .run { _ in
-                                    await downloadClient.reconcileDownloads()
-                                }
-                            )
-                        }
-                        return .merge(effects)
-
-                    case .inactive:
-                        let blurRadius = state.settingState.setting.backgroundBlurRadius
-                        return .send(.appLock(.onBecomeInactive(blurRadius)))
-
-                    case .background:
-                        state.hasEnteredBackground = true
-                        // Ask iOS for a later background window to finish the queue; the
-                        // beginBackgroundTask assertion only covers the brief grace
-                        // period right after backgrounding.
-                        return .run { _ in
-                            if await downloadClient.hasPendingWork() {
-                                backgroundProcessingClient.schedule()
-                            }
-                        }
-
-                    default:
-                        return .none
-                    }
-
-                case .runLaunchAutomation:
-                    guard !state.didRunLaunchAutomation,
-                          let automation = appLaunchAutomationClient.current()
-                    else { return .none }
-
-                    state.didRunLaunchAutomation = true
-                    return .run { send in
-                        if let galleryURL = automation.galleryURL,
-                           urlClient.checkIfHandleable(galleryURL) {
-                            await send(.appRoute(.handleDeepLink(galleryURL)))
-                        } else if let initialTab = automation.initialTab {
-                            await send(.tabBar(.setTabBarItemType(initialTab)))
-                        }
-                    }
-
-                case .appDelegate(.migration(.onDatabasePreparationSuccess)):
-                    let loginCookies = appLaunchAutomationClient.current()?.loginCookies
-                    return .run { send in
-                        if let loginCookies {
-                            cookieClient.importAutomationCookies(
-                                memberID: loginCookies.memberID,
-                                passHash: loginCookies.passHash,
-                                igneous: loginCookies.igneous
-                            )
-                        }
-                        await send(.appDelegate(.removeExpiredImageURLs))
-                        await send(.setting(.loadUserSettings))
-                    }
-
-                case .appDelegate:
-                    return .none
-
-                case .appRoute(.clearSubStates):
-                    return .run { send in
-                        guard await deviceClient.isPad() else { return }
-                        await send(.clearPadSettingSubstates)
-                    }
-
-                case .clearPadSettingSubstates:
-                    state.settingState.route = nil
-                    return .send(.setting(.clearSubStates))
-
-                case .appRoute:
-                    return .none
-
-                case .appLock(.unlockApp):
+                switch scenePhase {
+                case .active:
+                    let threshold = state.settingState.setting.autoLockPolicy.rawValue
+                    let blurRadius = state.settingState.setting.backgroundBlurRadius
                     var effects: [Effect<Action>] = [
-                        .send(.setting(.fetchGreeting))
+                        .send(.appLock(.onBecomeActive(threshold, blurRadius)))
                     ]
-                    if state.settingState.setting.detectsLinksFromClipboard {
-                        effects.append(.send(.appRoute(.detectClipboardURL)))
-                    }
-                    return .merge(effects)
-
-                case .appLock:
-                    return .none
-
-                case .tabBar(.setTabBarItemType(let type)):
-                    var effects = [Effect<Action>]()
-                    let hapticEffect: Effect<Action> = .run { _ in
-                        await hapticsClient.generateFeedback(.soft)
-                    }
-                    if type == state.tabBarState.tabBarItemType {
-                        switch type {
-                        case .home:
-                            if state.homeState.route != nil {
-                                effects.append(.send(.home(.setNavigation(nil))))
-                            } else {
-                                effects.append(.send(.home(.fetchAllGalleries)))
-                            }
-                        case .favorites:
-                            if state.favoritesState.route != nil {
-                                effects.append(.send(.favorites(.setNavigation(nil))))
-                                effects.append(hapticEffect)
-                            } else if cookieClient.didLogin {
-                                effects.append(.send(.favorites(.fetchGalleries())))
-                                effects.append(hapticEffect)
-                            }
-                        case .search:
-                            if state.searchRootState.route != nil {
-                                effects.append(.send(.searchRoot(.setNavigation(nil))))
-                            } else {
-                                effects.append(.send(.searchRoot(.fetchDatabaseInfos)))
-                            }
-                        case .downloads:
-                            if state.downloadsState.route != nil {
-                                effects.append(.send(.downloads(.setNavigation(nil))))
-                            } else {
-                                effects.append(.send(.downloads(.fetchDownloads)))
-                            }
-                            effects.append(hapticEffect)
-                        case .setting:
-                            if state.settingState.route != nil {
-                                effects.append(.send(.setting(.setNavigation(nil))))
-                                effects.append(hapticEffect)
-                            }
-                        }
-                        if [.home, .search].contains(type) {
-                            effects.append(hapticEffect)
-                        }
-                    }
-                    return effects.isEmpty ? .none : .merge(effects)
-
-                case .tabBar:
-                    return .none
-
-                case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
-                    var effects: [Effect<Action>] = [
-                        .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
-                        .send(.tabBar(.setTabBarItemType(.setting)))
-                    ]
-                    effects.append(.send(.setting(.setNavigation(.account))))
-                    if !cookieClient.didLogin {
+                    // iOS interposes .inactive on a foreground return
+                    // (.background -> .inactive -> .active), so the previous
+                    // phase is never .background here. Latch the background
+                    // entry instead: reconcile once per cycle, never on a
+                    // transient .inactive blip (Control Center, notifications).
+                    if state.hasEnteredBackground {
+                        state.hasEnteredBackground = false
                         effects.append(
-                            .run { send in
-                                let isPad = await deviceClient.isPad()
-                                let delay = UInt64(isPad ? 1200 : 200)
-                                try await Task.sleep(for: .milliseconds(delay))
-                                await send(.setting(.account(.setNavigation(.login))))
+                            .run { _ in
+                                await downloadClient.reconcileDownloads()
                             }
                         )
                     }
                     return .merge(effects)
 
-                case .home:
-                    return .none
-
-                case .favorites:
-                    return .none
-
-                case .searchRoot:
-                    return .none
-
-                case .downloads:
-                    return .none
-
-                case .setting(.loadUserSettingsDone):
-                    var effects = [Effect<Action>]()
-                    let threshold = state.settingState.setting.autoLockPolicy.rawValue
+                case .inactive:
                     let blurRadius = state.settingState.setting.backgroundBlurRadius
-                    if threshold >= 0 {
-                        state.appLockState.becameInactiveDate = .distantPast
-                        effects.append(.send(.appLock(.onBecomeActive(threshold, blurRadius))))
-                    }
-                    if state.settingState.setting.detectsLinksFromClipboard {
-                        effects.append(.send(.appRoute(.detectClipboardURL)))
-                    }
-                    state.isAwaitingIgneousForLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
-                        state: state
-                    )
-                    if !state.isAwaitingIgneousForLaunchAutomation {
-                        effects.append(.send(.runLaunchAutomation))
-                    }
-                    return effects.isEmpty ? .none : .merge(effects)
+                    return .send(.appLock(.onBecomeInactive(blurRadius)))
 
-                case .setting(.account(.loadCookies)):
-                    guard state.isAwaitingIgneousForLaunchAutomation,
-                          !shouldDelayLaunchAutomationUntilIgneous(state: state)
-                    else { return .none }
-                    state.isAwaitingIgneousForLaunchAutomation = false
-                    return .send(.runLaunchAutomation)
+                case .background:
+                    state.hasEnteredBackground = true
+                    // Ask iOS for a later background window to finish the queue; the
+                    // beginBackgroundTask assertion only covers the brief grace
+                    // period right after backgrounding.
+                    return .run { _ in
+                        if await downloadClient.hasPendingWork() {
+                            backgroundProcessingClient.schedule()
+                        }
+                    }
 
-                case .setting(.fetchGreetingDone(let result)):
-                    return .send(.appRoute(.fetchGreetingDone(result)))
-
-                case .setting:
+                default:
                     return .none
                 }
-            }
 
-            Scope(state: \.appRouteState, action: \.appRoute, child: AppRouteReducer.init)
-            Scope(state: \.appLockState, action: \.appLock, child: AppLockReducer.init)
-            Scope(state: \.appDelegateState, action: \.appDelegate, child: AppDelegateReducer.init)
-            Scope(state: \.tabBarState, action: \.tabBar, child: TabBarReducer.init)
-            Scope(state: \.homeState, action: \.home, child: HomeReducer.init)
-            Scope(state: \.favoritesState, action: \.favorites, child: FavoritesReducer.init)
-            Scope(state: \.searchRootState, action: \.searchRoot, child: SearchRootReducer.init)
-            Scope(state: \.downloadsState, action: \.downloads, child: DownloadsReducer.init)
-            Scope(state: \.settingState, action: \.setting, child: SettingReducer.init)
+            case .runLaunchAutomation:
+                guard !state.didRunLaunchAutomation,
+                      let automation = appLaunchAutomationClient.current()
+                else { return .none }
+
+                state.didRunLaunchAutomation = true
+                return .run { send in
+                    if let galleryURL = automation.galleryURL,
+                       urlClient.checkIfHandleable(galleryURL) {
+                        await send(.appRoute(.handleDeepLink(galleryURL)))
+                    } else if let initialTab = automation.initialTab {
+                        await send(.tabBar(.setTabBarItemType(initialTab)))
+                    }
+                }
+
+            case .appDelegate(.migration(.onDatabasePreparationSuccess)):
+                let loginCookies = appLaunchAutomationClient.current()?.loginCookies
+                return .run { send in
+                    if let loginCookies {
+                        cookieClient.importAutomationCookies(
+                            memberID: loginCookies.memberID,
+                            passHash: loginCookies.passHash,
+                            igneous: loginCookies.igneous
+                        )
+                    }
+                    await send(.appDelegate(.removeExpiredImageURLs))
+                    await send(.setting(.loadUserSettings))
+                }
+
+            case .appDelegate:
+                return .none
+
+            case .appRoute(.clearSubStates):
+                return .run { send in
+                    guard await deviceClient.isPad() else { return }
+                    await send(.clearPadSettingSubstates)
+                }
+
+            case .clearPadSettingSubstates:
+                state.settingState.route = nil
+                return .send(.setting(.clearSubStates))
+
+            case .appRoute:
+                return .none
+
+            case .appLock(.unlockApp):
+                var effects: [Effect<Action>] = [
+                    .send(.setting(.fetchGreeting))
+                ]
+                if state.settingState.setting.detectsLinksFromClipboard {
+                    effects.append(.send(.appRoute(.detectClipboardURL)))
+                }
+                return .merge(effects)
+
+            case .appLock:
+                return .none
+
+            case .tabBar(.setTabBarItemType(let type)):
+                var effects = [Effect<Action>]()
+                let hapticEffect: Effect<Action> = .run { _ in
+                    await hapticsClient.generateFeedback(.soft)
+                }
+                if type == state.tabBarState.tabBarItemType {
+                    switch type {
+                    case .home:
+                        if state.homeState.route != nil {
+                            effects.append(.send(.home(.setNavigation(nil))))
+                        } else {
+                            effects.append(.send(.home(.fetchAllGalleries)))
+                        }
+                    case .favorites:
+                        if state.favoritesState.route != nil {
+                            effects.append(.send(.favorites(.setNavigation(nil))))
+                            effects.append(hapticEffect)
+                        } else if cookieClient.didLogin {
+                            effects.append(.send(.favorites(.fetchGalleries())))
+                            effects.append(hapticEffect)
+                        }
+                    case .search:
+                        if state.searchRootState.route != nil {
+                            effects.append(.send(.searchRoot(.setNavigation(nil))))
+                        } else {
+                            effects.append(.send(.searchRoot(.fetchDatabaseInfos)))
+                        }
+                    case .downloads:
+                        if state.downloadsState.route != nil {
+                            effects.append(.send(.downloads(.setNavigation(nil))))
+                        } else {
+                            effects.append(.send(.downloads(.fetchDownloads)))
+                        }
+                        effects.append(hapticEffect)
+                    case .setting:
+                        if state.settingState.route != nil {
+                            effects.append(.send(.setting(.setNavigation(nil))))
+                            effects.append(hapticEffect)
+                        }
+                    }
+                    if [.home, .search].contains(type) {
+                        effects.append(hapticEffect)
+                    }
+                }
+                return effects.isEmpty ? .none : .merge(effects)
+
+            case .tabBar:
+                return .none
+
+            case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
+                var effects: [Effect<Action>] = [
+                    .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
+                    .send(.tabBar(.setTabBarItemType(.setting)))
+                ]
+                effects.append(.send(.setting(.setNavigation(.account))))
+                if !cookieClient.didLogin {
+                    effects.append(
+                        .run { send in
+                            let isPad = await deviceClient.isPad()
+                            let delay = UInt64(isPad ? 1200 : 200)
+                            try await Task.sleep(for: .milliseconds(delay))
+                            await send(.setting(.account(.setNavigation(.login))))
+                        }
+                    )
+                }
+                return .merge(effects)
+
+            case .home:
+                return .none
+
+            case .favorites:
+                return .none
+
+            case .searchRoot:
+                return .none
+
+            case .downloads:
+                return .none
+
+            case .setting(.loadUserSettingsDone):
+                var effects = [Effect<Action>]()
+                let threshold = state.settingState.setting.autoLockPolicy.rawValue
+                let blurRadius = state.settingState.setting.backgroundBlurRadius
+                if threshold >= 0 {
+                    state.appLockState.becameInactiveDate = .distantPast
+                    effects.append(.send(.appLock(.onBecomeActive(threshold, blurRadius))))
+                }
+                if state.settingState.setting.detectsLinksFromClipboard {
+                    effects.append(.send(.appRoute(.detectClipboardURL)))
+                }
+                state.isAwaitingIgneousForLaunchAutomation = shouldDelayLaunchAutomationUntilIgneous(
+                    state: state
+                )
+                if !state.isAwaitingIgneousForLaunchAutomation {
+                    effects.append(.send(.runLaunchAutomation))
+                }
+                return effects.isEmpty ? .none : .merge(effects)
+
+            case .setting(.account(.loadCookies)):
+                guard state.isAwaitingIgneousForLaunchAutomation,
+                      !shouldDelayLaunchAutomationUntilIgneous(state: state)
+                else { return .none }
+                state.isAwaitingIgneousForLaunchAutomation = false
+                return .send(.runLaunchAutomation)
+
+            case .setting(.fetchGreetingDone(let result)):
+                return .send(.appRoute(.fetchGreetingDone(result)))
+
+            case .setting:
+                return .none
+            }
         }
+
+        Scope(state: \.appRouteState, action: \.appRoute, child: AppRouteReducer.init)
+        Scope(state: \.appLockState, action: \.appLock, child: AppLockReducer.init)
+        Scope(state: \.appDelegateState, action: \.appDelegate, child: AppDelegateReducer.init)
+        Scope(state: \.tabBarState, action: \.tabBar, child: TabBarReducer.init)
+        Scope(state: \.homeState, action: \.home, child: HomeReducer.init)
+        Scope(state: \.favoritesState, action: \.favorites, child: FavoritesReducer.init)
+        Scope(state: \.searchRootState, action: \.searchRoot, child: SearchRootReducer.init)
+        Scope(state: \.downloadsState, action: \.downloads, child: DownloadsReducer.init)
+        Scope(state: \.settingState, action: \.setting, child: SettingReducer.init)
     }
 }
 

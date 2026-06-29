@@ -5,14 +5,12 @@ import Foundation
 import Kingfisher
 import SDWebImage
 import SDWebImageWebPCoder
-import SwiftyBeaver
 import UIImageColors
 import ComposableArchitecture
 import AppTools
 import AnimatedImageFeature
 
 public struct LibraryClient: Sendable {
-    public let initializeLogger: @Sendable () -> Void
     public let initializeWebImage: @Sendable () -> Void
     public let removeAllCachedImages: @Sendable () async -> Void
     public let cachedImage: @Sendable (String) async -> UIImage?
@@ -23,7 +21,6 @@ public struct LibraryClient: Sendable {
     public let calculateWebImageDiskCacheSize: @Sendable () async -> UInt?
 
     public init(
-        initializeLogger: @escaping @Sendable () -> Void,
         initializeWebImage: @escaping @Sendable () -> Void,
         removeAllCachedImages: @escaping @Sendable () async -> Void,
         cachedImage: @escaping @Sendable (String) async -> UIImage?,
@@ -33,7 +30,6 @@ public struct LibraryClient: Sendable {
         analyzeImageColors: @escaping @Sendable (UIImage) async -> [Color]?,
         calculateWebImageDiskCacheSize: @escaping @Sendable () async -> UInt?
     ) {
-        self.initializeLogger = initializeLogger
         self.initializeWebImage = initializeWebImage
         self.removeAllCachedImages = removeAllCachedImages
         self.cachedImage = cachedImage
@@ -47,35 +43,6 @@ public struct LibraryClient: Sendable {
 
 extension LibraryClient {
     public static let live: Self = .init(
-        initializeLogger: {
-            // MARK: SwiftyBeaver
-            let file = FileDestination()
-            let console = ConsoleDestination()
-            let format = [
-                "$Dyyyy-MM-dd HH:mm:ss.SSS$d",
-                "$C$L$c $N.$F:$l - $M $X"
-            ].joined(separator: " ")
-
-            file.format = format
-            file.logFileAmount = 10
-            file.calendar = Calendar(identifier: .gregorian)
-            file.logFileURL = FileUtil.logsDirectoryURL
-                .appendingPathComponent(Defaults.FilePath.ehpandaLog)
-
-            console.format = format
-            console.calendar = Calendar(identifier: .gregorian)
-            console.asynchronously = false
-            console.levelColor.verbose = "😪"
-            console.levelColor.warning = "⚠️"
-            console.levelColor.error = "‼️"
-            console.levelColor.debug = "🐛"
-            console.levelColor.info = "📖"
-
-            SwiftyBeaver.addDestination(file)
-            #if DEBUG
-            SwiftyBeaver.addDestination(console)
-            #endif
-        },
         initializeWebImage: {
             let config = KingfisherManager.shared.downloader.sessionConfiguration
             config.httpCookieStorage = HTTPCookieStorage.shared
@@ -268,7 +235,6 @@ extension DependencyValues {
 // MARK: Test
 extension LibraryClient {
     public static let noop: Self = .init(
-        initializeLogger: {},
         initializeWebImage: {},
         removeAllCachedImages: {},
         cachedImage: { _ in nil },
@@ -282,7 +248,6 @@ extension LibraryClient {
     public static func placeholder<Result>() -> Result { fatalError() }
 
     public static let unimplemented: Self = .init(
-        initializeLogger: IssueReporting.unimplemented(placeholder: placeholder()),
         initializeWebImage: IssueReporting.unimplemented(placeholder: placeholder()),
         removeAllCachedImages: IssueReporting.unimplemented(placeholder: placeholder()),
         cachedImage: IssueReporting.unimplemented(placeholder: placeholder()),
