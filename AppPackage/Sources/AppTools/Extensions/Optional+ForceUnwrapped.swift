@@ -1,15 +1,11 @@
 import Foundation
-import SwiftyBeaverExt
 
 extension Optional {
     public var forceUnwrapped: Wrapped! {
         if let value = self {
             return value
         }
-        Logger.error(
-            "Failed in force unwrapping...",
-            context: ["type": Wrapped.self]
-        )
+        logger.error("Failed in force unwrapping type: \(String(describing: Wrapped.self), privacy: .public)")
         return nil
     }
 }

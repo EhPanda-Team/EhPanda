@@ -402,9 +402,7 @@ let targets: [PackageDescription.Target] = [
     ),
     .target(
         module: .appTools,
-        dependencies: [
-            .module(.swiftyBeaverExt)
-        ],
+        dependencies: [],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
