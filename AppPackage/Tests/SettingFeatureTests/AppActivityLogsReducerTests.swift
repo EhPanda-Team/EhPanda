@@ -18,13 +18,13 @@ struct AppActivityLogsReducerTests {
         let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-3.jsonl")
 
         var client = LogsClient.noop
-        client.nextLaunchCount = { _ in 3 }
-        client.currentLaunchFileURL = { _, _ in fileURL }
+        client.nextRunCount = { _ in 3 }
+        client.currentRunFileURL = { _, _ in fileURL }
         client.fetchNewEntries = { _ in
             fetchCount.withValue { $0 += 1 }
             return fetchCount.value == 1 ? [entryA, entryB] : []
         }
-        client.appendToLaunchFile = { logs, _ in
+        client.appendToRunFile = { logs, _ in
             appended.withValue { $0.append(logs) }
         }
 
@@ -38,7 +38,7 @@ struct AppActivityLogsReducerTests {
         await store.send(.startPump)
         await store.receive(\.didReceiveNewEntries)
 
-        #expect(store.state.currentLaunchLogs == [entryA, entryB])
+        #expect(store.state.currentRunLogs == [entryA, entryB])
         #expect(store.state.lastCursorDate == entryB.date)
         // Newest entry is shown first.
         #expect(store.state.displayedLogs == [entryB, entryA])
@@ -46,60 +46,60 @@ struct AppActivityLogsReducerTests {
         await store.send(.pausePump)
         await store.finish()
 
-        // The pump appended the batch to the per-launch jsonl file exactly once.
+        // The pump appended the batch to the per-run jsonl file exactly once.
         #expect(appended.value == [[entryA, entryB]])
     }
 
     @MainActor
     @Test
-    func testSelectingPreviousLaunchLoadsFileBackedLogs() async {
+    func testSelectingPreviousRunLoadsFileBackedLogs() async {
         let fileLog = makeLog("archived", secondsSince1970: 5)
-        let launch = LaunchLogFile(
+        let run = RunLogFile(
             url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-2.jsonl"),
             date: .init(timeIntervalSince1970: 0),
-            launchCount: 2
+            runCount: 2
         )
         var client = LogsClient.noop
-        client.readLaunchFile = { _ in [fileLog] }
+        client.readRunFile = { _ in [fileLog] }
 
         var initialState = AppActivityLogsReducer.State()
-        initialState.currentLaunchCount = 3
-        initialState.previousLaunches = [launch]
-        initialState.currentLaunchLogs = [makeLog("live", secondsSince1970: 100)]
+        initialState.currentRunCount = 3
+        initialState.previousRuns = [run]
+        initialState.currentRunLogs = [makeLog("live", secondsSince1970: 100)]
 
         let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
             $0.logsClient = client
         }
 
-        await store.send(.selectLaunch(2)) {
-            $0.selectedLaunchCount = 2
+        await store.send(.selectRun(2)) {
+            $0.selectedRunCount = 2
             $0.loadingState = .loading
         }
-        await store.receive(\.launchFileResponse) {
+        await store.receive(\.runFileResponse) {
             $0.loadingState = .idle
-            $0.selectedLaunchLogs = [fileLog]
+            $0.selectedRunLogs = [fileLog]
             $0.displayedLogs = [fileLog]
         }
     }
 
     @MainActor
     @Test
-    func testSelectingCurrentLaunchRestoresLiveLogs() async {
+    func testSelectingCurrentRunRestoresLiveLogs() async {
         let live = makeLog("live", secondsSince1970: 100)
         var initialState = AppActivityLogsReducer.State()
-        initialState.currentLaunchCount = 3
-        initialState.currentLaunchLogs = [live]
-        initialState.selectedLaunchCount = 2
-        initialState.selectedLaunchLogs = [makeLog("archived", secondsSince1970: 5)]
-        initialState.displayedLogs = initialState.selectedLaunchLogs
+        initialState.currentRunCount = 3
+        initialState.currentRunLogs = [live]
+        initialState.selectedRunCount = 2
+        initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
+        initialState.displayedLogs = initialState.selectedRunLogs
 
         let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
             $0.logsClient = .noop
         }
 
-        await store.send(.selectLaunch(nil)) {
-            $0.selectedLaunchCount = nil
-            $0.selectedLaunchLogs = []
+        await store.send(.selectRun(nil)) {
+            $0.selectedRunCount = nil
+            $0.selectedRunLogs = []
             $0.displayedLogs = [live]
         }
     }
@@ -113,7 +113,7 @@ struct AppActivityLogsReducerTests {
         client.query = { logs, keyword in logs.filter { $0.message.contains(keyword) } }
 
         var initialState = AppActivityLogsReducer.State()
-        initialState.currentLaunchLogs = [hello, goodbye]
+        initialState.currentRunLogs = [hello, goodbye]
 
         let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
             $0.logsClient = client

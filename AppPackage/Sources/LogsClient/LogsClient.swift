@@ -10,19 +10,19 @@ public struct LogsClient: Sendable {
     /// Reads activity-log entries emitted by this process since `after`
     /// (or since boot when `after` is `nil`), sorted oldest-first.
     public var fetchNewEntries: @Sendable (_ after: Date?) async throws -> [AppActivityLog]
-    /// Appends entries to a per-launch jsonl file, creating it (and the logs directory) when needed.
-    public var appendToLaunchFile: @Sendable (_ logs: [AppActivityLog], _ url: URL) async throws -> Void
-    /// Reads back a previously written per-launch jsonl file.
-    public var readLaunchFile: @Sendable (_ url: URL) async throws -> [AppActivityLog]
-    /// Lists the persisted per-launch log files, newest launch first.
-    public var listLaunchFiles: @Sendable () async -> [LaunchLogFile]
-    /// Derives the next launch count for the given day from the existing log files
+    /// Appends entries to a per-run jsonl file, creating it (and the logs directory) when needed.
+    public var appendToRunFile: @Sendable (_ logs: [AppActivityLog], _ url: URL) async throws -> Void
+    /// Reads back a previously written per-run jsonl file.
+    public var readRunFile: @Sendable (_ url: URL) async throws -> [AppActivityLog]
+    /// Lists the persisted per-run log files, newest run first.
+    public var listRunFiles: @Sendable () async -> [RunLogFile]
+    /// Derives the next run count for the given day from the existing log files
     /// (`max + 1` among that day's files, or `1` — so the count resets each new day).
-    public var nextLaunchCount: @Sendable (_ date: Date) async -> Int
+    public var nextRunCount: @Sendable (_ date: Date) async -> Int
     /// In-memory, case-insensitive keyword filter over already-loaded logs.
     public var query: @Sendable (_ logs: [AppActivityLog], _ keyword: String) -> [AppActivityLog]
-    /// The jsonl file URL for a given launch.
-    public var currentLaunchFileURL: @Sendable (_ launchCount: Int, _ date: Date) -> URL
+    /// The jsonl file URL for a given run.
+    public var currentRunFileURL: @Sendable (_ runCount: Int, _ date: Date) -> URL
 }
 
 extension LogsClient {
@@ -47,7 +47,7 @@ extension LogsClient {
             guard let after else { return logs }
             return logs.filter { $0.date > after }
         },
-        appendToLaunchFile: { logs, url in
+        appendToRunFile: { logs, url in
             guard !logs.isEmpty else { return }
             let directory = url.deletingLastPathComponent()
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -68,33 +68,33 @@ extension LogsClient {
                 try payload.write(to: url, options: .atomic)
             }
         },
-        readLaunchFile: { url in
+        readRunFile: { url in
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             return data.split(separator: 0x0A).compactMap { line in
                 try? decoder.decode(AppActivityLog.self, from: Data(line))
             }
         },
-        listLaunchFiles: {
+        listRunFiles: {
             let directory = FileUtil.logsDirectoryURL
             guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
                 return []
             }
             return names
-                .compactMap { LaunchLogFile(fileURL: directory.appendingPathComponent($0)) }
+                .compactMap { RunLogFile(fileURL: directory.appendingPathComponent($0)) }
                 // Newest first across days: counts reset daily, so order by day then count.
-                .sorted { $0.date != $1.date ? $0.date > $1.date : $0.launchCount > $1.launchCount }
+                .sorted { $0.date != $1.date ? $0.date > $1.date : $0.runCount > $1.runCount }
         },
-        nextLaunchCount: { date in
+        nextRunCount: { date in
             let directory = FileUtil.logsDirectoryURL
             guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
                 return 1
             }
-            let today = LaunchLogFile.dayString(for: date)
+            let today = RunLogFile.dayString(for: date)
             let todayCounts = names
-                .compactMap { LaunchLogFile(fileURL: directory.appendingPathComponent($0)) }
-                .filter { LaunchLogFile.dayString(for: $0.date) == today }
-                .map(\.launchCount)
+                .compactMap { RunLogFile(fileURL: directory.appendingPathComponent($0)) }
+                .filter { RunLogFile.dayString(for: $0.date) == today }
+                .map(\.runCount)
             return (todayCounts.max() ?? 0) + 1
         },
         query: { logs, keyword in
@@ -105,9 +105,9 @@ extension LogsClient {
                     .caseInsensitiveContains(keyword)
             }
         },
-        currentLaunchFileURL: { launchCount, date in
+        currentRunFileURL: { runCount, date in
             FileUtil.logsDirectoryURL.appendingPathComponent(
-                LaunchLogFile.fileName(date: date, launchCount: launchCount)
+                RunLogFile.fileName(date: date, runCount: runCount)
             )
         }
     )
@@ -131,23 +131,23 @@ extension DependencyValues {
 extension LogsClient {
     public static let noop: Self = .init(
         fetchNewEntries: { _ in [] },
-        appendToLaunchFile: { _, _ in },
-        readLaunchFile: { _ in [] },
-        listLaunchFiles: { [] },
-        nextLaunchCount: { _ in 1 },
+        appendToRunFile: { _, _ in },
+        readRunFile: { _ in [] },
+        listRunFiles: { [] },
+        nextRunCount: { _ in 1 },
         query: { logs, _ in logs },
-        currentLaunchFileURL: { _, _ in FileUtil.logsDirectoryURL }
+        currentRunFileURL: { _, _ in FileUtil.logsDirectoryURL }
     )
 
     public static func placeholder<Result>() -> Result { fatalError() }
 
     public static let unimplemented: Self = .init(
         fetchNewEntries: IssueReporting.unimplemented(placeholder: placeholder()),
-        appendToLaunchFile: IssueReporting.unimplemented(placeholder: placeholder()),
-        readLaunchFile: IssueReporting.unimplemented(placeholder: placeholder()),
-        listLaunchFiles: IssueReporting.unimplemented(placeholder: placeholder()),
-        nextLaunchCount: IssueReporting.unimplemented(placeholder: placeholder()),
+        appendToRunFile: IssueReporting.unimplemented(placeholder: placeholder()),
+        readRunFile: IssueReporting.unimplemented(placeholder: placeholder()),
+        listRunFiles: IssueReporting.unimplemented(placeholder: placeholder()),
+        nextRunCount: IssueReporting.unimplemented(placeholder: placeholder()),
         query: IssueReporting.unimplemented(placeholder: placeholder()),
-        currentLaunchFileURL: IssueReporting.unimplemented(placeholder: placeholder())
+        currentRunFileURL: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
