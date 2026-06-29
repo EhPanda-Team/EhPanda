@@ -41,6 +41,8 @@ public struct Defaults: Sendable {
     public struct FilePath: Sendable {
         public static let logs = "logs"
         public static let ehpandaLog = "EhPanda.log"
+        public static let activityLogPrefix = "ehpanda-"
+        public static let activityLogExtension = "jsonl"
         public static let downloads = "Downloads"
         public static let downloadPages = "pages"
         public static let downloadManifest = "manifest.json"
