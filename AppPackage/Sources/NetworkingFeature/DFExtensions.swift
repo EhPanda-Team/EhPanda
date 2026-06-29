@@ -1,20 +1,17 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
+import OSLogExt
 import DeprecatedAPI
 import AppTools
+
+private let logger = Logger(category: "DFExtensions")
 
 // MARK: Global
 private func forceDowncast<T>(object: Any) -> T! {
     if let downcastedValue = object as? T {
         return downcastedValue
     }
-    Logger.error(
-        "Failed in force downcasting...",
-        context: [
-            "type": T.self
-        ]
-    )
+    logger.error("Failed in force downcasting to type: \(String(describing: T.self), privacy: .public)")
     return nil
 }
 
@@ -135,10 +132,10 @@ extension URLRequest {
             if readSize > 0 {
                 body.append(buffer, count: readSize)
             } else if readSize == 0 {
-                Logger.verbose("HTTPBodyStream read EOF.")
+                logger.debug("HTTPBodyStream read EOF.")
             } else {
                 if let error = stream.streamError as Error? {
-                    Logger.error("HTTPBodyStream read Error: \(error).")
+                    logger.error("HTTPBodyStream read Error: \(error, privacy: .public)")
                 }
             }
         } while readSize > 0

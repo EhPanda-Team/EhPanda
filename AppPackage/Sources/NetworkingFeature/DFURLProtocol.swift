@@ -1,7 +1,9 @@
 import AppTools
 import Foundation
 import AppModels
-import SwiftyBeaverExt
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: DFURLProtocol.self))
 
 public class DFURLProtocol: URLProtocol {
     private var dfRequest: DFRequest?
@@ -11,12 +13,12 @@ public class DFURLProtocol: URLProtocol {
         for request: URLRequest) -> URLRequest { request }
     public override class func canInit(with request: URLRequest) -> Bool {
         if property(forKey: requestIdentifier, in: request) != nil {
-            Logger.error("URLRequest has been initialized.")
+            logger.error("URLRequest has been initialized.")
             return false
         }
         if !["http", "https"].contains(request.url?.scheme) {
             let scheme = request.url?.scheme ?? "nil"
-            Logger.error("URL scheme \"\(scheme)\" is not supported.")
+            logger.error("URL scheme \"\(scheme, privacy: .public)\" is not supported.")
             return false
         }
         return true
