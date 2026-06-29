@@ -235,6 +235,10 @@
 "logs_view.title.latest" = "Latest";
 
 // MARK: AppActivityLogsView
+"app_activity_logs_view.title" = "App Activity Logs";
+"app_activity_logs_view.placeholder.no_logs" = "No logs found";
+"app_activity_logs_view.launch.current" = "Current launch";
+"app_activity_logs_view.launch" = "Launch %1$@ (%2$@)";
 "app_activity_logs_view.level.undefined" = "Undefined";
 "app_activity_logs_view.level.debug" = "Debug";
 "app_activity_logs_view.level.info" = "Info";

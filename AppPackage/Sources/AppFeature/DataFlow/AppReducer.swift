@@ -82,7 +82,8 @@ struct AppReducer {
                     let threshold = state.settingState.setting.autoLockPolicy.rawValue
                     let blurRadius = state.settingState.setting.backgroundBlurRadius
                     var effects: [Effect<Action>] = [
-                        .send(.appLock(.onBecomeActive(threshold, blurRadius)))
+                        .send(.appLock(.onBecomeActive(threshold, blurRadius))),
+                        .send(.setting(.general(.appActivityLogs(.startPump))))
                     ]
                     // iOS interposes .inactive on a foreground return
                     // (.background -> .inactive -> .active), so the previous
@@ -108,11 +109,14 @@ struct AppReducer {
                     // Ask iOS for a later background window to finish the queue; the
                     // beginBackgroundTask assertion only covers the brief grace
                     // period right after backgrounding.
-                    return .run { _ in
-                        if await downloadClient.hasPendingWork() {
-                            backgroundProcessingClient.schedule()
+                    return .merge(
+                        .send(.setting(.general(.appActivityLogs(.pausePump)))),
+                        .run { _ in
+                            if await downloadClient.hasPendingWork() {
+                                backgroundProcessingClient.schedule()
+                            }
                         }
-                    }
+                    )
 
                 default:
                     return .none
@@ -132,6 +136,9 @@ struct AppReducer {
                         await send(.tabBar(.setTabBarItemType(initialTab)))
                     }
                 }
+
+            case .appDelegate(.onLaunchFinish):
+                return .send(.setting(.general(.appActivityLogs(.startPump))))
 
             case .appDelegate(.migration(.onDatabasePreparationSuccess)):
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies

@@ -34,6 +34,9 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.appLaunchAutomationClient = .none
                 $0.cookieClient = .noop
+                $0.logsClient = .noop
+                $0.continuousClock = TestClock()
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { .init { $0.finish() } }
                 $0.downloadClient.fetchDownloads = { [] }
@@ -69,9 +72,12 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             $0.scenePhase = .active
             $0.hasEnteredBackground = false
         }
-        await store.finish()
-
         #expect(reconcileCount.value == 1)
+
+        // Foreground return starts the always-on activity-logs pump; background
+        // again to cancel it so no effect is left in flight at finish().
+        await store.send(.onScenePhaseChange(.background))
+        await store.finish()
     }
 
     @Test
