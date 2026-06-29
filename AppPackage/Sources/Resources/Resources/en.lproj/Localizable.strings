@@ -217,7 +217,7 @@
 "general_setting_view.title.redirects_links_to_the_selected_host" = "Redirects links to the selected host";
 "general_setting_view.title.detects_links_from_clipboard" = "Detects links from the clipboard";
 "general_setting_view.title.background_blur_radius" = "Background blur radius";
-"general_setting_view.button.logs" = "Logs";
+"general_setting_view.button.app_activity_logs" = "App Activity Logs";
 "general_setting_view.button.import_custom_translations" = "Import custom translations";
 "general_setting_view.button.remove_custom_translations" = "Remove custom translations";
 "general_setting_view.button.clear_image_caches" = "Clear image caches";

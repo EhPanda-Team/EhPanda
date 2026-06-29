@@ -2176,12 +2176,12 @@ public enum L10n {
     }
     public enum GeneralSettingView {
       public enum Button {
+        /// App Activity Logs
+        public static let appActivityLogs = L10n.tr("Localizable", "general_setting_view.button.app_activity_logs", fallback: "App Activity Logs")
         /// Clear image caches
         public static let clearImageCaches = L10n.tr("Localizable", "general_setting_view.button.clear_image_caches", fallback: "Clear image caches")
         /// Import custom translations
         public static let importCustomTranslations = L10n.tr("Localizable", "general_setting_view.button.import_custom_translations", fallback: "Import custom translations")
-        /// Logs
-        public static let logs = L10n.tr("Localizable", "general_setting_view.button.logs", fallback: "Logs")
         /// Remove custom translations
         public static let removeCustomTranslations = L10n.tr("Localizable", "general_setting_view.button.remove_custom_translations", fallback: "Remove custom translations")
       }
