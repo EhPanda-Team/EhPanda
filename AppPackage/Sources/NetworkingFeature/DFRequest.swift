@@ -1,6 +1,8 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: DFRequest.self))
 
 public struct DFRequest {
     public var request: URLRequest
@@ -40,7 +42,8 @@ public struct DFRequest {
 
     public mutating func resume() {
         if !request.urlContainsImageURL {
-            Logger.verbose("Request from: \(request.url?.absoluteString ?? "")")
+            let urlString = request.url?.absoluteString ?? ""
+            logger.debug("Request from: \(urlString)")
         }
 
         stream.schedule(in: RunLoop.current, forMode: .common)
