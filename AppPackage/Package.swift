@@ -120,6 +120,7 @@ enum Module: String {
     // Test targets
     case parserFeatureTests = "ParserFeatureTests"
     case downloadsFeatureTests = "DownloadsFeatureTests"
+    case settingFeatureTests = "SettingFeatureTests"
 }
 
 extension Module {
@@ -988,6 +989,17 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .settingFeatureTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.logsClient),
+            .module(.settingFeature),
+            .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
