@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 import UniformTypeIdentifiers
 import AnimatedImageFeature
 
@@ -30,10 +29,7 @@ extension DownloadCoordinator {
         let response: (URL, URLResponse)
         if retriesRequest {
             response = try await withRetry(
-                operation: "downloadResponse",
-                context: [
-                    "url": request.url?.absoluteString ?? ""
-                ]
+                operation: "downloadResponse"
             ) {
                 try await performRequest()
             }
@@ -61,10 +57,7 @@ extension DownloadCoordinator {
     ) async throws -> (Data, URLResponse) {
         if retriesRequest {
             return try await withRetry(
-                operation: "dataResponse",
-                context: [
-                    "url": request.url?.absoluteString ?? ""
-                ]
+                operation: "dataResponse"
             ) {
                 try await rawDataResponse(for: request)
             }
@@ -148,10 +141,7 @@ extension DownloadCoordinator {
         let transfer: DownloadPageTransfer
         if retriesRequest {
             transfer = try await withRetry(
-                operation: "pageDownloadResponse",
-                context: [
-                    "url": request.url?.absoluteString ?? ""
-                ]
+                operation: "pageDownloadResponse"
             ) {
                 try await performRequest()
             }
@@ -202,7 +192,6 @@ extension DownloadCoordinator {
 
     public func withRetry<T>(
         operation: String,
-        context: [String: Any],
         maxAttempts: Int = retryLimit,
         body: () async throws -> T
     ) async throws -> T {
@@ -217,27 +206,25 @@ extension DownloadCoordinator {
                       attempt < maxAttempts else {
                     throw error
                 }
-                Logger.error(
-                    "Download operation will retry.",
-                    context: context.merging([
-                        "operation": operation,
-                        "attempt": attempt,
-                        "error": error.localizedDescription
-                    ], uniquingKeysWith: { _, new in new })
+                logger.warning(
+                    """
+                    Download operation will retry, operation: \(operation, privacy: .public), \
+                    attempt: \(attempt, privacy: .public), \
+                    error: \(error.localizedDescription, privacy: .public)
+                    """
                 )
                 attempt += 1
             } catch {
                 guard attempt < maxAttempts else {
                     throw error
                 }
-                Logger.error(
-                    "Download operation will retry"
-                        + " after unexpected error.",
-                    context: context.merging([
-                        "operation": operation,
-                        "attempt": attempt,
-                        "error": error.localizedDescription
-                    ], uniquingKeysWith: { _, new in new })
+                logger.warning(
+                    """
+                    Download operation will retry after unexpected error, \
+                    operation: \(operation, privacy: .public), \
+                    attempt: \(attempt, privacy: .public), \
+                    error: \(error.localizedDescription, privacy: .public)
+                    """
                 )
                 attempt += 1
             }

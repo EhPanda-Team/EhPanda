@@ -1,7 +1,6 @@
 import AppTools
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 
 // MARK: - Disk Index
 extension DownloadCoordinator {
@@ -14,7 +13,7 @@ extension DownloadCoordinator {
             hasLoadedIndex = true
             return await downloads(from: scanResult.records)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             downloadIndex = [:]
             userFolders = []
             hasLoadedIndex = true

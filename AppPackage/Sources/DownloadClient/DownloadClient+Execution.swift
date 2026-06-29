@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 
 // MARK: - Process Download
 extension DownloadCoordinator {
@@ -74,7 +73,7 @@ extension DownloadCoordinator {
         do {
             try removeGalleryFolders(gid: gid, token: token, keeping: folderURL)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
         }
     }
 
@@ -160,13 +159,12 @@ extension DownloadCoordinator {
         guard !shouldSuppressFailurePersistence(for: context.gid) else {
             return
         }
-        Logger.error(
-            "Download failed.",
-            context: [
-                "gid": context.gid,
-                "mode": context.mode.rawValue,
-                "error": error.localizedDescription
-            ]
+        logger.error(
+            """
+            Download failed, gid: \(context.gid, privacy: .public), \
+            mode: \(context.mode.rawValue, privacy: .public), \
+            error: \(error.localizedDescription, privacy: .public)
+            """
         )
         await persistFailure(error: error, context: context)
         await notifyObservers()
@@ -185,13 +183,12 @@ extension DownloadCoordinator {
         failedPageErrors[context.gid] = Dictionary(
             uniqueKeysWithValues: error.failedPages.map { ($0.index, $0) }
         )
-        Logger.error(
-            "Download partially failed.",
-            context: [
-                "gid": context.gid,
-                "mode": context.mode.rawValue,
-                "failedPages": error.failedPages.map(\.index)
-            ]
+        logger.error(
+            """
+            Download partially failed, gid: \(context.gid, privacy: .public), \
+            mode: \(context.mode.rawValue, privacy: .public), \
+            failedPages: \(String(describing: error.failedPages.map(\.index)), privacy: .public)
+            """
         )
         await persistFailure(error: pageError, context: context)
         await notifyObservers()
@@ -224,7 +221,7 @@ extension DownloadCoordinator {
         guard !shouldSuppressFailurePersistence(for: context.gid) else {
             return
         }
-        Logger.error(error)
+        logger.error("\(error, privacy: .public)")
         await persistFailure(
             error: appError,
             context: context
