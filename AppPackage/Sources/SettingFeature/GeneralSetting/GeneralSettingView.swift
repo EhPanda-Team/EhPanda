@@ -59,7 +59,7 @@ struct GeneralSettingView: View {
                     }
                     .foregroundStyle(.tint)
                 }
-                Button(L10n.Localizable.GeneralSettingView.Button.logs) {
+                Button(L10n.Localizable.GeneralSettingView.Button.appActivityLogs) {
                     store.send(.setNavigation(.appActivityLogs))
                 }
                 .foregroundColor(.primary).withArrow()
