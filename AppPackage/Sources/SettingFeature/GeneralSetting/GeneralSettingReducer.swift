@@ -10,7 +10,7 @@ import DatabaseClient
 public struct GeneralSettingReducer: Sendable {
     @CasePathable
     public enum Route: Sendable {
-        case logs
+        case appActivityLogs
         case clearCache
         case removeCustomTranslations
     }
@@ -23,7 +23,7 @@ public struct GeneralSettingReducer: Sendable {
         public var diskImageCacheSize = "0 KB"
         public var passcodeNotSet = false
 
-        public var logsState = LogsReducer.State()
+        public var appActivityLogsState = AppActivityLogsReducer.State()
     }
 
     public enum Action: BindableAction, Equatable {
@@ -39,7 +39,7 @@ public struct GeneralSettingReducer: Sendable {
         case calculateWebImageDiskCache
         case calculateWebImageDiskCacheDone(UInt?)
 
-        case logs(LogsReducer.Action)
+        case appActivityLogs(AppActivityLogsReducer.Action)
     }
 
     @Dependency(\.authorizationClient) private var authorizationClient
@@ -65,8 +65,8 @@ public struct GeneralSettingReducer: Sendable {
                 return route == nil ? .send(.clearSubStates) : .none
 
             case .clearSubStates:
-                state.logsState = .init()
-                return .send(.logs(.teardown))
+                // The activity-logs pump is app-wide and always alive; never reset it on navigation.
+                return .none
 
             case .onTranslationsFilePicked:
                 return .none
@@ -104,11 +104,11 @@ public struct GeneralSettingReducer: Sendable {
                 state.diskImageCacheSize = formatter.string(fromByteCount: .init(bytes))
                 return .none
 
-            case .logs:
+            case .appActivityLogs:
                 return .none
             }
         }
 
-        Scope(state: \.logsState, action: \.logs, child: LogsReducer.init)
+        Scope(state: \.appActivityLogsState, action: \.appActivityLogs, child: AppActivityLogsReducer.init)
     }
 }

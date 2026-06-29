@@ -60,7 +60,7 @@ struct GeneralSettingView: View {
                     .foregroundStyle(.tint)
                 }
                 Button(L10n.Localizable.GeneralSettingView.Button.logs) {
-                    store.send(.setNavigation(.logs))
+                    store.send(.setNavigation(.appActivityLogs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
@@ -188,8 +188,10 @@ struct GeneralSettingView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.logs) { _ in
-            LogsView(store: store.scope(state: \.logsState, action: \.logs))
+        NavigationLink(unwrapping: $store.route, case: \.appActivityLogs) { _ in
+            AppActivityLogsView(
+                store: store.scope(state: \.appActivityLogsState, action: \.appActivityLogs)
+            )
         }
     }
 }
