@@ -25,6 +25,13 @@
         "identifier" : "ParserFeatureTests",
         "name" : "ParserFeatureTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "SettingFeatureTests",
+        "name" : "SettingFeatureTests"
+      }
     }
   ],
   "version" : 1
