@@ -239,16 +239,18 @@ public enum L10n {
       }
     }
     public enum AppActivityLogsView {
-      /// Launch %1$@ (%2$@)
-      public static func launch(_ p1: Any, _ p2: Any) -> String {
-        return L10n.tr("Localizable", "app_activity_logs_view.launch", String(describing: p1), String(describing: p2), fallback: "Launch %1$@ (%2$@)")
+      /// Done
+      public static let done = L10n.tr("Localizable", "app_activity_logs_view.done", fallback: "Done")
+      /// More logs
+      public static let moreLogs = L10n.tr("Localizable", "app_activity_logs_view.more_logs", fallback: "More logs")
+      /// Run %@
+      public static func run(_ p1: Any) -> String {
+        return L10n.tr("Localizable", "app_activity_logs_view.run", String(describing: p1), fallback: "Run %@")
       }
+      /// Runs
+      public static let runs = L10n.tr("Localizable", "app_activity_logs_view.runs", fallback: "Runs")
       /// App Activity Logs
       public static let title = L10n.tr("Localizable", "app_activity_logs_view.title", fallback: "App Activity Logs")
-      public enum Launch {
-        /// Current launch
-        public static let current = L10n.tr("Localizable", "app_activity_logs_view.launch.current", fallback: "Current launch")
-      }
       public enum Level {
         /// Debug
         public static let debug = L10n.tr("Localizable", "app_activity_logs_view.level.debug", fallback: "Debug")
@@ -266,6 +268,10 @@ public enum L10n {
       public enum Placeholder {
         /// No logs found
         public static let noLogs = L10n.tr("Localizable", "app_activity_logs_view.placeholder.no_logs", fallback: "No logs found")
+      }
+      public enum Section {
+        /// Current
+        public static let current = L10n.tr("Localizable", "app_activity_logs_view.section.current", fallback: "Current")
       }
     }
     public enum AppError {
