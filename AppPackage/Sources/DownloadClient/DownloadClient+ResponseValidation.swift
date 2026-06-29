@@ -1,6 +1,5 @@
 import Kanna
 import AppModels
-import SwiftyBeaverExt
 import Foundation
 import ImageIO
 import AppTools
@@ -257,12 +256,12 @@ extension DownloadCoordinator {
             }
             return nil
         }
-        Logger.error(
-            "Download received unexpected HTML response.",
-            context: [
-                "url": requestURL?.absoluteString ?? "",
-                "snippet": String(textPrefix.prefix(240))
-            ]
+        logger.error(
+            """
+            Download received unexpected HTML response, \
+            url: \(requestURL?.absoluteString ?? ""), \
+            snippet: \(String(textPrefix.prefix(240)), privacy: .public)
+            """
         )
         if statusCode(for: response) == 404 {
             return .notFound

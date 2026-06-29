@@ -1,6 +1,5 @@
 import ComposableArchitecture
 import AppModels
-import SwiftyBeaverExt
 import Foundation
 
 public struct DownloadQueueStore: Sendable {
@@ -44,7 +43,7 @@ public struct DownloadQueueStore: Sendable {
         do {
             try await identifiers.save()
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
         }
     }
 }

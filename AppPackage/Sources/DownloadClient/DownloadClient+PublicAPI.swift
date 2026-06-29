@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 import Resources
 
 // MARK: - Public API
@@ -92,7 +91,7 @@ extension DownloadCoordinator {
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             return .failure(.unknown)
         }
     }
@@ -185,7 +184,7 @@ extension DownloadCoordinator {
             await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(error)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             await reloadDownloadRecord(gid: download.gid, token: download.token)
             return .failure(.fileOperationFailed(error.localizedDescription))
         }
@@ -283,7 +282,7 @@ extension DownloadCoordinator {
             updateDownloadIndex(folderURL: captureTarget.folderURL, manifest: manifest)
             _ = await sanitizeLocalFilesIfNeeded(gid: gid, clearingLastError: true)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
         }
     }
 

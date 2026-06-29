@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 
 public actor BackgroundPageCompletionReceiver {
     private enum PendingEvent {
@@ -99,7 +98,7 @@ extension DownloadCoordinator {
                 response: response
             )
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             removeStagedBackgroundFile(fileURL)
             // A fatal account error (quota/auth/ban) detected on an orphaned page must
             // settle the whole download like the foreground does, so scheduleNextIfNeeded

@@ -360,10 +360,10 @@ let targets: [PackageDescription.Target] = [
             .module(.databaseClient),
             .module(.libraryClient),
             .module(.networkingFeature),
+            .module(.osLogExt),
             .module(.parserFeature),
             .module(.resources),
             .module(.animatedImageFeature),
-            .module(.swiftyBeaverExt),
             .module(.urlClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kanna)

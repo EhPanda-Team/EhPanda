@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import SwiftyBeaverExt
 
 // MARK: - Observer Management & Scheduling
 extension DownloadCoordinator {
@@ -121,7 +120,7 @@ extension DownloadCoordinator {
         do {
             try storage.ensureRootDirectory()
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
         }
         await reconcileActiveDownloadState()
         await notifyObservers()
@@ -164,7 +163,7 @@ extension DownloadCoordinator {
         } catch let error as AppError {
             return .failure(error)
         } catch {
-            Logger.error(error)
+            logger.error("\(error, privacy: .public)")
             return .failure(.unknown)
         }
     }
