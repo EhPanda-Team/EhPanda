@@ -13,7 +13,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
     .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.63.0"),
-    .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", from: "2.0.0"),
     .package(url: "https://github.com/ddddxxx/SwiftyOpenCC", exact: "2.0.0-beta"),
     .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     .package(url: "https://github.com/gonzalezreal/SwiftCommonMark", from: "1.0.0"),
@@ -49,7 +48,6 @@ extension PackageDescription.Target.Dependency {
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let swiftUINavigation: Self = .product(name: "SwiftUINavigation", package: "swift-navigation")
     static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
-    static let swiftyBeaver: Self = .product(name: "SwiftyBeaver", package: "SwiftyBeaver")
     static let ttProgressHUD: Self = .product(name: "TTProgressHUD", package: "TTProgressHUD")
     static let uiImageColors: Self = .product(name: "UIImageColors", package: "UIImageColors")
     static let waterfallGrid: Self = .product(name: "WaterfallGrid", package: "WaterfallGrid")
@@ -111,7 +109,6 @@ enum Module: String {
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
     case swiftUINavigationExt = "SwiftUINavigationExt"
-    case swiftyBeaverExt = "SwiftyBeaverExt"
     case ttProgressHUDExt = "TTProgressHUDExt"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
@@ -570,14 +567,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .targetDependency(.openCC)
-        ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .swiftyBeaverExt,
-        dependencies: [
-            .targetDependency(.swiftyBeaver)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins

@@ -45,13 +45,6 @@ extension ApplicationClient {
             return openURL(url)
         }
     }
-    @MainActor
-    public func openFileApp() {
-        let dirPath = FileUtil.logsDirectoryURL.path
-        if let dirURL = URL(string: "shareddocuments://" + dirPath) {
-            return openURL(dirURL)
-        }
-    }
 }
 
 // MARK: API

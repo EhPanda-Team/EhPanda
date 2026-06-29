@@ -62,7 +62,6 @@
 "app.acknowledgement.link.filePicker" = "https://github.com/markrenaud/FilePicker";
 "app.acknowledgement.link.kingfisher" = "https://github.com/onevcat/Kingfisher";
 "app.acknowledgement.link.swiftUIPager" = "https://github.com/fermoya/SwiftUIPager";
-"app.acknowledgement.link.swiftyBeaver" = "https://github.com/SwiftyBeaver/SwiftyBeaver";
 "app.acknowledgement.link.waterfallGrid" = "https://github.com/paololeonardi/WaterfallGrid";
 "app.acknowledgement.link.swiftyOpenCC" = "https://github.com/ddddxxx/SwiftyOpenCC";
 "app.acknowledgement.link.uiImageColors" = "https://github.com/jathu/UIImageColors";
@@ -81,7 +80,6 @@
 "app.acknowledgement.text.filePicker" = "FilePicker";
 "app.acknowledgement.text.kingfisher" = "Kingfisher";
 "app.acknowledgement.text.swiftUIPager" = "SwiftUIPager";
-"app.acknowledgement.text.swiftyBeaver" = "SwiftyBeaver";
 "app.acknowledgement.text.waterfallGrid" = "WaterfallGrid";
 "app.acknowledgement.text.swiftyOpenCC" = "SwiftyOpenCC";
 "app.acknowledgement.text.uiImageColors" = "UIImageColors";

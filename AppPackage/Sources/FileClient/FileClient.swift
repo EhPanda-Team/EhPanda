@@ -1,13 +1,9 @@
-import Combine
 import AppModels
 import Foundation
 import ComposableArchitecture
-import AppTools
 
 public struct FileClient: Sendable {
     public let createFile: @Sendable (String, Data?) -> Bool
-    public let fetchLogs: @Sendable () async -> Result<[Log], AppError>
-    public let deleteLog: @Sendable (String) async -> Result<String, AppError>
     public let importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
 }
 
@@ -15,43 +11,6 @@ extension FileClient {
     public static let live: Self = .init(
         createFile: { path, data in
             FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
-        },
-        fetchLogs: {
-            await withCheckedContinuation { continuation in
-                guard let enumerator = FileManager.default.enumerator(atPath: FileUtil.logsDirectoryURL.path),
-                      let fileNames = (enumerator.allObjects as? [String])?
-                        .filter({ $0.contains(Defaults.FilePath.ehpandaLog) })
-                else {
-                    continuation.resume(returning: .failure(.notFound))
-                    return
-                }
-
-                let logs: [Log] = fileNames.compactMap { name in
-                    let fileURL = FileUtil.logsDirectoryURL.appendingPathComponent(name)
-                    guard let content = try? String(contentsOf: fileURL, encoding: .utf8)
-                    else { return nil }
-
-                    return Log(
-                        fileName: name, contents: content
-                            .components(separatedBy: "\n")
-                            .filter({ !$0.isEmpty })
-                    )
-                }
-                .sorted()
-                continuation.resume(returning: .success(logs))
-            }
-        },
-        deleteLog: { fileName in
-            await withCheckedContinuation { continuation in
-                let fileURL = FileUtil.logsDirectoryURL.appendingPathComponent(fileName)
-
-                try? FileManager.default.removeItem(at: fileURL)
-
-                if FileManager.default.fileExists(atPath: fileURL.path) {
-                    continuation.resume(returning: .failure(.unknown))
-                }
-                continuation.resume(returning: .success(fileName))
-            }
         },
         importTagTranslator: { url in
             await withCheckedContinuation { continuation in
@@ -96,8 +55,6 @@ extension DependencyValues {
 extension FileClient {
     public static let noop: Self = .init(
         createFile: { _, _ in false },
-        fetchLogs: { .success([]) },
-        deleteLog: { _ in .success("") },
         importTagTranslator: { _ in .success(.init()) }
     )
 
@@ -105,8 +62,6 @@ extension FileClient {
 
     public static let unimplemented: Self = .init(
         createFile: IssueReporting.unimplemented(placeholder: placeholder()),
-        fetchLogs: IssueReporting.unimplemented(placeholder: placeholder()),
-        deleteLog: IssueReporting.unimplemented(placeholder: placeholder()),
         importTagTranslator: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
