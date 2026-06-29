@@ -18,17 +18,17 @@ public struct LaunchLogFile: Identifiable, Equatable, Sendable {
     /// Parses a `LaunchLogFile` from a log-file URL, returning `nil` when the
     /// file name does not match the `ehpanda-<yyyyMMdd>-<launchCount>.jsonl` format.
     public init?(fileURL: URL) {
-        let name = fileURL.lastPathComponent
-        let prefix = Defaults.FilePath.activityLogPrefix
-        let suffix = "." + Defaults.FilePath.activityLogExtension
-        guard name.hasPrefix(prefix), name.hasSuffix(suffix) else { return nil }
+        let nameComponents = fileURL.lastPathComponent.split(separator: ".")
+        guard nameComponents.count == 2,
+              String(nameComponents[1]) == Defaults.FilePath.activityLogExtension
+        else { return nil }
 
-        let core = name.dropFirst(prefix.count).dropLast(suffix.count)
-        let components = core.split(separator: "-")
-        guard components.count == 2,
-              components[0].count == 8,
-              let date = Self.fileNameDateFormatter.date(from: String(components[0])),
-              let launchCount = Int(components[1])
+        let components = nameComponents[0].split(separator: "-")
+        guard components.count == 3,
+              String(components[0]) == Defaults.FilePath.activityLogPrefix,
+              components[1].count == 8,
+              let date = Self.fileNameDateFormatter.date(from: String(components[1])),
+              let launchCount = Int(components[2])
         else { return nil }
 
         self.init(url: fileURL, date: date, launchCount: launchCount)
@@ -36,8 +36,17 @@ public struct LaunchLogFile: Identifiable, Equatable, Sendable {
 
     /// The canonical `ehpanda-<yyyyMMdd>-<launchCount>.jsonl` file name for a launch.
     public static func fileName(date: Date, launchCount: Int) -> String {
-        "\(Defaults.FilePath.activityLogPrefix)\(dayString(for: date))-\(launchCount)"
-            + ".\(Defaults.FilePath.activityLogExtension)"
+        [
+            [
+                Defaults.FilePath.activityLogPrefix,
+                dayString(for: date),
+                String(launchCount)
+            ]
+            .joined(separator: "-"),
+
+            Defaults.FilePath.activityLogExtension
+        ]
+        .joined(separator: ".")
     }
 
     /// The `yyyyMMdd` day component used in log file names, in the device's local time zone.
