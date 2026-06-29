@@ -2,8 +2,11 @@ import SwiftUI
 import AppModels
 import Combine
 import CoreData
+import OSLogExt
 import ComposableArchitecture
 import AppTools
+
+private let logger = Logger(category: .init(describing: DatabaseClient.self))
 
 public struct DatabaseClient: Sendable {
     public let prepareDatabase: @Sendable () async -> Result<Void, AppError>

@@ -1,6 +1,9 @@
+import OSLogExt
 import Foundation
 import AppModels
 import Resources
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Public API
 extension DownloadCoordinator {

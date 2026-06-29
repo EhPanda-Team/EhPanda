@@ -1,5 +1,8 @@
+import OSLogExt
 import Foundation
 import AppModels
+
+private let logger = Logger(category: .init(describing: DownloadBackgroundTaskStore.self))
 
 public actor DownloadBackgroundTaskStore {
     public struct Record: Codable, Equatable, Sendable {

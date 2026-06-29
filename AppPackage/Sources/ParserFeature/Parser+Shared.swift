@@ -1,7 +1,10 @@
 import Kanna
 import AppModels
+import OSLogExt
 import Foundation
 import AppTools
+
+private let logger = Logger(category: .init(describing: Parser.self))
 
 extension Parser {
     static func parseGTX00IndexFromTitle(from title: String) -> Int? {

@@ -1,7 +1,10 @@
+import OSLogExt
 import Foundation
 import AppModels
 import UniformTypeIdentifiers
 import AnimatedImageFeature
+
+private let logger = Logger(category: .init(describing: DownloadCoordinator.self))
 
 // MARK: - Network
 extension DownloadCoordinator {

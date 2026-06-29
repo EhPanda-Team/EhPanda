@@ -1,6 +1,7 @@
 import OSLogExt
 
-let logger = Logger(
-    moduleName: "DatabaseClient",
-    category: .init(describing: DatabaseClient.self)
-)
+extension Logger {
+    init(category: String) {
+        self.init(moduleName: "DatabaseClient", category: category)
+    }
+}
