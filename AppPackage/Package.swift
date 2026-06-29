@@ -481,8 +481,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.openCCExt),
+            .module(.osLogExt),
             .module(.parserFeature),
-            .module(.swiftyBeaverExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
             .targetDependency(.kanna)
