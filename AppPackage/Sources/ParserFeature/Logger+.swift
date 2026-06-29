@@ -1,6 +1,7 @@
 import OSLogExt
 
-let logger = Logger(
-    moduleName: "ParserFeature",
-    category: .init(describing: Parser.self)
-)
+extension Logger {
+    init(category: String) {
+        self.init(moduleName: "ParserFeature", category: category)
+    }
+}

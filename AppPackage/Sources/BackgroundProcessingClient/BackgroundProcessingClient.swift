@@ -1,6 +1,9 @@
+import OSLogExt
 import BackgroundTasks
 import AppModels
 import ComposableArchitecture
+
+private let logger = Logger(category: .init(describing: BackgroundProcessingClient.self))
 
 public enum BackgroundProcessing {
     /// Fixed task identifier, independent of the bundle id. Must stay in sync with the

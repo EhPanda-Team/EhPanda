@@ -1,6 +1,7 @@
 import OSLogExt
 
-let logger = Logger(
-    moduleName: "AppModels",
-    category: .init(describing: Category.self)
-)
+extension Logger {
+    init(category: String) {
+        self.init(moduleName: "AppModels", category: category)
+    }
+}

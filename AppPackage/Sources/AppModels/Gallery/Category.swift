@@ -1,5 +1,8 @@
 import SwiftUI
+import OSLogExt
 import Resources
+
+private let logger = Logger(category: .init(describing: Category.self))
 
 public enum Category: String, Codable, CaseIterable, Identifiable, Sendable {
     public var id: String { rawValue }
