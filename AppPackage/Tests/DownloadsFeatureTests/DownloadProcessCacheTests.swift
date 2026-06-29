@@ -293,7 +293,6 @@ private extension DownloadProcessCacheTests {
         }
         let cachedImageData = try #require(cachedImage.jpegData(compressionQuality: 1))
         return .init(
-            initializeLogger: {},
             initializeWebImage: {},
             removeAllCachedImages: {
                 cachedKeys.value = []
