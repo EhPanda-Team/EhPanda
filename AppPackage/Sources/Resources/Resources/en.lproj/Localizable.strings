@@ -230,10 +230,6 @@
 "enum.auto_lock_policy.value.never" = "Never";
 "enum.auto_lock_policy.value.instantly" = "Instantly";
 
-// MARK: LogsView
-"logs_view.title.logs" = "Logs";
-"logs_view.title.latest" = "Latest";
-
 // MARK: AppActivityLogsView
 "app_activity_logs_view.title" = "App Activity Logs";
 "app_activity_logs_view.placeholder.no_logs" = "No logs found";

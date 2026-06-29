@@ -38,8 +38,6 @@ public enum L10n {
           public static let swiftUINavigation = L10n.tr("Constant", "app.acknowledgement.link.swiftUINavigation", fallback: "https://github.com/pointfreeco/swiftui-navigation")
           /// https://github.com/fermoya/SwiftUIPager
           public static let swiftUIPager = L10n.tr("Constant", "app.acknowledgement.link.swiftUIPager", fallback: "https://github.com/fermoya/SwiftUIPager")
-          /// https://github.com/SwiftyBeaver/SwiftyBeaver
-          public static let swiftyBeaver = L10n.tr("Constant", "app.acknowledgement.link.swiftyBeaver", fallback: "https://github.com/SwiftyBeaver/SwiftyBeaver")
           /// https://github.com/ddddxxx/SwiftyOpenCC
           public static let swiftyOpenCC = L10n.tr("Constant", "app.acknowledgement.link.swiftyOpenCC", fallback: "https://github.com/ddddxxx/SwiftyOpenCC")
           /// https://github.com/pointfreeco/swift-composable-architecture
@@ -74,8 +72,6 @@ public enum L10n {
           public static let swiftUINavigation = L10n.tr("Constant", "app.acknowledgement.text.swiftUINavigation", fallback: "SwiftUI Navigation")
           /// SwiftUIPager
           public static let swiftUIPager = L10n.tr("Constant", "app.acknowledgement.text.swiftUIPager", fallback: "SwiftUIPager")
-          /// SwiftyBeaver
-          public static let swiftyBeaver = L10n.tr("Constant", "app.acknowledgement.text.swiftyBeaver", fallback: "SwiftyBeaver")
           /// SwiftyOpenCC
           public static let swiftyOpenCC = L10n.tr("Constant", "app.acknowledgement.text.swiftyOpenCC", fallback: "SwiftyOpenCC")
           /// The Composable Architecture
@@ -2306,14 +2302,6 @@ public enum L10n {
         public static let password = L10n.tr("Localizable", "login_view.title.password", fallback: "Password")
         /// Username
         public static let username = L10n.tr("Localizable", "login_view.title.username", fallback: "Username")
-      }
-    }
-    public enum LogsView {
-      public enum Title {
-        /// Latest
-        public static let latest = L10n.tr("Localizable", "logs_view.title.latest", fallback: "Latest")
-        /// Logs
-        public static let logs = L10n.tr("Localizable", "logs_view.title.logs", fallback: "Logs")
       }
     }
     public enum NewDawnView {
