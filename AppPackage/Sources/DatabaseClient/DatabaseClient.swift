@@ -1,6 +1,5 @@
 import SwiftUI
 import AppModels
-import SwiftyBeaverExt
 import Combine
 import CoreData
 import ComposableArchitecture
@@ -41,7 +40,7 @@ extension DatabaseClient {
                 do {
                     try context.save()
                 } catch {
-                    Logger.error(error)
+                    logger.error("\(error, privacy: .public)")
                     fatalError("Unresolved error \(error)")
                 }
             }
@@ -63,7 +62,7 @@ extension DatabaseClient {
                     do {
                         try context.save()
                     } catch {
-                        Logger.error(error)
+                        logger.error("\(error, privacy: .public)")
                         fatalError("Unresolved error \(error)")
                     }
                 }
