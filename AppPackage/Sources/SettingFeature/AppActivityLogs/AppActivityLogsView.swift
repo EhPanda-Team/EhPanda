@@ -43,6 +43,7 @@ struct AppActivityLogsView: View {
         }
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.AppActivityLogsView.title)
+        .navigationBarTitleDisplayMode(.large)
     }
 
     @ToolbarContentBuilder
