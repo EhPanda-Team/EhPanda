@@ -234,6 +234,14 @@
 "logs_view.title.logs" = "Logs";
 "logs_view.title.latest" = "Latest";
 
+// MARK: AppActivityLogsView
+"app_activity_logs_view.level.undefined" = "Undefined";
+"app_activity_logs_view.level.debug" = "Debug";
+"app_activity_logs_view.level.info" = "Info";
+"app_activity_logs_view.level.notice" = "Notice";
+"app_activity_logs_view.level.error" = "Error";
+"app_activity_logs_view.level.fault" = "Fault";
+
 // MARK: AppearanceSettingView
 "appearance_setting_view.title.appearance" = "Appearance";
 "appearance_setting_view.title.theme" = "Theme";

@@ -242,6 +242,22 @@ public enum L10n {
         public static let showsNewDawnGreeting = L10n.tr("Localizable", "account_setting_view.title.shows_new_dawn_greeting", fallback: "Shows new dawn greeting")
       }
     }
+    public enum AppActivityLogsView {
+      public enum Level {
+        /// Debug
+        public static let debug = L10n.tr("Localizable", "app_activity_logs_view.level.debug", fallback: "Debug")
+        /// Error
+        public static let error = L10n.tr("Localizable", "app_activity_logs_view.level.error", fallback: "Error")
+        /// Fault
+        public static let fault = L10n.tr("Localizable", "app_activity_logs_view.level.fault", fallback: "Fault")
+        /// Info
+        public static let info = L10n.tr("Localizable", "app_activity_logs_view.level.info", fallback: "Info")
+        /// Notice
+        public static let notice = L10n.tr("Localizable", "app_activity_logs_view.level.notice", fallback: "Notice")
+        /// Undefined
+        public static let undefined = L10n.tr("Localizable", "app_activity_logs_view.level.undefined", fallback: "Undefined")
+      }
+    }
     public enum AppError {
       public enum Alert {
         /// Login required to access this download.

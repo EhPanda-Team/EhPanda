@@ -98,6 +98,7 @@ enum Module: String {
     case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
+    case logsClient = "LogsClient"
     case migrationFeature = "MigrationFeature"
     case networkingFeature = "NetworkingFeature"
     case openCCExt = "OpenCCExt"
@@ -590,6 +591,17 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
+        module: .logsClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.appTools),
+            .module(.osLogExt),
+            .targetDependency(.composableArchitecture)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
         module: .tagTranslationFeature,
         dependencies: [
             .module(.appModels),
@@ -724,6 +736,7 @@ let targets: [PackageDescription.Target] = [
             .module(.fileClient),
             .module(.hapticsClient),
             .module(.libraryClient),
+            .module(.logsClient),
             .module(.networkingFeature),
             .module(.osLogExt),
             .module(.readingSettingFeature),
