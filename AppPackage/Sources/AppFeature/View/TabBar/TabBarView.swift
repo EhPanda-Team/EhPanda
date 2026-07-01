@@ -28,7 +28,7 @@ struct TabBarView: View {
                     get: { store.tabBarState.tabBarItemType },
                     set: { tab in
                         if tab == .setting, DeviceUtil.isPad {
-                            store.send(.appRoute(.setNavigation(.setting())))
+                            store.send(.appRoute(.presentSetting))
                         } else {
                             store.send(.tabBar(.setTabBarItemType(tab)))
                         }
@@ -89,11 +89,11 @@ struct TabBarView: View {
             }
             .font(.system(size: 80)).opacity(store.appLockState.isAppLocked ? 1 : 0)
         }
-        .sheet(item: $store.appRouteState.route.sending(\.appRoute.setNavigation).newDawn) { greeting in
-            NewDawnView(greeting: greeting)
+        .sheet(item: $store.appRouteState.destination.newDawn) { greeting in
+            NewDawnView(greeting: greeting.wrappedValue)
                 .autoBlur(radius: store.appLockState.blurRadius)
         }
-        .sheet(item: $store.appRouteState.route.sending(\.appRoute.setNavigation).setting) { _ in
+        .sheet(item: $store.appRouteState.destination.setting) { _ in
             SettingView(
                 store: store.scope(state: \.settingState, action: \.setting),
                 blurRadius: store.appLockState.blurRadius
