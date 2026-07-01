@@ -15,6 +15,11 @@ public struct AccountSettingReducer: Sendable {
         case hud
         case login
         case ehSetting
+    }
+
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
         case webView(URL)
     }
 
@@ -25,6 +30,7 @@ public struct AccountSettingReducer: Sendable {
     @ObservableState
     public struct State: Equatable, Sendable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
@@ -37,6 +43,8 @@ public struct AccountSettingReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
         case logoutButtonTapped
         case onLogoutConfirmButtonTapped
@@ -73,6 +81,13 @@ public struct AccountSettingReducer: Sendable {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .destination:
+                return .none
+
+            case .presentWebView(let url):
+                state.destination = .webView(url)
+                return .none
 
             case .logoutButtonTapped:
                 state.confirmationDialog = ConfirmationDialogState {
@@ -130,13 +145,17 @@ public struct AccountSettingReducer: Sendable {
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.webView,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
 
         Scope(state: \.loginState, action: \.login, child: LoginReducer.init)
         Scope(state: \.ehSettingState, action: \.ehSetting, child: EhSettingReducer.init)
     }
 }
+
+extension AccountSettingReducer.Destination.State: Equatable, Sendable {}
+extension AccountSettingReducer.Destination.Action: Equatable, Sendable {}
