@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 
 public struct QuickSearchView: View {
@@ -44,8 +43,7 @@ public struct QuickSearchView: View {
                             }
                             .tint(.red)
                             Button {
-                                store.send(.setEditingWord(word))
-                                store.send(.setNavigation(.editWord))
+                                store.send(.editWordButtonTapped(word))
                             } label: {
                                 Image(systemSymbol: .squareAndPencil)
                             }
@@ -82,7 +80,7 @@ public struct QuickSearchView: View {
                 }
             }
             .toolbar(content: toolbar)
-            .background(navigationLinks)
+            .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
             .navigationTitle(L10n.Localizable.QuickSearchView.Title.quickSearch)
         }
     }
@@ -99,8 +97,7 @@ public struct QuickSearchView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                store.send(.setEditingWord(.empty))
-                store.send(.setNavigation(.newWord))
+                store.send(.newWordButtonTapped)
             } label: {
                 Image(systemSymbol: .plus)
             }
@@ -112,31 +109,18 @@ public struct QuickSearchView: View {
             }
         }
     }
-    @ViewBuilder private var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: \.newWord) { _ in
-            EditWordView(
-                title: L10n.Localizable.QuickSearchView.Title.newWord,
-                word: $store.editingWord,
-                focusedField: $focusedField,
-                submitAction: onTextFieldSubmitted,
-                confirmAction: {
-                    store.send(.appendWord)
-                    store.send(.setNavigation(nil))
-                }
-            )
-        }
-        NavigationLink(unwrapping: $store.route, case: \.editWord) { _ in
-            EditWordView(
-                title: L10n.Localizable.QuickSearchView.Title.editWord,
-                word: $store.editingWord,
-                focusedField: $focusedField,
-                submitAction: onTextFieldSubmitted,
-                confirmAction: {
-                    store.send(.editWord)
-                    store.send(.setNavigation(nil))
-                }
-            )
-        }
+    @ViewBuilder private func editWordView(for kind: QuickSearchReducer.WordEditKind) -> some View {
+        EditWordView(
+            title: kind == .new
+                ? L10n.Localizable.QuickSearchView.Title.newWord
+                : L10n.Localizable.QuickSearchView.Title.editWord,
+            word: $store.editingWord,
+            focusedField: $focusedField,
+            submitAction: onTextFieldSubmitted,
+            confirmAction: {
+                store.send(kind == .new ? .appendWord : .editWord)
+            }
+        )
     }
 }
 
