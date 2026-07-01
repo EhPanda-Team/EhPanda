@@ -18,14 +18,21 @@ struct AppRouteReducer {
     @CasePathable
     enum Route: Equatable, Hashable {
         case hud
-        case setting(EquatableVoid = .init())
         case detail(String)
+    }
+
+    @Reducer
+    enum Destination {
+        @ReducerCaseIgnored
+        case setting(EquatableVoid)
+        @ReducerCaseIgnored
         case newDawn(Greeting)
     }
 
     @ObservableState
     struct State: Equatable {
         var route: Route?
+        @Presents var destination: Destination.State?
         var hudConfig: ProgressHUDConfigState = .loading()
 
         var detailState: Heap<DetailReducer.State?>
@@ -38,6 +45,9 @@ struct AppRouteReducer {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentSetting
+        case presentNewDawn(Greeting)
         case setHUDConfig(ProgressHUDConfigState)
         case clearSubStates
 
@@ -74,6 +84,17 @@ struct AppRouteReducer {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .destination:
+                return .none
+
+            case .presentSetting:
+                state.destination = .setting(.init())
+                return .none
+
+            case .presentNewDawn(let greeting):
+                state.destination = .newDawn(greeting)
+                return .none
 
             case .setHUDConfig(let config):
                 state.hudConfig = config
@@ -178,7 +199,7 @@ struct AppRouteReducer {
 
             case .fetchGreetingDone(let result):
                 if case .success(let greeting) = result, !greeting.gainedNothing {
-                    return .send(.setNavigation(.newDawn(greeting)))
+                    return .send(.presentNewDawn(greeting))
                 }
                 return .none
 
@@ -187,7 +208,7 @@ struct AppRouteReducer {
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.newDawn,
             hapticsClient: hapticsClient
         )
@@ -196,7 +217,11 @@ struct AppRouteReducer {
             case: \.detail,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
 
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
+
+extension AppRouteReducer.Destination.State: Equatable, Sendable {}
+extension AppRouteReducer.Destination.Action: Equatable, Sendable {}
