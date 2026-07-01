@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Resources
 import ComposableArchitecture
 import AppTools
 import HapticsClient
@@ -17,14 +18,17 @@ public struct HistoryReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
         case detail(String)
-        case clearHistory
+    }
+
+    public enum Dialog: Equatable, Sendable {
+        case confirmClearHistory
     }
 
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
-        public var clearDialogPresented = false
         public var downloadBadges = [String: DownloadBadge]()
 
         var filteredGalleries: [Gallery] {
@@ -45,7 +49,9 @@ public struct HistoryReducer: Sendable {
         case binding(BindingAction<State>)
         case onAppear
         case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
         case clearSubStates
+        case clearHistoryButtonTapped
         case clearHistoryGalleries
 
         case fetchGalleries
@@ -79,6 +85,27 @@ public struct HistoryReducer: Sendable {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .clearHistoryButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmClearHistory) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.clear)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.clear)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmClearHistory)):
+                return .send(.clearHistoryGalleries)
+
+            case .confirmationDialog:
+                return .none
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
@@ -128,6 +155,7 @@ public struct HistoryReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
 
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }

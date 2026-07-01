@@ -104,19 +104,8 @@ struct GeneralSettingView: View {
                 if tagTranslatorHasCustomTranslations {
                     Button(
                         L10n.Localizable.GeneralSettingView.Button.removeCustomTranslations,
-                        role: .destructive, action: { store.send(.setNavigation(.removeCustomTranslations)) }
+                        role: .destructive, action: { store.send(.removeCustomTranslationsButtonTapped) }
                     )
-                    .confirmationDialog(
-                        message: L10n.Localizable.ConfirmationDialog.Title.removeCustomTranslations,
-                        unwrapping: $store.route,
-                        case: \.removeCustomTranslations
-                    ) {
-                        Button(L10n.Localizable.ConfirmationDialog.Button.remove, role: .destructive) {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                store.send(.onRemoveCustomTranslations)
-                            }
-                        }
-                    }
                 }
             }
             Section(L10n.Localizable.GeneralSettingView.Section.Title.navigation) {
@@ -155,7 +144,7 @@ struct GeneralSettingView: View {
             }
             Section(L10n.Localizable.GeneralSettingView.Section.Title.caches) {
                 Button {
-                    store.send(.setNavigation(.clearCache))
+                    store.send(.clearImageCachesButtonTapped)
                 } label: {
                     HStack {
                         Text(L10n.Localizable.GeneralSettingView.Button.clearImageCaches)
@@ -164,17 +153,11 @@ struct GeneralSettingView: View {
                     }
                     .foregroundColor(.primary)
                 }
-                .confirmationDialog(
-                    message: L10n.Localizable.ConfirmationDialog.Title.clear,
-                    unwrapping: $store.route,
-                    case: \.clearCache
-                ) {
-                    Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
-                        store.send(.clearWebImageCache)
-                    }
-                }
             }
         }
+        .confirmationDialog(
+            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+        )
         .animation(.default, value: tagTranslatorHasCustomTranslations)
         .animation(.default, value: tagTranslatorLoadingState)
         .animation(.default, value: enablesTagsExtension)

@@ -10,20 +10,7 @@ import ReadingFeature
 import DetailFeature
 
 public struct DownloadsView: View {
-    private enum RowDialog: Identifiable {
-        case delete(DownloadedGallery)
-
-        var id: String {
-            switch self {
-            case .delete(let download):
-                return "delete-\(download.gid)"
-            }
-        }
-    }
-
     @Bindable private var store: StoreOf<DownloadsReducer>
-    @State private var rowDialog: RowDialog?
-    @State private var moveDialogDownload: DownloadedGallery?
     @Binding private var setting: Setting
     private let user: User
     private let blurRadius: Double
@@ -123,53 +110,10 @@ public struct DownloadsView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        .alert(
-            L10n.Localizable.DownloadsView.Dialog.Title.deleteDownload,
-            isPresented: Binding(
-                get: { rowDialog != nil },
-                set: { if !$0 { rowDialog = nil } }
-            ),
-            presenting: rowDialog
-        ) { dialog in
-            switch dialog {
-            case .delete(let download):
-                Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
-                    store.send(.deleteDownload(download.gid))
-                    rowDialog = nil
-                }
-                Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {
-                    rowDialog = nil
-                }
-            }
-        } message: { dialog in
-            switch dialog {
-            case .delete(let download):
-                Text(
-                    download.canTogglePause
-                        ? L10n.Localizable.DownloadsView.Dialog.Message.deleteActiveDownload
-                        : L10n.Localizable.DownloadsView.Dialog.Message.deleteDownloadedGallery
-                )
-            }
-        }
+        .alert($store.scope(state: \.alert, action: \.alert))
         .confirmationDialog(
-            L10n.Localizable.DownloadsView.Menu.Button.moveToFolder,
-            isPresented: Binding(
-                get: { moveDialogDownload != nil },
-                set: { if !$0 { moveDialogDownload = nil } }
-            ),
-            titleVisibility: .visible,
-            presenting: moveDialogDownload
-        ) { download in
-            ForEach(moveDestinations(for: download), id: \.self) { folder in
-                Button(folder) {
-                    store.send(.moveDownload(download.gid, folder))
-                    moveDialogDownload = nil
-                }
-            }
-            Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {
-                moveDialogDownload = nil
-            }
-        }
+            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+        )
         .background(navigationLink)
         .navigationTitle(L10n.Localizable.DownloadsView.Title.downloads)
         .navigationBarTitleDisplayMode(.large)
@@ -214,7 +158,7 @@ private extension DownloadsView {
 
                         if canMove(download) {
                             Button {
-                                moveDialogDownload = download
+                                store.send(.moveButtonTapped(download))
                             } label: {
                                 Label(
                                     L10n.Localizable.DownloadsView.Swipe.Button.move,
@@ -254,7 +198,7 @@ private extension DownloadsView {
                         }
 
                         Button(role: .destructive) {
-                            rowDialog = .delete(download)
+                            store.send(.deleteDownloadButtonTapped(download))
                         } label: {
                             Label(L10n.Localizable.ConfirmationDialog.Button.delete, systemSymbol: .trash)
                         }
@@ -326,7 +270,7 @@ private extension DownloadsView {
         }
 
         Button(role: .destructive) {
-            rowDialog = .delete(download)
+            store.send(.deleteDownloadButtonTapped(download))
         } label: {
             Label(L10n.Localizable.ConfirmationDialog.Button.delete, systemSymbol: .trash)
         }

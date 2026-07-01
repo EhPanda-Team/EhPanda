@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Resources
 import ComposableArchitecture
 import AppTools
 
@@ -8,6 +9,45 @@ extension DetailReducer {
     var downloadReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .deleteDownloadButtonTapped:
+                state.alert = AlertState {
+                    TextState(L10n.Localizable.DetailView.Dialog.Title.deleteDownload)
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDeleteDownload) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.DetailView.Dialog.Message.deleteDownloadedGallery)
+                }
+                return .none
+
+            case .retryDownloadButtonTapped(let mode):
+                state.alert = AlertState {
+                    TextState(Self.retryDownloadTitle(for: mode))
+                } actions: {
+                    ButtonState(action: .confirmRetryDownload(mode)) {
+                        TextState(Self.retryDownloadConfirmTitle(for: mode))
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(Self.retryDownloadMessage(for: mode))
+                }
+                return .none
+
+            case .alert(.presented(.confirmDeleteDownload)):
+                return .send(.deleteDownload)
+
+            case .alert(.presented(.confirmRetryDownload(let mode))):
+                return .send(.retryDownload(mode))
+
+            case .alert:
+                return .none
+
             case .fetchDownloadBadge:
                 guard state.gid.isValidGID else { return .none }
                 return .run { [galleryID = state.gid] send in
@@ -257,6 +297,39 @@ extension DetailReducer {
             default:
                 return .none
             }
+        }
+    }
+
+    private static func retryDownloadTitle(for mode: DownloadStartMode) -> String {
+        switch mode {
+        case .repair:
+            return L10n.Localizable.DetailView.Dialog.Title.repairDownload
+        case .update:
+            return L10n.Localizable.DetailView.Dialog.Title.updateDownload
+        case .initial, .redownload:
+            return L10n.Localizable.DetailView.Dialog.Title.redownloadGallery
+        }
+    }
+
+    private static func retryDownloadMessage(for mode: DownloadStartMode) -> String {
+        switch mode {
+        case .repair:
+            return L10n.Localizable.DetailView.Dialog.Message.repairDownload
+        case .update:
+            return L10n.Localizable.DetailView.Dialog.Message.updateDownload
+        case .initial, .redownload:
+            return L10n.Localizable.DetailView.Dialog.Message.redownloadGallery
+        }
+    }
+
+    private static func retryDownloadConfirmTitle(for mode: DownloadStartMode) -> String {
+        switch mode {
+        case .repair:
+            return L10n.Localizable.DetailView.Dialog.Button.repair
+        case .update:
+            return L10n.Localizable.DetailView.Dialog.Button.update
+        case .initial, .redownload:
+            return L10n.Localizable.DetailView.Dialog.Button.redownload
         }
     }
 }

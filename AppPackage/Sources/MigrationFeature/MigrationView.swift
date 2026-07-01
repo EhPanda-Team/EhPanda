@@ -27,19 +27,13 @@ public struct MigrationView: View {
                 let errorNonNil = error ?? .databaseCorrupted(nil)
                 AlertView(symbol: errorNonNil.symbol, message: errorNonNil.localizedDescription) {
                     AlertViewButton(title: L10n.Localizable.ErrorView.Button.dropDatabase) {
-                        store.send(.setNavigation(.dropDialog))
-                    }
-                    .confirmationDialog(
-                        message: L10n.Localizable.ConfirmationDialog.Title.dropDatabase,
-                        unwrapping: $store.route,
-                        case: \.dropDialog
-                    ) {
-                        Button(L10n.Localizable.ConfirmationDialog.Button.dropDatabase, role: .destructive) {
-                            store.send(.dropDatabase)
-                        }
+                        store.send(.dropDatabaseButtonTapped)
                     }
                 }
                 .opacity(error != nil ? 1 : 0)
+                .confirmationDialog(
+                    $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+                )
             }
             .animation(.default, value: store.databaseState)
         }

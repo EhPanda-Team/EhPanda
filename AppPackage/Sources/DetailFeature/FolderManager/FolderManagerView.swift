@@ -27,7 +27,7 @@ public struct FolderManagerView: View {
                             .padding(5)
                             .swipeActions(edge: .trailing) {
                                 Button {
-                                    store.send(.setNavigation(.deleteFolder(folder)))
+                                    store.send(.deleteButtonTapped(folder))
                                 } label: {
                                     Image(systemSymbol: .trash)
                                 }
@@ -38,23 +38,14 @@ public struct FolderManagerView: View {
                                     Image(systemSymbol: .squareAndPencil)
                                 }
                             }
-                            .confirmationDialog(
-                                message: L10n.Localizable.FolderManagerView.Dialog.Message.deleteFolder,
-                                unwrapping: $store.route,
-                                case: \.deleteFolder,
-                                matching: folder
-                            ) { route in
-                                Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                        store.send(.deleteFolder(route))
-                                    }
-                                }
-                            }
                     }
                 }
 
                 stateOverlay
             }
+            .confirmationDialog(
+                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            )
             .animation(.default, value: store.folders)
             .animation(.default, value: store.editingField)
             .synchronize($store.editingField, $focusedField)
