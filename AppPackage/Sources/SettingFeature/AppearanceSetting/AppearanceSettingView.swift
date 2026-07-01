@@ -2,11 +2,10 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 
 struct AppearanceSettingView: View {
-    @Bindable private var store: StoreOf<AppearanceSettingReducer>
+    private let store: StoreOf<AppearanceSettingReducer>
 
     @Binding private var preferredColorScheme: PreferredColorScheme
     @Binding private var accentColor: Color
@@ -53,7 +52,7 @@ struct AppearanceSettingView: View {
                 ColorPicker(L10n.Localizable.AppearanceSettingView.Title.tintColor, selection: $accentColor)
 
                 Button(L10n.Localizable.AppearanceSettingView.Button.appIcon) {
-                    store.send(.setNavigation(.appIcon))
+                    store.send(.delegate(.pushAppIcon))
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
@@ -97,19 +96,12 @@ struct AppearanceSettingView: View {
                 )
             }
         }
-        .background(navigationLink)
         .navigationTitle(L10n.Localizable.AppearanceSettingView.Title.appearance)
-    }
-
-    private var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.appIcon) { _ in
-            AppIconView(appIconType: $appIconType)
-        }
     }
 }
 
 // MARK: SelectAppIconView
-private struct AppIconView: View {
+struct AppIconView: View {
     @Binding private var appIconType: AppIconType
 
     init(appIconType: Binding<AppIconType>) {

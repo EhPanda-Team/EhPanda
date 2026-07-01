@@ -14,8 +14,9 @@ import AppDelegateClient
 
 @Reducer
 public struct SettingReducer: Sendable {
-    @CasePathable
-    public enum Route: Int, Equatable, Hashable, Identifiable, CaseIterable, Sendable {
+    // The top-level Setting screens listed in the root menu. Each maps 1:1 to a `SettingPath`
+    // element that `settingRowTapped` appends when its row is tapped.
+    public enum RootScreen: Int, Equatable, Hashable, Identifiable, CaseIterable, Sendable {
         public var id: Int { rawValue }
 
         case account
@@ -25,6 +26,25 @@ public struct SettingReducer: Sendable {
         case reading
         case laboratory
         case about
+
+        var pathElement: SettingPath.State {
+            switch self {
+            case .account:
+                return .account(.init())
+            case .general:
+                return .general(.init())
+            case .appearance:
+                return .appearance(.init())
+            case .download:
+                return .download(.init())
+            case .reading:
+                return .reading(.init())
+            case .laboratory:
+                return .laboratory(.init())
+            case .about:
+                return .about(.init())
+            }
+        }
     }
 
     @ObservableState
@@ -36,12 +56,8 @@ public struct SettingReducer: Sendable {
 
         public var hasLoadedInitialSetting = false
 
-        public var route: Route?
+        public var path = StackState<SettingPath.State>()
         public var tagTranslatorLoadingState: LoadingState = .idle
-
-        public var accountSettingState = AccountSettingReducer.State()
-        public var generalSettingState = GeneralSettingReducer.State()
-        public var appearanceSettingState = AppearanceSettingReducer.State()
 
         public init() {}
 
@@ -72,10 +88,11 @@ public struct SettingReducer: Sendable {
         }
     }
 
-    public enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
-        case clearSubStates
+        case path(StackActionOf<SettingPath>)
+        case settingRowTapped(RootScreen)
+        case pushLogin
 
         case syncAppIconType
         case syncAppIconTypeDone(String?)
@@ -100,10 +117,7 @@ public struct SettingReducer: Sendable {
         case fetchEhProfileIndexDone(Result<VerifyEhProfileResponse, AppError>)
         case fetchFavoriteCategories
         case fetchFavoriteCategoriesDone(Result<[Int: String], AppError>)
-
-        case account(AccountSettingReducer.Action)
-        case general(GeneralSettingReducer.Action)
-        case appearance(AppearanceSettingReducer.Action)
+        case igneousRefreshed
     }
 
     @Dependency(\.applicationClient) var applicationClient

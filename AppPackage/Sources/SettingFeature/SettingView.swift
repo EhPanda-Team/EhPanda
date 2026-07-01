@@ -2,7 +2,6 @@ import SwiftUI
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 import ReadingSettingFeature
 
@@ -17,39 +16,40 @@ public struct SettingView: View {
 
     // MARK: SettingView
     public var body: some View {
-        NavigationView {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(SettingReducer.Route.allCases) { route in
-                        SettingRow(rowType: route) {
-                            store.send(.setNavigation($0))
+                    ForEach(SettingReducer.RootScreen.allCases) { screen in
+                        SettingRow(rowType: screen) {
+                            store.send(.settingRowTapped($0))
                         }
                     }
                 }
                 .padding(.vertical, 40).padding(.horizontal)
             }
-            .background(navigationLinks)
             .navigationTitle(L10n.Localizable.SettingView.Title.setting)
+        } destination: { pathStore in
+            destination(pathStore)
+                .tint(store.setting.accentColor)
         }
     }
-}
 
-// MARK: NavigationLinks
-private extension SettingView {
-    @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: \.account) { _ in
+    // MARK: Destinations
+    @ViewBuilder
+    private func destination(_ pathStore: StoreOf<SettingPath>) -> some View {
+        switch pathStore.case {
+        case .account(let accountStore):
             AccountSettingView(
-                store: store.scope(state: \.accountSettingState, action: \.account),
+                store: accountStore,
                 galleryHost: $store.setting.galleryHost,
                 showsNewDawnGreeting: $store.setting.showsNewDawnGreeting,
                 bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
                 blurRadius: blurRadius
             )
-            .tint(store.setting.accentColor)
-        }
-        NavigationLink(unwrapping: $store.route, case: \.general) { _ in
+
+        case .general(let generalStore):
             GeneralSettingView(
-                store: store.scope(state: \.generalSettingState, action: \.general),
+                store: generalStore,
                 tagTranslatorLoadingState: store.tagTranslatorLoadingState,
                 tagTranslatorEmpty: store.tagTranslator.translations.isEmpty,
                 tagTranslatorHasCustomTranslations: store.tagTranslator.hasCustomTranslations,
@@ -62,11 +62,10 @@ private extension SettingView {
                 backgroundBlurRadius: $store.setting.backgroundBlurRadius,
                 autoLockPolicy: $store.setting.autoLockPolicy
             )
-            .tint(store.setting.accentColor)
-        }
-        NavigationLink(unwrapping: $store.route, case: \.appearance) { _ in
+
+        case .appearance(let appearanceStore):
             AppearanceSettingView(
-                store: store.scope(state: \.appearanceSettingState, action: \.appearance),
+                store: appearanceStore,
                 preferredColorScheme: $store.setting.preferredColorScheme,
                 accentColor: $store.setting.accentColor,
                 appIconType: $store.setting.appIconType,
@@ -75,9 +74,32 @@ private extension SettingView {
                 listTagsNumberMaximum: $store.setting.listTagsNumberMaximum,
                 displaysJapaneseTitle: $store.setting.displaysJapaneseTitle
             )
-            .tint(store.setting.accentColor)
-        }
-        NavigationLink(unwrapping: $store.route, case: \.reading) { _ in
+
+        case .login(let loginStore):
+            LoginView(
+                store: loginStore,
+                bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
+                blurRadius: blurRadius
+            )
+
+        case .ehSetting(let ehSettingStore):
+            EhSettingView(
+                store: ehSettingStore,
+                bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
+                blurRadius: blurRadius
+            )
+
+        case .appActivityLogs(let logsStore):
+            AppActivityLogsView(store: logsStore)
+
+        case .download:
+            DownloadSettingView(
+                downloadThreadLimit: $store.setting.downloadThreadLimit,
+                downloadAllowCellular: $store.setting.downloadAllowCellular,
+                downloadAutoRetryFailedPages: $store.setting.downloadAutoRetryFailedPages
+            )
+
+        case .reading:
             ReadingSettingView(
                 readingDirection: $store.setting.readingDirection,
                 prefetchLimit: $store.setting.prefetchLimit,
@@ -86,24 +108,17 @@ private extension SettingView {
                 maximumScaleFactor: $store.setting.maximumScaleFactor,
                 doubleTapScaleFactor: $store.setting.doubleTapScaleFactor
             )
-            .tint(store.setting.accentColor)
-        }
-        NavigationLink(unwrapping: $store.route, case: \.download) { _ in
-            DownloadSettingView(
-                downloadThreadLimit: $store.setting.downloadThreadLimit,
-                downloadAllowCellular: $store.setting.downloadAllowCellular,
-                downloadAutoRetryFailedPages: $store.setting.downloadAutoRetryFailedPages
-            )
-            .tint(store.setting.accentColor)
-        }
-        NavigationLink(unwrapping: $store.route, case: \.laboratory) { _ in
+
+        case .laboratory:
             LaboratorySettingView(
                 bypassesSNIFiltering: $store.setting.bypassesSNIFiltering
             )
-            .tint(store.setting.accentColor)
-        }
-        NavigationLink(unwrapping: $store.route, case: \.about) { _ in
-            AboutView().tint(store.setting.accentColor)
+
+        case .about:
+            AboutView()
+
+        case .appIcon:
+            AppIconView(appIconType: $store.setting.appIconType)
         }
     }
 }
@@ -113,8 +128,8 @@ private struct SettingRow: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressing = false
 
-    private let rowType: SettingReducer.Route
-    private let tapAction: (SettingReducer.Route) -> Void
+    private let rowType: SettingReducer.RootScreen
+    private let tapAction: (SettingReducer.RootScreen) -> Void
 
     private var color: Color {
         colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
@@ -123,7 +138,7 @@ private struct SettingRow: View {
         isPressing ? color.opacity(0.1) : .clear
     }
 
-    init(rowType: SettingReducer.Route, tapAction: @escaping (SettingReducer.Route) -> Void) {
+    init(rowType: SettingReducer.RootScreen, tapAction: @escaping (SettingReducer.RootScreen) -> Void) {
         self.rowType = rowType
         self.tapAction = tapAction
     }
@@ -148,7 +163,7 @@ private struct SettingRow: View {
 }
 
 // MARK: Definition
-extension SettingReducer.Route {
+extension SettingReducer.RootScreen {
     var value: String {
         switch self {
         case .account:

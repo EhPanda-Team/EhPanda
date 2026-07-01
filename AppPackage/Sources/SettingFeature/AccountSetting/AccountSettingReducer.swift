@@ -10,11 +10,10 @@ import TTProgressHUDExt
 
 @Reducer
 public struct AccountSettingReducer: Sendable {
-    @dynamicMemberLookup @CasePathable
-    public enum Route: Equatable, Sendable {
-        case hud
-        case login
-        case ehSetting
+    // Transient copied-to-clipboard toast. Not navigation — drives the progressHUD overlay only.
+    @CasePathable
+    public enum HUD: Equatable, Sendable {
+        case copiedToClipboard
     }
 
     @Reducer
@@ -27,32 +26,34 @@ public struct AccountSettingReducer: Sendable {
         case confirmLogout
     }
 
+    // Pushes handled by SettingReducer, which owns the Setting navigation stack.
+    public enum Delegate: Equatable, Sendable {
+        case pushLogin
+        case pushEhSetting
+    }
+
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
         @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
+        public var hud: HUD?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
         public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
 
-        public var loginState = LoginReducer.State()
-        public var ehSettingState = EhSettingReducer.State()
+        public init() {}
     }
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case destination(PresentationAction<Destination.Action>)
         case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
+        case delegate(Delegate)
         case logoutButtonTapped
         case onLogoutConfirmButtonTapped
-        case clearSubStates
         case loadCookies
         case copyCookies(GalleryHost)
-        case login(LoginReducer.Action)
-        case ehSetting(EhSettingReducer.Action)
     }
 
     @Dependency(\.clipboardClient) private var clipboardClient
@@ -63,9 +64,6 @@ public struct AccountSettingReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
             .onChange(of: \.ehCookiesState) { _, state in
                 .run(operation: { [value = state.ehCookiesState] _ in cookieClient.setCookies(state: value) })
             }
@@ -78,15 +76,14 @@ public struct AccountSettingReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
             case .destination:
                 return .none
 
             case .presentWebView(let url):
                 state.destination = .webView(url)
+                return .none
+
+            case .delegate:
                 return .none
 
             case .logoutButtonTapped:
@@ -113,35 +110,18 @@ public struct AccountSettingReducer: Sendable {
             case .onLogoutConfirmButtonTapped:
                 return .send(.loadCookies)
 
-            case .clearSubStates:
-                state.loginState = .init()
-                state.ehSettingState = .init()
-                return .merge(
-                    .send(.login(.teardown)),
-                    .send(.ehSetting(.teardown))
-                )
-
             case .loadCookies:
                 state.ehCookiesState = cookieClient.loadCookiesState(host: .ehentai)
                 state.exCookiesState = cookieClient.loadCookiesState(host: .exhentai)
                 return .none
 
             case .copyCookies(let host):
+                state.hud = .copiedToClipboard
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
-                    .send(.setNavigation(.hud)),
                     .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),
                     .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
                 )
-
-            case .login(.loginDone):
-                return cookieClient.didLogin ? .send(.setNavigation(nil)) : .none
-
-            case .login:
-                return .none
-
-            case .ehSetting:
-                return .none
             }
         }
         .haptics(
@@ -151,9 +131,6 @@ public struct AccountSettingReducer: Sendable {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
-
-        Scope(state: \.loginState, action: \.login, child: LoginReducer.init)
-        Scope(state: \.ehSettingState, action: \.ehSetting, child: EhSettingReducer.init)
     }
 }
 
