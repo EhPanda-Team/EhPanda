@@ -3,12 +3,17 @@ import AppModels
 import AppTools
 import HapticsClient
 import DatabaseClient
+import DeviceClient
 import FiltersFeature
 import QuickSearchFeature
 import DetailFeature
 
 @Reducer
 public struct SearchRootReducer: Sendable {
+    public enum Delegate: Equatable, Sendable {
+        case presentGalleryDetail(String)
+    }
+
     @Reducer
     public enum Destination {
         case filters(FiltersReducer)
@@ -60,8 +65,10 @@ public struct SearchRootReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case delegate(Delegate)
         case pushSearch
         case galleryTapped(String)
+        case pushGalleryDetail(String)
         case path(StackActionOf<SearchPath>)
         case setKeyword(String)
         case filtersButtonTapped
@@ -78,6 +85,7 @@ public struct SearchRootReducer: Sendable {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -102,12 +110,23 @@ public struct SearchRootReducer: Sendable {
                 state.path.append(.search(.init(keyword: state.keyword)))
                 return .none
 
-            case .galleryTapped(let gid):
+            case .galleryTapped(let gid),
+                 let .path(.element(id: _, action: .search(.delegate(.pushDetail(gid))))):
+                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
+                // sheet hosted by AppRoute, matching the pre-StackState behavior.
+                return .run { send in
+                    if await deviceClient.isPad() {
+                        await send(.delegate(.presentGalleryDetail(gid)))
+                    } else {
+                        await send(.pushGalleryDetail(gid))
+                    }
+                }
+
+            case .pushGalleryDetail(let gid):
                 state.path.append(.gallery(.detail(.init(gid: gid))))
                 return .none
 
-            case let .path(.element(id: _, action: .search(.delegate(.pushDetail(gid))))):
-                state.path.append(.gallery(.detail(.init(gid: gid))))
+            case .delegate:
                 return .none
 
             case let .path(.element(id: _, action: .search(.delegate(.searchPerformed(keyword))))):
