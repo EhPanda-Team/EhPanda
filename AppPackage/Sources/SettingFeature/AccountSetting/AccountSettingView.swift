@@ -39,9 +39,9 @@ struct AccountSettingView: View {
                 AccountSection(
                     showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,
-                    loginAction: { store.send(.setNavigation(.login)) },
+                    loginAction: { store.send(.delegate(.pushLogin)) },
                     logoutDialogAction: { store.send(.logoutButtonTapped) },
-                    configureAccountAction: { store.send(.setNavigation(.ehSetting)) },
+                    configureAccountAction: { store.send(.delegate(.pushEhSetting)) },
                     manageTagsAction: { store.send(.presentWebView(Defaults.URL.myTags)) }
                 )
             }
@@ -53,8 +53,8 @@ struct AccountSettingView: View {
         }
         .progressHUD(
             config: store.hudConfig,
-            unwrapping: $store.route,
-            case: \.hud
+            unwrapping: $store.hud,
+            case: \.copiedToClipboard
         )
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
@@ -65,26 +65,7 @@ struct AccountSettingView: View {
                 .autoBlur(radius: blurRadius)
         }
         .onAppear { store.send(.loadCookies) }
-        .background(navigationLinks)
         .navigationTitle(L10n.Localizable.AccountSettingView.Title.account)
-    }
-}
-
-// MARK: NavigationLinks
-private extension AccountSettingView {
-    @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: \.login) { _ in
-            LoginView(
-                store: store.scope(state: \.loginState, action: \.login),
-                bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
-            )
-        }
-        NavigationLink(unwrapping: $store.route, case: \.ehSetting) { _ in
-            EhSettingView(
-                store: store.scope(state: \.ehSettingState, action: \.ehSetting),
-                bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
-            )
-        }
     }
 }
 

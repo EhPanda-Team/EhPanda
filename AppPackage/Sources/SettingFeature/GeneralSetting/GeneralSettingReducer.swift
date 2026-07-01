@@ -12,33 +12,31 @@ private let logger = Logger(category: .init(describing: GeneralSettingReducer.se
 
 @Reducer
 public struct GeneralSettingReducer: Sendable {
-    @CasePathable
-    public enum Route: Sendable {
-        case appActivityLogs
-    }
-
     public enum Dialog: Equatable, Sendable {
         case confirmClearCache
         case confirmRemoveCustomTranslations
     }
 
+    // Pushes handled by SettingReducer, which owns the Setting navigation stack.
+    public enum Delegate: Equatable, Sendable {
+        case pushAppActivityLogs
+    }
+
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
 
         public var loadingState: LoadingState = .idle
         public var diskImageCacheSize = "0 KB"
         public var passcodeNotSet = false
 
-        public var appActivityLogsState = AppActivityLogsReducer.State()
+        public init() {}
     }
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case confirmationDialog(PresentationAction<Dialog>)
-        case clearSubStates
+        case delegate(Delegate)
         case onTranslationsFilePicked(URL)
         case removeCustomTranslationsButtonTapped
         case onRemoveCustomTranslations
@@ -49,8 +47,6 @@ public struct GeneralSettingReducer: Sendable {
         case navigateToSystemSetting
         case calculateWebImageDiskCache
         case calculateWebImageDiskCacheDone(UInt?)
-
-        case appActivityLogs(AppActivityLogsReducer.Action)
     }
 
     @Dependency(\.authorizationClient) private var authorizationClient
@@ -62,18 +58,14 @@ public struct GeneralSettingReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .delegate:
+                return .none
 
             case .removeCustomTranslationsButtonTapped:
                 state.confirmationDialog = ConfirmationDialogState {
@@ -114,10 +106,6 @@ public struct GeneralSettingReducer: Sendable {
             case .confirmationDialog:
                 return .none
 
-            case .clearSubStates:
-                // The activity-logs pump is app-wide and always alive; never reset it on navigation.
-                return .none
-
             case .onTranslationsFilePicked:
                 return .none
 
@@ -154,13 +142,8 @@ public struct GeneralSettingReducer: Sendable {
                 formatter.allowedUnits = .useAll
                 state.diskImageCacheSize = formatter.string(fromByteCount: .init(bytes))
                 return .none
-
-            case .appActivityLogs:
-                return .none
             }
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
-
-        Scope(state: \.appActivityLogsState, action: \.appActivityLogs, child: AppActivityLogsReducer.init)
     }
 }

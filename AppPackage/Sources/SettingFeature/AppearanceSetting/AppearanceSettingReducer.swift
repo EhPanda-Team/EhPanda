@@ -2,33 +2,27 @@ import ComposableArchitecture
 
 @Reducer
 public struct AppearanceSettingReducer: Sendable {
-    @CasePathable
-    public enum Route: Sendable {
-        case appIcon
+    // Pushes handled by SettingReducer, which owns the Setting navigation stack. The screen itself is
+    // stateless — its controls bind directly into `SettingReducer.State.setting` from the root.
+    public enum Delegate: Equatable, Sendable {
+        case pushAppIcon
     }
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        public init() {}
     }
 
-    public enum Action: BindableAction, Equatable {
-        case binding(BindingAction<State>)
-        case setNavigation(Route?)
+    public enum Action: Equatable, Sendable {
+        case delegate(Delegate)
     }
 
     public init() {}
 
     public var body: some Reducer<State, Action> {
-        BindingReducer()
-
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
-            case .binding:
-                return .none
-
-            case .setNavigation(let route):
-                state.route = route
+            case .delegate:
                 return .none
             }
         }

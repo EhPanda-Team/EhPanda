@@ -316,7 +316,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         #expect(store.state.isAwaitingIgneousForLaunchAutomation)
 
         await store.send(.setting(.fetchIgneousDone(.failure(.networkingFailed))))
-        await store.receive(\.setting.account.loadCookies)
+        await store.receive(\.setting.igneousRefreshed)
         #expect(store.state.didRunLaunchAutomation == false)
         #expect(store.state.isAwaitingIgneousForLaunchAutomation)
     }
