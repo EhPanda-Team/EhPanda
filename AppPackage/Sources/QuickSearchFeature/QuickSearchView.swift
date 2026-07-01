@@ -18,7 +18,7 @@ public struct QuickSearchView: View {
     }
 
     public var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 List {
                     ForEach(store.quickSearchWords) { word in

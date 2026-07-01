@@ -27,7 +27,7 @@ public struct FiltersView: View {
 
     // MARK: FilterView
     public var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 BasicSection(
                     filter: filter, filterRange: $store.filterRange,
