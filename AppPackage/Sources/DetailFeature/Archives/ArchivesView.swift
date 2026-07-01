@@ -26,7 +26,7 @@ struct ArchivesView: View {
 
     // MARK: ArchiveView
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 VStack {
                     HathArchivesView(archives: store.hathArchives, selection: $store.selectedArchive)
