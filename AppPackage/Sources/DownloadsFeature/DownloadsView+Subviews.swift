@@ -112,11 +112,7 @@ struct DownloadInspectorView: View {
             }
         }
         .autoBlur(radius: blurRadius)
-        .progressHUD(
-            config: store.hudConfig,
-            unwrapping: $store.route,
-            case: \.hud
-        )
+        .progressHUD($store.hud)
         .navigationTitle(L10n.Localizable.DownloadsView.Inspector.Title.downloadStatus)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

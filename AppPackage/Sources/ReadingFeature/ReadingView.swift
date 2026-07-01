@@ -92,11 +92,7 @@ public struct ReadingView: View {
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
             }
-            .progressHUD(
-                config: store.hudConfig,
-                unwrapping: $store.route,
-                case: \.hud
-            )
+            .progressHUD($store.hud)
 
             .animation(.linear(duration: 0.1), value: gestureHandler.offset)
             .animation(.default, value: liveTextHandler.enablesLiveText)

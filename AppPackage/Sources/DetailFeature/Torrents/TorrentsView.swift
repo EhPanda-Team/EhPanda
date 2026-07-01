@@ -47,11 +47,7 @@ struct TorrentsView: View {
                 ActivityView(activityItems: [url.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
-            .progressHUD(
-                config: store.hudConfig,
-                unwrapping: $store.route,
-                case: \.hud
-            )
+            .progressHUD($store.hud)
             .animation(.default, value: store.torrents)
             .onAppear {
                 store.send(.fetchGalleryTorrents(gid, token))

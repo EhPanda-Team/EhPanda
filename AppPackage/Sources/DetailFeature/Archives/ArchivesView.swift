@@ -56,16 +56,7 @@ struct ArchivesView: View {
                 }
                 .opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
             }
-            .progressHUD(
-                config: store.communicatingHUDConfig,
-                unwrapping: $store.route,
-                case: \.communicatingHUD
-            )
-            .progressHUD(
-                config: store.messageHUDConfig,
-                unwrapping: $store.route,
-                case: \.messageHUD
-            )
+            .progressHUD($store.hud)
             .animation(.default, value: store.hathArchives)
             .animation(.default, value: user.galleryPoints)
             .animation(.default, value: user.credits)

@@ -16,11 +16,6 @@ import TTProgressHUDExt
 
 @Reducer
 public struct ReadingReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case hud
-    }
-
     @Reducer
     public enum Destination {
         @ReducerCaseIgnored
@@ -48,7 +43,7 @@ public struct ReadingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        public var hud: ProgressHUDConfigState?
         @Presents public var destination: Destination.State?
         public var contentSource: ReadingContentSource = .remote
         public var gallery: Gallery = .empty
@@ -56,7 +51,6 @@ public struct ReadingReducer: Sendable {
 
         public var readingProgress: Int = .zero
         public var forceRefreshID: UUID = .init()
-        public var hudConfig: ProgressHUDConfigState = .loading()
 
         public var webImageLoadSuccessIndices = Set<Int>()
         public var imageURLLoadingStates = [Int: LoadingState]()
@@ -142,7 +136,6 @@ public struct ReadingReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case destination(PresentationAction<Destination.Action>)
         case presentShare(IdentifiableBox<ShareItem>)
         case presentReadingSetting
