@@ -55,6 +55,7 @@ public struct LoginReducer: Sendable {
 
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
+    @Dependency(\.dismiss) private var dismiss
 
     public init() {}
 
@@ -98,6 +99,8 @@ public struct LoginReducer: Sendable {
                         logger.notice("Login succeeded.")
                         await hapticsClient.generateNotificationFeedback(.success)
                     }))
+                    // Pop this login screen off the Setting stack now that we're signed in.
+                    effects.append(.run { _ in await dismiss() })
                 } else {
                     state.loginState = .failed(.unknown)
                     effects.append(.run(operation: { _ in

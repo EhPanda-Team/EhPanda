@@ -171,8 +171,8 @@ struct AppReducer {
                 }
 
             case .clearPadSettingSubstates:
-                state.settingState.route = nil
-                return .send(.setting(.clearSubStates))
+                state.settingState.path.removeAll()
+                return .none
 
             case .appRoute:
                 return .none
@@ -224,8 +224,8 @@ struct AppReducer {
                         }
                         effects.append(hapticEffect)
                     case .setting:
-                        if state.settingState.route != nil {
-                            effects.append(.send(.setting(.setNavigation(nil))))
+                        if !state.settingState.path.isEmpty {
+                            state.settingState.path.removeAll()
                             effects.append(hapticEffect)
                         }
                     }
@@ -243,14 +243,14 @@ struct AppReducer {
                     .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                     .send(.tabBar(.setTabBarItemType(.setting)))
                 ]
-                effects.append(.send(.setting(.setNavigation(.account))))
+                effects.append(.send(.setting(.settingRowTapped(.account))))
                 if !cookieClient.didLogin {
                     effects.append(
                         .run { send in
                             let isPad = await deviceClient.isPad()
                             let delay = UInt64(isPad ? 1200 : 200)
                             try await Task.sleep(for: .milliseconds(delay))
-                            await send(.setting(.account(.setNavigation(.login))))
+                            await send(.setting(.pushLogin))
                         }
                     )
                 }
@@ -287,7 +287,7 @@ struct AppReducer {
                 }
                 return effects.isEmpty ? .none : .merge(effects)
 
-            case .setting(.account(.loadCookies)):
+            case .setting(.igneousRefreshed):
                 guard state.isAwaitingIgneousForLaunchAutomation,
                       !shouldDelayLaunchAutomationUntilIgneous(state: state)
                 else { return .none }

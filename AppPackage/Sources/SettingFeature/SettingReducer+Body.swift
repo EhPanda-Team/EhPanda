@@ -101,14 +101,29 @@ extension SettingReducer {
                     .send(.syncTagTranslator)
                 )
 
-            case .setNavigation(let route):
-                state.route = route
+            case .settingRowTapped(let screen):
+                state.path.append(screen.pathElement)
                 return .none
 
-            case .clearSubStates:
-                state.accountSettingState = .init()
-                state.generalSettingState = .init()
-                state.appearanceSettingState = .init()
+            case .pushLogin:
+                state.path.append(.login(.init()))
+                return .none
+
+            // Account emits a delegate to push its children onto the shared stack.
+            case .path(.element(id: _, action: .account(.delegate(.pushLogin)))):
+                state.path.append(.login(.init()))
+                return .none
+
+            case .path(.element(id: _, action: .account(.delegate(.pushEhSetting)))):
+                state.path.append(.ehSetting(.init()))
+                return .none
+
+            case .path(.element(id: _, action: .general(.delegate(.pushAppActivityLogs)))):
+                state.path.append(.appActivityLogs(.init()))
+                return .none
+
+            case .path(.element(id: _, action: .appearance(.delegate(.pushAppIcon)))):
+                state.path.append(.appIcon(.init()))
                 return .none
 
             case .syncAppIconType:
@@ -171,12 +186,12 @@ extension SettingReducer {
                     return .run { send in
                         logger.notice("Igneous token refreshed.")
                         cookieClient.setCredentials(response: response)
-                        await send(.account(.loadCookies))
+                        await send(.igneousRefreshed)
                     }
                 }
                 return .merge(
                     .run { _ in logger.notice("Igneous refresh failed.") },
-                    .send(.account(.loadCookies))
+                    .send(.igneousRefreshed)
                 )
 
             case .fetchUserInfo:
@@ -253,7 +268,9 @@ extension SettingReducer {
                 }
                 return .none
 
-            case .account(.login(.loginDone)):
+            // Login is a top-level stack element; it self-dismisses on success while Setting runs
+            // the post-login setup.
+            case .path(.element(id: _, action: .login(.loginDone))):
                 return .merge(
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),
@@ -264,7 +281,7 @@ extension SettingReducer {
                     .send(.fetchEhProfileIndex)
                 )
 
-            case .account(.onLogoutConfirmButtonTapped):
+            case .path(.element(id: _, action: .account(.onLogoutConfirmButtonTapped))):
                 state.user = User()
                 return .merge(
                     .send(.syncUser),
@@ -274,31 +291,25 @@ extension SettingReducer {
                     .run { _ in logger.notice("Logged out.") }
                 )
 
-            case .account:
-                return .none
-
-            case .general(.onTranslationsFilePicked(let url)):
+            case .path(.element(id: _, action: .general(.onTranslationsFilePicked(let url)))):
                 return .run { send in
                     let result = await fileClient.importTagTranslator(url)
                     await send(.fetchTagTranslatorDone(result))
                 }
 
-            case .general(.onRemoveCustomTranslations):
+            case .path(.element(id: _, action: .general(.onRemoveCustomTranslations))):
                 state.tagTranslator.hasCustomTranslations = false
                 state.tagTranslator.translations = .init()
                 return .send(.syncTagTranslator)
 
-            case .general:
+            case .igneousRefreshed:
                 return .none
 
-            case .appearance:
+            case .path:
                 return .none
             }
         }
-
-        Scope(state: \.accountSettingState, action: \.account, child: AccountSettingReducer.init)
-        Scope(state: \.generalSettingState, action: \.general, child: GeneralSettingReducer.init)
-        Scope(state: \.appearanceSettingState, action: \.appearance, child: AppearanceSettingReducer.init)
+        .forEach(\.path, action: \.path)
     }
 
 }

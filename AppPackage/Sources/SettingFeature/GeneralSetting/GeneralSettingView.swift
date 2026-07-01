@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import FilePicker
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 
 struct GeneralSettingView: View {
@@ -60,7 +59,7 @@ struct GeneralSettingView: View {
                     .foregroundStyle(.tint)
                 }
                 Button(L10n.Localizable.GeneralSettingView.Button.appActivityLogs) {
-                    store.send(.setNavigation(.appActivityLogs))
+                    store.send(.delegate(.pushAppActivityLogs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
@@ -166,16 +165,7 @@ struct GeneralSettingView: View {
             store.send(.checkPasscodeSetting)
             store.send(.calculateWebImageDiskCache)
         }
-        .background(navigationLink)
         .navigationTitle(L10n.Localizable.GeneralSettingView.Title.general)
-    }
-
-    private var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.appActivityLogs) { _ in
-            AppActivityLogsView(
-                store: store.scope(state: \.appActivityLogsState, action: \.appActivityLogs)
-            )
-        }
     }
 }
 
