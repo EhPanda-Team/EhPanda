@@ -65,18 +65,19 @@ struct AppActivityLogsView: View {
     private var runMenu: some View {
         Section(L10n.Localizable.AppActivityLogsView.Section.current) {
             RunButton(
-                runCount: store.currentRunCount,
+                run: store.currentRun,
                 isSelected: store.selectedRunCount == nil
             ) {
                 store.send(.selectRun(nil))
             }
         }
 
-        ForEach(groupedRuns(Array(store.previousRuns.prefix(5))), id: \.date) { group in
-            Section(runDayFormatter.string(from: group.date)) {
+        // Show the latest runs including the current one: current + 4 previous = 5 rows.
+        ForEach(groupedRuns(Array(store.previousRuns.prefix(4))), id: \.day) { group in
+            Section(runDayFormatter.string(from: group.day)) {
                 ForEach(group.runs) { run in
                     RunButton(
-                        runCount: run.runCount,
+                        run: run,
                         isSelected: store.selectedRunCount == run.runCount
                     ) {
                         store.send(.selectRun(run.runCount))
@@ -86,8 +87,10 @@ struct AppActivityLogsView: View {
         }
 
         Section {
-            Button(L10n.Localizable.AppActivityLogsView.moreLogs) {
+            Button {
                 isRunPickerPresented = true
+            } label: {
+                Label(L10n.Localizable.AppActivityLogsView.moreLogs, systemSymbol: .ellipsisCalendar)
             }
         }
     }
@@ -96,30 +99,30 @@ struct AppActivityLogsView: View {
 // MARK: RunPickerSheet
 private struct RunPickerSheet: View {
     @Bindable var store: StoreOf<AppActivityLogsReducer>
-    let onSelect: () -> Void
+    let dismissAction: () -> Void
 
     var body: some View {
         NavigationStack {
             List {
                 Section(L10n.Localizable.AppActivityLogsView.Section.current) {
                     RunButton(
-                        runCount: store.currentRunCount,
+                        run: store.currentRun,
                         isSelected: store.selectedRunCount == nil
                     ) {
                         store.send(.selectRun(nil))
-                        onSelect()
+                        dismissAction()
                     }
                 }
 
-                ForEach(groupedRuns(store.previousRuns), id: \.date) { group in
-                    Section(runDayFormatter.string(from: group.date)) {
+                ForEach(groupedRuns(store.previousRuns), id: \.day) { group in
+                    Section(runDayFormatter.string(from: group.day)) {
                         ForEach(group.runs) { run in
                             RunButton(
-                                runCount: run.runCount,
+                                run: run,
                                 isSelected: store.selectedRunCount == run.runCount
                             ) {
                                 store.send(.selectRun(run.runCount))
-                                onSelect()
+                                dismissAction()
                             }
                         }
                     }
@@ -128,10 +131,8 @@ private struct RunPickerSheet: View {
             .navigationTitle(L10n.Localizable.AppActivityLogsView.runs)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Localizable.AppActivityLogsView.done) {
-                        onSelect()
-                    }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(role: .cancel, action: dismissAction)
                 }
             }
         }
@@ -140,40 +141,49 @@ private struct RunPickerSheet: View {
 
 // MARK: RunButton
 private struct RunButton: View {
-    let runCount: Int?
+    let run: RunLogFile?
     let isSelected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             if isSelected {
-                Label(runTitle(runCount), systemSymbol: .checkmark)
+                Label(runLabel(run), systemSymbol: .checkmark)
             } else {
-                Text(runTitle(runCount))
+                Text(runLabel(run))
             }
         }
         .foregroundStyle(.primary)
     }
 }
 
-// A nil run count is the current run before its count is resolved; fall back to "Current".
-private func runTitle(_ runCount: Int?) -> String {
-    guard let runCount else {
+// A nil run is the current run before its count is resolved; fall back to "Current".
+private func runLabel(_ run: RunLogFile?) -> String {
+    guard let run else {
         return L10n.Localizable.AppActivityLogsView.Section.current
     }
-    return L10n.Localizable.AppActivityLogsView.run("\(runCount)")
+    let title = L10n.Localizable.AppActivityLogsView.run("\(run.runCount)")
+    return "\(title) (\(runTimeFormatter.string(from: run.date)))"
 }
 
-private func groupedRuns(_ runs: [RunLogFile]) -> [(date: Date, runs: [RunLogFile])] {
-    Dictionary(grouping: runs, by: \.date)
-        .map { (date: $0.key, runs: $0.value.sorted { $0.runCount > $1.runCount }) }
-        .sorted { $0.date > $1.date }
+private func groupedRuns(_ runs: [RunLogFile]) -> [(day: Date, runs: [RunLogFile])] {
+    Dictionary(grouping: runs) { Calendar.current.startOfDay(for: $0.date) }
+        .map { (day: $0.key, runs: $0.value.sorted { $0.runCount > $1.runCount }) }
+        .sorted { $0.day > $1.day }
 }
 
 private let runDayFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateStyle = .medium
     formatter.timeStyle = .none
+    return formatter
+}()
+
+// 24-hour HH:mm; the day is already shown by the section header.
+private let runTimeFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "HH:mm"
+    formatter.locale = Locale(identifier: "en_US_POSIX")
     return formatter
 }()
 
