@@ -29,6 +29,7 @@ struct AppReducer {
         var searchRootState = SearchRootReducer.State()
         var downloadsState = DownloadsReducer.State()
         var settingState = SettingReducer.State()
+        var appLogsPumpState = AppActivityLogsPumpReducer.State()
         var scenePhase = ScenePhase.active
         var hasEnteredBackground = false
         var didRunLaunchAutomation = false
@@ -52,6 +53,7 @@ struct AppReducer {
         case searchRoot(SearchRootReducer.Action)
         case downloads(DownloadsReducer.Action)
         case setting(SettingReducer.Action)
+        case appLogsPump(AppActivityLogsPumpReducer.Action)
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
@@ -86,7 +88,7 @@ struct AppReducer {
                     let blurRadius = state.settingState.setting.backgroundBlurRadius
                     var effects: [Effect<Action>] = [
                         .send(.appLock(.onBecomeActive(threshold, blurRadius))),
-                        .send(.setting(.general(.appActivityLogs(.startPump)))),
+                        .send(.appLogsPump(.startPump)),
                         .run { _ in logger.notice("App entered foreground.") }
                     ]
                     // iOS interposes .inactive on a foreground return
@@ -114,7 +116,7 @@ struct AppReducer {
                     // beginBackgroundTask assertion only covers the brief grace
                     // period right after backgrounding.
                     return .merge(
-                        .send(.setting(.general(.appActivityLogs(.pausePump)))),
+                        .send(.appLogsPump(.pausePump)),
                         .run { _ in
                             logger.notice("App entered background.")
                             if await downloadClient.hasPendingWork() {
@@ -143,7 +145,7 @@ struct AppReducer {
                 }
 
             case .appDelegate(.onLaunchFinish):
-                return .send(.setting(.general(.appActivityLogs(.startPump))))
+                return .send(.appLogsPump(.startPump))
 
             case .appDelegate(.migration(.onDatabasePreparationSuccess)):
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
@@ -297,6 +299,9 @@ struct AppReducer {
 
             case .setting:
                 return .none
+
+            case .appLogsPump:
+                return .none
             }
         }
 
@@ -309,6 +314,7 @@ struct AppReducer {
         Scope(state: \.searchRootState, action: \.searchRoot, child: SearchRootReducer.init)
         Scope(state: \.downloadsState, action: \.downloads, child: DownloadsReducer.init)
         Scope(state: \.settingState, action: \.setting, child: SettingReducer.init)
+        Scope(state: \.appLogsPumpState, action: \.appLogsPump, child: AppActivityLogsPumpReducer.init)
     }
 }
 
