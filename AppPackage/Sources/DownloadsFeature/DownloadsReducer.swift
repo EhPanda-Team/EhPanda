@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import Resources
 import ComposableArchitecture
+import AppComponents
 import AppTools
 import DeviceClient
 import DownloadClient
@@ -38,7 +39,7 @@ public struct DownloadsReducer: Sendable {
     public struct State: Equatable {
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
-        @Presents public var alert: AlertState<Alert>?
+        @Presents public var alert: AppAlertState<Alert>?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
         public var folderFilter: DownloadFolderFilter = .all
@@ -143,7 +144,7 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .deleteDownloadButtonTapped(let download):
-                state.alert = AlertState {
+                state.alert = AppAlertState {
                     TextState(L10n.Localizable.DownloadsView.Dialog.Title.deleteDownload)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(download.gid)) {

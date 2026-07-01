@@ -39,6 +39,7 @@
 
 // MARK: Common button
 "common.button.cancel" = "취소";
+"common.button.ok" = "확인";
 
 // MARK: TabItem
 "tab_item.title.home" = "Home";
