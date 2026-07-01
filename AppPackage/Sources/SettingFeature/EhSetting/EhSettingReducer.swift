@@ -1,6 +1,7 @@
 import AppTools
 import Foundation
 import AppModels
+import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import ApplicationClient
@@ -13,7 +14,10 @@ public struct EhSettingReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
         case webView(URL)
-        case deleteProfile
+    }
+
+    public enum Dialog: Equatable, Sendable {
+        case confirmDeleteProfile
     }
 
     private enum CancelID: CaseIterable {
@@ -23,6 +27,7 @@ public struct EhSettingReducer: Sendable {
     @ObservableState
     public struct State: Equatable, Sendable {
         public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var editingProfileName = ""
         public var ehSetting: EhSetting?
         public var ehProfile: EhProfile?
@@ -41,6 +46,8 @@ public struct EhSettingReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case deleteProfileButtonTapped
         case setKeyboardHidden
         case setDefaultProfile(Int)
 
@@ -69,6 +76,28 @@ public struct EhSettingReducer: Sendable {
 
             case .setNavigation(let route):
                 state.route = route
+                return .none
+
+            case .deleteProfileButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDeleteProfile) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.delete)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmDeleteProfile)):
+                guard let value = state.ehProfile?.value else { return .none }
+                return .send(.performAction(action: .delete, name: nil, set: value))
+
+            case .confirmationDialog:
                 return .none
 
             case .setKeyboardHidden:
@@ -153,5 +182,6 @@ public struct EhSettingReducer: Sendable {
             case: \.webView,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
 }

@@ -9,73 +9,8 @@ import AppTools
 import AppComponents
 import ReadingFeature
 
-private enum DownloadDialog: Equatable {
-    case delete(isActiveDownload: Bool)
-    case retry(DownloadStartMode)
-
-    var title: String {
-        switch self {
-        case .delete:
-            return L10n.Localizable.DetailView.Dialog.Title.deleteDownload
-        case .retry(let mode):
-            switch mode {
-            case .repair:
-                return L10n.Localizable.DetailView.Dialog.Title.repairDownload
-            case .update:
-                return L10n.Localizable.DetailView.Dialog.Title.updateDownload
-            case .initial, .redownload:
-                return L10n.Localizable.DetailView.Dialog.Title.redownloadGallery
-            }
-        }
-    }
-
-    var message: String {
-        switch self {
-        case .delete(let isActiveDownload):
-            return isActiveDownload
-                ? L10n.Localizable.DetailView.Dialog.Message.deleteActiveDownload
-                : L10n.Localizable.DetailView.Dialog.Message.deleteDownloadedGallery
-        case .retry(let mode):
-            switch mode {
-            case .repair:
-                return L10n.Localizable.DetailView.Dialog.Message.repairDownload
-            case .update:
-                return L10n.Localizable.DetailView.Dialog.Message.updateDownload
-            case .initial, .redownload:
-                return L10n.Localizable.DetailView.Dialog.Message.redownloadGallery
-            }
-        }
-    }
-
-    var confirmTitle: String {
-        switch self {
-        case .delete:
-            return L10n.Localizable.ConfirmationDialog.Button.delete
-        case .retry(let mode):
-            switch mode {
-            case .repair:
-                return L10n.Localizable.DetailView.Dialog.Button.repair
-            case .update:
-                return L10n.Localizable.DetailView.Dialog.Button.update
-            case .initial, .redownload:
-                return L10n.Localizable.DetailView.Dialog.Button.redownload
-            }
-        }
-    }
-
-    var confirmRole: ButtonRole? {
-        switch self {
-        case .delete:
-            return .destructive
-        case .retry:
-            return nil
-        }
-    }
-}
-
 public struct DetailView: View {
     @Bindable var store: StoreOf<DetailReducer>
-    @State private var downloadDialog: DownloadDialog?
     let gid: String
     let user: User
     @Binding var setting: Setting
@@ -110,29 +45,7 @@ public struct DetailView: View {
             .onChange(of: store.hasLoadedDownloadBadge) { _, _ in
                 runLaunchAutomationIfNeeded()
             }
-            .alert(
-                downloadDialog?.title ?? "",
-                isPresented: Binding(
-                    get: { downloadDialog != nil },
-                    set: { if !$0 { downloadDialog = nil } }
-                ),
-                presenting: downloadDialog
-            ) { dialog in
-                Button(dialog.confirmTitle, role: dialog.confirmRole) {
-                    switch dialog {
-                    case .delete:
-                        store.send(.deleteDownload)
-                    case .retry(let mode):
-                        store.send(.retryDownload(mode))
-                    }
-                    downloadDialog = nil
-                }
-                Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {
-                    downloadDialog = nil
-                }
-            } message: { dialog in
-                Text(dialog.message)
-            }
+            .alert($store.scope(state: \.alert, action: \.alert))
             .background(navigationLinks)
             .toolbar(content: toolbar)
     }
@@ -354,13 +267,11 @@ private extension DetailView {
         case .queued, .active, .inactive:
             store.send(.toggleDownloadPause)
         case .completed:
-            downloadDialog = .delete(isActiveDownload: false)
+            store.send(.deleteDownloadButtonTapped)
         case .error:
-            downloadDialog = store.downloadNeedsRepair
-                ? .retry(.repair)
-                : .retry(.redownload)
+            store.send(.retryDownloadButtonTapped(store.downloadNeedsRepair ? .repair : .redownload))
         case .updateAvailable:
-            downloadDialog = .retry(.update)
+            store.send(.retryDownloadButtonTapped(.update))
         }
     }
 

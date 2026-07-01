@@ -10,11 +10,9 @@ extension EhSettingView {
 
 // MARK: EhProfileSection
 struct EhProfileSection: View {
-    @Binding var route: EhSettingReducer.Route?
     @Binding var ehSetting: EhSetting
     @Binding var ehProfile: EhProfile
     @Binding var editingProfileName: String
-    let deleteAction: () -> Void
     let deleteDialogAction: () -> Void
     let performEhProfileAction: (EhProfileAction?, String?, Int) -> Void
 
@@ -40,16 +38,6 @@ struct EhProfileSection: View {
                     role: .destructive,
                     action: deleteDialogAction
                 )
-                .confirmationDialog(
-                    message: L10n.Localizable.ConfirmationDialog.Title.delete,
-                    unwrapping: $route,
-                    case: \.deleteProfile
-                ) {
-                    Button(
-                        L10n.Localizable.ConfirmationDialog.Button.delete,
-                        role: .destructive, action: deleteAction
-                    )
-                }
             }
         } header: {
             Text(L10n.Localizable.EhSettingView.Section.Title.profileSettings)

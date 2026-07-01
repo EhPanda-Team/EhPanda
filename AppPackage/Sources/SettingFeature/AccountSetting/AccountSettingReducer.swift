@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Resources
 import ComposableArchitecture
 import SwiftUINavigationExt
 import HapticsClient
@@ -13,14 +14,18 @@ public struct AccountSettingReducer: Sendable {
     public enum Route: Equatable, Sendable {
         case hud
         case login
-        case logout
         case ehSetting
         case webView(URL)
+    }
+
+    public enum Dialog: Equatable, Sendable {
+        case confirmLogout
     }
 
     @ObservableState
     public struct State: Equatable, Sendable {
         public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
         public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
@@ -32,6 +37,8 @@ public struct AccountSettingReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case logoutButtonTapped
         case onLogoutConfirmButtonTapped
         case clearSubStates
         case loadCookies
@@ -66,6 +73,27 @@ public struct AccountSettingReducer: Sendable {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .logoutButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmLogout) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.logout)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.logout)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmLogout)):
+                return .send(.onLogoutConfirmButtonTapped)
+
+            case .confirmationDialog:
+                return .none
 
             case .onLogoutConfirmButtonTapped:
                 return .send(.loadCookies)
@@ -106,6 +134,7 @@ public struct AccountSettingReducer: Sendable {
             case: \.webView,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
 
         Scope(state: \.loginState, action: \.login, child: LoginReducer.init)
         Scope(state: \.ehSettingState, action: \.ehSetting, child: EhSettingReducer.init)

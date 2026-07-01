@@ -38,7 +38,7 @@ public struct QuickSearchView: View {
                         }
                         .swipeActions(edge: .trailing) {
                             Button {
-                                store.send(.setNavigation(.deleteWord(word)))
+                                store.send(.deleteWordButtonTapped(word))
                             } label: {
                                 Image(systemSymbol: .trash)
                             }
@@ -51,18 +51,6 @@ public struct QuickSearchView: View {
                             }
                         }
                         .withArrow(isVisible: !store.isListEditing).padding(5)
-                        .confirmationDialog(
-                            message: L10n.Localizable.ConfirmationDialog.Title.delete,
-                            unwrapping: $store.route,
-                            case: \.deleteWord,
-                            matching: word
-                        ) { route in
-                            Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                    store.send(.deleteWord(route))
-                                }
-                            }
-                        }
                     }
                     .onDelete { offsets in
                         store.send(.deleteWordWithOffsets(offsets))
@@ -81,6 +69,9 @@ public struct QuickSearchView: View {
                             && store.quickSearchWords.isEmpty ? 1 : 0
                     )
             }
+            .confirmationDialog(
+                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            )
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)
             .animation(.default, value: store.quickSearchWords)

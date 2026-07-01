@@ -26,40 +26,6 @@ extension NavigationLink {
 }
 
 extension View {
-    public func confirmationDialog<Enum: Sendable, Case: Sendable, A: View>(
-        message: String,
-        unwrapping enum: Binding<Enum?>,
-        case caseKeyPath: CaseKeyPath<Enum, Case>,
-        @ViewBuilder actions: @escaping (Case) -> A
-    ) -> some View {
-        self.confirmationDialog(
-            item: `enum`.case(caseKeyPath),
-            titleVisibility: .hidden,
-            title: { _ in Text("") },
-            actions: actions,
-            message: { _ in Text(message) }
-        )
-    }
-    public func confirmationDialog<Enum: Sendable, Case: Equatable & Sendable, A: View>(
-        message: String,
-        unwrapping enum: Binding<Enum?>,
-        case caseKeyPath: CaseKeyPath<Enum, Case>,
-        matching case: Case,
-        @ViewBuilder actions: @escaping (Case) -> A
-    ) -> some View {
-        self.confirmationDialog(
-            item: {
-                let unwrapping = `enum`.case(caseKeyPath)
-                let isMatched = `case` == unwrapping.wrappedValue
-                return isMatched ? unwrapping : .constant(nil)
-            }(),
-            titleVisibility: .hidden,
-            title: { _ in Text("") },
-            actions: actions,
-            message: { _ in Text(message) }
-        )
-    }
-
     public func sheet<Enum: Sendable, Case: Sendable, Content: View>(
         unwrapping enum: Binding<Enum?>,
         case caseKeyPath: CaseKeyPath<Enum, Case>,

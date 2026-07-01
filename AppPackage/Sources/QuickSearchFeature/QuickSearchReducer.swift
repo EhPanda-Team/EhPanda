@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import Resources
 import ComposableArchitecture
 import DatabaseClient
 
@@ -9,7 +10,10 @@ public struct QuickSearchReducer: Sendable {
     public enum Route: Equatable, Sendable {
         case newWord
         case editWord
-        case deleteWord(QuickSearchWord)
+    }
+
+    public enum Dialog: Equatable, Sendable {
+        case confirmDelete(QuickSearchWord)
     }
 
     public enum FocusField: Sendable {
@@ -24,6 +28,7 @@ public struct QuickSearchReducer: Sendable {
     @ObservableState
     public struct State: Equatable, Sendable {
         public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var focusedField: FocusField?
         public var editingWord: QuickSearchWord = .empty
         public var listEditMode: EditMode = .inactive
@@ -41,6 +46,8 @@ public struct QuickSearchReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case deleteWordButtonTapped(QuickSearchWord)
         case clearSubStates
 
         case syncQuickSearchWords
@@ -77,6 +84,27 @@ public struct QuickSearchReducer: Sendable {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .deleteWordButtonTapped(let word):
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDelete(word)) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.delete)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmDelete(let word))):
+                return .send(.deleteWord(word))
+
+            case .confirmationDialog:
+                return .none
 
             case .clearSubStates:
                 state.focusedField = nil
@@ -136,5 +164,6 @@ public struct QuickSearchReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
 }
