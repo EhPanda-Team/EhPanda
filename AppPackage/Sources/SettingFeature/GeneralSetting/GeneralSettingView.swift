@@ -171,7 +171,7 @@ struct GeneralSettingView: View {
 
 struct GeneralSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             GeneralSettingView(
                 store: .init(initialState: .init(), reducer: GeneralSettingReducer.init),
                 tagTranslatorLoadingState: .idle,

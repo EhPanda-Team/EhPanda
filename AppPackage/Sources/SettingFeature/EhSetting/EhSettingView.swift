@@ -132,7 +132,7 @@ struct EhSettingView: View {
 
 struct EhSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             EhSettingView(
                 store: .init(
                     initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),

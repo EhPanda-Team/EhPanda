@@ -67,7 +67,7 @@ struct PopularView: View {
 
 struct PopularView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             PopularView(
                 store: .init(initialState: .init(), reducer: PopularReducer.init),
                 user: .init(),

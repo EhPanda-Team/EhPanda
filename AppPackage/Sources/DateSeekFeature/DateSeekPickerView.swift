@@ -29,7 +29,7 @@ public struct DateSeekPickerView: View {
     }
 
     public var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section {
                     DatePicker(

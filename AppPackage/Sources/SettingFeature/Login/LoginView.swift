@@ -147,7 +147,7 @@ private struct LoginTextField: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             LoginView(
                 store: .init(initialState: .init(), reducer: LoginReducer.init),
                 bypassesSNIFiltering: false,

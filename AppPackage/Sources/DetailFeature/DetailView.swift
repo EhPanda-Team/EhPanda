@@ -313,7 +313,7 @@ private extension DetailView {
 
 struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             DetailView(
                 store: .init(initialState: .init(), reducer: DetailReducer.init),
                 gid: .init(),

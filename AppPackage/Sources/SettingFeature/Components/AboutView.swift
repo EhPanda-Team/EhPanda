@@ -248,7 +248,7 @@ private struct Info: Identifiable {
 
 struct EhPandaView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             AboutView()
         }
     }
