@@ -6,10 +6,10 @@ import DatabaseClient
 
 @Reducer
 public struct QuickSearchReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case newWord
-        case editWord
+    // Which flavour of the word editor is pushed onto the stack; drives `.navigationDestination(item:)`.
+    public enum WordEditKind: Hashable, Sendable {
+        case new
+        case edit
     }
 
     public enum Dialog: Equatable, Sendable {
@@ -27,7 +27,7 @@ public struct QuickSearchReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        public var editKind: WordEditKind?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var focusedField: FocusField?
         public var editingWord: QuickSearchWord = .empty
@@ -45,15 +45,14 @@ public struct QuickSearchReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case confirmationDialog(PresentationAction<Dialog>)
         case deleteWordButtonTapped(QuickSearchWord)
-        case clearSubStates
+        case newWordButtonTapped
+        case editWordButtonTapped(QuickSearchWord)
 
         case syncQuickSearchWords
 
         case toggleListEditing
-        case setEditingWord(QuickSearchWord)
 
         case appendWord
         case editWord
@@ -71,98 +70,105 @@ public struct QuickSearchReducer: Sendable {
     public init() {}
 
     public var body: some Reducer<State, Action> {
-        BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
+        CombineReducers {
+            BindingReducer()
 
-        Reduce { state, action in
-            switch action {
-            case .binding:
-                return .none
+            Reduce { state, action in
+                switch action {
+                case .binding:
+                    return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+                case .newWordButtonTapped:
+                    state.editingWord = .empty
+                    state.editKind = .new
+                    return .none
 
-            case .deleteWordButtonTapped(let word):
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
-                } actions: {
-                    ButtonState(role: .destructive, action: .confirmDelete(word)) {
-                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                case .editWordButtonTapped(let word):
+                    state.editingWord = word
+                    state.editKind = .edit
+                    return .none
+
+                case .deleteWordButtonTapped(let word):
+                    state.confirmationDialog = ConfirmationDialogState {
+                        TextState("")
+                    } actions: {
+                        ButtonState(role: .destructive, action: .confirmDelete(word)) {
+                            TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState(L10n.Localizable.Common.Button.cancel)
+                        }
+                    } message: {
+                        TextState(L10n.Localizable.ConfirmationDialog.Title.delete)
                     }
-                    ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                    return .none
+
+                case .confirmationDialog(.presented(.confirmDelete(let word))):
+                    return .send(.deleteWord(word))
+
+                case .confirmationDialog:
+                    return .none
+
+                case .syncQuickSearchWords:
+                    return .run { [state] _ in
+                        await databaseClient.updateQuickSearchWords(state.quickSearchWords)
                     }
-                } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.Title.delete)
+
+                case .toggleListEditing:
+                    state.isListEditing.toggle()
+                    return .none
+
+                case .appendWord:
+                    state.quickSearchWords.append(state.editingWord)
+                    state.editKind = nil
+                    return .send(.syncQuickSearchWords)
+
+                case .editWord:
+                    if let index = state.quickSearchWords.firstIndex(where: { $0.id == state.editingWord.id }) {
+                        state.quickSearchWords[index] = state.editingWord
+                        state.editKind = nil
+                        return .send(.syncQuickSearchWords)
+                    }
+                    state.editKind = nil
+                    return .none
+
+                case .deleteWord(let word):
+                    state.quickSearchWords = state.quickSearchWords.filter({ $0 != word })
+                    return .send(.syncQuickSearchWords)
+
+                case .deleteWordWithOffsets(let offsets):
+                    state.quickSearchWords.remove(atOffsets: offsets)
+                    return .send(.syncQuickSearchWords)
+
+                case .moveWord(let source, let destination):
+                    state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
+                    return .send(.syncQuickSearchWords)
+
+                case .teardown:
+                    return .cancel(id: CancelID.fetchQuickSearchWords)
+
+                case .fetchQuickSearchWords:
+                    state.loadingState = .loading
+                    return .run { send in
+                        let quickSearchWords = await databaseClient.fetchQuickSearchWords()
+                        await send(.fetchQuickSearchWordsDone(quickSearchWords))
+                    }
+                    .cancellable(id: CancelID.fetchQuickSearchWords)
+
+                case .fetchQuickSearchWordsDone(let words):
+                    state.loadingState = .idle
+                    state.quickSearchWords = words
+                    return .none
                 }
-                return .none
-
-            case .confirmationDialog(.presented(.confirmDelete(let word))):
-                return .send(.deleteWord(word))
-
-            case .confirmationDialog:
-                return .none
-
-            case .clearSubStates:
+            }
+        }
+        // Dismissing the editor (back-swipe or a confirmed save) resets the scratch word and focus.
+        .onChange(of: \.editKind) { _, state in
+            if state.editKind == nil {
                 state.focusedField = nil
                 state.editingWord = .empty
-                return .none
-
-            case .syncQuickSearchWords:
-                return .run { [state] _ in
-                    await databaseClient.updateQuickSearchWords(state.quickSearchWords)
-                }
-
-            case .toggleListEditing:
-                state.isListEditing.toggle()
-                return .none
-
-            case .setEditingWord(let word):
-                state.editingWord = word
-                return .none
-
-            case .appendWord:
-                state.quickSearchWords.append(state.editingWord)
-                return .send(.syncQuickSearchWords)
-
-            case .editWord:
-                if let index = state.quickSearchWords.firstIndex(where: { $0.id == state.editingWord.id }) {
-                    state.quickSearchWords[index] = state.editingWord
-                    return .send(.syncQuickSearchWords)
-                }
-                return .none
-
-            case .deleteWord(let word):
-                state.quickSearchWords = state.quickSearchWords.filter({ $0 != word })
-                return .send(.syncQuickSearchWords)
-
-            case .deleteWordWithOffsets(let offsets):
-                state.quickSearchWords.remove(atOffsets: offsets)
-                return .send(.syncQuickSearchWords)
-
-            case .moveWord(let source, let destination):
-                state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
-                return .send(.syncQuickSearchWords)
-
-            case .teardown:
-                return .cancel(id: CancelID.fetchQuickSearchWords)
-
-            case .fetchQuickSearchWords:
-                state.loadingState = .loading
-                return .run { send in
-                    let quickSearchWords = await databaseClient.fetchQuickSearchWords()
-                    await send(.fetchQuickSearchWordsDone(quickSearchWords))
-                }
-                .cancellable(id: CancelID.fetchQuickSearchWords)
-
-            case .fetchQuickSearchWordsDone(let words):
-                state.loadingState = .idle
-                state.quickSearchWords = words
-                return .none
             }
+            return .none
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
