@@ -2,7 +2,6 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 
 public struct FiltersView: View {

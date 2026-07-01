@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppTools
-import SwiftUINavigationExt
 import AppComponents
 
 extension EhSettingView {

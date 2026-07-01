@@ -1,7 +1,6 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
-import SwiftUINavigationExt
 import HapticsClient
 import NetworkingFeature
 import ClipboardClient

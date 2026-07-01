@@ -81,7 +81,6 @@ enum Module: String {
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
     case commonMarkExt = "CommonMarkExt"
-    case composableArchitectureExt = "ComposableArchitectureExt"
     case cookieClient = "CookieClient"
     case dfClient = "DFClient"
     case databaseClient = "DatabaseClient"
@@ -265,7 +264,6 @@ let targets: [PackageDescription.Target] = [
             .module(.authorizationClient),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
-            .module(.composableArchitectureExt),
             .module(.cookieClient),
             .module(.databaseClient),
             .module(.dateSeekFeature),
@@ -291,7 +289,6 @@ let targets: [PackageDescription.Target] = [
             .module(.searchFeature),
             .module(.animatedImageFeature),
             .module(.settingFeature),
-            .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
             .module(.urlClient),
             .module(.userDefaultsClient),
@@ -330,14 +327,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .resources,
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .composableArchitectureExt,
-        dependencies: [
-            .targetDependency(.composableArchitecture)
-        ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
@@ -382,7 +371,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .swiftUINavigationExt,
         dependencies: [
-            .targetDependency(.swiftUINavigation)
+            .targetDependency(.casePaths)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -611,7 +600,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.databaseClient),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -624,7 +612,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.databaseClient),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -660,7 +647,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.databaseClient),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
@@ -673,13 +659,11 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.composableArchitectureExt),
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.galleryListComponents),
             .module(.readingFeature),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
@@ -694,7 +678,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
@@ -704,7 +687,6 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .module(.tagTranslationFeature),
             .targetDependency(.alertKit),
             .targetDependency(.composableArchitecture)
@@ -734,7 +716,6 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .module(.readingSettingFeature),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
@@ -751,7 +732,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
@@ -762,7 +742,6 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
@@ -778,7 +757,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.composableArchitectureExt),
             .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
@@ -790,7 +768,6 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .module(.tagTranslationFeature),
             .targetDependency(.alertKit),
             .targetDependency(.colorful),
@@ -812,7 +789,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.applicationClient),
             .module(.clipboardClient),
-            .module(.composableArchitectureExt),
             .module(.cookieClient),
             .module(.databaseClient),
             .module(.downloadClient),
@@ -824,7 +800,6 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.readingFeature),
             .module(.resources),
-            .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
             .module(.tagTranslationFeature),
             .module(.urlClient),
@@ -855,7 +830,6 @@ let targets: [PackageDescription.Target] = [
             .module(.readingSettingFeature),
             .module(.resources),
             .module(.animatedImageFeature),
-            .module(.swiftUINavigationExt),
             .module(.ttProgressHUDExt),
             .module(.urlClient),
             .targetDependency(.composableArchitecture),
