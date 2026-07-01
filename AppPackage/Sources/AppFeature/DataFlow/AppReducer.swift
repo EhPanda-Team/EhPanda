@@ -12,6 +12,9 @@ import SearchFeature
 import FavoritesFeature
 import DownloadsFeature
 import SettingFeature
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: AppReducer.self))
 
 @Reducer
 struct AppReducer {
@@ -83,7 +86,8 @@ struct AppReducer {
                     let blurRadius = state.settingState.setting.backgroundBlurRadius
                     var effects: [Effect<Action>] = [
                         .send(.appLock(.onBecomeActive(threshold, blurRadius))),
-                        .send(.setting(.general(.appActivityLogs(.startPump))))
+                        .send(.setting(.general(.appActivityLogs(.startPump)))),
+                        .run { _ in logger.notice("App entered foreground.") }
                     ]
                     // iOS interposes .inactive on a foreground return
                     // (.background -> .inactive -> .active), so the previous
@@ -112,6 +116,7 @@ struct AppReducer {
                     return .merge(
                         .send(.setting(.general(.appActivityLogs(.pausePump)))),
                         .run { _ in
+                            logger.notice("App entered background.")
                             if await downloadClient.hasPendingWork() {
                                 backgroundProcessingClient.schedule()
                             }

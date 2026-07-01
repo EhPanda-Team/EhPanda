@@ -52,6 +52,7 @@ extension BackgroundProcessingClient {
             request.earliestBeginDate = nil
             do {
                 try BGTaskScheduler.shared.submit(request)
+                logger.notice("Scheduled background processing task.")
             } catch {
                 logger.error("\(error, privacy: .public)")
             }

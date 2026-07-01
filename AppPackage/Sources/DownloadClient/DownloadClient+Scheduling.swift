@@ -162,6 +162,7 @@ extension DownloadCoordinator {
             )
             await notifyObservers()
             await scheduleNextIfNeeded()
+            logger.notice("Download paused, gid: \(gid, privacy: .public).")
             return .success(())
         } catch let error as AppError {
             return .failure(error)
@@ -226,6 +227,7 @@ extension DownloadCoordinator {
         await queueStore.enqueue(gid)
         await notifyObservers()
         await scheduleNextIfNeeded()
+        logger.notice("Download resumed, gid: \(gid, privacy: .public).")
         return .success(())
     }
 

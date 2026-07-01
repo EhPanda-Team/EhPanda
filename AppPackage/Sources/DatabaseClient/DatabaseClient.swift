@@ -29,6 +29,9 @@ extension DatabaseClient {
         dropDatabase: {
             await withCheckedContinuation { continuation in
                 PersistenceController.shared.rebuild { result in
+                    if case .success = result {
+                        logger.notice("Database dropped.")
+                    }
                     continuation.resume(returning: result)
                 }
             }

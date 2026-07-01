@@ -5,6 +5,9 @@ import AuthorizationClient
 import ApplicationClient
 import LibraryClient
 import DatabaseClient
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: GeneralSettingReducer.self))
 
 @Reducer
 public struct GeneralSettingReducer: Sendable {
@@ -81,6 +84,7 @@ public struct GeneralSettingReducer: Sendable {
                     async let removeImageURLs: Void =
                         databaseClient.removeImageURLs()
                     _ = await (removeCachedImages, removeImageURLs)
+                    logger.notice("Cleared image cache.")
                     await send(.calculateWebImageDiskCache)
                 }
 
