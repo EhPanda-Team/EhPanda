@@ -17,6 +17,11 @@ public struct CommentsReducer: Sendable {
     public enum Route: Equatable, Sendable {
         case hud
         case detail(String)
+    }
+
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
         case postComment(String)
     }
 
@@ -27,6 +32,7 @@ public struct CommentsReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var commentContent = ""
         public var postCommentFocused = false
 
@@ -44,6 +50,8 @@ public struct CommentsReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentPostComment(String)
         case clearSubStates
         case clearScrollCommentID
 
@@ -91,6 +99,13 @@ public struct CommentsReducer: Sendable {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .destination:
+                return .none
+
+            case .presentPostComment(let commentID):
+                state.destination = .postComment(commentID)
+                return .none
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
@@ -268,9 +283,12 @@ public struct CommentsReducer: Sendable {
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.postComment,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
     }
 }
+
+extension CommentsReducer.Destination.State: Equatable, Sendable {}

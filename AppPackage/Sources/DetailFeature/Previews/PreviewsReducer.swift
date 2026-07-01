@@ -11,9 +11,9 @@ import ReadingFeature
 
 @Reducer
 public struct PreviewsReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case reading(EquatableVoid = .init())
+    @Reducer
+    public enum Destination {
+        case reading(ReadingReducer)
     }
 
     private enum CancelID: CaseIterable {
@@ -25,7 +25,7 @@ public struct PreviewsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        @Presents public var destination: Destination.State?
 
         public var gallery: Gallery = .empty
         public var loadingState: LoadingState = .idle
@@ -36,8 +36,6 @@ public struct PreviewsReducer: Sendable {
         public var previewConfig: PreviewConfig = .normal(rows: 4)
         public var localPreviewRequestID = UUID()
 
-        public var readingState = ReadingReducer.State()
-
         mutating func updatePreviewURLs(_ previewURLs: [Int: URL]) {
             self.previewURLs = self.previewURLs.merging(
                 previewURLs, uniquingKeysWith: { stored, _ in stored }
@@ -47,8 +45,7 @@ public struct PreviewsReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
-        case clearSubStates
+        case destination(PresentationAction<Destination.Action>)
 
         case syncPreviewURLs([Int: URL])
         case updateReadingProgress(Int)
@@ -64,8 +61,6 @@ public struct PreviewsReducer: Sendable {
         case openReadingDone(Result<(DownloadedGallery, DownloadManifest), AppError>)
         case fetchPreviewURLs(Int)
         case fetchPreviewURLsDone(Result<[Int: URL], AppError>)
-
-        case reading(ReadingReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -76,22 +71,17 @@ public struct PreviewsReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .destination(.presented(.reading(.onPerformDismiss))):
+                return .send(.destination(.dismiss))
 
-            case .clearSubStates:
-                state.readingState = .init()
-                return .send(.reading(.teardown))
+            case .destination:
+                return .none
 
             case .syncPreviewURLs(let previewURLs):
                 return .run { [state] _ in
@@ -173,7 +163,6 @@ public struct PreviewsReducer: Sendable {
                 return .none
 
             case .openReading:
-                state.readingState = .init(contentSource: .remote)
                 return .run { [galleryID = state.gallery.id] send in
                     guard galleryID.isValidGID else {
                         await send(.openReadingDone(.failure(.notFound)))
@@ -185,13 +174,15 @@ public struct PreviewsReducer: Sendable {
                 }
 
             case .openReadingDone(let result):
+                var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    state.readingState = .init(contentSource: .local(download, manifest))
+                    readingState = .init(contentSource: .local(download, manifest))
                 } else {
-                    state.readingState.contentSource = .remote
-                    state.readingState.localPageURLs = state.localPreviewURLs
+                    readingState = .init(contentSource: .remote)
+                    readingState.localPageURLs = state.localPreviewURLs
                 }
-                state.route = .reading()
+                readingState.gallery = state.gallery
+                state.destination = .reading(readingState)
                 return .none
 
             case .fetchPreviewURLs(let index):
@@ -221,20 +212,15 @@ public struct PreviewsReducer: Sendable {
                     state.loadingState = .failed(error)
                 }
                 return .none
-
-            case .reading(.onPerformDismiss):
-                return .send(.setNavigation(nil))
-
-            case .reading:
-                return .none
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.reading,
             hapticsClient: hapticsClient
         )
-
-        Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
+        .ifLet(\.$destination, action: \.destination)
     }
 }
+
+extension PreviewsReducer.Destination.State: Equatable, Sendable {}
