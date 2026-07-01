@@ -25,8 +25,8 @@ public struct AppActivityLogsReducer: Sendable {
         // File-backed logs for the currently selected previous run.
         public var selectedRunLogs = [AppActivityLog]()
 
-        // `nil` selects the current run (state-backed); otherwise a previous run count.
-        public var selectedRunCount: Int?
+        // `nil` selects the current run (state-backed); otherwise a previous run's file URL.
+        public var selectedRun: URL?
         public var displayedLogs = [AppActivityLog]()
         public var keyword = ""
         public var loadingState: LoadingState = .idle
@@ -41,7 +41,7 @@ public struct AppActivityLogsReducer: Sendable {
         case didReceiveNewEntries([AppActivityLog])
         case refreshAvailableRuns
         case availableRunsResponse([RunLogFile])
-        case selectRun(Int?)
+        case selectRun(URL?)
         case runFileResponse([AppActivityLog])
         case queryLogs(String)
     }
@@ -111,7 +111,7 @@ public struct AppActivityLogsReducer: Sendable {
             case .didReceiveNewEntries(let entries):
                 state.currentRunLogs.append(contentsOf: entries)
                 state.lastCursorDate = entries.last?.date ?? state.lastCursorDate
-                if state.selectedRunCount == nil {
+                if state.selectedRun == nil {
                     refreshDisplayedLogs(&state)
                 }
                 return .none
@@ -126,19 +126,17 @@ public struct AppActivityLogsReducer: Sendable {
                 state.previousRuns = runs.filter { $0.url != state.currentRun?.url }
                 return .none
 
-            case .selectRun(let runCount):
-                guard let runCount, runCount != state.currentRun?.runCount,
-                      let file = state.previousRuns.first(where: { $0.runCount == runCount })
-                else {
-                    state.selectedRunCount = nil
+            case .selectRun(let url):
+                guard let url, state.previousRuns.contains(where: { $0.url == url }) else {
+                    state.selectedRun = nil
                     state.selectedRunLogs = []
                     refreshDisplayedLogs(&state)
                     return .none
                 }
-                state.selectedRunCount = runCount
+                state.selectedRun = url
                 state.loadingState = .loading
                 return .run { send in
-                    let logs = (try? await logsClient.readRunFile(file.url)) ?? []
+                    let logs = (try? await logsClient.readRunFile(url)) ?? []
                     await send(.runFileResponse(logs))
                 }
 
@@ -157,7 +155,7 @@ public struct AppActivityLogsReducer: Sendable {
     }
 
     private func refreshDisplayedLogs(_ state: inout State) {
-        let source = state.selectedRunCount == nil
+        let source = state.selectedRun == nil
             ? state.currentRunLogs
             : state.selectedRunLogs
         state.displayedLogs = logsClient.query(source, state.keyword)
