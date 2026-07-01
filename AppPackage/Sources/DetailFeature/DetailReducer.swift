@@ -17,18 +17,22 @@ import ReadingFeature
 public struct DetailReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
-        case reading(EquatableVoid = .init())
-        case archives(URL, URL)
-        case torrents(EquatableVoid = .init())
         case previews
         case comments(URL)
-        case share(URL)
-        case postComment(EquatableVoid = .init())
-        case newDawn(Greeting)
         case detailSearch(String)
-        case tagDetail(TagDetail)
         case galleryInfos(Gallery, GalleryDetail)
-        case folderManager(EquatableVoid = .init())
+    }
+
+    @Reducer
+    public enum Destination {
+        case reading(ReadingReducer)
+        case archives(ArchivesReducer)
+        case torrents(TorrentsReducer)
+        case folderManager(FolderManagerReducer)
+        @ReducerCaseIgnored case share(URL)
+        @ReducerCaseIgnored case postComment(EquatableVoid)
+        @ReducerCaseIgnored case newDawn(Greeting)
+        @ReducerCaseIgnored case tagDetail(TagDetail)
     }
 
     public enum Alert: Equatable, Sendable {
@@ -73,6 +77,7 @@ public struct DetailReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         @Presents public var alert: AlertState<Alert>?
         public var commentContent = ""
         public var postCommentFocused = false
@@ -110,13 +115,9 @@ public struct DetailReducer: Sendable {
         public var shouldCheckForRemoteUpdates = false
         public var didRequestVersionMetadata = false
         public var localPreviewRequestID = UUID()
-        public var readingState = ReadingReducer.State()
-        public var archivesState = ArchivesReducer.State()
-        public var torrentsState = TorrentsReducer.State()
         public var previewsState = PreviewsReducer.State()
         public var commentsState: Heap<CommentsReducer.State?>
         public var galleryInfosState = GalleryInfosReducer.State()
-        public var folderManagerState = FolderManagerReducer.State()
         public var detailSearchState: Heap<DetailSearchReducer.State?>
 
         public init() {
@@ -133,6 +134,15 @@ public struct DetailReducer: Sendable {
     public indirect enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentReading
+        case archivesButtonTapped
+        case torrentsButtonTapped
+        case folderManagerButtonTapped
+        case shareButtonTapped(URL)
+        case postCommentButtonTapped
+        case presentNewDawn(Greeting)
+        case tagDetailButtonTapped(TagDetail)
         case alert(PresentationAction<Alert>)
         case deleteDownloadButtonTapped
         case retryDownloadButtonTapped(DownloadStartMode)
@@ -188,13 +198,9 @@ public struct DetailReducer: Sendable {
         case postComment(URL)
         case voteTag(String, Int)
         case anyGalleryOpsDone(Result<Void, AppError>)
-        case reading(ReadingReducer.Action)
-        case archives(ArchivesReducer.Action)
-        case torrents(TorrentsReducer.Action)
         case previews(PreviewsReducer.Action)
         case comments(CommentsReducer.Action)
         case galleryInfos(GalleryInfosReducer.Action)
-        case folderManager(FolderManagerReducer.Action)
         case detailSearch(DetailSearchReducer.Action)
     }
 
@@ -225,13 +231,10 @@ extension DetailReducer {
             galleryOpsReducer
             childReducer(self)
             optionalChildReducers
+                .ifLet(\.$destination, action: \.destination)
                 .ifLet(\.$alert, action: \.alert)
-            Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
-            Scope(state: \.archivesState, action: \.archives, child: ArchivesReducer.init)
-            Scope(state: \.torrentsState, action: \.torrents, child: TorrentsReducer.init)
             Scope(state: \.previewsState, action: \.previews, child: PreviewsReducer.init)
             Scope(state: \.galleryInfosState, action: \.galleryInfos, child: GalleryInfosReducer.init)
-            Scope(state: \.folderManagerState, action: \.folderManager, child: FolderManagerReducer.init)
         }
     }
 
@@ -239,22 +242,6 @@ extension DetailReducer {
         Reduce { _, _ in .none }
             .ifLet(\.commentsState.wrappedValue, action: \.comments, then: CommentsReducer.init)
             .ifLet(\.detailSearchState.wrappedValue, action: \.detailSearch, then: DetailSearchReducer.init)
-    }
-}
-
-// MARK: - Haptics
-extension DetailReducer {
-    func hapticsReducer(
-        @ReducerBuilder<State, Action> reducer: () -> some Reducer<State, Action>
-    ) -> some Reducer<State, Action> {
-        reducer()
-            .haptics(unwrapping: \.route, case: \.detailSearch, hapticsClient: hapticsClient, style: .soft)
-            .haptics(unwrapping: \.route, case: \.postComment, hapticsClient: hapticsClient)
-            .haptics(unwrapping: \.route, case: \.tagDetail, hapticsClient: hapticsClient)
-            .haptics(unwrapping: \.route, case: \.torrents, hapticsClient: hapticsClient)
-            .haptics(unwrapping: \.route, case: \.archives, hapticsClient: hapticsClient)
-            .haptics(unwrapping: \.route, case: \.reading, hapticsClient: hapticsClient)
-            .haptics(unwrapping: \.route, case: \.share, hapticsClient: hapticsClient)
     }
 }
 
@@ -281,3 +268,5 @@ extension DetailReducer {
             && !state.didRequestVersionMetadata
     }
 }
+
+extension DetailReducer.Destination.State: Equatable {}

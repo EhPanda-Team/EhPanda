@@ -88,6 +88,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
             gallery: gallery, detail: detail,
             downloadValue: nil,
             folders: { ["Library"] },
+            configure: { $0.destination = .folderManager(.init()) },
             enqueue: { _ in }
         )
         store.exhaustivity = .off
@@ -97,7 +98,7 @@ struct DetailReducerDownloadTests: DownloadFeatureTestCase {
             $0.downloadFolders = ["Library"]
         }
 
-        await store.send(.folderManager(.createFolderDone(.success(()))))
+        await store.send(.destination(.presented(.folderManager(.createFolderDone(.success(()))))))
         await store.receive(\.fetchDownloadFolders)
         await store.skipReceivedActions(strict: false)
     }

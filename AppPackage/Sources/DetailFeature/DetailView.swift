@@ -81,7 +81,7 @@ private extension DetailView {
                             downloadToFolderAction: {
                                 store.send(.startDownload($0))
                             },
-                            manageFoldersAction: { store.send(.setNavigation(.folderManager())) },
+                            manageFoldersAction: { store.send(.folderManagerButtonTapped) },
                             createDefaultFolderAction: { store.send(.createDefaultFolder) },
                             favorAction: { store.send(.favorGallery($0)) },
                             unfavorAction: { store.send(.unfavorGallery) },
@@ -121,7 +121,7 @@ private extension DetailView {
                                 tags: store.galleryTags, showsImages: setting.showsImagesInTags,
                                 voteTagAction: { store.send(.voteTag($0, $1)) },
                                 navigateSearchAction: { store.send(.setNavigation(.detailSearch($0))) },
-                                navigateTagDetailAction: { store.send(.setNavigation(.tagDetail($0))) },
+                                navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                                 translateAction: {
                                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                                 }
@@ -150,7 +150,7 @@ private extension DetailView {
                                     store.send(.setNavigation(.comments(galleryURL)))
                                 }
                             },
-                            navigatePostCommentAction: { store.send(.setNavigation(.postComment())) }
+                            navigatePostCommentAction: { store.send(.postCommentButtonTapped) }
                         )
                     }
                     .padding(.bottom, 20)
@@ -180,7 +180,7 @@ private extension DetailView {
 
     func modalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         primaryModalModifiers(content: content)
-            .sheet(item: $store.route.sending(\.setNavigation).postComment) { _ in
+            .sheet(item: $store.destination.postComment, id: \.id) { _ in
                 PostCommentView(
                     title: L10n.Localizable.PostCommentView.Title.postComment,
                     content: $store.commentContent,
@@ -189,29 +189,31 @@ private extension DetailView {
                         if let galleryURL = store.gallery.galleryURL {
                             store.send(.postComment(galleryURL))
                         }
-                        store.send(.setNavigation(nil))
+                        store.send(.destination(.dismiss))
                     },
-                    cancelAction: { store.send(.setNavigation(nil)) },
+                    cancelAction: { store.send(.destination(.dismiss)) },
                     onAppearAction: { store.send(.onPostCommentAppear) }
                 )
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).newDawn) { greeting in
-                NewDawnView(greeting: greeting)
+            .sheet(item: $store.destination.newDawn) { greeting in
+                NewDawnView(greeting: greeting.wrappedValue)
                     .autoBlur(radius: blurRadius)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).tagDetail, id: \.title) { detail in
-                TagDetailView(detail: detail)
+            .sheet(item: $store.destination.tagDetail, id: \.title) { detail in
+                TagDetailView(detail: detail.wrappedValue)
                     .autoBlur(radius: blurRadius)
             }
     }
 
     private func primaryModalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
-            .fullScreenCover(item: $store.route.sending(\.setNavigation).reading) { _ in
+            .fullScreenCover(
+                item: $store.scope(state: \.destination?.reading, action: \.destination.reading)
+            ) { store in
                 ReadingView(
-                    store: store.scope(state: \.readingState, action: \.reading),
+                    store: store,
                     gid: gid,
                     setting: $setting,
                     blurRadius: blurRadius
@@ -219,37 +221,42 @@ private extension DetailView {
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).archives, id: \.0.absoluteString) { urls in
-                let (galleryURL, archiveURL) = urls
-                ArchivesView(
-                    store: store.scope(state: \.archivesState, action: \.archives),
-                    gid: gid,
-                    user: user,
-                    galleryURL: galleryURL,
-                    archiveURL: archiveURL
-                )
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
+            .sheet(
+                item: $store.scope(state: \.destination?.archives, action: \.destination.archives)
+            ) { archivesStore in
+                if let galleryURL = store.gallery.galleryURL, let archiveURL = store.galleryDetail?.archiveURL {
+                    ArchivesView(
+                        store: archivesStore,
+                        gid: gid,
+                        user: user,
+                        galleryURL: galleryURL,
+                        archiveURL: archiveURL
+                    )
+                    .accentColor(setting.accentColor)
+                    .autoBlur(radius: blurRadius)
+                }
             }
-            .sheet(item: $store.route.sending(\.setNavigation).torrents) { _ in
+            .sheet(
+                item: $store.scope(state: \.destination?.torrents, action: \.destination.torrents)
+            ) { store in
                 TorrentsView(
-                    store: store.scope(state: \.torrentsState, action: \.torrents),
+                    store: store,
                     gid: gid,
-                    token: store.gallery.token,
+                    token: self.store.gallery.token,
                     blurRadius: blurRadius
                 )
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).folderManager) { _ in
-                FolderManagerView(
-                    store: store.scope(state: \.folderManagerState, action: \.folderManager)
-                )
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
+            .sheet(
+                item: $store.scope(state: \.destination?.folderManager, action: \.destination.folderManager)
+            ) { store in
+                FolderManagerView(store: store)
+                    .accentColor(setting.accentColor)
+                    .autoBlur(radius: blurRadius)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).share, id: \.absoluteString) { url in
-                ActivityView(activityItems: [url])
+            .sheet(item: $store.destination.share, id: \.absoluteString) { url in
+                ActivityView(activityItems: [url.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
     }

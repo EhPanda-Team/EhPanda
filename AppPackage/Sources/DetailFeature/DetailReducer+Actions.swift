@@ -1,5 +1,6 @@
 import Foundation
 import ComposableArchitecture
+import ReadingFeature
 
 // MARK: - Navigation & UI Action Handlers
 extension DetailReducer {
@@ -13,24 +14,58 @@ extension DetailReducer {
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
 
+            case .destination(.dismiss):
+                if case .postComment = state.destination {
+                    state.commentContent = .init()
+                    state.postCommentFocused = false
+                }
+                return .none
+
+            case .destination:
+                return .none
+
+            case .presentReading:
+                state.destination = .reading(ReadingReducer.State())
+                return .none
+
+            case .archivesButtonTapped:
+                state.destination = .archives(ArchivesReducer.State())
+                return .none
+
+            case .torrentsButtonTapped:
+                state.destination = .torrents(TorrentsReducer.State())
+                return .none
+
+            case .folderManagerButtonTapped:
+                state.destination = .folderManager(FolderManagerReducer.State())
+                return .none
+
+            case .shareButtonTapped(let url):
+                state.destination = .share(url)
+                return .none
+
+            case .postCommentButtonTapped:
+                state.destination = .postComment(.init())
+                return .none
+
+            case .presentNewDawn(let greeting):
+                state.destination = .newDawn(greeting)
+                return .none
+
+            case .tagDetailButtonTapped(let tagDetail):
+                state.destination = .tagDetail(tagDetail)
+                return .none
+
             case .clearSubStates:
-                state.readingState = .init()
-                state.archivesState = .init()
-                state.torrentsState = .init()
                 state.previewsState = .init()
                 state.commentsState.wrappedValue = .init()
                 state.commentContent = .init()
                 state.postCommentFocused = false
                 state.galleryInfosState = .init()
-                state.folderManagerState = .init()
                 state.detailSearchState.wrappedValue = .init()
                 return .merge(
-                    .send(.reading(.teardown)),
-                    .send(.archives(.teardown)),
-                    .send(.torrents(.teardown)),
                     .send(.previews(.teardown)),
                     .send(.comments(.teardown)),
-                    .send(.folderManager(.teardown)),
                     .send(.detailSearch(.teardown))
                 )
 
@@ -169,10 +204,10 @@ extension DetailReducer {
     func childReducer(_ reducer: Reduce<State, Action>) -> some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .reading(.onPerformDismiss):
-                return .send(.setNavigation(nil))
+            case .destination(.presented(.reading(.onPerformDismiss))):
+                return .send(.destination(.dismiss))
 
-            case .reading, .archives, .torrents, .previews, .galleryInfos:
+            case .previews, .galleryInfos:
                 return .none
 
             case .comments(.performCommentActionDone(let result)):

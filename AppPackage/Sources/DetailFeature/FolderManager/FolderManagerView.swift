@@ -15,7 +15,7 @@ public struct FolderManagerView: View {
     }
 
     public var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 List {
                     if store.editingField == .newFolder {

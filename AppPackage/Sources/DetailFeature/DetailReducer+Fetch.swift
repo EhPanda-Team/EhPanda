@@ -82,7 +82,7 @@ extension DetailReducer {
                     if let greeting = response.greeting {
                         effects.append(.send(.syncGreeting(greeting)))
                         if !greeting.gainedNothing && state.showsNewDawnGreeting {
-                            effects.append(.send(.setNavigation(.newDawn(greeting))))
+                            effects.append(.send(.presentNewDawn(greeting)))
                         }
                     }
                     if let config = response.galleryState.previewConfig {

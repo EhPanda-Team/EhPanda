@@ -171,7 +171,7 @@ public struct CommentsReducer: Sendable {
                     effects.append(
                         .run { send in
                             try await Task.sleep(for: .milliseconds(750))
-                            await send(.detail(.setNavigation(.reading())))
+                            await send(.detail(.presentReading))
                         }
                     )
                 } else if let commentID = commentID {
