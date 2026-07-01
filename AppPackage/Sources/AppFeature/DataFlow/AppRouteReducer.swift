@@ -45,6 +45,7 @@ struct AppRouteReducer {
         case path(StackActionOf<GalleryPath>)
         case presentSetting
         case presentNewDawn(Greeting)
+        case presentGalleryDetail(String, DownloadedGallery?)
         case setHUDConfig(ProgressHUDConfigState)
 
         case detectClipboardURL
@@ -110,6 +111,13 @@ struct AppRouteReducer {
 
             case .presentNewDawn(let greeting):
                 state.destination = .newDawn(greeting)
+                return .none
+
+            case .presentGalleryDetail(let gid, let download):
+                // A gallery opened from a tab on iPad: modal detail rooting its own gallery stack,
+                // seeded from the local download when one exists so it renders offline.
+                state.path.removeAll()
+                state.detail = .init(gid: gid, seededFrom: download)
                 return .none
 
             case .setHUDConfig(let config):

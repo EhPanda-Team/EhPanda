@@ -3,12 +3,17 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppTools
+import DeviceClient
 import DownloadClient
 import ReadingFeature
 import DetailFeature
 
 @Reducer
 public struct DownloadsReducer: Sendable {
+    public enum Delegate: Equatable, Sendable {
+        case presentGalleryDetail(String, DownloadedGallery?)
+    }
+
     @Reducer
     public enum Destination {
         case inspector(DownloadInspectorReducer)
@@ -59,7 +64,9 @@ public struct DownloadsReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case delegate(Delegate)
         case galleryTapped(String)
+        case pushGalleryDetail(String)
         case path(StackActionOf<GalleryPath>)
         case destination(PresentationAction<Destination.Action>)
         case inspectorButtonTapped(String)
@@ -92,6 +99,7 @@ public struct DownloadsReducer: Sendable {
     }
 
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.deviceClient) private var deviceClient
 
     public init() {}
 
@@ -104,13 +112,26 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .galleryTapped(let gid):
-                // Seed the detail with the locally downloaded gallery/badge so it renders offline.
-                var detailState = DetailReducer.State(gid: gid)
-                if let download = state.downloads.first(where: { $0.gid == gid }) {
-                    detailState.gallery = download.gallery
-                    _ = DetailReducer().applyDownload(download, state: &detailState)
+                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
+                // sheet hosted by AppRoute, matching the pre-StackState behavior.
+                let download = state.downloads.first(where: { $0.gid == gid })
+                return .run { send in
+                    if await deviceClient.isPad() {
+                        await send(.delegate(.presentGalleryDetail(gid, download)))
+                    } else {
+                        await send(.pushGalleryDetail(gid))
+                    }
                 }
-                state.path.append(.detail(detailState))
+
+            case .pushGalleryDetail(let gid):
+                // Seed the detail with the locally downloaded gallery/badge so it renders offline.
+                state.path.append(.detail(.init(
+                    gid: gid,
+                    seededFrom: state.downloads.first(where: { $0.gid == gid })
+                )))
+                return .none
+
+            case .delegate:
                 return .none
 
             case .inspectorButtonTapped(let gid):

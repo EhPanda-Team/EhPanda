@@ -249,4 +249,17 @@ extension DetailReducer {
     }
 }
 
+extension DetailReducer.State {
+    // Pre-populated from a local download so a downloaded gallery renders instantly and offline;
+    // the live download observation keeps the state in sync afterwards. Shared by the Downloads
+    // tab's inline push and the app-level modal presentation (iPad / deep link).
+    public init(gid: String, seededFrom download: DownloadedGallery?) {
+        self.init(gid: gid)
+        if let download {
+            gallery = download.gallery
+            _ = DetailReducer().applyDownload(download, state: &self)
+        }
+    }
+}
+
 extension DetailReducer.Destination.State: Equatable {}

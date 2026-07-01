@@ -7,6 +7,18 @@ public struct DeviceClient: Sendable {
     public let absWindowW: @MainActor @Sendable () -> Double
     public let absWindowH: @MainActor @Sendable () -> Double
     public let touchPoint: @MainActor @Sendable () -> CGPoint?
+
+    public init(
+        isPad: @escaping @Sendable () async -> Bool,
+        absWindowW: @escaping @MainActor @Sendable () -> Double,
+        absWindowH: @escaping @MainActor @Sendable () -> Double,
+        touchPoint: @escaping @MainActor @Sendable () -> CGPoint?
+    ) {
+        self.isPad = isPad
+        self.absWindowW = absWindowW
+        self.absWindowH = absWindowH
+        self.touchPoint = touchPoint
+    }
 }
 
 extension DeviceClient {

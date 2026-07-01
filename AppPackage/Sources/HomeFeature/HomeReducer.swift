@@ -5,9 +5,14 @@ import ComposableArchitecture
 import AppTools
 import LibraryClient
 import DatabaseClient
+import DeviceClient
 
 @Reducer
 public struct HomeReducer: Sendable {
+    public enum Delegate: Equatable, Sendable {
+        case presentGalleryDetail(String)
+    }
+
     @ObservableState
     public struct State: Equatable {
         public var path = StackState<HomePath.State>()
@@ -51,7 +56,9 @@ public struct HomeReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case delegate(Delegate)
         case galleryTapped(String)
+        case pushGalleryDetail(String)
         case sectionTapped(HomeSectionType)
         case miscTapped(HomeMiscGridType)
         case path(StackActionOf<HomePath>)
@@ -70,6 +77,7 @@ public struct HomeReducer: Sendable {
     }
 
     @Dependency(\.databaseClient) var databaseClient
+    @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.libraryClient) var libraryClient
 
     public init() {}

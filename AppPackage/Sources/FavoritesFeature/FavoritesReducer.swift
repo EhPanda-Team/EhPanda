@@ -7,12 +7,17 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import DownloadClient
+import DeviceClient
 import DateSeekFeature
 import QuickSearchFeature
 import DetailFeature
 
 @Reducer
 public struct FavoritesReducer: Sendable {
+    public enum Delegate: Equatable, Sendable {
+        case presentGalleryDetail(String)
+    }
+
     private enum CancelID {
         case observeDownloads
     }
@@ -69,7 +74,9 @@ public struct FavoritesReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
+        case delegate(Delegate)
         case galleryTapped(String)
+        case pushGalleryDetail(String)
         case path(StackActionOf<GalleryPath>)
         case setFavoritesIndex(Int)
         case quickSearchButtonTapped
@@ -87,6 +94,7 @@ public struct FavoritesReducer: Sendable {
     }
 
     @Dependency(\.databaseClient) private var databaseClient
+    @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -104,7 +112,21 @@ public struct FavoritesReducer: Sendable {
                 return .send(.observeDownloads)
 
             case .galleryTapped(let gid):
+                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
+                // sheet hosted by AppRoute, matching the pre-StackState behavior.
+                return .run { send in
+                    if await deviceClient.isPad() {
+                        await send(.delegate(.presentGalleryDetail(gid)))
+                    } else {
+                        await send(.pushGalleryDetail(gid))
+                    }
+                }
+
+            case .pushGalleryDetail(let gid):
                 state.path.append(.detail(.init(gid: gid)))
+                return .none
+
+            case .delegate:
                 return .none
 
             case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
