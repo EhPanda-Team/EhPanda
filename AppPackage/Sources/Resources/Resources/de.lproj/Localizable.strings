@@ -42,10 +42,14 @@
 "common.value.seconds" = "Nach %@ Sekunden";
 "common.value.records" = "%@ Einträge";
 
+// MARK: Common button
+"common.button.cancel" = "Abbrechen";
+
 // MARK: TabItem
 "tab_item.title.home" = "Home";
 "tab_item.title.favorites" = "Favoriten";
 "tab_item.title.search" = "Suche";
+"tab_item.title.downloads" = "Downloads";
 "tab_item.title.setting" = "Einstellungen";
 
 // MARK: ToolbarItem
@@ -80,6 +84,24 @@
 "error_view.title.ip_banned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
 "error_view.title.copyright_claim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
 "error_view.title.gallery_unavailable" = "This gallery has been removed or is unavailable.";
+
+// MARK: AppError
+"app_error.localized_description.database_corrupted" = "Datenbank beschädigt";
+"app_error.localized_description.copyright_claim" = "Urheberrechtsanspruch";
+"app_error.localized_description.ip_banned" = "IP-Adresse gesperrt";
+"app_error.localized_description.gallery_expunged" = "Galerie entfernt";
+"app_error.localized_description.network_error" = "Netzwerkfehler";
+"app_error.localized_description.web_image_loading_error" = "Fehler beim Laden des Webbilds";
+"app_error.localized_description.parse_error" = "Parserfehler";
+"app_error.localized_description.quota_exceeded" = "Kontingent überschritten";
+"app_error.localized_description.authentication_required" = "Authentifizierung erforderlich";
+"app_error.localized_description.file_operation_failed" = "Dateivorgang fehlgeschlagen";
+"app_error.localized_description.no_updates_available" = "Keine Updates verfügbar";
+"app_error.localized_description.not_found" = "Nicht gefunden";
+"app_error.localized_description.unknown_error" = "Unbekannter Fehler";
+"app_error.alert.quota_exceeded" = "Bildkontingent überschritten.\nBitte warte einen Moment und versuche es dann erneut.";
+"app_error.alert.authentication_required" = "Für diesen Download ist eine Anmeldung erforderlich.";
+"app_error.alert.local_file_operation_failed" = "Lokaler Dateivorgang fehlgeschlagen.";
 
 // MARK: ConfirmationDialog
 "confirmation_dialog.title.drop_database" = "You will lose all your data in this app.\nAre you sure to drop the database?";
@@ -195,7 +217,7 @@
 "general_setting_view.title.redirects_links_to_the_selected_host" = "Links zum ausgewählten Host umleiten";
 "general_setting_view.title.detects_links_from_clipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
 "general_setting_view.title.background_blur_radius" = "Background blur radius";
-"general_setting_view.button.logs" = "Logs";
+"general_setting_view.button.app_activity_logs" = "App-Aktivitätsprotokolle";
 "general_setting_view.button.import_custom_translations" = "Import custom translations";
 "general_setting_view.button.remove_custom_translations" = "Remove custom translations";
 "general_setting_view.button.clear_image_caches" = "Zwischengespeicherte Bilder (Cache) löschen";
@@ -208,9 +230,20 @@
 "enum.auto_lock_policy.value.never" = "Nie";
 "enum.auto_lock_policy.value.instantly" = "Sofort";
 
-// MARK: LogsView
-"logs_view.title.logs" = "Logs";
-"logs_view.title.latest" = "Neueste";
+// MARK: AppActivityLogsView
+"app_activity_logs_view.title" = "App-Aktivitätsprotokolle";
+"app_activity_logs_view.placeholder.no_logs" = "Keine Protokolle gefunden";
+"app_activity_logs_view.section.current" = "Aktuell";
+"app_activity_logs_view.run" = "Ausführung %@";
+"app_activity_logs_view.more_logs" = "Weitere Protokolle";
+"app_activity_logs_view.open_in_files" = "In „Dateien“ öffnen";
+"app_activity_logs_view.runs" = "Ausführungen";
+"app_activity_logs_view.level.undefined" = "Undefiniert";
+"app_activity_logs_view.level.debug" = "Debug";
+"app_activity_logs_view.level.info" = "Info";
+"app_activity_logs_view.level.notice" = "Hinweis";
+"app_activity_logs_view.level.error" = "Fehler";
+"app_activity_logs_view.level.fault" = "Störung";
 
 // MARK: AppearanceSettingView
 "appearance_setting_view.title.appearance" = "Oberfläche";
@@ -288,6 +321,9 @@
 "detail_view.accessibility.download_button.retry" = "Download erneut versuchen";
 "detail_view.accessibility.download_button.repair" = "Download reparieren";
 "detail_view.accessibility.download_button.preparing" = "Download-Informationen werden geladen";
+"detail_view.accessibility.download_button.pause_action" = "Download pausieren";
+"detail_view.accessibility.download_button.paused" = "Download fortsetzen. Pausiert bei %d von %d";
+"detail_view.accessibility.download_button.partial" = "Download erneut versuchen. %d von %d Seiten sind bereits verfügbar.";
 "detail_view.toolbar_item.button.archives" = "Archiv";
 "detail_view.toolbar_item.button.torrents" = "Torrents";
 "detail_view.toolbar_item.button.share" = "Teilen";
@@ -306,6 +342,19 @@
 "detail_view.action_section.button.similar_gallery" = "Ähnliche Galerien";
 "detail_view.section.title.previews" = "Vorschau";
 "detail_view.section.title.comments" = "Kommentar";
+"detail_view.dialog.title.delete_download" = "Download löschen?";
+"detail_view.dialog.title.repair_download" = "Download reparieren?";
+"detail_view.dialog.title.update_download" = "Download aktualisieren?";
+"detail_view.dialog.title.redownload_gallery" = "Galerie erneut herunterladen?";
+"detail_view.dialog.message.delete_active_download" = "Der aktuelle Download wird gestoppt und die Galerie von diesem Gerät entfernt.";
+"detail_view.dialog.message.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
+"detail_view.dialog.message.repair_download" = "Die Offline-Dateien dieser Galerie jetzt reparieren?";
+"detail_view.dialog.message.update_download" = "Diese Galerie jetzt auf die neueste Online-Version aktualisieren?";
+"detail_view.dialog.message.redownload_gallery" = "Diese Galerie jetzt vollständig neu herunterladen?";
+"detail_view.dialog.button.repair" = "Reparieren";
+"detail_view.dialog.button.update" = "Aktualisieren";
+"detail_view.dialog.button.redownload" = "Erneut laden";
+"detail_view.offline_notice.saved_details" = "Online-Details konnten nicht aktualisiert werden. Stattdessen werden gespeicherte Details angezeigt.";
 
 // MARK: ArchivesView
 "archives_view.title.archives" = "Archiv";
@@ -355,6 +404,56 @@
 "tag_detail_view.section.title.images" = "Images";
 "tag_detail_view.section.title.links" = "Links";
 
+// MARK: DownloadsView
+"enum.download_folder_filter.title.all" = "All";
+"detail_view.menu.button.manage_folders" = "Manage Folders";
+"detail_view.menu.button.create_default_folder" = "Create Default Folder";
+"detail_view.menu.text.no_folders" = "No folders yet";
+"downloads_view.menu.button.manage_folders" = "Manage Folders";
+"downloads_view.menu.button.move_to_folder" = "Move to Folder";
+"downloads_view.swipe.button.move" = "Move";
+"folder_manager_view.title.folders" = "Folders";
+"folder_manager_view.placeholder.folder_name" = "Folder name";
+"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
+"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
+"downloads_view.title.downloads" = "Downloads";
+"downloads_view.search.prompt.downloads" = "Downloads durchsuchen";
+"downloads_view.dialog.title.delete_download" = "Download löschen?";
+"downloads_view.dialog.message.delete_active_download" = "Der aktuelle Download wird abgebrochen und von diesem Gerät entfernt.";
+"downloads_view.dialog.message.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
+"downloads_view.swipe.button.pages" = "Seiten";
+"downloads_view.swipe.button.update" = "Aktualisieren";
+"downloads_view.swipe.button.resume" = "Fortsetzen";
+"downloads_view.swipe.button.pause" = "Pausieren";
+"downloads_view.empty_state.downloads" = "Heruntergeladene Galerien werden hier angezeigt.";
+"downloads_view.empty_state.no_matching_filters" = "Keine Downloads entsprechen den aktuellen Filtern.";
+"downloads_view.button.clear_filters" = "Filter löschen";
+"downloads_view.button.validate_image_data" = "Bilddaten validieren";
+"downloads_view.inspector.section.actions" = "Aktionen";
+"downloads_view.inspector.section.pages" = "Seiten";
+"downloads_view.inspector.button.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen";
+"downloads_view.inspector.button.validating_image_data" = "Bilddaten werden geprüft...";
+"downloads_view.inspector.button.update_download" = "Download aktualisieren";
+"downloads_view.inspector.hud.image_data_valid" = "Bilddaten sind gültig";
+"downloads_view.inspector.hud.image_data_unavailable" = "Bilddaten konnten nicht geprüft werden.";
+"downloads_view.inspector.title.download_status" = "Downloadstatus";
+"downloads_view.inspector.page.pending" = "Ausstehend";
+"downloads_view.inspector.page.tap_to_retry" = "Tippen, um diese Seite erneut zu versuchen";
+"downloads_view.inspector.page.title" = "Seite %d";
+"downloads_view.inspector.page.none" = "Keine Seiten";
+"downloads_view.inspector.status.pending" = "Ausstehend";
+"downloads_view.inspector.status.downloaded" = "Heruntergeladen";
+"downloads_view.inspector.status.failed" = "Fehlgeschlagen";
+
+// MARK: DownloadSettingView
+"download_setting_view.title" = "Download";
+"download_setting_view.section.title.download_queue" = "Download-Warteschlange";
+"download_setting_view.section.title.network" = "Netzwerk";
+"download_setting_view.title.concurrent_image_downloads" = "Gleichzeitige Bilddownloads";
+"download_setting_view.title.retry_failed_pages_automatically" = "Fehlgeschlagene Seiten automatisch erneut versuchen";
+"download_setting_view.title.allow_cellular_downloads" = "Downloads über Mobilfunk erlauben";
+"download_setting_view.footer.network" = "Es wird immer nur eine Galerie gleichzeitig heruntergeladen. Mit dieser Einstellung steuerst du, wie viele Galerieseiten parallel geladen werden, ob Mobilfunk erlaubt ist und dass Dateien im Downloads-Ordner der App gespeichert werden.";
+
 // MARK: CommentsView
 "comments_view.title.comments" = "Kommentar";
 
@@ -379,6 +478,33 @@
 "reading_view.toolbar_item.button.reading_setting" = "Reading setting";
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "Off";
+
+
+// MARK: DownloadBadge
+"struct.download_badge.text.queued" = "In Warteschlange";
+"struct.download_badge.text.downloading" = "Lädt herunter";
+"struct.download_badge.text.paused" = "Pausiert";
+"struct.download_badge.text.downloaded" = "Heruntergeladen";
+"struct.download_badge.text.needs_attention" = "Benötigt Aufmerksamkeit";
+"struct.download_badge.text.update_available" = "Update verfügbar";
+"struct.download_badge.text.needs_repair" = "Reparatur nötig";
+"struct.download_badge.progress" = "%d/%d";
+
+// MARK: DownloadStore
+"download_store.error.asset_unreadable" = "Asset-Datei ist nicht lesbar: %@";
+"download_store.error.invalid_folder_name" = "The folder name is invalid.";
+"download_store.error.folder_already_exists" = "A folder with this name already exists.";
+"download_store.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_store.error.download_busy" = "The download is currently active.";
+"download_store.validation.download_folder_unresolved" = "Download-Ordner konnte nicht aufgelöst werden.";
+"download_store.validation.download_folder_missing" = "Download-Ordner fehlt.";
+"download_store.validation.manifest_missing" = "Manifest-Datei fehlt.";
+"download_store.validation.manifest_corrupted" = "Manifest-Datei ist beschädigt.";
+"download_store.validation.downloaded_pages_incomplete" = "Heruntergeladene Seiten sind unvollständig.";
+"download_store.validation.cover_image_missing" = "Coverbild fehlt.";
+"download_store.validation.page_missing" = "Seite %d fehlt.";
+"download_store.validation.cover_image_corrupted" = "Coverbilddaten sind beschädigt.";
+"download_store.validation.page_image_corrupted" = "Bilddaten von Seite %d sind beschädigt.";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "Filters";
@@ -928,107 +1054,3 @@
 "enum.browsing_country.name.yemen" = "Yemen";
 "enum.browsing_country.name.zambia" = "Zambia";
 "enum.browsing_country.name.zimbabwe" = "Zimbabwe";
-
-// MARK: Download Localization Additions
-"common.button.cancel" = "Abbrechen";
-"tab_item.title.downloads" = "Downloads";
-"app_error.localized_description.database_corrupted" = "Datenbank beschädigt";
-"app_error.localized_description.copyright_claim" = "Urheberrechtsanspruch";
-"app_error.localized_description.ip_banned" = "IP-Adresse gesperrt";
-"app_error.localized_description.gallery_expunged" = "Galerie entfernt";
-"app_error.localized_description.network_error" = "Netzwerkfehler";
-"app_error.localized_description.web_image_loading_error" = "Fehler beim Laden des Webbilds";
-"app_error.localized_description.parse_error" = "Parserfehler";
-"app_error.localized_description.quota_exceeded" = "Kontingent überschritten";
-"app_error.localized_description.authentication_required" = "Authentifizierung erforderlich";
-"app_error.localized_description.file_operation_failed" = "Dateivorgang fehlgeschlagen";
-"app_error.localized_description.no_updates_available" = "Keine Updates verfügbar";
-"app_error.localized_description.not_found" = "Nicht gefunden";
-"app_error.localized_description.unknown_error" = "Unbekannter Fehler";
-"app_error.alert.quota_exceeded" = "Bildkontingent überschritten.\nBitte warte einen Moment und versuche es dann erneut.";
-"app_error.alert.authentication_required" = "Für diesen Download ist eine Anmeldung erforderlich.";
-"app_error.alert.local_file_operation_failed" = "Lokaler Dateivorgang fehlgeschlagen.";
-"detail_view.accessibility.download_button.pause_action" = "Download pausieren";
-"detail_view.accessibility.download_button.paused" = "Download fortsetzen. Pausiert bei %d von %d";
-"detail_view.accessibility.download_button.partial" = "Download erneut versuchen. %d von %d Seiten sind bereits verfügbar.";
-"detail_view.dialog.title.delete_download" = "Download löschen?";
-"detail_view.dialog.title.repair_download" = "Download reparieren?";
-"detail_view.dialog.title.update_download" = "Download aktualisieren?";
-"detail_view.dialog.title.redownload_gallery" = "Galerie erneut herunterladen?";
-"detail_view.dialog.message.delete_active_download" = "Der aktuelle Download wird gestoppt und die Galerie von diesem Gerät entfernt.";
-"detail_view.dialog.message.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
-"detail_view.dialog.message.repair_download" = "Die Offline-Dateien dieser Galerie jetzt reparieren?";
-"detail_view.dialog.message.update_download" = "Diese Galerie jetzt auf die neueste Online-Version aktualisieren?";
-"detail_view.dialog.message.redownload_gallery" = "Diese Galerie jetzt vollständig neu herunterladen?";
-"detail_view.dialog.button.repair" = "Reparieren";
-"detail_view.dialog.button.update" = "Aktualisieren";
-"detail_view.dialog.button.redownload" = "Erneut laden";
-"detail_view.offline_notice.saved_details" = "Online-Details konnten nicht aktualisiert werden. Stattdessen werden gespeicherte Details angezeigt.";
-"enum.download_folder_filter.title.all" = "All";
-"detail_view.menu.button.manage_folders" = "Manage Folders";
-"detail_view.menu.button.create_default_folder" = "Create Default Folder";
-"detail_view.menu.text.no_folders" = "No folders yet";
-"downloads_view.menu.button.manage_folders" = "Manage Folders";
-"downloads_view.menu.button.move_to_folder" = "Move to Folder";
-"downloads_view.swipe.button.move" = "Move";
-"folder_manager_view.title.folders" = "Folders";
-"folder_manager_view.placeholder.folder_name" = "Folder name";
-"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
-"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
-"downloads_view.title.downloads" = "Downloads";
-"downloads_view.search.prompt.downloads" = "Downloads durchsuchen";
-"downloads_view.dialog.title.delete_download" = "Download löschen?";
-"downloads_view.dialog.message.delete_active_download" = "Der aktuelle Download wird abgebrochen und von diesem Gerät entfernt.";
-"downloads_view.dialog.message.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
-"downloads_view.swipe.button.pages" = "Seiten";
-"downloads_view.swipe.button.update" = "Aktualisieren";
-"downloads_view.swipe.button.resume" = "Fortsetzen";
-"downloads_view.swipe.button.pause" = "Pausieren";
-"downloads_view.empty_state.downloads" = "Heruntergeladene Galerien werden hier angezeigt.";
-"downloads_view.empty_state.no_matching_filters" = "Keine Downloads entsprechen den aktuellen Filtern.";
-"downloads_view.button.clear_filters" = "Filter löschen";
-"downloads_view.button.validate_image_data" = "Bilddaten validieren";
-"downloads_view.inspector.section.actions" = "Aktionen";
-"downloads_view.inspector.section.pages" = "Seiten";
-"downloads_view.inspector.button.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen";
-"downloads_view.inspector.button.validating_image_data" = "Bilddaten werden geprüft...";
-"downloads_view.inspector.button.update_download" = "Download aktualisieren";
-"downloads_view.inspector.hud.image_data_valid" = "Bilddaten sind gültig";
-"downloads_view.inspector.hud.image_data_unavailable" = "Bilddaten konnten nicht geprüft werden.";
-"downloads_view.inspector.title.download_status" = "Downloadstatus";
-"downloads_view.inspector.page.pending" = "Ausstehend";
-"downloads_view.inspector.page.tap_to_retry" = "Tippen, um diese Seite erneut zu versuchen";
-"downloads_view.inspector.page.title" = "Seite %d";
-"downloads_view.inspector.page.none" = "Keine Seiten";
-"downloads_view.inspector.status.pending" = "Ausstehend";
-"downloads_view.inspector.status.downloaded" = "Heruntergeladen";
-"downloads_view.inspector.status.failed" = "Fehlgeschlagen";
-"download_setting_view.title" = "Download";
-"download_setting_view.section.title.download_queue" = "Download-Warteschlange";
-"download_setting_view.section.title.network" = "Netzwerk";
-"download_setting_view.title.concurrent_image_downloads" = "Gleichzeitige Bilddownloads";
-"download_setting_view.title.retry_failed_pages_automatically" = "Fehlgeschlagene Seiten automatisch erneut versuchen";
-"download_setting_view.title.allow_cellular_downloads" = "Downloads über Mobilfunk erlauben";
-"download_setting_view.footer.network" = "Es wird immer nur eine Galerie gleichzeitig heruntergeladen. Mit dieser Einstellung steuerst du, wie viele Galerieseiten parallel geladen werden, ob Mobilfunk erlaubt ist und dass Dateien im Downloads-Ordner der App gespeichert werden.";
-"struct.download_badge.text.queued" = "In Warteschlange";
-"struct.download_badge.text.downloading" = "Lädt herunter";
-"struct.download_badge.text.paused" = "Pausiert";
-"struct.download_badge.text.downloaded" = "Heruntergeladen";
-"struct.download_badge.text.needs_attention" = "Benötigt Aufmerksamkeit";
-"struct.download_badge.text.update_available" = "Update verfügbar";
-"struct.download_badge.text.needs_repair" = "Reparatur nötig";
-"struct.download_badge.progress" = "%d/%d";
-"download_store.error.asset_unreadable" = "Asset-Datei ist nicht lesbar: %@";
-"download_store.error.invalid_folder_name" = "The folder name is invalid.";
-"download_store.error.folder_already_exists" = "A folder with this name already exists.";
-"download_store.error.folder_busy_downloading" = "The folder contains an active download.";
-"download_store.error.download_busy" = "The download is currently active.";
-"download_store.validation.download_folder_unresolved" = "Download-Ordner konnte nicht aufgelöst werden.";
-"download_store.validation.download_folder_missing" = "Download-Ordner fehlt.";
-"download_store.validation.manifest_missing" = "Manifest-Datei fehlt.";
-"download_store.validation.manifest_corrupted" = "Manifest-Datei ist beschädigt.";
-"download_store.validation.downloaded_pages_incomplete" = "Heruntergeladene Seiten sind unvollständig.";
-"download_store.validation.cover_image_missing" = "Coverbild fehlt.";
-"download_store.validation.page_missing" = "Seite %d fehlt.";
-"download_store.validation.cover_image_corrupted" = "Coverbilddaten sind beschädigt.";
-"download_store.validation.page_image_corrupted" = "Bilddaten von Seite %d sind beschädigt.";
