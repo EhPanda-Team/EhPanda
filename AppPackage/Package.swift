@@ -281,6 +281,7 @@ let targets: [PackageDescription.Target] = [
             .module(.libraryClient),
             .module(.migrationFeature),
             .module(.networkingFeature),
+            .module(.osLogExt),
             .module(.parserFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),

@@ -1,8 +1,11 @@
 import AppTools
 import Foundation
 import AppModels
+import OSLogExt
 import ComposableArchitecture
 import NetworkingFeature
+
+private let logger = Logger(category: .init(describing: SettingReducer.self))
 
 extension SettingReducer {
     @ReducerBuilder<State, Action>
@@ -166,11 +169,15 @@ extension SettingReducer {
             case .fetchIgneousDone(let result):
                 if case .success(let response) = result {
                     return .run { send in
+                        logger.notice("Igneous token refreshed.")
                         cookieClient.setCredentials(response: response)
                         await send(.account(.loadCookies))
                     }
                 }
-                return .send(.account(.loadCookies))
+                return .merge(
+                    .run { _ in logger.notice("Igneous refresh failed.") },
+                    .send(.account(.loadCookies))
+                )
 
             case .fetchUserInfo:
                 guard cookieClient.didLogin else { return .none }
@@ -263,7 +270,8 @@ extension SettingReducer {
                     .send(.syncUser),
                     .run(operation: { _ in cookieClient.clearAll() }),
                     .run(operation: { _ in await databaseClient.removeImageURLs() }),
-                    .run(operation: { _ in await libraryClient.removeAllCachedImages() })
+                    .run(operation: { _ in await libraryClient.removeAllCachedImages() }),
+                    .run { _ in logger.notice("Logged out.") }
                 )
 
             case .account:

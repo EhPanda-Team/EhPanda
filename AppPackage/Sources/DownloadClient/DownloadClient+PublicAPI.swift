@@ -90,6 +90,12 @@ extension DownloadCoordinator {
             await queueStore.enqueue(payload.gallery.gid)
             await notifyObservers()
             await scheduleNextIfNeeded()
+            logger.notice(
+                """
+                Download enqueued, gid: \(payload.gallery.gid, privacy: .public), \
+                title: \(payload.gallery.title, privacy: .public).
+                """
+            )
             return .success(())
         } catch let error as AppError {
             return .failure(error)
@@ -199,6 +205,7 @@ extension DownloadCoordinator {
         downloadIndex[gid] = nil
         await notifyObservers()
         await scheduleNextIfNeeded()
+        logger.notice("Download deleted, gid: \(gid, privacy: .public).")
         return .success(())
     }
 

@@ -5,6 +5,9 @@ import SwiftUINavigationExt
 import HapticsClient
 import NetworkingFeature
 import CookieClient
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: LoginReducer.self))
 
 @Reducer
 public struct LoginReducer: Sendable {
@@ -86,10 +89,16 @@ public struct LoginReducer: Sendable {
                 var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
-                    effects.append(.run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) }))
+                    effects.append(.run(operation: { _ in
+                        logger.notice("Login succeeded.")
+                        await hapticsClient.generateNotificationFeedback(.success)
+                    }))
                 } else {
                     state.loginState = .failed(.unknown)
-                    effects.append(.run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) }))
+                    effects.append(.run(operation: { _ in
+                        logger.notice("Login failed.")
+                        await hapticsClient.generateNotificationFeedback(.error)
+                    }))
                 }
                 if case .success(let response) = result, let response = response {
                     effects.append(.run(operation: { _ in cookieClient.setCredentials(response: response) }))
