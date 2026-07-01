@@ -25,7 +25,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
         url: "https://github.com/pointfreeco/swift-composable-architecture",
         from: "1.25.0"
     ),
-    .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.8.0"),
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
     .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.0.0")
 ]
@@ -48,7 +47,6 @@ extension PackageDescription.Target.Dependency {
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
-    static let swiftUINavigation: Self = .product(name: "SwiftUINavigation", package: "swift-navigation")
     static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
     static let ttProgressHUD: Self = .product(name: "TTProgressHUD", package: "TTProgressHUD")
     static let uiImageColors: Self = .product(name: "UIImageColors", package: "UIImageColors")
@@ -109,7 +107,6 @@ enum Module: String {
     case resources = "Resources"
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
-    case swiftUINavigationExt = "SwiftUINavigationExt"
     case ttProgressHUDExt = "TTProgressHUDExt"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
@@ -304,7 +301,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUINavigation),
             .targetDependency(.swiftUIPager),
             .targetDependency(.ttProgressHUD),
             .targetDependency(.uiImageColors),
@@ -369,19 +365,9 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .swiftUINavigationExt,
-        dependencies: [
-            .targetDependency(.casePaths)
-        ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
         module: .ttProgressHUDExt,
         dependencies: [
             .module(.resources),
-            .module(.swiftUINavigationExt),
-            .targetDependency(.swiftUINavigation),
             .targetDependency(.ttProgressHUD)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -491,7 +477,6 @@ let targets: [PackageDescription.Target] = [
         module: .hapticsClient,
         dependencies: [
             .module(.appTools),
-            .module(.swiftUINavigationExt),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
