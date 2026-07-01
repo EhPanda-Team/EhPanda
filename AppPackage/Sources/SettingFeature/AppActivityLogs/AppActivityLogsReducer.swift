@@ -2,6 +2,7 @@ import OSLogExt
 import Foundation
 import AppModels
 import LogsClient
+import ApplicationClient
 import ComposableArchitecture
 
 private let logger = Logger(category: .init(describing: AppActivityLogsReducer.self))
@@ -44,9 +45,11 @@ public struct AppActivityLogsReducer: Sendable {
         case selectRun(URL?)
         case runFileResponse([AppActivityLog])
         case queryLogs(String)
+        case navigateToFileApp
     }
 
     @Dependency(\.logsClient) private var logsClient
+    @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.continuousClock) private var clock
     @Dependency(\.date) private var date
 
@@ -150,6 +153,9 @@ public struct AppActivityLogsReducer: Sendable {
                 state.keyword = keyword
                 refreshDisplayedLogs(&state)
                 return .none
+
+            case .navigateToFileApp:
+                return .run { _ in await applicationClient.openFileApp() }
             }
         }
     }
