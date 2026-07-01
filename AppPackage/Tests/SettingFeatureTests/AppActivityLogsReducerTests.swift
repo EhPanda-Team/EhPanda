@@ -1,9 +1,10 @@
 import OSLog
 import Testing
+import Sharing
 import Foundation
 import AppModels
 import LogsClient
-import SettingFeature
+@testable import SettingFeature
 import ComposableArchitecture
 
 @Suite
@@ -28,26 +29,33 @@ struct AppActivityLogsReducerTests {
             appended.withValue { $0.append(logs) }
         }
 
-        let store = TestStore(initialState: AppActivityLogsReducer.State(), reducer: AppActivityLogsReducer.init) {
-            $0.logsClient = client
-            $0.continuousClock = TestClock()
-            $0.date = .constant(.init(timeIntervalSince1970: 0))
+        let storage = InMemoryStorage()
+        await withDependencies {
+            $0.defaultInMemoryStorage = storage
+        } operation: {
+            let store = TestStore(
+                initialState: AppActivityLogsPumpReducer.State(),
+                reducer: AppActivityLogsPumpReducer.init
+            ) {
+                $0.logsClient = client
+                $0.continuousClock = TestClock()
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+                $0.defaultInMemoryStorage = storage
+            }
+            store.exhaustivity = .off
+
+            await store.send(.startPump)
+            await store.receive(\.didReceiveNewEntries)
+
+            #expect(store.state.currentRunLogs == [entryA, entryB])
+            #expect(store.state.lastCursorDate == entryB.date)
+
+            await store.send(.pausePump)
+            await store.finish()
+
+            // The pump appended the batch to the per-run jsonl file exactly once.
+            #expect(appended.value == [[entryA, entryB]])
         }
-        store.exhaustivity = .off
-
-        await store.send(.startPump)
-        await store.receive(\.didReceiveNewEntries)
-
-        #expect(store.state.currentRunLogs == [entryA, entryB])
-        #expect(store.state.lastCursorDate == entryB.date)
-        // Newest entry is shown first.
-        #expect(store.state.displayedLogs == [entryB, entryA])
-
-        await store.send(.pausePump)
-        await store.finish()
-
-        // The pump appended the batch to the per-run jsonl file exactly once.
-        #expect(appended.value == [[entryA, entryB]])
     }
 
     @MainActor
@@ -62,27 +70,38 @@ struct AppActivityLogsReducerTests {
         var client = LogsClient.noop
         client.readRunFile = { _ in [fileLog] }
 
-        var initialState = AppActivityLogsReducer.State()
-        initialState.currentRun = RunLogFile(
-            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
-            date: .init(timeIntervalSince1970: 3600),
-            runCount: 3
-        )
-        initialState.previousRuns = [run]
-        initialState.currentRunLogs = [makeLog("live", secondsSince1970: 100)]
+        let storage = InMemoryStorage()
+        await withDependencies {
+            $0.defaultInMemoryStorage = storage
+        } operation: {
+            @Shared(.appActivityLogsCurrentRun) var currentRun: RunLogFile?
+            @Shared(.appActivityLogsCurrentRunLogs) var currentRunLogs: [AppActivityLog]
+            $currentRun.withLock {
+                $0 = RunLogFile(
+                    url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
+                    date: .init(timeIntervalSince1970: 3600),
+                    runCount: 3
+                )
+            }
+            $currentRunLogs.withLock { $0 = [makeLog("live", secondsSince1970: 100)] }
 
-        let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
-            $0.logsClient = client
-        }
+            var initialState = AppActivityLogsReducer.State()
+            initialState.previousRuns = [run]
 
-        await store.send(.selectRun(run.url)) {
-            $0.selectedRun = run.url
-            $0.loadingState = .loading
-        }
-        await store.receive(\.runFileResponse) {
-            $0.loadingState = .idle
-            $0.selectedRunLogs = [fileLog]
-            $0.displayedLogs = [fileLog]
+            let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
+                $0.logsClient = client
+                $0.defaultInMemoryStorage = storage
+            }
+
+            await store.send(.selectRun(run.url)) {
+                $0.selectedRun = run.url
+                $0.loadingState = .loading
+            }
+            await store.receive(\.runFileResponse) {
+                $0.loadingState = .idle
+                $0.selectedRunLogs = [fileLog]
+            }
+            #expect(store.state.displayedLogs == [fileLog])
         }
     }
 
@@ -90,25 +109,36 @@ struct AppActivityLogsReducerTests {
     @Test
     func testSelectingCurrentRunRestoresLiveLogs() async {
         let live = makeLog("live", secondsSince1970: 100)
-        var initialState = AppActivityLogsReducer.State()
-        initialState.currentRun = RunLogFile(
-            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
-            date: .init(timeIntervalSince1970: 3600),
-            runCount: 3
-        )
-        initialState.currentRunLogs = [live]
-        initialState.selectedRun = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl")
-        initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
-        initialState.displayedLogs = initialState.selectedRunLogs
 
-        let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
-            $0.logsClient = .noop
-        }
+        let storage = InMemoryStorage()
+        await withDependencies {
+            $0.defaultInMemoryStorage = storage
+        } operation: {
+            @Shared(.appActivityLogsCurrentRun) var currentRun: RunLogFile?
+            @Shared(.appActivityLogsCurrentRunLogs) var currentRunLogs: [AppActivityLog]
+            $currentRun.withLock {
+                $0 = RunLogFile(
+                    url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
+                    date: .init(timeIntervalSince1970: 3600),
+                    runCount: 3
+                )
+            }
+            $currentRunLogs.withLock { $0 = [live] }
 
-        await store.send(.selectRun(nil)) {
-            $0.selectedRun = nil
-            $0.selectedRunLogs = []
-            $0.displayedLogs = [live]
+            var initialState = AppActivityLogsReducer.State()
+            initialState.selectedRun = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl")
+            initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
+
+            let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
+                $0.logsClient = .noop
+                $0.defaultInMemoryStorage = storage
+            }
+
+            await store.send(.selectRun(nil)) {
+                $0.selectedRun = nil
+                $0.selectedRunLogs = []
+            }
+            #expect(store.state.displayedLogs == [live])
         }
     }
 
@@ -117,19 +147,26 @@ struct AppActivityLogsReducerTests {
     func testQueryLogsFiltersDisplayedLogs() async {
         let hello = makeLog("hello world", secondsSince1970: 10)
         let goodbye = makeLog("goodbye", secondsSince1970: 20)
-        var client = LogsClient.noop
-        client.query = { logs, keyword in logs.filter { $0.message.contains(keyword) } }
 
-        var initialState = AppActivityLogsReducer.State()
-        initialState.currentRunLogs = [hello, goodbye]
+        let storage = InMemoryStorage()
+        await withDependencies {
+            $0.defaultInMemoryStorage = storage
+        } operation: {
+            @Shared(.appActivityLogsCurrentRunLogs) var currentRunLogs: [AppActivityLog]
+            $currentRunLogs.withLock { $0 = [hello, goodbye] }
 
-        let store = TestStore(initialState: initialState, reducer: AppActivityLogsReducer.init) {
-            $0.logsClient = client
-        }
+            let store = TestStore(
+                initialState: AppActivityLogsReducer.State(),
+                reducer: AppActivityLogsReducer.init
+            ) {
+                $0.logsClient = .noop
+                $0.defaultInMemoryStorage = storage
+            }
 
-        await store.send(.queryLogs("hello")) {
-            $0.keyword = "hello"
-            $0.displayedLogs = [hello]
+            await store.send(.queryLogs("hello")) {
+                $0.keyword = "hello"
+            }
+            #expect(store.state.displayedLogs == [hello])
         }
     }
 

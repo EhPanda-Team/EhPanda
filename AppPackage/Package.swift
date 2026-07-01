@@ -26,6 +26,7 @@ var dependencies: [PackageDescription.Package.Dependency] = [
         from: "1.25.0"
     ),
     .package(url: "https://github.com/pointfreeco/swift-navigation", from: "2.8.0"),
+    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
     .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.0.0")
 ]
 
@@ -46,6 +47,7 @@ extension PackageDescription.Target.Dependency {
     static let sdWebImageSwiftUI: Self = .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
+    static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
     static let swiftUINavigation: Self = .product(name: "SwiftUINavigation", package: "swift-navigation")
     static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
     static let ttProgressHUD: Self = .product(name: "TTProgressHUD", package: "TTProgressHUD")
@@ -737,7 +739,8 @@ let targets: [PackageDescription.Target] = [
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.filePicker),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -1000,7 +1003,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.logsClient),
             .module(.settingFeature),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
