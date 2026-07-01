@@ -78,29 +78,32 @@ public struct DownloadsView: View {
             placement: .navigationBarDrawer(displayMode: .automatic),
             prompt: L10n.Localizable.DownloadsView.Search.Prompt.downloads
         )
-        .sheet(item: $store.route.sending(\.setNavigation).inspector, id: \.self) { _ in
-            NavigationView {
+        .sheet(
+            item: $store.scope(state: \.destination?.inspector, action: \.destination.inspector)
+        ) { store in
+            NavigationStack {
                 DownloadInspectorView(
-                    store: store.scope(state: \.inspectorState, action: \.inspector),
+                    store: store,
                     setting: setting,
                     blurRadius: blurRadius,
                     tagTranslator: tagTranslator
                 )
             }
             .autoBlur(radius: blurRadius)
-            .navigationViewStyle(.stack)
         }
-        .sheet(item: $store.route.sending(\.setNavigation).folderManager) { _ in
-            FolderManagerView(
-                store: store.scope(state: \.folderManagerState, action: \.folderManager)
-            )
-            .accentColor(setting.accentColor)
-            .autoBlur(radius: blurRadius)
+        .sheet(
+            item: $store.scope(state: \.destination?.folderManager, action: \.destination.folderManager)
+        ) { store in
+            FolderManagerView(store: store)
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
         }
-        .fullScreenCover(item: $store.route.sending(\.setNavigation).reading, id: \.self) { route in
+        .fullScreenCover(
+            item: $store.scope(state: \.destination?.reading, action: \.destination.reading)
+        ) { store in
             ReadingView(
-                store: store.scope(state: \.readingState, action: \.reading),
-                gid: route.wrappedValue,
+                store: store,
+                gid: store.gallery.id,
                 setting: $setting,
                 blurRadius: blurRadius
             )
@@ -147,7 +150,7 @@ private extension DownloadsView {
                     }
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
                         Button {
-                            store.send(.setNavigation(.inspector(download.gid)))
+                            store.send(.inspectorButtonTapped(download.gid))
                         } label: {
                             Label(
                                 L10n.Localizable.DownloadsView.Swipe.Button.pages,
@@ -220,7 +223,7 @@ private extension DownloadsView {
         }
 
         Button {
-            store.send(.setNavigation(.inspector(download.gid)))
+            store.send(.inspectorButtonTapped(download.gid))
         } label: {
             Label(
                 L10n.Localizable.DownloadsView.Swipe.Button.pages,
@@ -325,7 +328,7 @@ private extension DownloadsView {
             Menu {
                 Section {
                     Button {
-                        store.send(.setNavigation(.folderManager()))
+                        store.send(.folderManagerButtonTapped)
                     } label: {
                         Label(
                             L10n.Localizable.DownloadsView.Menu.Button.manageFolders,

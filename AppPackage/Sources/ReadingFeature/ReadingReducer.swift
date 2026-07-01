@@ -19,8 +19,14 @@ public struct ReadingReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
         case hud
+    }
+
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
         case share(IdentifiableBox<ShareItem>)
-        case readingSetting(EquatableVoid = .init())
+        @ReducerCaseIgnored
+        case readingSetting(EquatableVoid)
     }
 
     public enum ShareItem: Equatable, Sendable {
@@ -43,6 +49,7 @@ public struct ReadingReducer: Sendable {
     @ObservableState
     public struct State: Equatable, Sendable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var contentSource: ReadingContentSource = .remote
         public var gallery: Gallery = .empty
         public var language: Language?
@@ -136,6 +143,9 @@ public struct ReadingReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentShare(IdentifiableBox<ShareItem>)
+        case presentReadingSetting
 
         case toggleShowsPanel
         case setOrientationPortrait(Bool)
@@ -203,3 +213,6 @@ public struct ReadingReducer: Sendable {
 
     public var body: some Reducer<State, Action> { makeBody() }
 }
+
+extension ReadingReducer.Destination.State: Equatable, Sendable {}
+extension ReadingReducer.Destination.Action: Equatable, Sendable {}
