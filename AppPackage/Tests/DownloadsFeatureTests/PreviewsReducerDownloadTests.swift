@@ -26,15 +26,15 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
         await store.send(.openReading(1))
         await store.skipReceivedActions(strict: false)
 
-        if case .local(let actualDownload, let actualManifest) = store.state.readingState.contentSource {
+        if case .local(let actualDownload, let actualManifest) = store.state.destination?.reading?.contentSource {
             #expect(actualDownload == download)
             #expect(actualManifest == manifest)
         } else {
             Issue.record("Expected previews to open local reading content.")
         }
-        if case .reading = store.state.route {
+        if case .reading = store.state.destination {
         } else {
-            Issue.record("Expected reading route to be active.")
+            Issue.record("Expected reading destination to be active.")
         }
     }
 
@@ -71,12 +71,12 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
 
         await store.send(.openReading(1))
         await store.receive(\.openReadingDone)
-        guard case .reading = store.state.route else {
-            Issue.record("Expected previews route to enter reading")
+        guard case .reading = store.state.destination else {
+            Issue.record("Expected previews destination to enter reading")
             return
         }
-        #expect(store.state.readingState.contentSource == .remote)
-        #expect(store.state.readingState.localPageURLs == [1: localURL])
+        #expect(store.state.destination?.reading?.contentSource == .remote)
+        #expect(store.state.destination?.reading?.localPageURLs == [1: localURL])
     }
 
 }

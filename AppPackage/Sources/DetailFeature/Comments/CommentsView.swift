@@ -72,7 +72,7 @@ struct CommentsView: View {
                     if comment.editable {
                         Button {
                             store.send(.setCommentContent(comment.plainTextContent))
-                            store.send(.setNavigation(.postComment(comment.commentID)))
+                            store.send(.presentPostComment(comment.commentID))
                         } label: {
                             Image(systemSymbol: .squareAndPencil)
                         }
@@ -89,8 +89,8 @@ struct CommentsView: View {
                 }
             }
         }
-        .sheet(item: $store.route.sending(\.setNavigation).postComment, id: \.self) { route in
-            let hasCommentID = !route.wrappedValue.isEmpty
+        .sheet(item: $store.destination.postComment, id: \.self) { commentID in
+            let hasCommentID = !commentID.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
                     ? L10n.Localizable.PostCommentView.Title.editComment
@@ -99,13 +99,13 @@ struct CommentsView: View {
                 isFocused: $store.postCommentFocused,
                 postAction: {
                     if hasCommentID {
-                        store.send(.postComment(galleryURL, route.wrappedValue))
+                        store.send(.postComment(galleryURL, commentID.wrappedValue))
                     } else {
                         store.send(.postComment(galleryURL))
                     }
-                    store.send(.setNavigation(nil))
+                    store.send(.destination(.dismiss))
                 },
-                cancelAction: { store.send(.setNavigation(nil)) },
+                cancelAction: { store.send(.destination(.dismiss)) },
                 onAppearAction: { store.send(.onPostCommentAppear) }
             )
             .accentColor(setting.accentColor)
@@ -128,7 +128,7 @@ struct CommentsView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                store.send(.setNavigation(.postComment("")))
+                store.send(.presentPostComment(""))
             } label: {
                 Image(systemSymbol: .squareAndPencil)
             }

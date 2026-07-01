@@ -63,10 +63,12 @@ struct PreviewsView: View {
             .padding(.bottom)
             .id(store.databaseLoadingState)
         }
-        .fullScreenCover(item: $store.route.sending(\.setNavigation).reading) { _ in
+        .fullScreenCover(
+            item: $store.scope(state: \.destination?.reading, action: \.destination.reading)
+        ) { store in
             ReadingView(
-                store: store.scope(state: \.readingState, action: \.reading),
-                gid: gid, setting: $setting, blurRadius: blurRadius
+                store: store,
+                gid: store.gallery.id, setting: $setting, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
