@@ -3,12 +3,10 @@ import AppModels
 import TagTranslationFeature
 import Resources
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
 import GalleryListComponents
 import FiltersFeature
-import DetailFeature
 
 struct PopularView: View {
     @Bindable private var store: StoreOf<PopularReducer>
@@ -29,64 +27,35 @@ struct PopularView: View {
     }
 
     var body: some View {
-        let content =
-            GenericList(
-                galleries: store.filteredGalleries,
-                setting: setting, pageNumber: nil,
-                loadingState: store.loadingState,
-                footerLoadingState: .idle,
-                fetchAction: { store.send(.fetchGalleries) },
-                navigateAction: { store.send(.setNavigation(.detail($0))) },
-                translateAction: {
-                    tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                }
-            )
-            .sheet(
-                item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
-            ) { store in
-                FiltersView(store: store)
-                    .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+        GenericList(
+            galleries: store.filteredGalleries,
+            setting: setting, pageNumber: nil,
+            loadingState: store.loadingState,
+            footerLoadingState: .idle,
+            fetchAction: { store.send(.fetchGalleries) },
+            navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            translateAction: {
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
-            .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
-            .onAppear {
-                if store.galleries.isEmpty {
-                    DispatchQueue.main.async {
-                        store.send(.fetchGalleries)
-                    }
-                }
-            }
-            .background(navigationLink)
-            .toolbar(content: toolbar)
-            .navigationTitle(L10n.Localizable.PopularView.Title.popular)
-
-        if DeviceUtil.isPad {
-            content
-                .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
-                    NavigationView {
-                        DetailView(
-                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                            gid: route.wrappedValue, user: user, setting: $setting,
-                            blurRadius: blurRadius, tagTranslator: tagTranslator
-                        )
-                    }
-                    .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-                }
-        } else {
-            content
+        )
+        .sheet(
+            item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+        ) { store in
+            FiltersView(store: store)
+                .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-    }
-
-    @ViewBuilder private var navigationLink: some View {
-        if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-                DetailView(
-                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .onAppear {
+            if store.galleries.isEmpty {
+                DispatchQueue.main.async {
+                    store.send(.fetchGalleries)
+                }
             }
         }
+        .toolbar(content: toolbar)
+        .navigationTitle(L10n.Localizable.PopularView.Title.popular)
     }
+
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {

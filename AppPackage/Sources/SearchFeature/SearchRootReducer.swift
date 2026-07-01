@@ -1,22 +1,14 @@
 import ComposableArchitecture
 import AppModels
 import AppTools
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import FiltersFeature
 import QuickSearchFeature
 import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct SearchRootReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case search
-        case detail(String)
-    }
-
     @Reducer
     public enum Destination {
         case filters(FiltersReducer)
@@ -25,7 +17,7 @@ public struct SearchRootReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var path = StackState<SearchPath.State>()
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var historyGalleries = [Gallery]()
@@ -33,12 +25,7 @@ public struct SearchRootReducer: Sendable {
         public var historyKeywords = [String]()
         public var quickSearchWords = [QuickSearchWord]()
 
-        public var searchState = SearchReducer.State()
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         mutating func appendHistoryKeywords(_ keywords: [String]) {
             guard !keywords.isEmpty else { return }
@@ -73,9 +60,10 @@ public struct SearchRootReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case pushSearch
+        case galleryTapped(String)
+        case path(StackActionOf<SearchPath>)
         case setKeyword(String)
-        case clearSubStates
         case filtersButtonTapped
         case quickSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
@@ -87,9 +75,6 @@ public struct SearchRootReducer: Sendable {
         case removeHistoryKeyword(String)
         case fetchHistoryGalleries
         case fetchHistoryGalleriesDone([Gallery])
-
-        case search(SearchReducer.Action)
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -99,13 +84,13 @@ public struct SearchRootReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil
-                    ? .merge(
-                        .send(.clearSubStates),
-                        .send(.fetchDatabaseInfos)
-                    )
-                    : .none
+            .onChange(of: \.path) { oldValue, state in
+                // Returning to the root refreshes history keywords / quick-search words that a
+                // pushed Search screen (or the QuickSearch editor) may have changed.
+                if !oldValue.isEmpty, state.path.isEmpty {
+                    return .send(.fetchDatabaseInfos)
+                }
+                return .none
             }
 
         Reduce { state, action in
@@ -113,26 +98,38 @@ public struct SearchRootReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil
-                    ? .merge(
-                        .send(.clearSubStates),
-                        .send(.fetchDatabaseInfos)
-                    )
-                    : .none
+            case .pushSearch:
+                state.path.append(.search(.init(keyword: state.keyword)))
+                return .none
+
+            case .galleryTapped(let gid):
+                state.path.append(.gallery(.detail(.init(gid: gid))))
+                return .none
+
+            case let .path(.element(id: _, action: .search(.delegate(.pushDetail(gid))))):
+                state.path.append(.gallery(.detail(.init(gid: gid))))
+                return .none
+
+            case let .path(.element(id: _, action: .search(.delegate(.searchPerformed(keyword))))):
+                state.appendHistoryKeywords([keyword])
+                return .send(.syncHistoryKeywords)
+
+            case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
+                guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .gallery(.detail(.fetchGalleryDetail)))))
+
+            case let .path(.element(id: _, action: .gallery(galleryAction))):
+                if let next = GalleryNavigation.nextScreen(for: galleryAction) {
+                    state.path.append(.gallery(next))
+                }
+                return .none
+
+            case .path:
+                return .none
 
             case .setKeyword(let keyword):
                 state.keyword = keyword
                 return .none
-
-            case .clearSubStates:
-                state.searchState = .init()
-                state.detailState.wrappedValue = .init()
-                return .merge(
-                    .send(.search(.teardown)),
-                    .send(.detail(.teardown))
-                )
 
             case .filtersButtonTapped:
                 state.destination = .filters(FiltersReducer.State())
@@ -178,20 +175,6 @@ public struct SearchRootReducer: Sendable {
             case .fetchHistoryGalleriesDone(let galleries):
                 state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
                 return .none
-
-            case .search(.fetchGalleries(let keyword)):
-                if let keyword = keyword {
-                    state.appendHistoryKeywords([keyword])
-                } else {
-                    state.appendHistoryKeywords([state.searchState.lastKeyword])
-                }
-                return .send(.syncHistoryKeywords)
-
-            case .search:
-                return .none
-
-            case .detail:
-                return .none
             }
         }
         .haptics(
@@ -205,9 +188,7 @@ public struct SearchRootReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-
-        Scope(state: \.searchState, action: \.search, child: SearchReducer.init)
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        .forEach(\.path, action: \.path)
     }
 }
 

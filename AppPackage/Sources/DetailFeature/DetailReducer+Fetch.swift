@@ -4,7 +4,7 @@ import NetworkingFeature
 
 // MARK: - Fetch & Gallery Ops Action Handlers
 extension DetailReducer {
-    func fetchReducer(_ reducer: Reduce<State, Action>) -> some ReducerOf<Self> {
+    var fetchReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .teardown:
@@ -87,6 +87,28 @@ extension DetailReducer {
                     }
                     if let config = response.galleryState.previewConfig {
                         effects.append(.send(.syncPreviewConfig(config)))
+                    }
+                    if let deepLink = state.pendingDeepLink {
+                        state.pendingDeepLink = nil
+                        switch deepLink {
+                        case .reading:
+                            // The linking comment already wrote the reading progress; open the reader
+                            // after a short beat so that write has landed before ReadingView appears.
+                            effects.append(
+                                .run { send in
+                                    try await Task.sleep(for: .milliseconds(750))
+                                    await send(.presentReading)
+                                }
+                            )
+                        case .comments(let commentID):
+                            if let galleryURL = state.gallery.galleryURL {
+                                effects.append(.send(.delegate(.pushComments(
+                                    gid: state.gallery.id, token: state.gallery.token, apiKey: state.apiKey,
+                                    galleryURL: galleryURL, comments: state.galleryComments,
+                                    scrollCommentID: commentID
+                                ))))
+                            }
+                        }
                     }
                     return .merge(effects)
                 case .failure(let error):

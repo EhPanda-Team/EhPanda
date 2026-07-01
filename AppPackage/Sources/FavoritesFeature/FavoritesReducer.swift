@@ -3,7 +3,6 @@ import SwiftUI
 import AppModels
 import IdentifiedCollections
 import ComposableArchitecture
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -11,17 +10,11 @@ import DownloadClient
 import DateSeekFeature
 import QuickSearchFeature
 import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct FavoritesReducer: Sendable {
     private enum CancelID {
         case observeDownloads
-    }
-
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
     }
 
     @Reducer
@@ -32,7 +25,7 @@ public struct FavoritesReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -62,11 +55,7 @@ public struct FavoritesReducer: Sendable {
             rawFooterLoadingState[index]
         }
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         mutating func insertGalleries(index: Int, galleries: [Gallery]) {
             galleries.forEach { gallery in
@@ -80,9 +69,9 @@ public struct FavoritesReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
-        case setNavigation(Route?)
+        case galleryTapped(String)
+        case path(StackActionOf<GalleryPath>)
         case setFavoritesIndex(Int)
-        case clearSubStates
         case quickSearchButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
@@ -95,8 +84,6 @@ public struct FavoritesReducer: Sendable {
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
         case performDateSeekDone(Int, Result<GalleriesResult, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -107,9 +94,6 @@ public struct FavoritesReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
@@ -119,18 +103,27 @@ public struct FavoritesReducer: Sendable {
             case .onAppear:
                 return .send(.observeDownloads)
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .galleryTapped(let gid):
+                state.path.append(.detail(.init(gid: gid)))
+                return .none
+
+            case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
+                guard let id = state.path.detailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
+
+            case let .path(.element(id: _, action: elementAction)):
+                if let next = GalleryNavigation.nextScreen(for: elementAction) {
+                    state.path.append(next)
+                }
+                return .none
+
+            case .path:
+                return .none
 
             case .setFavoritesIndex(let index):
                 state.index = index
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
 
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
@@ -272,9 +265,6 @@ public struct FavoritesReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .detail:
-                return .none
             }
         }
         .haptics(
@@ -288,8 +278,7 @@ public struct FavoritesReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        .forEach(\.path, action: \.path)
     }
 }
 

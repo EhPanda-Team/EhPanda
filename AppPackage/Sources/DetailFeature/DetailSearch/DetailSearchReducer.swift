@@ -1,25 +1,22 @@
 import AppTools
 import ComposableArchitecture
 import AppModels
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import FiltersFeature
 import QuickSearchFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct DetailSearchReducer: Sendable {
-    @dynamicMemberLookup @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
-    }
-
     @Reducer
     public enum Destination {
         case filters(FiltersReducer)
         case quickSearch(QuickSearchReducer)
+    }
+
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(String)
     }
 
     private enum CancelID: CaseIterable {
@@ -28,7 +25,6 @@ public struct DetailSearchReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var lastKeyword = ""
@@ -38,10 +34,9 @@ public struct DetailSearchReducer: Sendable {
         public var loadingState: LoadingState = .idle
         public var footerLoadingState: LoadingState = .idle
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
+        public init(keyword: String = "") {
+            self.keyword = keyword
+            self.lastKeyword = keyword
         }
 
         mutating func insertGalleries(_ galleries: [Gallery]) {
@@ -55,8 +50,7 @@ public struct DetailSearchReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
-        case clearSubStates
+        case delegate(Delegate)
         case filtersButtonTapped
         case quickSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
@@ -66,8 +60,6 @@ public struct DetailSearchReducer: Sendable {
         case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -77,9 +69,6 @@ public struct DetailSearchReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
             .onChange(of: \.keyword) { _, state in
                 if !state.keyword.isEmpty {
                     state.lastKeyword = state.keyword
@@ -92,13 +81,8 @@ public struct DetailSearchReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
+            case .delegate:
+                return .none
 
             case .filtersButtonTapped:
                 state.destination = .filters(FiltersReducer.State())
@@ -183,9 +167,6 @@ public struct DetailSearchReducer: Sendable {
                 case .failure(let error):
                     state.footerLoadingState = .failed(error)
                 }
-                return .none
-
-            case .detail:
                 return .none
             }
         }

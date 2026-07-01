@@ -3,8 +3,6 @@ import SwiftUI
 import AppModels
 import Foundation
 import ComposableArchitecture
-import ComposableArchitectureExt
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -15,12 +13,16 @@ import ReadingFeature
 
 @Reducer
 public struct DetailReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case previews
-        case comments(URL)
-        case detailSearch(String)
-        case galleryInfos(Gallery, GalleryDetail)
+    // The gallery sub-screens are now standalone elements on the host's navigation stack. Detail asks
+    // the host to push them via these delegate actions instead of owning nested child state itself.
+    public enum Delegate: Equatable, Sendable {
+        case pushPreviews(String)
+        case pushComments(
+            gid: String, token: String, apiKey: String,
+            galleryURL: URL, comments: [GalleryComment], scrollCommentID: String?
+        )
+        case pushDetailSearch(String)
+        case pushGalleryInfos(Gallery, GalleryDetail)
     }
 
     @Reducer
@@ -76,7 +78,6 @@ public struct DetailReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         @Presents public var destination: Destination.State?
         @Presents public var alert: AlertState<Alert>?
         public var commentContent = ""
@@ -115,14 +116,12 @@ public struct DetailReducer: Sendable {
         public var shouldCheckForRemoteUpdates = false
         public var didRequestVersionMetadata = false
         public var localPreviewRequestID = UUID()
-        public var previewsState = PreviewsReducer.State()
-        public var commentsState: Heap<CommentsReducer.State?>
-        public var galleryInfosState = GalleryInfosReducer.State()
-        public var detailSearchState: Heap<DetailSearchReducer.State?>
+        // A deep-link intent to act on once this detail finishes loading (see GalleryDeepLink).
+        public var pendingDeepLink: GalleryDeepLink?
 
-        public init() {
-            commentsState = .init(nil)
-            detailSearchState = .init(nil)
+        public init(gid: String = "", pendingDeepLink: GalleryDeepLink? = nil) {
+            self.gid = gid
+            self.pendingDeepLink = pendingDeepLink
         }
 
         mutating func updateRating(value: DragGesture.Value) {
@@ -131,9 +130,9 @@ public struct DetailReducer: Sendable {
         }
     }
 
-    public indirect enum Action: BindableAction {
+    public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case presentReading
         case archivesButtonTapped
@@ -146,7 +145,6 @@ public struct DetailReducer: Sendable {
         case alert(PresentationAction<Alert>)
         case deleteDownloadButtonTapped
         case retryDownloadButtonTapped(DownloadStartMode)
-        case clearSubStates
         case onPostCommentAppear
         case onAppear(String, Bool)
         case toggleShowFullTitle
@@ -198,10 +196,6 @@ public struct DetailReducer: Sendable {
         case postComment(URL)
         case voteTag(String, Int)
         case anyGalleryOpsDone(Result<Void, AppError>)
-        case previews(PreviewsReducer.Action)
-        case comments(CommentsReducer.Action)
-        case galleryInfos(GalleryInfosReducer.Action)
-        case detailSearch(DetailSearchReducer.Action)
     }
 
     @Dependency(\.databaseClient) var databaseClient
@@ -217,31 +211,17 @@ public struct DetailReducer: Sendable {
 
 // MARK: - Reducer Body
 extension DetailReducer {
+    @ReducerBuilder<State, Action>
     var detailBody: some Reducer<State, Action> {
-        RecurseReducer { (self) in
-            BindingReducer()
-                .onChange(of: \.route) { _, state in
-                    state.route == nil ? .send(.clearSubStates) : .none
-                }
-            navigationReducer
-            uiReducer
-            syncReducer
-            downloadReducer
-            fetchReducer(self)
-            galleryOpsReducer
-            childReducer(self)
-            optionalChildReducers
-                .ifLet(\.$destination, action: \.destination)
-                .ifLet(\.$alert, action: \.alert)
-            Scope(state: \.previewsState, action: \.previews, child: PreviewsReducer.init)
-            Scope(state: \.galleryInfosState, action: \.galleryInfos, child: GalleryInfosReducer.init)
-        }
-    }
-
-    var optionalChildReducers: some ReducerOf<Self> {
-        Reduce { _, _ in .none }
-            .ifLet(\.commentsState.wrappedValue, action: \.comments, then: CommentsReducer.init)
-            .ifLet(\.detailSearchState.wrappedValue, action: \.detailSearch, then: DetailSearchReducer.init)
+        BindingReducer()
+        navigationReducer
+        uiReducer
+        syncReducer
+        downloadReducer
+        fetchReducer
+        galleryOpsReducer
+            .ifLet(\.$destination, action: \.destination)
+            .ifLet(\.$alert, action: \.alert)
     }
 }
 

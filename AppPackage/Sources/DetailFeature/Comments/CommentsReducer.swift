@@ -1,7 +1,6 @@
 import Foundation
 import AppModels
 import ComposableArchitecture
-import SwiftUINavigationExt
 import URLClient
 import ApplicationClient
 import HapticsClient
@@ -9,20 +8,25 @@ import DatabaseClient
 import NetworkingFeature
 import CookieClient
 import TTProgressHUDExt
-import ComposableArchitectureExt
 
 @Reducer
 public struct CommentsReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
         case hud
-        case detail(String)
     }
 
     @Reducer
     public enum Destination {
         @ReducerCaseIgnored
         case postComment(String)
+    }
+
+    public enum Delegate: Equatable, Sendable {
+        // Open the linked gallery (optionally deep-linking to a page or comment) as a new stack element.
+        case pushDetail(String, GalleryDeepLink?)
+        // A comment was voted/edited; ask the host to refresh the detail with this gid so it stays in sync.
+        case performedCommentAction(String)
     }
 
     private enum CancelID: CaseIterable {
@@ -40,20 +44,32 @@ public struct CommentsReducer: Sendable {
         public var scrollCommentID: String?
         public var scrollRowOpacity: Double = 1
 
-        public var detailState: Heap<DetailReducer.State?>
+        // Display data captured when this screen is pushed onto the host's gallery stack.
+        public var gid = ""
+        public var token = ""
+        public var apiKey = ""
+        public var galleryURL: URL
+        public var comments = [GalleryComment]()
 
-        public init() {
-            detailState = .init(.init())
+        public init(
+            gid: String = "", token: String = "", apiKey: String = "",
+            galleryURL: URL, comments: [GalleryComment] = [], scrollCommentID: String? = nil
+        ) {
+            self.gid = gid
+            self.token = token
+            self.apiKey = apiKey
+            self.galleryURL = galleryURL
+            self.comments = comments
+            self.scrollCommentID = scrollCommentID
         }
     }
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case destination(PresentationAction<Destination.Action>)
         case presentPostComment(String)
-        case clearSubStates
         case clearScrollCommentID
+        case delegate(Delegate)
 
         case setHUDConfig(ProgressHUDConfigState)
         case setPostCommentFocused(Bool)
@@ -73,8 +89,6 @@ public struct CommentsReducer: Sendable {
         case performCommentActionDone(Result<Void, AppError>)
         case fetchGallery(URL, Bool)
         case fetchGalleryDone(URL, Result<Gallery, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.applicationClient) private var applicationClient
@@ -87,18 +101,11 @@ public struct CommentsReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
             case .binding:
                 return .none
-
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
 
             case .destination:
                 return .none
@@ -107,14 +114,11 @@ public struct CommentsReducer: Sendable {
                 state.destination = .postComment(commentID)
                 return .none
 
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                state.commentContent = .init()
-                state.postCommentFocused = false
-                return .send(.detail(.teardown))
-
             case .clearScrollCommentID:
                 state.scrollCommentID = nil
+                return .none
+
+            case .delegate:
                 return .none
 
             case .setHUDConfig(let config):
@@ -165,25 +169,15 @@ public struct CommentsReducer: Sendable {
                 let pageIndex = analysis.pageIndex
                 let commentID = analysis.commentID
                 let gid = urlClient.parseGalleryID(url)
+                var deepLink: GalleryDeepLink?
                 var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {
                     effects.append(.send(.updateReadingProgress(gid, pageIndex)))
-                    effects.append(
-                        .run { send in
-                            try await Task.sleep(for: .milliseconds(750))
-                            await send(.detail(.presentReading))
-                        }
-                    )
+                    deepLink = .reading(page: pageIndex)
                 } else if let commentID = commentID {
-                    state.detailState.wrappedValue?.commentsState.wrappedValue?.scrollCommentID = commentID
-                    effects.append(
-                        .run { send in
-                            try await Task.sleep(for: .milliseconds(750))
-                            await send(.detail(.setNavigation(.comments(url))))
-                        }
-                    )
+                    deepLink = .comments(commentID: commentID)
                 }
-                effects.append(.send(.setNavigation(.detail(gid))))
+                effects.append(.send(.delegate(.pushDetail(gid, deepLink))))
                 return .merge(effects)
 
             case .onPostCommentAppear:
@@ -193,9 +187,6 @@ public struct CommentsReducer: Sendable {
                 }
 
             case .onAppear:
-                if state.detailState.wrappedValue == nil {
-                    state.detailState.wrappedValue = .init()
-                }
                 return state.scrollCommentID != nil ? .send(.performScrollOpacityEffect) : .none
 
             case .updateReadingProgress(let gid, let progress):
@@ -249,8 +240,16 @@ public struct CommentsReducer: Sendable {
                 }
                 .cancellable(id: CancelID.voteComment)
 
-            case .performCommentActionDone:
-                return .none
+            case .performCommentActionDone(let result):
+                switch result {
+                case .success:
+                    return .merge(
+                        .send(.delegate(.performedCommentAction(state.gid))),
+                        .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
+                    )
+                case .failure:
+                    return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
+                }
 
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.route = .hud
@@ -277,9 +276,6 @@ public struct CommentsReducer: Sendable {
                         await send(.setHUDConfig(.error()))
                     }
                 }
-
-            case .detail:
-                return .none
             }
         }
         .haptics(

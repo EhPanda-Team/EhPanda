@@ -46,7 +46,6 @@ public struct DetailView: View {
                 runLaunchAutomationIfNeeded()
             }
             .alert($store.scope(state: \.alert, action: \.alert))
-            .background(navigationLinks)
             .toolbar(content: toolbar)
     }
 
@@ -89,7 +88,7 @@ private extension DetailView {
                             navigateUploaderAction: {
                                 if let uploader = store.galleryDetail?.uploader {
                                     let keyword = "uploader:" + "\"\(uploader)\""
-                                    store.send(.setNavigation(.detailSearch(keyword)))
+                                    store.send(.delegate(.pushDetailSearch(keyword)))
                                 }
                             }
                         )
@@ -99,7 +98,7 @@ private extension DetailView {
                             galleryDetail: store.galleryDetail ?? .empty,
                             navigateGalleryInfosAction: {
                                 if let galleryDetail = store.galleryDetail {
-                                    store.send(.setNavigation(.galleryInfos(store.gallery, galleryDetail)))
+                                    store.send(.delegate(.pushGalleryInfos(store.gallery, galleryDetail)))
                                 }
                             }
                         )
@@ -112,7 +111,7 @@ private extension DetailView {
                             confirmRatingAction: { store.send(.confirmRating($0)) },
                             navigateSimilarGalleryAction: {
                                 if let trimmedTitle = store.galleryDetail?.trimmedTitle {
-                                    store.send(.setNavigation(.detailSearch(trimmedTitle)))
+                                    store.send(.delegate(.pushDetailSearch(trimmedTitle)))
                                 }
                             }
                         )
@@ -120,7 +119,7 @@ private extension DetailView {
                             TagsSection(
                                 tags: store.galleryTags, showsImages: setting.showsImagesInTags,
                                 voteTagAction: { store.send(.voteTag($0, $1)) },
-                                navigateSearchAction: { store.send(.setNavigation(.detailSearch($0))) },
+                                navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
                                 navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                                 translateAction: {
                                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
@@ -136,7 +135,7 @@ private extension DetailView {
                             PreviewsSection(
                                 pageCount: store.galleryDetail?.pageCount ?? 0,
                                 previewURLs: displayPreviewURLs,
-                                navigatePreviewsAction: { store.send(.setNavigation(.previews)) },
+                                navigatePreviewsAction: { store.send(.delegate(.pushPreviews(gid))) },
                                 navigateReadingAction: {
                                     store.send(.updateReadingProgress($0))
                                     store.send(.openReading)
@@ -147,7 +146,11 @@ private extension DetailView {
                             comments: store.galleryComments,
                             navigateCommentAction: {
                                 if let galleryURL = store.gallery.galleryURL {
-                                    store.send(.setNavigation(.comments(galleryURL)))
+                                    store.send(.delegate(.pushComments(
+                                        gid: gid, token: store.gallery.token, apiKey: store.apiKey,
+                                        galleryURL: galleryURL, comments: store.galleryComments,
+                                        scrollCommentID: nil
+                                    )))
                                 }
                             },
                             navigatePostCommentAction: { store.send(.postCommentButtonTapped) }

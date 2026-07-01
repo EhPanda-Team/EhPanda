@@ -10,9 +10,8 @@ extension DetailReducer {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .delegate:
+                return .none
 
             case .destination(.dismiss):
                 if case .postComment = state.destination {
@@ -20,6 +19,9 @@ extension DetailReducer {
                     state.postCommentFocused = false
                 }
                 return .none
+
+            case .destination(.presented(.reading(.onPerformDismiss))):
+                return .send(.destination(.dismiss))
 
             case .destination:
                 return .none
@@ -56,19 +58,6 @@ extension DetailReducer {
                 state.destination = .tagDetail(tagDetail)
                 return .none
 
-            case .clearSubStates:
-                state.previewsState = .init()
-                state.commentsState.wrappedValue = .init()
-                state.commentContent = .init()
-                state.postCommentFocused = false
-                state.galleryInfosState = .init()
-                state.detailSearchState.wrappedValue = .init()
-                return .merge(
-                    .send(.previews(.teardown)),
-                    .send(.comments(.teardown)),
-                    .send(.detailSearch(.teardown))
-                )
-
             case .onPostCommentAppear:
                 return .run { send in
                     try await Task.sleep(for: .milliseconds(750))
@@ -95,12 +84,6 @@ extension DetailReducer {
         state.hasLoadedDownloadBadge = false
         state.didRunLaunchAutomation = false
         state.localPreviewURLs = .init()
-        if state.detailSearchState.wrappedValue == nil {
-            state.detailSearchState.wrappedValue = .init()
-        }
-        if state.commentsState.wrappedValue == nil {
-            state.commentsState.wrappedValue = .init()
-        }
         return .merge(
             .send(.fetchDatabaseInfos(gid)),
             .send(.fetchDownloadBadge),
@@ -201,43 +184,4 @@ extension DetailReducer {
         }
     }
 
-    func childReducer(_ reducer: Reduce<State, Action>) -> some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case .destination(.presented(.reading(.onPerformDismiss))):
-                return .send(.destination(.dismiss))
-
-            case .previews, .galleryInfos:
-                return .none
-
-            case .comments(.performCommentActionDone(let result)):
-                return .send(.anyGalleryOpsDone(result))
-
-            case .comments(.detail(let recursiveAction)):
-                guard state.commentsState.wrappedValue != nil else { return .none }
-                let effect = reducer._reduce(
-                    // swiftlint:disable:next force_unwrapping
-                    into: &state.commentsState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
-                )
-                return .publisher({ _EffectPublisher(effect).map({ Action.comments(.detail($0)) }) })
-
-            case .comments:
-                return .none
-
-            case .detailSearch(.detail(let recursiveAction)):
-                guard state.detailSearchState.wrappedValue != nil else { return .none }
-                let effect = reducer._reduce(
-                    // swiftlint:disable:next force_unwrapping
-                    into: &state.detailSearchState.wrappedValue!.detailState.wrappedValue!, action: recursiveAction
-                )
-                return .publisher({ _EffectPublisher(effect).map({ Action.comments(.detail($0)) }) })
-
-            case .detailSearch:
-                return .none
-
-            default:
-                return .none
-            }
-        }
-    }
 }

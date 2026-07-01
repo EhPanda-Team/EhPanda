@@ -101,14 +101,22 @@ struct TabBarView: View {
             .accentColor(store.settingState.setting.accentColor)
             .autoBlur(radius: store.appLockState.blurRadius)
         }
-        .sheet(item: $store.appRouteState.route.sending(\.appRoute.setNavigation).detail, id: \.self) { route in
-            NavigationView {
+        .sheet(item: $store.scope(state: \.appRouteState.detail, action: \.appRoute.detail)) { detailStore in
+            NavigationStack(
+                path: $store.scope(state: \.appRouteState.path, action: \.appRoute.path)
+            ) {
                 DetailView(
-                    store: store.scope(
-                        state: \.appRouteState.detailState.wrappedValue!,
-                        action: \.appRoute.detail
-                    ),
-                    gid: route.wrappedValue, user: store.settingState.user,
+                    store: detailStore,
+                    gid: detailStore.gid,
+                    user: store.settingState.user,
+                    setting: $store.settingState.setting,
+                    blurRadius: store.appLockState.blurRadius,
+                    tagTranslator: store.settingState.tagTranslator
+                )
+            } destination: { elementStore in
+                galleryDestination(
+                    elementStore,
+                    user: store.settingState.user,
                     setting: $store.settingState.setting,
                     blurRadius: store.appLockState.blurRadius,
                     tagTranslator: store.settingState.tagTranslator
@@ -116,8 +124,6 @@ struct TabBarView: View {
             }
             .accentColor(store.settingState.setting.accentColor)
             .autoBlur(radius: store.appLockState.blurRadius)
-            .environment(\.inSheet, true)
-            .navigationViewStyle(.stack)
         }
         .progressHUD(
             config: store.appRouteState.hudConfig,
