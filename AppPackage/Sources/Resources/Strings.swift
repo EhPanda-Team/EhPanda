@@ -241,6 +241,8 @@ public enum L10n {
     public enum AppActivityLogsView {
       /// More logs
       public static let moreLogs = L10n.tr("Localizable", "app_activity_logs_view.more_logs", fallback: "More logs")
+      /// Open in Files
+      public static let openInFiles = L10n.tr("Localizable", "app_activity_logs_view.open_in_files", fallback: "Open in Files")
       /// Run %@
       public static func run(_ p1: Any) -> String {
         return L10n.tr("Localizable", "app_activity_logs_view.run", String(describing: p1), fallback: "Run %@")

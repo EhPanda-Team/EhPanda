@@ -59,6 +59,13 @@ struct AppActivityLogsView: View {
                 Image(systemSymbol: .clock)
             }
         }
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                store.send(.navigateToFileApp)
+            } label: {
+                Label(L10n.Localizable.AppActivityLogsView.openInFiles, systemSymbol: .folderBadgeGearshape)
+            }
+        }
     }
 
     @ViewBuilder
