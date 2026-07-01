@@ -1,4 +1,4 @@
-/*
+/* 
   Localizable.strings
   EhPanda
 */
@@ -217,7 +217,7 @@
 "general_setting_view.title.redirects_links_to_the_selected_host" = "重定向链接到选定的站点";
 "general_setting_view.title.detects_links_from_clipboard" = "从剪切板检测链接";
 "general_setting_view.title.background_blur_radius" = "后台模糊效果";
-"general_setting_view.button.logs" = "日志";
+"general_setting_view.button.app_activity_logs" = "应用活动日志";
 "general_setting_view.button.import_custom_translations" = "导入自定义翻译";
 "general_setting_view.button.remove_custom_translations" = "移除自定义翻译";
 "general_setting_view.button.clear_image_caches" = "清空图片缓存";
@@ -230,9 +230,20 @@
 "enum.auto_lock_policy.value.never" = "不锁定";
 "enum.auto_lock_policy.value.instantly" = "立即";
 
-// MARK: LogsView
-"logs_view.title.logs" = "日志";
-"logs_view.title.latest" = "最新";
+// MARK: AppActivityLogsView
+"app_activity_logs_view.title" = "应用活动日志";
+"app_activity_logs_view.placeholder.no_logs" = "未找到日志";
+"app_activity_logs_view.section.current" = "当前";
+"app_activity_logs_view.run" = "运行 %@";
+"app_activity_logs_view.more_logs" = "更多日志";
+"app_activity_logs_view.open_in_files" = "在“文件”中打开";
+"app_activity_logs_view.runs" = "运行";
+"app_activity_logs_view.level.undefined" = "未定义";
+"app_activity_logs_view.level.debug" = "调试";
+"app_activity_logs_view.level.info" = "信息";
+"app_activity_logs_view.level.notice" = "通知";
+"app_activity_logs_view.level.error" = "错误";
+"app_activity_logs_view.level.fault" = "故障";
 
 // MARK: AppearanceSettingView
 "appearance_setting_view.title.appearance" = "外观";
@@ -1043,6 +1054,3 @@
 "enum.browsing_country.name.yemen" = "也门";
 "enum.browsing_country.name.zambia" = "赞比亚";
 "enum.browsing_country.name.zimbabwe" = "津巴布韦";
-
-// MARK: AppActivityLogsView
-"app_activity_logs_view.run" = "运行 %@";
