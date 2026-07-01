@@ -75,8 +75,8 @@ struct AppActivityLogsReducerTests {
             $0.logsClient = client
         }
 
-        await store.send(.selectRun(2)) {
-            $0.selectedRunCount = 2
+        await store.send(.selectRun(run.url)) {
+            $0.selectedRun = run.url
             $0.loadingState = .loading
         }
         await store.receive(\.runFileResponse) {
@@ -97,7 +97,7 @@ struct AppActivityLogsReducerTests {
             runCount: 3
         )
         initialState.currentRunLogs = [live]
-        initialState.selectedRunCount = 2
+        initialState.selectedRun = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl")
         initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
         initialState.displayedLogs = initialState.selectedRunLogs
 
@@ -106,7 +106,7 @@ struct AppActivityLogsReducerTests {
         }
 
         await store.send(.selectRun(nil)) {
-            $0.selectedRunCount = nil
+            $0.selectedRun = nil
             $0.selectedRunLogs = []
             $0.displayedLogs = [live]
         }

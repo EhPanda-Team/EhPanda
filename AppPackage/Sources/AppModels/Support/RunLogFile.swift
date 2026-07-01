@@ -8,7 +8,9 @@ public struct RunLogFile: Identifiable, Equatable, Sendable {
     public let date: Date
     public let runCount: Int
 
-    public var id: Int { runCount }
+    // The file URL is the run's canonical unique identity: run counts reset daily, so they
+    // repeat across days, whereas the name (day + time + count) is unique per file.
+    public var id: URL { url }
 
     public init(url: URL, date: Date, runCount: Int) {
         self.url = url

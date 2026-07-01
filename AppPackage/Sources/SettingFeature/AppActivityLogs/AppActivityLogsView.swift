@@ -66,7 +66,7 @@ struct AppActivityLogsView: View {
         Section(L10n.Localizable.AppActivityLogsView.Section.current) {
             RunButton(
                 run: store.currentRun,
-                isSelected: store.selectedRunCount == nil
+                isSelected: store.selectedRun == nil
             ) {
                 store.send(.selectRun(nil))
             }
@@ -78,9 +78,9 @@ struct AppActivityLogsView: View {
                 ForEach(group.runs) { run in
                     RunButton(
                         run: run,
-                        isSelected: store.selectedRunCount == run.runCount
+                        isSelected: store.selectedRun == run.url
                     ) {
-                        store.send(.selectRun(run.runCount))
+                        store.send(.selectRun(run.url))
                     }
                 }
             }
@@ -107,7 +107,7 @@ private struct RunPickerSheet: View {
                 Section(L10n.Localizable.AppActivityLogsView.Section.current) {
                     RunButton(
                         run: store.currentRun,
-                        isSelected: store.selectedRunCount == nil
+                        isSelected: store.selectedRun == nil
                     ) {
                         store.send(.selectRun(nil))
                         dismissAction()
@@ -119,9 +119,9 @@ private struct RunPickerSheet: View {
                         ForEach(group.runs) { run in
                             RunButton(
                                 run: run,
-                                isSelected: store.selectedRunCount == run.runCount
+                                isSelected: store.selectedRun == run.url
                             ) {
-                                store.send(.selectRun(run.runCount))
+                                store.send(.selectRun(run.url))
                                 dismissAction()
                             }
                         }
