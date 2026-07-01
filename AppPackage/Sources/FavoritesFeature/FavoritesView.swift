@@ -68,11 +68,14 @@ public struct FavoritesView: View {
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
                 }
-                .sheet(item: $store.dateSeek.navigation.sending(\.dateSeek.setNavigation), id: \.self) { navigation in
+                .sheet(
+                    item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
+                ) { store in
+                    @Bindable var store = store
                     DateSeekPickerView(
-                        selectedDate: $store.dateSeek.date,
-                        navigation: navigation.wrappedValue,
-                        seekAction: { store.send(.dateSeek(.performSeek($0))) }
+                        selectedDate: $store.date,
+                        navigation: store.navigation,
+                        seekAction: { store.send(.performSeek($0)) }
                     )
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
@@ -141,7 +144,7 @@ public struct FavoritesView: View {
                 }
             }
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
-                store.send(.dateSeek(.present(navigation)))
+                store.send(.dateSeekButtonTapped(navigation))
             }
             QuickSearchButton(hideText: true) {
                 store.send(.quickSearchButtonTapped)

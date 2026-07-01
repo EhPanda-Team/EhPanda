@@ -7,12 +7,12 @@ import SwiftUI
 /// The "Seek to date" sheet content: a graphical date picker plus newer/older direction buttons.
 ///
 /// This is a store-agnostic, reusable component — it is driven entirely by the values passed in,
-/// not by a dedicated reducer. Hosts typically wire it to an embedded `DateSeekReducer`, but it
+/// not by a dedicated reducer. Hosts typically wire it to a presented `DateSeekReducer`, but it
 /// has no dependency on one.
 ///
 /// - Precondition: `selectedDate` lies within `navigation.dateRange`. The picker renders the
 ///   binding as-is and does not clamp it; keeping the date in range is the responsibility of
-///   whoever owns the date state (the embedded `DateSeekReducer` does so in its `present` action).
+///   whoever owns the date state (the presented `DateSeekReducer` clamps it in its initializer).
 public struct DateSeekPickerView: View {
     @Binding var selectedDate: Date
     let navigation: DateSeekNavigation

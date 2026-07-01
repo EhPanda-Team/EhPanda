@@ -27,6 +27,7 @@ public struct FavoritesReducer: Sendable {
     @Reducer
     public enum Destination {
         case quickSearch(QuickSearchReducer)
+        case dateSeek(DateSeekReducer)
     }
 
     @ObservableState
@@ -61,7 +62,6 @@ public struct FavoritesReducer: Sendable {
             rawFooterLoadingState[index]
         }
 
-        public var dateSeek = DateSeekReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -84,6 +84,7 @@ public struct FavoritesReducer: Sendable {
         case setFavoritesIndex(Int)
         case clearSubStates
         case quickSearchButtonTapped
+        case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
         case onNotLoginViewButtonTapped
 
@@ -95,7 +96,6 @@ public struct FavoritesReducer: Sendable {
         case observeDownloadsDone([DownloadedGallery])
         case performDateSeekDone(Int, Result<GalleriesResult, AppError>)
 
-        case dateSeek(DateSeekReducer.Action)
         case detail(DetailReducer.Action)
     }
 
@@ -136,7 +136,8 @@ public struct FavoritesReducer: Sendable {
                 state.destination = .quickSearch(QuickSearchReducer.State())
                 return .none
 
-            case .destination:
+            case .dateSeekButtonTapped(let navigation):
+                state.destination = .dateSeek(.init(navigation: navigation))
                 return .none
 
             case .onNotLoginViewButtonTapped:
@@ -241,7 +242,7 @@ public struct FavoritesReducer: Sendable {
                 )
                 return .none
 
-            case .dateSeek(.delegate(.performSeek(let url))):
+            case .destination(.presented(.dateSeek(.delegate(.performSeek(let url))))):
                 guard state.loadingState != .loading else { return .none }
                 state.rawLoadingState[state.index] = .loading
                 state.rawFooterLoadingState[state.index] = .idle
@@ -269,7 +270,7 @@ public struct FavoritesReducer: Sendable {
                 }
                 return .none
 
-            case .dateSeek:
+            case .destination:
                 return .none
 
             case .detail:
@@ -281,9 +282,13 @@ public struct FavoritesReducer: Sendable {
             case: \.quickSearch,
             hapticsClient: hapticsClient
         )
+        .haptics(
+            unwrapping: \.destination,
+            case: \.dateSeek,
+            hapticsClient: hapticsClient
+        )
         .ifLet(\.$destination, action: \.destination)
 
-        Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
