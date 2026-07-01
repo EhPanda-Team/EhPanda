@@ -110,11 +110,7 @@ struct CommentsView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .progressHUD(
-            config: store.hudConfig,
-            unwrapping: $store.route,
-            case: \.hud
-        )
+        .progressHUD($store.hud)
         .animation(.default, value: store.scrollRowOpacity)
         .onAppear {
             store.send(.onAppear)

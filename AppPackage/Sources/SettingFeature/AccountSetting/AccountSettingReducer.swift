@@ -9,12 +9,6 @@ import TTProgressHUDExt
 
 @Reducer
 public struct AccountSettingReducer: Sendable {
-    // Transient copied-to-clipboard toast. Not navigation — drives the progressHUD overlay only.
-    @CasePathable
-    public enum HUD: Equatable, Sendable {
-        case copiedToClipboard
-    }
-
     @Reducer
     public enum Destination {
         @ReducerCaseIgnored
@@ -35,10 +29,9 @@ public struct AccountSettingReducer: Sendable {
     public struct State: Equatable, Sendable {
         @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
-        public var hud: HUD?
+        public var hud: ProgressHUDConfigState?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
-        public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
 
         public init() {}
     }
@@ -115,7 +108,7 @@ public struct AccountSettingReducer: Sendable {
                 return .none
 
             case .copyCookies(let host):
-                state.hud = .copiedToClipboard
+                state.hud = .copiedToClipboardSucceeded
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),

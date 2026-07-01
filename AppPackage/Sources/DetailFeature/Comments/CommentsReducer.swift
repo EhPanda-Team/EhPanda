@@ -11,11 +11,6 @@ import TTProgressHUDExt
 
 @Reducer
 public struct CommentsReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case hud
-    }
-
     @Reducer
     public enum Destination {
         @ReducerCaseIgnored
@@ -35,12 +30,10 @@ public struct CommentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var hud: ProgressHUDConfigState?
         @Presents public var destination: Destination.State?
         public var commentContent = ""
         public var postCommentFocused = false
-
-        public var hudConfig: ProgressHUDConfigState = .loading()
         public var scrollCommentID: String?
         public var scrollRowOpacity: Double = 1
 
@@ -71,7 +64,7 @@ public struct CommentsReducer: Sendable {
         case clearScrollCommentID
         case delegate(Delegate)
 
-        case setHUDConfig(ProgressHUDConfigState)
+        case setHUD(ProgressHUDConfigState)
         case setPostCommentFocused(Bool)
         case setScrollRowOpacity(Double)
         case setCommentContent(String)
@@ -121,8 +114,8 @@ public struct CommentsReducer: Sendable {
             case .delegate:
                 return .none
 
-            case .setHUDConfig(let config):
-                state.hudConfig = config
+            case .setHUD(let config):
+                state.hud = config
                 return .none
 
             case .setPostCommentFocused(let isFocused):
@@ -252,7 +245,7 @@ public struct CommentsReducer: Sendable {
                 }
 
             case .fetchGallery(let url, let isGalleryImageURL):
-                state.route = .hud
+                state.hud = .loading()
                 return .run {  send in
                     let response = await GalleryReverseRequest(
                         url: url, isGalleryImageURL: isGalleryImageURL
@@ -263,7 +256,7 @@ public struct CommentsReducer: Sendable {
                 .cancellable(id: CancelID.fetchGallery)
 
             case .fetchGalleryDone(let url, let result):
-                state.route = nil
+                state.hud = nil
                 switch result {
                 case .success(let gallery):
                     return .merge(
@@ -271,9 +264,10 @@ public struct CommentsReducer: Sendable {
                         .send(.handleGalleryLink(url))
                     )
                 case .failure:
+                    // Let the loading HUD animate out before showing the error toast.
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(.setHUDConfig(.error()))
+                        await send(.setHUD(.error()))
                     }
                 }
             }

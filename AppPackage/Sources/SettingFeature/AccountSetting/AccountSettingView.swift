@@ -50,11 +50,7 @@ struct AccountSettingView: View {
                 copyAction: { store.send(.copyCookies($0)) }
             )
         }
-        .progressHUD(
-            config: store.hudConfig,
-            unwrapping: $store.hud,
-            case: \.copiedToClipboard
-        )
+        .progressHUD($store.hud)
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )

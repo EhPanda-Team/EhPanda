@@ -155,10 +155,9 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
         }
         await store.receive(\.validateImageDataDone) {
             $0.isValidatingImageData = false
-            $0.hudConfig = .success(
+            $0.hud = .success(
                 caption: L10n.Localizable.DownloadsView.Inspector.Hud.imageDataValid
             )
-            $0.route = .hud
         }
         await store.receive(\.loadInspection)
         await store.receive(\.loadInspectionDone) {
@@ -310,8 +309,7 @@ extension DownloadInspectorLoadTests {
         }
         await store.receive(\.validateImageDataDone) {
             $0.isValidatingImageData = false
-            $0.hudConfig = .error(caption: "Page 2 image data is corrupted.")
-            $0.route = .hud
+            $0.hud = .error(caption: "Page 2 image data is corrupted.")
         }
         await store.receive(\.loadInspection)
         await store.receive(\.loadInspectionDone) {
