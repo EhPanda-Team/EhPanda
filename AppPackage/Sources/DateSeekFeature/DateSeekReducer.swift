@@ -3,31 +3,34 @@ import AppModels
 import Foundation
 import HapticsClient
 
-/// A headless, reusable sub-reducer for the "Seek to date" control.
+/// A headless, reusable feature for the "Seek to date" control.
 ///
 /// Despite the matching name, this reducer is **not** the companion of `DateSeekPickerView`: it
 /// owns no view, and the picker owns no reducer. `DateSeekPickerView` is a store-agnostic
-/// presentation component, while `DateSeekReducer` is logic-only, designed to be embedded — via
-/// `Scope` — into any gallery-list reducer that exposes a `DateSeekNavigation`.
+/// presentation component, while `DateSeekReducer` is logic-only, designed to be presented — as a
+/// `@Presents` destination — by any gallery-list reducer that exposes a `DateSeekNavigation`.
 ///
-/// It owns the picker's UI state (selected date, presented navigation), validates and clamps the
-/// date, and resolves a seek `URL`, which it hands back to its host through `delegate(.performSeek)`.
-/// The host performs the request and stores the result, because the gallery list and its loading
-/// state belong to the host — not to this control.
+/// It is a self-contained sheet feature: it owns the picker's UI state (selected date, the
+/// navigation being seeked), validates and clamps the date, and resolves a seek `URL`. It reports
+/// that URL back to its host through `delegate(.performSeek)` and then dismisses itself. The host
+/// performs the request and stores the result, because the gallery list and its loading state
+/// belong to the host — not to this control.
 @Reducer
 public struct DateSeekReducer: Sendable {
     @ObservableState
-    public struct State: Equatable {
-        public var date = Date()
-        /// The navigation whose picker is presented; `nil` while the sheet is dismissed.
-        public var navigation: DateSeekNavigation?
+    public struct State: Equatable, Sendable {
+        public var date: Date
+        /// The navigation whose picker is presented.
+        public var navigation: DateSeekNavigation
 
-        public init() {}
+        public init(navigation: DateSeekNavigation) {
+            self.navigation = navigation
+            self.date = navigation.clampedDate(Date())
+        }
     }
 
-    public enum Action {
-        case present(DateSeekNavigation)
-        case setNavigation(DateSeekNavigation?)
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case performSeek(DateSeekDirection)
         case delegate(Delegate)
     }
@@ -38,29 +41,26 @@ public struct DateSeekReducer: Sendable {
     }
 
     @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.dismiss) private var dismiss
 
     public init() {}
 
     public var body: some Reducer<State, Action> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
-            case .present(let navigation):
-                state.date = navigation.clampedDate(state.date)
-                state.navigation = navigation
-                return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
-
-            case .setNavigation(let navigation):
-                state.navigation = navigation
+            case .binding:
                 return .none
 
             case .performSeek(let direction):
-                guard let navigation = state.navigation,
-                      let url = navigation.seekURL(date: state.date, direction: direction)
-                else {
+                guard let url = state.navigation.seekURL(date: state.date, direction: direction) else {
                     return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
                 }
-                state.navigation = nil
-                return .send(.delegate(.performSeek(url)))
+                return .merge(
+                    .send(.delegate(.performSeek(url))),
+                    .run(operation: { _ in await dismiss() })
+                )
 
             case .delegate:
                 return .none

@@ -21,6 +21,7 @@ public struct FrontpageReducer: Sendable {
     @Reducer
     public enum Destination {
         case filters(FiltersReducer)
+        case dateSeek(DateSeekReducer)
     }
 
     private enum CancelID: CaseIterable {
@@ -43,7 +44,6 @@ public struct FrontpageReducer: Sendable {
         public var loadingState: LoadingState = .idle
         public var footerLoadingState: LoadingState = .idle
 
-        public var dateSeek = DateSeekReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -64,6 +64,7 @@ public struct FrontpageReducer: Sendable {
         case setNavigation(Route?)
         case clearSubStates
         case filtersButtonTapped
+        case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
 
         case teardown
@@ -73,7 +74,6 @@ public struct FrontpageReducer: Sendable {
         case fetchMoreGalleriesDone(Result<GalleriesResult, AppError>)
         case performDateSeekDone(Result<GalleriesResult, AppError>)
 
-        case dateSeek(DateSeekReducer.Action)
         case detail(DetailReducer.Action)
     }
 
@@ -105,7 +105,8 @@ public struct FrontpageReducer: Sendable {
                 state.destination = .filters(FiltersReducer.State())
                 return .none
 
-            case .destination:
+            case .dateSeekButtonTapped(let navigation):
+                state.destination = .dateSeek(.init(navigation: navigation))
                 return .none
 
             case .teardown:
@@ -179,7 +180,7 @@ public struct FrontpageReducer: Sendable {
                 }
                 return .none
 
-            case .dateSeek(.delegate(.performSeek(let url))):
+            case .destination(.presented(.dateSeek(.delegate(.performSeek(let url))))):
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 state.footerLoadingState = .idle
@@ -208,7 +209,7 @@ public struct FrontpageReducer: Sendable {
                 }
                 return .none
 
-            case .dateSeek:
+            case .destination:
                 return .none
 
             case .detail:
@@ -220,9 +221,13 @@ public struct FrontpageReducer: Sendable {
             case: \.filters,
             hapticsClient: hapticsClient
         )
+        .haptics(
+            unwrapping: \.destination,
+            case: \.dateSeek,
+            hapticsClient: hapticsClient
+        )
         .ifLet(\.$destination, action: \.destination)
 
-        Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

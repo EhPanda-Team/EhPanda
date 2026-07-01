@@ -23,6 +23,7 @@ public struct WatchedReducer: Sendable {
     public enum Destination {
         case filters(FiltersReducer)
         case quickSearch(QuickSearchReducer)
+        case dateSeek(DateSeekReducer)
     }
 
     private enum CancelID: CaseIterable {
@@ -42,7 +43,6 @@ public struct WatchedReducer: Sendable {
         public var footerLoadingState: LoadingState = .idle
         public var downloadBadges = [String: DownloadBadge]()
 
-        public var dateSeek = DateSeekReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -65,6 +65,7 @@ public struct WatchedReducer: Sendable {
         case clearSubStates
         case filtersButtonTapped
         case quickSearchButtonTapped
+        case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
         case onNotLoginViewButtonTapped
 
@@ -77,7 +78,6 @@ public struct WatchedReducer: Sendable {
         case observeDownloadsDone([DownloadedGallery])
         case performDateSeekDone(Result<GalleriesResult, AppError>)
 
-        case dateSeek(DateSeekReducer.Action)
         case detail(DetailReducer.Action)
     }
 
@@ -117,7 +117,8 @@ public struct WatchedReducer: Sendable {
                 state.destination = .quickSearch(QuickSearchReducer.State())
                 return .none
 
-            case .destination:
+            case .dateSeekButtonTapped(let navigation):
+                state.destination = .dateSeek(.init(navigation: navigation))
                 return .none
 
             case .onNotLoginViewButtonTapped:
@@ -214,7 +215,7 @@ public struct WatchedReducer: Sendable {
                 )
                 return .none
 
-            case .dateSeek(.delegate(.performSeek(let url))):
+            case .destination(.presented(.dateSeek(.delegate(.performSeek(let url))))):
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 state.footerLoadingState = .idle
@@ -243,7 +244,7 @@ public struct WatchedReducer: Sendable {
                 }
                 return .none
 
-            case .dateSeek:
+            case .destination:
                 return .none
 
             case .detail:
@@ -260,9 +261,13 @@ public struct WatchedReducer: Sendable {
             case: \.filters,
             hapticsClient: hapticsClient
         )
+        .haptics(
+            unwrapping: \.destination,
+            case: \.dateSeek,
+            hapticsClient: hapticsClient
+        )
         .ifLet(\.$destination, action: \.destination)
 
-        Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
