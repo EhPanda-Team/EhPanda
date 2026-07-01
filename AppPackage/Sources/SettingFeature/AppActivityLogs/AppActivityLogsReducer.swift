@@ -14,9 +14,8 @@ public struct AppActivityLogsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        // Run context, derived once per app run and reused across pump pauses.
-        public var currentRunCount: Int?
-        public var runFileURL: URL?
+        // The current run, derived once per app run and reused across pump pauses.
+        public var currentRun: RunLogFile?
         public var lastCursorDate: Date?
 
         // Live, state-backed logs for the current run.
@@ -38,7 +37,7 @@ public struct AppActivityLogsReducer: Sendable {
     public enum Action: Equatable, Sendable {
         case startPump
         case pausePump
-        case setRunContext(runCount: Int, fileURL: URL)
+        case setCurrentRun(RunLogFile)
         case didReceiveNewEntries([AppActivityLog])
         case refreshAvailableRuns
         case availableRunsResponse([RunLogFile])
@@ -57,7 +56,7 @@ public struct AppActivityLogsReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .startPump:
-                return .run { [existingURL = state.runFileURL, cursor0 = state.lastCursorDate] send in
+                return .run { [existingURL = state.currentRun?.url, cursor0 = state.lastCursorDate] send in
                     let fileURL: URL
                     if let existingURL {
                         fileURL = existingURL
@@ -65,7 +64,7 @@ public struct AppActivityLogsReducer: Sendable {
                         let now = date.now
                         let runCount = await logsClient.nextRunCount(now)
                         let resolvedURL = logsClient.currentRunFileURL(runCount, now)
-                        await send(.setRunContext(runCount: runCount, fileURL: resolvedURL))
+                        await send(.setCurrentRun(RunLogFile(url: resolvedURL, date: now, runCount: runCount)))
                         fileURL = resolvedURL
                         let appVersion = Bundle.main
                             .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "(null)"
@@ -95,7 +94,7 @@ public struct AppActivityLogsReducer: Sendable {
 
             case .pausePump:
                 return .merge(
-                    .run { [cursor = state.lastCursorDate, fileURL = state.runFileURL] send in
+                    .run { [cursor = state.lastCursorDate, fileURL = state.currentRun?.url] send in
                         guard let fileURL else { return }
                         let newEntries = (try? await logsClient.fetchNewEntries(cursor)) ?? []
                         guard !newEntries.isEmpty else { return }
@@ -105,9 +104,8 @@ public struct AppActivityLogsReducer: Sendable {
                     .cancel(id: CancelID.pump)
                 )
 
-            case let .setRunContext(runCount, fileURL):
-                state.currentRunCount = runCount
-                state.runFileURL = fileURL
+            case let .setCurrentRun(run):
+                state.currentRun = run
                 return .none
 
             case .didReceiveNewEntries(let entries):
@@ -125,11 +123,11 @@ public struct AppActivityLogsReducer: Sendable {
 
             case .availableRunsResponse(let runs):
                 // Exclude the current run by file (its count can repeat on earlier days).
-                state.previousRuns = runs.filter { $0.url != state.runFileURL }
+                state.previousRuns = runs.filter { $0.url != state.currentRun?.url }
                 return .none
 
             case .selectRun(let runCount):
-                guard let runCount, runCount != state.currentRunCount,
+                guard let runCount, runCount != state.currentRun?.runCount,
                       let file = state.previousRuns.first(where: { $0.runCount == runCount })
                 else {
                     state.selectedRunCount = nil

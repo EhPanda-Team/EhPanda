@@ -15,7 +15,7 @@ struct AppActivityLogsReducerTests {
         let entryB = makeLog("second", secondsSince1970: 20)
         let fetchCount = LockIsolated(0)
         let appended = LockIsolated([[AppActivityLog]]())
-        let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-3.jsonl")
+        let fileURL = URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-3.jsonl")
 
         var client = LogsClient.noop
         client.nextRunCount = { _ in 3 }
@@ -55,7 +55,7 @@ struct AppActivityLogsReducerTests {
     func testSelectingPreviousRunLoadsFileBackedLogs() async {
         let fileLog = makeLog("archived", secondsSince1970: 5)
         let run = RunLogFile(
-            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-2.jsonl"),
+            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-090000-2.jsonl"),
             date: .init(timeIntervalSince1970: 0),
             runCount: 2
         )
@@ -63,7 +63,11 @@ struct AppActivityLogsReducerTests {
         client.readRunFile = { _ in [fileLog] }
 
         var initialState = AppActivityLogsReducer.State()
-        initialState.currentRunCount = 3
+        initialState.currentRun = RunLogFile(
+            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
+            date: .init(timeIntervalSince1970: 3600),
+            runCount: 3
+        )
         initialState.previousRuns = [run]
         initialState.currentRunLogs = [makeLog("live", secondsSince1970: 100)]
 
@@ -87,7 +91,11 @@ struct AppActivityLogsReducerTests {
     func testSelectingCurrentRunRestoresLiveLogs() async {
         let live = makeLog("live", secondsSince1970: 100)
         var initialState = AppActivityLogsReducer.State()
-        initialState.currentRunCount = 3
+        initialState.currentRun = RunLogFile(
+            url: URL(fileURLWithPath: "/tmp/ehpanda-20200101-100000-3.jsonl"),
+            date: .init(timeIntervalSince1970: 3600),
+            runCount: 3
+        )
         initialState.currentRunLogs = [live]
         initialState.selectedRunCount = 2
         initialState.selectedRunLogs = [makeLog("archived", secondsSince1970: 5)]
