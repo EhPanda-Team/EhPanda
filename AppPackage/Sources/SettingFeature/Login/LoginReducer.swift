@@ -15,8 +15,9 @@ public struct LoginReducer: Sendable {
         case login
     }
 
-    @CasePathable
-    public enum Route: Equatable, Sendable {
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
         case webView(URL)
     }
 
@@ -27,7 +28,7 @@ public struct LoginReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        @Presents public var destination: Destination.State?
         public var focusedField: FocusedField?
         public var username = ""
         public var password = ""
@@ -44,7 +45,8 @@ public struct LoginReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentWebView(URL)
 
         case teardown
         case login
@@ -64,8 +66,11 @@ public struct LoginReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
+            case .destination:
+                return .none
+
+            case .presentWebView(let url):
+                state.destination = .webView(url)
                 return .none
 
             case .teardown:
@@ -85,7 +90,7 @@ public struct LoginReducer: Sendable {
                 )
 
             case .loginDone(let result):
-                state.route = nil
+                state.destination = nil
                 var effects = [Effect<Action>]()
                 if cookieClient.didLogin {
                     state.loginState = .idle
@@ -107,9 +112,13 @@ public struct LoginReducer: Sendable {
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.webView,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
     }
 }
+
+extension LoginReducer.Destination.State: Equatable, Sendable {}
+extension LoginReducer.Destination.Action: Equatable, Sendable {}

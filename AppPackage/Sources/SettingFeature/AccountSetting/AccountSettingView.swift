@@ -42,7 +42,7 @@ struct AccountSettingView: View {
                     loginAction: { store.send(.setNavigation(.login)) },
                     logoutDialogAction: { store.send(.logoutButtonTapped) },
                     configureAccountAction: { store.send(.setNavigation(.ehSetting)) },
-                    manageTagsAction: { store.send(.setNavigation(.webView(Defaults.URL.myTags))) }
+                    manageTagsAction: { store.send(.presentWebView(Defaults.URL.myTags)) }
                 )
             }
             CookieSection(
@@ -59,8 +59,8 @@ struct AccountSettingView: View {
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )
-        .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
-            WebView(url: url)
+        .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
+            WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
                 .autoBlur(radius: blurRadius)
         }

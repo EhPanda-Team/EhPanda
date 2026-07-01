@@ -68,8 +68,8 @@ struct LoginView: View {
             }
         }
         .synchronize($store.focusedField, $focusedField)
-        .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { route in
-            WebView(url: route.wrappedValue) {
+        .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
+            WebView(url: url.wrappedValue) {
                 store.send(.loginDone(.success(nil)))
             }
             .ignoresSafeArea(edges: .bottom)
@@ -93,7 +93,7 @@ struct LoginView: View {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                store.send(.setNavigation(.webView(Defaults.URL.webLogin)))
+                store.send(.presentWebView(Defaults.URL.webLogin))
             } label: {
                 Image(systemSymbol: .globe)
             }

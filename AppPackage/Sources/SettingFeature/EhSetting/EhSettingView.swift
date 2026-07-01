@@ -48,8 +48,8 @@ struct EhSettingView: View {
                 store.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
-            WebView(url: url)
+        .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
+            WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
                 .autoBlur(radius: blurRadius)
         }
@@ -104,7 +104,7 @@ struct EhSettingView: View {
         Group {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    store.send(.setNavigation(.webView(Defaults.URL.uConfig)))
+                    store.send(.presentWebView(Defaults.URL.uConfig))
                 } label: {
                     Image(systemSymbol: .globe)
                 }
