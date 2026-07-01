@@ -1,6 +1,3 @@
-//  Copied from https://gist.github.com/mjm/0581781f85db45b05e8e2c5c33696f88
-//
-
 import SwiftUI
 
 private let linkDetector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)

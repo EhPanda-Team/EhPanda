@@ -1,6 +1,3 @@
-//  Copied from https://brunowernimont.me/howtos/make-swiftui-color-codable
-//
-
 import SwiftUI
 #if os(iOS)
 import UIKit
