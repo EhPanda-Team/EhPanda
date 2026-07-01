@@ -25,19 +25,6 @@ extension NavigationLink {
     }
 }
 
-extension View {
-    public func sheet<Enum: Sendable, Case: Sendable, Content: View>(
-        unwrapping enum: Binding<Enum?>,
-        case caseKeyPath: CaseKeyPath<Enum, Case>,
-        @ViewBuilder content: @escaping (Case) -> Content
-    ) -> some View {
-        self.sheet(
-            isPresented: .constant(`enum`.case(caseKeyPath).wrappedValue != nil),
-            content: { `enum`.case(caseKeyPath).wrappedValue.map(content) }
-        )
-    }
-}
-
 extension Binding {
     public func `case`<Enum: Sendable, Case: Sendable>(
         _ caseKeyPath: CaseKeyPath<Enum, Case>
