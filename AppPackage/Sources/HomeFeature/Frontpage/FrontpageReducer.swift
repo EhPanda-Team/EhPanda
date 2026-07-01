@@ -15,8 +15,12 @@ import ComposableArchitectureExt
 public struct FrontpageReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
-        case filters(EquatableVoid = .init())
         case detail(String)
+    }
+
+    @Reducer
+    public enum Destination {
+        case filters(FiltersReducer)
     }
 
     private enum CancelID: CaseIterable {
@@ -26,6 +30,7 @@ public struct FrontpageReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var keyword = ""
 
         var filteredGalleries: [Gallery] {
@@ -39,7 +44,6 @@ public struct FrontpageReducer: Sendable {
         public var footerLoadingState: LoadingState = .idle
 
         public var dateSeek = DateSeekReducer.State()
-        public var filtersState = FiltersReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -59,6 +63,8 @@ public struct FrontpageReducer: Sendable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
+        case filtersButtonTapped
+        case destination(PresentationAction<Destination.Action>)
 
         case teardown
         case fetchGalleries
@@ -68,7 +74,6 @@ public struct FrontpageReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
 
         case dateSeek(DateSeekReducer.Action)
-        case filters(FiltersReducer.Action)
         case detail(DetailReducer.Action)
     }
 
@@ -94,8 +99,14 @@ public struct FrontpageReducer: Sendable {
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
-                state.filtersState = .init()
                 return .send(.detail(.teardown))
+
+            case .filtersButtonTapped:
+                state.destination = .filters(FiltersReducer.State())
+                return .none
+
+            case .destination:
+                return .none
 
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))
@@ -200,21 +211,20 @@ public struct FrontpageReducer: Sendable {
             case .dateSeek:
                 return .none
 
-            case .filters:
-                return .none
-
             case .detail:
                 return .none
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.filters,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
 
         Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
-        Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
+
+extension FrontpageReducer.Destination.State: Equatable, Sendable {}

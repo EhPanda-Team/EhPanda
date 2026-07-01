@@ -16,9 +16,13 @@ import ComposableArchitectureExt
 public struct WatchedReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
-        case filters(EquatableVoid = .init())
-        case quickSearch(EquatableVoid = .init())
         case detail(String)
+    }
+
+    @Reducer
+    public enum Destination {
+        case filters(FiltersReducer)
+        case quickSearch(QuickSearchReducer)
     }
 
     private enum CancelID: CaseIterable {
@@ -28,6 +32,7 @@ public struct WatchedReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var keyword = ""
 
         public var galleries = [Gallery]()
@@ -38,8 +43,6 @@ public struct WatchedReducer: Sendable {
         public var downloadBadges = [String: DownloadBadge]()
 
         public var dateSeek = DateSeekReducer.State()
-        public var filtersState = FiltersReducer.State()
-        public var quickSearchState = QuickSearchReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -60,6 +63,9 @@ public struct WatchedReducer: Sendable {
         case onAppear
         case setNavigation(Route?)
         case clearSubStates
+        case filtersButtonTapped
+        case quickSearchButtonTapped
+        case destination(PresentationAction<Destination.Action>)
         case onNotLoginViewButtonTapped
 
         case teardown
@@ -72,9 +78,7 @@ public struct WatchedReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
 
         case dateSeek(DateSeekReducer.Action)
-        case filters(FiltersReducer.Action)
         case detail(DetailReducer.Action)
-        case quickSearch(QuickSearchReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -103,12 +107,18 @@ public struct WatchedReducer: Sendable {
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
-                state.filtersState = .init()
-                state.quickSearchState = .init()
-                return .merge(
-                    .send(.detail(.teardown)),
-                    .send(.quickSearch(.teardown))
-                )
+                return .send(.detail(.teardown))
+
+            case .filtersButtonTapped:
+                state.destination = .filters(FiltersReducer.State())
+                return .none
+
+            case .quickSearchButtonTapped:
+                state.destination = .quickSearch(QuickSearchReducer.State())
+                return .none
+
+            case .destination:
+                return .none
 
             case .onNotLoginViewButtonTapped:
                 return .none
@@ -236,30 +246,25 @@ public struct WatchedReducer: Sendable {
             case .dateSeek:
                 return .none
 
-            case .quickSearch:
-                return .none
-
-            case .filters:
-                return .none
-
             case .detail:
                 return .none
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.quickSearch,
             hapticsClient: hapticsClient
         )
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.filters,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
 
         Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
-        Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
-        Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
+
+extension WatchedReducer.Destination.State: Equatable, Sendable {}

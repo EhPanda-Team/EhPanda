@@ -45,8 +45,10 @@ struct FrontpageView: View {
                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                 }
             )
-            .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
-                FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
+            .sheet(
+                item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            ) { store in
+                FiltersView(store: store)
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
             .sheet(item: $store.dateSeek.navigation.sending(\.dateSeek.setNavigation), id: \.self) { navigation in
@@ -104,7 +106,7 @@ struct FrontpageView: View {
                 store.send(.dateSeek(.present(navigation)))
             }
             FiltersButton(hideText: true) {
-                store.send(.setNavigation(.filters()))
+                store.send(.filtersButtonTapped)
             }
         }
     }

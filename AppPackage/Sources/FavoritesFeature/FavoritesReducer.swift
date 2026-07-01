@@ -21,13 +21,18 @@ public struct FavoritesReducer: Sendable {
 
     @CasePathable
     public enum Route: Equatable, Sendable {
-        case quickSearch(EquatableVoid = .init())
         case detail(String)
+    }
+
+    @Reducer
+    public enum Destination {
+        case quickSearch(QuickSearchReducer)
     }
 
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var keyword = ""
 
         public var index = -1
@@ -58,7 +63,6 @@ public struct FavoritesReducer: Sendable {
 
         public var dateSeek = DateSeekReducer.State()
         public var detailState: Heap<DetailReducer.State?>
-        public var quickSearchState = QuickSearchReducer.State()
 
         public init() {
             detailState = .init(.init())
@@ -79,6 +83,8 @@ public struct FavoritesReducer: Sendable {
         case setNavigation(Route?)
         case setFavoritesIndex(Int)
         case clearSubStates
+        case quickSearchButtonTapped
+        case destination(PresentationAction<Destination.Action>)
         case onNotLoginViewButtonTapped
 
         case fetchGalleries(String? = nil, FavoritesSortOrder? = nil)
@@ -91,7 +97,6 @@ public struct FavoritesReducer: Sendable {
 
         case dateSeek(DateSeekReducer.Action)
         case detail(DetailReducer.Action)
-        case quickSearch(QuickSearchReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -126,6 +131,13 @@ public struct FavoritesReducer: Sendable {
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
                 return .send(.detail(.teardown))
+
+            case .quickSearchButtonTapped:
+                state.destination = .quickSearch(QuickSearchReducer.State())
+                return .none
+
+            case .destination:
+                return .none
 
             case .onNotLoginViewButtonTapped:
                 return .none
@@ -262,19 +274,18 @@ public struct FavoritesReducer: Sendable {
 
             case .detail:
                 return .none
-
-            case .quickSearch:
-                return .none
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.quickSearch,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
 
         Scope(state: \.dateSeek, action: \.dateSeek, child: DateSeekReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
-        Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
     }
 }
+
+extension FavoritesReducer.Destination.State: Equatable, Sendable {}

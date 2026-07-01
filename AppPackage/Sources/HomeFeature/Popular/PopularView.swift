@@ -41,8 +41,10 @@ struct PopularView: View {
                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                 }
             )
-            .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
-                FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
+            .sheet(
+                item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            ) { store in
+                FiltersView(store: store)
                     .autoBlur(radius: blurRadius).environment(\.inSheet, true)
             }
             .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
@@ -88,7 +90,7 @@ struct PopularView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {
-                store.send(.setNavigation(.filters()))
+                store.send(.filtersButtonTapped)
             }
         }
     }
