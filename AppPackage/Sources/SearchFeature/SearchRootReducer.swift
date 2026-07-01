@@ -14,14 +14,19 @@ public struct SearchRootReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
         case search
-        case filters(EquatableVoid = .init())
-        case quickSearch(EquatableVoid = .init())
         case detail(String)
+    }
+
+    @Reducer
+    public enum Destination {
+        case filters(FiltersReducer)
+        case quickSearch(QuickSearchReducer)
     }
 
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var keyword = ""
         public var historyGalleries = [Gallery]()
 
@@ -29,8 +34,6 @@ public struct SearchRootReducer: Sendable {
         public var quickSearchWords = [QuickSearchWord]()
 
         public var searchState = SearchReducer.State()
-        public var filtersState = FiltersReducer.State()
-        public var quickSearchState = QuickSearchReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -73,6 +76,9 @@ public struct SearchRootReducer: Sendable {
         case setNavigation(Route?)
         case setKeyword(String)
         case clearSubStates
+        case filtersButtonTapped
+        case quickSearchButtonTapped
+        case destination(PresentationAction<Destination.Action>)
 
         case syncHistoryKeywords
         case fetchDatabaseInfos
@@ -83,8 +89,6 @@ public struct SearchRootReducer: Sendable {
         case fetchHistoryGalleriesDone([Gallery])
 
         case search(SearchReducer.Action)
-        case filters(FiltersReducer.Action)
-        case quickSearch(QuickSearchReducer.Action)
         case detail(DetailReducer.Action)
     }
 
@@ -125,13 +129,21 @@ public struct SearchRootReducer: Sendable {
             case .clearSubStates:
                 state.searchState = .init()
                 state.detailState.wrappedValue = .init()
-                state.filtersState = .init()
-                state.quickSearchState = .init()
                 return .merge(
                     .send(.search(.teardown)),
-                    .send(.quickSearch(.teardown)),
                     .send(.detail(.teardown))
                 )
+
+            case .filtersButtonTapped:
+                state.destination = .filters(FiltersReducer.State())
+                return .none
+
+            case .quickSearchButtonTapped:
+                state.destination = .quickSearch(QuickSearchReducer.State())
+                return .none
+
+            case .destination:
+                return .none
 
             case .syncHistoryKeywords:
                 return .run { [historyKeywords = state.historyKeywords] _ in
@@ -178,30 +190,25 @@ public struct SearchRootReducer: Sendable {
             case .search:
                 return .none
 
-            case .filters:
-                return .none
-
-            case .quickSearch:
-                return .none
-
             case .detail:
                 return .none
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.quickSearch,
             hapticsClient: hapticsClient
         )
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.filters,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
 
         Scope(state: \.searchState, action: \.search, child: SearchReducer.init)
-        Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
-        Scope(state: \.quickSearchState, action: \.quickSearch, child: QuickSearchReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
+
+extension SearchRootReducer.Destination.State: Equatable, Sendable {}
