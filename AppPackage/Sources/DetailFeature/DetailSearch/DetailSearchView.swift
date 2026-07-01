@@ -44,18 +44,20 @@ struct DetailSearchView: View {
                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                 }
             )
-            .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
-                QuickSearchView(
-                    store: store.scope(state: \.quickDetailSearchState, action: \.quickSearch)
-                ) { keyword in
-                    store.send(.setNavigation(nil))
-                    store.send(.fetchGalleries(keyword))
+            .sheet(
+                item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+            ) { store in
+                QuickSearchView(store: store) { keyword in
+                    self.store.send(.destination(.dismiss))
+                    self.store.send(.fetchGalleries(keyword))
                 }
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
-                FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
+            .sheet(
+                item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            ) { store in
+                FiltersView(store: store)
                     .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
             }
             .searchable(text: $store.keyword)
@@ -111,10 +113,10 @@ struct DetailSearchView: View {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
                 FiltersButton {
-                    store.send(.setNavigation(.filters()))
+                    store.send(.filtersButtonTapped)
                 }
                 QuickSearchButton {
-                    store.send(.setNavigation(.quickSearch()))
+                    store.send(.quickSearchButtonTapped)
                 }
             }
         }
