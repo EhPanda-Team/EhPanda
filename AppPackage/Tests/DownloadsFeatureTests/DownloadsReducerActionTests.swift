@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import Testing
+import DeviceClient
 import DownloadClient
 @testable import DownloadsFeature
 @testable import AppFeature
@@ -31,10 +32,15 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         var initialState = DownloadsReducer.State()
         initialState.downloads = [download]
 
-        let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init)
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: { $0.deviceClient = .noop }
+        )
         store.exhaustivity = .off
 
         await store.send(.galleryTapped(download.gid))
+        await store.receive(\.pushGalleryDetail)
 
         #expect(store.state.path.count == 1)
         guard let element = store.state.path.first, case .detail(let detailState) = element else {
@@ -45,6 +51,38 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         #expect(detailState.gallery.id == download.gid)
         #expect(detailState.downloadBadge?.status == .completed)
         #expect(detailState.shouldCheckForRemoteUpdates == true)
+    }
+
+    @MainActor
+    @Test
+    func testDownloadsReducerDelegatesModalDetailOnPad() async {
+        let download = sampleDownload(
+            gid: "123456",
+            title: "Completed Gallery",
+            status: .completed
+        )
+        var initialState = DownloadsReducer.State()
+        initialState.downloads = [download]
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: {
+                $0.deviceClient = DeviceClient(
+                    isPad: { true },
+                    absWindowW: { .zero },
+                    absWindowH: { .zero },
+                    touchPoint: { nil }
+                )
+            }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.galleryTapped(download.gid))
+        await store.receive(\.delegate)
+
+        // The host must not push inline on iPad; AppReducer presents the modal instead.
+        #expect(store.state.path.isEmpty)
     }
 
     @MainActor

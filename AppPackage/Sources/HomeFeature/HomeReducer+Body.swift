@@ -24,8 +24,27 @@ extension HomeReducer {
             case .binding:
                 return .none
 
-            case .galleryTapped(let gid):
+            case .galleryTapped(let gid),
+                 let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .history(.delegate(.pushDetail(gid))))):
+                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
+                // sheet hosted by AppRoute, matching the pre-StackState behavior.
+                return .run { send in
+                    if await deviceClient.isPad() {
+                        await send(.delegate(.presentGalleryDetail(gid)))
+                    } else {
+                        await send(.pushGalleryDetail(gid))
+                    }
+                }
+
+            case .pushGalleryDetail(let gid):
                 state.path.append(.gallery(.detail(.init(gid: gid))))
+                return .none
+
+            case .delegate:
                 return .none
 
             case .sectionTapped(let type):
@@ -46,14 +65,6 @@ extension HomeReducer {
                 case .history:
                     state.path.append(.history(.init()))
                 }
-                return .none
-
-            case let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .history(.delegate(.pushDetail(gid))))):
-                state.path.append(.gallery(.detail(.init(gid: gid))))
                 return .none
 
             case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
