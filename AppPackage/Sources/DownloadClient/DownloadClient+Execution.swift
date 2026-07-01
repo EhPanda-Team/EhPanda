@@ -56,6 +56,13 @@ extension DownloadCoordinator {
         download: DownloadedGallery,
         result: ProcessDownloadResult
     ) async {
+        logger.notice(
+            """
+            Download completed, gid: \(gid, privacy: .public), \
+            pages: \(download.pageCount, privacy: .public), \
+            title: \(download.title, privacy: .public).
+            """
+        )
         await settleCompletedDownload(gid: gid)
         let completedFolderURL = storage.folderURL(
             relativePath: result.folderRelativePath

@@ -10,6 +10,9 @@ import DownloadClient
 import BackgroundProcessingClient
 import CookieClient
 import MigrationFeature
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: AppDelegateReducer.self))
 
 @Reducer
 struct AppDelegateReducer {
@@ -90,6 +93,7 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
         @Dependency(\.backgroundProcessingClient) var backgroundProcessingClient
 
         let work = Task { @MainActor in
+            logger.notice("Background processing started.")
             await downloadClient.runBackgroundProcessing()
             // Reschedule only if we stopped on our own with work still pending; an
             // expiration cancels this task and reschedules from its own handler.
@@ -97,6 +101,7 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
                 backgroundProcessingClient.schedule()
             }
             task.setTaskCompleted(success: !Task.isCancelled)
+            logger.notice("Background processing finished, cancelled: \(Task.isCancelled, privacy: .public).")
         }
         task.expirationHandler = {
             work.cancel()
