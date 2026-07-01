@@ -2,7 +2,6 @@ import AppTools
 import ComposableArchitecture
 import AppModels
 import Foundation
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -10,14 +9,12 @@ import DownloadClient
 import FiltersFeature
 import DateSeekFeature
 import QuickSearchFeature
-import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct SearchReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(String)
+        case searchPerformed(String)
     }
 
     @Reducer
@@ -33,7 +30,6 @@ public struct SearchReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var lastKeyword = ""
@@ -45,10 +41,9 @@ public struct SearchReducer: Sendable {
         public var footerLoadingState: LoadingState = .idle
         public var downloadBadges = [String: DownloadBadge]()
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
+        public init(keyword: String = "") {
+            self.keyword = keyword
+            lastKeyword = keyword
         }
 
         mutating func insertGalleries(_ galleries: [Gallery]) {
@@ -63,8 +58,7 @@ public struct SearchReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
-        case setNavigation(Route?)
-        case clearSubStates
+        case delegate(Delegate)
         case filtersButtonTapped
         case quickSearchButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
@@ -78,8 +72,6 @@ public struct SearchReducer: Sendable {
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
         case performDateSeekDone(Result<GalleriesResult, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -90,9 +82,6 @@ public struct SearchReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
             .onChange(of: \.keyword) { _, state in
                 if !state.keyword.isEmpty {
                     state.lastKeyword = state.keyword
@@ -108,13 +97,8 @@ public struct SearchReducer: Sendable {
             case .onAppear:
                 return .send(.observeDownloads)
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
+            case .delegate:
+                return .none
 
             case .filtersButtonTapped:
                 state.destination = .filters(FiltersReducer.State())
@@ -132,7 +116,11 @@ public struct SearchReducer: Sendable {
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let keyword):
-                guard state.loadingState != .loading else { return .none }
+                // The performed keyword is what the host records into search history: an explicit
+                // keyword when provided, otherwise the current `lastKeyword`. Emit it even when a
+                // fetch is already in flight, matching the previous host-observes-every-fetch behavior.
+                let historyEffect: Effect<Action> = .send(.delegate(.searchPerformed(keyword ?? state.lastKeyword)))
+                guard state.loadingState != .loading else { return historyEffect }
                 if let keyword = keyword {
                     state.keyword = keyword
                     state.lastKeyword = keyword
@@ -140,11 +128,14 @@ public struct SearchReducer: Sendable {
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
                 let filter = databaseClient.fetchFilterSynchronously(range: .search)
-                return .run { [lastKeyword = state.lastKeyword] send in
-                    let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).response()
-                    await send(.fetchGalleriesDone(response))
-                }
-                .cancellable(id: CancelID.fetchGalleries)
+                return .merge(
+                    historyEffect,
+                    .run { [lastKeyword = state.lastKeyword] send in
+                        let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).response()
+                        await send(.fetchGalleriesDone(response))
+                    }
+                    .cancellable(id: CancelID.fetchGalleries)
+                )
 
             case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
@@ -251,9 +242,6 @@ public struct SearchReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .detail:
-                return .none
             }
         }
         .haptics(
@@ -272,8 +260,6 @@ public struct SearchReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
 

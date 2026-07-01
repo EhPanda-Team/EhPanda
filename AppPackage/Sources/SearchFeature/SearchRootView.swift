@@ -2,7 +2,6 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
 import FiltersFeature
@@ -28,18 +27,18 @@ public struct SearchRootView: View {
     }
 
     public var body: some View {
-        NavigationView {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             let content =
                 ScrollView(showsIndicators: false) {
                     SuggestionsPanel(
                         historyKeywords: store.historyKeywords.reversed(),
                         historyGalleries: store.historyGalleries,
                         quickSearchWords: store.quickSearchWords,
-                        navigateGalleryAction: { store.send(.setNavigation(.detail($0))) },
+                        navigateGalleryAction: { store.send(.galleryTapped($0)) },
                         navigateQuickSearchAction: { store.send(.quickSearchButtonTapped) },
                         searchKeywordAction: { keyword in
                             store.send(.setKeyword(keyword))
-                            store.send(.setNavigation(.search))
+                            store.send(.pushSearch)
                         },
                         removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
                     )
@@ -57,7 +56,7 @@ public struct SearchRootView: View {
                         self.store.send(.destination(.dismiss))
                         self.store.send(.setKeyword(keyword))
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            self.store.send(.setNavigation(.search))
+                            self.store.send(.pushSearch)
                         }
                     }
                     .accentColor(setting.accentColor)
@@ -71,39 +70,34 @@ public struct SearchRootView: View {
                     )
                 }
                 .onSubmit(of: .search) {
-                    store.send(.setNavigation(.search))
+                    store.send(.pushSearch)
                 }
                 .onAppear {
                     store.send(.fetchHistoryGalleries)
                     store.send(.fetchDatabaseInfos)
                 }
-                .background(navigationLinks)
                 .toolbar(content: toolbar)
                 .navigationTitle(L10n.Localizable.SearchView.Title.search)
 
-            if DeviceUtil.isPad {
+            // Workaround: Prevent the title disappearing issue.
+            if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
                 content
-                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { gid in
-                        NavigationView {
-                            DetailView(
-                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                                gid: gid,
-                                user: user,
-                                setting: $setting,
-                                blurRadius: blurRadius,
-                                tagTranslator: tagTranslator
-                            )
-                        }
-                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-                    }
+                    .navigationSubtitle(Text(" "))
             } else {
-                // Workaround: Prevent the title disappearing issue.
-                if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
-                    content
-                        .navigationSubtitle(Text(" "))
-                } else {
-                    content
-                }
+                content
+            }
+        } destination: { store in
+            switch store.case {
+            case .search(let store):
+                SearchView(
+                    store: store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            case .gallery(let store):
+                galleryDestination(
+                    store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
             }
         }
     }
@@ -118,33 +112,6 @@ public struct SearchRootView: View {
                     store.send(.quickSearchButtonTapped)
                 }
             }
-        }
-    }
-}
-
-private extension SearchRootView {
-    @ViewBuilder var navigationLinks: some View {
-        if DeviceUtil.isPhone {
-            detailViewLink
-        }
-        searchViewLink
-    }
-    var detailViewLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
-        }
-    }
-    var searchViewLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.search) { _ in
-            SearchView(
-                store: store.scope(state: \.searchState, action: \.search),
-                keyword: store.keyword, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
         }
     }
 }

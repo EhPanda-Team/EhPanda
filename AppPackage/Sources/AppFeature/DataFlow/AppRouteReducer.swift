@@ -2,7 +2,6 @@ import AppTools
 import SwiftUI
 import AppModels
 import ComposableArchitecture
-import SwiftUINavigationExt
 import URLClient
 import UserDefaultsClient
 import HapticsClient
@@ -11,14 +10,12 @@ import NetworkingFeature
 import ClipboardClient
 import TTProgressHUDExt
 import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 struct AppRouteReducer {
     @CasePathable
     enum Route: Equatable, Hashable {
         case hud
-        case detail(String)
     }
 
     @Reducer
@@ -32,24 +29,23 @@ struct AppRouteReducer {
     @ObservableState
     struct State: Equatable {
         var route: Route?
+        // The deep-link/clipboard gallery, presented modally as the root of its own gallery stack.
+        @Presents var detail: DetailReducer.State?
+        var path = StackState<GalleryPath.State>()
         @Presents var destination: Destination.State?
         var hudConfig: ProgressHUDConfigState = .loading()
 
-        var detailState: Heap<DetailReducer.State?>
-
-        init() {
-            detailState = .init(.init())
-        }
+        init() {}
     }
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case destination(PresentationAction<Destination.Action>)
+        case detail(PresentationAction<DetailReducer.Action>)
+        case path(StackActionOf<GalleryPath>)
         case presentSetting
         case presentNewDawn(Greeting)
         case setHUDConfig(ProgressHUDConfigState)
-        case clearSubStates
 
         case detectClipboardURL
         case handleDeepLink(URL)
@@ -60,8 +56,6 @@ struct AppRouteReducer {
         case fetchGallery(URL, Bool)
         case fetchGalleryDone(URL, Result<Gallery, AppError>)
         case fetchGreetingDone(Result<Greeting, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.userDefaultsClient) private var userDefaultsClient
@@ -72,20 +66,42 @@ struct AppRouteReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
             case .destination:
+                return .none
+
+            case .detail(.dismiss):
+                state.path.removeAll()
+                return .none
+
+            case let .detail(.presented(.delegate(delegate))):
+                if let next = GalleryNavigation.nextScreen(for: .detail(.delegate(delegate))) {
+                    state.path.append(next)
+                }
+                return .none
+
+            case .detail:
+                return .none
+
+            case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
+                if state.detail?.gid == gid {
+                    return .send(.detail(.presented(.fetchGalleryDetail)))
+                }
+                guard let id = state.path.detailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
+
+            case let .path(.element(id: _, action: elementAction)):
+                if let next = GalleryNavigation.nextScreen(for: elementAction) {
+                    state.path.append(next)
+                }
+                return .none
+
+            case .path:
                 return .none
 
             case .presentSetting:
@@ -99,10 +115,6 @@ struct AppRouteReducer {
             case .setHUDConfig(let config):
                 state.hudConfig = config
                 return .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
 
             case .detectClipboardURL:
                 let currentChangeCount = clipboardClient.changeCount()
@@ -120,10 +132,10 @@ struct AppRouteReducer {
                 let url = urlClient.resolveAppSchemeURL(url) ?? url
                 guard urlClient.checkIfHandleable(url) else { return .none }
                 var delay = 0
-                if case .detail = state.route {
+                if state.detail != nil {
                     delay = 1000
-                    state.route = nil
-                    state.detailState.wrappedValue = .init()
+                    state.detail = nil
+                    state.path.removeAll()
                 }
                 let analysis = urlClient.analyzeURL(url)
                 let gid = urlClient.parseGalleryID(url)
@@ -143,27 +155,17 @@ struct AppRouteReducer {
                 let pageIndex = analysis.pageIndex
                 let commentID = analysis.commentID
                 let gid = urlClient.parseGalleryID(url)
+                var deepLink: GalleryDeepLink?
                 var effects = [Effect<Action>]()
-                state.detailState.wrappedValue = .init()
-                effects.append(.send(.detail(.fetchDatabaseInfos(gid))))
                 if let pageIndex = pageIndex {
                     effects.append(.send(.updateReadingProgress(gid, pageIndex)))
-                    effects.append(
-                        .run { send in
-                            try await Task.sleep(for: .milliseconds(500))
-                            await send(.detail(.presentReading))
-                        }
-                    )
+                    deepLink = .reading(page: pageIndex)
                 } else if let commentID = commentID {
-                    state.detailState.wrappedValue?.commentsState.wrappedValue?.scrollCommentID = commentID
-                    effects.append(
-                        .run { send in
-                            try await Task.sleep(for: .milliseconds(500))
-                            await send(.detail(.setNavigation(.comments(url))))
-                        }
-                    )
+                    deepLink = .comments(commentID: commentID)
                 }
-                effects.append(.send(.setNavigation(.detail(gid))))
+                state.path.removeAll()
+                state.detail = DetailReducer.State(gid: gid, pendingDeepLink: deepLink)
+                effects.append(.run(operation: { _ in await hapticsClient.generateFeedback(.light) }))
                 return .merge(effects)
 
             case .updateReadingProgress(let gid, let progress):
@@ -202,9 +204,6 @@ struct AppRouteReducer {
                     return .send(.presentNewDawn(greeting))
                 }
                 return .none
-
-            case .detail:
-                return .none
             }
         }
         .haptics(
@@ -212,14 +211,9 @@ struct AppRouteReducer {
             case: \.newDawn,
             hapticsClient: hapticsClient
         )
-        .haptics(
-            unwrapping: \.route,
-            case: \.detail,
-            hapticsClient: hapticsClient
-        )
         .ifLet(\.$destination, action: \.destination)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        .ifLet(\.$detail, action: \.detail) { DetailReducer() }
+        .forEach(\.path, action: \.path)
     }
 }
 

@@ -4,13 +4,11 @@ import TagTranslationFeature
 import Resources
 import AlertKit
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
 import DateSeekFeature
 import GalleryListComponents
 import FiltersFeature
-import DetailFeature
 
 struct FrontpageView: View {
     @Bindable private var store: StoreOf<FrontpageReducer>
@@ -31,78 +29,49 @@ struct FrontpageView: View {
     }
 
     var body: some View {
-        let content =
-            GenericList(
-                galleries: store.filteredGalleries,
-                setting: setting,
-                pageNumber: store.pageNumber,
-                loadingState: store.loadingState,
-                footerLoadingState: store.footerLoadingState,
-                fetchAction: { store.send(.fetchGalleries) },
-                fetchMoreAction: { store.send(.fetchMoreGalleries) },
-                navigateAction: { store.send(.setNavigation(.detail($0))) },
-                translateAction: {
-                    tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                }
+        GenericList(
+            galleries: store.filteredGalleries,
+            setting: setting,
+            pageNumber: store.pageNumber,
+            loadingState: store.loadingState,
+            footerLoadingState: store.footerLoadingState,
+            fetchAction: { store.send(.fetchGalleries) },
+            fetchMoreAction: { store.send(.fetchMoreGalleries) },
+            navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            translateAction: {
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+            }
+        )
+        .sheet(
+            item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+        ) { store in
+            FiltersView(store: store)
+                .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+        }
+        .sheet(
+            item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
+        ) { store in
+            @Bindable var store = store
+            DateSeekPickerView(
+                selectedDate: $store.date,
+                navigation: store.navigation,
+                seekAction: { store.send(.performSeek($0)) }
             )
-            .sheet(
-                item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
-            ) { store in
-                FiltersView(store: store)
-                    .autoBlur(radius: blurRadius).environment(\.inSheet, true)
-            }
-            .sheet(
-                item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
-            ) { store in
-                @Bindable var store = store
-                DateSeekPickerView(
-                    selectedDate: $store.date,
-                    navigation: store.navigation,
-                    seekAction: { store.send(.performSeek($0)) }
-                )
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
-            }
-            .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
-            .onAppear {
-                if store.galleries.isEmpty {
-                    DispatchQueue.main.async {
-                        store.send(.fetchGalleries)
-                    }
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
+        }
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .onAppear {
+            if store.galleries.isEmpty {
+                DispatchQueue.main.async {
+                    store.send(.fetchGalleries)
                 }
             }
-            .background(navigationLink)
-            .toolbar(content: toolbar)
-            .navigationTitle(L10n.Localizable.FrontpageView.Title.frontpage)
-
-        if DeviceUtil.isPad {
-            content
-                .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
-                    NavigationView {
-                        DetailView(
-                            store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                            gid: route.wrappedValue, user: user, setting: $setting,
-                            blurRadius: blurRadius, tagTranslator: tagTranslator
-                        )
-                    }
-                    .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-                }
-        } else {
-            content
         }
+        .toolbar(content: toolbar)
+        .navigationTitle(L10n.Localizable.FrontpageView.Title.frontpage)
     }
 
-    @ViewBuilder private var navigationLink: some View {
-        if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-                DetailView(
-                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-        }
-    }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             DateSeekButton(navigation: store.dateSeekNavigation) { navigation in

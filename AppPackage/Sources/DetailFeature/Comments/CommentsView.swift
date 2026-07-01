@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import Kingfisher
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import TTProgressHUDExt
 import AppComponents
@@ -120,7 +119,6 @@ struct CommentsView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.CommentsView.Title.comments)
     }
@@ -133,19 +131,6 @@ struct CommentsView: View {
                 Image(systemSymbol: .squareAndPencil)
             }
             .disabled(!CookieUtil.didLogin)
-        }
-    }
-}
-
-// MARK: NavigationLinks
-private extension CommentsView {
-    @ViewBuilder var navigationLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
         }
     }
 }
@@ -270,7 +255,7 @@ struct CommentsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             CommentsView(
-                store: .init(initialState: .init(), reducer: CommentsReducer.init),
+                store: .init(initialState: .init(galleryURL: .mock), reducer: CommentsReducer.init),
                 gid: .init(),
                 token: .init(),
                 apiKey: .init(),
