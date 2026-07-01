@@ -1,4 +1,4 @@
-/*
+/* 
   Localizable.strings
   EhPanda
 */
@@ -42,10 +42,14 @@
 "common.value.seconds" = "%@ 秒";
 "common.value.records" = "%@ 件のレコード";
 
+// MARK: Common button
+"common.button.cancel" = "キャンセル";
+
 // MARK: TabItem
 "tab_item.title.home" = "ホーム";
 "tab_item.title.favorites" = "お気に入り";
 "tab_item.title.search" = "検索";
+"tab_item.title.downloads" = "ダウンロード";
 "tab_item.title.setting" = "設定";
 
 // MARK: ToolbarItem
@@ -80,6 +84,24 @@
 "error_view.title.ip_banned" = "この IP アドレスを経由して過剰なページロードが行われました。クローラの疑いがあるため、この IP アドレスは一時的にブロックされました。ブロックは %@後に解除されます。";
 "error_view.title.copyright_claim" = "申し訳ありませんが、このギャラリーは %@ の著作権主張によってアクセス不可になっています。";
 "error_view.title.gallery_unavailable" = "このギャラリーはすでに削除済みまたは無効です。";
+
+// MARK: AppError
+"app_error.localized_description.database_corrupted" = "データベース破損";
+"app_error.localized_description.copyright_claim" = "著作権侵害の申し立て";
+"app_error.localized_description.ip_banned" = "IP アドレスがブロックされました";
+"app_error.localized_description.gallery_expunged" = "ギャラリー削除済み";
+"app_error.localized_description.network_error" = "ネットワークエラー";
+"app_error.localized_description.web_image_loading_error" = "Web 画像の読み込みエラー";
+"app_error.localized_description.parse_error" = "解析エラー";
+"app_error.localized_description.quota_exceeded" = "画像割り当て超過";
+"app_error.localized_description.authentication_required" = "認証が必要です";
+"app_error.localized_description.file_operation_failed" = "ファイル操作に失敗しました";
+"app_error.localized_description.no_updates_available" = "利用可能な更新はありません";
+"app_error.localized_description.not_found" = "見つかりません";
+"app_error.localized_description.unknown_error" = "不明なエラー";
+"app_error.alert.quota_exceeded" = "画像の帯域割り当てを使い切りました。\nしばらく待ってからもう一度お試しください。";
+"app_error.alert.authentication_required" = "このダウンロードにアクセスするにはログインが必要です。";
+"app_error.alert.local_file_operation_failed" = "ローカルファイルの操作に失敗しました。";
 
 // MARK: ConfirmationDialog
 "confirmation_dialog.title.drop_database" = "本アプリでのすべてのデータを失うことになります。\n本当にデータベースを削除してもよろしいですか？";
@@ -195,7 +217,7 @@
 "general_setting_view.title.redirects_links_to_the_selected_host" = "リンクを選択されたホストへリダイレクト";
 "general_setting_view.title.detects_links_from_clipboard" = "クリップボードからリンクを探知";
 "general_setting_view.title.background_blur_radius" = "バッググラウンドぼかし度";
-"general_setting_view.button.logs" = "ログ";
+"general_setting_view.button.app_activity_logs" = "アプリアクティビティログ";
 "general_setting_view.button.import_custom_translations" = "カスタム翻訳を取り込む";
 "general_setting_view.button.remove_custom_translations" = "カスタム翻訳を削除";
 "general_setting_view.button.clear_image_caches" = "画像キャッシュを削除";
@@ -208,9 +230,20 @@
 "enum.auto_lock_policy.value.never" = "なし";
 "enum.auto_lock_policy.value.instantly" = "すぐに";
 
-// MARK: LogsView
-"logs_view.title.logs" = "ログ";
-"logs_view.title.latest" = "最新";
+// MARK: AppActivityLogsView
+"app_activity_logs_view.title" = "アプリアクティビティログ";
+"app_activity_logs_view.placeholder.no_logs" = "ログが見つかりません";
+"app_activity_logs_view.section.current" = "現在";
+"app_activity_logs_view.run" = "起動 %@";
+"app_activity_logs_view.more_logs" = "他のログ";
+"app_activity_logs_view.open_in_files" = "ファイルで開く";
+"app_activity_logs_view.runs" = "起動";
+"app_activity_logs_view.level.undefined" = "未定義";
+"app_activity_logs_view.level.debug" = "デバッグ";
+"app_activity_logs_view.level.info" = "情報";
+"app_activity_logs_view.level.notice" = "通知";
+"app_activity_logs_view.level.error" = "エラー";
+"app_activity_logs_view.level.fault" = "障害";
 
 // MARK: AppearanceSettingView
 "appearance_setting_view.title.appearance" = "外観";
@@ -288,6 +321,9 @@
 "detail_view.accessibility.download_button.retry" = "ダウンロードを再試行";
 "detail_view.accessibility.download_button.repair" = "ダウンロードを修復";
 "detail_view.accessibility.download_button.preparing" = "ダウンロード情報を取得中";
+"detail_view.accessibility.download_button.pause_action" = "ダウンロードを一時停止";
+"detail_view.accessibility.download_button.paused" = "ダウンロードを再開。%d / %d ページで停止中";
+"detail_view.accessibility.download_button.partial" = "ダウンロードを再試行。すでに %d / %d ページが利用可能です。";
 "detail_view.toolbar_item.button.archives" = "アーカイブ";
 "detail_view.toolbar_item.button.torrents" = "トレント";
 "detail_view.toolbar_item.button.share" = "共有";
@@ -306,6 +342,19 @@
 "detail_view.action_section.button.similar_gallery" = "類似ギャラリー";
 "detail_view.section.title.previews" = "プレビュー";
 "detail_view.section.title.comments" = "コメント";
+"detail_view.dialog.title.delete_download" = "ダウンロードを削除しますか？";
+"detail_view.dialog.title.repair_download" = "ダウンロードを修復しますか？";
+"detail_view.dialog.title.update_download" = "ダウンロードを更新しますか？";
+"detail_view.dialog.title.redownload_gallery" = "ギャラリーを再ダウンロードしますか？";
+"detail_view.dialog.message.delete_active_download" = "現在のダウンロードを停止し、このデバイスからギャラリーを削除します。";
+"detail_view.dialog.message.delete_downloaded_gallery" = "ダウンロード済みのギャラリーをこのデバイスから削除します。";
+"detail_view.dialog.message.repair_download" = "このギャラリーのオフラインファイルを今すぐ修復しますか？";
+"detail_view.dialog.message.update_download" = "このギャラリーを今すぐオンラインの最新バージョンに更新しますか？";
+"detail_view.dialog.message.redownload_gallery" = "このギャラリーを今すぐ最初から再ダウンロードしますか？";
+"detail_view.dialog.button.repair" = "修復";
+"detail_view.dialog.button.update" = "更新";
+"detail_view.dialog.button.redownload" = "再ダウンロード";
+"detail_view.offline_notice.saved_details" = "オンラインの詳細を更新できなかったため、保存済みの詳細を表示しています。";
 
 // MARK: ArchivesView
 "archives_view.title.archives" = "アーカイブ";
@@ -355,6 +404,56 @@
 "tag_detail_view.section.title.images" = "画像";
 "tag_detail_view.section.title.links" = "リンク";
 
+// MARK: DownloadsView
+"enum.download_folder_filter.title.all" = "All";
+"detail_view.menu.button.manage_folders" = "Manage Folders";
+"detail_view.menu.button.create_default_folder" = "Create Default Folder";
+"detail_view.menu.text.no_folders" = "No folders yet";
+"downloads_view.menu.button.manage_folders" = "Manage Folders";
+"downloads_view.menu.button.move_to_folder" = "Move to Folder";
+"downloads_view.swipe.button.move" = "Move";
+"folder_manager_view.title.folders" = "Folders";
+"folder_manager_view.placeholder.folder_name" = "Folder name";
+"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
+"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
+"downloads_view.title.downloads" = "ダウンロード";
+"downloads_view.search.prompt.downloads" = "ダウンロードを検索";
+"downloads_view.dialog.title.delete_download" = "ダウンロードを削除しますか？";
+"downloads_view.dialog.message.delete_active_download" = "現在のダウンロードをキャンセルし、このデバイスから削除します。";
+"downloads_view.dialog.message.delete_downloaded_gallery" = "ダウンロード済みのギャラリーをこのデバイスから削除します。";
+"downloads_view.swipe.button.pages" = "ページ";
+"downloads_view.swipe.button.update" = "更新";
+"downloads_view.swipe.button.resume" = "再開";
+"downloads_view.swipe.button.pause" = "一時停止";
+"downloads_view.empty_state.downloads" = "ダウンロードしたギャラリーはここに表示されます。";
+"downloads_view.empty_state.no_matching_filters" = "現在のフィルターに一致するダウンロードはありません。";
+"downloads_view.button.clear_filters" = "フィルターをクリア";
+"downloads_view.button.validate_image_data" = "画像データを検証";
+"downloads_view.inspector.section.actions" = "操作";
+"downloads_view.inspector.section.pages" = "ページ";
+"downloads_view.inspector.button.retry_failed_pages" = "失敗したページを再試行";
+"downloads_view.inspector.button.validating_image_data" = "画像データを検証中...";
+"downloads_view.inspector.button.update_download" = "ダウンロードを更新";
+"downloads_view.inspector.hud.image_data_valid" = "画像データは有効です";
+"downloads_view.inspector.hud.image_data_unavailable" = "画像データを検証できませんでした。";
+"downloads_view.inspector.title.download_status" = "ダウンロード状況";
+"downloads_view.inspector.page.pending" = "待機中";
+"downloads_view.inspector.page.tap_to_retry" = "タップしてこのページを再試行";
+"downloads_view.inspector.page.title" = "ページ %d";
+"downloads_view.inspector.page.none" = "ページなし";
+"downloads_view.inspector.status.pending" = "待機中";
+"downloads_view.inspector.status.downloaded" = "ダウンロード済み";
+"downloads_view.inspector.status.failed" = "失敗";
+
+// MARK: DownloadSettingView
+"download_setting_view.title" = "ダウンロード";
+"download_setting_view.section.title.download_queue" = "ダウンロードキュー";
+"download_setting_view.section.title.network" = "ネットワーク";
+"download_setting_view.title.concurrent_image_downloads" = "同時画像ダウンロード数";
+"download_setting_view.title.retry_failed_pages_automatically" = "失敗したページを自動で再試行";
+"download_setting_view.title.allow_cellular_downloads" = "モバイル通信でのダウンロードを許可";
+"download_setting_view.footer.network" = "一度にダウンロードされるギャラリーは 1 件だけです。この設定では、1 つのギャラリー内で同時にダウンロードするページ数、モバイル通信の許可または禁止、そしてファイルをアプリの Downloads フォルダに保存する動作を管理します。";
+
 // MARK: CommentsView
 "comments_view.title.comments" = "コメント";
 
@@ -379,6 +478,33 @@
 "reading_view.toolbar_item.button.reading_setting" = "閲覧設定";
 // AutoPlayPolicy
 "enum.auto_play_policy.value.off" = "オフ";
+
+
+// MARK: DownloadBadge
+"struct.download_badge.text.queued" = "待機中";
+"struct.download_badge.text.downloading" = "ダウンロード中";
+"struct.download_badge.text.paused" = "一時停止";
+"struct.download_badge.text.downloaded" = "ダウンロード済み";
+"struct.download_badge.text.needs_attention" = "要対応";
+"struct.download_badge.text.update_available" = "更新あり";
+"struct.download_badge.text.needs_repair" = "要修復";
+"struct.download_badge.progress" = "%d/%d";
+
+// MARK: DownloadStore
+"download_store.error.asset_unreadable" = "アセットファイルを読み取れません: %@";
+"download_store.error.invalid_folder_name" = "The folder name is invalid.";
+"download_store.error.folder_already_exists" = "A folder with this name already exists.";
+"download_store.error.folder_busy_downloading" = "The folder contains an active download.";
+"download_store.error.download_busy" = "The download is currently active.";
+"download_store.validation.download_folder_unresolved" = "ダウンロードフォルダを解決できませんでした。";
+"download_store.validation.download_folder_missing" = "ダウンロードフォルダが見つかりません。";
+"download_store.validation.manifest_missing" = "マニフェストファイルが見つかりません。";
+"download_store.validation.manifest_corrupted" = "マニフェストファイルが破損しています。";
+"download_store.validation.downloaded_pages_incomplete" = "ダウンロード済みページが不完全です。";
+"download_store.validation.cover_image_missing" = "表紙画像が見つかりません。";
+"download_store.validation.page_missing" = "ページ %d が見つかりません。";
+"download_store.validation.cover_image_corrupted" = "表紙画像データが破損しています。";
+"download_store.validation.page_image_corrupted" = "ページ %d の画像データが破損しています。";
 
 // MARK: FiltersView
 "filters_view.title.filters" = "フィルター";
@@ -928,110 +1054,3 @@
 "enum.browsing_country.name.yemen" = "イエメン";
 "enum.browsing_country.name.zambia" = "ザンビア";
 "enum.browsing_country.name.zimbabwe" = "ジンバブエ";
-
-// MARK: Download Localization Additions
-"common.button.cancel" = "キャンセル";
-"tab_item.title.downloads" = "ダウンロード";
-"app_error.localized_description.database_corrupted" = "データベース破損";
-"app_error.localized_description.copyright_claim" = "著作権侵害の申し立て";
-"app_error.localized_description.ip_banned" = "IP アドレスがブロックされました";
-"app_error.localized_description.gallery_expunged" = "ギャラリー削除済み";
-"app_error.localized_description.network_error" = "ネットワークエラー";
-"app_error.localized_description.web_image_loading_error" = "Web 画像の読み込みエラー";
-"app_error.localized_description.parse_error" = "解析エラー";
-"app_error.localized_description.quota_exceeded" = "画像割り当て超過";
-"app_error.localized_description.authentication_required" = "認証が必要です";
-"app_error.localized_description.file_operation_failed" = "ファイル操作に失敗しました";
-"app_error.localized_description.no_updates_available" = "利用可能な更新はありません";
-"app_error.localized_description.not_found" = "見つかりません";
-"app_error.localized_description.unknown_error" = "不明なエラー";
-"app_error.alert.quota_exceeded" = "画像の帯域割り当てを使い切りました。\nしばらく待ってからもう一度お試しください。";
-"app_error.alert.authentication_required" = "このダウンロードにアクセスするにはログインが必要です。";
-"app_error.alert.local_file_operation_failed" = "ローカルファイルの操作に失敗しました。";
-"detail_view.accessibility.download_button.pause_action" = "ダウンロードを一時停止";
-"detail_view.accessibility.download_button.paused" = "ダウンロードを再開。%d / %d ページで停止中";
-"detail_view.accessibility.download_button.partial" = "ダウンロードを再試行。すでに %d / %d ページが利用可能です。";
-"detail_view.dialog.title.delete_download" = "ダウンロードを削除しますか？";
-"detail_view.dialog.title.repair_download" = "ダウンロードを修復しますか？";
-"detail_view.dialog.title.update_download" = "ダウンロードを更新しますか？";
-"detail_view.dialog.title.redownload_gallery" = "ギャラリーを再ダウンロードしますか？";
-"detail_view.dialog.message.delete_active_download" = "現在のダウンロードを停止し、このデバイスからギャラリーを削除します。";
-"detail_view.dialog.message.delete_downloaded_gallery" = "ダウンロード済みのギャラリーをこのデバイスから削除します。";
-"detail_view.dialog.message.repair_download" = "このギャラリーのオフラインファイルを今すぐ修復しますか？";
-"detail_view.dialog.message.update_download" = "このギャラリーを今すぐオンラインの最新バージョンに更新しますか？";
-"detail_view.dialog.message.redownload_gallery" = "このギャラリーを今すぐ最初から再ダウンロードしますか？";
-"detail_view.dialog.button.repair" = "修復";
-"detail_view.dialog.button.update" = "更新";
-"detail_view.dialog.button.redownload" = "再ダウンロード";
-"detail_view.offline_notice.saved_details" = "オンラインの詳細を更新できなかったため、保存済みの詳細を表示しています。";
-"enum.download_folder_filter.title.all" = "All";
-"detail_view.menu.button.manage_folders" = "Manage Folders";
-"detail_view.menu.button.create_default_folder" = "Create Default Folder";
-"detail_view.menu.text.no_folders" = "No folders yet";
-"downloads_view.menu.button.manage_folders" = "Manage Folders";
-"downloads_view.menu.button.move_to_folder" = "Move to Folder";
-"downloads_view.swipe.button.move" = "Move";
-"folder_manager_view.title.folders" = "Folders";
-"folder_manager_view.placeholder.folder_name" = "Folder name";
-"folder_manager_view.dialog.message.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
-"folder_manager_view.empty_state.folders" = "Folders you create will appear here.";
-"downloads_view.title.downloads" = "ダウンロード";
-"downloads_view.search.prompt.downloads" = "ダウンロードを検索";
-"downloads_view.dialog.title.delete_download" = "ダウンロードを削除しますか？";
-"downloads_view.dialog.message.delete_active_download" = "現在のダウンロードをキャンセルし、このデバイスから削除します。";
-"downloads_view.dialog.message.delete_downloaded_gallery" = "ダウンロード済みのギャラリーをこのデバイスから削除します。";
-"downloads_view.swipe.button.pages" = "ページ";
-"downloads_view.swipe.button.update" = "更新";
-"downloads_view.swipe.button.resume" = "再開";
-"downloads_view.swipe.button.pause" = "一時停止";
-"downloads_view.empty_state.downloads" = "ダウンロードしたギャラリーはここに表示されます。";
-"downloads_view.empty_state.no_matching_filters" = "現在のフィルターに一致するダウンロードはありません。";
-"downloads_view.button.clear_filters" = "フィルターをクリア";
-"downloads_view.button.validate_image_data" = "画像データを検証";
-"downloads_view.inspector.section.actions" = "操作";
-"downloads_view.inspector.section.pages" = "ページ";
-"downloads_view.inspector.button.retry_failed_pages" = "失敗したページを再試行";
-"downloads_view.inspector.button.validating_image_data" = "画像データを検証中...";
-"downloads_view.inspector.button.update_download" = "ダウンロードを更新";
-"downloads_view.inspector.hud.image_data_valid" = "画像データは有効です";
-"downloads_view.inspector.hud.image_data_unavailable" = "画像データを検証できませんでした。";
-"downloads_view.inspector.title.download_status" = "ダウンロード状況";
-"downloads_view.inspector.page.pending" = "待機中";
-"downloads_view.inspector.page.tap_to_retry" = "タップしてこのページを再試行";
-"downloads_view.inspector.page.title" = "ページ %d";
-"downloads_view.inspector.page.none" = "ページなし";
-"downloads_view.inspector.status.pending" = "待機中";
-"downloads_view.inspector.status.downloaded" = "ダウンロード済み";
-"downloads_view.inspector.status.failed" = "失敗";
-"download_setting_view.title" = "ダウンロード";
-"download_setting_view.section.title.download_queue" = "ダウンロードキュー";
-"download_setting_view.section.title.network" = "ネットワーク";
-"download_setting_view.title.concurrent_image_downloads" = "同時画像ダウンロード数";
-"download_setting_view.title.retry_failed_pages_automatically" = "失敗したページを自動で再試行";
-"download_setting_view.title.allow_cellular_downloads" = "モバイル通信でのダウンロードを許可";
-"download_setting_view.footer.network" = "一度にダウンロードされるギャラリーは 1 件だけです。この設定では、1 つのギャラリー内で同時にダウンロードするページ数、モバイル通信の許可または禁止、そしてファイルをアプリの Downloads フォルダに保存する動作を管理します。";
-"struct.download_badge.text.queued" = "待機中";
-"struct.download_badge.text.downloading" = "ダウンロード中";
-"struct.download_badge.text.paused" = "一時停止";
-"struct.download_badge.text.downloaded" = "ダウンロード済み";
-"struct.download_badge.text.needs_attention" = "要対応";
-"struct.download_badge.text.update_available" = "更新あり";
-"struct.download_badge.text.needs_repair" = "要修復";
-"struct.download_badge.progress" = "%d/%d";
-"download_store.error.asset_unreadable" = "アセットファイルを読み取れません: %@";
-"download_store.error.invalid_folder_name" = "The folder name is invalid.";
-"download_store.error.folder_already_exists" = "A folder with this name already exists.";
-"download_store.error.folder_busy_downloading" = "The folder contains an active download.";
-"download_store.error.download_busy" = "The download is currently active.";
-"download_store.validation.download_folder_unresolved" = "ダウンロードフォルダを解決できませんでした。";
-"download_store.validation.download_folder_missing" = "ダウンロードフォルダが見つかりません。";
-"download_store.validation.manifest_missing" = "マニフェストファイルが見つかりません。";
-"download_store.validation.manifest_corrupted" = "マニフェストファイルが破損しています。";
-"download_store.validation.downloaded_pages_incomplete" = "ダウンロード済みページが不完全です。";
-"download_store.validation.cover_image_missing" = "表紙画像が見つかりません。";
-"download_store.validation.page_missing" = "ページ %d が見つかりません。";
-"download_store.validation.cover_image_corrupted" = "表紙画像データが破損しています。";
-"download_store.validation.page_image_corrupted" = "ページ %d の画像データが破損しています。";
-
-// MARK: AppActivityLogsView
-"app_activity_logs_view.run" = "起動 %@";
