@@ -490,6 +490,7 @@ let targets: [PackageDescription.Target] = [
             .module(.parserFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],

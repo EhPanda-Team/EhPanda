@@ -39,6 +39,7 @@
 
 // MARK: Common button
 "common.button.cancel" = "Abbrechen";
+"common.button.ok" = "OK";
 
 // MARK: TabItem
 "tab_item.title.home" = "Home";
