@@ -61,8 +61,8 @@ public struct ReadingView: View {
         @Bindable var bindablePageHandler = pageHandler
 
         return changeTriggers(content: { content })
-            .sheet(item: $store.route.sending(\.setNavigation).readingSetting) { _ in
-                NavigationView {
+            .sheet(item: $store.destination.readingSetting, id: \.id) { _ in
+                NavigationStack {
                     ReadingSettingView(
                         readingDirection: $setting.readingDirection,
                         prefetchLimit: $setting.prefetchLimit,
@@ -75,7 +75,7 @@ public struct ReadingView: View {
                         if !DeviceUtil.isPad && DeviceUtil.isLandscape {
                             CustomToolbarItem(placement: .cancellationAction) {
                                 Button {
-                                    store.send(.setNavigation(nil))
+                                    store.send(.destination(.dismiss))
                                 } label: {
                                     Image(systemSymbol: .chevronDown)
                                 }
@@ -86,9 +86,8 @@ public struct ReadingView: View {
                 .accentColor(setting.accentColor)
                 .tint(setting.accentColor)
                 .autoBlur(radius: blurRadius)
-                .navigationViewStyle(.stack)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).share) { shareItemBox in
+            .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
                 ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
@@ -170,7 +169,7 @@ public struct ReadingView: View {
                 previewURLs: displayPreviewURLs,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { store.send(.onPerformDismiss) },
-                navigateSettingAction: { store.send(.setNavigation(.readingSetting())) },
+                navigateSettingAction: { store.send(.presentReadingSetting) },
                 reloadAllImagesAction: { store.send(.reloadAllWebImages) },
                 retryAllFailedImagesAction: { store.send(.retryAllFailedWebImages) },
                 fetchPreviewURLsAction: { store.send(.fetchPreviewURLs($0)) }
@@ -222,8 +221,8 @@ public struct ReadingView: View {
                 pageHandler.sliderValue = .init(newValue)
             }
             // AutoPlay
-            .onChange(of: store.route) { _, newValue in
-                if ![.hud, .none].contains(newValue) {
+            .onChange(of: store.destination != nil) { _, isPresented in
+                if isPresented {
                     setAutoPlayPolocy(.off)
                 }
             }

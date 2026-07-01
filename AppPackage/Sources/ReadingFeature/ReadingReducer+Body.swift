@@ -37,15 +37,16 @@ extension ReadingReducer {
             imageFetchReducer
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.readingSetting,
             hapticsClient: hapticsClient
         )
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.share,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
     }
 
     var lifecycleReducer: some ReducerOf<Self> {
@@ -56,6 +57,17 @@ extension ReadingReducer {
 
             case .setNavigation(let route):
                 state.route = route
+                return .none
+
+            case .destination:
+                return .none
+
+            case .presentShare(let shareItem):
+                state.destination = .share(shareItem)
+                return .none
+
+            case .presentReadingSetting:
+                state.destination = .readingSetting(.init())
                 return .none
 
             case .toggleShowsPanel:
@@ -188,7 +200,7 @@ extension ReadingReducer {
                         let shareItem: ShareItem = asset.isAnimated
                             ? .data(asset.data)
                             : .image(asset.image)
-                        return .send(.setNavigation(.share(.init(value: shareItem))))
+                        return .send(.presentShare(.init(value: shareItem)))
                     }
                 } else {
                     state.hudConfig = .error()
