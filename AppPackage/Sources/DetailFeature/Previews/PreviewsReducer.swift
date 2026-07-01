@@ -2,7 +2,6 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import AppTools
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature

@@ -2,7 +2,6 @@ import SwiftUI
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 
 public struct FolderManagerView: View {

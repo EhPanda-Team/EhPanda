@@ -1,29 +1,5 @@
 import SwiftUI
-import SwiftUINavigation
-
-extension NavigationLink {
-    public init<S: StringProtocol, Value, WrappedDestination>(
-        _ title: S,
-        unwrapping value: Binding<Value?>,
-        @ViewBuilder destination: @escaping (Binding<Value>) -> WrappedDestination
-    ) where Destination == WrappedDestination?, Label == Text {
-        self.init(
-            title,
-            destination: Binding(unwrapping: value).map(destination),
-            isActive: .init(value)
-        )
-    }
-    public init<Enum: Sendable, Case: Sendable, WrappedDestination>(
-        unwrapping enum: Binding<Enum?>,
-        case caseKeyPath: CaseKeyPath<Enum, Case>,
-        @ViewBuilder destination: @escaping (Binding<Case>) -> WrappedDestination
-    ) where Destination == WrappedDestination?, Label == Text {
-        self.init(
-            "", unwrapping: `enum`.case(caseKeyPath),
-            destination: destination
-        )
-    }
-}
+import CasePaths
 
 extension Binding {
     public func `case`<Enum: Sendable, Case: Sendable>(
