@@ -236,6 +236,7 @@
 "app_activity_logs_view.section.current" = "Current";
 "app_activity_logs_view.run" = "Run %@";
 "app_activity_logs_view.more_logs" = "More logs";
+"app_activity_logs_view.open_in_files" = "Open in Files";
 "app_activity_logs_view.runs" = "Runs";
 "app_activity_logs_view.level.undefined" = "Undefined";
 "app_activity_logs_view.level.debug" = "Debug";
