@@ -11,8 +11,9 @@ import CookieClient
 
 @Reducer
 public struct EhSettingReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
         case webView(URL)
     }
 
@@ -26,7 +27,7 @@ public struct EhSettingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var editingProfileName = ""
         public var ehSetting: EhSetting?
@@ -45,7 +46,8 @@ public struct EhSettingReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
         case deleteProfileButtonTapped
         case setKeyboardHidden
@@ -74,8 +76,11 @@ public struct EhSettingReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
+            case .destination:
+                return .none
+
+            case .presentWebView(let url):
+                state.destination = .webView(url)
                 return .none
 
             case .deleteProfileButtonTapped:
@@ -178,10 +183,14 @@ public struct EhSettingReducer: Sendable {
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.webView,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
 }
+
+extension EhSettingReducer.Destination.State: Equatable, Sendable {}
+extension EhSettingReducer.Destination.Action: Equatable, Sendable {}
