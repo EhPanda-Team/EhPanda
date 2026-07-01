@@ -30,10 +30,8 @@ public struct FiltersView: View {
         NavigationView {
             Form {
                 BasicSection(
-                    route: $store.route,
                     filter: filter, filterRange: $store.filterRange,
-                    resetFiltersAction: { store.send(.resetFilters) },
-                    resetFiltersDialogAction: { store.send(.setNavigation(.resetFilters)) }
+                    resetFiltersDialogAction: { store.send(.resetFiltersButtonTapped) }
                 )
                 AdvancedSection(
                     filter: filter, focusedBound: $focusedBound,
@@ -41,6 +39,9 @@ public struct FiltersView: View {
                 )
             }
             .synchronize($store.focusedBound, $focusedBound)
+            .confirmationDialog(
+                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            )
             .navigationTitle(L10n.Localizable.FiltersView.Title.filters)
             .onAppear { store.send(.fetchFilters) }
         }
@@ -49,10 +50,8 @@ public struct FiltersView: View {
 
 // MARK: BasicSection
 private struct BasicSection: View {
-    @Binding private var route: FiltersReducer.Route?
     @Binding private var filter: Filter
     @Binding private var filterRange: FilterRange
-    private let resetFiltersAction: () -> Void
     private let resetFiltersDialogAction: () -> Void
     private var categoryBindings: [Binding<Bool>] { [
         $filter.doujinshi, $filter.manga, $filter.artistCG, $filter.gameCG, $filter.western,
@@ -60,13 +59,11 @@ private struct BasicSection: View {
     ] }
 
     init(
-        route: Binding<FiltersReducer.Route?>, filter: Binding<Filter>, filterRange: Binding<FilterRange>,
-        resetFiltersAction: @escaping () -> Void, resetFiltersDialogAction: @escaping () -> Void
+        filter: Binding<Filter>, filterRange: Binding<FilterRange>,
+        resetFiltersDialogAction: @escaping () -> Void
     ) {
-        _route = route
         _filter = filter
         _filterRange = filterRange
-        self.resetFiltersAction = resetFiltersAction
         self.resetFiltersDialogAction = resetFiltersDialogAction
     }
 
@@ -81,16 +78,6 @@ private struct BasicSection: View {
             CategoryView(bindings: categoryBindings)
             Button(action: resetFiltersDialogAction) {
                 Text(L10n.Localizable.FiltersView.Button.resetFilters).foregroundStyle(.red)
-            }
-            .confirmationDialog(
-                message: L10n.Localizable.ConfirmationDialog.Title.reset,
-                unwrapping: $route,
-                case: \.resetFilters
-            ) {
-                Button(
-                    L10n.Localizable.ConfirmationDialog.Button.reset,
-                    role: .destructive, action: resetFiltersAction
-                )
             }
             Toggle(L10n.Localizable.FiltersView.Title.advancedSettings, isOn: $filter.advanced)
         }

@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Resources
 import ComposableArchitecture
 import AppTools
 import DownloadClient
@@ -17,6 +18,14 @@ public struct DownloadsReducer: Sendable {
         case folderManager(EquatableVoid = .init())
     }
 
+    public enum Alert: Equatable, Sendable {
+        case confirmDelete(String)
+    }
+
+    public enum Dialog: Equatable, Sendable {
+        case move(String, String)
+    }
+
     private enum CancelID {
         case observeDownloads
         case fetchFolders
@@ -25,6 +34,8 @@ public struct DownloadsReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var alert: AlertState<Alert>?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
         public var folderFilter: DownloadFolderFilter = .all
         public var folders = [String]()
@@ -56,6 +67,10 @@ public struct DownloadsReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case alert(PresentationAction<Alert>)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case deleteDownloadButtonTapped(DownloadedGallery)
+        case moveButtonTapped(DownloadedGallery)
         case clearSubStates
 
         case onAppear
@@ -113,6 +128,53 @@ public struct DownloadsReducer: Sendable {
                     state.inspectorState = .init(gid: gid)
                 }
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .deleteDownloadButtonTapped(let download):
+                state.alert = AlertState {
+                    TextState(L10n.Localizable.DownloadsView.Dialog.Title.deleteDownload)
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDelete(download.gid)) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(
+                        download.canTogglePause
+                            ? L10n.Localizable.DownloadsView.Dialog.Message.deleteActiveDownload
+                            : L10n.Localizable.DownloadsView.Dialog.Message.deleteDownloadedGallery
+                    )
+                }
+                return .none
+
+            case .moveButtonTapped(let download):
+                let destinations = state.folders.filter { $0 != download.folderName }
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState(L10n.Localizable.DownloadsView.Menu.Button.moveToFolder)
+                } actions: {
+                    for folder in destinations {
+                        ButtonState(action: .move(download.gid, folder)) {
+                            TextState(folder)
+                        }
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                }
+                return .none
+
+            case .alert(.presented(.confirmDelete(let gid))):
+                return .send(.deleteDownload(gid))
+
+            case .alert:
+                return .none
+
+            case .confirmationDialog(.presented(.move(let gid, let folder))):
+                return .send(.moveDownload(gid, folder))
+
+            case .confirmationDialog:
+                return .none
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
@@ -289,6 +351,8 @@ public struct DownloadsReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
 
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
         Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)

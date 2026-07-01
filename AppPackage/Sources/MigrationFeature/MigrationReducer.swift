@@ -1,18 +1,18 @@
 import Foundation
 import AppModels
+import Resources
 import ComposableArchitecture
 import DatabaseClient
 
 @Reducer
 public struct MigrationReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case dropDialog
+    public enum Dialog: Equatable, Sendable {
+        case confirmDropDatabase
     }
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var databaseState: LoadingState = .loading
 
         public init() {}
@@ -20,7 +20,8 @@ public struct MigrationReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case dropDatabaseButtonTapped
         case onDatabasePreparationSuccess
 
         case prepareDatabase
@@ -41,8 +42,25 @@ public struct MigrationReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
+            case .dropDatabaseButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDropDatabase) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.dropDatabase)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.dropDatabase)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmDropDatabase)):
+                return .send(.dropDatabase)
+
+            case .confirmationDialog:
                 return .none
 
             case .onDatabasePreparationSuccess:
@@ -81,6 +99,7 @@ public struct MigrationReducer: Sendable {
                 }
             }
         }
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
 }
 

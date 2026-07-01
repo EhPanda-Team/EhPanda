@@ -1,12 +1,12 @@
 import ComposableArchitecture
 import AppModels
+import Resources
 import DatabaseClient
 
 @Reducer
 public struct FiltersReducer: Sendable {
-    @CasePathable
-    public enum Route: Sendable {
-        case resetFilters
+    public enum Dialog: Equatable, Sendable {
+        case confirmReset
     }
 
     public enum FocusedBound {
@@ -16,7 +16,7 @@ public struct FiltersReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var filterRange: FilterRange = .search
         public var focusedBound: FocusedBound?
 
@@ -29,7 +29,8 @@ public struct FiltersReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case resetFiltersButtonTapped
         case onTextFieldSubmitted
 
         case syncFilter(FilterRange)
@@ -62,8 +63,25 @@ public struct FiltersReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
+            case .resetFiltersButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmReset) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.reset)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.reset)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmReset)):
+                return .send(.resetFilters)
+
+            case .confirmationDialog:
                 return .none
 
             case .onTextFieldSubmitted:

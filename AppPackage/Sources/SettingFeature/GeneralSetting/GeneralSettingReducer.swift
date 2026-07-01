@@ -1,5 +1,6 @@
 import LocalAuthentication
 import AppModels
+import Resources
 import ComposableArchitecture
 import AuthorizationClient
 import ApplicationClient
@@ -14,13 +15,17 @@ public struct GeneralSettingReducer: Sendable {
     @CasePathable
     public enum Route: Sendable {
         case appActivityLogs
-        case clearCache
-        case removeCustomTranslations
+    }
+
+    public enum Dialog: Equatable, Sendable {
+        case confirmClearCache
+        case confirmRemoveCustomTranslations
     }
 
     @ObservableState
     public struct State: Equatable, Sendable {
         public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
 
         public var loadingState: LoadingState = .idle
         public var diskImageCacheSize = "0 KB"
@@ -32,10 +37,13 @@ public struct GeneralSettingReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
         case clearSubStates
         case onTranslationsFilePicked(URL)
+        case removeCustomTranslationsButtonTapped
         case onRemoveCustomTranslations
 
+        case clearImageCachesButtonTapped
         case clearWebImageCache
         case checkPasscodeSetting
         case navigateToSystemSetting
@@ -66,6 +74,45 @@ public struct GeneralSettingReducer: Sendable {
             case .setNavigation(let route):
                 state.route = route
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .removeCustomTranslationsButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmRemoveCustomTranslations) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.remove)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.removeCustomTranslations)
+                }
+                return .none
+
+            case .clearImageCachesButtonTapped:
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmClearCache) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.clear)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.ConfirmationDialog.Title.clear)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmRemoveCustomTranslations)):
+                return .send(.onRemoveCustomTranslations)
+
+            case .confirmationDialog(.presented(.confirmClearCache)):
+                return .send(.clearWebImageCache)
+
+            case .confirmationDialog:
+                return .none
 
             case .clearSubStates:
                 // The activity-logs pump is app-wide and always alive; never reset it on navigation.
@@ -112,6 +159,7 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
 
         Scope(state: \.appActivityLogsState, action: \.appActivityLogs, child: AppActivityLogsReducer.init)
     }

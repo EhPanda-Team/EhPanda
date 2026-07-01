@@ -6,9 +6,8 @@ import DownloadClient
 
 @Reducer
 public struct FolderManagerReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case deleteFolder(String)
+    public enum Dialog: Equatable, Sendable {
+        case confirmDelete(String)
     }
 
     public enum EditingField: Equatable, Hashable {
@@ -28,7 +27,7 @@ public struct FolderManagerReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var editingField: EditingField?
         public var editingFolderName = ""
         public var loadingState: LoadingState = .idle
@@ -55,7 +54,8 @@ public struct FolderManagerReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case confirmationDialog(PresentationAction<Dialog>)
+        case deleteButtonTapped(String)
         case setEditingField(EditingField?)
         case submitEditingField
 
@@ -83,8 +83,25 @@ public struct FolderManagerReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
+            case .deleteButtonTapped(let folder):
+                state.confirmationDialog = ConfirmationDialogState {
+                    TextState("")
+                } actions: {
+                    ButtonState(role: .destructive, action: .confirmDelete(folder)) {
+                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(L10n.Localizable.Common.Button.cancel)
+                    }
+                } message: {
+                    TextState(L10n.Localizable.FolderManagerView.Dialog.Message.deleteFolder)
+                }
+                return .none
+
+            case .confirmationDialog(.presented(.confirmDelete(let folder))):
+                return .send(.deleteFolder(folder))
+
+            case .confirmationDialog:
                 return .none
 
             case .setEditingField(let editingField):
@@ -182,5 +199,6 @@ public struct FolderManagerReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
 }

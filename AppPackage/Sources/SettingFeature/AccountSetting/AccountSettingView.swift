@@ -37,16 +37,10 @@ struct AccountSettingView: View {
                 }
                 .pickerStyle(.segmented)
                 AccountSection(
-                    route: $store.route,
                     showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,
                     loginAction: { store.send(.setNavigation(.login)) },
-                    logoutAction: {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            store.send(.onLogoutConfirmButtonTapped)
-                        }
-                    },
-                    logoutDialogAction: { store.send(.setNavigation(.logout)) },
+                    logoutDialogAction: { store.send(.logoutButtonTapped) },
                     configureAccountAction: { store.send(.setNavigation(.ehSetting)) },
                     manageTagsAction: { store.send(.setNavigation(.webView(Defaults.URL.myTags))) }
                 )
@@ -61,6 +55,9 @@ struct AccountSettingView: View {
             config: store.hudConfig,
             unwrapping: $store.route,
             case: \.hud
+        )
+        .confirmationDialog(
+            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )
         .sheet(item: $store.route.sending(\.setNavigation).webView, id: \.absoluteString) { url in
             WebView(url: url)
@@ -93,28 +90,23 @@ private extension AccountSettingView {
 
 // MARK: AccountSection
 private struct AccountSection: View {
-    @Binding private var route: AccountSettingReducer.Route?
     @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
     private let loginAction: () -> Void
-    private let logoutAction: () -> Void
     private let logoutDialogAction: () -> Void
     private let configureAccountAction: () -> Void
     private let manageTagsAction: () -> Void
 
     init(
-        route: Binding<AccountSettingReducer.Route?>,
         showsNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
-        loginAction: @escaping () -> Void, logoutAction: @escaping () -> Void,
+        loginAction: @escaping () -> Void,
         logoutDialogAction: @escaping () -> Void,
         configureAccountAction: @escaping () -> Void,
         manageTagsAction: @escaping () -> Void
     ) {
-        _route = route
         _showsNewDawnGreeting = showsNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.loginAction = loginAction
-        self.logoutAction = logoutAction
         self.logoutDialogAction = logoutDialogAction
         self.configureAccountAction = configureAccountAction
         self.manageTagsAction = manageTagsAction
@@ -128,16 +120,6 @@ private struct AccountSection: View {
                 L10n.Localizable.ConfirmationDialog.Button.logout,
                 role: .destructive, action: logoutDialogAction
             )
-            .confirmationDialog(
-                message: L10n.Localizable.ConfirmationDialog.Title.logout,
-                unwrapping: $route,
-                case: \.logout
-            ) {
-                Button(
-                    L10n.Localizable.ConfirmationDialog.Button.logout,
-                    role: .destructive, action: logoutAction
-                )
-            }
             Group {
                 Button(
                     L10n.Localizable.AccountSettingView.Button.accountConfiguration,

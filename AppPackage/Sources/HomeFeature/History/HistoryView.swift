@@ -53,6 +53,9 @@ struct HistoryView: View {
             }
             .background(navigationLink)
             .toolbar(content: toolbar)
+            .confirmationDialog(
+                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            )
             .navigationTitle(L10n.Localizable.HistoryView.Title.history)
 
         if DeviceUtil.isPad {
@@ -86,20 +89,11 @@ struct HistoryView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                store.send(.setNavigation(.clearHistory))
+                store.send(.clearHistoryButtonTapped)
             } label: {
                 Image(systemSymbol: .trashCircle)
             }
             .disabled(store.loadingState != .idle || store.galleries.isEmpty)
-            .confirmationDialog(
-                message: L10n.Localizable.ConfirmationDialog.Title.clear,
-                unwrapping: $store.route,
-                case: \.clearHistory
-            ) {
-                Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
-                    store.send(.clearHistoryGalleries)
-                }
-            }
         }
     }
 }

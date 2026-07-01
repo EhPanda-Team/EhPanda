@@ -53,6 +53,9 @@ struct EhSettingView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .autoBlur(radius: blurRadius)
         }
+        .confirmationDialog(
+            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+        )
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.EhSettingView.Title.hostSettings(galleryHost.rawValue))
     }
@@ -61,18 +64,10 @@ struct EhSettingView: View {
         Form {
             Group {
                 EhProfileSection(
-                    route: $store.route,
                     ehSetting: ehSetting,
                     ehProfile: ehProfile,
                     editingProfileName: $store.editingProfileName,
-                    deleteAction: {
-                        if let value = store.ehProfile?.value {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                store.send(.performAction(action: .delete, name: nil, set: value))
-                            }
-                        }
-                    },
-                    deleteDialogAction: { store.send(.setNavigation(.deleteProfile)) },
+                    deleteDialogAction: { store.send(.deleteProfileButtonTapped) },
                     performEhProfileAction: { store.send(.performAction(action: $0, name: $1, set: $2)) }
                 )
 

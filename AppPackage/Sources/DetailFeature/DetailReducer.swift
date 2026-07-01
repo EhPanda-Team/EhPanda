@@ -31,6 +31,11 @@ public struct DetailReducer: Sendable {
         case folderManager(EquatableVoid = .init())
     }
 
+    public enum Alert: Equatable, Sendable {
+        case confirmDeleteDownload
+        case confirmRetryDownload(DownloadStartMode)
+    }
+
     public enum CancelID: Hashable, Sendable {
         case fetchDatabaseInfos(String)
         case fetchGalleryDetail(String)
@@ -68,6 +73,7 @@ public struct DetailReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var alert: AlertState<Alert>?
         public var commentContent = ""
         public var postCommentFocused = false
         public var showsNewDawnGreeting = false
@@ -127,6 +133,9 @@ public struct DetailReducer: Sendable {
     public indirect enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case alert(PresentationAction<Alert>)
+        case deleteDownloadButtonTapped
+        case retryDownloadButtonTapped(DownloadStartMode)
         case clearSubStates
         case onPostCommentAppear
         case onAppear(String, Bool)
@@ -216,6 +225,7 @@ extension DetailReducer {
             galleryOpsReducer
             childReducer(self)
             optionalChildReducers
+                .ifLet(\.$alert, action: \.alert)
             Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
             Scope(state: \.archivesState, action: \.archives, child: ArchivesReducer.init)
             Scope(state: \.torrentsState, action: \.torrents, child: TorrentsReducer.init)
