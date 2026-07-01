@@ -12,10 +12,14 @@ import ComposableArchitectureExt
 public struct DownloadsReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
-        case inspector(String)
         case detail(String)
-        case reading(String)
-        case folderManager(EquatableVoid = .init())
+    }
+
+    @Reducer
+    public enum Destination {
+        case inspector(DownloadInspectorReducer)
+        case reading(ReadingReducer)
+        case folderManager(FolderManagerReducer)
     }
 
     public enum Alert: Equatable, Sendable {
@@ -34,6 +38,7 @@ public struct DownloadsReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         @Presents public var alert: AlertState<Alert>?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
@@ -44,9 +49,6 @@ public struct DownloadsReducer: Sendable {
         public var hasLoadedInitialDownloads = false
 
         public var detailState: Heap<DetailReducer.State?>
-        public var readingState = ReadingReducer.State()
-        public var inspectorState = DownloadInspectorReducer.State()
-        public var folderManagerState = FolderManagerReducer.State()
         public var readingRequestID = UUID()
 
         public init() {
@@ -67,6 +69,9 @@ public struct DownloadsReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case inspectorButtonTapped(String)
+        case folderManagerButtonTapped
         case alert(PresentationAction<Alert>)
         case confirmationDialog(PresentationAction<Dialog>)
         case deleteDownloadButtonTapped(DownloadedGallery)
@@ -95,9 +100,6 @@ public struct DownloadsReducer: Sendable {
         case deleteDownloadDone(Result<Void, AppError>)
 
         case detail(DetailReducer.Action)
-        case reading(ReadingReducer.Action)
-        case inspector(DownloadInspectorReducer.Action)
-        case folderManager(FolderManagerReducer.Action)
     }
 
     @Dependency(\.downloadClient) private var downloadClient
@@ -124,10 +126,16 @@ public struct DownloadsReducer: Sendable {
                     detailState.gallery = download.gallery
                     _ = DetailReducer().applyDownload(download, state: &detailState)
                     state.detailState.wrappedValue = detailState
-                } else if case .inspector(let gid) = route {
-                    state.inspectorState = .init(gid: gid)
                 }
                 return route == nil ? .send(.clearSubStates) : .none
+
+            case .inspectorButtonTapped(let gid):
+                state.destination = .inspector(.init(gid: gid))
+                return .none
+
+            case .folderManagerButtonTapped:
+                state.destination = .folderManager(.init())
+                return .none
 
             case .deleteDownloadButtonTapped(let download):
                 state.alert = AlertState {
@@ -178,15 +186,7 @@ public struct DownloadsReducer: Sendable {
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
-                state.readingState = .init()
-                state.inspectorState = .init()
-                state.folderManagerState = .init()
-                return .merge(
-                    .send(.detail(.teardown)),
-                    .send(.reading(.teardown)),
-                    .send(.inspector(.teardown)),
-                    .send(.folderManager(.teardown))
-                )
+                return .send(.detail(.teardown))
 
             case .onAppear:
                 guard !state.hasLoadedInitialDownloads else { return .send(.fetchFolders) }
@@ -265,10 +265,6 @@ public struct DownloadsReducer: Sendable {
             case .openReading(let gid):
                 let requestID = UUID()
                 state.readingRequestID = requestID
-                state.readingState = .init(contentSource: .remote)
-                if let download = state.downloads.first(where: { $0.gid == gid }) {
-                    state.readingState.applyDownloadFallback(download)
-                }
                 return .run { send in
                     await send(
                         .openReadingDone(
@@ -283,10 +279,17 @@ public struct DownloadsReducer: Sendable {
 
             case .openReadingDone(let requestID, let gid, let result):
                 guard state.readingRequestID == requestID else { return .none }
+                var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    state.readingState = .init(contentSource: .local(download, manifest))
+                    readingState = .init(contentSource: .local(download, manifest))
+                    readingState.gallery = download.gallery
+                } else {
+                    readingState = .init(contentSource: .remote)
+                    if let download = state.downloads.first(where: { $0.gid == gid }) {
+                        readingState.applyDownloadFallback(download)
+                    }
                 }
-                state.route = .reading(gid)
+                state.destination = .reading(readingState)
                 return .none
 
             case .toggleDownloadPause(let gid):
@@ -333,33 +336,27 @@ public struct DownloadsReducer: Sendable {
             case .detail:
                 return .none
 
-            case .reading(.onPerformDismiss):
-                return .send(.setNavigation(nil))
+            case .destination(.presented(.reading(.onPerformDismiss))):
+                return .send(.destination(.dismiss))
 
-            case .reading:
-                return .none
-
-            case .inspector:
-                return .none
-
-            case .folderManager(.createFolderDone),
-                 .folderManager(.renameFolderDone),
-                 .folderManager(.deleteFolderDone):
+            case .destination(.presented(.folderManager(.createFolderDone))),
+                 .destination(.presented(.folderManager(.renameFolderDone))),
+                 .destination(.presented(.folderManager(.deleteFolderDone))):
                 return .send(.fetchFolders)
 
-            case .folderManager:
+            case .destination:
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
 
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
-        Scope(state: \.readingState, action: \.reading, child: ReadingReducer.init)
-        Scope(state: \.inspectorState, action: \.inspector, child: DownloadInspectorReducer.init)
-        Scope(state: \.folderManagerState, action: \.folderManager, child: FolderManagerReducer.init)
     }
 }
+
+extension DownloadsReducer.Destination.State: Equatable {}
 
 private extension ReadingReducer.State {
     mutating func applyDownloadFallback(_ download: DownloadedGallery) {

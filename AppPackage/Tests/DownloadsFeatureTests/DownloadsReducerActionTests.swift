@@ -254,8 +254,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         await store.send(.openReading(download.gid))
         await store.receive(\.openReadingDone)
 
-        #expect(store.state.route == .reading(download.gid))
-        #expect(store.state.readingState.contentSource == .local(download, manifest))
+        #expect(store.state.destination?.reading?.contentSource == .local(download, manifest))
     }
 
     @MainActor

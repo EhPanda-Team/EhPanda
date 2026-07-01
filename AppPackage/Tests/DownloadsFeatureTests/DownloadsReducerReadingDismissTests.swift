@@ -9,10 +9,9 @@ import AppDelegateClient
 struct DownloadsReducerReadingDismissTests {
     @MainActor
     @Test
-    func readingDismissClearsRoute() async {
-        let gid = "135790"
+    func readingDismissClearsDestination() async {
         var initialState = DownloadsReducer.State()
-        initialState.route = .reading(gid)
+        initialState.destination = .reading(.init(contentSource: .remote))
 
         let store = TestStore(
             initialState: initialState,
@@ -25,9 +24,9 @@ struct DownloadsReducerReadingDismissTests {
         )
         store.exhaustivity = .off
 
-        await store.send(.reading(.onPerformDismiss))
-        await store.receive(\.setNavigation)
+        await store.send(.destination(.presented(.reading(.onPerformDismiss))))
+        await store.receive(\.destination.dismiss)
 
-        #expect(store.state.route == nil)
+        #expect(store.state.destination == nil)
     }
 }
