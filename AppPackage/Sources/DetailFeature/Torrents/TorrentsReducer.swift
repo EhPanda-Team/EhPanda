@@ -13,6 +13,11 @@ public struct TorrentsReducer: Sendable {
     @CasePathable
     public enum Route: Equatable, Sendable {
         case hud
+    }
+
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
         case share(URL)
     }
 
@@ -23,6 +28,7 @@ public struct TorrentsReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var torrents = [GalleryTorrent]()
         public var loadingState: LoadingState = .idle
         public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
@@ -31,6 +37,8 @@ public struct TorrentsReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
+        case destination(PresentationAction<Destination.Action>)
+        case presentShare(URL)
 
         case copyText(String)
         case presentTorrentActivity(String, Data)
@@ -60,6 +68,13 @@ public struct TorrentsReducer: Sendable {
                 state.route = route
                 return .none
 
+            case .destination:
+                return .none
+
+            case .presentShare(let url):
+                state.destination = .share(url)
+                return .none
+
             case .copyText(let magnetURL):
                 state.route = .hud
                 return .merge(
@@ -69,7 +84,7 @@ public struct TorrentsReducer: Sendable {
 
             case .presentTorrentActivity(let hash, let data):
                 if let url = fileClient.saveTorrent(hash: hash, data: data) {
-                    return .send(.setNavigation(.share(url)))
+                    return .send(.presentShare(url))
                 }
                 return .none
 
@@ -114,9 +129,13 @@ public struct TorrentsReducer: Sendable {
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.share,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
     }
 }
+
+extension TorrentsReducer.Destination.State: Equatable, Sendable {}
+extension TorrentsReducer.Destination.Action: Equatable, Sendable {}

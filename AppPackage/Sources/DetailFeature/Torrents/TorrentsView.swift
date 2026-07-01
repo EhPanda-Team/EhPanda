@@ -43,8 +43,8 @@ struct TorrentsView: View {
                 }
                 .opacity(error != nil && store.torrents.isEmpty ? 1 : 0)
             }
-            .sheet(item: $store.route.sending(\.setNavigation).share, id: \.absoluteString) { route in
-                ActivityView(activityItems: [route.wrappedValue])
+            .sheet(item: $store.destination.share, id: \.absoluteString) { url in
+                ActivityView(activityItems: [url.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
             .progressHUD(
