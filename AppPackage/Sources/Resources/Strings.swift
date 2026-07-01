@@ -249,8 +249,8 @@ public enum L10n {
       }
       /// Runs
       public static let runs = L10n.tr("Localizable", "app_activity_logs_view.runs", fallback: "Runs")
-      /// App Activity Logs
-      public static let title = L10n.tr("Localizable", "app_activity_logs_view.title", fallback: "App Activity Logs")
+      /// App activity logs
+      public static let title = L10n.tr("Localizable", "app_activity_logs_view.title", fallback: "App activity logs")
       public enum Level {
         /// Debug
         public static let debug = L10n.tr("Localizable", "app_activity_logs_view.level.debug", fallback: "Debug")
@@ -2182,8 +2182,8 @@ public enum L10n {
     }
     public enum GeneralSettingView {
       public enum Button {
-        /// App Activity Logs
-        public static let appActivityLogs = L10n.tr("Localizable", "general_setting_view.button.app_activity_logs", fallback: "App Activity Logs")
+        /// App activity logs
+        public static let appActivityLogs = L10n.tr("Localizable", "general_setting_view.button.app_activity_logs", fallback: "App activity logs")
         /// Clear image caches
         public static let clearImageCaches = L10n.tr("Localizable", "general_setting_view.button.clear_image_caches", fallback: "Clear image caches")
         /// Import custom translations
