@@ -19,8 +19,6 @@ public struct LogsClient: Sendable {
     /// Derives the next run count for the given day from the existing log files
     /// (`max + 1` among that day's files, or `1` — so the count resets each new day).
     public var nextRunCount: @Sendable (_ date: Date) async -> Int
-    /// In-memory, case-insensitive keyword filter over already-loaded logs.
-    public var query: @Sendable (_ logs: [AppActivityLog], _ keyword: String) -> [AppActivityLog]
     /// The jsonl file URL for a given run.
     public var currentRunFileURL: @Sendable (_ runCount: Int, _ date: Date) -> URL
 }
@@ -97,14 +95,6 @@ extension LogsClient {
                 .map(\.runCount)
             return (todayCounts.max() ?? 0) + 1
         },
-        query: { logs, keyword in
-            guard !keyword.isEmpty else { return logs }
-            return logs.filter { log in
-                [log.dateDescription, log.level.title, log.category, log.message]
-                    .joined(separator: " ")
-                    .caseInsensitiveContains(keyword)
-            }
-        },
         currentRunFileURL: { runCount, date in
             FileUtil.logsDirectoryURL.appendingPathComponent(
                 RunLogFile.fileName(date: date, runCount: runCount)
@@ -135,7 +125,6 @@ extension LogsClient {
         readRunFile: { _ in [] },
         listRunFiles: { [] },
         nextRunCount: { _ in 1 },
-        query: { logs, _ in logs },
         currentRunFileURL: { _, _ in FileUtil.logsDirectoryURL }
     )
 
@@ -147,7 +136,6 @@ extension LogsClient {
         readRunFile: IssueReporting.unimplemented(placeholder: placeholder()),
         listRunFiles: IssueReporting.unimplemented(placeholder: placeholder()),
         nextRunCount: IssueReporting.unimplemented(placeholder: placeholder()),
-        query: IssueReporting.unimplemented(placeholder: placeholder()),
         currentRunFileURL: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }

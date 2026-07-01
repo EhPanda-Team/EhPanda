@@ -1,45 +1,45 @@
-import OSLogExt
 import Foundation
 import AppModels
+import Sharing
 import LogsClient
 import ApplicationClient
 import ComposableArchitecture
 
-private let logger = Logger(category: .init(describing: AppActivityLogsReducer.self))
-
 @Reducer
 public struct AppActivityLogsReducer: Sendable {
-    private enum CancelID {
-        case pump
-    }
-
     @ObservableState
     public struct State: Equatable, Sendable {
-        // The current run, derived once per app run and reused across pump pauses.
-        public var currentRun: RunLogFile?
-        public var lastCursorDate: Date?
+        // Live, read-only view of the current run + its logs, published by the always-alive
+        // `AppActivityLogsPumpReducer`. Read-only so the screen can never write stale data back.
+        @SharedReader(.appActivityLogsCurrentRun) public var currentRun: RunLogFile?
+        @SharedReader(.appActivityLogsCurrentRunLogs) public var currentRunLogs: [AppActivityLog]
 
-        // Live, state-backed logs for the current run.
-        public var currentRunLogs = [AppActivityLog]()
         // File-backed log files for previous runs (excludes the current run).
         public var previousRuns = [RunLogFile]()
         // File-backed logs for the currently selected previous run.
         public var selectedRunLogs = [AppActivityLog]()
 
-        // `nil` selects the current run (state-backed); otherwise a previous run's file URL.
+        // `nil` selects the current run (live/shared); otherwise a previous run's file URL.
         public var selectedRun: URL?
-        public var displayedLogs = [AppActivityLog]()
         public var keyword = ""
         public var loadingState: LoadingState = .idle
+
+        // Derived live from the shared current-run buffer (or the selected previous run), newest
+        // first. Computed rather than stored so it tracks the pump's shared writes without an action.
+        public var displayedLogs: [AppActivityLog] {
+            let source = selectedRun == nil ? currentRunLogs : selectedRunLogs
+            let filtered = keyword.isEmpty ? source : source.filter { log in
+                [log.dateDescription, log.level.title, log.category, log.message]
+                    .joined(separator: " ")
+                    .caseInsensitiveContains(keyword)
+            }
+            return filtered.sorted { $0.date > $1.date }
+        }
 
         public init() {}
     }
 
     public enum Action: Equatable, Sendable {
-        case startPump
-        case pausePump
-        case setCurrentRun(RunLogFile)
-        case didReceiveNewEntries([AppActivityLog])
         case refreshAvailableRuns
         case availableRunsResponse([RunLogFile])
         case selectRun(URL?)
@@ -50,75 +50,12 @@ public struct AppActivityLogsReducer: Sendable {
 
     @Dependency(\.logsClient) private var logsClient
     @Dependency(\.applicationClient) private var applicationClient
-    @Dependency(\.continuousClock) private var clock
-    @Dependency(\.date) private var date
 
     public init() {}
 
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .startPump:
-                return .run { [existingURL = state.currentRun?.url, cursor0 = state.lastCursorDate] send in
-                    let fileURL: URL
-                    if let existingURL {
-                        fileURL = existingURL
-                    } else {
-                        let now = date.now
-                        let runCount = await logsClient.nextRunCount(now)
-                        let resolvedURL = logsClient.currentRunFileURL(runCount, now)
-                        await send(.setCurrentRun(RunLogFile(url: resolvedURL, date: now, runCount: runCount)))
-                        fileURL = resolvedURL
-                        let appVersion = Bundle.main
-                            .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "(null)"
-                        logger.log(
-                            """
-                            App activity logging started.
-                            Run \(runCount, privacy: .public)
-                            App Version \(appVersion, privacy: .public)
-                            OS \(ProcessInfo.processInfo.operatingSystemVersionString, privacy: .public)
-                            """
-                        )
-                    }
-                    await send(.refreshAvailableRuns)
-
-                    var cursor = cursor0
-                    while !Task.isCancelled {
-                        let newEntries = (try? await logsClient.fetchNewEntries(cursor)) ?? []
-                        if let lastDate = newEntries.last?.date {
-                            cursor = lastDate
-                            await send(.didReceiveNewEntries(newEntries))
-                            try? await logsClient.appendToRunFile(newEntries, fileURL)
-                        }
-                        try await clock.sleep(for: .seconds(5))
-                    }
-                }
-                .cancellable(id: CancelID.pump, cancelInFlight: true)
-
-            case .pausePump:
-                return .merge(
-                    .run { [cursor = state.lastCursorDate, fileURL = state.currentRun?.url] send in
-                        guard let fileURL else { return }
-                        let newEntries = (try? await logsClient.fetchNewEntries(cursor)) ?? []
-                        guard !newEntries.isEmpty else { return }
-                        await send(.didReceiveNewEntries(newEntries))
-                        try? await logsClient.appendToRunFile(newEntries, fileURL)
-                    },
-                    .cancel(id: CancelID.pump)
-                )
-
-            case let .setCurrentRun(run):
-                state.currentRun = run
-                return .none
-
-            case .didReceiveNewEntries(let entries):
-                state.currentRunLogs.append(contentsOf: entries)
-                state.lastCursorDate = entries.last?.date ?? state.lastCursorDate
-                if state.selectedRun == nil {
-                    refreshDisplayedLogs(&state)
-                }
-                return .none
-
             case .refreshAvailableRuns:
                 return .run { send in
                     await send(.availableRunsResponse(await logsClient.listRunFiles()))
@@ -133,7 +70,6 @@ public struct AppActivityLogsReducer: Sendable {
                 guard let url, state.previousRuns.contains(where: { $0.url == url }) else {
                     state.selectedRun = nil
                     state.selectedRunLogs = []
-                    refreshDisplayedLogs(&state)
                     return .none
                 }
                 state.selectedRun = url
@@ -146,25 +82,15 @@ public struct AppActivityLogsReducer: Sendable {
             case .runFileResponse(let logs):
                 state.loadingState = .idle
                 state.selectedRunLogs = logs
-                refreshDisplayedLogs(&state)
                 return .none
 
             case .queryLogs(let keyword):
                 state.keyword = keyword
-                refreshDisplayedLogs(&state)
                 return .none
 
             case .navigateToFileApp:
                 return .run { _ in await applicationClient.openFileApp() }
             }
         }
-    }
-
-    private func refreshDisplayedLogs(_ state: inout State) {
-        let source = state.selectedRun == nil
-            ? state.currentRunLogs
-            : state.selectedRunLogs
-        state.displayedLogs = logsClient.query(source, state.keyword)
-            .sorted { $0.date > $1.date }
     }
 }
