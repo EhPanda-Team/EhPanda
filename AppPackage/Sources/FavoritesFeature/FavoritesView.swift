@@ -58,12 +58,12 @@ public struct FavoritesView: View {
                         NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                     }
                 }
-                .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
-                    QuickSearchView(
-                        store: store.scope(state: \.quickSearchState, action: \.quickSearch)
-                    ) { keyword in
-                        store.send(.setNavigation(nil))
-                        store.send(.fetchGalleries(keyword))
+                .sheet(
+                    item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+                ) { store in
+                    QuickSearchView(store: store) { keyword in
+                        self.store.send(.destination(.dismiss))
+                        self.store.send(.fetchGalleries(keyword))
                     }
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
@@ -144,7 +144,7 @@ public struct FavoritesView: View {
                 store.send(.dateSeek(.present(navigation)))
             }
             QuickSearchButton(hideText: true) {
-                store.send(.setNavigation(.quickSearch()))
+                store.send(.quickSearchButtonTapped)
             }
         }
     }

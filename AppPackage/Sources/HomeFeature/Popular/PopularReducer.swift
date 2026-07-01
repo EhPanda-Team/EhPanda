@@ -13,8 +13,12 @@ import ComposableArchitectureExt
 public struct PopularReducer: Sendable {
     @dynamicMemberLookup @CasePathable
     public enum Route: Equatable, Sendable {
-        case filters(EquatableVoid = .unique)
         case detail(String)
+    }
+
+    @Reducer
+    public enum Destination {
+        case filters(FiltersReducer)
     }
 
     private enum CancelID {
@@ -24,6 +28,7 @@ public struct PopularReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         public var route: Route?
+        @Presents public var destination: Destination.State?
         public var keyword = ""
 
         var filteredGalleries: [Gallery] {
@@ -33,7 +38,6 @@ public struct PopularReducer: Sendable {
         public var galleries = [Gallery]()
         public var loadingState: LoadingState = .idle
 
-        public var filtersState = FiltersReducer.State()
         public var detailState: Heap<DetailReducer.State?>
 
         public init() {
@@ -45,12 +49,13 @@ public struct PopularReducer: Sendable {
         case binding(BindingAction<State>)
         case setNavigation(Route?)
         case clearSubStates
+        case filtersButtonTapped
+        case destination(PresentationAction<Destination.Action>)
 
         case teardown
         case fetchGalleries
         case fetchGalleriesDone(Result<[Gallery], AppError>)
 
-        case filters(FiltersReducer.Action)
         case detail(DetailReducer.Action)
     }
 
@@ -76,8 +81,14 @@ public struct PopularReducer: Sendable {
 
             case .clearSubStates:
                 state.detailState.wrappedValue = .init()
-                state.filtersState = .init()
                 return .send(.detail(.teardown))
+
+            case .filtersButtonTapped:
+                state.destination = .filters(FiltersReducer.State())
+                return .none
+
+            case .destination:
+                return .none
 
             case .teardown:
                 return .cancel(id: CancelID.fetchGalleries)
@@ -107,20 +118,19 @@ public struct PopularReducer: Sendable {
                 }
                 return .none
 
-            case .filters:
-                return .none
-
             case .detail:
                 return .none
             }
         }
         .haptics(
-            unwrapping: \.route,
+            unwrapping: \.destination,
             case: \.filters,
             hapticsClient: hapticsClient
         )
+        .ifLet(\.$destination, action: \.destination)
 
-        Scope(state: \.filtersState, action: \.filters, child: FiltersReducer.init)
         Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
+
+extension PopularReducer.Destination.State: Equatable, Sendable {}
