@@ -13,7 +13,7 @@ struct TagDetailView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack {
                     TagDescriptionSection(description: detail.description)

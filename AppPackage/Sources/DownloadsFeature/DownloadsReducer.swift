@@ -328,9 +328,9 @@ public struct DownloadsReducer: Sendable {
             case .deleteDownloadDone:
                 return .none
 
-            case .detail(.folderManager(.createFolderDone)),
-                 .detail(.folderManager(.renameFolderDone)),
-                 .detail(.folderManager(.deleteFolderDone)):
+            case .detail(.destination(.presented(.folderManager(.createFolderDone)))),
+                 .detail(.destination(.presented(.folderManager(.renameFolderDone)))),
+                 .detail(.destination(.presented(.folderManager(.deleteFolderDone)))):
                 return .send(.fetchFolders)
 
             case .detail:

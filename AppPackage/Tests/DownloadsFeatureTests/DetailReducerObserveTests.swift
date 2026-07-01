@@ -108,11 +108,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         await store.send(.openReading)
         await store.skipReceivedActions(strict: false)
 
-        #expect(store.state.readingState.contentSource == .local(download, manifest))
-        if case .reading = store.state.route {
-        } else {
-            Issue.record("Expected reading route to be active.")
-        }
+        #expect(store.state.destination?.reading?.contentSource == .local(download, manifest))
     }
 
     @MainActor
@@ -140,11 +136,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         await store.send(.openReading)
         await store.skipReceivedActions(strict: false)
 
-        #expect(store.state.readingState.contentSource == .remote)
-        if case .reading = store.state.route {
-        } else {
-            Issue.record("Expected reading route to be active.")
-        }
+        #expect(store.state.destination?.reading?.contentSource == .remote)
     }
 
 }

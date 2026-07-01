@@ -28,7 +28,7 @@ struct PostCommentView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 TextEditor(text: $content)
                     .focused($isTextEditorFocused)

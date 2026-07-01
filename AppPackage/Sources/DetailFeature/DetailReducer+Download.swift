@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppTools
+import ReadingFeature
 
 // MARK: - Download Action Handlers
 extension DetailReducer {
@@ -92,9 +93,9 @@ extension DetailReducer {
                 }
                 return .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.error) })
 
-            case .folderManager(.createFolderDone),
-                 .folderManager(.renameFolderDone),
-                 .folderManager(.deleteFolderDone):
+            case .destination(.presented(.folderManager(.createFolderDone))),
+                 .destination(.presented(.folderManager(.renameFolderDone))),
+                 .destination(.presented(.folderManager(.deleteFolderDone))):
                 return .send(.fetchDownloadFolders)
 
             case .observeDownload:
@@ -137,7 +138,6 @@ extension DetailReducer {
                 return .none
 
             case .openReading:
-                state.readingState = .init(contentSource: .remote)
                 return .run { [galleryID = state.gallery.id] send in
                     guard galleryID.isValidGID else {
                         await send(.openReadingDone(.failure(.notFound)))
@@ -149,13 +149,14 @@ extension DetailReducer {
                 }
 
             case .openReadingDone(let result):
+                var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    state.readingState = .init(contentSource: .local(download, manifest))
+                    readingState = .init(contentSource: .local(download, manifest))
                 } else {
-                    state.readingState.contentSource = .remote
-                    state.readingState.localPageURLs = state.localPreviewURLs
+                    readingState = .init(contentSource: .remote)
+                    readingState.localPageURLs = state.localPreviewURLs
                 }
-                state.route = .reading()
+                state.destination = .reading(readingState)
                 return .none
 
             case .runLaunchAutomationIfNeeded:
