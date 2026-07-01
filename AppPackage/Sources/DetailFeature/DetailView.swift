@@ -45,7 +45,7 @@ public struct DetailView: View {
             .onChange(of: store.hasLoadedDownloadBadge) { _, _ in
                 runLaunchAutomationIfNeeded()
             }
-            .alert($store.scope(state: \.alert, action: \.alert))
+            .appAlert($store.scope(state: \.alert, action: \.alert))
             .toolbar(content: toolbar)
     }
 

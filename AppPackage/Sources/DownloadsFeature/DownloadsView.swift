@@ -101,7 +101,7 @@ public struct DownloadsView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
+        .appAlert($store.scope(state: \.alert, action: \.alert))
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )

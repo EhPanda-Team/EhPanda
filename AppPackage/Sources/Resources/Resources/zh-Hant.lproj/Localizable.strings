@@ -39,6 +39,7 @@
 
 // MARK: Common button
 "common.button.cancel" = "取消";
+"common.button.ok" = "好";
 
 // MARK: TabItem
 "tab_item.title.home" = "總覽";

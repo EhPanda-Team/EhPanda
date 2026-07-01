@@ -2,6 +2,7 @@ import Foundation
 import AppModels
 import Resources
 import ComposableArchitecture
+import AppComponents
 import AppTools
 import ReadingFeature
 
@@ -11,7 +12,7 @@ extension DetailReducer {
         Reduce { state, action in
             switch action {
             case .deleteDownloadButtonTapped:
-                state.alert = AlertState {
+                state.alert = AppAlertState {
                     TextState(L10n.Localizable.DetailView.Dialog.Title.deleteDownload)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDeleteDownload) {
@@ -26,7 +27,7 @@ extension DetailReducer {
                 return .none
 
             case .retryDownloadButtonTapped(let mode):
-                state.alert = AlertState {
+                state.alert = AppAlertState {
                     TextState(Self.retryDownloadTitle(for: mode))
                 } actions: {
                     ButtonState(action: .confirmRetryDownload(mode)) {
