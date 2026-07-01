@@ -3,7 +3,6 @@ import AppModels
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
 import ReadingFeature
@@ -31,27 +30,16 @@ public struct DownloadsView: View {
     }
 
     public var body: some View {
-        NavigationView {
-            if DeviceUtil.isPad {
-                contentView
-                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
-                        NavigationView {
-                            DetailView(
-                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                                gid: route.wrappedValue,
-                                user: user,
-                                setting: $setting,
-                                blurRadius: blurRadius,
-                                tagTranslator: tagTranslator
-                            )
-                        }
-                        .autoBlur(radius: blurRadius)
-                        .environment(\.inSheet, true)
-                        .navigationViewStyle(.stack)
-                    }
-            } else {
-                contentView
-            }
+        GalleryNavigationContainer(
+            store: store,
+            state: \.path,
+            action: \.path,
+            user: user,
+            setting: $setting,
+            blurRadius: blurRadius,
+            tagTranslator: tagTranslator
+        ) {
+            contentView
         }
     }
 
@@ -117,7 +105,6 @@ public struct DownloadsView: View {
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )
-        .background(navigationLink)
         .navigationTitle(L10n.Localizable.DownloadsView.Title.downloads)
         .navigationBarTitleDisplayMode(.large)
         .toolbar(content: toolbar)
@@ -214,7 +201,7 @@ private extension DownloadsView {
 
     @ViewBuilder private func downloadContextMenu(_ download: DownloadedGallery) -> some View {
         Button {
-            store.send(.setNavigation(.detail(download.gid)))
+            store.send(.galleryTapped(download.gid))
         } label: {
             Label(
                 L10n.Localizable.DetailView.ContextMenu.Button.detail,
@@ -276,21 +263,6 @@ private extension DownloadsView {
             store.send(.deleteDownloadButtonTapped(download))
         } label: {
             Label(L10n.Localizable.ConfirmationDialog.Button.delete, systemSymbol: .trash)
-        }
-    }
-
-    @ViewBuilder private var navigationLink: some View {
-        if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-                DetailView(
-                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                    gid: route.wrappedValue,
-                    user: user,
-                    setting: $setting,
-                    blurRadius: blurRadius,
-                    tagTranslator: tagTranslator
-                )
-            }
         }
     }
 

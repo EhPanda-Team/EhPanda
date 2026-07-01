@@ -4,7 +4,6 @@ import TagTranslationFeature
 import Resources
 import AlertKit
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
 import DateSeekFeature
@@ -36,101 +35,80 @@ public struct FavoritesView: View {
     }
 
     public var body: some View {
-        NavigationView {
-            let content =
-                ZStack {
-                    if CookieUtil.didLogin {
-                        GenericList(
-                            galleries: store.galleries ?? [],
-                            setting: setting,
-                            pageNumber: store.pageNumber,
-                            loadingState: store.loadingState ?? .idle,
-                            footerLoadingState: store.footerLoadingState ?? .idle,
-                            fetchAction: { store.send(.fetchGalleries()) },
-                            fetchMoreAction: { store.send(.fetchMoreGalleries) },
-                            navigateAction: { store.send(.setNavigation(.detail($0))) },
-                            translateAction: {
-                                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                            },
-                            downloadBadges: store.downloadBadges
-                        )
-                    } else {
-                        NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
-                    }
-                }
-                .sheet(
-                    item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
-                ) { store in
-                    QuickSearchView(store: store) { keyword in
-                        self.store.send(.destination(.dismiss))
-                        self.store.send(.fetchGalleries(keyword))
-                    }
-                    .accentColor(setting.accentColor)
-                    .autoBlur(radius: blurRadius)
-                }
-                .sheet(
-                    item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
-                ) { store in
-                    @Bindable var store = store
-                    DateSeekPickerView(
-                        selectedDate: $store.date,
-                        navigation: store.navigation,
-                        seekAction: { store.send(.performSeek($0)) }
+        GalleryNavigationContainer(
+            store: store,
+            state: \.path,
+            action: \.path,
+            user: user,
+            setting: $setting,
+            blurRadius: blurRadius,
+            tagTranslator: tagTranslator
+        ) {
+            ZStack {
+                if CookieUtil.didLogin {
+                    GenericList(
+                        galleries: store.galleries ?? [],
+                        setting: setting,
+                        pageNumber: store.pageNumber,
+                        loadingState: store.loadingState ?? .idle,
+                        footerLoadingState: store.footerLoadingState ?? .idle,
+                        fetchAction: { store.send(.fetchGalleries()) },
+                        fetchMoreAction: { store.send(.fetchMoreGalleries) },
+                        navigateAction: { store.send(.galleryTapped($0)) },
+                        translateAction: {
+                            tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                        },
+                        downloadBadges: store.downloadBadges
                     )
-                    .accentColor(setting.accentColor)
-                    .autoBlur(radius: blurRadius)
+                } else {
+                    NotLoginView(action: { store.send(.onNotLoginViewButtonTapped) })
                 }
-                .searchable(text: $store.keyword)
-                .searchSuggestions {
-                    TagSuggestionView(
-                        keyword: $store.keyword, translations: tagTranslator.translations,
-                        showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
-                    )
-                }
-                .onSubmit(of: .search) {
-                    store.send(.fetchGalleries())
-                }
-                .onAppear {
-                    store.send(.onAppear)
-                    if store.galleries?.isEmpty != false && CookieUtil.didLogin {
-                        DispatchQueue.main.async {
-                            store.send(.fetchGalleries())
-                        }
-                    }
-                }
-                .background(navigationLink)
-                .toolbar(content: toolbar)
-                .navigationTitle(navigationTitle)
-
-            if DeviceUtil.isPad {
-                content
-                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
-                        NavigationView {
-                            DetailView(
-                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                                gid: route.wrappedValue, user: user, setting: $setting,
-                                blurRadius: blurRadius, tagTranslator: tagTranslator
-                            )
-                        }
-                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
-                    }
-            } else {
-                content
             }
-        }
-    }
-
-    @ViewBuilder private var navigationLink: some View {
-        if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-                DetailView(
-                    store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                    gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+            .sheet(
+                item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+            ) { store in
+                QuickSearchView(store: store) { keyword in
+                    self.store.send(.destination(.dismiss))
+                    self.store.send(.fetchGalleries(keyword))
+                }
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
+            .sheet(
+                item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
+            ) { store in
+                @Bindable var store = store
+                DateSeekPickerView(
+                    selectedDate: $store.date,
+                    navigation: store.navigation,
+                    seekAction: { store.send(.performSeek($0)) }
+                )
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+            }
+            .searchable(text: $store.keyword)
+            .searchSuggestions {
+                TagSuggestionView(
+                    keyword: $store.keyword, translations: tagTranslator.translations,
+                    showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
                 )
             }
+            .onSubmit(of: .search) {
+                store.send(.fetchGalleries())
+            }
+            .onAppear {
+                store.send(.onAppear)
+                if store.galleries?.isEmpty != false && CookieUtil.didLogin {
+                    DispatchQueue.main.async {
+                        store.send(.fetchGalleries())
+                    }
+                }
+            }
+            .toolbar(content: toolbar)
+            .navigationTitle(navigationTitle)
         }
     }
+
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary) {
             FavoritesIndexMenu(user: user, index: store.index) { index in

@@ -9,9 +9,6 @@ extension HomeReducer {
     @ReducerBuilder<State, Action>
     var reducerBody: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
             .onChange(of: \.cardPageIndex) { _, state in
                 guard state.cardPageIndex < state.popularGalleries.count else { return .none }
                 state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
@@ -27,24 +24,50 @@ extension HomeReducer {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .galleryTapped(let gid):
+                state.path.append(.gallery(.detail(.init(gid: gid))))
+                return .none
 
-            case .clearSubStates:
-                state.frontpageState = .init()
-                state.toplistsState = .init()
-                state.popularState = .init()
-                state.watchedState = .init()
-                state.historyState = .init()
-                state.detailState.wrappedValue = .init()
-                return .merge(
-                    .send(.frontpage(.teardown)),
-                    .send(.toplists(.teardown)),
-                    .send(.popular(.teardown)),
-                    .send(.watched(.teardown)),
-                    .send(.detail(.teardown))
-                )
+            case .sectionTapped(let type):
+                switch type {
+                case .frontpage:
+                    state.path.append(.frontpage(.init()))
+                case .toplists:
+                    state.path.append(.toplists(.init()))
+                }
+                return .none
+
+            case .miscTapped(let type):
+                switch type {
+                case .popular:
+                    state.path.append(.popular(.init()))
+                case .watched:
+                    state.path.append(.watched(.init()))
+                case .history:
+                    state.path.append(.history(.init()))
+                }
+                return .none
+
+            case let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gid))))),
+                 let .path(.element(id: _, action: .history(.delegate(.pushDetail(gid))))):
+                state.path.append(.gallery(.detail(.init(gid: gid))))
+                return .none
+
+            case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
+                guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .gallery(.detail(.fetchGalleryDetail)))))
+
+            case let .path(.element(id: _, action: .gallery(galleryAction))):
+                if let next = GalleryNavigation.nextScreen(for: galleryAction) {
+                    state.path.append(.gallery(next))
+                }
+                return .none
+
+            case .path:
+                return .none
 
             case .setAllowsCardHitTesting(let isAllowed):
                 state.allowsCardHitTesting = isAllowed
@@ -146,32 +169,8 @@ extension HomeReducer {
             case .analyzeImageColorsDone(let gid, let colors):
                 state.rawCardColors[gid] = colors
                 return .none
-
-            case .frontpage:
-                return .none
-
-            case .toplists:
-                return .none
-
-            case .popular:
-                return .none
-
-            case .watched:
-                return .none
-
-            case .history:
-                return .none
-
-            case .detail:
-                return .none
             }
         }
-
-        Scope(state: \.frontpageState, action: \.frontpage, child: FrontpageReducer.init)
-        Scope(state: \.toplistsState, action: \.toplists, child: ToplistsReducer.init)
-        Scope(state: \.popularState, action: \.popular, child: PopularReducer.init)
-        Scope(state: \.watchedState, action: \.watched, child: WatchedReducer.init)
-        Scope(state: \.historyState, action: \.history, child: HistoryReducer.init)
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        .forEach(\.path, action: \.path)
     }
 }

@@ -4,14 +4,11 @@ import AppTools
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
-import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct ToplistsReducer: Sendable {
-    @dynamicMemberLookup @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(String)
     }
 
     private enum CancelID: CaseIterable {
@@ -20,7 +17,6 @@ public struct ToplistsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         public var keyword = ""
         public var jumpPageIndex = ""
         public var jumpPageAlertFocused = false
@@ -51,11 +47,7 @@ public struct ToplistsReducer: Sendable {
             rawFooterLoadingState[type]
         }
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         mutating func insertGalleries(type: ToplistsType, galleries: [Gallery]) {
             galleries.forEach { gallery in
@@ -68,9 +60,8 @@ public struct ToplistsReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case delegate(Delegate)
         case setToplistsType(ToplistsType)
-        case clearSubStates
 
         case performJumpPage
         case presentJumpPageAlert
@@ -81,8 +72,6 @@ public struct ToplistsReducer: Sendable {
         case fetchGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -92,9 +81,6 @@ public struct ToplistsReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
             .onChange(of: \.jumpPageAlertPresented) { _, state in
                 if !state.jumpPageAlertPresented {
                     state.jumpPageAlertFocused = false
@@ -107,18 +93,13 @@ public struct ToplistsReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .delegate:
+                return .none
 
             case .setToplistsType(let type):
                 state.type = type
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
 
             case .performJumpPage:
                 guard let index = Int(state.jumpPageIndex),
@@ -210,12 +191,7 @@ public struct ToplistsReducer: Sendable {
                     state.rawFooterLoadingState[type] = .failed(error)
                 }
                 return .none
-
-            case .detail:
-                return .none
             }
         }
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

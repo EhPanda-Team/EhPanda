@@ -1,7 +1,6 @@
 import AppTools
 import ComposableArchitecture
 import AppModels
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -9,14 +8,11 @@ import DownloadClient
 import FiltersFeature
 import DateSeekFeature
 import QuickSearchFeature
-import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct WatchedReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(String)
     }
 
     @Reducer
@@ -32,7 +28,6 @@ public struct WatchedReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -43,11 +38,7 @@ public struct WatchedReducer: Sendable {
         public var footerLoadingState: LoadingState = .idle
         public var downloadBadges = [String: DownloadBadge]()
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         mutating func insertGalleries(_ galleries: [Gallery]) {
             galleries.forEach { gallery in
@@ -61,8 +52,7 @@ public struct WatchedReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
-        case setNavigation(Route?)
-        case clearSubStates
+        case delegate(Delegate)
         case filtersButtonTapped
         case quickSearchButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
@@ -77,8 +67,6 @@ public struct WatchedReducer: Sendable {
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
         case performDateSeekDone(Result<GalleriesResult, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -89,9 +77,6 @@ public struct WatchedReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
@@ -101,13 +86,8 @@ public struct WatchedReducer: Sendable {
             case .onAppear:
                 return .send(.observeDownloads)
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
+            case .delegate:
+                return .none
 
             case .filtersButtonTapped:
                 state.destination = .filters(FiltersReducer.State())
@@ -246,9 +226,6 @@ public struct WatchedReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .detail:
-                return .none
             }
         }
         .haptics(
@@ -267,8 +244,6 @@ public struct WatchedReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
 

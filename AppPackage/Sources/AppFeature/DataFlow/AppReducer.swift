@@ -40,7 +40,6 @@ struct AppReducer {
         case binding(BindingAction<State>)
         case onScenePhaseChange(ScenePhase)
         case runLaunchAutomation
-        case clearPadSettingSubstates
 
         case appDelegate(AppDelegateReducer.Action)
         case appRoute(AppRouteReducer.Action)
@@ -66,8 +65,13 @@ struct AppReducer {
 
     var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.appRouteState.route) { _, state in
-                state.appRouteState.route == nil ? .send(.appRoute(.clearSubStates)) : .none
+            .onChange(of: \.appRouteState.destination) { oldValue, state in
+                // iPad presents Setting as a modal sheet; when it's dismissed, reset its navigation
+                // stack so reopening starts at the root.
+                if oldValue?.setting != nil, state.appRouteState.destination == nil {
+                    state.settingState.path.removeAll()
+                }
+                return .none
             }
             .onChange(of: \.settingState.setting) { _, _ in
                 .send(.setting(.syncSetting))
@@ -164,16 +168,6 @@ struct AppReducer {
             case .appDelegate:
                 return .none
 
-            case .appRoute(.clearSubStates):
-                return .run { send in
-                    guard await deviceClient.isPad() else { return }
-                    await send(.clearPadSettingSubstates)
-                }
-
-            case .clearPadSettingSubstates:
-                state.settingState.path.removeAll()
-                return .none
-
             case .appRoute:
                 return .none
 
@@ -197,28 +191,28 @@ struct AppReducer {
                 if type == state.tabBarState.tabBarItemType {
                     switch type {
                     case .home:
-                        if state.homeState.route != nil {
-                            effects.append(.send(.home(.setNavigation(nil))))
+                        if !state.homeState.path.isEmpty {
+                            state.homeState.path.removeAll()
                         } else {
                             effects.append(.send(.home(.fetchAllGalleries)))
                         }
                     case .favorites:
-                        if state.favoritesState.route != nil {
-                            effects.append(.send(.favorites(.setNavigation(nil))))
+                        if !state.favoritesState.path.isEmpty {
+                            state.favoritesState.path.removeAll()
                             effects.append(hapticEffect)
                         } else if cookieClient.didLogin {
                             effects.append(.send(.favorites(.fetchGalleries())))
                             effects.append(hapticEffect)
                         }
                     case .search:
-                        if state.searchRootState.route != nil {
-                            effects.append(.send(.searchRoot(.setNavigation(nil))))
+                        if !state.searchRootState.path.isEmpty {
+                            state.searchRootState.path.removeAll()
                         } else {
                             effects.append(.send(.searchRoot(.fetchDatabaseInfos)))
                         }
                     case .downloads:
-                        if state.downloadsState.route != nil {
-                            effects.append(.send(.downloads(.setNavigation(nil))))
+                        if !state.downloadsState.path.isEmpty {
+                            state.downloadsState.path.removeAll()
                         } else {
                             effects.append(.send(.downloads(.fetchDownloads)))
                         }
@@ -238,7 +232,8 @@ struct AppReducer {
             case .tabBar:
                 return .none
 
-            case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
+            case .home(.path(.element(id: _, action: .watched(.onNotLoginViewButtonTapped)))),
+                 .favorites(.onNotLoginViewButtonTapped):
                 var effects: [Effect<Action>] = [
                     .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                     .send(.tabBar(.setTabBarItemType(.setting)))

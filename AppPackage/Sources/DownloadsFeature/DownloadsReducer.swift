@@ -6,15 +6,9 @@ import AppTools
 import DownloadClient
 import ReadingFeature
 import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct DownloadsReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
-    }
-
     @Reducer
     public enum Destination {
         case inspector(DownloadInspectorReducer)
@@ -37,7 +31,7 @@ public struct DownloadsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
         @Presents public var alert: AlertState<Alert>?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
@@ -48,12 +42,9 @@ public struct DownloadsReducer: Sendable {
         public var loadingState: LoadingState = .loading
         public var hasLoadedInitialDownloads = false
 
-        public var detailState: Heap<DetailReducer.State?>
         public var readingRequestID = UUID()
 
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         var filteredDownloads: [DownloadedGallery] {
             downloads.filter {
@@ -68,7 +59,8 @@ public struct DownloadsReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
+        case galleryTapped(String)
+        case path(StackActionOf<GalleryPath>)
         case destination(PresentationAction<Destination.Action>)
         case inspectorButtonTapped(String)
         case folderManagerButtonTapped
@@ -76,7 +68,6 @@ public struct DownloadsReducer: Sendable {
         case confirmationDialog(PresentationAction<Dialog>)
         case deleteDownloadButtonTapped(DownloadedGallery)
         case moveButtonTapped(DownloadedGallery)
-        case clearSubStates
 
         case onAppear
         case teardown
@@ -98,8 +89,6 @@ public struct DownloadsReducer: Sendable {
         case updateDownloadDone(Result<Void, AppError>)
         case deleteDownload(String)
         case deleteDownloadDone(Result<Void, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.downloadClient) private var downloadClient
@@ -108,26 +97,21 @@ public struct DownloadsReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                if case .detail(let gid) = route,
-                   let download = state.downloads.first(where: { $0.gid == gid }) {
-                    var detailState = DetailReducer.State()
-                    detailState.gid = download.gid
+            case .galleryTapped(let gid):
+                // Seed the detail with the locally downloaded gallery/badge so it renders offline.
+                var detailState = DetailReducer.State(gid: gid)
+                if let download = state.downloads.first(where: { $0.gid == gid }) {
                     detailState.gallery = download.gallery
                     _ = DetailReducer().applyDownload(download, state: &detailState)
-                    state.detailState.wrappedValue = detailState
                 }
-                return route == nil ? .send(.clearSubStates) : .none
+                state.path.append(.detail(detailState))
+                return .none
 
             case .inspectorButtonTapped(let gid):
                 state.destination = .inspector(.init(gid: gid))
@@ -183,10 +167,6 @@ public struct DownloadsReducer: Sendable {
 
             case .confirmationDialog:
                 return .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
 
             case .onAppear:
                 guard !state.hasLoadedInitialDownloads else { return .send(.fetchFolders) }
@@ -328,12 +308,25 @@ public struct DownloadsReducer: Sendable {
             case .deleteDownloadDone:
                 return .none
 
-            case .detail(.destination(.presented(.folderManager(.createFolderDone)))),
-                 .detail(.destination(.presented(.folderManager(.renameFolderDone)))),
-                 .detail(.destination(.presented(.folderManager(.deleteFolderDone)))):
-                return .send(.fetchFolders)
+            case let .path(.element(id: _, action: .detail(.destination(.presented(.folderManager(action)))))):
+                switch action {
+                case .createFolderDone, .renameFolderDone, .deleteFolderDone:
+                    return .send(.fetchFolders)
+                default:
+                    return .none
+                }
 
-            case .detail:
+            case let .path(.element(id: _, action: .comments(.delegate(.performedCommentAction(gid))))):
+                guard let id = state.path.detailID(forGID: gid) else { return .none }
+                return .send(.path(.element(id: id, action: .detail(.fetchGalleryDetail))))
+
+            case let .path(.element(id: _, action: elementAction)):
+                if let next = GalleryNavigation.nextScreen(for: elementAction) {
+                    state.path.append(next)
+                }
+                return .none
+
+            case .path:
                 return .none
 
             case .destination(.presented(.reading(.onPerformDismiss))):
@@ -351,8 +344,7 @@ public struct DownloadsReducer: Sendable {
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
+        .forEach(\.path, action: \.path)
     }
 }
 

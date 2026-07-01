@@ -5,21 +5,12 @@ import ComposableArchitecture
 import AppTools
 import LibraryClient
 import DatabaseClient
-import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct HomeReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Hashable, Sendable {
-        case detail(String)
-        case misc(HomeMiscGridType)
-        case section(HomeSectionType)
-    }
-
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var path = StackState<HomePath.State>()
         public var cardPageIndex = 1
         public var currentCardID = ""
         public var allowsCardHitTesting = true
@@ -35,16 +26,7 @@ public struct HomeReducer: Sendable {
         public var toplistsGalleries = [Int: [Gallery]]()
         public var toplistsLoadingState = [Int: LoadingState]()
 
-        public var frontpageState = FrontpageReducer.State()
-        public var toplistsState = ToplistsReducer.State()
-        public var popularState = PopularReducer.State()
-        public var watchedState = WatchedReducer.State()
-        public var historyState = HistoryReducer.State()
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         mutating func setPopularGalleries(_ galleries: [Gallery]) {
             let sortedGalleries = galleries.sorted { lhs, rhs in
@@ -69,8 +51,10 @@ public struct HomeReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
-        case clearSubStates
+        case galleryTapped(String)
+        case sectionTapped(HomeSectionType)
+        case miscTapped(HomeMiscGridType)
+        case path(StackActionOf<HomePath>)
         case setAllowsCardHitTesting(Bool)
         case analyzeImageColors(String, RetrieveImageResult)
         case analyzeImageColorsDone(String, [Color]?)
@@ -83,13 +67,6 @@ public struct HomeReducer: Sendable {
         case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchToplistsGalleries(Int, Int? = nil)
         case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
-
-        case frontpage(FrontpageReducer.Action)
-        case toplists(ToplistsReducer.Action)
-        case popular(PopularReducer.Action)
-        case watched(WatchedReducer.Action)
-        case history(HistoryReducer.Action)
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) var databaseClient

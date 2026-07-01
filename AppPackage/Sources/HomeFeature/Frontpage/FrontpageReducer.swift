@@ -2,20 +2,16 @@ import ComposableArchitecture
 import AppModels
 import Foundation
 import AppTools
-import SwiftUINavigationExt
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import FiltersFeature
 import DateSeekFeature
-import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct FrontpageReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(String)
     }
 
     @Reducer
@@ -30,7 +26,6 @@ public struct FrontpageReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -44,11 +39,7 @@ public struct FrontpageReducer: Sendable {
         public var loadingState: LoadingState = .idle
         public var footerLoadingState: LoadingState = .idle
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
 
         mutating func insertGalleries(_ galleries: [Gallery]) {
             galleries.forEach { gallery in
@@ -61,8 +52,7 @@ public struct FrontpageReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
-        case clearSubStates
+        case delegate(Delegate)
         case filtersButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
@@ -73,8 +63,6 @@ public struct FrontpageReducer: Sendable {
         case fetchMoreGalleries
         case fetchMoreGalleriesDone(Result<GalleriesResult, AppError>)
         case performDateSeekDone(Result<GalleriesResult, AppError>)
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -84,22 +72,14 @@ public struct FrontpageReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
+            case .delegate:
+                return .none
 
             case .filtersButtonTapped:
                 state.destination = .filters(FiltersReducer.State())
@@ -211,9 +191,6 @@ public struct FrontpageReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .detail:
-                return .none
             }
         }
         .haptics(
@@ -227,8 +204,6 @@ public struct FrontpageReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }
 

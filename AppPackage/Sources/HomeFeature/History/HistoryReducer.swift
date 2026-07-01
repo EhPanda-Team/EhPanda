@@ -6,8 +6,6 @@ import AppTools
 import HapticsClient
 import DatabaseClient
 import DownloadClient
-import DetailFeature
-import ComposableArchitectureExt
 
 @Reducer
 public struct HistoryReducer: Sendable {
@@ -15,9 +13,8 @@ public struct HistoryReducer: Sendable {
         case observeDownloads
     }
 
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case detail(String)
+    public enum Delegate: Equatable, Sendable {
+        case pushDetail(String)
     }
 
     public enum Dialog: Equatable, Sendable {
@@ -26,7 +23,6 @@ public struct HistoryReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
         public var downloadBadges = [String: DownloadBadge]()
@@ -38,19 +34,14 @@ public struct HistoryReducer: Sendable {
         public var galleries = [Gallery]()
         public var loadingState: LoadingState = .idle
 
-        public var detailState: Heap<DetailReducer.State?>
-
-        public init() {
-            detailState = .init(.init())
-        }
+        public init() {}
     }
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
-        case setNavigation(Route?)
+        case delegate(Delegate)
         case confirmationDialog(PresentationAction<Dialog>)
-        case clearSubStates
         case clearHistoryButtonTapped
         case clearHistoryGalleries
 
@@ -58,8 +49,6 @@ public struct HistoryReducer: Sendable {
         case fetchGalleriesDone([Gallery])
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
-
-        case detail(DetailReducer.Action)
     }
 
     @Dependency(\.databaseClient) private var databaseClient
@@ -70,9 +59,6 @@ public struct HistoryReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.route) { _, state in
-                state.route == nil ? .send(.clearSubStates) : .none
-            }
 
         Reduce { state, action in
             switch action {
@@ -82,9 +68,8 @@ public struct HistoryReducer: Sendable {
             case .onAppear:
                 return .send(.observeDownloads)
 
-            case .setNavigation(let route):
-                state.route = route
-                return route == nil ? .send(.clearSubStates) : .none
+            case .delegate:
+                return .none
 
             case .clearHistoryButtonTapped:
                 state.confirmationDialog = ConfirmationDialogState {
@@ -106,10 +91,6 @@ public struct HistoryReducer: Sendable {
 
             case .confirmationDialog:
                 return .none
-
-            case .clearSubStates:
-                state.detailState.wrappedValue = .init()
-                return .send(.detail(.teardown))
 
             case .clearHistoryGalleries:
                 return .merge(
@@ -150,13 +131,8 @@ public struct HistoryReducer: Sendable {
                     uniqueKeysWithValues: downloads.map { ($0.gid, $0.badge) }
                 )
                 return .none
-
-            case .detail:
-                return .none
             }
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
-
-        Scope(state: \.detailState.wrappedValue!, action: \.detail, child: DetailReducer.init)
     }
 }

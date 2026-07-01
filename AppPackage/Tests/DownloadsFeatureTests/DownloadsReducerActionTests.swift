@@ -34,13 +34,17 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         let store = TestStore(initialState: initialState, reducer: DownloadsReducer.init)
         store.exhaustivity = .off
 
-        await store.send(.setNavigation(.detail(download.gid)))
+        await store.send(.galleryTapped(download.gid))
 
-        #expect(store.state.route == .detail(download.gid))
-        #expect(store.state.detailState.wrappedValue?.gid == download.gid)
-        #expect(store.state.detailState.wrappedValue?.gallery.id == download.gid)
-        #expect(store.state.detailState.wrappedValue?.downloadBadge?.status == .completed)
-        #expect(store.state.detailState.wrappedValue?.shouldCheckForRemoteUpdates == true)
+        #expect(store.state.path.count == 1)
+        guard let element = store.state.path.first, case .detail(let detailState) = element else {
+            Issue.record("Expected a pushed detail element")
+            return
+        }
+        #expect(detailState.gid == download.gid)
+        #expect(detailState.gallery.id == download.gid)
+        #expect(detailState.downloadBadge?.status == .completed)
+        #expect(detailState.shouldCheckForRemoteUpdates == true)
     }
 
     @MainActor

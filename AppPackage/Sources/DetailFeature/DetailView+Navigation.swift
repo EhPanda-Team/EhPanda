@@ -1,46 +1,8 @@
 import SwiftUI
 import Resources
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
-
-// MARK: NavigationLinks
-extension DetailView {
-    @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: $store.route, case: \.previews) { _ in
-            PreviewsView(
-                store: store.scope(state: \.previewsState, action: \.previews),
-                gid: gid, setting: $setting, blurRadius: blurRadius
-            )
-        }
-        NavigationLink(unwrapping: $store.route, case: \.comments) { route in
-            if let commentStore = store.scope(state: \.commentsState.wrappedValue, action: \.comments) {
-                CommentsView(
-                    store: commentStore, gid: gid, token: store.gallery.token, apiKey: store.apiKey,
-                    galleryURL: route.wrappedValue, comments: store.galleryComments, user: user,
-                    setting: $setting, blurRadius: blurRadius,
-                    tagTranslator: tagTranslator
-                )
-            }
-        }
-        NavigationLink(unwrapping: $store.route, case: \.detailSearch) { route in
-            if let detailSearchStore = store.scope(state: \.detailSearchState.wrappedValue, action: \.detailSearch) {
-                DetailSearchView(
-                    store: detailSearchStore, keyword: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-        }
-        NavigationLink(unwrapping: $store.route, case: \.galleryInfos) { route in
-            let (gallery, galleryDetail) = route.wrappedValue
-            GalleryInfosView(
-                store: store.scope(state: \.galleryInfosState, action: \.galleryInfos),
-                gallery: gallery, galleryDetail: galleryDetail
-            )
-        }
-    }
-}
 
 // MARK: ToolBar
 extension DetailView {

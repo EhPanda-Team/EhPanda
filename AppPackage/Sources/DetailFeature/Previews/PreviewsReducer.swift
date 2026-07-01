@@ -27,6 +27,8 @@ public struct PreviewsReducer: Sendable {
     public struct State: Equatable, Sendable {
         @Presents public var destination: Destination.State?
 
+        // The gallery id this screen fetches; captured when pushed onto the host's gallery stack.
+        public var gid = ""
         public var gallery: Gallery = .empty
         public var loadingState: LoadingState = .idle
         public var databaseLoadingState: LoadingState = .loading
@@ -35,6 +37,11 @@ public struct PreviewsReducer: Sendable {
         public var localPreviewURLs = [Int: URL]()
         public var previewConfig: PreviewConfig = .normal(rows: 4)
         public var localPreviewRequestID = UUID()
+
+        public init(gid: String = "", gallery: Gallery = .empty) {
+            self.gid = gid
+            self.gallery = gallery
+        }
 
         mutating func updatePreviewURLs(_ previewURLs: [Int: URL]) {
             self.previewURLs = self.previewURLs.merging(

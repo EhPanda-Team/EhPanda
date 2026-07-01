@@ -4,7 +4,6 @@ import Resources
 import Kingfisher
 import SFSafeSymbols
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppTools
 import AppComponents
 import DetailFeature
@@ -29,87 +28,102 @@ public struct HomeView: View {
 
     // MARK: HomeView
     public var body: some View {
-        NavigationView {
-            let content =
-                ZStack {
-                    ScrollView(showsIndicators: false) {
-                        VStack {
-                            if !store.popularGalleries.isEmpty {
-                                CardSlideSection(
-                                    galleries: store.popularGalleries,
-                                    pageIndex: $store.cardPageIndex,
-                                    currentID: store.currentCardID,
-                                    colors: store.cardColors,
-                                    navigateAction: navigateTo(gid:),
-                                    webImageSuccessAction: { gid, result in
-                                        store.send(.analyzeImageColors(gid, result))
-                                    }
-                                )
-                                .equatable().allowsHitTesting(store.allowsCardHitTesting)
-                            }
-                            Group {
-                                if store.frontpageGalleries.count > 1 {
-                                    CoverWallSection(
-                                        galleries: store.frontpageGalleries,
-                                        isLoading: store.frontpageLoadingState == .loading,
-                                        navigateAction: navigateTo(gid:),
-                                        showAllAction: { store.send(.setNavigation(.section(.frontpage))) },
-                                        reloadAction: { store.send(.fetchFrontpageGalleries) }
-                                    )
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            ZStack {
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        if !store.popularGalleries.isEmpty {
+                            CardSlideSection(
+                                galleries: store.popularGalleries,
+                                pageIndex: $store.cardPageIndex,
+                                currentID: store.currentCardID,
+                                colors: store.cardColors,
+                                navigateAction: navigateTo(gid:),
+                                webImageSuccessAction: { gid, result in
+                                    store.send(.analyzeImageColors(gid, result))
                                 }
-                                ToplistsSection(
-                                    galleries: store.toplistsGalleries,
-                                    isLoading: !store.toplistsLoadingState
-                                        .values.allSatisfy({ $0 != .loading }),
-                                    navigateAction: navigateTo(gid:),
-                                    showAllAction: { store.send(.setNavigation(.section(.toplists))) },
-                                    reloadAction: { store.send(.fetchAllToplistsGalleries) }
-                                )
-                                MiscGridSection(navigateAction: navigateTo(type:))
-                            }
-                            .padding(.vertical)
-                        }
-                    }
-                    .opacity(store.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
-
-                    LoadingView()
-                        .opacity(
-                            store.popularLoadingState == .loading
-                                && store.popularGalleries.isEmpty ? 1 : 0
-                        )
-                        .zIndex(0)
-
-                    let error = store.popularLoadingState.failed
-                    ErrorView(error: error ?? .unknown) {
-                        store.send(.fetchAllGalleries)
-                    }
-                    .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
-                    .zIndex(1)
-                }
-                .animation(.default, value: store.popularLoadingState)
-                .onAppear {
-                    if store.popularGalleries.isEmpty {
-                        store.send(.fetchAllGalleries)
-                    }
-                }
-                .background(navigationLinks)
-                .toolbar(content: toolbar)
-                .navigationTitle(L10n.Localizable.HomeView.Title.home)
-
-            if DeviceUtil.isPad {
-                content
-                    .sheet(item: $store.route.sending(\.setNavigation).detail, id: \.self) { route in
-                        NavigationView {
-                            DetailView(
-                                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                                gid: route.wrappedValue, user: user, setting: $setting,
-                                blurRadius: blurRadius, tagTranslator: tagTranslator
                             )
+                            .equatable().allowsHitTesting(store.allowsCardHitTesting)
                         }
-                        .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
+                        Group {
+                            if store.frontpageGalleries.count > 1 {
+                                CoverWallSection(
+                                    galleries: store.frontpageGalleries,
+                                    isLoading: store.frontpageLoadingState == .loading,
+                                    navigateAction: navigateTo(gid:),
+                                    showAllAction: { store.send(.sectionTapped(.frontpage)) },
+                                    reloadAction: { store.send(.fetchFrontpageGalleries) }
+                                )
+                            }
+                            ToplistsSection(
+                                galleries: store.toplistsGalleries,
+                                isLoading: !store.toplistsLoadingState
+                                    .values.allSatisfy({ $0 != .loading }),
+                                navigateAction: navigateTo(gid:),
+                                showAllAction: { store.send(.sectionTapped(.toplists)) },
+                                reloadAction: { store.send(.fetchAllToplistsGalleries) }
+                            )
+                            MiscGridSection(navigateAction: navigateTo(type:))
+                        }
+                        .padding(.vertical)
                     }
-            } else {
-                content
+                }
+                .opacity(store.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
+
+                LoadingView()
+                    .opacity(
+                        store.popularLoadingState == .loading
+                            && store.popularGalleries.isEmpty ? 1 : 0
+                    )
+                    .zIndex(0)
+
+                let error = store.popularLoadingState.failed
+                ErrorView(error: error ?? .unknown) {
+                    store.send(.fetchAllGalleries)
+                }
+                .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
+                .zIndex(1)
+            }
+            .animation(.default, value: store.popularLoadingState)
+            .onAppear {
+                if store.popularGalleries.isEmpty {
+                    store.send(.fetchAllGalleries)
+                }
+            }
+            .toolbar(content: toolbar)
+            .navigationTitle(L10n.Localizable.HomeView.Title.home)
+        } destination: { store in
+            switch store.case {
+            case .frontpage(let store):
+                FrontpageView(
+                    store: store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            case .popular(let store):
+                PopularView(
+                    store: store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            case .toplists(let store):
+                ToplistsView(
+                    store: store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            case .watched(let store):
+                WatchedView(
+                    store: store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            case .history(let store):
+                HistoryView(
+                    store: store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            case .gallery(let store):
+                galleryDestination(
+                    store, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
             }
         }
     }
@@ -127,66 +141,13 @@ public struct HomeView: View {
     }
 }
 
-// MARK: NavigationLinks
+// MARK: Navigation
 private extension HomeView {
-    @ViewBuilder var navigationLinks: some View {
-        if DeviceUtil.isPhone {
-            detailViewLink
-        }
-        miscGridLink
-        sectionLink
-    }
-    var detailViewLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState.wrappedValue!, action: \.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
-        }
-    }
-    var miscGridLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.misc) { route in
-            switch route.wrappedValue {
-            case .popular:
-                PopularView(
-                    store: store.scope(state: \.popularState, action: \.popular),
-                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            case .watched:
-                WatchedView(
-                    store: store.scope(state: \.watchedState, action: \.watched),
-                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            case .history:
-                HistoryView(
-                    store: store.scope(state: \.historyState, action: \.history),
-                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-        }
-    }
-    var sectionLink: some View {
-        NavigationLink(unwrapping: $store.route, case: \.section) { route in
-            switch route.wrappedValue {
-            case .frontpage:
-                FrontpageView(
-                    store: store.scope(state: \.frontpageState, action: \.frontpage),
-                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            case .toplists:
-                ToplistsView(
-                    store: store.scope(state: \.toplistsState, action: \.toplists),
-                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
-        }
-    }
     func navigateTo(gid: String) {
-        store.send(.setNavigation(.detail(gid)))
+        store.send(.galleryTapped(gid))
     }
     func navigateTo(type: HomeMiscGridType) {
-        store.send(.setNavigation(.misc(type)))
+        store.send(.miscTapped(type))
     }
 }
 
