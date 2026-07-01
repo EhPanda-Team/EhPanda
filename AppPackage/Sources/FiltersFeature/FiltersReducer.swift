@@ -9,13 +9,13 @@ public struct FiltersReducer: Sendable {
         case confirmReset
     }
 
-    public enum FocusedBound {
+    public enum FocusedBound: Sendable {
         case lower
         case upper
     }
 
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Sendable {
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var filterRange: FilterRange = .search
         public var focusedBound: FocusedBound?

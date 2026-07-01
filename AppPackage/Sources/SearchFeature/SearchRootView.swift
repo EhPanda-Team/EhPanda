@@ -36,7 +36,7 @@ public struct SearchRootView: View {
                         historyGalleries: store.historyGalleries,
                         quickSearchWords: store.quickSearchWords,
                         navigateGalleryAction: { store.send(.setNavigation(.detail($0))) },
-                        navigateQuickSearchAction: { store.send(.setNavigation(.quickSearch())) },
+                        navigateQuickSearchAction: { store.send(.quickSearchButtonTapped) },
                         searchKeywordAction: { keyword in
                             store.send(.setKeyword(keyword))
                             store.send(.setNavigation(.search))
@@ -44,18 +44,20 @@ public struct SearchRootView: View {
                         removeKeywordAction: { store.send(.removeHistoryKeyword($0)) }
                     )
                 }
-                .sheet(item: $store.route.sending(\.setNavigation).filters) { _ in
-                    FiltersView(store: store.scope(state: \.filtersState, action: \.filters))
+                .sheet(
+                    item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+                ) { store in
+                    FiltersView(store: store)
                         .autoBlur(radius: blurRadius).environment(\.inSheet, true)
                 }
-                .sheet(item: $store.route.sending(\.setNavigation).quickSearch) { _ in
-                    QuickSearchView(
-                        store: store.scope(state: \.quickSearchState, action: \.quickSearch)
-                    ) { keyword in
-                        store.send(.setNavigation(nil))
-                        store.send(.setKeyword(keyword))
+                .sheet(
+                    item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+                ) { store in
+                    QuickSearchView(store: store) { keyword in
+                        self.store.send(.destination(.dismiss))
+                        self.store.send(.setKeyword(keyword))
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            store.send(.setNavigation(.search))
+                            self.store.send(.setNavigation(.search))
                         }
                     }
                     .accentColor(setting.accentColor)
@@ -110,10 +112,10 @@ public struct SearchRootView: View {
         CustomToolbarItem(tint: .primary) {
             ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
-                    store.send(.setNavigation(.filters()))
+                    store.send(.filtersButtonTapped)
                 }
                 QuickSearchButton {
-                    store.send(.setNavigation(.quickSearch()))
+                    store.send(.quickSearchButtonTapped)
                 }
             }
         }
