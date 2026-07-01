@@ -239,8 +239,6 @@ public enum L10n {
       }
     }
     public enum AppActivityLogsView {
-      /// Done
-      public static let done = L10n.tr("Localizable", "app_activity_logs_view.done", fallback: "Done")
       /// More logs
       public static let moreLogs = L10n.tr("Localizable", "app_activity_logs_view.more_logs", fallback: "More logs")
       /// Run %@

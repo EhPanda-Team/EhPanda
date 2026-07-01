@@ -1,9 +1,10 @@
 import AppTools
 import Foundation
 
-/// A persisted per-run activity-log file, named `ehpanda-<yyyyMMdd>-<runCount>.jsonl`.
+/// A persisted per-run activity-log file, named `ehpanda-<yyyyMMdd>-<HHmmss>-<runCount>.jsonl`.
 public struct RunLogFile: Identifiable, Equatable, Sendable {
     public let url: URL
+    /// The run's start time, decoded from the `<yyyyMMdd>-<HHmmss>` file-name components.
     public let date: Date
     public let runCount: Int
 
@@ -15,8 +16,8 @@ public struct RunLogFile: Identifiable, Equatable, Sendable {
         self.runCount = runCount
     }
 
-    /// Parses a `RunLogFile` from a log-file URL, returning `nil` when the
-    /// file name does not match the `ehpanda-<yyyyMMdd>-<runCount>.jsonl` format.
+    /// Parses a `RunLogFile` from a log-file URL, returning `nil` when the file name
+    /// does not match the `ehpanda-<yyyyMMdd>-<HHmmss>-<runCount>.jsonl` format.
     public init?(fileURL: URL) {
         let nameComponents = fileURL.lastPathComponent.split(separator: ".")
         guard nameComponents.count == 2,
@@ -24,22 +25,24 @@ public struct RunLogFile: Identifiable, Equatable, Sendable {
         else { return nil }
 
         let components = nameComponents[0].split(separator: "-")
-        guard components.count == 3,
+        guard components.count == 4,
               String(components[0]) == Defaults.FilePath.activityLogPrefix,
               components[1].count == 8,
-              let date = Self.fileNameDateFormatter.date(from: String(components[1])),
-              let runCount = Int(components[2])
+              components[2].count == 6,
+              let date = Self.dateTimeFormatter.date(from: String(components[1]) + String(components[2])),
+              let runCount = Int(components[3])
         else { return nil }
 
         self.init(url: fileURL, date: date, runCount: runCount)
     }
 
-    /// The canonical `ehpanda-<yyyyMMdd>-<runCount>.jsonl` file name for a run.
+    /// The canonical `ehpanda-<yyyyMMdd>-<HHmmss>-<runCount>.jsonl` file name for a run.
     public static func fileName(date: Date, runCount: Int) -> String {
         [
             [
                 Defaults.FilePath.activityLogPrefix,
                 dayString(for: date),
+                timeFormatter.string(from: date),
                 String(runCount)
             ]
             .joined(separator: "-"),
@@ -52,16 +55,20 @@ public struct RunLogFile: Identifiable, Equatable, Sendable {
     /// The `yyyyMMdd` day component used in log file names, in the device's local time zone.
     /// Two runs share a day (and thus the same run-count sequence) iff these match.
     public static func dayString(for date: Date) -> String {
-        fileNameDateFormatter.string(from: date)
+        dayFormatter.string(from: date)
     }
 
     // No explicit time zone: the day rolls over at the device's local midnight, matching how
     // the picker groups runs and the user's notion of "a different day".
-    private static let fileNameDateFormatter: DateFormatter = {
+    private static let dayFormatter = fileNameFormatter(dateFormat: "yyyyMMdd")
+    private static let timeFormatter = fileNameFormatter(dateFormat: "HHmmss")
+    private static let dateTimeFormatter = fileNameFormatter(dateFormat: "yyyyMMddHHmmss")
+
+    private static func fileNameFormatter(dateFormat: String) -> DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
+        formatter.dateFormat = dateFormat
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter
-    }()
+    }
 }

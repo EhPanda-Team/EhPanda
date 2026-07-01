@@ -237,7 +237,6 @@
 "app_activity_logs_view.run" = "Run %@";
 "app_activity_logs_view.more_logs" = "More logs";
 "app_activity_logs_view.runs" = "Runs";
-"app_activity_logs_view.done" = "Done";
 "app_activity_logs_view.level.undefined" = "Undefined";
 "app_activity_logs_view.level.debug" = "Debug";
 "app_activity_logs_view.level.info" = "Info";
