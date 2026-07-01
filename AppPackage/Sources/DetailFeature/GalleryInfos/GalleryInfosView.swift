@@ -128,7 +128,7 @@ private struct Info: Identifiable {
 
 struct GalleryInfosView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             GalleryInfosView(
                 store: .init(initialState: .init(), reducer: GalleryInfosReducer.init),
                 gallery: .preview,

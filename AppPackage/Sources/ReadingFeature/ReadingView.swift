@@ -340,7 +340,7 @@ extension ReadingView {
 
 struct ReadingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             Text("")
                 .fullScreenCover(isPresented: .constant(true)) {
                     ReadingView(
