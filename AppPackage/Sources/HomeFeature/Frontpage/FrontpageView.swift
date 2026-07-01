@@ -86,7 +86,7 @@ struct FrontpageView: View {
 
 struct FrontpageView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             FrontpageView(
                 store: .init(initialState: .init(), reducer: FrontpageReducer.init),
                 user: .init(),

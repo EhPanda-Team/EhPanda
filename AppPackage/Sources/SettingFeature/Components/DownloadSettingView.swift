@@ -56,7 +56,7 @@ struct DownloadSettingView: View {
 
 struct DownloadSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             DownloadSettingView(
                 downloadThreadLimit: .constant(1),
                 downloadAllowCellular: .constant(true),

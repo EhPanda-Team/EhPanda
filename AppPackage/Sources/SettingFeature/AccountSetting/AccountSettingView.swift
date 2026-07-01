@@ -182,7 +182,7 @@ private struct CookieRow: View {
 
 struct AccountSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             AccountSettingView(
                 store: .init(initialState: .init(), reducer: AccountSettingReducer.init),
                 galleryHost: .constant(.ehentai),

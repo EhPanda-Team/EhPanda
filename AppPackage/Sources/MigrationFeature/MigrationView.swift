@@ -2,7 +2,6 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import SwiftUINavigationExt
 import AppComponents
 
 public struct MigrationView: View {
@@ -18,7 +17,7 @@ public struct MigrationView: View {
     }
 
     public var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 reversedPrimary.ignoresSafeArea()
                 LoadingView(title: L10n.Localizable.LoadingView.Title.preparingDatabase)

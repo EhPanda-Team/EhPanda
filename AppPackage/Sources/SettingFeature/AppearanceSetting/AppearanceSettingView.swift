@@ -162,7 +162,7 @@ private struct AppIconRow: View {
 
 struct AppearanceSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             AppearanceSettingView(
                 store: .init(initialState: .init(), reducer: AppearanceSettingReducer.init),
                 preferredColorScheme: .constant(.automatic),

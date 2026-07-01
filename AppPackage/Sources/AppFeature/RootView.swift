@@ -28,7 +28,6 @@ public struct RootView: View {
             .opacity(databaseState != .idle ? 1 : 0)
             .animation(.linear(duration: 0.5), value: databaseState)
         }
-        .navigationViewStyle(.stack)
     }
 
     private func addTouchHandler() {

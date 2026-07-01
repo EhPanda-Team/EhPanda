@@ -118,7 +118,7 @@ private extension Double {
 
 struct ReadingSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+        NavigationStack {
             ReadingSettingView(
                 readingDirection: .constant(.vertical),
                 prefetchLimit: .constant(10),
