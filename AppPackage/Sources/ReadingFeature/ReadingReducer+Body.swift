@@ -54,10 +54,6 @@ extension ReadingReducer {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return .none
-
             case .destination:
                 return .none
 
@@ -168,8 +164,8 @@ extension ReadingReducer {
                 return .send(.fetchImage(.save, imageURL))
 
             case .saveImageDone(let isSucceeded):
-                state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error()
-                return .send(.setNavigation(.hud))
+                state.hud = isSucceeded ? .savedToPhotoLibrary : .error()
+                return .none
 
             case .shareImage(let imageURL):
                 return .send(.fetchImage(.share, imageURL))
@@ -185,11 +181,8 @@ extension ReadingReducer {
                 if case .success(let asset) = result {
                     switch action {
                     case .copy:
-                        state.hudConfig = .copiedToClipboardSucceeded
-                        return .merge(
-                            .send(.setNavigation(.hud)),
-                            .run(operation: { _ in _ = clipboardClient.saveImageData(asset.data) })
-                        )
+                        state.hud = .copiedToClipboardSucceeded
+                        return .run(operation: { _ in _ = clipboardClient.saveImageData(asset.data) })
                     case .save:
                         return .run { send in
                             let success = await imageClient.saveImageDataToPhotoLibrary(asset.data)
@@ -202,8 +195,8 @@ extension ReadingReducer {
                         return .send(.presentShare(.init(value: shareItem)))
                     }
                 } else {
-                    state.hudConfig = .error()
-                    return .send(.setNavigation(.hud))
+                    state.hud = .error()
+                    return .none
                 }
 
             case .teardown:

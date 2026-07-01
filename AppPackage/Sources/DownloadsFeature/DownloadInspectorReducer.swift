@@ -7,11 +7,6 @@ import TTProgressHUDExt
 
 @Reducer
 public struct DownloadInspectorReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case hud
-    }
-
     private enum CancelID {
         case observeDownloads
         case loadInspection
@@ -19,12 +14,11 @@ public struct DownloadInspectorReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var route: Route?
+        public var hud: ProgressHUDConfigState?
         public var gid = ""
         public var inspection: DownloadInspection?
         public var stableInspection: DownloadInspection?
         public var loadingState: LoadingState = .loading
-        public var hudConfig: ProgressHUDConfigState = .loading()
         public var inspectionRequestID = UUID()
         public var retryingPageIndices = Set<Int>()
         public var isValidatingImageData = false
@@ -214,8 +208,7 @@ public struct DownloadInspectorReducer: Sendable {
 
             case .validateImageDataDone(let validation):
                 state.isValidatingImageData = false
-                state.hudConfig = validation.hudConfig
-                state.route = .hud
+                state.hud = validation.hudConfig
                 return .send(.loadInspection)
             }
         }

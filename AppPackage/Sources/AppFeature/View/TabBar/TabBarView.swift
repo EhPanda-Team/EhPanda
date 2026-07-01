@@ -126,11 +126,7 @@ struct TabBarView: View {
             .autoBlur(radius: store.appLockState.blurRadius)
             .environment(\.inSheet, true)
         }
-        .progressHUD(
-            config: store.appRouteState.hudConfig,
-            unwrapping: $store.appRouteState.route,
-            case: \.hud
-        )
+        .progressHUD($store.appRouteState.hud)
         .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
         .onOpenURL { store.send(.appRoute(.handleDeepLink($0))) }
     }

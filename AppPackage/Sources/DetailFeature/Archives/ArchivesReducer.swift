@@ -11,31 +11,21 @@ import TTProgressHUDExt
 
 @Reducer
 public struct ArchivesReducer: Sendable {
-    @CasePathable
-    public enum Route: Sendable {
-        case messageHUD
-        case communicatingHUD
-    }
-
     private enum CancelID: CaseIterable {
         case fetchArchive, fetchArchiveFunds, fetchDownloadResponse
     }
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var hud: ProgressHUDConfigState?
         public var selectedArchive: GalleryArchive.HathArchive?
 
         public var loadingState: LoadingState = .idle
         public var hathArchives = [GalleryArchive.HathArchive]()
-
-        public var messageHUDConfig: ProgressHUDConfigState = .loading()
-        public var communicatingHUDConfig: ProgressHUDConfigState = .communicating
     }
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
 
         case syncGalleryFunds(String, String)
 
@@ -60,10 +50,6 @@ public struct ArchivesReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .binding:
-                return .none
-
-            case .setNavigation(let route):
-                state.route = route
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
@@ -120,9 +106,9 @@ public struct ArchivesReducer: Sendable {
 
             case .fetchDownloadResponse(let archiveURL):
                 guard let selectedArchive = state.selectedArchive,
-                      state.route != .communicatingHUD
+                      state.hud != .communicating
                 else { return .none }
-                state.route = .communicatingHUD
+                state.hud = .communicating
                 return .run {send in
                     let response = await SendDownloadCommandRequest(
                         archiveURL: archiveURL,
@@ -134,26 +120,25 @@ public struct ArchivesReducer: Sendable {
                 .cancellable(id: CancelID.fetchDownloadResponse)
 
             case .fetchDownloadResponseDone(let result):
-                state.route = .messageHUD
                 let isSuccess: Bool
                 switch result {
                 case .success(let response):
                     switch response {
                     case L10n.Constant.Website.Response.hathClientNotFound:
-                        state.messageHUDConfig = .error(caption: L10n.Localizable.Website.Response.hathClientNotFound)
+                        state.hud = .error(caption: L10n.Localizable.Website.Response.hathClientNotFound)
                         isSuccess = false
                     case L10n.Constant.Website.Response.hathClientNotOnline:
-                        state.messageHUDConfig = .error(caption: L10n.Localizable.Website.Response.hathClientNotOnline)
+                        state.hud = .error(caption: L10n.Localizable.Website.Response.hathClientNotOnline)
                         isSuccess = false
                     case L10n.Constant.Website.Response.invalidResolution:
-                        state.messageHUDConfig = .error(caption: L10n.Localizable.Website.Response.invalidResolution)
+                        state.hud = .error(caption: L10n.Localizable.Website.Response.invalidResolution)
                         isSuccess = false
                     default:
-                        state.messageHUDConfig = .success(caption: response)
+                        state.hud = .success(caption: response)
                         isSuccess = true
                     }
                 case .failure:
-                    state.messageHUDConfig = .error()
+                    state.hud = .error()
                     isSuccess = false
                 }
                 return .run { _ in

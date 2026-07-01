@@ -111,11 +111,7 @@ struct GalleryInfosView: View {
                 }
             }
         }
-        .progressHUD(
-            config: store.hudConfig,
-            unwrapping: $store.route,
-            case: \.hud
-        )
+        .progressHUD($store.hud)
         .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)
     }
 }

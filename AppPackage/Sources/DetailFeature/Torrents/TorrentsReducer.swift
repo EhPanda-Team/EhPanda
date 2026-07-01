@@ -9,11 +9,6 @@ import TTProgressHUDExt
 
 @Reducer
 public struct TorrentsReducer: Sendable {
-    @CasePathable
-    public enum Route: Equatable, Sendable {
-        case hud
-    }
-
     @Reducer
     public enum Destination {
         @ReducerCaseIgnored
@@ -26,16 +21,14 @@ public struct TorrentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var route: Route?
+        public var hud: ProgressHUDConfigState?
         @Presents public var destination: Destination.State?
         public var torrents = [GalleryTorrent]()
         public var loadingState: LoadingState = .idle
-        public var hudConfig: ProgressHUDConfigState = .copiedToClipboardSucceeded
     }
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case setNavigation(Route?)
         case destination(PresentationAction<Destination.Action>)
         case presentShare(URL)
 
@@ -63,10 +56,6 @@ public struct TorrentsReducer: Sendable {
             case .binding:
                 return .none
 
-            case .setNavigation(let route):
-                state.route = route
-                return .none
-
             case .destination:
                 return .none
 
@@ -75,7 +64,7 @@ public struct TorrentsReducer: Sendable {
                 return .none
 
             case .copyText(let magnetURL):
-                state.route = .hud
+                state.hud = .copiedToClipboardSucceeded
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(magnetURL) }),
                     .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
