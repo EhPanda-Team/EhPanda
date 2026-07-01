@@ -1,6 +1,3 @@
-//  Copied from https://stackoverflow.com/questions/62102647/
-//
-
 import SwiftUI
 import SFSafeSymbols
 import Kingfisher

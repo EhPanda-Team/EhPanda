@@ -1,6 +1,3 @@
-//  Copied from Kavsoft
-//
-
 import SwiftUI
 
 public struct WaveForm: View {
