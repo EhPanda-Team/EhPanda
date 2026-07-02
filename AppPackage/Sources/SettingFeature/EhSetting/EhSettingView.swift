@@ -52,9 +52,6 @@ struct EhSettingView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .autoBlur(radius: blurRadius)
         }
-        .confirmationDialog(
-            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
-        )
         .toolbar(content: toolbar)
         .navigationTitle(L10n.Localizable.EhSettingView.Title.hostSettings(galleryHost.rawValue))
     }
@@ -67,6 +64,9 @@ struct EhSettingView: View {
                     ehProfile: ehProfile,
                     editingProfileName: $store.editingProfileName,
                     deleteDialogAction: { store.send(.deleteProfileButtonTapped) },
+                    deleteConfirmationDialog: $store.scope(
+                        state: \.confirmationDialog, action: \.confirmationDialog
+                    ),
                     performEhProfileAction: { store.send(.performAction(action: $0, name: $1, set: $2)) }
                 )
 

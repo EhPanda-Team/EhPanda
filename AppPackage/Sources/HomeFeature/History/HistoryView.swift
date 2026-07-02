@@ -49,9 +49,6 @@ struct HistoryView: View {
             }
         }
         .toolbar(content: toolbar)
-        .confirmationDialog(
-            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
-        )
         .navigationTitle(L10n.Localizable.HistoryView.Title.history)
     }
 
@@ -63,6 +60,9 @@ struct HistoryView: View {
                 Image(systemSymbol: .trashCircle)
             }
             .disabled(store.loadingState != .idle || store.galleries.isEmpty)
+            .confirmationDialog(
+                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            )
         }
     }
 }
