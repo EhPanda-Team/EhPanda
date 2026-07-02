@@ -1,7 +1,7 @@
 import SwiftUI
 import AppModels
 import Resources
-import FilePicker
+import UniformTypeIdentifiers
 import ComposableArchitecture
 import AppComponents
 
@@ -92,11 +92,14 @@ struct GeneralSettingView: View {
                     )
                     Toggle(L10n.Localizable.GeneralSettingView.Title.showsImagesInTags, isOn: $showsImagesInTags)
                 }
-                FilePicker(
-                    types: [.json], allowMultiple: false,
-                    title: L10n.Localizable.GeneralSettingView.Button.importCustomTranslations
-                ) { urls in
-                    if let url = urls.first {
+                Button(L10n.Localizable.GeneralSettingView.Button.importCustomTranslations) {
+                    store.send(.importCustomTranslationsButtonTapped)
+                }
+                .fileImporter(
+                    isPresented: $store.destination.importTranslations,
+                    allowedContentTypes: [.json]
+                ) { result in
+                    if case .success(let url) = result {
                         store.send(.onTranslationsFilePicked(url))
                     }
                 }
