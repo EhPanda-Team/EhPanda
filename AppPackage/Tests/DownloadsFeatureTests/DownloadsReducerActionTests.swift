@@ -55,6 +55,34 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
+    func testDownloadsReducerDoubleTapPushesDetailOnce() async {
+        let download = sampleDownload(
+            gid: "123456",
+            title: "Completed Gallery",
+            status: .completed
+        )
+        var initialState = DownloadsReducer.State()
+        initialState.downloads = [download]
+
+        let store = TestStore(
+            initialState: initialState,
+            reducer: DownloadsReducer.init,
+            withDependencies: { $0.deviceClient = .noop }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.galleryTapped(download.gid))
+        await store.receive(\.pushGalleryDetail)
+        #expect(store.state.path.count == 1)
+
+        // A rapid second activation must not push a duplicate adjacent detail.
+        await store.send(.galleryTapped(download.gid))
+        await store.receive(\.pushGalleryDetail)
+        #expect(store.state.path.count == 1)
+    }
+
+    @MainActor
+    @Test
     func testDownloadsReducerDelegatesModalDetailOnPad() async {
         let download = sampleDownload(
             gid: "123456",

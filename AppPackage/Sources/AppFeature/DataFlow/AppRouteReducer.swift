@@ -76,7 +76,7 @@ struct AppRouteReducer {
 
             case let .detail(.presented(.delegate(delegate))):
                 if let next = GalleryNavigation.nextScreen(for: .detail(.delegate(delegate))) {
-                    state.path.append(next)
+                    state.path.appendGuardingDuplicate(next)
                 }
                 return .none
 
@@ -92,7 +92,7 @@ struct AppRouteReducer {
 
             case let .path(.element(id: _, action: elementAction)):
                 if let next = GalleryNavigation.nextScreen(for: elementAction) {
-                    state.path.append(next)
+                    state.path.appendGuardingDuplicate(next)
                 }
                 return .none
 

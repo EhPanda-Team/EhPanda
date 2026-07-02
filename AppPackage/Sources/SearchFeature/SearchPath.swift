@@ -11,6 +11,17 @@ public enum SearchPath {
 
 extension SearchPath.State: Equatable {}
 
+extension SearchPath.State: GalleryRouteIdentifiable {
+    public var routeKey: String {
+        switch self {
+        case .search:
+            return "search"
+        case .gallery(let state):
+            return "gallery/\(state.routeKey)"
+        }
+    }
+}
+
 extension StackState where Element == SearchPath.State {
     // Locate the pushed `.gallery(.detail)` element for `gid` so a comment action performed on a
     // deeper `.comments` screen can refresh the detail it belongs to.
