@@ -32,6 +32,7 @@ public struct AppAlertState<Action>: Identifiable {
     public var style: Style
     public var title: TextState
     public var message: TextState?
+    public var textField: AppAlertTextFieldState?
     public var buttons: [ButtonState<Action>]
 
     public init(
@@ -44,6 +45,18 @@ public struct AppAlertState<Action>: Identifiable {
         self.title = title()
         self.buttons = actions()
         self.message = message?()
+    }
+
+    /// Builds an alert that includes a single text field. `textField` sits between `title` and
+    /// `actions` so the trailing `actions`/`message` closures read exactly like the plain alert init.
+    public init(
+        title: () -> TextState,
+        textField: AppAlertTextFieldState,
+        @ButtonStateBuilder<Action> actions: () -> [ButtonState<Action>] = { [] },
+        message: (() -> TextState)? = nil
+    ) {
+        self.init(title: title, actions: actions, message: message)
+        self.textField = textField
     }
 
     // Builds a button-less HUD presentation; used by the `Action == Never` factories below.
@@ -63,6 +76,7 @@ extension AppAlertState: Equatable where Action: Equatable {
         lhs.style == rhs.style
             && lhs.title == rhs.title
             && lhs.message == rhs.message
+            && lhs.textField == rhs.textField
             && lhs.buttons == rhs.buttons
     }
 }
@@ -72,6 +86,7 @@ extension AppAlertState: Hashable where Action: Hashable {
         hasher.combine(style)
         hasher.combine(title)
         hasher.combine(message)
+        hasher.combine(textField)
         hasher.combine(buttons)
     }
 }
@@ -81,6 +96,27 @@ extension AppAlertState: Sendable where Action: Sendable {}
 // Marks the dialog as ephemeral, exactly as `AlertState`/`ConfirmationDialogState` do, so a plain
 // `.ifLet(_:action:)` (no child reducer) drives it and it auto-dismisses when a button is tapped.
 extension AppAlertState: _EphemeralState {}
+
+/// Describes a single text field shown inside an ``AppAlertState`` alert. The field's *value* is not
+/// stored here: it binds to the host reducer's own state, supplied at the call site through
+/// ``SwiftUICore/View/appAlert(_:text:)``. That keeps the alert ephemeral — keystrokes never have to
+/// round-trip through a reducer — while still letting a feature declare the field declaratively. It's a
+/// top-level type (not nested in ``AppAlertState``) because it's independent of the alert's `Action`.
+public struct AppAlertTextFieldState: Equatable, Hashable, Sendable {
+    /// The kind of keyboard the field raises. Kept host-agnostic (no `UIKit` type) so the state stays
+    /// `Sendable`; ``SwiftUICore/View/appAlert(_:text:)`` maps it to a `UIKeyboardType`.
+    public enum Keyboard: Equatable, Hashable, Sendable {
+        case `default`, numberPad
+    }
+
+    public var placeholder: TextState
+    public var keyboard: Keyboard
+
+    public init(placeholder: TextState, keyboard: Keyboard = .default) {
+        self.placeholder = placeholder
+        self.keyboard = keyboard
+    }
+}
 
 // MARK: - HUD presentations
 // These mirror the old `ProgressHUDConfigState` cases one-for-one, so migrating a HUD assignment is a
@@ -136,12 +172,26 @@ extension View {
     public func appAlert<Action>(
         _ item: Binding<Store<AppAlertState<Action>, Action>?>
     ) -> some View {
-        modifier(AppAlertViewModifier(item: item))
+        modifier(AppAlertViewModifier(item: item, text: nil))
+    }
+
+    /// Same as ``appAlert(_:)`` but also renders the alert's ``AppAlertState/TextFieldState`` (if any),
+    /// binding it to `text` and auto-focusing it so the keyboard is up the moment the alert appears —
+    /// native `.alert` no longer focuses its first field on its own. `text` lives in the host reducer's
+    /// state, e.g. `.appAlert($store.scope(state: \.alert, action: \.alert), text: $store.pageIndex)`.
+    @MainActor
+    public func appAlert<Action>(
+        _ item: Binding<Store<AppAlertState<Action>, Action>?>,
+        text: Binding<String>
+    ) -> some View {
+        modifier(AppAlertViewModifier(item: item, text: text))
     }
 }
 
 private struct AppAlertViewModifier<Action>: ViewModifier {
     @Binding var item: Store<AppAlertState<Action>, Action>?
+    let text: Binding<String>?
+    @FocusState private var isFieldFocused: Bool
 
     func body(content: Content) -> some View {
         content.alert(
@@ -155,6 +205,16 @@ private struct AppAlertViewModifier<Action>: ViewModifier {
             ),
             presenting: item,
             actions: { store in
+                if let textField = store.textField, let text {
+                    TextField(String(state: textField.placeholder), text: text)
+                        .keyboardType(textField.keyboard == .numberPad ? .numberPad : .default)
+                        .focused($isFieldFocused)
+                        .onAppear {
+                            // The field isn't in the responder chain the instant it appears, so a
+                            // synchronous focus is dropped; hop to the next runloop to make it stick.
+                            DispatchQueue.main.async { isFieldFocused = true }
+                        }
+                }
                 ForEach(store.buttons) { button in
                     Button(role: button.role.map(ButtonRole.init)) {
                         button.withAction { action in

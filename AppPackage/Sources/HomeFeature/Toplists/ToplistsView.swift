@@ -44,19 +44,7 @@ struct ToplistsView: View {
             }
         )
         .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
-        .alert(
-            L10n.Localizable.JumpPageView.Title.jumpPage,
-            isPresented: $store.jumpPageAlertPresented
-        ) {
-            TextField(L10n.Localizable.JumpPageView.Title.jumpPage, text: $store.jumpPageIndex)
-                .keyboardType(.numberPad)
-            Button(L10n.Localizable.JumpPageView.Button.confirm) {
-                store.send(.performJumpPage)
-            }
-            Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {}
-        } message: {
-            Text(L10n.Localizable.JumpPageView.Description.jumpPage((store.pageNumber?.maximum ?? 0) + 1))
-        }
+        .appAlert($store.scope(state: \.alert, action: \.alert), text: $store.jumpPageIndex)
         .onAppear {
             if store.galleries?.isEmpty != false {
                 DispatchQueue.main.async {
@@ -69,7 +57,7 @@ struct ToplistsView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(disabled: store.jumpPageAlertPresented) {
+        CustomToolbarItem(disabled: store.alert != nil) {
             ToplistsTypeMenu(type: store.type) { type in
                 if type != store.type {
                     store.send(.setToplistsType(type))

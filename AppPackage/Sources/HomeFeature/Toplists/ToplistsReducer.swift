@@ -1,6 +1,8 @@
 import ComposableArchitecture
 import AppModels
 import AppTools
+import AppComponents
+import Resources
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -11,6 +13,10 @@ public struct ToplistsReducer: Sendable {
         case pushDetail(String)
     }
 
+    public enum Alert: Equatable, Sendable {
+        case performJumpPage
+    }
+
     private enum CancelID: CaseIterable {
         case fetchGalleries, fetchMoreGalleries
     }
@@ -19,7 +25,7 @@ public struct ToplistsReducer: Sendable {
     public struct State: Equatable {
         public var keyword = ""
         public var jumpPageIndex = ""
-        public var jumpPageAlertPresented = false
+        @Presents public var alert: AppAlertState<Alert>?
 
         public var type: ToplistsType = .yesterday
 
@@ -62,7 +68,7 @@ public struct ToplistsReducer: Sendable {
         case delegate(Delegate)
         case setToplistsType(ToplistsType)
 
-        case performJumpPage
+        case alert(PresentationAction<Alert>)
         case presentJumpPageAlert
 
         case teardown
@@ -93,7 +99,7 @@ public struct ToplistsReducer: Sendable {
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
 
-            case .performJumpPage:
+            case .alert(.presented(.performJumpPage)):
                 guard let index = Int(state.jumpPageIndex),
                       let pageNumber = state.pageNumber,
                       index > 0, index <= pageNumber.maximum + 1 else {
@@ -101,8 +107,31 @@ public struct ToplistsReducer: Sendable {
                 }
                 return .send(.fetchGalleries(index - 1))
 
+            case .alert:
+                return .none
+
             case .presentJumpPageAlert:
-                state.jumpPageAlertPresented = true
+                let maximumPage = (state.pageNumber?.maximum ?? 0) + 1
+                state.alert = AppAlertState(
+                    title: {
+                        TextState(L10n.Localizable.JumpPageView.Title.jumpPage)
+                    },
+                    textField: .init(
+                        placeholder: TextState(L10n.Localizable.JumpPageView.Title.jumpPage),
+                        keyboard: .numberPad
+                    ),
+                    actions: {
+                        ButtonState(action: .performJumpPage) {
+                            TextState(L10n.Localizable.JumpPageView.Button.confirm)
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState(L10n.Localizable.Common.Button.cancel)
+                        }
+                    },
+                    message: {
+                        TextState(L10n.Localizable.JumpPageView.Description.jumpPage(maximumPage))
+                    }
+                )
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
             case .teardown:
@@ -181,5 +210,6 @@ public struct ToplistsReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
