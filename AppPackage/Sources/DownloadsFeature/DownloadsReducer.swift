@@ -113,20 +113,16 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .galleryTapped(let gid):
-                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
-                // sheet hosted by AppRoute, matching the pre-StackState behavior.
                 let download = state.downloads.first(where: { $0.gid == gid })
-                return .run { send in
-                    if await deviceClient.isPad() {
-                        await send(.delegate(.presentGalleryDetail(gid, download)))
-                    } else {
-                        await send(.pushGalleryDetail(gid))
-                    }
-                }
+                return GalleryNavigation.routeGalleryDetail(
+                    isPad: deviceClient.isPad,
+                    present: { .delegate(.presentGalleryDetail(gid, download)) },
+                    push: { .pushGalleryDetail(gid) }
+                )
 
             case .pushGalleryDetail(let gid):
                 // Seed the detail with the locally downloaded gallery/badge so it renders offline.
-                state.path.append(.detail(.init(
+                state.path.appendGuardingDuplicate(.detail(.init(
                     gid: gid,
                     seededFrom: state.downloads.first(where: { $0.gid == gid })
                 )))
@@ -344,7 +340,7 @@ public struct DownloadsReducer: Sendable {
 
             case let .path(.element(id: _, action: elementAction)):
                 if let next = GalleryNavigation.nextScreen(for: elementAction) {
-                    state.path.append(next)
+                    state.path.appendGuardingDuplicate(next)
                 }
                 return .none
 

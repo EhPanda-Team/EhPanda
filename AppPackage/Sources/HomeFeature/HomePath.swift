@@ -15,6 +15,25 @@ public enum HomePath {
 
 extension HomePath.State: Equatable {}
 
+extension HomePath.State: GalleryRouteIdentifiable {
+    public var routeKey: String {
+        switch self {
+        case .frontpage:
+            return "frontpage"
+        case .popular:
+            return "popular"
+        case .toplists:
+            return "toplists"
+        case .watched:
+            return "watched"
+        case .history:
+            return "history"
+        case .gallery(let state):
+            return "gallery/\(state.routeKey)"
+        }
+    }
+}
+
 extension StackState where Element == HomePath.State {
     // Locate the pushed `.gallery(.detail)` element for `gid` so a comment action performed on a
     // deeper `.comments` screen can refresh the detail it belongs to.
