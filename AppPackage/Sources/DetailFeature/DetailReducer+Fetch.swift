@@ -7,13 +7,6 @@ extension DetailReducer {
     var fetchReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .teardown:
-                return .merge(
-                    CancelID
-                        .all(for: state.cancellationGalleryID)
-                        .map(Effect.cancel(id:))
-                )
-
             case .fetchDatabaseInfos(let gid):
                 if let gallery = databaseClient.fetchGallery(gid: gid) {
                     state.gallery = gallery

@@ -47,7 +47,6 @@ public struct LoginReducer: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case presentWebView(URL)
 
-        case teardown
         case login
         case loginDone(Result<HTTPURLResponse?, AppError>)
     }
@@ -72,9 +71,6 @@ public struct LoginReducer: Sendable {
             case .presentWebView(let url):
                 state.destination = .webView(url)
                 return .none
-
-            case .teardown:
-                return .cancel(id: CancelID.login)
 
             case .login:
                 guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }

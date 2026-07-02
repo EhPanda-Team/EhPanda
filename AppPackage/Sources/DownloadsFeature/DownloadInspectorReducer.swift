@@ -32,7 +32,6 @@ public struct DownloadInspectorReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case onAppear
-        case teardown
         case loadInspection
         case loadInspectionDone(UUID, Result<DownloadInspection, AppError>)
         case observeDownloads
@@ -62,12 +61,6 @@ public struct DownloadInspectorReducer: Sendable {
                 return .merge(
                     .send(.loadInspection),
                     .send(.observeDownloads)
-                )
-
-            case .teardown:
-                return .merge(
-                    .cancel(id: CancelID.observeDownloads),
-                    .cancel(id: CancelID.loadInspection)
                 )
 
             case .loadInspection:
