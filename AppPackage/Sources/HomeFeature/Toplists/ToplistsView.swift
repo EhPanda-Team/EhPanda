@@ -55,7 +55,7 @@ struct ToplistsView: View {
             }
             Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {}
         } message: {
-            Text(verbatim: "1 - \((store.pageNumber?.maximum ?? 0) + 1)")
+            Text(L10n.Localizable.JumpPageView.Description.jumpPage((store.pageNumber?.maximum ?? 0) + 1))
         }
         .onAppear {
             if store.galleries?.isEmpty != false {

@@ -2270,6 +2270,12 @@ public enum L10n {
         /// Confirm
         public static let confirm = L10n.tr("Localizable", "jump_page_view.button.confirm", fallback: "Confirm")
       }
+      public enum Description {
+        /// Enter a page number between 1 and %d to jump to.
+        public static func jumpPage(_ p1: Int) -> String {
+          return L10n.tr("Localizable", "jump_page_view.description.jump_page", p1, fallback: "Enter a page number between 1 and %d to jump to.")
+        }
+      }
       public enum Title {
         /// Jump page
         public static let jumpPage = L10n.tr("Localizable", "jump_page_view.title.jump_page", fallback: "Jump page")
