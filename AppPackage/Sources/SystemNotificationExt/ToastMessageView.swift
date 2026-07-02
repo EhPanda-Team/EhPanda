@@ -82,9 +82,9 @@ extension AppAlertState where Action == Never {
         case .alert:
             icon = .loading
             autoHide = false
-        case let .hud(hudIcon, shouldAutoHide):
+        case let .toast(toastIcon, shouldAutoHide):
             autoHide = shouldAutoHide
-            switch hudIcon {
+            switch toastIcon {
             case .loading: icon = .loading
             case .success: icon = .success
             case .error: icon = .error

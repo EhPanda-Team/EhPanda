@@ -13,12 +13,12 @@
 "website.response.invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
 
 // MARK: HUD
-"hud.title.error" = "Error";
-"hud.title.success" = "Success";
-"hud.title.loading" = "Loading...";
-"hud.title.communicating" = "Communicating...";
-"hud.caption.copied_to_clipboard" = "Copied to clipboard";
-"hud.caption.saved_to_photo_library" = "Saved to photo library";
+"toast.title.error" = "Error";
+"toast.title.success" = "Success";
+"toast.title.loading" = "Loading...";
+"toast.title.communicating" = "Communicating...";
+"toast.caption.copied_to_clipboard" = "Copied to clipboard";
+"toast.caption.saved_to_photo_library" = "Saved to photo library";
 
 // MARK: AutoLock
 "local_authorization.reason" = "The App has been locked due to the Auto-Lock expiration.";
@@ -429,8 +429,8 @@
 "downloads_view.inspector.button.retry_failed_pages" = "Retry Failed Pages";
 "downloads_view.inspector.button.validating_image_data" = "Validating Image Data...";
 "downloads_view.inspector.button.update_download" = "Update Download";
-"downloads_view.inspector.hud.image_data_valid" = "Image data is valid";
-"downloads_view.inspector.hud.image_data_unavailable" = "Image data could not be validated.";
+"downloads_view.inspector.toast.image_data_valid" = "Image data is valid";
+"downloads_view.inspector.toast.image_data_unavailable" = "Image data could not be validated.";
 "downloads_view.inspector.title.download_status" = "Download Status";
 "downloads_view.inspector.page.pending" = "Pending";
 "downloads_view.inspector.page.tap_to_retry" = "Tap to retry this page";

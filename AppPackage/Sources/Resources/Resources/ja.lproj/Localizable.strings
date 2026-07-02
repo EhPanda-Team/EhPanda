@@ -13,12 +13,12 @@
 "website.response.invalid_resolution" = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: HUD
-"hud.title.error" = "エラー";
-"hud.title.success" = "成功";
-"hud.title.loading" = "読み込み中...";
-"hud.title.communicating" = "通信中...";
-"hud.caption.copied_to_clipboard" = "クリップボードにコピーしました";
-"hud.caption.saved_to_photo_library" = "ライブラリに保存しました";
+"toast.title.error" = "エラー";
+"toast.title.success" = "成功";
+"toast.title.loading" = "読み込み中...";
+"toast.title.communicating" = "通信中...";
+"toast.caption.copied_to_clipboard" = "クリップボードにコピーしました";
+"toast.caption.saved_to_photo_library" = "ライブラリに保存しました";
 
 // MARK: AutoLock
 "local_authorization.reason" = "自動ロック期限が切れたため、アプリがロックされています";
@@ -429,8 +429,8 @@
 "downloads_view.inspector.button.retry_failed_pages" = "失敗したページを再試行";
 "downloads_view.inspector.button.validating_image_data" = "画像データを検証中...";
 "downloads_view.inspector.button.update_download" = "ダウンロードを更新";
-"downloads_view.inspector.hud.image_data_valid" = "画像データは有効です";
-"downloads_view.inspector.hud.image_data_unavailable" = "画像データを検証できませんでした。";
+"downloads_view.inspector.toast.image_data_valid" = "画像データは有効です";
+"downloads_view.inspector.toast.image_data_unavailable" = "画像データを検証できませんでした。";
 "downloads_view.inspector.title.download_status" = "ダウンロード状況";
 "downloads_view.inspector.page.pending" = "待機中";
 "downloads_view.inspector.page.tap_to_retry" = "タップしてこのページを再試行";

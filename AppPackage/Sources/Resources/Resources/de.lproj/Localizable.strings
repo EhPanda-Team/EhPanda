@@ -13,12 +13,12 @@
 "website.response.invalid_resolution" = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
 
 // MARK: HUD
-"hud.title.error" = "Fehler";
-"hud.title.success" = "Erfolg";
-"hud.title.loading" = "Wird geladen...";
-"hud.title.communicating" = "Verbinde...";
-"hud.caption.copied_to_clipboard" = "In Zwischenablage kopiert";
-"hud.caption.saved_to_photo_library" = "Saved to photo library";
+"toast.title.error" = "Fehler";
+"toast.title.success" = "Erfolg";
+"toast.title.loading" = "Wird geladen...";
+"toast.title.communicating" = "Verbinde...";
+"toast.caption.copied_to_clipboard" = "In Zwischenablage kopiert";
+"toast.caption.saved_to_photo_library" = "Saved to photo library";
 
 // MARK: AutoLock
 "local_authorization.reason" = "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist.";
@@ -429,8 +429,8 @@
 "downloads_view.inspector.button.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen";
 "downloads_view.inspector.button.validating_image_data" = "Bilddaten werden geprüft...";
 "downloads_view.inspector.button.update_download" = "Download aktualisieren";
-"downloads_view.inspector.hud.image_data_valid" = "Bilddaten sind gültig";
-"downloads_view.inspector.hud.image_data_unavailable" = "Bilddaten konnten nicht geprüft werden.";
+"downloads_view.inspector.toast.image_data_valid" = "Bilddaten sind gültig";
+"downloads_view.inspector.toast.image_data_unavailable" = "Bilddaten konnten nicht geprüft werden.";
 "downloads_view.inspector.title.download_status" = "Downloadstatus";
 "downloads_view.inspector.page.pending" = "Ausstehend";
 "downloads_view.inspector.page.tap_to_retry" = "Tippen, um diese Seite erneut zu versuchen";
