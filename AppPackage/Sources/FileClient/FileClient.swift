@@ -3,8 +3,8 @@ import Foundation
 import ComposableArchitecture
 
 public struct FileClient: Sendable {
-    public let createFile: @Sendable (String, Data?) -> Bool
-    public let importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
+    public var createFile: @Sendable (String, Data?) -> Bool
+    public var importTagTranslator: @Sendable (URL) async -> Result<TagTranslator, AppError>
 }
 
 extension FileClient {
