@@ -19,7 +19,6 @@ public struct ToplistsReducer: Sendable {
     public struct State: Equatable {
         public var keyword = ""
         public var jumpPageIndex = ""
-        public var jumpPageAlertFocused = false
         public var jumpPageAlertPresented = false
 
         public var type: ToplistsType = .yesterday
@@ -65,7 +64,6 @@ public struct ToplistsReducer: Sendable {
 
         case performJumpPage
         case presentJumpPageAlert
-        case setJumpPageAlertFocused(Bool)
 
         case teardown
         case fetchGalleries(Int? = nil)
@@ -81,12 +79,6 @@ public struct ToplistsReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.jumpPageAlertPresented) { _, state in
-                if !state.jumpPageAlertPresented {
-                    state.jumpPageAlertFocused = false
-                }
-                return .none
-            }
 
         Reduce { state, action in
             switch action {
@@ -112,10 +104,6 @@ public struct ToplistsReducer: Sendable {
             case .presentJumpPageAlert:
                 state.jumpPageAlertPresented = true
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
-
-            case .setJumpPageAlertFocused(let isFocused):
-                state.jumpPageAlertFocused = isFocused
-                return .none
 
             case .teardown:
                 return .merge(CancelID.allCases.map(Effect.cancel(id:)))

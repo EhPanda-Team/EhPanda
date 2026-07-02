@@ -6,7 +6,6 @@ import PackageDescription
 var dependencies: [PackageDescription.Package.Dependency] = [
     // Pinned to match the app's resolved version; 1.1.x deprecates ColorfulView.
     .package(url: "https://github.com/Co2333/Colorful", .upToNextMinor(from: "1.0.1")),
-    .package(url: "https://github.com/EhPanda-Team/AlertKit", branch: "custom"),
     .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
     .package(url: "https://github.com/EhPanda-Team/TTProgressHUD", branch: "custom"),
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.0"),
@@ -30,7 +29,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
 ]
 
 extension PackageDescription.Target.Dependency {
-    static let alertKit: Self = .product(name: "AlertKit", package: "AlertKit")
     static let casePaths: Self = .product(name: "CasePaths", package: "swift-case-paths")
     static let colorful: Self = .product(name: "Colorful", package: "Colorful")
     static let commonMark: Self = .product(name: "CommonMark", package: "SwiftCommonMark")
@@ -66,7 +64,6 @@ let sharedSwiftSettings: [PackageDescription.SwiftSetting] = [
 
 // MARK: Module
 enum Module: String {
-    case alertKitExt = "AlertKitExt"
     case animatedImageFeature = "AnimatedImageFeature"
     case appComponents = "AppComponents"
     case appDelegateClient = "AppDelegateClient"
@@ -289,7 +286,6 @@ let targets: [PackageDescription.Target] = [
             .module(.ttProgressHUDExt),
             .module(.urlClient),
             .module(.userDefaultsClient),
-            .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
@@ -523,18 +519,6 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .alertKitExt,
-        dependencies: [
-            .module(.appComponents),
-            .module(.appModels),
-            .module(.appTools),
-            .module(.resources),
-            .targetDependency(.alertKit)
-        ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
         module: .commonMarkExt,
         dependencies: [
             .targetDependency(.casePaths),
@@ -678,7 +662,6 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
-            .targetDependency(.alertKit),
             .targetDependency(.composableArchitecture)
         ],
         swiftSettings: sharedSwiftSettings,
@@ -744,7 +727,6 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .homeFeature,
         dependencies: [
-            .module(.alertKitExt),
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
@@ -761,7 +743,6 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
-            .targetDependency(.alertKit),
             .targetDependency(.colorful),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
