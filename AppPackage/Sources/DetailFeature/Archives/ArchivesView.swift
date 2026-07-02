@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppTools
-import TTProgressHUDExt
+import SystemNotificationExt
 import AppComponents
 
 struct ArchivesView: View {
@@ -56,7 +56,7 @@ struct ArchivesView: View {
                 }
                 .opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
             }
-            .progressHUD($store.hud)
+            .toast($store.scope(state: \.toast, action: \.toast))
             .animation(.default, value: store.hathArchives)
             .animation(.default, value: user.galleryPoints)
             .animation(.default, value: user.credits)

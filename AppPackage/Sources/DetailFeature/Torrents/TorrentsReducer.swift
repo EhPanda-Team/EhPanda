@@ -21,7 +21,7 @@ public struct TorrentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var torrents = [GalleryTorrent]()
         public var loadingState: LoadingState = .idle
@@ -29,6 +29,7 @@ public struct TorrentsReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case presentShare(URL)
 
@@ -55,6 +56,9 @@ public struct TorrentsReducer: Sendable {
             case .binding:
                 return .none
 
+            case .toast:
+                return .none
+
             case .destination:
                 return .none
 
@@ -63,7 +67,7 @@ public struct TorrentsReducer: Sendable {
                 return .none
 
             case .copyText(let magnetURL):
-                state.hud = .copiedToClipboardSucceeded
+                state.toast = .copiedToClipboardSucceeded
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(magnetURL) }),
                     .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
@@ -118,6 +122,7 @@ public struct TorrentsReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$toast, action: \.toast)
     }
 }
 

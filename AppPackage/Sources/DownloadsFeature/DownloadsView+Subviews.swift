@@ -4,7 +4,7 @@ import TagTranslationFeature
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
-import TTProgressHUDExt
+import SystemNotificationExt
 import AppComponents
 import GalleryListComponents
 
@@ -112,7 +112,7 @@ struct DownloadInspectorView: View {
             }
         }
         .autoBlur(radius: blurRadius)
-        .progressHUD($store.hud)
+        .toast($store.scope(state: \.toast, action: \.toast))
         .navigationTitle(L10n.Localizable.DownloadsView.Inspector.Title.downloadStatus)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

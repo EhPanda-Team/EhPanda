@@ -155,7 +155,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
         }
         await store.receive(\.validateImageDataDone) {
             $0.isValidatingImageData = false
-            $0.hud = .success(
+            $0.toast = .success(
                 caption: L10n.Localizable.DownloadsView.Inspector.Toast.imageDataValid
             )
         }
@@ -288,7 +288,7 @@ extension DownloadInspectorLoadTests {
 
     @MainActor
     @Test
-    func testDownloadInspectorReducerValidateImageDataShowsMissingFilesHUD() async {
+    func testDownloadInspectorReducerValidateImageDataShowsMissingFilesToast() async {
         let download = sampleDownload(
             gid: "112241", title: "Missing Image Data Gallery",
             status: .completed, pageCount: 2
@@ -309,7 +309,7 @@ extension DownloadInspectorLoadTests {
         }
         await store.receive(\.validateImageDataDone) {
             $0.isValidatingImageData = false
-            $0.hud = .error(caption: "Page 2 image data is corrupted.")
+            $0.toast = .error(caption: "Page 2 image data is corrupted.")
         }
         await store.receive(\.loadInspection)
         await store.receive(\.loadInspectionDone) {

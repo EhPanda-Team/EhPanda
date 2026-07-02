@@ -7,7 +7,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     // Pinned to match the app's resolved version; 1.1.x deprecates ColorfulView.
     .package(url: "https://github.com/Co2333/Colorful", .upToNextMinor(from: "1.0.1")),
     .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
-    .package(url: "https://github.com/EhPanda-Team/TTProgressHUD", branch: "custom"),
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.0"),
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
@@ -44,7 +43,6 @@ extension PackageDescription.Target.Dependency {
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
     static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
-    static let ttProgressHUD: Self = .product(name: "TTProgressHUD", package: "TTProgressHUD")
     static let uiImageColors: Self = .product(name: "UIImageColors", package: "UIImageColors")
     static let waterfallGrid: Self = .product(name: "WaterfallGrid", package: "WaterfallGrid")
 }
@@ -103,7 +101,6 @@ enum Module: String {
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
     case systemNotificationExt = "SystemNotificationExt"
-    case ttProgressHUDExt = "TTProgressHUDExt"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
@@ -284,7 +281,7 @@ let targets: [PackageDescription.Target] = [
             .module(.searchFeature),
             .module(.animatedImageFeature),
             .module(.settingFeature),
-            .module(.ttProgressHUDExt),
+            .module(.systemNotificationExt),
             .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.colorful),
@@ -298,7 +295,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUIPager),
-            .targetDependency(.ttProgressHUD),
             .targetDependency(.uiImageColors),
             .targetDependency(.waterfallGrid)
         ],
@@ -356,17 +352,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .targetDependency(.composableArchitecture)
-        ],
-        swiftSettings: sharedSwiftSettings,
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .ttProgressHUDExt,
-        dependencies: [
-            .module(.appComponents),
-            .module(.resources),
-            .targetDependency(.composableArchitecture),
-            .targetDependency(.ttProgressHUD)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -647,7 +632,7 @@ let targets: [PackageDescription.Target] = [
             .module(.galleryListComponents),
             .module(.readingFeature),
             .module(.resources),
-            .module(.ttProgressHUDExt),
+            .module(.systemNotificationExt),
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
@@ -699,7 +684,7 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .module(.readingSettingFeature),
             .module(.resources),
-            .module(.ttProgressHUDExt),
+            .module(.systemNotificationExt),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols),
@@ -782,7 +767,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.readingFeature),
             .module(.resources),
-            .module(.ttProgressHUDExt),
+            .module(.systemNotificationExt),
             .module(.tagTranslationFeature),
             .module(.urlClient),
             .targetDependency(.commonMark),
@@ -812,14 +797,13 @@ let targets: [PackageDescription.Target] = [
             .module(.readingSettingFeature),
             .module(.resources),
             .module(.animatedImageFeature),
-            .module(.ttProgressHUDExt),
+            .module(.systemNotificationExt),
             .module(.urlClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUIPager),
-            .targetDependency(.ttProgressHUD)
+            .targetDependency(.swiftUIPager)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
