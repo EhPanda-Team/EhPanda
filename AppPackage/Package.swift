@@ -367,7 +367,9 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .ttProgressHUDExt,
         dependencies: [
+            .module(.appComponents),
             .module(.resources),
+            .targetDependency(.composableArchitecture),
             .targetDependency(.ttProgressHUD)
         ],
         swiftSettings: sharedSwiftSettings,

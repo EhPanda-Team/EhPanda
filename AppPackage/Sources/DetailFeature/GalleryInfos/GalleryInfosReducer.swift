@@ -2,13 +2,13 @@ import AppModels
 import ComposableArchitecture
 import HapticsClient
 import ClipboardClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct GalleryInfosReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         // Display data captured when this screen is pushed onto the host's gallery stack.
         public var gallery: Gallery = .empty
         public var galleryDetail: GalleryDetail = .empty

@@ -8,7 +8,7 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import ClipboardClient
-import TTProgressHUDExt
+import AppComponents
 import DetailFeature
 
 @Reducer
@@ -23,7 +23,7 @@ struct AppRouteReducer {
 
     @ObservableState
     struct State: Equatable {
-        var hud: ProgressHUDConfigState?
+        var hud: AppAlertState<Never>?
         // The deep-link/clipboard gallery, presented modally as the root of its own gallery stack.
         @Presents var detail: DetailReducer.State?
         var path = StackState<GalleryPath.State>()
@@ -40,7 +40,7 @@ struct AppRouteReducer {
         case presentSetting
         case presentNewDawn(Greeting)
         case presentGalleryDetail(String, DownloadedGallery?)
-        case setHUD(ProgressHUDConfigState)
+        case setHUD(AppAlertState<Never>)
 
         case detectClipboardURL
         case handleDeepLink(URL)
