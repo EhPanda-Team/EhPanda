@@ -12,7 +12,7 @@
 "website.response.hath_client_not_online" = "Dein H@H Client scheint offline zu sein. Sieh nach, ob er läuft und probier's nochmal";
 "website.response.invalid_resolution" = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
 
-// MARK: HUD
+// MARK: Toast
 "toast.title.error" = "Fehler";
 "toast.title.success" = "Erfolg";
 "toast.title.loading" = "Wird geladen...";
