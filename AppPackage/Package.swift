@@ -949,6 +949,8 @@ let targets: [PackageDescription.Target] = [
         module: .settingFeatureTests,
         dependencies: [
             .module(.appModels),
+            .module(.cookieClient),
+            .module(.hapticsClient),
             .module(.logsClient),
             .module(.settingFeature),
             .targetDependency(.composableArchitecture),
