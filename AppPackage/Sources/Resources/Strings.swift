@@ -375,8 +375,6 @@ public enum L10n {
       public enum Button {
         /// Cancel
         public static let cancel = L10n.tr("Localizable", "common.button.cancel", fallback: "Cancel")
-        /// OK
-        public static let ok = L10n.tr("Localizable", "common.button.ok", fallback: "OK")
       }
       public enum Value {
         /// %@ day
