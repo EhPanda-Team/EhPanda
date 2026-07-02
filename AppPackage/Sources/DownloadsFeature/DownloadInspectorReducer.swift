@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DownloadClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct DownloadInspectorReducer: Sendable {
@@ -14,7 +14,7 @@ public struct DownloadInspectorReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         public var gid = ""
         public var inspection: DownloadInspection?
         public var stableInspection: DownloadInspection?
@@ -216,7 +216,7 @@ public struct DownloadInspectorReducer: Sendable {
 }
 
 private extension Optional where Wrapped == DownloadValidationState {
-    var hudConfig: ProgressHUDConfigState {
+    var hudConfig: AppAlertState<Never> {
         switch self {
         case .some(.valid):
             return .success(

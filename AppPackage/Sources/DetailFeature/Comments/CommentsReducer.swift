@@ -7,7 +7,7 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import CookieClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct CommentsReducer: Sendable {
@@ -30,7 +30,7 @@ public struct CommentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var commentContent = ""
         public var postCommentFocused = false
@@ -64,7 +64,7 @@ public struct CommentsReducer: Sendable {
         case clearScrollCommentID
         case delegate(Delegate)
 
-        case setHUD(ProgressHUDConfigState)
+        case setHUD(AppAlertState<Never>)
         case setPostCommentFocused(Bool)
         case setScrollRowOpacity(Double)
         case setCommentContent(String)

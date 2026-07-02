@@ -1,6 +1,6 @@
 import SwiftUI
 import Kingfisher
-import TTProgressHUD
+import AppComponents
 import ComposableArchitecture
 import AppTools
 

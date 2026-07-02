@@ -5,7 +5,7 @@ import HapticsClient
 import NetworkingFeature
 import ClipboardClient
 import FileClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct TorrentsReducer: Sendable {
@@ -21,7 +21,7 @@ public struct TorrentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var torrents = [GalleryTorrent]()
         public var loadingState: LoadingState = .idle
