@@ -64,7 +64,7 @@
 "app.acknowledgement.link.swiftyOpenCC" = "https://github.com/ddddxxx/SwiftyOpenCC";
 "app.acknowledgement.link.uiImageColors" = "https://github.com/jathu/UIImageColors";
 "app.acknowledgement.link.sfSafeSymbols" = "https://github.com/SFSafeSymbols/SFSafeSymbols";
-"app.acknowledgement.link.ttProgressHUD" = "https://github.com/honkmaster/TTProgressHUD";
+"app.acknowledgement.link.systemNotification" = "https://github.com/danielsaidi/SystemNotification";
 "app.acknowledgement.link.swiftUINavigation" = "https://github.com/pointfreeco/swiftui-navigation";
 "app.acknowledgement.link.swiftCommonMark" = "https://github.com/gonzalezreal/SwiftCommonMark";
 "app.acknowledgement.link.ehTagTranslationDatabase" = "https://github.com/EhTagTranslation/Database";
@@ -80,7 +80,7 @@
 "app.acknowledgement.text.swiftyOpenCC" = "SwiftyOpenCC";
 "app.acknowledgement.text.uiImageColors" = "UIImageColors";
 "app.acknowledgement.text.sfSafeSymbols" = "SFSafeSymbols";
-"app.acknowledgement.text.ttProgressHUD" = "TTProgressHUD";
+"app.acknowledgement.text.systemNotification" = "SystemNotification";
 "app.acknowledgement.text.swiftUINavigation" = "SwiftUI Navigation";
 "app.acknowledgement.text.swiftCommonMark" = "SwiftCommonMark";
 "app.acknowledgement.text.ehTagTranslationDatabase" = "EhTagTranslation/Database";

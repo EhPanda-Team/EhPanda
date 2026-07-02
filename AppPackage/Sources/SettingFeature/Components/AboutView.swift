@@ -183,8 +183,8 @@ struct AboutView: View {
             text: L10n.Constant.App.Acknowledgement.Text.sfSafeSymbols
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.ttProgressHUD,
-            text: L10n.Constant.App.Acknowledgement.Text.ttProgressHUD
+            urlString: L10n.Constant.App.Acknowledgement.Link.systemNotification,
+            text: L10n.Constant.App.Acknowledgement.Text.systemNotification
         ),
         .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.swiftUINavigation,
