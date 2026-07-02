@@ -102,6 +102,7 @@ enum Module: String {
     case resources = "Resources"
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
+    case systemNotificationExt = "SystemNotificationExt"
     case ttProgressHUDExt = "TTProgressHUDExt"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
@@ -366,6 +367,16 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .targetDependency(.composableArchitecture),
             .targetDependency(.ttProgressHUD)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .systemNotificationExt,
+        dependencies: [
+            .module(.appComponents),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
