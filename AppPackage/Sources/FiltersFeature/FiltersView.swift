@@ -30,7 +30,8 @@ public struct FiltersView: View {
             Form {
                 BasicSection(
                     filter: filter, filterRange: $store.filterRange,
-                    resetFiltersDialogAction: { store.send(.resetFiltersButtonTapped) }
+                    resetFiltersDialogAction: { store.send(.resetFiltersButtonTapped) },
+                    confirmationDialog: $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
                 )
                 AdvancedSection(
                     filter: filter, focusedBound: $focusedBound,
@@ -38,9 +39,6 @@ public struct FiltersView: View {
                 )
             }
             .synchronize($store.focusedBound, $focusedBound)
-            .confirmationDialog(
-                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
-            )
             .navigationTitle(L10n.Localizable.FiltersView.Title.filters)
             .onAppear { store.send(.fetchFilters) }
         }
@@ -52,6 +50,8 @@ private struct BasicSection: View {
     @Binding private var filter: Filter
     @Binding private var filterRange: FilterRange
     private let resetFiltersDialogAction: () -> Void
+    private let confirmationDialog:
+        Binding<Store<ConfirmationDialogState<FiltersReducer.Dialog>, FiltersReducer.Dialog>?>
     private var categoryBindings: [Binding<Bool>] { [
         $filter.doujinshi, $filter.manga, $filter.artistCG, $filter.gameCG, $filter.western,
         $filter.nonH, $filter.imageSet, $filter.cosplay, $filter.asianPorn, $filter.misc
@@ -59,11 +59,14 @@ private struct BasicSection: View {
 
     init(
         filter: Binding<Filter>, filterRange: Binding<FilterRange>,
-        resetFiltersDialogAction: @escaping () -> Void
+        resetFiltersDialogAction: @escaping () -> Void,
+        confirmationDialog:
+            Binding<Store<ConfirmationDialogState<FiltersReducer.Dialog>, FiltersReducer.Dialog>?>
     ) {
         _filter = filter
         _filterRange = filterRange
         self.resetFiltersDialogAction = resetFiltersDialogAction
+        self.confirmationDialog = confirmationDialog
     }
 
     var body: some View {
@@ -78,6 +81,7 @@ private struct BasicSection: View {
             Button(action: resetFiltersDialogAction) {
                 Text(L10n.Localizable.FiltersView.Button.resetFilters).foregroundStyle(.red)
             }
+            .confirmationDialog(confirmationDialog)
             Toggle(L10n.Localizable.FiltersView.Title.advancedSettings, isOn: $filter.advanced)
         }
     }

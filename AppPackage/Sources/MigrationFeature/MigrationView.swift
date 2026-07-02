@@ -28,11 +28,11 @@ public struct MigrationView: View {
                     AlertViewButton(title: L10n.Localizable.ErrorView.Button.dropDatabase) {
                         store.send(.dropDatabaseButtonTapped)
                     }
+                    .confirmationDialog(
+                        $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+                    )
                 }
                 .opacity(error != nil ? 1 : 0)
-                .confirmationDialog(
-                    $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
-                )
             }
             .animation(.default, value: store.databaseState)
         }

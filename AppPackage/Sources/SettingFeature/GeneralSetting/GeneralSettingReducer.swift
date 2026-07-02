@@ -24,7 +24,10 @@ public struct GeneralSettingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
+        // Two separate dialogs so each anchors to its own trigger button on iPad (the clear-cache
+        // and remove-translations buttons live in different sections).
+        @Presents public var clearCacheDialog: ConfirmationDialogState<Dialog>?
+        @Presents public var removeTranslationsDialog: ConfirmationDialogState<Dialog>?
 
         public var loadingState: LoadingState = .idle
         public var diskImageCacheSize = "0 KB"
@@ -35,7 +38,8 @@ public struct GeneralSettingReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case confirmationDialog(PresentationAction<Dialog>)
+        case clearCacheDialog(PresentationAction<Dialog>)
+        case removeTranslationsDialog(PresentationAction<Dialog>)
         case delegate(Delegate)
         case onTranslationsFilePicked(URL)
         case removeCustomTranslationsButtonTapped
@@ -68,7 +72,7 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
 
             case .removeCustomTranslationsButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
+                state.removeTranslationsDialog = ConfirmationDialogState {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmRemoveCustomTranslations) {
@@ -83,7 +87,7 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
 
             case .clearImageCachesButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
+                state.clearCacheDialog = ConfirmationDialogState {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearCache) {
@@ -97,13 +101,13 @@ public struct GeneralSettingReducer: Sendable {
                 }
                 return .none
 
-            case .confirmationDialog(.presented(.confirmRemoveCustomTranslations)):
+            case .removeTranslationsDialog(.presented(.confirmRemoveCustomTranslations)):
                 return .send(.onRemoveCustomTranslations)
 
-            case .confirmationDialog(.presented(.confirmClearCache)):
+            case .clearCacheDialog(.presented(.confirmClearCache)):
                 return .send(.clearWebImageCache)
 
-            case .confirmationDialog:
+            case .removeTranslationsDialog, .clearCacheDialog:
                 return .none
 
             case .onTranslationsFilePicked:
@@ -144,6 +148,7 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
             }
         }
-        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .ifLet(\.$clearCacheDialog, action: \.clearCacheDialog)
+        .ifLet(\.$removeTranslationsDialog, action: \.removeTranslationsDialog)
     }
 }

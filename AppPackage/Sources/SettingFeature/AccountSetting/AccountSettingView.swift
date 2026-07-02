@@ -40,6 +40,9 @@ struct AccountSettingView: View {
                     bypassesSNIFiltering: bypassesSNIFiltering,
                     loginAction: { store.send(.delegate(.pushLogin)) },
                     logoutDialogAction: { store.send(.logoutButtonTapped) },
+                    logoutConfirmationDialog: $store.scope(
+                        state: \.confirmationDialog, action: \.confirmationDialog
+                    ),
                     configureAccountAction: { store.send(.delegate(.pushEhSetting)) },
                     manageTagsAction: { store.send(.presentWebView(Defaults.URL.myTags)) }
                 )
@@ -51,9 +54,6 @@ struct AccountSettingView: View {
             )
         }
         .progressHUD($store.hud)
-        .confirmationDialog(
-            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
-        )
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
@@ -70,6 +70,8 @@ private struct AccountSection: View {
     private let bypassesSNIFiltering: Bool
     private let loginAction: () -> Void
     private let logoutDialogAction: () -> Void
+    private let logoutConfirmationDialog:
+        Binding<Store<ConfirmationDialogState<AccountSettingReducer.Dialog>, AccountSettingReducer.Dialog>?>
     private let configureAccountAction: () -> Void
     private let manageTagsAction: () -> Void
 
@@ -77,6 +79,8 @@ private struct AccountSection: View {
         showsNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
         loginAction: @escaping () -> Void,
         logoutDialogAction: @escaping () -> Void,
+        logoutConfirmationDialog:
+            Binding<Store<ConfirmationDialogState<AccountSettingReducer.Dialog>, AccountSettingReducer.Dialog>?>,
         configureAccountAction: @escaping () -> Void,
         manageTagsAction: @escaping () -> Void
     ) {
@@ -84,6 +88,7 @@ private struct AccountSection: View {
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.loginAction = loginAction
         self.logoutDialogAction = logoutDialogAction
+        self.logoutConfirmationDialog = logoutConfirmationDialog
         self.configureAccountAction = configureAccountAction
         self.manageTagsAction = manageTagsAction
     }
@@ -96,6 +101,7 @@ private struct AccountSection: View {
                 L10n.Localizable.ConfirmationDialog.Button.logout,
                 role: .destructive, action: logoutDialogAction
             )
+            .confirmationDialog(logoutConfirmationDialog)
             Group {
                 Button(
                     L10n.Localizable.AccountSettingView.Button.accountConfiguration,

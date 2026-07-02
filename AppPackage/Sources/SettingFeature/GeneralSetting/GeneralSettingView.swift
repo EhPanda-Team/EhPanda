@@ -105,6 +105,9 @@ struct GeneralSettingView: View {
                         L10n.Localizable.GeneralSettingView.Button.removeCustomTranslations,
                         role: .destructive, action: { store.send(.removeCustomTranslationsButtonTapped) }
                     )
+                    .confirmationDialog(
+                        $store.scope(state: \.removeTranslationsDialog, action: \.removeTranslationsDialog)
+                    )
                 }
             }
             Section(L10n.Localizable.GeneralSettingView.Section.Title.navigation) {
@@ -152,11 +155,11 @@ struct GeneralSettingView: View {
                     }
                     .foregroundColor(.primary)
                 }
+                .confirmationDialog(
+                    $store.scope(state: \.clearCacheDialog, action: \.clearCacheDialog)
+                )
             }
         }
-        .confirmationDialog(
-            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
-        )
         .animation(.default, value: tagTranslatorHasCustomTranslations)
         .animation(.default, value: tagTranslatorLoadingState)
         .animation(.default, value: enablesTagsExtension)

@@ -10,6 +10,8 @@ This file gives coding agents a reliable working guide for this repository.
 
 **Read SwiftLint rules**: Before writing or changing Swift code, read the root `.swiftlint.yml` to learn the project's lint rules, including the custom regex rules and banned APIs it defines. Write code that conforms to those rules from the start, and resolve every violation at its root. Suppressing a rule, disabling it, adding a `// swiftlint:disable`, or otherwise removing it, is forbidden without the user's explicit permission.
 
+**Confirmation dialog / alert placement**: Attach a `.confirmationDialog`/`.alert` modifier to a UI element that is both **stable** (stays in the hierarchy until the dialog is dismissed — being `.disabled` is fine, being removed or `.opacity`-hidden is not) and the **action source** (the control that triggers it). On iPad these render as popovers anchored to the view the modifier is attached to, so the anchor must be the triggering control for the arrow to point at the right place; and if that view leaves the hierarchy while the dialog is up, the dialog is torn down with it. Do not move such a modifier onto a transient or unrelated container (a whole `Form`/`List`, or a view gated by a condition) for convenience — keep it on the triggering button/row. When the trigger lives inside a subview, thread the store-scoped dialog binding into that subview and attach it there rather than hoisting the modifier to an ancestor. Exception: for a per-row destructive action whose row can scroll out of view, the stable action-source is the enclosing list container, so attach it there.
+
 ## Project structure
 
 EhPanda is being modularized to match the App-shell + local-package layout:
