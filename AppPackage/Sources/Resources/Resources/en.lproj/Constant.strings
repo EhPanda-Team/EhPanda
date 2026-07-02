@@ -58,7 +58,6 @@
 "app.acknowledgement.link.kanna" = "https://github.com/tid-kijyun/Kanna";
 "app.acknowledgement.link.swiftGen" = "https://github.com/SwiftGen/SwiftGen";
 "app.acknowledgement.link.colorful" = "https://github.com/Co2333/Colorful";
-"app.acknowledgement.link.filePicker" = "https://github.com/markrenaud/FilePicker";
 "app.acknowledgement.link.kingfisher" = "https://github.com/onevcat/Kingfisher";
 "app.acknowledgement.link.swiftUIPager" = "https://github.com/fermoya/SwiftUIPager";
 "app.acknowledgement.link.waterfallGrid" = "https://github.com/paololeonardi/WaterfallGrid";
@@ -75,7 +74,6 @@
 "app.acknowledgement.text.kanna" = "Kanna";
 "app.acknowledgement.text.swiftGen" = "SwiftGen";
 "app.acknowledgement.text.colorful" = "Colorful";
-"app.acknowledgement.text.filePicker" = "FilePicker";
 "app.acknowledgement.text.kingfisher" = "Kingfisher";
 "app.acknowledgement.text.swiftUIPager" = "SwiftUIPager";
 "app.acknowledgement.text.waterfallGrid" = "WaterfallGrid";

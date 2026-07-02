@@ -20,8 +20,6 @@ public enum L10n {
           public static let colorful = L10n.tr("Constant", "app.acknowledgement.link.colorful", fallback: "https://github.com/Co2333/Colorful")
           /// https://github.com/EhTagTranslation/Database
           public static let ehTagTranslationDatabase = L10n.tr("Constant", "app.acknowledgement.link.ehTagTranslationDatabase", fallback: "https://github.com/EhTagTranslation/Database")
-          /// https://github.com/markrenaud/FilePicker
-          public static let filePicker = L10n.tr("Constant", "app.acknowledgement.link.filePicker", fallback: "https://github.com/markrenaud/FilePicker")
           /// https://github.com/tid-kijyun/Kanna
           public static let kanna = L10n.tr("Constant", "app.acknowledgement.link.kanna", fallback: "https://github.com/tid-kijyun/Kanna")
           /// https://github.com/onevcat/Kingfisher
@@ -52,8 +50,6 @@ public enum L10n {
           public static let colorful = L10n.tr("Constant", "app.acknowledgement.text.colorful", fallback: "Colorful")
           /// EhTagTranslation/Database
           public static let ehTagTranslationDatabase = L10n.tr("Constant", "app.acknowledgement.text.ehTagTranslationDatabase", fallback: "EhTagTranslation/Database")
-          /// FilePicker
-          public static let filePicker = L10n.tr("Constant", "app.acknowledgement.text.filePicker", fallback: "FilePicker")
           /// Kanna
           public static let kanna = L10n.tr("Constant", "app.acknowledgement.text.kanna", fallback: "Kanna")
           /// Kingfisher

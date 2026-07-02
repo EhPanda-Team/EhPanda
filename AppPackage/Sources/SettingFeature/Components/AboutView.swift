@@ -159,10 +159,6 @@ struct AboutView: View {
             text: L10n.Constant.App.Acknowledgement.Text.colorful
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.filePicker,
-            text: L10n.Constant.App.Acknowledgement.Text.filePicker
-        ),
-        .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.kingfisher,
             text: L10n.Constant.App.Acknowledgement.Text.kingfisher
         ),
