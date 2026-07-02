@@ -16,7 +16,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     .package(url: "https://github.com/gonzalezreal/SwiftCommonMark", from: "1.0.0"),
     .package(url: "https://github.com/jathu/UIImageColors", from: "2.2.0"),
-    .package(url: "https://github.com/markrenaud/FilePicker", from: "1.0.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/paololeonardi/WaterfallGrid", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
@@ -37,7 +36,6 @@ extension PackageDescription.Target.Dependency {
         package: "swift-composable-architecture"
     )
     static let deprecatedAPI: Self = .product(name: "DeprecatedAPI", package: "DeprecatedAPI")
-    static let filePicker: Self = .product(name: "FilePicker", package: "FilePicker")
     static let kanna: Self = .product(name: "Kanna", package: "Kanna")
     static let kingfisher: Self = .product(name: "Kingfisher", package: "Kingfisher")
     static let openCC: Self = .product(name: "OpenCC", package: "SwiftyOpenCC")
@@ -291,7 +289,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
-            .targetDependency(.filePicker),
             .targetDependency(.kanna),
             .targetDependency(.kingfisher),
             .targetDependency(.openCC),
@@ -693,7 +690,6 @@ let targets: [PackageDescription.Target] = [
             .module(.ttProgressHUDExt),
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.filePicker),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
