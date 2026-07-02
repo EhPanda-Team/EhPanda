@@ -107,7 +107,7 @@ public struct SearchRootReducer: Sendable {
                 return .none
 
             case .pushSearch:
-                state.path.append(.search(.init(keyword: state.keyword)))
+                state.path.appendGuardingDuplicate(.search(.init(keyword: state.keyword)))
                 return .none
 
             case .galleryTapped(let gid),

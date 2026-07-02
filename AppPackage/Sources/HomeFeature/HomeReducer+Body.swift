@@ -46,20 +46,20 @@ extension HomeReducer {
             case .sectionTapped(let type):
                 switch type {
                 case .frontpage:
-                    state.path.append(.frontpage(.init()))
+                    state.path.appendGuardingDuplicate(.frontpage(.init()))
                 case .toplists:
-                    state.path.append(.toplists(.init()))
+                    state.path.appendGuardingDuplicate(.toplists(.init()))
                 }
                 return .none
 
             case .miscTapped(let type):
                 switch type {
                 case .popular:
-                    state.path.append(.popular(.init()))
+                    state.path.appendGuardingDuplicate(.popular(.init()))
                 case .watched:
-                    state.path.append(.watched(.init()))
+                    state.path.appendGuardingDuplicate(.watched(.init()))
                 case .history:
-                    state.path.append(.history(.init()))
+                    state.path.appendGuardingDuplicate(.history(.init()))
                 }
                 return .none
 

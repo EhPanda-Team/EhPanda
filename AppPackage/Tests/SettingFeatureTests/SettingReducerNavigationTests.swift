@@ -38,6 +38,23 @@ struct SettingReducerNavigationTests {
         }
     }
 
+    @Test
+    func settingRowTappedGuardsAgainstAdjacentDuplicate() async {
+        let store = TestStore(initialState: .init(), reducer: SettingReducer.init)
+        store.exhaustivity = .off
+
+        await store.send(.settingRowTapped(.account))
+        #expect(store.state.path.count == 1)
+
+        // A rapid second identical tap is skipped — only the adjacent top is compared.
+        await store.send(.settingRowTapped(.account))
+        #expect(store.state.path.count == 1)
+
+        // A different row still appends.
+        await store.send(.settingRowTapped(.general))
+        #expect(store.state.path.count == 2)
+    }
+
     // MARK: Child delegate → parent push
 
     @Test
