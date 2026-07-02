@@ -102,10 +102,6 @@ extension DetailReducer {
                 state.showsUserRating.toggle()
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.soft) })
 
-            case .setCommentContent(let content):
-                state.commentContent = content
-                return .none
-
             case .setPostCommentFocused(let isFocused):
                 state.postCommentFocused = isFocused
                 return .none
