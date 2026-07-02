@@ -131,7 +131,6 @@ public struct DetailReducer: Sendable {
         case onAppear(String, Bool)
         case toggleShowFullTitle
         case toggleShowUserRating
-        case setCommentContent(String)
         case setPostCommentFocused(Bool)
         case updateRating(DragGesture.Value)
         case confirmRating(DragGesture.Value)
