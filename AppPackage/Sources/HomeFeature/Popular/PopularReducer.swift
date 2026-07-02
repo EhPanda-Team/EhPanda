@@ -42,7 +42,6 @@ public struct PopularReducer: Sendable {
         case filtersButtonTapped
         case destination(PresentationAction<Destination.Action>)
 
-        case teardown
         case fetchGalleries
         case fetchGalleriesDone(Result<[Gallery], AppError>)
     }
@@ -69,9 +68,6 @@ public struct PopularReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .teardown:
-                return .cancel(id: CancelID.fetchGalleries)
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }

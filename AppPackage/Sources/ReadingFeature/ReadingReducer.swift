@@ -163,7 +163,6 @@ public struct ReadingReducer: Sendable {
         case syncThumbnailURLs([Int: URL])
         case syncImageURLs([Int: URL], [Int: URL])
 
-        case teardown
         case fetchDatabaseInfos(String)
         case fetchDatabaseInfosDone(GalleryState)
         case observeDownloads(String)

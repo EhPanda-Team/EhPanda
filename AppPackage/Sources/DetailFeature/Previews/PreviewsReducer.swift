@@ -15,7 +15,7 @@ public struct PreviewsReducer: Sendable {
         case reading(ReadingReducer)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchDatabaseInfos
         case observeDownloads
         case loadLocalPreviewURLs
@@ -56,7 +56,6 @@ public struct PreviewsReducer: Sendable {
         case syncPreviewURLs([Int: URL])
         case updateReadingProgress(Int)
 
-        case teardown
         case fetchDatabaseInfos(String)
         case fetchDatabaseInfosDone(GalleryState)
         case observeDownloads(String)
@@ -98,9 +97,6 @@ public struct PreviewsReducer: Sendable {
                 return .run { [state] _ in
                     await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
                 }
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }

@@ -78,7 +78,6 @@ public struct DownloadsReducer: Sendable {
         case moveButtonTapped(DownloadedGallery)
 
         case onAppear
-        case teardown
         case fetchDownloads
         case fetchDownloadsDone([DownloadedGallery])
         case observeDownloads
@@ -193,12 +192,6 @@ public struct DownloadsReducer: Sendable {
                     .send(.fetchDownloads),
                     .send(.observeDownloads),
                     .send(.fetchFolders)
-                )
-
-            case .teardown:
-                return .merge(
-                    .cancel(id: CancelID.observeDownloads),
-                    .cancel(id: CancelID.fetchFolders)
                 )
 
             case .fetchDownloads:

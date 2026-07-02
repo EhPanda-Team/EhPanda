@@ -56,25 +56,6 @@ public struct DetailReducer: Sendable {
         case unfavorGallery(String)
         case postComment(String)
         case voteTag(String)
-
-        // Teardown cancels this whole set; keep it in sync with the cases above.
-        // Dropping `CaseIterable` (associated values) means the compiler can't check the list for us.
-        static func all(for gid: String) -> [Self] {
-            [
-                .fetchDatabaseInfos(gid),
-                .fetchGalleryDetail(gid),
-                .fetchVersionMetadata(gid),
-                .fetchDownloadBadge(gid),
-                .fetchDownloadFolders(gid),
-                .observeDownload(gid),
-                .loadLocalPreviewURLs(gid),
-                .rateGallery(gid),
-                .favorGallery(gid),
-                .unfavorGallery(gid),
-                .postComment(gid),
-                .voteTag(gid)
-            ]
-        }
     }
 
     @ObservableState
@@ -184,7 +165,6 @@ public struct DetailReducer: Sendable {
         case retryDownloadDone(Result<Void, AppError>)
         case deleteDownload
         case deleteDownloadDone(Result<Void, AppError>)
-        case teardown
         case fetchDatabaseInfos(String)
         case fetchDatabaseInfosDone(GalleryState)
         case fetchGalleryDetail

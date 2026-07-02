@@ -20,7 +20,7 @@ public struct EhSettingReducer: Sendable {
         case confirmDeleteProfile
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchEhSetting, submitChanges, performAction
     }
 
@@ -52,7 +52,6 @@ public struct EhSettingReducer: Sendable {
         case setKeyboardHidden
         case setDefaultProfile(Int)
 
-        case teardown
         case fetchEhSetting
         case fetchEhSettingDone(Result<EhSetting, AppError>)
         case submitChanges
@@ -113,9 +112,6 @@ public struct EhSettingReducer: Sendable {
                         for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
                     )
                 }
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchEhSetting:
                 guard state.loadingState != .loading else { return .none }

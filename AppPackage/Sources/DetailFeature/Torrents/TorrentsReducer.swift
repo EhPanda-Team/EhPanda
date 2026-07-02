@@ -15,7 +15,7 @@ public struct TorrentsReducer: Sendable {
         case share(URL)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchTorrent, fetchGalleryTorrents
     }
 
@@ -35,7 +35,6 @@ public struct TorrentsReducer: Sendable {
         case copyText(String)
         case presentTorrentActivity(String, Data)
 
-        case teardown
         case fetchTorrent(String, URL)
         case fetchTorrentDone(String, Result<Data, AppError>)
         case fetchGalleryTorrents(String, String)
@@ -82,9 +81,6 @@ public struct TorrentsReducer: Sendable {
                     await send(.fetchTorrentDone(hash, response))
                 }
                 .cancellable(id: CancelID.fetchTorrent)
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchTorrentDone(let hash, let result):
                 if case .success(let data) = result, !data.isEmpty {

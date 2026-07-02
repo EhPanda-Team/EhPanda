@@ -66,7 +66,6 @@ public struct FolderManagerReducer: Sendable {
         case deleteFolder(String)
         case deleteFolderDone(Result<Void, AppError>)
 
-        case teardown
         case fetchFolders
         case fetchFoldersDone([String])
     }
@@ -182,9 +181,6 @@ public struct FolderManagerReducer: Sendable {
             case .deleteFolderDone(.failure(let error)):
                 state.loadingState = .failed(error)
                 return .none
-
-            case .teardown:
-                return .cancel(id: CancelID.fetchFolders)
 
             case .fetchFolders:
                 state.loadingState = .loading
