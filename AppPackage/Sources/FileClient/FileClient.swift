@@ -14,23 +14,29 @@ extension FileClient {
         },
         importTagTranslator: { url in
             await withCheckedContinuation { continuation in
-                // `.fileImporter` returns a security-scoped URL to the original file; access must be
-                // claimed before reading and released afterwards, unlike a copied-in temp file.
+                // `.fileImporter` returns a security-scoped URL to the original file, which for an
+                // iCloud item may not be downloaded yet. A coordinated read triggers the download and
+                // runs the accessor only once the bytes are local. The security scope is released
+                // inside the accessor: `coordinate(with:queue:)` returns immediately, so a `defer`
+                // in this outer closure would drop the scope before the accessor ever reads.
                 let didAccess = url.startAccessingSecurityScopedResource()
-                defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
-                guard let data = try? Data(contentsOf: url),
-                      let translations = try? JSONDecoder().decode(
-                        EhTagTranslationDatabaseResponse.self, from: data
-                      ).tagTranslations
-                else {
-                    continuation.resume(returning: .failure(.parseFailed))
-                    return
+                let intent = NSFileAccessIntent.readingIntent(with: url, options: .withoutChanges)
+                NSFileCoordinator().coordinate(with: [intent], queue: .init()) { error in
+                    defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
+                    guard error == nil,
+                          let data = try? Data(contentsOf: intent.url),
+                          let translations = try? JSONDecoder().decode(
+                            EhTagTranslationDatabaseResponse.self, from: data
+                          ).tagTranslations,
+                          !translations.isEmpty
+                    else {
+                        continuation.resume(returning: .failure(.parseFailed))
+                        return
+                    }
+                    continuation.resume(
+                        returning: .success(.init(hasCustomTranslations: true, translations: translations))
+                    )
                 }
-                guard !translations.isEmpty else {
-                    continuation.resume(returning: .failure(.parseFailed))
-                    return
-                }
-                continuation.resume(returning: .success(.init(hasCustomTranslations: true, translations: translations)))
             }
         }
     )
