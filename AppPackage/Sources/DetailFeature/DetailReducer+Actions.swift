@@ -13,13 +13,6 @@ extension DetailReducer {
             case .delegate:
                 return .none
 
-            case .destination(.dismiss):
-                if case .postComment = state.destination {
-                    state.commentContent = .init()
-                    state.postCommentFocused = false
-                }
-                return .none
-
             case .destination(.presented(.reading(.onPerformDismiss))):
                 return .send(.destination(.dismiss))
 
@@ -47,6 +40,11 @@ extension DetailReducer {
                 return .none
 
             case .postCommentButtonTapped:
+                // Reset on present (not on dismiss): the sheet is a raw case binding, so a swipe-down
+                // never sends `.destination(.dismiss)`. This is the new-comment flow only, so clearing
+                // is always correct.
+                state.commentContent = .init()
+                state.postCommentFocused = false
                 state.destination = .postComment(.init())
                 return .none
 

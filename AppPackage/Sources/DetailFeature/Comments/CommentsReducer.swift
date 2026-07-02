@@ -60,14 +60,13 @@ public struct CommentsReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
-        case presentPostComment(String)
+        case presentPostComment(commentID: String, content: String? = nil)
         case clearScrollCommentID
         case delegate(Delegate)
 
         case setHUD(AppAlertState<Never>)
         case setPostCommentFocused(Bool)
         case setScrollRowOpacity(Double)
-        case setCommentContent(String)
         case performScrollOpacityEffect
         case handleCommentLink(URL)
         case handleGalleryLink(URL)
@@ -103,7 +102,12 @@ public struct CommentsReducer: Sendable {
             case .destination:
                 return .none
 
-            case .presentPostComment(let commentID):
+            case let .presentPostComment(commentID, content):
+                // Reset on present (not on dismiss): the sheet is a raw case binding, so an
+                // interactive swipe-down never sends `.destination(.dismiss)`. Editing passes the
+                // comment's text as `content`; the new-comment button passes nil to clear it.
+                state.commentContent = content ?? ""
+                state.postCommentFocused = false
                 state.destination = .postComment(commentID)
                 return .none
 
@@ -124,10 +128,6 @@ public struct CommentsReducer: Sendable {
 
             case .setScrollRowOpacity(let opacity):
                 state.scrollRowOpacity = opacity
-                return .none
-
-            case .setCommentContent(let content):
-                state.commentContent = content
                 return .none
 
             case .performScrollOpacityEffect:

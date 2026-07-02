@@ -70,8 +70,9 @@ struct CommentsView: View {
                     }
                     if comment.editable {
                         Button {
-                            store.send(.setCommentContent(comment.plainTextContent))
-                            store.send(.presentPostComment(comment.commentID))
+                            store.send(.presentPostComment(
+                                commentID: comment.commentID, content: comment.plainTextContent
+                            ))
                         } label: {
                             Image(systemSymbol: .squareAndPencil)
                         }
@@ -122,7 +123,7 @@ struct CommentsView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                store.send(.presentPostComment(""))
+                store.send(.presentPostComment(commentID: ""))
             } label: {
                 Image(systemSymbol: .squareAndPencil)
             }
