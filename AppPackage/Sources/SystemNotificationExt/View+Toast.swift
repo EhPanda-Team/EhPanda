@@ -36,19 +36,27 @@ private struct ToastViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content.overlay(alignment: .bottom) {
-            if let store = item {
-                let toast = store.toastContent
-                // SwiftUI keeps this conditional child alive through its removal transition, so the
-                // last content stays visible while the toast slides back off-screen — no manual hold.
-                ToastMessageView(content: toast)
-                    .padding(.horizontal)
-                    .padding(.bottom)
-                    .gesture(dismissGesture(autoHide: toast.autoHide))
-                    .task(id: store.id) { await autoDismiss(toast) }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            ZStack {
+                if let store = item {
+                    let toast = store.toastContent
+                    // SwiftUI keeps this conditional child alive through its removal transition, so
+                    // the last content stays visible while the toast slides back off-screen — no
+                    // manual hold.
+                    ToastMessageView(content: toast)
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                        .gesture(dismissGesture(autoHide: toast.autoHide))
+                        // The timer must restart whenever the presented state is replaced. That id
+                        // is `store.state.id`; `store.id` is the Store object's own identity (TCA
+                        // declares `Store: Identifiable`), which shadows the state's UUID.
+                        .task(id: store.state.id) { await autoDismiss(toast) }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
+            // Scoped inside the overlay: the host view can mutate in the same transaction that
+            // presents or clears the toast, and must not inherit this animation.
+            .animation(.bouncy, value: item != nil)
         }
-        .animation(.bouncy, value: item != nil)
     }
 
     // Only auto-hiding toasts (success / error) can be flicked away; a loading toast stays until
