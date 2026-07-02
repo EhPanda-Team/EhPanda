@@ -13,12 +13,12 @@
 "website.response.invalid_resolution" = "이 콘텐츠는 선택한　해상도로 다운로드할 수 없어요.";
 
 // MARK: HUD
-"hud.title.error" = "실패";
-"hud.title.success" = "성공";
-"hud.title.loading" = "로딩 중...";
-"hud.title.communicating" = "접속 중...";
-"hud.caption.copied_to_clipboard" = "클립보드에 복사되었어요";
-"hud.caption.saved_to_photo_library" = "이미지 저장";
+"toast.title.error" = "실패";
+"toast.title.success" = "성공";
+"toast.title.loading" = "로딩 중...";
+"toast.title.communicating" = "접속 중...";
+"toast.caption.copied_to_clipboard" = "클립보드에 복사되었어요";
+"toast.caption.saved_to_photo_library" = "이미지 저장";
 
 // MARK: AutoLock
 "local_authorization.reason" = "자동 잠금으로 앱이 잠겼어요.";
@@ -429,8 +429,8 @@
 "downloads_view.inspector.button.retry_failed_pages" = "실패한 페이지 다시 시도";
 "downloads_view.inspector.button.validating_image_data" = "이미지 데이터 검증 중...";
 "downloads_view.inspector.button.update_download" = "다운로드 업데이트";
-"downloads_view.inspector.hud.image_data_valid" = "이미지 데이터가 유효합니다";
-"downloads_view.inspector.hud.image_data_unavailable" = "이미지 데이터를 검증할 수 없습니다.";
+"downloads_view.inspector.toast.image_data_valid" = "이미지 데이터가 유효합니다";
+"downloads_view.inspector.toast.image_data_unavailable" = "이미지 데이터를 검증할 수 없습니다.";
 "downloads_view.inspector.title.download_status" = "다운로드 상태";
 "downloads_view.inspector.page.pending" = "대기 중";
 "downloads_view.inspector.page.tap_to_retry" = "탭하여 이 페이지를 다시 시도";

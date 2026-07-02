@@ -156,7 +156,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
         await store.receive(\.validateImageDataDone) {
             $0.isValidatingImageData = false
             $0.hud = .success(
-                caption: L10n.Localizable.DownloadsView.Inspector.Hud.imageDataValid
+                caption: L10n.Localizable.DownloadsView.Inspector.Toast.imageDataValid
             )
         }
         await store.receive(\.loadInspection)

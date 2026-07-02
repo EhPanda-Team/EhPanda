@@ -201,7 +201,7 @@ public struct DownloadInspectorReducer: Sendable {
 
             case .validateImageDataDone(let validation):
                 state.isValidatingImageData = false
-                state.hud = validation.hudConfig
+                state.hud = validation.toastConfig
                 return .send(.loadInspection)
             }
         }
@@ -209,11 +209,11 @@ public struct DownloadInspectorReducer: Sendable {
 }
 
 private extension Optional where Wrapped == DownloadValidationState {
-    var hudConfig: AppAlertState<Never> {
+    var toastConfig: AppAlertState<Never> {
         switch self {
         case .some(.valid):
             return .success(
-                caption: L10n.Localizable.DownloadsView.Inspector.Hud.imageDataValid
+                caption: L10n.Localizable.DownloadsView.Inspector.Toast.imageDataValid
             )
 
         case .some(.missingFiles(let message)):
@@ -221,7 +221,7 @@ private extension Optional where Wrapped == DownloadValidationState {
 
         case nil:
             return .error(
-                caption: L10n.Localizable.DownloadsView.Inspector.Hud.imageDataUnavailable
+                caption: L10n.Localizable.DownloadsView.Inspector.Toast.imageDataUnavailable
             )
         }
     }

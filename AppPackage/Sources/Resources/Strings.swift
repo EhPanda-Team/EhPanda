@@ -728,12 +728,6 @@ public enum L10n {
           /// Validating Image Data...
           public static let validatingImageData = L10n.tr("Localizable", "downloads_view.inspector.button.validating_image_data", fallback: "Validating Image Data...")
         }
-        public enum Hud {
-          /// Image data could not be validated.
-          public static let imageDataUnavailable = L10n.tr("Localizable", "downloads_view.inspector.hud.image_data_unavailable", fallback: "Image data could not be validated.")
-          /// Image data is valid
-          public static let imageDataValid = L10n.tr("Localizable", "downloads_view.inspector.hud.image_data_valid", fallback: "Image data is valid")
-        }
         public enum Page {
           /// No pages
           public static let `none` = L10n.tr("Localizable", "downloads_view.inspector.page.none", fallback: "No pages")
@@ -763,6 +757,12 @@ public enum L10n {
         public enum Title {
           /// Download Status
           public static let downloadStatus = L10n.tr("Localizable", "downloads_view.inspector.title.download_status", fallback: "Download Status")
+        }
+        public enum Toast {
+          /// Image data could not be validated.
+          public static let imageDataUnavailable = L10n.tr("Localizable", "downloads_view.inspector.toast.image_data_unavailable", fallback: "Image data could not be validated.")
+          /// Image data is valid
+          public static let imageDataValid = L10n.tr("Localizable", "downloads_view.inspector.toast.image_data_valid", fallback: "Image data is valid")
         }
       }
       public enum Menu {
@@ -2241,24 +2241,6 @@ public enum L10n {
         public static let home = L10n.tr("Localizable", "home_view.title.home", fallback: "Home")
       }
     }
-    public enum Hud {
-      public enum Caption {
-        /// Copied to clipboard
-        public static let copiedToClipboard = L10n.tr("Localizable", "hud.caption.copied_to_clipboard", fallback: "Copied to clipboard")
-        /// Saved to photo library
-        public static let savedToPhotoLibrary = L10n.tr("Localizable", "hud.caption.saved_to_photo_library", fallback: "Saved to photo library")
-      }
-      public enum Title {
-        /// Communicating...
-        public static let communicating = L10n.tr("Localizable", "hud.title.communicating", fallback: "Communicating...")
-        /// Error
-        public static let error = L10n.tr("Localizable", "hud.title.error", fallback: "Error")
-        /// Loading...
-        public static let loading = L10n.tr("Localizable", "hud.title.loading", fallback: "Loading...")
-        /// Success
-        public static let success = L10n.tr("Localizable", "hud.title.success", fallback: "Success")
-      }
-    }
     public enum JumpPageView {
       public enum Button {
         /// Confirm
@@ -2545,6 +2527,24 @@ public enum L10n {
           /// Links
           public static let links = L10n.tr("Localizable", "tag_detail_view.section.title.links", fallback: "Links")
         }
+      }
+    }
+    public enum Toast {
+      public enum Caption {
+        /// Copied to clipboard
+        public static let copiedToClipboard = L10n.tr("Localizable", "toast.caption.copied_to_clipboard", fallback: "Copied to clipboard")
+        /// Saved to photo library
+        public static let savedToPhotoLibrary = L10n.tr("Localizable", "toast.caption.saved_to_photo_library", fallback: "Saved to photo library")
+      }
+      public enum Title {
+        /// Communicating...
+        public static let communicating = L10n.tr("Localizable", "toast.title.communicating", fallback: "Communicating...")
+        /// Error
+        public static let error = L10n.tr("Localizable", "toast.title.error", fallback: "Error")
+        /// Loading...
+        public static let loading = L10n.tr("Localizable", "toast.title.loading", fallback: "Loading...")
+        /// Success
+        public static let success = L10n.tr("Localizable", "toast.title.success", fallback: "Success")
       }
     }
     public enum ToolbarItem {
