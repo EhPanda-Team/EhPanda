@@ -5,7 +5,7 @@ import ComposableArchitecture
 import AppTools
 
 // MARK: - CancelID
-enum ReadingCancelID: CaseIterable {
+enum ReadingCancelID {
     case fetchImage
     case fetchDatabaseInfos
     case observeDownloads
@@ -198,9 +198,6 @@ extension ReadingReducer {
                     state.hud = .error()
                     return .none
                 }
-
-            case .teardown:
-                return reduceTeardown()
 
             default:
                 return .none

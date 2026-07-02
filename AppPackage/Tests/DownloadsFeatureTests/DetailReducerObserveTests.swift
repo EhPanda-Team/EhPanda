@@ -12,16 +12,6 @@ import CookieClient
 @Suite(.serialized)
 @MainActor
 struct DetailReducerObserveTests: DownloadFeatureTestCase {
-    @Test
-    func testDetailCancellationIDsAreScopedByGallery() {
-        let firstGalleryIDs = DetailReducer.CancelID.all(for: "100")
-        let secondGalleryIDs = DetailReducer.CancelID.all(for: "200")
-
-        #expect(firstGalleryIDs.count == 12)
-        #expect(secondGalleryIDs.count == 12)
-        #expect(Set(firstGalleryIDs).isDisjoint(with: Set(secondGalleryIDs)))
-    }
-
     @MainActor
     @Test
     func testDetailReducerObservesDownloadBadgeTransitions() async {

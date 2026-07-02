@@ -17,7 +17,7 @@ public struct ToplistsReducer: Sendable {
         case performJumpPage
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchGalleries, fetchMoreGalleries
     }
 
@@ -71,7 +71,6 @@ public struct ToplistsReducer: Sendable {
         case alert(PresentationAction<Alert>)
         case presentJumpPageAlert
 
-        case teardown
         case fetchGalleries(Int? = nil)
         case fetchGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
@@ -133,9 +132,6 @@ public struct ToplistsReducer: Sendable {
                     }
                 )
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let pageNum):
                 guard state.loadingState != .loading else { return .none }

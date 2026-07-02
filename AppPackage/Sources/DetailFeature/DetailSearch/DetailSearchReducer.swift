@@ -19,7 +19,7 @@ public struct DetailSearchReducer: Sendable {
         case pushDetail(String)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchGalleries, fetchMoreGalleries
     }
 
@@ -55,7 +55,6 @@ public struct DetailSearchReducer: Sendable {
         case quickSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
 
-        case teardown
         case fetchGalleries(String? = nil)
         case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
         case fetchMoreGalleries
@@ -94,9 +93,6 @@ public struct DetailSearchReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let keyword):
                 guard state.loadingState != .loading else { return .none }

@@ -24,7 +24,7 @@ public struct SearchReducer: Sendable {
         case dateSeek(DateSeekReducer)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchGalleries, fetchMoreGalleries, observeDownloads, fetchDateSeekGalleries
     }
 
@@ -64,7 +64,6 @@ public struct SearchReducer: Sendable {
         case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
 
-        case teardown
         case fetchGalleries(String? = nil)
         case fetchGalleriesDone(Result<GalleriesResult, AppError>)
         case fetchMoreGalleries
@@ -111,9 +110,6 @@ public struct SearchReducer: Sendable {
             case .dateSeekButtonTapped(let navigation):
                 state.destination = .dateSeek(.init(navigation: navigation))
                 return .none
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let keyword):
                 // The performed keyword is what the host records into search history: an explicit

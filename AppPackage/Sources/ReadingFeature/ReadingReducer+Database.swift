@@ -62,19 +62,6 @@ extension ReadingReducer {
         }
     }
 
-    func reduceTeardown() -> Effect<Action> {
-        var effects: [Effect<Action>] = [
-            .merge(ReadingCancelID.allCases.map(Effect.cancel(id:)))
-        ]
-        effects.append(
-            .run { send in
-                guard await !deviceClient.isPad() else { return }
-                await send(.setOrientationPortrait(true))
-            }
-        )
-        return .merge(effects)
-    }
-
     func reduceFetchDatabaseInfos(state: inout State, gid: String) -> Effect<Action> {
         if case .local(let download, let manifest) = state.contentSource {
             applyLocalSource(state: &state, download: download, manifest: manifest)

@@ -11,7 +11,7 @@ import AppComponents
 
 @Reducer
 public struct ArchivesReducer: Sendable {
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchArchive, fetchArchiveFunds, fetchDownloadResponse
     }
 
@@ -29,7 +29,6 @@ public struct ArchivesReducer: Sendable {
 
         case syncGalleryFunds(String, String)
 
-        case teardown
         case fetchArchive(String, URL, URL)
         case fetchArchiveDone(String, URL, Result<GalleryArchiveResponse, AppError>)
         case fetchArchiveFunds(String, URL)
@@ -56,9 +55,6 @@ public struct ArchivesReducer: Sendable {
                 return .run { _ in
                     await databaseClient.updateGalleryFunds(galleryPoints: galleryPoints, credits: credits)
                 }
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }

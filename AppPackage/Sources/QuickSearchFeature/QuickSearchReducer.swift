@@ -60,7 +60,6 @@ public struct QuickSearchReducer: Sendable {
         case deleteWordWithOffsets(IndexSet)
         case moveWord(IndexSet, Int)
 
-        case teardown
         case fetchQuickSearchWords
         case fetchQuickSearchWordsDone([QuickSearchWord])
     }
@@ -143,9 +142,6 @@ public struct QuickSearchReducer: Sendable {
                 case .moveWord(let source, let destination):
                     state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
                     return .send(.syncQuickSearchWords)
-
-                case .teardown:
-                    return .cancel(id: CancelID.fetchQuickSearchWords)
 
                 case .fetchQuickSearchWords:
                     state.loadingState = .loading

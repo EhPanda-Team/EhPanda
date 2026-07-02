@@ -22,7 +22,7 @@ public struct WatchedReducer: Sendable {
         case dateSeek(DateSeekReducer)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchGalleries, fetchMoreGalleries, observeDownloads, fetchDateSeekGalleries
     }
 
@@ -59,7 +59,6 @@ public struct WatchedReducer: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case onNotLoginViewButtonTapped
 
-        case teardown
         case fetchGalleries(String? = nil)
         case fetchGalleriesDone(Result<GalleriesResult, AppError>)
         case fetchMoreGalleries
@@ -103,9 +102,6 @@ public struct WatchedReducer: Sendable {
 
             case .onNotLoginViewButtonTapped:
                 return .none
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries(let keyword):
                 guard state.loadingState != .loading else { return .none }

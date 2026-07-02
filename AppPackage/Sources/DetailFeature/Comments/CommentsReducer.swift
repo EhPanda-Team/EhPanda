@@ -24,7 +24,7 @@ public struct CommentsReducer: Sendable {
         case performedCommentAction(String)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case postComment, voteComment, fetchGallery
     }
 
@@ -75,7 +75,6 @@ public struct CommentsReducer: Sendable {
 
         case updateReadingProgress(String, Int)
 
-        case teardown
         case postComment(URL, String? = nil)
         case voteComment(String, String, String, String, Int)
         case performCommentActionDone(Result<Void, AppError>)
@@ -187,9 +186,6 @@ public struct CommentsReducer: Sendable {
                 return .run { _ in
                     await databaseClient.updateReadingProgress(gid: gid, progress: progress)
                 }
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .postComment(let galleryURL, let commentID):
                 guard !state.commentContent.isEmpty else { return .none }

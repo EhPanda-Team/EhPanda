@@ -20,7 +20,7 @@ public struct FrontpageReducer: Sendable {
         case dateSeek(DateSeekReducer)
     }
 
-    private enum CancelID: CaseIterable {
+    private enum CancelID {
         case fetchGalleries, fetchMoreGalleries, fetchDateSeekGalleries
     }
 
@@ -57,7 +57,6 @@ public struct FrontpageReducer: Sendable {
         case dateSeekButtonTapped(DateSeekNavigation)
         case destination(PresentationAction<Destination.Action>)
 
-        case teardown
         case fetchGalleries
         case fetchGalleriesDone(Result<GalleriesResult, AppError>)
         case fetchMoreGalleries
@@ -88,9 +87,6 @@ public struct FrontpageReducer: Sendable {
             case .dateSeekButtonTapped(let navigation):
                 state.destination = .dateSeek(.init(navigation: navigation))
                 return .none
-
-            case .teardown:
-                return .merge(CancelID.allCases.map(Effect.cancel(id:)))
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
