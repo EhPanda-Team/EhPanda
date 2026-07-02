@@ -2,7 +2,7 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import TTProgressHUDExt
+import SystemNotificationExt
 import AppComponents
 
 struct TorrentsView: View {
@@ -47,7 +47,7 @@ struct TorrentsView: View {
                 ActivityView(activityItems: [url.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
-            .progressHUD($store.hud)
+            .toast($store.scope(state: \.toast, action: \.toast))
             .animation(.default, value: store.torrents)
             .onAppear {
                 store.send(.fetchGalleryTorrents(gid, token))

@@ -8,7 +8,7 @@ import AppComponents
 public struct GalleryInfosReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         // Display data captured when this screen is pushed onto the host's gallery stack.
         public var gallery: Gallery = .empty
         public var galleryDetail: GalleryDetail = .empty
@@ -21,6 +21,7 @@ public struct GalleryInfosReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case copyText(String)
     }
 
@@ -37,13 +38,17 @@ public struct GalleryInfosReducer: Sendable {
             case .binding:
                 return .none
 
+            case .toast:
+                return .none
+
             case .copyText(let text):
-                state.hud = .copiedToClipboardSucceeded
+                state.toast = .copiedToClipboardSucceeded
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(text) }),
                     .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
                 )
             }
         }
+        .ifLet(\.$toast, action: \.toast)
     }
 }

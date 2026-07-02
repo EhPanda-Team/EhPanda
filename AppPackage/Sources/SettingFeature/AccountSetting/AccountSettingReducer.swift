@@ -29,7 +29,7 @@ public struct AccountSettingReducer: Sendable {
     public struct State: Equatable, Sendable {
         @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
 
@@ -38,6 +38,7 @@ public struct AccountSettingReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
@@ -66,6 +67,9 @@ public struct AccountSettingReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+
+            case .toast:
                 return .none
 
             case .destination:
@@ -108,7 +112,7 @@ public struct AccountSettingReducer: Sendable {
                 return .none
 
             case .copyCookies(let host):
-                state.hud = .copiedToClipboardSucceeded
+                state.toast = .copiedToClipboardSucceeded
                 let cookiesDescription = cookieClient.getCookiesDescription(host: host)
                 return .merge(
                     .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),
@@ -123,6 +127,7 @@ public struct AccountSettingReducer: Sendable {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .ifLet(\.$toast, action: \.toast)
     }
 }
 

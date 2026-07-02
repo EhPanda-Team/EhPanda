@@ -46,6 +46,7 @@ extension ReadingReducer {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$toast, action: \.toast)
     }
 
     var lifecycleReducer: some ReducerOf<Self> {
@@ -164,7 +165,7 @@ extension ReadingReducer {
                 return .send(.fetchImage(.save, imageURL))
 
             case .saveImageDone(let isSucceeded):
-                state.hud = isSucceeded ? .savedToPhotoLibrary : .error()
+                state.toast = isSucceeded ? .savedToPhotoLibrary : .error()
                 return .none
 
             case .shareImage(let imageURL):
@@ -181,7 +182,7 @@ extension ReadingReducer {
                 if case .success(let asset) = result {
                     switch action {
                     case .copy:
-                        state.hud = .copiedToClipboardSucceeded
+                        state.toast = .copiedToClipboardSucceeded
                         return .run(operation: { _ in _ = clipboardClient.saveImageData(asset.data) })
                     case .save:
                         return .run { send in
@@ -195,7 +196,7 @@ extension ReadingReducer {
                         return .send(.presentShare(.init(value: shareItem)))
                     }
                 } else {
-                    state.hud = .error()
+                    state.toast = .error()
                     return .none
                 }
 

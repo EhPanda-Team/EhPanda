@@ -14,7 +14,7 @@ public struct DownloadInspectorReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         public var gid = ""
         public var inspection: DownloadInspection?
         public var stableInspection: DownloadInspection?
@@ -31,6 +31,7 @@ public struct DownloadInspectorReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case onAppear
         case loadInspection
         case loadInspectionDone(UUID, Result<DownloadInspection, AppError>)
@@ -54,6 +55,9 @@ public struct DownloadInspectorReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+
+            case .toast:
                 return .none
 
             case .onAppear:
@@ -201,10 +205,11 @@ public struct DownloadInspectorReducer: Sendable {
 
             case .validateImageDataDone(let validation):
                 state.isValidatingImageData = false
-                state.hud = validation.toastConfig
+                state.toast = validation.toastConfig
                 return .send(.loadInspection)
             }
         }
+        .ifLet(\.$toast, action: \.toast)
     }
 }
 

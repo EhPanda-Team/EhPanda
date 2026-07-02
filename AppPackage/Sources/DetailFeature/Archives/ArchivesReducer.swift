@@ -17,7 +17,7 @@ public struct ArchivesReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         public var selectedArchive: GalleryArchive.HathArchive?
 
         public var loadingState: LoadingState = .idle
@@ -26,6 +26,7 @@ public struct ArchivesReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
 
         case syncGalleryFunds(String, String)
 
@@ -49,6 +50,9 @@ public struct ArchivesReducer: Sendable {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+
+            case .toast:
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
@@ -102,9 +106,9 @@ public struct ArchivesReducer: Sendable {
 
             case .fetchDownloadResponse(let archiveURL):
                 guard let selectedArchive = state.selectedArchive,
-                      state.hud != .communicating
+                      state.toast != .communicating
                 else { return .none }
-                state.hud = .communicating
+                state.toast = .communicating
                 return .run {send in
                     let response = await SendDownloadCommandRequest(
                         archiveURL: archiveURL,
@@ -121,20 +125,20 @@ public struct ArchivesReducer: Sendable {
                 case .success(let response):
                     switch response {
                     case L10n.Constant.Website.Response.hathClientNotFound:
-                        state.hud = .error(caption: L10n.Localizable.Website.Response.hathClientNotFound)
+                        state.toast = .error(caption: L10n.Localizable.Website.Response.hathClientNotFound)
                         isSuccess = false
                     case L10n.Constant.Website.Response.hathClientNotOnline:
-                        state.hud = .error(caption: L10n.Localizable.Website.Response.hathClientNotOnline)
+                        state.toast = .error(caption: L10n.Localizable.Website.Response.hathClientNotOnline)
                         isSuccess = false
                     case L10n.Constant.Website.Response.invalidResolution:
-                        state.hud = .error(caption: L10n.Localizable.Website.Response.invalidResolution)
+                        state.toast = .error(caption: L10n.Localizable.Website.Response.invalidResolution)
                         isSuccess = false
                     default:
-                        state.hud = .success(caption: response)
+                        state.toast = .success(caption: response)
                         isSuccess = true
                     }
                 case .failure:
-                    state.hud = .error()
+                    state.toast = .error()
                     isSuccess = false
                 }
                 return .run { _ in
@@ -142,5 +146,6 @@ public struct ArchivesReducer: Sendable {
                 }
             }
         }
+        .ifLet(\.$toast, action: \.toast)
     }
 }

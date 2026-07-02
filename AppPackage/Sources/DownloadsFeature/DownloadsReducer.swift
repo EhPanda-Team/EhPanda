@@ -302,7 +302,7 @@ public struct DownloadsReducer: Sendable {
                     await send(.updateDownloadDone(.failure(AppError(error))))
                 }
 
-            // List-level mutations don't surface a per-op HUD: the `observeDownloads` stream is the
+            // List-level mutations don't surface a per-op toast: the `observeDownloads` stream is the
             // user-facing feedback from the DES-3 write-through index. Failures leave the current
             // observed state in place; the download client performs any targeted surprise repair.
             case .updateDownloadDone:

@@ -1,5 +1,5 @@
 {
-  "originHash" : "53b7494b1e4cf7044dac935df78229a3bbcfdd0047ba2987a18d98334560747c",
+  "originHash" : "5bac2b3bb2714aa40e3cafdac8915686b3cb750f4525ebe3b0126cfe0f635990",
   "pins" : [
     {
       "identity" : "colorful",
@@ -233,15 +233,6 @@
       "state" : {
         "revision" : "1d8105a0f7199c90af722bff62728050c858e777",
         "version" : "2.0.0-beta"
-      }
-    },
-    {
-      "identity" : "ttprogresshud",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/EhPanda-Team/TTProgressHUD",
-      "state" : {
-        "branch" : "custom",
-        "revision" : "349b595c4f0ff86e8d3c8d65be206a02642fd525"
       }
     },
     {

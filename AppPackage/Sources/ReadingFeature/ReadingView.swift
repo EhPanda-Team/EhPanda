@@ -7,7 +7,7 @@ import SwiftUIPager
 import ComposableArchitecture
 import AppTools
 import AnimatedImageFeature
-import TTProgressHUDExt
+import SystemNotificationExt
 import AppComponents
 import ReadingSettingFeature
 
@@ -92,7 +92,7 @@ public struct ReadingView: View {
                     .accentColor(setting.accentColor)
                     .autoBlur(radius: blurRadius)
             }
-            .progressHUD($store.hud)
+            .toast($store.scope(state: \.toast, action: \.toast))
 
             .animation(.linear(duration: 0.1), value: gestureHandler.offset)
             .animation(.default, value: liveTextHandler.enablesLiveText)

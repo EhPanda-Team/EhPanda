@@ -4,7 +4,7 @@ import AppComponents
 import Resources
 import ComposableArchitecture
 import AppTools
-import TTProgressHUDExt
+import SystemNotificationExt
 
 struct AccountSettingView: View {
     @Bindable private var store: StoreOf<AccountSettingReducer>
@@ -53,7 +53,7 @@ struct AccountSettingView: View {
                 copyAction: { store.send(.copyCookies($0)) }
             )
         }
-        .progressHUD($store.hud)
+        .toast($store.scope(state: \.toast, action: \.toast))
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)

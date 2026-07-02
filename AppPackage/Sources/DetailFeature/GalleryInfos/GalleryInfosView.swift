@@ -3,7 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import AppTools
-import TTProgressHUDExt
+import SystemNotificationExt
 
 struct GalleryInfosView: View {
     @Bindable private var store: StoreOf<GalleryInfosReducer>
@@ -111,7 +111,7 @@ struct GalleryInfosView: View {
                 }
             }
         }
-        .progressHUD($store.hud)
+        .toast($store.scope(state: \.toast, action: \.toast))
         .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)
     }
 }
