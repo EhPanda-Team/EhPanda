@@ -12,7 +12,7 @@ import ClipboardClient
 import CookieClient
 import DeviceClient
 import AppDelegateClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct ReadingReducer: Sendable {
@@ -43,7 +43,7 @@ public struct ReadingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var contentSource: ReadingContentSource = .remote
         public var gallery: Gallery = .empty

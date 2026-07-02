@@ -7,7 +7,7 @@ import HapticsClient
 import DatabaseClient
 import NetworkingFeature
 import CookieClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct ArchivesReducer: Sendable {
@@ -17,7 +17,7 @@ public struct ArchivesReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         public var selectedArchive: GalleryArchive.HathArchive?
 
         public var loadingState: LoadingState = .idle

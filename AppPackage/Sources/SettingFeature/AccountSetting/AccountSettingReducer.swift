@@ -5,7 +5,7 @@ import ComposableArchitecture
 import HapticsClient
 import ClipboardClient
 import CookieClient
-import TTProgressHUDExt
+import AppComponents
 
 @Reducer
 public struct AccountSettingReducer: Sendable {
@@ -29,7 +29,7 @@ public struct AccountSettingReducer: Sendable {
     public struct State: Equatable, Sendable {
         @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
-        public var hud: ProgressHUDConfigState?
+        public var hud: AppAlertState<Never>?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
 
