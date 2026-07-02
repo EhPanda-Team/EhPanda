@@ -61,6 +61,7 @@
 "date_seek_view.button.seek_older" = "較舊";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "跳到...";
+"jump_page_view.description.jump_page" = "請輸入 1 到 %d 之間的頁碼。";
 "jump_page_view.button.confirm" = "確定";
 
 // MARK: AlertView

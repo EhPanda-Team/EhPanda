@@ -61,6 +61,7 @@
 "date_seek_view.button.seek_older" = "古い方";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "ページジャンプ";
+"jump_page_view.description.jump_page" = "1 ~ %d のページ番号を入力してください。";
 "jump_page_view.button.confirm" = "確認";
 
 // MARK: AlertView
