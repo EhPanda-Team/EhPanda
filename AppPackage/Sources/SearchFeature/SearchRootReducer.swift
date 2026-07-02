@@ -112,18 +112,14 @@ public struct SearchRootReducer: Sendable {
 
             case .galleryTapped(let gid),
                  let .path(.element(id: _, action: .search(.delegate(.pushDetail(gid))))):
-                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
-                // sheet hosted by AppRoute, matching the pre-StackState behavior.
-                return .run { send in
-                    if await deviceClient.isPad() {
-                        await send(.delegate(.presentGalleryDetail(gid)))
-                    } else {
-                        await send(.pushGalleryDetail(gid))
-                    }
-                }
+                return GalleryNavigation.routeGalleryDetail(
+                    isPad: deviceClient.isPad,
+                    present: { .delegate(.presentGalleryDetail(gid)) },
+                    push: { .pushGalleryDetail(gid) }
+                )
 
             case .pushGalleryDetail(let gid):
-                state.path.append(.gallery(.detail(.init(gid: gid))))
+                state.path.appendGuardingDuplicate(.gallery(.detail(.init(gid: gid))))
                 return .none
 
             case .delegate:
@@ -139,7 +135,7 @@ public struct SearchRootReducer: Sendable {
 
             case let .path(.element(id: _, action: .gallery(galleryAction))):
                 if let next = GalleryNavigation.nextScreen(for: galleryAction) {
-                    state.path.append(.gallery(next))
+                    state.path.appendGuardingDuplicate(.gallery(next))
                 }
                 return .none
 

@@ -112,18 +112,14 @@ public struct FavoritesReducer: Sendable {
                 return .send(.observeDownloads)
 
             case .galleryTapped(let gid):
-                // iPhone pushes the detail inline; iPad delegates up so it presents as a modal
-                // sheet hosted by AppRoute, matching the pre-StackState behavior.
-                return .run { send in
-                    if await deviceClient.isPad() {
-                        await send(.delegate(.presentGalleryDetail(gid)))
-                    } else {
-                        await send(.pushGalleryDetail(gid))
-                    }
-                }
+                return GalleryNavigation.routeGalleryDetail(
+                    isPad: deviceClient.isPad,
+                    present: { .delegate(.presentGalleryDetail(gid)) },
+                    push: { .pushGalleryDetail(gid) }
+                )
 
             case .pushGalleryDetail(let gid):
-                state.path.append(.detail(.init(gid: gid)))
+                state.path.appendGuardingDuplicate(.detail(.init(gid: gid)))
                 return .none
 
             case .delegate:
@@ -135,7 +131,7 @@ public struct FavoritesReducer: Sendable {
 
             case let .path(.element(id: _, action: elementAction)):
                 if let next = GalleryNavigation.nextScreen(for: elementAction) {
-                    state.path.append(next)
+                    state.path.appendGuardingDuplicate(next)
                 }
                 return .none
 

@@ -4,6 +4,19 @@ import ComposableArchitecture
 // screen that should be pushed next, so every host appends new elements the same way regardless of
 // whether it stacks `GalleryPath` directly or nested under a `.gallery` case.
 public enum GalleryNavigation {
+    // Centralizes the device branch every gallery host shares: iPad presents the detail as a modal
+    // sheet via the host's `present` delegate; iPhone pushes it inline via the host's `push` action.
+    // Actions are supplied as closures because host `Action` types are not `Sendable`.
+    public static func routeGalleryDetail<Action>(
+        isPad: @escaping @Sendable () async -> Bool,
+        present: @escaping @Sendable () -> Action,
+        push: @escaping @Sendable () -> Action
+    ) -> Effect<Action> {
+        .run { send in
+            await send(await isPad() ? present() : push())
+        }
+    }
+
     public static func nextScreen(for action: GalleryPath.Action) -> GalleryPath.State? {
         switch action {
         case let .detail(.delegate(delegate)):
@@ -34,6 +47,40 @@ public enum GalleryNavigation {
 
         default:
             return nil
+        }
+    }
+}
+
+// A stable per-screen identity for suppressing duplicate adjacent pushes. Screens for the same
+// destination share a key even when volatile per-init state differs (e.g. the `localPreviewRequestID`
+// UUID on detail/previews states), which plain `Equatable` would treat as distinct.
+public protocol GalleryRouteIdentifiable {
+    var routeKey: String { get }
+}
+
+extension StackState where Element: GalleryRouteIdentifiable {
+    // Append a screen unless it has the same route key as the current top of the stack, so a rapid
+    // double-activation can't push the same detail twice. Only the adjacent element is compared, so
+    // legitimate same-gid re-pushes through a deeper screen (Detail → Comments → same Detail) work.
+    public mutating func appendGuardingDuplicate(_ element: Element) {
+        guard last?.routeKey != element.routeKey else { return }
+        append(element)
+    }
+}
+
+extension GalleryPath.State: GalleryRouteIdentifiable {
+    public var routeKey: String {
+        switch self {
+        case .detail(let state):
+            return "detail:\(state.gid)"
+        case .previews(let state):
+            return "previews:\(state.gid)"
+        case .comments(let state):
+            return "comments:\(state.gid)"
+        case .detailSearch(let state):
+            return "detailSearch:\(state.keyword)"
+        case .galleryInfos(let state):
+            return "galleryInfos:\(state.gallery.id)"
         }
     }
 }
