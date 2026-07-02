@@ -342,7 +342,6 @@
 "detail_view.dialog.title.repair_download" = "Repair Download?";
 "detail_view.dialog.title.update_download" = "Update Download?";
 "detail_view.dialog.title.redownload_gallery" = "Redownload Gallery?";
-"detail_view.dialog.message.delete_active_download" = "This will stop the current download and remove the gallery from this device.";
 "detail_view.dialog.message.delete_downloaded_gallery" = "This will remove the downloaded gallery from this device.";
 "detail_view.dialog.message.repair_download" = "Repair the offline files for this gallery now?";
 "detail_view.dialog.message.update_download" = "Update this gallery to the newest online version now?";

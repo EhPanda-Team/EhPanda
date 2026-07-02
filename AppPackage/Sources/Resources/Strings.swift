@@ -579,8 +579,6 @@ public enum L10n {
           public static let update = L10n.tr("Localizable", "detail_view.dialog.button.update", fallback: "Update")
         }
         public enum Message {
-          /// This will stop the current download and remove the gallery from this device.
-          public static let deleteActiveDownload = L10n.tr("Localizable", "detail_view.dialog.message.delete_active_download", fallback: "This will stop the current download and remove the gallery from this device.")
           /// This will remove the downloaded gallery from this device.
           public static let deleteDownloadedGallery = L10n.tr("Localizable", "detail_view.dialog.message.delete_downloaded_gallery", fallback: "This will remove the downloaded gallery from this device.")
           /// Start a fresh download for this gallery now?

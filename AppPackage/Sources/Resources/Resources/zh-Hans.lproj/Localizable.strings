@@ -342,7 +342,6 @@
 "detail_view.dialog.title.repair_download" = "修复下载？";
 "detail_view.dialog.title.update_download" = "更新下载？";
 "detail_view.dialog.title.redownload_gallery" = "重新下载画廊？";
-"detail_view.dialog.message.delete_active_download" = "这将停止当前下载并从此设备移除该画廊。";
 "detail_view.dialog.message.delete_downloaded_gallery" = "这将从此设备移除已下载的画廊。";
 "detail_view.dialog.message.repair_download" = "现在修复此画廊的离线文件吗？";
 "detail_view.dialog.message.update_download" = "现在将此画廊更新到线上最新版本吗？";
