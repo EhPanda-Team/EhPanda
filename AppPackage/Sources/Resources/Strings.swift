@@ -16,8 +16,6 @@ public enum L10n {
       public static let copyright = L10n.tr("Constant", "app.copyright", fallback: "Copyright © 2025 EhPanda Team")
       public enum Acknowledgement {
         public enum Link {
-          /// https://github.com/rebeloper/AlertKit
-          public static let alertKit = L10n.tr("Constant", "app.acknowledgement.link.alertKit", fallback: "https://github.com/rebeloper/AlertKit")
           /// https://github.com/Co2333/Colorful
           public static let colorful = L10n.tr("Constant", "app.acknowledgement.link.colorful", fallback: "https://github.com/Co2333/Colorful")
           /// https://github.com/EhTagTranslation/Database
@@ -50,8 +48,6 @@ public enum L10n {
           public static let waterfallGrid = L10n.tr("Constant", "app.acknowledgement.link.waterfallGrid", fallback: "https://github.com/paololeonardi/WaterfallGrid")
         }
         public enum Text {
-          /// AlertKit
-          public static let alertKit = L10n.tr("Constant", "app.acknowledgement.text.alertKit", fallback: "AlertKit")
           /// Colorful
           public static let colorful = L10n.tr("Constant", "app.acknowledgement.text.colorful", fallback: "Colorful")
           /// EhTagTranslation/Database

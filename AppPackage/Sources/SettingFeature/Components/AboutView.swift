@@ -155,10 +155,6 @@ struct AboutView: View {
             text: L10n.Constant.App.Acknowledgement.Text.swiftGen
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.alertKit,
-            text: L10n.Constant.App.Acknowledgement.Text.alertKit
-        ),
-        .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.colorful,
             text: L10n.Constant.App.Acknowledgement.Text.colorful
         ),

@@ -57,7 +57,6 @@
 // Acknowledgement link
 "app.acknowledgement.link.kanna" = "https://github.com/tid-kijyun/Kanna";
 "app.acknowledgement.link.swiftGen" = "https://github.com/SwiftGen/SwiftGen";
-"app.acknowledgement.link.alertKit" = "https://github.com/rebeloper/AlertKit";
 "app.acknowledgement.link.colorful" = "https://github.com/Co2333/Colorful";
 "app.acknowledgement.link.filePicker" = "https://github.com/markrenaud/FilePicker";
 "app.acknowledgement.link.kingfisher" = "https://github.com/onevcat/Kingfisher";
@@ -75,7 +74,6 @@
 // Acknowledgement text
 "app.acknowledgement.text.kanna" = "Kanna";
 "app.acknowledgement.text.swiftGen" = "SwiftGen";
-"app.acknowledgement.text.alertKit" = "AlertKit";
 "app.acknowledgement.text.colorful" = "Colorful";
 "app.acknowledgement.text.filePicker" = "FilePicker";
 "app.acknowledgement.text.kingfisher" = "Kingfisher";
