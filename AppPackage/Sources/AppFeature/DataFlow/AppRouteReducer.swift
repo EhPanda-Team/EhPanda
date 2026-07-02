@@ -23,7 +23,7 @@ struct AppRouteReducer {
 
     @ObservableState
     struct State: Equatable {
-        var hud: AppAlertState<Never>?
+        @Presents var toast: AppAlertState<Never>?
         // The deep-link/clipboard gallery, presented modally as the root of its own gallery stack.
         @Presents var detail: DetailReducer.State?
         var path = StackState<GalleryPath.State>()
@@ -34,13 +34,14 @@ struct AppRouteReducer {
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case detail(PresentationAction<DetailReducer.Action>)
         case path(StackActionOf<GalleryPath>)
         case presentSetting
         case presentNewDawn(Greeting)
         case presentGalleryDetail(String, DownloadedGallery?)
-        case setHUD(AppAlertState<Never>)
+        case setToast(AppAlertState<Never>)
 
         case detectClipboardURL
         case handleDeepLink(URL)
@@ -65,6 +66,9 @@ struct AppRouteReducer {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+
+            case .toast:
                 return .none
 
             case .destination:
@@ -114,8 +118,8 @@ struct AppRouteReducer {
                 state.detail = .init(gid: gid, seededFrom: download)
                 return .none
 
-            case .setHUD(let config):
-                state.hud = config
+            case .setToast(let config):
+                state.toast = config
                 return .none
 
             case .detectClipboardURL:
@@ -177,7 +181,7 @@ struct AppRouteReducer {
                 }
 
             case .fetchGallery(let url, let isGalleryImageURL):
-                state.hud = .loading()
+                state.toast = .loading()
                 return .run { send in
                     let response = await GalleryReverseRequest(
                         url: url, isGalleryImageURL: isGalleryImageURL
@@ -187,7 +191,7 @@ struct AppRouteReducer {
                 }
 
             case .fetchGalleryDone(let url, let result):
-                state.hud = nil
+                state.toast = nil
                 switch result {
                 case .success(let gallery):
                     return .run { send in
@@ -195,10 +199,10 @@ struct AppRouteReducer {
                         await send(.handleGalleryLink(url))
                     }
                 case .failure:
-                    // Let the loading HUD animate out before showing the error toast.
+                    // Let the loading toast animate out before showing the error toast.
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(.setHUD(.error()))
+                        await send(.setToast(.error()))
                     }
                 }
 
@@ -216,6 +220,7 @@ struct AppRouteReducer {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$detail, action: \.detail) { DetailReducer() }
+        .ifLet(\.$toast, action: \.toast)
         .forEach(\.path, action: \.path)
     }
 }

@@ -4,7 +4,7 @@ import Resources
 import Kingfisher
 import ComposableArchitecture
 import AppTools
-import TTProgressHUDExt
+import SystemNotificationExt
 import AppComponents
 
 struct CommentsView: View {
@@ -111,7 +111,7 @@ struct CommentsView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .progressHUD($store.hud)
+        .toast($store.scope(state: \.toast, action: \.toast))
         .animation(.default, value: store.scrollRowOpacity)
         .onAppear {
             store.send(.onAppear)

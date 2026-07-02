@@ -43,7 +43,7 @@ public struct ReadingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var contentSource: ReadingContentSource = .remote
         public var gallery: Gallery = .empty
@@ -136,6 +136,7 @@ public struct ReadingReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case presentShare(IdentifiableBox<ShareItem>)
         case presentReadingSetting

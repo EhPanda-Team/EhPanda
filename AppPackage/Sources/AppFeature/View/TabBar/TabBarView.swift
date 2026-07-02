@@ -4,7 +4,7 @@ import Resources
 import SFSafeSymbols
 import ComposableArchitecture
 import AppTools
-import TTProgressHUDExt
+import SystemNotificationExt
 import AppComponents
 import DetailFeature
 import HomeFeature
@@ -126,7 +126,7 @@ struct TabBarView: View {
             .autoBlur(radius: store.appLockState.blurRadius)
             .environment(\.inSheet, true)
         }
-        .progressHUD($store.appRouteState.hud)
+        .toast($store.scope(state: \.appRouteState.toast, action: \.appRoute.toast))
         .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
         .onOpenURL { store.send(.appRoute(.handleDeepLink($0))) }
     }

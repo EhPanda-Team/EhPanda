@@ -30,7 +30,7 @@ public struct CommentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
-        public var hud: AppAlertState<Never>?
+        @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var commentContent = ""
         public var postCommentFocused = false
@@ -59,12 +59,13 @@ public struct CommentsReducer: Sendable {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case presentPostComment(commentID: String, content: String? = nil)
         case clearScrollCommentID
         case delegate(Delegate)
 
-        case setHUD(AppAlertState<Never>)
+        case setToast(AppAlertState<Never>)
         case setPostCommentFocused(Bool)
         case setScrollRowOpacity(Double)
         case performScrollOpacityEffect
@@ -98,6 +99,9 @@ public struct CommentsReducer: Sendable {
             case .binding:
                 return .none
 
+            case .toast:
+                return .none
+
             case .destination:
                 return .none
 
@@ -117,8 +121,8 @@ public struct CommentsReducer: Sendable {
             case .delegate:
                 return .none
 
-            case .setHUD(let config):
-                state.hud = config
+            case .setToast(let config):
+                state.toast = config
                 return .none
 
             case .setPostCommentFocused(let isFocused):
@@ -241,7 +245,7 @@ public struct CommentsReducer: Sendable {
                 }
 
             case .fetchGallery(let url, let isGalleryImageURL):
-                state.hud = .loading()
+                state.toast = .loading()
                 return .run {  send in
                     let response = await GalleryReverseRequest(
                         url: url, isGalleryImageURL: isGalleryImageURL
@@ -252,7 +256,7 @@ public struct CommentsReducer: Sendable {
                 .cancellable(id: CancelID.fetchGallery)
 
             case .fetchGalleryDone(let url, let result):
-                state.hud = nil
+                state.toast = nil
                 switch result {
                 case .success(let gallery):
                     return .merge(
@@ -260,10 +264,10 @@ public struct CommentsReducer: Sendable {
                         .send(.handleGalleryLink(url))
                     )
                 case .failure:
-                    // Let the loading HUD animate out before showing the error toast.
+                    // Let the loading toast animate out before showing the error toast.
                     return .run { send in
                         try await Task.sleep(for: .milliseconds(500))
-                        await send(.setHUD(.error()))
+                        await send(.setToast(.error()))
                     }
                 }
             }
@@ -274,6 +278,7 @@ public struct CommentsReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$toast, action: \.toast)
     }
 }
 
