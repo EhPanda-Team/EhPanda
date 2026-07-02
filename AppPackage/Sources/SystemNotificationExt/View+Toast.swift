@@ -1,10 +1,7 @@
 //
-//  View+Toast.swift
-//  SystemNotificationExt
-//
 //  Presents a bottom-anchored Liquid Glass toast, driven by `AppAlertState` presentation state.
 //  The presentation model is adapted from Daniel Saidi's SystemNotification (MIT-licensed):
-//  https://github.com/danielsaidi/SystemNotification — reduced to a single bottom edge and rebuilt
+//  https://github.com/danielsaidi/SystemNotification, reduced to a single bottom edge and rebuilt
 //  on TCA presentation state and SwiftUI's Liquid Glass (`glassEffect`) instead of a Material chrome.
 //
 
