@@ -61,6 +61,7 @@
 "date_seek_view.button.seek_older" = "오래된 쪽";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "페이지 이동";
+"jump_page_view.description.jump_page" = "1에서 %d 사이의 페이지 번호를 입력하세요.";
 "jump_page_view.button.confirm" = "확인";
 
 // MARK: AlertView

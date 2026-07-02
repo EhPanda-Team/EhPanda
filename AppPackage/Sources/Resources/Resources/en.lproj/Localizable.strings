@@ -61,6 +61,7 @@
 "date_seek_view.button.seek_older" = "Older";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "Jump page";
+"jump_page_view.description.jump_page" = "Enter a page number between 1 and %d to jump to.";
 "jump_page_view.button.confirm" = "Confirm";
 
 // MARK: AlertView

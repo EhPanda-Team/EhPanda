@@ -61,6 +61,7 @@
 "date_seek_view.button.seek_older" = "较旧";
 // MARK: JumpPage
 "jump_page_view.title.jump_page" = "页码跳转";
+"jump_page_view.description.jump_page" = "请输入 1 到 %d 之间的页码。";
 "jump_page_view.button.confirm" = "确认";
 
 // MARK: AlertView
