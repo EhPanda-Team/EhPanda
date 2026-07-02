@@ -342,7 +342,6 @@
 "detail_view.dialog.title.repair_download" = "다운로드를 복구할까요?";
 "detail_view.dialog.title.update_download" = "다운로드를 업데이트할까요?";
 "detail_view.dialog.title.redownload_gallery" = "갤러리를 다시 다운로드할까요?";
-"detail_view.dialog.message.delete_active_download" = "현재 다운로드를 중지하고 이 기기에서 갤러리를 삭제합니다.";
 "detail_view.dialog.message.delete_downloaded_gallery" = "다운로드한 갤러리를 이 기기에서 삭제합니다.";
 "detail_view.dialog.message.repair_download" = "이 갤러리의 오프라인 파일을 지금 복구할까요?";
 "detail_view.dialog.message.update_download" = "이 갤러리를 지금 온라인 최신 버전으로 업데이트할까요?";
