@@ -52,7 +52,7 @@ private extension AppAlertState where Action == Never {
         case .alert:
             type = .loading
             autoHide = false
-        case let .hud(icon, shouldAutoHide):
+        case let .toast(icon, shouldAutoHide):
             autoHide = shouldAutoHide
             switch icon {
             case .loading: type = .loading

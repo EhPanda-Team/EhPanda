@@ -13,12 +13,12 @@
 "website.response.invalid_resolution" = "该画廊不能以选中的分辨率下载";
 
 // MARK: HUD
-"hud.title.error" = "错误";
-"hud.title.success" = "成功";
-"hud.title.loading" = "加载中...";
-"hud.title.communicating" = "通信中...";
-"hud.caption.copied_to_clipboard" = "已复制到剪切板";
-"hud.caption.saved_to_photo_library" = "已保存到图库";
+"toast.title.error" = "错误";
+"toast.title.success" = "成功";
+"toast.title.loading" = "加载中...";
+"toast.title.communicating" = "通信中...";
+"toast.caption.copied_to_clipboard" = "已复制到剪切板";
+"toast.caption.saved_to_photo_library" = "已保存到图库";
 
 // MARK: AutoLock
 "local_authorization.reason" = "因超过设置的自动锁定期限，App 已被锁定";
@@ -429,8 +429,8 @@
 "downloads_view.inspector.button.retry_failed_pages" = "重试失败页面";
 "downloads_view.inspector.button.validating_image_data" = "正在验证图像数据...";
 "downloads_view.inspector.button.update_download" = "更新下载";
-"downloads_view.inspector.hud.image_data_valid" = "图像数据有效";
-"downloads_view.inspector.hud.image_data_unavailable" = "无法验证图像数据。";
+"downloads_view.inspector.toast.image_data_valid" = "图像数据有效";
+"downloads_view.inspector.toast.image_data_unavailable" = "无法验证图像数据。";
 "downloads_view.inspector.title.download_status" = "下载状态";
 "downloads_view.inspector.page.pending" = "等待中";
 "downloads_view.inspector.page.tap_to_retry" = "点按以重试此页";

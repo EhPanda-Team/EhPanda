@@ -2,13 +2,13 @@ import SwiftUI
 import Resources
 import ComposableArchitecture
 
-/// The app's single presentation-state type. It backs both button dialogs and progress HUDs, so a
+/// The app's single presentation-state type. It backs both button dialogs and toasts, so a
 /// feature models any transient presentation with one `@ObservableState` value:
 ///
 /// - ``Style/alert`` renders through ``SwiftUICore/View/appAlert(_:)`` as a **native** system alert,
 ///   with `buttons` wired to your reducer's actions (mirroring `AlertState`'s ergonomics).
-/// - ``Style/hud(icon:autoHide:)`` renders through `View.progressHUD(_:)` (in `TTProgressHUDExt`) as
-///   a `TTProgressHUD` toast; the button-less HUD factories live on `AppAlertState<Never>`.
+/// - ``Style/toast(icon:autoHide:)`` renders through `View.toast(_:)` (in `SystemNotificationExt`)
+///   as a bottom Liquid Glass toast; the button-less toast factories live on `AppAlertState<Never>`.
 ///
 /// Its alert initializer mirrors `AlertState` exactly — a `title`, a `ButtonStateBuilder` of
 /// `actions`, and an optional `message` — so migrating an alert call site is a pure rename. It reuses
@@ -20,11 +20,11 @@ public struct AppAlertState<Action>: Identifiable {
     /// How a value is presented. See ``AppAlertState`` for which modifier renders each style.
     public enum Style: Equatable, Hashable, Sendable {
         case alert
-        case hud(icon: HUDIcon, autoHide: Bool)
+        case toast(icon: ToastIcon, autoHide: Bool)
     }
 
-    /// The glyph a ``Style/hud(icon:autoHide:)`` presentation shows; maps to a `TTProgressHUDType`.
-    public enum HUDIcon: Equatable, Hashable, Sendable {
+    /// The glyph a ``Style/toast(icon:autoHide:)`` presentation shows.
+    public enum ToastIcon: Equatable, Hashable, Sendable {
         case loading, success, error
     }
 
@@ -59,7 +59,7 @@ public struct AppAlertState<Action>: Identifiable {
         self.textField = textField
     }
 
-    // Builds a button-less HUD presentation; used by the `Action == Never` factories below.
+    // Builds a button-less toast presentation; used by the `Action == Never` factories below.
     init(style: Style, title: TextState, message: TextState? = nil) {
         self.id = UUID()
         self.style = style
@@ -118,41 +118,41 @@ public struct AppAlertTextFieldState: Equatable, Hashable, Sendable {
     }
 }
 
-// MARK: - HUD presentations
-// These mirror the old `ProgressHUDConfigState` cases one-for-one, so migrating a HUD assignment is a
-// pure type change; `TTProgressHUDExt` maps `HUDIcon` + `title`/`message` onto a `TTProgressHUDConfig`.
+// MARK: - Toast presentations
+// Button-less toast presentations. `SystemNotificationExt` maps `ToastIcon` + `title`/`message`
+// onto the rendered Liquid Glass toast content.
 extension AppAlertState where Action == Never {
     public static func loading(title: String? = nil) -> Self {
         .init(
-            style: .hud(icon: .loading, autoHide: false),
-            title: TextState(title ?? L10n.Localizable.Hud.Title.loading)
+            style: .toast(icon: .loading, autoHide: false),
+            title: TextState(title ?? L10n.Localizable.Toast.Title.loading)
         )
     }
     public static var communicating: Self {
         .init(
-            style: .hud(icon: .loading, autoHide: false),
-            title: TextState(L10n.Localizable.Hud.Title.communicating)
+            style: .toast(icon: .loading, autoHide: false),
+            title: TextState(L10n.Localizable.Toast.Title.communicating)
         )
     }
     public static func error(caption: String? = nil) -> Self {
         .init(
-            style: .hud(icon: .error, autoHide: true),
-            title: TextState(L10n.Localizable.Hud.Title.error),
+            style: .toast(icon: .error, autoHide: true),
+            title: TextState(L10n.Localizable.Toast.Title.error),
             message: caption.map { TextState($0) }
         )
     }
     public static func success(caption: String? = nil) -> Self {
         .init(
-            style: .hud(icon: .success, autoHide: true),
-            title: TextState(L10n.Localizable.Hud.Title.success),
+            style: .toast(icon: .success, autoHide: true),
+            title: TextState(L10n.Localizable.Toast.Title.success),
             message: caption.map { TextState($0) }
         )
     }
     public static var savedToPhotoLibrary: Self {
-        .success(caption: L10n.Localizable.Hud.Caption.savedToPhotoLibrary)
+        .success(caption: L10n.Localizable.Toast.Caption.savedToPhotoLibrary)
     }
     public static var copiedToClipboardSucceeded: Self {
-        .success(caption: L10n.Localizable.Hud.Caption.copiedToClipboard)
+        .success(caption: L10n.Localizable.Toast.Caption.copiedToClipboard)
     }
 }
 
