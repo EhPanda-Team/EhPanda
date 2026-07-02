@@ -6,7 +6,6 @@ import ComposableArchitecture
 import AppTools
 import AppComponents
 import GalleryListComponents
-import AlertKitExt
 
 struct ToplistsView: View {
     @Bindable private var store: StoreOf<ToplistsReducer>
@@ -44,16 +43,20 @@ struct ToplistsView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .jumpPageAlert(
-            index: $store.jumpPageIndex,
-            isPresented: $store.jumpPageAlertPresented,
-            isFocused: $store.jumpPageAlertFocused,
-            pageNumber: store.pageNumber ?? .init(),
-            jumpAction: { store.send(.performJumpPage) }
-        )
         .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
-        .navigationBarBackButtonHidden(store.jumpPageAlertPresented)
-        .animation(.default, value: store.jumpPageAlertPresented)
+        .alert(
+            L10n.Localizable.JumpPageView.Title.jumpPage,
+            isPresented: $store.jumpPageAlertPresented
+        ) {
+            TextField(L10n.Localizable.JumpPageView.Title.jumpPage, text: $store.jumpPageIndex)
+                .keyboardType(.numberPad)
+            Button(L10n.Localizable.JumpPageView.Button.confirm) {
+                store.send(.performJumpPage)
+            }
+            Button(L10n.Localizable.Common.Button.cancel, role: .cancel) {}
+        } message: {
+            Text(verbatim: "1 - \((store.pageNumber?.maximum ?? 0) + 1)")
+        }
         .onAppear {
             if store.galleries?.isEmpty != false {
                 DispatchQueue.main.async {
@@ -75,9 +78,6 @@ struct ToplistsView: View {
             if AppUtil.galleryHost == .ehentai {
                 JumpPageButton(pageNumber: store.pageNumber ?? .init(), hideText: true) {
                     store.send(.presentJumpPageAlert)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        store.send(.setJumpPageAlertFocused(true))
-                    }
                 }
             }
         }

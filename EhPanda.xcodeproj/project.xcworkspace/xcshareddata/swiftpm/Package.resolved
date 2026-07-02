@@ -1,15 +1,6 @@
 {
-  "originHash" : "64c9c6c904db8a7d0f68dc02141fd024d418f3a230457e3f33353921cb7ba45e",
+  "originHash" : "88f6a7be23b9d1a44065375d99bfe3ebda31826a9447b3348b6adaa656bcea09",
   "pins" : [
-    {
-      "identity" : "alertkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/EhPanda-Team/AlertKit",
-      "state" : {
-        "branch" : "custom",
-        "revision" : "39b01c53ffadf3dab9871dd4c960cd81af5246b6"
-      }
-    },
     {
       "identity" : "colorful",
       "kind" : "remoteSourceControl",

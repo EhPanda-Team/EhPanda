@@ -127,31 +127,3 @@ public struct AlertViewButton: View {
         .buttonStyle(.glass)
     }
 }
-
-public struct PageJumpView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Binding private var inputText: String
-    private var isFocused: FocusState<Bool>.Binding
-    private let pageNumber: PageNumber
-
-    public init(inputText: Binding<String>, isFocused: FocusState<Bool>.Binding, pageNumber: PageNumber) {
-        _inputText = inputText
-        self.isFocused = isFocused
-        self.pageNumber = pageNumber
-    }
-
-    public var body: some View {
-        VStack {
-            Text(L10n.Localizable.JumpPageView.Title.jumpPage).bold()
-            HStack {
-                let opacity = colorScheme == .light ? 0.15 : 0.1
-                TextField(inputText, text: $inputText).multilineTextAlignment(.center).keyboardType(.numberPad)
-                    .padding(.horizontal, 10).padding(.vertical, 5).background(Color.gray.opacity(opacity))
-                    .cornerRadius(5).frame(width: 75).focused(isFocused.projectedValue)
-                Text("-")
-                Text("\(pageNumber.maximum + 1)")
-            }
-            .lineLimit(1)
-        }
-    }
-}
