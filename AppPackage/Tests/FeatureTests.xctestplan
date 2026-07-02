@@ -29,6 +29,13 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
+        "identifier" : "FileClientTests",
+        "name" : "FileClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
         "identifier" : "ParserFeatureTests",
         "name" : "ParserFeatureTests"
       }
