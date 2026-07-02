@@ -102,28 +102,28 @@ extension SettingReducer {
                 )
 
             case .settingRowTapped(let screen):
-                state.path.append(screen.pathElement)
+                state.path.appendGuardingDuplicate(screen.pathElement)
                 return .none
 
             case .pushLogin:
-                state.path.append(.login(.init()))
+                state.path.appendGuardingDuplicate(.login(.init()))
                 return .none
 
             // Account emits a delegate to push its children onto the shared stack.
             case .path(.element(id: _, action: .account(.delegate(.pushLogin)))):
-                state.path.append(.login(.init()))
+                state.path.appendGuardingDuplicate(.login(.init()))
                 return .none
 
             case .path(.element(id: _, action: .account(.delegate(.pushEhSetting)))):
-                state.path.append(.ehSetting(.init()))
+                state.path.appendGuardingDuplicate(.ehSetting(.init()))
                 return .none
 
             case .path(.element(id: _, action: .general(.delegate(.pushAppActivityLogs)))):
-                state.path.append(.appActivityLogs(.init()))
+                state.path.appendGuardingDuplicate(.appActivityLogs(.init()))
                 return .none
 
             case .path(.element(id: _, action: .appearance(.delegate(.pushAppIcon)))):
-                state.path.append(.appIcon(.init()))
+                state.path.appendGuardingDuplicate(.appIcon(.init()))
                 return .none
 
             case .syncAppIconType:
