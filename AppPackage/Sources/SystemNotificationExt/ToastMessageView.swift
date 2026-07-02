@@ -1,11 +1,8 @@
 //
-//  ToastMessageView.swift
-//  SystemNotificationExt
-//
 //  The Liquid Glass capsule shown by `View.toast(_:)`. The layout adapts SystemNotificationMessage
 //  (MIT, https://github.com/danielsaidi/SystemNotification): a leading symbol, a one-line bold title
 //  over an optional one-line subtitle, and a hidden trailing symbol that mirrors the leading one so
-//  the text stays optically centered. The capsule is pure Liquid Glass with nothing behind it —
+//  the text stays optically centered. The capsule is pure Liquid Glass with nothing behind it,
 //  layering glass over a Material would render it opaque.
 //
 
