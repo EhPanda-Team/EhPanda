@@ -14,6 +14,10 @@ extension FileClient {
         },
         importTagTranslator: { url in
             await withCheckedContinuation { continuation in
+                // `.fileImporter` returns a security-scoped URL to the original file; access must be
+                // claimed before reading and released afterwards, unlike a copied-in temp file.
+                let didAccess = url.startAccessingSecurityScopedResource()
+                defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
                 guard let data = try? Data(contentsOf: url),
                       let translations = try? JSONDecoder().decode(
                         EhTagTranslationDatabaseResponse.self, from: data

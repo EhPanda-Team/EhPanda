@@ -12,6 +12,12 @@ private let logger = Logger(category: .init(describing: GeneralSettingReducer.se
 
 @Reducer
 public struct GeneralSettingReducer: Sendable {
+    @Reducer
+    public enum Destination {
+        @ReducerCaseIgnored
+        case importTranslations
+    }
+
     public enum Dialog: Equatable, Sendable {
         case confirmClearCache
         case confirmRemoveCustomTranslations
@@ -24,6 +30,8 @@ public struct GeneralSettingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
+        // Drives the native `.fileImporter` presentation for importing custom tag translations.
+        @Presents public var destination: Destination.State?
         // Two separate dialogs so each anchors to its own trigger button on iPad (the clear-cache
         // and remove-translations buttons live in different sections).
         @Presents public var clearCacheDialog: ConfirmationDialogState<Dialog>?
@@ -38,9 +46,11 @@ public struct GeneralSettingReducer: Sendable {
 
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case destination(PresentationAction<Destination.Action>)
         case clearCacheDialog(PresentationAction<Dialog>)
         case removeTranslationsDialog(PresentationAction<Dialog>)
         case delegate(Delegate)
+        case importCustomTranslationsButtonTapped
         case onTranslationsFilePicked(URL)
         case removeCustomTranslationsButtonTapped
         case onRemoveCustomTranslations
@@ -68,7 +78,14 @@ public struct GeneralSettingReducer: Sendable {
             case .binding:
                 return .none
 
+            case .destination:
+                return .none
+
             case .delegate:
+                return .none
+
+            case .importCustomTranslationsButtonTapped:
+                state.destination = .importTranslations
                 return .none
 
             case .removeCustomTranslationsButtonTapped:
@@ -148,7 +165,11 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$clearCacheDialog, action: \.clearCacheDialog)
         .ifLet(\.$removeTranslationsDialog, action: \.removeTranslationsDialog)
     }
 }
+
+extension GeneralSettingReducer.Destination.State: Equatable, Sendable {}
+extension GeneralSettingReducer.Destination.Action: Equatable, Sendable {}
