@@ -23,10 +23,11 @@ struct GeneralSettingReducerTests {
     }
 
     @Test
-    func filePickedIsForwardedToParentWithoutLocalStateChange() async {
+    func filePickedCausesNoLocalStateChange() async {
         let store = TestStore(initialState: .init(), reducer: GeneralSettingReducer.init)
 
-        // The import itself is handled by `SettingReducer`; the child only relays the URL.
+        // The child only relays the URL and mutates no local state; the import itself is handled by
+        // `SettingReducer` (covered by `generalFilePickedImportsAndStoresTagTranslator`).
         await store.send(.onTranslationsFilePicked(URL(filePath: "/tmp/tags.json")))
     }
 }

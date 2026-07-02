@@ -956,6 +956,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.cookieClient),
+            .module(.fileClient),
             .module(.hapticsClient),
             .module(.logsClient),
             .module(.settingFeature),

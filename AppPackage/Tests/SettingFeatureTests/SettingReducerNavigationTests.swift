@@ -3,6 +3,7 @@ import Foundation
 import AppModels
 import Sharing
 import CookieClient
+import FileClient
 import HapticsClient
 @testable import SettingFeature
 import ComposableArchitecture
@@ -114,6 +115,30 @@ struct SettingReducerNavigationTests {
             Issue.record("Expected .appActivityLogs on top of the Setting stack")
             return
         }
+    }
+
+    // MARK: Child intercepts
+
+    @Test
+    func generalFilePickedImportsAndStoresTagTranslator() async throws {
+        let imported = TagTranslator(hasCustomTranslations: true)
+        let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.fileClient.importTagTranslator = { _ in .success(imported) }
+            $0.databaseClient = .noop
+        }
+
+        await store.send(.settingRowTapped(.general)) {
+            $0.path.append(SettingReducer.RootScreen.general.pathElement)
+        }
+        let id = try #require(store.state.path.ids.last)
+        let url = URL(filePath: "/tmp/tags.json")
+        await store.send(.path(.element(id: id, action: .general(.onTranslationsFilePicked(url)))))
+
+        // The parent intercept runs `fileClient.importTagTranslator` and stores the result.
+        await store.receive(\.fetchTagTranslatorDone) {
+            $0.tagTranslator = imported
+        }
+        await store.receive(\.syncTagTranslator)
     }
 
     // MARK: Post-login cascade
