@@ -36,10 +36,10 @@ public enum L10n {
           public static let swiftUIPager = L10n.tr("Constant", "app.acknowledgement.link.swiftUIPager", fallback: "https://github.com/fermoya/SwiftUIPager")
           /// https://github.com/ddddxxx/SwiftyOpenCC
           public static let swiftyOpenCC = L10n.tr("Constant", "app.acknowledgement.link.swiftyOpenCC", fallback: "https://github.com/ddddxxx/SwiftyOpenCC")
+          /// https://github.com/danielsaidi/SystemNotification
+          public static let systemNotification = L10n.tr("Constant", "app.acknowledgement.link.systemNotification", fallback: "https://github.com/danielsaidi/SystemNotification")
           /// https://github.com/pointfreeco/swift-composable-architecture
           public static let tca = L10n.tr("Constant", "app.acknowledgement.link.tca", fallback: "https://github.com/pointfreeco/swift-composable-architecture")
-          /// https://github.com/honkmaster/TTProgressHUD
-          public static let ttProgressHUD = L10n.tr("Constant", "app.acknowledgement.link.ttProgressHUD", fallback: "https://github.com/honkmaster/TTProgressHUD")
           /// https://github.com/jathu/UIImageColors
           public static let uiImageColors = L10n.tr("Constant", "app.acknowledgement.link.uiImageColors", fallback: "https://github.com/jathu/UIImageColors")
           /// https://github.com/paololeonardi/WaterfallGrid
@@ -66,10 +66,10 @@ public enum L10n {
           public static let swiftUIPager = L10n.tr("Constant", "app.acknowledgement.text.swiftUIPager", fallback: "SwiftUIPager")
           /// SwiftyOpenCC
           public static let swiftyOpenCC = L10n.tr("Constant", "app.acknowledgement.text.swiftyOpenCC", fallback: "SwiftyOpenCC")
+          /// SystemNotification
+          public static let systemNotification = L10n.tr("Constant", "app.acknowledgement.text.systemNotification", fallback: "SystemNotification")
           /// The Composable Architecture
           public static let tca = L10n.tr("Constant", "app.acknowledgement.text.tca", fallback: "The Composable Architecture")
-          /// TTProgressHUD
-          public static let ttProgressHUD = L10n.tr("Constant", "app.acknowledgement.text.ttProgressHUD", fallback: "TTProgressHUD")
           /// UIImageColors
           public static let uiImageColors = L10n.tr("Constant", "app.acknowledgement.text.uiImageColors", fallback: "UIImageColors")
           /// WaterfallGrid

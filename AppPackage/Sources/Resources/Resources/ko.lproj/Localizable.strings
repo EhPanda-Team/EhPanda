@@ -12,7 +12,7 @@
 "website.response.hath_client_not_online" = "H@H 클라이언트가 오프라인인 것 같네요. 클라이언트를 켜고 다시 시도해주세요.";
 "website.response.invalid_resolution" = "이 콘텐츠는 선택한　해상도로 다운로드할 수 없어요.";
 
-// MARK: HUD
+// MARK: Toast
 "toast.title.error" = "실패";
 "toast.title.success" = "성공";
 "toast.title.loading" = "로딩 중...";

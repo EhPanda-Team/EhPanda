@@ -12,7 +12,7 @@
 "website.response.hath_client_not_online" = "H@H クライアントは現在オフラインのようです、起動してからもう一度お試しください";
 "website.response.invalid_resolution" = "このギャラリーは選択された解像度ではダウンロードできません";
 
-// MARK: HUD
+// MARK: Toast
 "toast.title.error" = "エラー";
 "toast.title.success" = "成功";
 "toast.title.loading" = "読み込み中...";
