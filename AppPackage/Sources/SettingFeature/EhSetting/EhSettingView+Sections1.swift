@@ -13,6 +13,8 @@ struct EhProfileSection: View {
     @Binding var ehProfile: EhProfile
     @Binding var editingProfileName: String
     let deleteDialogAction: () -> Void
+    let deleteConfirmationDialog:
+        Binding<Store<ConfirmationDialogState<EhSettingReducer.Dialog>, EhSettingReducer.Dialog>?>
     let performEhProfileAction: (EhProfileAction?, String?, Int) -> Void
 
     @FocusState private var isFocused
@@ -37,6 +39,7 @@ struct EhProfileSection: View {
                     role: .destructive,
                     action: deleteDialogAction
                 )
+                .confirmationDialog(deleteConfirmationDialog)
             }
         } header: {
             Text(L10n.Localizable.EhSettingView.Section.Title.profileSettings)
