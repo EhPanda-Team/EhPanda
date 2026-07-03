@@ -98,7 +98,7 @@ struct HeaderSection: View {
                         if downloadFolders.isEmpty {
                             Button(action: createDefaultFolderAction) {
                                 Label(
-                                    L10n.Localizable.DetailView.createDefaultFolder,
+                                    String(localized: .createDefaultFolder),
                                     systemSymbol: .folderBadgePlus
                                 )
                             }
@@ -107,7 +107,7 @@ struct HeaderSection: View {
                     }
                     Section {
                         if downloadFolders.isEmpty {
-                            Text(L10n.Localizable.DetailView.noFolders)
+                            Text(String(localized: .noFolders))
                         } else {
                             ForEach(downloadFolders, id: \.self) { folder in
                                 Button {
@@ -181,7 +181,7 @@ struct HeaderSection: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
-        .accessibilityLabel(L10n.Localizable.DetailView.read)
+        .accessibilityLabel(String(localized: .read))
     }
     private func progressIndicator(
         progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol
@@ -293,43 +293,43 @@ struct HeaderSection: View {
 // MARK: HeaderSection Accessibility
 extension HeaderSection {
     var downloadButtonAccessibilityLabel: String {
-        guard canDownload else { return L10n.Localizable.DetailView.Accessibility.login }
+        guard canDownload else { return String(localized: .accessibilityLogin) }
         guard !showsMetadataPreparation else {
-            return L10n.Localizable.DetailView.Accessibility.preparing
+            return String(localized: .accessibilityPreparing)
         }
         return downloadBadgeAccessibilityLabel
     }
     var downloadBadgeAccessibilityLabel: String {
         guard let badge = downloadBadge else {
-            return L10n.Localizable.DetailView.Accessibility.download
+            return String(localized: .accessibilityDownload)
         }
         let progress = badge.progress
         switch badge.status {
         case .queued:
-            return L10n.Localizable.DetailView.Accessibility.queued
+            return String(localized: .accessibilityQueued)
         case .active:
-            let downloading = L10n.Localizable.DetailView.Accessibility.downloading(
+            let downloading = String(localized: .accessibilityDownloading(
                 progress.completedPageCount, progress.displayPageCount
-            )
-            return [downloading, L10n.Localizable.DetailView.Accessibility.pauseAction]
+            ))
+            return [downloading, String(localized: .accessibilityPauseAction)]
                 .joined(separator: ". ")
         case .inactive:
-            return L10n.Localizable.DetailView.Accessibility.paused(
+            return String(localized: .accessibilityPaused(
                 progress.completedPageCount, progress.displayPageCount
-            )
+            ))
         case .completed:
-            return L10n.Localizable.DetailView.Accessibility.downloaded
+            return String(localized: .accessibilityDownloaded)
         case .updateAvailable:
-            return L10n.Localizable.DetailView.Accessibility.update
+            return String(localized: .accessibilityUpdate)
         case .error:
             if isPartialDownloadError {
-                return L10n.Localizable.DetailView.Accessibility.partial(
+                return String(localized: .accessibilityPartial(
                     progress.completedPageCount, progress.displayPageCount
-                )
+                ))
             }
             return downloadNeedsRepair
-                ? L10n.Localizable.DetailView.Accessibility.repair
-                : L10n.Localizable.DetailView.Accessibility.retry
+                ? String(localized: .accessibilityRepair)
+                : String(localized: .accessibilityRetry)
         }
     }
 }

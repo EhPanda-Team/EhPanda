@@ -13,15 +13,9 @@ public enum L10n {
   public enum Constant {
     /// Copyright © 2026 EhPanda Team
     public static let copyright = L10n.tr("Constant", "copyright", fallback: "Copyright © 2026 EhPanda Team")
-    /// This gallery has been removed or is unavailable.
-    public static let galleryUnavailable = L10n.tr("Constant", "gallery_unavailable", fallback: "This gallery has been removed or is unavailable.")
     /// Constant.strings
     ///   EhPanda
-    public static let hathClientNotFound = L10n.tr("Constant", "hath_client_not_found", fallback: "You must have a H@H client assigned to your account to use this feature.")
-    /// Your H@H client appears to be offline. Turn it on, then try again.
-    public static let hathClientNotOnline = L10n.tr("Constant", "hath_client_not_online", fallback: "Your H@H client appears to be offline. Turn it on, then try again.")
-    /// The requested gallery cannot be downloaded with the selected resolution.
-    public static let invalidResolution = L10n.tr("Constant", "invalid_resolution", fallback: "The requested gallery cannot be downloaded with the selected resolution.")
+    public static let galleryUnavailable = L10n.tr("Constant", "gallery_unavailable", fallback: "This gallery has been removed or is unavailable.")
     public enum Acknowledgement {
       /// Colorful
       public static let colorful = L10n.tr("Constant", "acknowledgement.colorful", fallback: "Colorful")
@@ -156,12 +150,6 @@ public enum L10n {
   public enum Localizable {
     /// Show Filtered Removal Count
     public static let ehSettingViewfilteredRemovalCount = L10n.tr("Localizable", "eh_setting_viewfiltered_removal_count", fallback: "Show Filtered Removal Count")
-    /// You must have a H@H client assigned to your account to use this feature.
-    public static let hathClientNotFound = L10n.tr("Localizable", "hath_client_not_found", fallback: "You must have a H@H client assigned to your account to use this feature.")
-    /// Your H@H client appears to be offline. Turn it on, then try again.
-    public static let hathClientNotOnline = L10n.tr("Localizable", "hath_client_not_online", fallback: "Your H@H client appears to be offline. Turn it on, then try again.")
-    /// The requested gallery cannot be downloaded with the selected resolution.
-    public static let invalidResolution = L10n.tr("Localizable", "invalid_resolution", fallback: "The requested gallery cannot be downloaded with the selected resolution.")
     /// Login
     public static let notLoginViewlogin = L10n.tr("Localizable", "not_login_viewlogin", fallback: "Login")
     public enum AboutView {
@@ -306,12 +294,6 @@ public enum L10n {
     public enum ArchiveResolution {
       /// Original
       public static let original = L10n.tr("Localizable", "archive_resolution.original", fallback: "Original")
-    }
-    public enum ArchivesView {
-      /// Archives
-      public static let archives = L10n.tr("Localizable", "archives_view.archives", fallback: "Archives")
-      /// Download To H@H Client
-      public static let downloadToHathClient = L10n.tr("Localizable", "archives_view.download_to_hath_client", fallback: "Download To H@H Client")
     }
     public enum AutoLockPolicy {
       /// Instantly
@@ -861,10 +843,6 @@ public enum L10n {
       /// Recent comments first
       public static let recent = L10n.tr("Localizable", "comments_sort_order.recent", fallback: "Recent comments first")
     }
-    public enum CommentsView {
-      /// Comments
-      public static let comments = L10n.tr("Localizable", "comments_view.comments", fallback: "Comments")
-    }
     public enum CommentsVotesShowTiming {
       /// Always
       public static let always = L10n.tr("Localizable", "comments_votes_show_timing.always", fallback: "Always")
@@ -938,110 +916,20 @@ public enum L10n {
       public static let dateSeek = L10n.tr("Localizable", "date_seek_view.date_seek", fallback: "Seek to date")
     }
     public enum DetailView {
-      /// Archives
-      public static let archives = L10n.tr("Localizable", "detail_view.archives", fallback: "Archives")
-      /// Comments
-      public static let comments = L10n.tr("Localizable", "detail_view.comments", fallback: "Comments")
-      /// Create Default Folder
-      public static let createDefaultFolder = L10n.tr("Localizable", "detail_view.create_default_folder", fallback: "Create Default Folder")
       /// Delete Download?
       public static let deleteDownload = L10n.tr("Localizable", "detail_view.delete_download", fallback: "Delete Download?")
       /// This will remove the downloaded gallery from this device.
       public static let deleteDownloadedGallery = L10n.tr("Localizable", "detail_view.delete_downloaded_gallery", fallback: "This will remove the downloaded gallery from this device.")
       /// Detail
       public static let detail = L10n.tr("Localizable", "detail_view.detail", fallback: "Detail")
-      /// Favorited
-      public static let favorited = L10n.tr("Localizable", "detail_view.favorited", fallback: "Favorited")
-      /// Times
-      public static let favoritedUnit = L10n.tr("Localizable", "detail_view.favorited_unit", fallback: "Times")
-      /// File Size
-      public static let fileSize = L10n.tr("Localizable", "detail_view.file_size", fallback: "File Size")
-      /// Give a Rating
-      public static let giveARating = L10n.tr("Localizable", "detail_view.give_a_rating", fallback: "Give a Rating")
       /// Language
       public static let language = L10n.tr("Localizable", "detail_view.language", fallback: "Language")
       /// Manage Folders
       public static let manageFolders = L10n.tr("Localizable", "detail_view.manage_folders", fallback: "Manage Folders")
-      /// No folders yet
-      public static let noFolders = L10n.tr("Localizable", "detail_view.no_folders", fallback: "No folders yet")
-      /// Page Count
-      public static let pageCount = L10n.tr("Localizable", "detail_view.page_count", fallback: "Page Count")
-      /// Pages
-      public static let pageCountUnit = L10n.tr("Localizable", "detail_view.page_count_unit", fallback: "Pages")
-      /// Post comment
-      public static let postComment = L10n.tr("Localizable", "detail_view.post_comment", fallback: "Post comment")
-      /// Previews
-      public static let previews = L10n.tr("Localizable", "detail_view.previews", fallback: "Previews")
-      /// %@ Ratings
-      public static func ratings(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "detail_view.ratings", String(describing: p1), fallback: "%@ Ratings")
-      }
-      /// Read
-      public static let read = L10n.tr("Localizable", "detail_view.read", fallback: "Read")
-      /// Redownload
-      public static let redownload = L10n.tr("Localizable", "detail_view.redownload", fallback: "Redownload")
-      /// Redownload Gallery?
-      public static let redownloadGallery = L10n.tr("Localizable", "detail_view.redownload_gallery", fallback: "Redownload Gallery?")
-      /// Start a fresh download for this gallery now?
-      public static let redownloadGalleryDescription = L10n.tr("Localizable", "detail_view.redownload_gallery_description", fallback: "Start a fresh download for this gallery now?")
-      /// Repair
-      public static let repair = L10n.tr("Localizable", "detail_view.repair", fallback: "Repair")
-      /// Repair Download?
-      public static let repairDownload = L10n.tr("Localizable", "detail_view.repair_download", fallback: "Repair Download?")
-      /// Repair the offline files for this gallery now?
-      public static let repairDownloadDescription = L10n.tr("Localizable", "detail_view.repair_download_description", fallback: "Repair the offline files for this gallery now?")
-      /// Couldn't refresh online details. Showing saved details instead.
-      public static let savedDetails = L10n.tr("Localizable", "detail_view.saved_details", fallback: "Couldn't refresh online details. Showing saved details instead.")
       /// Share
       public static let share = L10n.tr("Localizable", "detail_view.share", fallback: "Share")
-      /// Similar Gallery
-      public static let similarGallery = L10n.tr("Localizable", "detail_view.similar_gallery", fallback: "Similar Gallery")
-      /// Torrents
-      public static let torrents = L10n.tr("Localizable", "detail_view.torrents", fallback: "Torrents")
       /// Update
       public static let update = L10n.tr("Localizable", "detail_view.update", fallback: "Update")
-      /// Update Download?
-      public static let updateDownload = L10n.tr("Localizable", "detail_view.update_download", fallback: "Update Download?")
-      /// Update this gallery to the newest online version now?
-      public static let updateDownloadDescription = L10n.tr("Localizable", "detail_view.update_download_description", fallback: "Update this gallery to the newest online version now?")
-      /// Vote down
-      public static let voteDown = L10n.tr("Localizable", "detail_view.vote_down", fallback: "Vote down")
-      /// Vote up
-      public static let voteUp = L10n.tr("Localizable", "detail_view.vote_up", fallback: "Vote up")
-      /// Withdraw vote
-      public static let withdrawVote = L10n.tr("Localizable", "detail_view.withdraw_vote", fallback: "Withdraw vote")
-      public enum Accessibility {
-        /// Download
-        public static let download = L10n.tr("Localizable", "detail_view.accessibility.download", fallback: "Download")
-        /// Delete downloaded gallery
-        public static let downloaded = L10n.tr("Localizable", "detail_view.accessibility.downloaded", fallback: "Delete downloaded gallery")
-        /// Downloading %d of %d
-        public static func downloading(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Localizable", "detail_view.accessibility.downloading", p1, p2, fallback: "Downloading %d of %d")
-        }
-        /// Log in to download
-        public static let login = L10n.tr("Localizable", "detail_view.accessibility.login", fallback: "Log in to download")
-        /// Retry download. %d of %d pages are already available.
-        public static func partial(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Localizable", "detail_view.accessibility.partial", p1, p2, fallback: "Retry download. %d of %d pages are already available.")
-        }
-        /// Pause download
-        public static let pauseAction = L10n.tr("Localizable", "detail_view.accessibility.pause_action", fallback: "Pause download")
-        /// Resume download. Paused at %d of %d
-        public static func paused(_ p1: Int, _ p2: Int) -> String {
-          return L10n.tr("Localizable", "detail_view.accessibility.paused", p1, p2, fallback: "Resume download. Paused at %d of %d")
-        }
-        /// Preparing download
-        public static let preparing = L10n.tr("Localizable", "detail_view.accessibility.preparing", fallback: "Preparing download")
-        /// Queued
-        public static let queued = L10n.tr("Localizable", "detail_view.accessibility.queued", fallback: "Queued")
-        /// Repair download
-        public static let repair = L10n.tr("Localizable", "detail_view.accessibility.repair", fallback: "Repair download")
-        /// Retry download
-        public static let retry = L10n.tr("Localizable", "detail_view.accessibility.retry", fallback: "Retry download")
-        /// Update download
-        public static let update = L10n.tr("Localizable", "detail_view.accessibility.update", fallback: "Update download")
-      }
     }
     public enum DisplayMode {
       /// Compact
@@ -1351,70 +1239,6 @@ public enum L10n {
       /// Filters
       public static let filters = L10n.tr("Localizable", "filters_view.filters", fallback: "Filters")
     }
-    public enum FolderManagerView {
-      /// This will delete the folder and all downloaded galleries inside it.
-      public static let deleteFolder = L10n.tr("Localizable", "folder_manager_view.delete_folder", fallback: "This will delete the folder and all downloaded galleries inside it.")
-      /// Folders you create will appear here.
-      public static let emptyFolders = L10n.tr("Localizable", "folder_manager_view.empty_folders", fallback: "Folders you create will appear here.")
-      /// Folder name
-      public static let folderName = L10n.tr("Localizable", "folder_manager_view.folder_name", fallback: "Folder name")
-      /// Folders
-      public static let folders = L10n.tr("Localizable", "folder_manager_view.folders", fallback: "Folders")
-    }
-    public enum GalleryInfosView {
-      /// Archive URL
-      public static let archiveURL = L10n.tr("Localizable", "gallery_infos_view.archive_URL", fallback: "Archive URL")
-      /// Average rating
-      public static let averageRating = L10n.tr("Localizable", "gallery_infos_view.average_rating", fallback: "Average rating")
-      /// Category
-      public static let category = L10n.tr("Localizable", "gallery_infos_view.category", fallback: "Category")
-      /// Cover URL
-      public static let coverURL = L10n.tr("Localizable", "gallery_infos_view.cover_URL", fallback: "Cover URL")
-      /// Favorited
-      public static let favorited = L10n.tr("Localizable", "gallery_infos_view.favorited", fallback: "Favorited")
-      /// Favorited times
-      public static let favoritedTimes = L10n.tr("Localizable", "gallery_infos_view.favorited_times", fallback: "Favorited times")
-      /// File size
-      public static let fileSize = L10n.tr("Localizable", "gallery_infos_view.file_size", fallback: "File size")
-      /// Gallery infos
-      public static let galleryInfos = L10n.tr("Localizable", "gallery_infos_view.gallery_infos", fallback: "Gallery infos")
-      /// Gallery URL
-      public static let galleryURL = L10n.tr("Localizable", "gallery_infos_view.gallery_URL", fallback: "Gallery URL")
-      /// ID
-      public static let id = L10n.tr("Localizable", "gallery_infos_view.id", fallback: "ID")
-      /// Japanese title
-      public static let japaneseTitle = L10n.tr("Localizable", "gallery_infos_view.japanese_title", fallback: "Japanese title")
-      /// Language
-      public static let language = L10n.tr("Localizable", "gallery_infos_view.language", fallback: "Language")
-      /// My rating
-      public static let myRating = L10n.tr("Localizable", "gallery_infos_view.my_rating", fallback: "My rating")
-      /// No
-      public static let no = L10n.tr("Localizable", "gallery_infos_view.no", fallback: "No")
-      /// None
-      public static let `none` = L10n.tr("Localizable", "gallery_infos_view.none", fallback: "None")
-      /// Page count
-      public static let pageCount = L10n.tr("Localizable", "gallery_infos_view.page_count", fallback: "Page count")
-      /// Parent URL
-      public static let parentURL = L10n.tr("Localizable", "gallery_infos_view.parent_URL", fallback: "Parent URL")
-      /// Posted date
-      public static let postedDate = L10n.tr("Localizable", "gallery_infos_view.posted_date", fallback: "Posted date")
-      /// Rating count
-      public static let ratingCount = L10n.tr("Localizable", "gallery_infos_view.rating_count", fallback: "Rating count")
-      /// Title
-      public static let title = L10n.tr("Localizable", "gallery_infos_view.title", fallback: "Title")
-      /// Token
-      public static let token = L10n.tr("Localizable", "gallery_infos_view.token", fallback: "Token")
-      /// Torrent count
-      public static let torrentCount = L10n.tr("Localizable", "gallery_infos_view.torrent_count", fallback: "Torrent count")
-      /// Torrent URL
-      public static let torrentURL = L10n.tr("Localizable", "gallery_infos_view.torrent_URL", fallback: "Torrent URL")
-      /// Uploader
-      public static let uploader = L10n.tr("Localizable", "gallery_infos_view.uploader", fallback: "Uploader")
-      /// Visibility
-      public static let visibility = L10n.tr("Localizable", "gallery_infos_view.visibility", fallback: "Visibility")
-      /// Yes
-      public static let yes = L10n.tr("Localizable", "gallery_infos_view.yes", fallback: "Yes")
-    }
     public enum GalleryName {
       /// Default Title
       public static let `default` = L10n.tr("Localizable", "gallery_name.default", fallback: "Default Title")
@@ -1685,12 +1509,6 @@ public enum L10n {
       /// Align left, scale if overwidth
       public static let alignLeftScaleIfOverWidth = L10n.tr("Localizable", "multiple_page_viewer_style.align_left_scale_if_over_width", fallback: "Align left, scale if overwidth")
     }
-    public enum PostCommentView {
-      /// Edit comment
-      public static let editComment = L10n.tr("Localizable", "post_comment_view.edit_comment", fallback: "Edit comment")
-      /// Post comment
-      public static let postComment = L10n.tr("Localizable", "post_comment_view.post_comment", fallback: "Post comment")
-    }
     public enum PreferredColorScheme {
       /// Automatic
       public static let automatic = L10n.tr("Localizable", "preferred_color_scheme.automatic", fallback: "Automatic")
@@ -1698,10 +1516,6 @@ public enum L10n {
       public static let dark = L10n.tr("Localizable", "preferred_color_scheme.dark", fallback: "Dark")
       /// Light
       public static let light = L10n.tr("Localizable", "preferred_color_scheme.light", fallback: "Light")
-    }
-    public enum PreviewsView {
-      /// Previews
-      public static let previews = L10n.tr("Localizable", "previews_view.previews", fallback: "Previews")
     }
     public enum QuickSearchView {
       /// Quick search
@@ -1756,12 +1570,6 @@ public enum L10n {
       public static let search = L10n.tr("Localizable", "tab_item.search", fallback: "Search")
       /// Setting
       public static let setting = L10n.tr("Localizable", "tab_item.setting", fallback: "Setting")
-    }
-    public enum TagDetailView {
-      /// Images
-      public static let images = L10n.tr("Localizable", "tag_detail_view.images", fallback: "Images")
-      /// Links
-      public static let links = L10n.tr("Localizable", "tag_detail_view.links", fallback: "Links")
     }
     public enum TagNamespace {
       /// Artist
@@ -1834,10 +1642,6 @@ public enum L10n {
       public static let pastYear = L10n.tr("Localizable", "toplists_type.past_year", fallback: "Past year")
       /// Yesterday
       public static let yesterday = L10n.tr("Localizable", "toplists_type.yesterday", fallback: "Yesterday")
-    }
-    public enum TorrentsView {
-      /// Torrents
-      public static let torrents = L10n.tr("Localizable", "torrents_view.torrents", fallback: "Torrents")
     }
   }
 }

@@ -8,9 +8,6 @@
 "toplists_type.all_time" = "所有時間";
 
 // MARK: Response
-"hath_client_not_found" = "你需要一個連結到帳號的 H@H 用戶端才能使用這個功能";
-"hath_client_not_online" = "你的 H@H 用戶端為離線狀態，請啟動後再試";
-"invalid_resolution" = "該畫廊不能以目前選擇的解析度下載";
 
 // MARK: Toast
 
@@ -241,108 +238,33 @@
 "about_view.acknowledgements" = "致謝";
 
 // MARK: DetailView
-"detail_view.read" = "閱讀";
-"detail_view.post_comment" = "發表留言";
-"detail_view.accessibility.login" = "登入後即可下載";
-"detail_view.accessibility.download" = "下載";
-"detail_view.accessibility.queued" = "已加入下載佇列";
-"detail_view.accessibility.downloading" = "正在下載第 %d / %d 頁";
-"detail_view.accessibility.downloaded" = "刪除已下載畫廊";
-"detail_view.accessibility.update" = "更新下載內容";
-"detail_view.accessibility.retry" = "重新下載";
-"detail_view.accessibility.repair" = "修復下載檔案";
-"detail_view.accessibility.preparing" = "正在取得下載資訊";
-"detail_view.accessibility.pause_action" = "暫停下載";
-"detail_view.accessibility.paused" = "繼續下載，目前暫停在第 %d / %d 頁";
-"detail_view.accessibility.partial" = "重新下載，已有 %d / %d 頁可用。";
-"detail_view.archives" = "存檔至 H@H 用戶端";
-"detail_view.torrents" = "種子";
 "detail_view.share" = "分享";
 "detail_view.detail" = "Detail";
-"detail_view.withdraw_vote" = "收回評分";
-"detail_view.vote_up" = "Vote up";
-"detail_view.vote_down" = "Vote down";
-"detail_view.favorited" = "收藏";
 "detail_view.language" = "語言";
-"detail_view.ratings" = "%@ 個評分";
-"detail_view.page_count" = "頁數";
-"detail_view.file_size" = "檔案大小";
-"detail_view.favorited_unit" = "次";
-"detail_view.page_count_unit" = "頁";
-"detail_view.give_a_rating" = "給予評分";
-"detail_view.similar_gallery" = "類似畫廊";
-"detail_view.previews" = "預覽";
-"detail_view.comments" = "留言";
 "detail_view.delete_download" = "刪除下載？";
-"detail_view.repair_download" = "修復下載？";
-"detail_view.update_download" = "更新下載？";
-"detail_view.redownload_gallery" = "重新下載畫廊？";
 "detail_view.delete_downloaded_gallery" = "這將從此裝置移除已下載的畫廊。";
-"detail_view.repair_download_description" = "現在修復此畫廊的離線檔案嗎？";
-"detail_view.update_download_description" = "現在將此畫廊更新到線上最新版本嗎？";
-"detail_view.redownload_gallery_description" = "現在重新完整下載此畫廊嗎？";
-"detail_view.repair" = "修復";
 "detail_view.update" = "更新";
-"detail_view.redownload" = "重新下載";
-"detail_view.saved_details" = "無法重新整理線上詳情，現顯示已儲存的詳情。";
 
 // MARK: ArchivesView
-"archives_view.archives" = "存檔";
-"archives_view.download_to_hath_client" = "下載至 H@H 用戶端";
 // HathArchive
 "hath_archive.free" = "免費";
 // ArchiveResolution
 "archive_resolution.original" = "原始畫質";
 
 // MARK: TorrentsView
-"torrents_view.torrents" = "種子";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "畫廊資訊";
-"gallery_infos_view.id" = "畫廊 ID";
-"gallery_infos_view.token" = "Token";
-"gallery_infos_view.title" = "標題";
-"gallery_infos_view.japanese_title" = "日文標題";
-"gallery_infos_view.gallery_URL" = "畫廊 URL";
-"gallery_infos_view.cover_URL" = "封面 URL";
-"gallery_infos_view.archive_URL" = "存檔 URL";
-"gallery_infos_view.torrent_URL" = "種子 URL";
-"gallery_infos_view.parent_URL" = "Parent URL";
-"gallery_infos_view.category" = "類別";
-"gallery_infos_view.uploader" = "上傳者";
-"gallery_infos_view.posted_date" = "發布日期";
-"gallery_infos_view.visibility" = "能見度";
-"gallery_infos_view.language" = "語言";
-"gallery_infos_view.page_count" = "頁數";
-"gallery_infos_view.file_size" = "檔案大小";
-"gallery_infos_view.favorited_times" = "被收藏次數";
-"gallery_infos_view.favorited" = "已收藏";
-"gallery_infos_view.rating_count" = "被評分次數";
-"gallery_infos_view.average_rating" = "平均評分";
-"gallery_infos_view.my_rating" = "我的評分";
-"gallery_infos_view.torrent_count" = "種子數量";
-"gallery_infos_view.none" = "None";
-"gallery_infos_view.yes" = "Yes";
-"gallery_infos_view.no" = "No";
 // GalleryVisibility
 "gallery_visibility.yes" = "Yes";
 "gallery_visibility.no" = "No (%@)";
 "gallery_visibility.expunged" = "已被刪除";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "圖片";
-"tag_detail_view.links" = "連結";
 
 // MARK: DownloadsView
 "download_folder_filter.all" = "全部";
 "detail_view.manage_folders" = "管理資料夾";
-"detail_view.create_default_folder" = "建立預設資料夾";
-"detail_view.no_folders" = "還沒有資料夾";
 "downloads_view.manage_folders" = "管理資料夾";
-"folder_manager_view.folders" = "資料夾";
-"folder_manager_view.folder_name" = "資料夾名稱";
-"folder_manager_view.delete_folder" = "這將刪除此資料夾及其中所有已下載的畫廊。";
-"folder_manager_view.empty_folders" = "建立的資料夾會顯示在這裡。";
 "downloads_view.downloads" = "下載";
 "downloads_view.delete_download" = "刪除下載？";
 "downloads_view.delete_downloaded_gallery" = "這將從此裝置移除已下載的畫廊。";
@@ -357,14 +279,10 @@
 "download_setting_view.network_description" = "每次只會下載一個畫廊。此設定用於控制單個畫廊內頁面的並行下載數量、是否允許行動網路下載，以及檔案在應用程式 Downloads 資料夾中的儲存方式。";
 
 // MARK: CommentsView
-"comments_view.comments" = "留言";
 
 // MARK: PostCommentView
-"post_comment_view.post_comment" = "發表留言";
-"post_comment_view.edit_comment" = "編輯留言";
 
 // MARK: PreviewsView
-"previews_view.previews" = "預覽";
 
 // MARK: ReadingView
 "reading_view.share" = "分享";

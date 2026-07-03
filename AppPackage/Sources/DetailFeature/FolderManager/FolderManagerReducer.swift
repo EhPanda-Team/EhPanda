@@ -93,7 +93,7 @@ public struct FolderManagerReducer: Sendable {
                         TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.FolderManagerView.deleteFolder)
+                    TextState(String(localized: .deleteFolder))
                 }
                 return .none
 

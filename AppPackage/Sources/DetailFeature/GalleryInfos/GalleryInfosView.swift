@@ -18,72 +18,72 @@ struct GalleryInfosView: View {
 
     private var infos: [Info] {
         [
-            Info(title: L10n.Localizable.GalleryInfosView.id, value: galleryDetail.gid),
-            Info(title: L10n.Localizable.GalleryInfosView.token, value: gallery.token),
-            Info(title: L10n.Localizable.GalleryInfosView.title, value: galleryDetail.title),
-            Info(title: L10n.Localizable.GalleryInfosView.japaneseTitle, value: galleryDetail.jpnTitle),
+            Info(title: String(localized: .metadataId), value: galleryDetail.gid),
+            Info(title: String(localized: .metadataToken), value: gallery.token),
+            Info(title: String(localized: .metadataTitle), value: galleryDetail.title),
+            Info(title: String(localized: .metadataJapaneseTitle), value: galleryDetail.jpnTitle),
             Info(
-                title: L10n.Localizable.GalleryInfosView.galleryURL,
+                title: String(localized: .metadataGalleryUrl),
                 value: gallery.galleryURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.coverURL,
+                title: String(localized: .metadataCoverUrl),
                 value: galleryDetail.coverURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.archiveURL,
+                title: String(localized: .metadataArchiveUrl),
                 value: galleryDetail.archiveURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.torrentURL,
+                title: String(localized: .metadataTorrentUrl),
                 value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.parentURL,
+                title: String(localized: .metadataParentUrl),
                 value: galleryDetail.parentURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.category,
+                title: String(localized: .metadataCategory),
                 value: galleryDetail.category.value
             ),
-            Info(title: L10n.Localizable.GalleryInfosView.uploader, value: galleryDetail.uploader),
+            Info(title: String(localized: .metadataUploader), value: galleryDetail.uploader),
             Info(
-                title: L10n.Localizable.GalleryInfosView.postedDate,
+                title: String(localized: .metadataPostedDate),
                 value: galleryDetail.formattedDateString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.visibility,
+                title: String(localized: .metadataVisibility),
                 value: galleryDetail.visibility.value
             ),
-            Info(title: L10n.Localizable.GalleryInfosView.language, value: galleryDetail.language.value),
-            Info(title: L10n.Localizable.GalleryInfosView.pageCount, value: String(galleryDetail.pageCount)),
+            Info(title: String(localized: .metadataLanguage), value: galleryDetail.language.value),
+            Info(title: String(localized: .metadataPageCount), value: String(galleryDetail.pageCount)),
             Info(
-                title: L10n.Localizable.GalleryInfosView.fileSize,
+                title: String(localized: .metadataFileSize),
                 value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.favoritedTimes,
+                title: String(localized: .metadataFavoritedTimes),
                 value: String(galleryDetail.favoritedCount)
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.favorited,
-                value: galleryDetail.isFavorited ? L10n.Localizable.GalleryInfosView.yes
-                    : L10n.Localizable.GalleryInfosView.no
+                title: String(localized: .metadataFavorited),
+                value: galleryDetail.isFavorited ? String(localized: .metadataYes)
+                    : String(localized: .metadataNo)
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.ratingCount,
+                title: String(localized: .metadataRatingCount),
                 value: String(galleryDetail.ratingCount)
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.averageRating,
+                title: String(localized: .metadataAverageRating),
                 value: String(Int(galleryDetail.rating))
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.myRating,
+                title: String(localized: .metadataMyRating),
                 value: galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.torrentCount,
+                title: String(localized: .metadataTorrentCount),
                 value: String(galleryDetail.torrentCount)
             )
         ]
@@ -104,7 +104,7 @@ struct GalleryInfosView: View {
                             store.send(.copyText(text))
                         }
                     } label: {
-                        Text(info.value ?? L10n.Localizable.GalleryInfosView.none)
+                        Text(info.value ?? String(localized: .metadataNone))
                             .lineLimit(3).font(.caption)
                             .foregroundStyle(.tint)
                     }
@@ -112,7 +112,7 @@ struct GalleryInfosView: View {
             }
         }
         .toast($store.scope(state: \.toast, action: \.toast))
-        .navigationTitle(L10n.Localizable.GalleryInfosView.galleryInfos)
+        .navigationTitle(String(localized: .metadataGalleryInfos))
     }
 }
 

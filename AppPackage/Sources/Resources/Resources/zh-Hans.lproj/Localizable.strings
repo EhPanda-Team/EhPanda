@@ -8,9 +8,6 @@
 "toplists_type.all_time" = "全部";
 
 // MARK: Response
-"hath_client_not_found" = "你需要一个关联到账户的 H@H 客户端才能使用这个功能";
-"hath_client_not_online" = "你的 H@H 客户端似乎处于离线状态，请启动它后再试";
-"invalid_resolution" = "该画廊不能以选中的分辨率下载";
 
 // MARK: Toast
 
@@ -241,108 +238,33 @@
 "about_view.acknowledgements" = "致谢";
 
 // MARK: DetailView
-"detail_view.read" = "阅读";
-"detail_view.post_comment" = "发布评论";
-"detail_view.accessibility.login" = "登录后即可下载";
-"detail_view.accessibility.download" = "下载";
-"detail_view.accessibility.queued" = "已加入下载队列";
-"detail_view.accessibility.downloading" = "正在下载第 %d / %d 页";
-"detail_view.accessibility.downloaded" = "删除已下载画廊";
-"detail_view.accessibility.update" = "更新下载内容";
-"detail_view.accessibility.retry" = "重新下载";
-"detail_view.accessibility.repair" = "修复下载文件";
-"detail_view.accessibility.preparing" = "正在获取下载信息";
-"detail_view.accessibility.pause_action" = "暂停下载";
-"detail_view.accessibility.paused" = "继续下载，当前暂停在第 %d / %d 页";
-"detail_view.accessibility.partial" = "重新下载，已有 %d / %d 页可用。";
-"detail_view.archives" = "归档";
-"detail_view.torrents" = "种子";
 "detail_view.share" = "分享";
 "detail_view.detail" = "详情";
-"detail_view.withdraw_vote" = "撤销投票";
-"detail_view.vote_up" = "投票赞成";
-"detail_view.vote_down" = "投票反对";
-"detail_view.favorited" = "收藏";
 "detail_view.language" = "语言";
-"detail_view.ratings" = "%@ 个评分";
-"detail_view.page_count" = "页数";
-"detail_view.file_size" = "文件大小";
-"detail_view.favorited_unit" = "次";
-"detail_view.page_count_unit" = "页";
-"detail_view.give_a_rating" = "给予评分";
-"detail_view.similar_gallery" = "相似画廊";
-"detail_view.previews" = "预览";
-"detail_view.comments" = "评论";
 "detail_view.delete_download" = "删除下载？";
-"detail_view.repair_download" = "修复下载？";
-"detail_view.update_download" = "更新下载？";
-"detail_view.redownload_gallery" = "重新下载画廊？";
 "detail_view.delete_downloaded_gallery" = "这将从此设备移除已下载的画廊。";
-"detail_view.repair_download_description" = "现在修复此画廊的离线文件吗？";
-"detail_view.update_download_description" = "现在将此画廊更新到线上最新版本吗？";
-"detail_view.redownload_gallery_description" = "现在重新完整下载此画廊吗？";
-"detail_view.repair" = "修复";
 "detail_view.update" = "更新";
-"detail_view.redownload" = "重新下载";
-"detail_view.saved_details" = "无法刷新在线详情，现显示已保存的详情。";
 
 // MARK: ArchivesView
-"archives_view.archives" = "归档";
-"archives_view.download_to_hath_client" = "下载到 H@H 客户端";
 // HathArchive
 "hath_archive.free" = "免费";
 // ArchiveResolution
 "archive_resolution.original" = "原始分辨率";
 
 // MARK: TorrentsView
-"torrents_view.torrents" = "种子";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "画廊信息";
-"gallery_infos_view.id" = "ID";
-"gallery_infos_view.token" = "Token";
-"gallery_infos_view.title" = "标题";
-"gallery_infos_view.japanese_title" = "日文标题";
-"gallery_infos_view.gallery_URL" = "画廊链接";
-"gallery_infos_view.cover_URL" = "封面链接";
-"gallery_infos_view.archive_URL" = "归档链接";
-"gallery_infos_view.torrent_URL" = "种子链接";
-"gallery_infos_view.parent_URL" = "上游画廊链接";
-"gallery_infos_view.category" = "分类";
-"gallery_infos_view.uploader" = "上传者";
-"gallery_infos_view.posted_date" = "发布日期";
-"gallery_infos_view.visibility" = "可见";
-"gallery_infos_view.language" = "语言";
-"gallery_infos_view.page_count" = "页数";
-"gallery_infos_view.file_size" = "文件大小";
-"gallery_infos_view.favorited_times" = "收藏次数";
-"gallery_infos_view.favorited" = "已收藏";
-"gallery_infos_view.rating_count" = "评分次数";
-"gallery_infos_view.average_rating" = "平均评分";
-"gallery_infos_view.my_rating" = "我的评分";
-"gallery_infos_view.torrent_count" = "种子个数";
-"gallery_infos_view.none" = "无";
-"gallery_infos_view.yes" = "是";
-"gallery_infos_view.no" = "否";
 // GalleryVisibility
 "gallery_visibility.yes" = "是";
 "gallery_visibility.no" = "否 (%@)";
 "gallery_visibility.expunged" = "已删除";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "图片";
-"tag_detail_view.links" = "链接";
 
 // MARK: DownloadsView
 "download_folder_filter.all" = "全部";
 "detail_view.manage_folders" = "管理文件夹";
-"detail_view.create_default_folder" = "创建默认文件夹";
-"detail_view.no_folders" = "还没有文件夹";
 "downloads_view.manage_folders" = "管理文件夹";
-"folder_manager_view.folders" = "文件夹";
-"folder_manager_view.folder_name" = "文件夹名称";
-"folder_manager_view.delete_folder" = "这将删除该文件夹及其中所有已下载的画廊。";
-"folder_manager_view.empty_folders" = "创建的文件夹会显示在这里。";
 "downloads_view.downloads" = "下载";
 "downloads_view.delete_download" = "删除下载？";
 "downloads_view.delete_downloaded_gallery" = "这将从此设备移除已下载的画廊。";
@@ -357,14 +279,10 @@
 "download_setting_view.network_description" = "每次只会下载一个画廊。这个设置用于控制单个画廊内页面的并行下载数量、是否允许蜂窝网络下载，以及文件在应用 Downloads 文件夹中的存储方式。";
 
 // MARK: CommentsView
-"comments_view.comments" = "评论";
 
 // MARK: PostCommentView
-"post_comment_view.post_comment" = "发布评论";
-"post_comment_view.edit_comment" = "编辑评论";
 
 // MARK: PreviewsView
-"previews_view.previews" = "预览";
 
 // MARK: ReadingView
 "reading_view.share" = "分享";
