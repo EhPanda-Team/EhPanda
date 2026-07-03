@@ -85,12 +85,10 @@
 "confirmation_dialog.logout_description" = "Are you sure to logout?";
 "confirmation_dialog.delete_description" = "Are you sure to delete this item?";
 "confirmation_dialog.clear_description" = "Are you sure to clear?";
-"confirmation_dialog.reset_description" = "Are you sure to reset?";
 "confirmation_dialog.remove" = "Remove";
 "confirmation_dialog.logout" = "Logout";
 "confirmation_dialog.delete" = "Delete";
 "confirmation_dialog.clear" = "Clear";
-"confirmation_dialog.reset" = "Reset";
 
 // MARK: SubSection
 
@@ -404,25 +402,6 @@
 
 // MARK: FiltersView
 "filters_view.filters" = "Filters";
-"filters_view.advanced_settings" = "Advanced settings";
-"filters_view.search_gallery_name" = "Search gallery name";
-"filters_view.search_gallery_tags" = "Search gallery tags";
-"filters_view.search_gallery_description" = "Search gallery description";
-"filters_view.search_torrent_filenames" = "Search torrent filenames";
-"filters_view.only_show_galleries_with_torrents" = "Only show galleries with torrents";
-"filters_view.search_low_power_tags" = "Search Low-Power tags";
-"filters_view.search_downvoted_tags" = "Search downvoted tags";
-"filters_view.search_expunged_galleries" = "Search expunged galleries";
-"filters_view.set_minimum_rating" = "Set minimum rating";
-"filters_view.minimum_rating" = "Minimum rating";
-"filters_view.set_pages_range" = "Set pages range";
-"filters_view.pages_range" = "Pages range";
-"filters_view.disable_language_filter" = "Disable language filter";
-"filters_view.disable_uploader_filter" = "Disable uploader filter";
-"filters_view.disable_tags_filter" = "Disable tags filter";
-"filters_view.reset_filters" = "Reset filters";
-"filters_view.advanced" = "Advanced";
-"filters_view.default_filter" = "Default filter";
 // FilterRange
 "filter_range.search" = "Search";
 "filter_range.global" = "Global";
