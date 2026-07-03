@@ -1,6 +1,5 @@
 import Foundation
 import AppModels
-import Resources
 import ComposableArchitecture
 import AppTools
 #if DEBUG
@@ -32,7 +31,7 @@ extension CookieClient {
             },
             getCookie: { url, key in
                 var value = CookieValue(
-                    rawValue: "", localizedString: L10n.Localizable.CookieValue.none
+                    rawValue: "", localizedString: String(localized: .cookieValueNone)
                 )
                 guard let cookies = cookieStorage.cookies(for: url), !cookies.isEmpty else { return value }
 
@@ -42,14 +41,14 @@ extension CookieClient {
                        expiresDate <= .now {
                         value = CookieValue(
                             rawValue: "",
-                            localizedString: L10n.Localizable.CookieValue.expired
+                            localizedString: String(localized: .cookieValueExpired)
                         )
                         return
                     }
                     guard cookie.value != Defaults.Cookie.mystery else {
                         value = CookieValue(
                             rawValue: cookie.value, localizedString:
-                                L10n.Localizable.CookieValue.mystery
+                                String(localized: .cookieValueMystery)
                         )
                         return
                     }

@@ -190,9 +190,6 @@
 "account_setting_view.tags_management" = "タグの購読を管理";
 "account_setting_view.copy_cookies" = "クッキーをコピー";
 // CookieValue
-"cookie_value.expired" = "期限切れ";
-"cookie_value.mystery" = "拒否";
-"cookie_value.none" = "なし";
 
 // MARK: LoginView
 "login_view.login" = "ログイン";

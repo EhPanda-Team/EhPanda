@@ -190,9 +190,6 @@
 "account_setting_view.tags_management" = "Meine Tags bearbeiten";
 "account_setting_view.copy_cookies" = "Cookies kopieren";
 // CookieValue
-"cookie_value.expired" = "Abgelaufen";
-"cookie_value.mystery" = "Abgelehnt";
-"cookie_value.none" = "Nicht vorhanden";
 
 // MARK: LoginView
 "login_view.login" = "Einloggen";

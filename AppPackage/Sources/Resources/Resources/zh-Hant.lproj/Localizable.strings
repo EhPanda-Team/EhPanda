@@ -190,9 +190,6 @@
 "account_setting_view.tags_management" = "管理訂閱標籤";
 "account_setting_view.copy_cookies" = "複製 Cookies";
 // CookieValue
-"cookie_value.expired" = "已過期";
-"cookie_value.mystery" = "被拒絕";
-"cookie_value.none" = "None";
 
 // MARK: LoginView
 "login_view.login" = "登入";
