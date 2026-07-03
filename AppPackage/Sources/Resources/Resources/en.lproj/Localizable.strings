@@ -13,12 +13,6 @@
 "invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
 
 // MARK: Toast
-"toast.error" = "Error";
-"toast.success" = "Success";
-"toast.loading" = "Loading...";
-"toast.communicating" = "Communicating...";
-"toast.copied_to_clipboard" = "Copied to clipboard";
-"toast.saved_to_photo_library" = "Saved to photo library";
 
 // MARK: AutoLock
 
@@ -56,8 +50,6 @@
 "jump_page_view.jump_page" = "Jump page";
 
 // MARK: AlertView
-"loading_view.loading" = "Loading...";
-"not_login_view.need_login" = "You need to login to access this feature.";
 "not_login_viewlogin" = "Login";
 "error_view.retry" = "Retry";
 "error_view.try_later" = "Please try again later.";
@@ -101,11 +93,8 @@
 "confirmation_dialog.reset" = "Reset";
 
 // MARK: SubSection
-"sub_section.show_all" = "Show all";
 
 // MARK: NewDawnView
-"new_dawn_view.first" = "It is the dawn of a new day!";
-"new_dawn_view.second" = "Reflecting on your journey so far, you find that you are a little wiser.";
 // Greeting
 "greeting.start" = "You gain ";
 "greeting.separator" = ", ";
@@ -136,7 +125,6 @@
 "search_view.search" = "Search";
 "search_view.quick_search" = "Quick search";
 // Searchable
-"searchable.matches_count" = "Found %d matches.";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "Quick search";

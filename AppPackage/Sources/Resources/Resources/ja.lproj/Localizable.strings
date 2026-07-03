@@ -13,12 +13,6 @@
 "invalid_resolution" = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: Toast
-"toast.error" = "エラー";
-"toast.success" = "成功";
-"toast.loading" = "読み込み中...";
-"toast.communicating" = "通信中...";
-"toast.copied_to_clipboard" = "クリップボードにコピーしました";
-"toast.saved_to_photo_library" = "ライブラリに保存しました";
 
 // MARK: AutoLock
 
@@ -56,8 +50,6 @@
 "jump_page_view.jump_page" = "ページジャンプ";
 
 // MARK: AlertView
-"loading_view.loading" = "読み込み中...";
-"not_login_view.need_login" = "本機能をご利用になるにはログインが必要です";
 "not_login_viewlogin" = "ログイン";
 "error_view.retry" = "リトライ";
 "error_view.try_later" = "しばらくしてからもう一度お試しください";
@@ -101,11 +93,8 @@
 "confirmation_dialog.reset" = "戻す";
 
 // MARK: SubSection
-"sub_section.show_all" = "すべて表示";
 
 // MARK: NewDawnView
-"new_dawn_view.first" = "新しい一日の夜明けです！";
-"new_dawn_view.second" = "今までの歩みを振り返り、少し賢くなった気がする。";
 // Greeting
 "greeting.start" = "";
 "greeting.separator" = "、";
@@ -136,7 +125,6 @@
 "search_view.search" = "検索";
 "search_view.quick_search" = "クイック検索";
 // Searchable
-"searchable.matches_count" = "%d 件の該当項目";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "クイック検索";

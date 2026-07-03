@@ -13,12 +13,6 @@
 "invalid_resolution" = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
 
 // MARK: Toast
-"toast.error" = "Fehler";
-"toast.success" = "Erfolg";
-"toast.loading" = "Wird geladen...";
-"toast.communicating" = "Verbinde...";
-"toast.copied_to_clipboard" = "In Zwischenablage kopiert";
-"toast.saved_to_photo_library" = "In der Fotomediathek gesichert";
 
 // MARK: AutoLock
 
@@ -56,8 +50,6 @@
 "jump_page_view.jump_page" = "Zu Seite springen";
 
 // MARK: AlertView
-"loading_view.loading" = "Wird geladen...";
-"not_login_view.need_login" = "Du musst dich einloggen, um diese Funktion nutzen zu können.";
 "not_login_viewlogin" = "Einloggen";
 "error_view.retry" = "Erneut versuchen";
 "error_view.try_later" = "Bitte versuche es später erneut.";
@@ -101,11 +93,8 @@
 "confirmation_dialog.reset" = "Zurücksetzen";
 
 // MARK: SubSection
-"sub_section.show_all" = "Alle anzeigen";
 
 // MARK: NewDawnView
-"new_dawn_view.first" = "Es ist der Beginn eines neuen Tages!";
-"new_dawn_view.second" = "Als du auf deine bisherige Reise zurückblickst wirst du ein kleines bisschen weiser.";
 // Greeting
 "greeting.start" = "Du erhälst ";
 "greeting.separator" = ", ";
@@ -136,7 +125,6 @@
 "search_view.search" = "Suche";
 "search_view.quick_search" = "Schnellsuche";
 // Searchable
-"searchable.matches_count" = "%d Treffer gefunden.";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "Schnellsuche";

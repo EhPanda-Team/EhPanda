@@ -45,7 +45,7 @@ public struct SubSection<Content: View>: View {
                 .foregroundColor(.primary)
                 Spacer()
                 Button(action: showAllAction) {
-                    Text(L10n.Localizable.SubSection.showAll).font(.subheadline)
+                    Text(String(localized: .showAll)).font(.subheadline)
                 }
                 .tint(tint).opacity(showAll ? 1 : 0)
             }
