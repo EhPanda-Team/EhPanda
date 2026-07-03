@@ -7,7 +7,7 @@ public enum DownloadFolderFilter: Equatable, Sendable {
     public var title: String {
         switch self {
         case .all:
-            return L10n.Localizable.DownloadFolderFilter.all
+            return String(localized: .downloadFolderFilterAll)
         case .folder(let name):
             return name
         }

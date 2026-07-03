@@ -33,8 +33,8 @@ public struct User: Codable, Equatable, Sendable {
     public var favoriteCategories: [Int: String]?
 
     public func getFavoriteCategory(index: Int) -> String {
-        guard index != -1 else { return L10n.Localizable.FavoriteCategory.all }
-        let defaultCategory = L10n.Localizable.FavoriteCategory.default("\(index)")
+        guard index != -1 else { return String(localized: .favoriteCategoryAll) }
+        let defaultCategory = String(localized: .favoriteCategoryDefault("\(index)"))
         let category = favoriteCategories?[index] ?? defaultCategory
         let isDefault = category == "Favorites \(index)"
         return isDefault ? defaultCategory : category

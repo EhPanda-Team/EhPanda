@@ -14,19 +14,19 @@ extension AppIconType {
     public var name: String {
         switch self {
         case .default:
-            return L10n.Localizable.AppIconType.default
+            return String(localized: .appIconTypeDefault)
 
         case .ukiyoe:
-            return L10n.Localizable.AppIconType.ukiyoe
+            return String(localized: .appIconTypeUkiyoe)
 
         case .developer:
-            return L10n.Localizable.AppIconType.developer
+            return String(localized: .appIconTypeDeveloper)
 
         case .standWithUkraine2022:
-            return L10n.Localizable.AppIconType.standWithUkraine2022
+            return String(localized: .appIconTypeStandWithUkraine2022)
 
         case .notMyPresidnet:
-            return L10n.Localizable.AppIconType.notMyPresident
+            return String(localized: .appIconTypeNotMyPresident)
         }
     }
 

@@ -169,9 +169,9 @@ extension AutoLockPolicy {
     public var value: String {
         switch self {
         case .never:
-            return L10n.Localizable.AutoLockPolicy.never
+            return String(localized: .autoLockPolicyNever)
         case .instantly:
-            return L10n.Localizable.AutoLockPolicy.instantly
+            return String(localized: .autoLockPolicyInstantly)
         case .sec15:
             return L10n.Localizable.Common.seconds("\(rawValue)")
         case .min1:
@@ -193,11 +193,11 @@ extension PreferredColorScheme {
     public var value: String {
         switch self {
         case .automatic:
-            return L10n.Localizable.PreferredColorScheme.automatic
+            return String(localized: .preferredColorSchemeAutomatic)
         case .light:
-            return L10n.Localizable.PreferredColorScheme.light
+            return String(localized: .preferredColorSchemeLight)
         case .dark:
-            return L10n.Localizable.PreferredColorScheme.dark
+            return String(localized: .preferredColorSchemeDark)
         }
     }
     public var userInterfaceStyle: UIUserInterfaceStyle {
@@ -223,11 +223,11 @@ extension ReadingDirection {
     public var value: String {
         switch self {
         case .vertical:
-            return L10n.Localizable.ReadingDirection.vertical
+            return String(localized: .readingDirectionVertical)
         case .rightToLeft:
-            return L10n.Localizable.ReadingDirection.rightToLeft
+            return String(localized: .readingDirectionRightToLeft)
         case .leftToRight:
-            return L10n.Localizable.ReadingDirection.leftToRight
+            return String(localized: .readingDirectionLeftToRight)
         }
     }
 }
@@ -242,9 +242,9 @@ extension ListDisplayMode {
     public var value: String {
         switch self {
         case .detail:
-            return L10n.Localizable.ListDisplayMode.detail
+            return String(localized: .listDisplayModeDetail)
         case .thumbnail:
-            return L10n.Localizable.ListDisplayMode.thumbnail
+            return String(localized: .listDisplayModeThumbnail)
         }
     }
 }
