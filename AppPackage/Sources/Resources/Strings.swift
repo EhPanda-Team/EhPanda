@@ -942,16 +942,8 @@ public enum L10n {
       public static let resetDescription = L10n.tr("Localizable", "confirmation_dialog.reset_description", fallback: "Are you sure to reset?")
     }
     public enum DateSeekView {
-      /// Date
-      public static let date = L10n.tr("Localizable", "date_seek_view.date", fallback: "Date")
       /// Seek to date
       public static let dateSeek = L10n.tr("Localizable", "date_seek_view.date_seek", fallback: "Seek to date")
-      /// Seek to galleries around the selected date.
-      public static let seekAroundDate = L10n.tr("Localizable", "date_seek_view.seek_around_date", fallback: "Seek to galleries around the selected date.")
-      /// Newer
-      public static let seekNewer = L10n.tr("Localizable", "date_seek_view.seek_newer", fallback: "Newer")
-      /// Older
-      public static let seekOlder = L10n.tr("Localizable", "date_seek_view.seek_older", fallback: "Older")
     }
     public enum DetailView {
       /// Archives

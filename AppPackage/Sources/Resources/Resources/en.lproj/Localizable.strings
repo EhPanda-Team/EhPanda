@@ -52,10 +52,6 @@
 
 // MARK: DateSeek
 "date_seek_view.date_seek" = "Seek to date";
-"date_seek_view.date" = "Date";
-"date_seek_view.seek_around_date" = "Seek to galleries around the selected date.";
-"date_seek_view.seek_newer" = "Newer";
-"date_seek_view.seek_older" = "Older";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "Jump page";
 "jump_page_view.jump_page_description" = "Enter a page number between 1 and %d to jump to.";

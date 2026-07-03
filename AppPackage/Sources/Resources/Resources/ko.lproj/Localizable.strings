@@ -52,10 +52,6 @@
 
 // MARK: DateSeek
 "date_seek_view.date_seek" = "날짜로 이동";
-"date_seek_view.date" = "날짜";
-"date_seek_view.seek_around_date" = "선택한 날짜 근처의 갤러리로 이동합니다.";
-"date_seek_view.seek_newer" = "새로운 쪽";
-"date_seek_view.seek_older" = "오래된 쪽";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "페이지 이동";
 "jump_page_view.jump_page_description" = "1에서 %d 사이의 페이지 번호를 입력하세요.";

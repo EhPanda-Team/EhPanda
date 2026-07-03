@@ -52,10 +52,6 @@
 
 // MARK: DateSeek
 "date_seek_view.date_seek" = "日期定位";
-"date_seek_view.date" = "日期";
-"date_seek_view.seek_around_date" = "前往所選日期附近的畫廊。";
-"date_seek_view.seek_newer" = "較新";
-"date_seek_view.seek_older" = "較舊";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "跳到...";
 "jump_page_view.jump_page_description" = "請輸入 1 到 %d 之間的頁碼。";
