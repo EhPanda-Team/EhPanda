@@ -12,258 +12,258 @@ extension EhSetting.BrowsingCountry {
     public var id: Int { hashValue }
     public var name: String {
         switch self {
-        case .autoDetect: return L10n.Localizable.BrowsingCountry.autoDetect
-        case .afghanistan: return L10n.Localizable.BrowsingCountry.afghanistan
-        case .alandIslands: return L10n.Localizable.BrowsingCountry.alandIslands
-        case .albania: return L10n.Localizable.BrowsingCountry.albania
-        case .algeria: return L10n.Localizable.BrowsingCountry.algeria
-        case .americanSamoa: return L10n.Localizable.BrowsingCountry.americanSamoa
-        case .andorra: return L10n.Localizable.BrowsingCountry.andorra
-        case .angola: return L10n.Localizable.BrowsingCountry.angola
-        case .anguilla: return L10n.Localizable.BrowsingCountry.anguilla
-        case .antarctica: return L10n.Localizable.BrowsingCountry.antarctica
-        case .antiguaAndBarbuda: return L10n.Localizable.BrowsingCountry.antiguaAndBarbuda
-        case .argentina: return L10n.Localizable.BrowsingCountry.argentina
-        case .armenia: return L10n.Localizable.BrowsingCountry.armenia
-        case .aruba: return L10n.Localizable.BrowsingCountry.aruba
-        case .asiaPacificRegion: return L10n.Localizable.BrowsingCountry.asiaPacificRegion
-        case .australia: return L10n.Localizable.BrowsingCountry.australia
-        case .austria: return L10n.Localizable.BrowsingCountry.austria
-        case .azerbaijan: return L10n.Localizable.BrowsingCountry.azerbaijan
-        case .bahamas: return L10n.Localizable.BrowsingCountry.bahamas
-        case .bahrain: return L10n.Localizable.BrowsingCountry.bahrain
-        case .bangladesh: return L10n.Localizable.BrowsingCountry.bangladesh
-        case .barbados: return L10n.Localizable.BrowsingCountry.barbados
-        case .belarus: return L10n.Localizable.BrowsingCountry.belarus
-        case .belgium: return L10n.Localizable.BrowsingCountry.belgium
-        case .belize: return L10n.Localizable.BrowsingCountry.belize
-        case .benin: return L10n.Localizable.BrowsingCountry.benin
-        case .bermuda: return L10n.Localizable.BrowsingCountry.bermuda
-        case .bhutan: return L10n.Localizable.BrowsingCountry.bhutan
-        case .bolivia: return L10n.Localizable.BrowsingCountry.bolivia
-        case .bonaireSaintEustatiusAndSaba: return L10n.Localizable.BrowsingCountry.bonaireSaintEustatiusAndSaba
-        case .bosniaAndHerzegovina: return L10n.Localizable.BrowsingCountry.bosniaAndHerzegovina
-        case .botswana: return L10n.Localizable.BrowsingCountry.botswana
-        case .bouvetIsland: return L10n.Localizable.BrowsingCountry.bouvetIsland
-        case .brazil: return L10n.Localizable.BrowsingCountry.brazil
-        case .britishIndianOceanTerritory: return L10n.Localizable.BrowsingCountry.britishIndianOceanTerritory
-        case .bruneiDarussalam: return L10n.Localizable.BrowsingCountry.bruneiDarussalam
-        case .bulgaria: return L10n.Localizable.BrowsingCountry.bulgaria
-        case .burkinaFaso: return L10n.Localizable.BrowsingCountry.burkinaFaso
-        case .burundi: return L10n.Localizable.BrowsingCountry.burundi
-        case .cambodia: return L10n.Localizable.BrowsingCountry.cambodia
-        case .cameroon: return L10n.Localizable.BrowsingCountry.cameroon
-        case .canada: return L10n.Localizable.BrowsingCountry.canada
-        case .capeVerde: return L10n.Localizable.BrowsingCountry.capeVerde
-        case .caymanIslands: return L10n.Localizable.BrowsingCountry.caymanIslands
-        case .centralAfricanRepublic: return L10n.Localizable.BrowsingCountry.centralAfricanRepublic
-        case .chad: return L10n.Localizable.BrowsingCountry.chad
-        case .chile: return L10n.Localizable.BrowsingCountry.chile
-        case .china: return L10n.Localizable.BrowsingCountry.china
-        case .christmasIsland: return L10n.Localizable.BrowsingCountry.christmasIsland
-        case .cocosIslands: return L10n.Localizable.BrowsingCountry.cocosIslands
-        case .colombia: return L10n.Localizable.BrowsingCountry.colombia
-        case .comoros: return L10n.Localizable.BrowsingCountry.comoros
-        case .congo: return L10n.Localizable.BrowsingCountry.congo
-        case .theDemocraticRepublicOfTheCongo: return L10n.Localizable.BrowsingCountry.theDemocraticRepublicOfTheCongo
-        case .cookIslands: return L10n.Localizable.BrowsingCountry.cookIslands
-        case .costaRica: return L10n.Localizable.BrowsingCountry.costaRica
-        case .coteDIvoire: return L10n.Localizable.BrowsingCountry.coteDIvoire
-        case .croatia: return L10n.Localizable.BrowsingCountry.croatia
-        case .cuba: return L10n.Localizable.BrowsingCountry.cuba
-        case .curacao: return L10n.Localizable.BrowsingCountry.curacao
-        case .cyprus: return L10n.Localizable.BrowsingCountry.cyprus
-        case .czechRepublic: return L10n.Localizable.BrowsingCountry.czechRepublic
-        case .denmark: return L10n.Localizable.BrowsingCountry.denmark
-        case .djibouti: return L10n.Localizable.BrowsingCountry.djibouti
-        case .dominica: return L10n.Localizable.BrowsingCountry.dominica
-        case .dominicanRepublic: return L10n.Localizable.BrowsingCountry.dominicanRepublic
-        case .ecuador: return L10n.Localizable.BrowsingCountry.ecuador
-        case .egypt: return L10n.Localizable.BrowsingCountry.egypt
-        case .elSalvador: return L10n.Localizable.BrowsingCountry.elSalvador
-        case .equatorialGuinea: return L10n.Localizable.BrowsingCountry.equatorialGuinea
-        case .eritrea: return L10n.Localizable.BrowsingCountry.eritrea
-        case .estonia: return L10n.Localizable.BrowsingCountry.estonia
-        case .ethiopia: return L10n.Localizable.BrowsingCountry.ethiopia
-        case .europe: return L10n.Localizable.BrowsingCountry.europe
-        case .falklandIslands: return L10n.Localizable.BrowsingCountry.falklandIslands
-        case .faroeIslands: return L10n.Localizable.BrowsingCountry.faroeIslands
-        case .fiji: return L10n.Localizable.BrowsingCountry.fiji
-        case .finland: return L10n.Localizable.BrowsingCountry.finland
-        case .france: return L10n.Localizable.BrowsingCountry.france
-        case .frenchGuiana: return L10n.Localizable.BrowsingCountry.frenchGuiana
-        case .frenchPolynesia: return L10n.Localizable.BrowsingCountry.frenchPolynesia
-        case .frenchSouthernTerritories: return L10n.Localizable.BrowsingCountry.frenchSouthernTerritories
-        case .gabon: return L10n.Localizable.BrowsingCountry.gabon
-        case .gambia: return L10n.Localizable.BrowsingCountry.gambia
-        case .georgia: return L10n.Localizable.BrowsingCountry.georgia
-        case .germany: return L10n.Localizable.BrowsingCountry.germany
-        case .ghana: return L10n.Localizable.BrowsingCountry.ghana
-        case .gibraltar: return L10n.Localizable.BrowsingCountry.gibraltar
-        case .greece: return L10n.Localizable.BrowsingCountry.greece
-        case .greenland: return L10n.Localizable.BrowsingCountry.greenland
-        case .grenada: return L10n.Localizable.BrowsingCountry.grenada
-        case .guadeloupe: return L10n.Localizable.BrowsingCountry.guadeloupe
-        case .guam: return L10n.Localizable.BrowsingCountry.guam
-        case .guatemala: return L10n.Localizable.BrowsingCountry.guatemala
-        case .guernsey: return L10n.Localizable.BrowsingCountry.guernsey
-        case .guinea: return L10n.Localizable.BrowsingCountry.guinea
-        case .guineaBissau: return L10n.Localizable.BrowsingCountry.guineaBissau
-        case .guyana: return L10n.Localizable.BrowsingCountry.guyana
-        case .haiti: return L10n.Localizable.BrowsingCountry.haiti
-        case .heardIslandAndMcDonaldIslands: return L10n.Localizable.BrowsingCountry.heardIslandAndMcDonaldIslands
-        case .vaticanCityState: return L10n.Localizable.BrowsingCountry.vaticanCityState
-        case .honduras: return L10n.Localizable.BrowsingCountry.honduras
-        case .hongKong: return L10n.Localizable.BrowsingCountry.hongKong
-        case .hungary: return L10n.Localizable.BrowsingCountry.hungary
-        case .iceland: return L10n.Localizable.BrowsingCountry.iceland
-        case .india: return L10n.Localizable.BrowsingCountry.india
-        case .indonesia: return L10n.Localizable.BrowsingCountry.indonesia
-        case .iran: return L10n.Localizable.BrowsingCountry.iran
-        case .iraq: return L10n.Localizable.BrowsingCountry.iraq
-        case .ireland: return L10n.Localizable.BrowsingCountry.ireland
-        case .isleOfMan: return L10n.Localizable.BrowsingCountry.isleOfMan
-        case .israel: return L10n.Localizable.BrowsingCountry.israel
-        case .italy: return L10n.Localizable.BrowsingCountry.italy
-        case .jamaica: return L10n.Localizable.BrowsingCountry.jamaica
-        case .japan: return L10n.Localizable.BrowsingCountry.japan
-        case .jersey: return L10n.Localizable.BrowsingCountry.jersey
-        case .jordan: return L10n.Localizable.BrowsingCountry.jordan
-        case .kazakhstan: return L10n.Localizable.BrowsingCountry.kazakhstan
-        case .kenya: return L10n.Localizable.BrowsingCountry.kenya
-        case .kiribati: return L10n.Localizable.BrowsingCountry.kiribati
-        case .kuwait: return L10n.Localizable.BrowsingCountry.kuwait
-        case .kyrgyzstan: return L10n.Localizable.BrowsingCountry.kyrgyzstan
-        case .laoPeoplesDemocraticRepublic: return L10n.Localizable.BrowsingCountry.laoPeoplesDemocraticRepublic
-        case .latvia: return L10n.Localizable.BrowsingCountry.latvia
-        case .lebanon: return L10n.Localizable.BrowsingCountry.lebanon
-        case .lesotho: return L10n.Localizable.BrowsingCountry.lesotho
-        case .liberia: return L10n.Localizable.BrowsingCountry.liberia
-        case .libya: return L10n.Localizable.BrowsingCountry.libya
-        case .liechtenstein: return L10n.Localizable.BrowsingCountry.liechtenstein
-        case .lithuania: return L10n.Localizable.BrowsingCountry.lithuania
-        case .luxembourg: return L10n.Localizable.BrowsingCountry.luxembourg
-        case .macau: return L10n.Localizable.BrowsingCountry.macau
-        case .macedonia: return L10n.Localizable.BrowsingCountry.macedonia
-        case .madagascar: return L10n.Localizable.BrowsingCountry.madagascar
-        case .malawi: return L10n.Localizable.BrowsingCountry.malawi
-        case .malaysia: return L10n.Localizable.BrowsingCountry.malaysia
-        case .maldives: return L10n.Localizable.BrowsingCountry.maldives
-        case .mali: return L10n.Localizable.BrowsingCountry.mali
-        case .malta: return L10n.Localizable.BrowsingCountry.malta
-        case .marshallIslands: return L10n.Localizable.BrowsingCountry.marshallIslands
-        case .martinique: return L10n.Localizable.BrowsingCountry.martinique
-        case .mauritania: return L10n.Localizable.BrowsingCountry.mauritania
-        case .mauritius: return L10n.Localizable.BrowsingCountry.mauritius
-        case .mayotte: return L10n.Localizable.BrowsingCountry.mayotte
-        case .mexico: return L10n.Localizable.BrowsingCountry.mexico
-        case .micronesia: return L10n.Localizable.BrowsingCountry.micronesia
-        case .moldova: return L10n.Localizable.BrowsingCountry.moldova
-        case .monaco: return L10n.Localizable.BrowsingCountry.monaco
-        case .mongolia: return L10n.Localizable.BrowsingCountry.mongolia
-        case .montenegro: return L10n.Localizable.BrowsingCountry.montenegro
-        case .montserrat: return L10n.Localizable.BrowsingCountry.montserrat
-        case .morocco: return L10n.Localizable.BrowsingCountry.morocco
-        case .mozambique: return L10n.Localizable.BrowsingCountry.mozambique
-        case .myanmar: return L10n.Localizable.BrowsingCountry.myanmar
-        case .namibia: return L10n.Localizable.BrowsingCountry.namibia
-        case .nauru: return L10n.Localizable.BrowsingCountry.nauru
-        case .nepal: return L10n.Localizable.BrowsingCountry.nepal
-        case .netherlands: return L10n.Localizable.BrowsingCountry.netherlands
-        case .newCaledonia: return L10n.Localizable.BrowsingCountry.newCaledonia
-        case .newZealand: return L10n.Localizable.BrowsingCountry.newZealand
-        case .nicaragua: return L10n.Localizable.BrowsingCountry.nicaragua
-        case .niger: return L10n.Localizable.BrowsingCountry.niger
-        case .nigeria: return L10n.Localizable.BrowsingCountry.nigeria
-        case .niue: return L10n.Localizable.BrowsingCountry.niue
-        case .norfolkIsland: return L10n.Localizable.BrowsingCountry.norfolkIsland
-        case .northKorea: return L10n.Localizable.BrowsingCountry.northKorea
-        case .northernMarianaIslands: return L10n.Localizable.BrowsingCountry.northernMarianaIslands
-        case .norway: return L10n.Localizable.BrowsingCountry.norway
-        case .oman: return L10n.Localizable.BrowsingCountry.oman
-        case .pakistan: return L10n.Localizable.BrowsingCountry.pakistan
-        case .palau: return L10n.Localizable.BrowsingCountry.palau
-        case .palestinianTerritory: return L10n.Localizable.BrowsingCountry.palestinianTerritory
-        case .panama: return L10n.Localizable.BrowsingCountry.panama
-        case .papuaNewGuinea: return L10n.Localizable.BrowsingCountry.papuaNewGuinea
-        case .paraguay: return L10n.Localizable.BrowsingCountry.paraguay
-        case .peru: return L10n.Localizable.BrowsingCountry.peru
-        case .philippines: return L10n.Localizable.BrowsingCountry.philippines
-        case .pitcairnIslands: return L10n.Localizable.BrowsingCountry.pitcairnIslands
-        case .poland: return L10n.Localizable.BrowsingCountry.poland
-        case .portugal: return L10n.Localizable.BrowsingCountry.portugal
-        case .puertoRico: return L10n.Localizable.BrowsingCountry.puertoRico
-        case .qatar: return L10n.Localizable.BrowsingCountry.qatar
-        case .reunion: return L10n.Localizable.BrowsingCountry.reunion
-        case .romania: return L10n.Localizable.BrowsingCountry.romania
-        case .russianFederation: return L10n.Localizable.BrowsingCountry.russianFederation
-        case .rwanda: return L10n.Localizable.BrowsingCountry.rwanda
-        case .saintBarthelemy: return L10n.Localizable.BrowsingCountry.saintBarthelemy
-        case .saintHelena: return L10n.Localizable.BrowsingCountry.saintHelena
-        case .saintKittsAndNevis: return L10n.Localizable.BrowsingCountry.saintKittsAndNevis
-        case .saintLucia: return L10n.Localizable.BrowsingCountry.saintLucia
-        case .saintMartin: return L10n.Localizable.BrowsingCountry.saintMartin
-        case .saintPierreAndMiquelon: return L10n.Localizable.BrowsingCountry.saintPierreAndMiquelon
-        case .saintVincentAndTheGrenadines: return L10n.Localizable.BrowsingCountry.saintVincentAndTheGrenadines
-        case .samoa: return L10n.Localizable.BrowsingCountry.samoa
-        case .sanMarino: return L10n.Localizable.BrowsingCountry.sanMarino
-        case .saoTomeAndPrincipe: return L10n.Localizable.BrowsingCountry.saoTomeAndPrincipe
-        case .saudiArabia: return L10n.Localizable.BrowsingCountry.saudiArabia
-        case .senegal: return L10n.Localizable.BrowsingCountry.senegal
-        case .serbia: return L10n.Localizable.BrowsingCountry.serbia
-        case .seychelles: return L10n.Localizable.BrowsingCountry.seychelles
-        case .sierraLeone: return L10n.Localizable.BrowsingCountry.sierraLeone
-        case .singapore: return L10n.Localizable.BrowsingCountry.singapore
-        case .sintMaarten: return L10n.Localizable.BrowsingCountry.sintMaarten
-        case .slovakia: return L10n.Localizable.BrowsingCountry.slovakia
-        case .slovenia: return L10n.Localizable.BrowsingCountry.slovenia
-        case .solomonIslands: return L10n.Localizable.BrowsingCountry.solomonIslands
-        case .somalia: return L10n.Localizable.BrowsingCountry.somalia
-        case .southAfrica: return L10n.Localizable.BrowsingCountry.southAfrica
-        case .southGeorgiaAndTheSouthSandwichIslands: return L10n.Localizable.BrowsingCountry.southGeorgiaAndTheSouthSandwichIslands
-        case .southKorea: return L10n.Localizable.BrowsingCountry.southKorea
-        case .southSudan: return L10n.Localizable.BrowsingCountry.southSudan
-        case .spain: return L10n.Localizable.BrowsingCountry.spain
-        case .sriLanka: return L10n.Localizable.BrowsingCountry.sriLanka
-        case .sudan: return L10n.Localizable.BrowsingCountry.sudan
-        case .suriname: return L10n.Localizable.BrowsingCountry.suriname
-        case .svalbardAndJanMayen: return L10n.Localizable.BrowsingCountry.svalbardAndJanMayen
-        case .swaziland: return L10n.Localizable.BrowsingCountry.swaziland
-        case .sweden: return L10n.Localizable.BrowsingCountry.sweden
-        case .switzerland: return L10n.Localizable.BrowsingCountry.switzerland
-        case .syrianArabRepublic: return L10n.Localizable.BrowsingCountry.syrianArabRepublic
-        case .taiwan: return L10n.Localizable.BrowsingCountry.taiwan
-        case .tajikistan: return L10n.Localizable.BrowsingCountry.tajikistan
-        case .tanzania: return L10n.Localizable.BrowsingCountry.tanzania
-        case .thailand: return L10n.Localizable.BrowsingCountry.thailand
-        case .timorLeste: return L10n.Localizable.BrowsingCountry.timorLeste
-        case .togo: return L10n.Localizable.BrowsingCountry.togo
-        case .tokelau: return L10n.Localizable.BrowsingCountry.tokelau
-        case .tonga: return L10n.Localizable.BrowsingCountry.tonga
-        case .trinidadAndTobago: return L10n.Localizable.BrowsingCountry.trinidadAndTobago
-        case .tunisia: return L10n.Localizable.BrowsingCountry.tunisia
-        case .turkey: return L10n.Localizable.BrowsingCountry.turkey
-        case .turkmenistan: return L10n.Localizable.BrowsingCountry.turkmenistan
-        case .turksAndCaicosIslands: return L10n.Localizable.BrowsingCountry.turksAndCaicosIslands
-        case .tuvalu: return L10n.Localizable.BrowsingCountry.tuvalu
-        case .uganda: return L10n.Localizable.BrowsingCountry.uganda
-        case .ukraine: return L10n.Localizable.BrowsingCountry.ukraine
-        case .unitedArabEmirates: return L10n.Localizable.BrowsingCountry.unitedArabEmirates
-        case .unitedKingdom: return L10n.Localizable.BrowsingCountry.unitedKingdom
-        case .unitedStates: return L10n.Localizable.BrowsingCountry.unitedStates
-        case .unitedStatesMinorOutlyingIslands: return L10n.Localizable.BrowsingCountry.unitedStatesMinorOutlyingIslands
-        case .uruguay: return L10n.Localizable.BrowsingCountry.uruguay
-        case .uzbekistan: return L10n.Localizable.BrowsingCountry.uzbekistan
-        case .vanuatu: return L10n.Localizable.BrowsingCountry.vanuatu
-        case .venezuela: return L10n.Localizable.BrowsingCountry.venezuela
-        case .vietnam: return L10n.Localizable.BrowsingCountry.vietnam
-        case .virginIslandsBritish: return L10n.Localizable.BrowsingCountry.virginIslandsBritish
-        case .virginIslandsUS: return L10n.Localizable.BrowsingCountry.virginIslandsUS
-        case .wallisAndFutuna: return L10n.Localizable.BrowsingCountry.wallisAndFutuna
-        case .westernSahara: return L10n.Localizable.BrowsingCountry.westernSahara
-        case .yemen: return L10n.Localizable.BrowsingCountry.yemen
-        case .zambia: return L10n.Localizable.BrowsingCountry.zambia
-        case .zimbabwe: return L10n.Localizable.BrowsingCountry.zimbabwe
+        case .autoDetect: return String(localized: .browsingCountryAutoDetect)
+        case .afghanistan: return String(localized: .browsingCountryAfghanistan)
+        case .alandIslands: return String(localized: .browsingCountryAlandIslands)
+        case .albania: return String(localized: .browsingCountryAlbania)
+        case .algeria: return String(localized: .browsingCountryAlgeria)
+        case .americanSamoa: return String(localized: .browsingCountryAmericanSamoa)
+        case .andorra: return String(localized: .browsingCountryAndorra)
+        case .angola: return String(localized: .browsingCountryAngola)
+        case .anguilla: return String(localized: .browsingCountryAnguilla)
+        case .antarctica: return String(localized: .browsingCountryAntarctica)
+        case .antiguaAndBarbuda: return String(localized: .browsingCountryAntiguaAndBarbuda)
+        case .argentina: return String(localized: .browsingCountryArgentina)
+        case .armenia: return String(localized: .browsingCountryArmenia)
+        case .aruba: return String(localized: .browsingCountryAruba)
+        case .asiaPacificRegion: return String(localized: .browsingCountryAsiaPacificRegion)
+        case .australia: return String(localized: .browsingCountryAustralia)
+        case .austria: return String(localized: .browsingCountryAustria)
+        case .azerbaijan: return String(localized: .browsingCountryAzerbaijan)
+        case .bahamas: return String(localized: .browsingCountryBahamas)
+        case .bahrain: return String(localized: .browsingCountryBahrain)
+        case .bangladesh: return String(localized: .browsingCountryBangladesh)
+        case .barbados: return String(localized: .browsingCountryBarbados)
+        case .belarus: return String(localized: .browsingCountryBelarus)
+        case .belgium: return String(localized: .browsingCountryBelgium)
+        case .belize: return String(localized: .browsingCountryBelize)
+        case .benin: return String(localized: .browsingCountryBenin)
+        case .bermuda: return String(localized: .browsingCountryBermuda)
+        case .bhutan: return String(localized: .browsingCountryBhutan)
+        case .bolivia: return String(localized: .browsingCountryBolivia)
+        case .bonaireSaintEustatiusAndSaba: return String(localized: .browsingCountryBonaireSaintEustatiusAndSaba)
+        case .bosniaAndHerzegovina: return String(localized: .browsingCountryBosniaAndHerzegovina)
+        case .botswana: return String(localized: .browsingCountryBotswana)
+        case .bouvetIsland: return String(localized: .browsingCountryBouvetIsland)
+        case .brazil: return String(localized: .browsingCountryBrazil)
+        case .britishIndianOceanTerritory: return String(localized: .browsingCountryBritishIndianOceanTerritory)
+        case .bruneiDarussalam: return String(localized: .browsingCountryBruneiDarussalam)
+        case .bulgaria: return String(localized: .browsingCountryBulgaria)
+        case .burkinaFaso: return String(localized: .browsingCountryBurkinaFaso)
+        case .burundi: return String(localized: .browsingCountryBurundi)
+        case .cambodia: return String(localized: .browsingCountryCambodia)
+        case .cameroon: return String(localized: .browsingCountryCameroon)
+        case .canada: return String(localized: .browsingCountryCanada)
+        case .capeVerde: return String(localized: .browsingCountryCapeVerde)
+        case .caymanIslands: return String(localized: .browsingCountryCaymanIslands)
+        case .centralAfricanRepublic: return String(localized: .browsingCountryCentralAfricanRepublic)
+        case .chad: return String(localized: .browsingCountryChad)
+        case .chile: return String(localized: .browsingCountryChile)
+        case .china: return String(localized: .browsingCountryChina)
+        case .christmasIsland: return String(localized: .browsingCountryChristmasIsland)
+        case .cocosIslands: return String(localized: .browsingCountryCocosIslands)
+        case .colombia: return String(localized: .browsingCountryColombia)
+        case .comoros: return String(localized: .browsingCountryComoros)
+        case .congo: return String(localized: .browsingCountryCongo)
+        case .theDemocraticRepublicOfTheCongo: return String(localized: .browsingCountryTheDemocraticRepublicOfTheCongo)
+        case .cookIslands: return String(localized: .browsingCountryCookIslands)
+        case .costaRica: return String(localized: .browsingCountryCostaRica)
+        case .coteDIvoire: return String(localized: .browsingCountryCoteDIvoire)
+        case .croatia: return String(localized: .browsingCountryCroatia)
+        case .cuba: return String(localized: .browsingCountryCuba)
+        case .curacao: return String(localized: .browsingCountryCuracao)
+        case .cyprus: return String(localized: .browsingCountryCyprus)
+        case .czechRepublic: return String(localized: .browsingCountryCzechRepublic)
+        case .denmark: return String(localized: .browsingCountryDenmark)
+        case .djibouti: return String(localized: .browsingCountryDjibouti)
+        case .dominica: return String(localized: .browsingCountryDominica)
+        case .dominicanRepublic: return String(localized: .browsingCountryDominicanRepublic)
+        case .ecuador: return String(localized: .browsingCountryEcuador)
+        case .egypt: return String(localized: .browsingCountryEgypt)
+        case .elSalvador: return String(localized: .browsingCountryElSalvador)
+        case .equatorialGuinea: return String(localized: .browsingCountryEquatorialGuinea)
+        case .eritrea: return String(localized: .browsingCountryEritrea)
+        case .estonia: return String(localized: .browsingCountryEstonia)
+        case .ethiopia: return String(localized: .browsingCountryEthiopia)
+        case .europe: return String(localized: .browsingCountryEurope)
+        case .falklandIslands: return String(localized: .browsingCountryFalklandIslands)
+        case .faroeIslands: return String(localized: .browsingCountryFaroeIslands)
+        case .fiji: return String(localized: .browsingCountryFiji)
+        case .finland: return String(localized: .browsingCountryFinland)
+        case .france: return String(localized: .browsingCountryFrance)
+        case .frenchGuiana: return String(localized: .browsingCountryFrenchGuiana)
+        case .frenchPolynesia: return String(localized: .browsingCountryFrenchPolynesia)
+        case .frenchSouthernTerritories: return String(localized: .browsingCountryFrenchSouthernTerritories)
+        case .gabon: return String(localized: .browsingCountryGabon)
+        case .gambia: return String(localized: .browsingCountryGambia)
+        case .georgia: return String(localized: .browsingCountryGeorgia)
+        case .germany: return String(localized: .browsingCountryGermany)
+        case .ghana: return String(localized: .browsingCountryGhana)
+        case .gibraltar: return String(localized: .browsingCountryGibraltar)
+        case .greece: return String(localized: .browsingCountryGreece)
+        case .greenland: return String(localized: .browsingCountryGreenland)
+        case .grenada: return String(localized: .browsingCountryGrenada)
+        case .guadeloupe: return String(localized: .browsingCountryGuadeloupe)
+        case .guam: return String(localized: .browsingCountryGuam)
+        case .guatemala: return String(localized: .browsingCountryGuatemala)
+        case .guernsey: return String(localized: .browsingCountryGuernsey)
+        case .guinea: return String(localized: .browsingCountryGuinea)
+        case .guineaBissau: return String(localized: .browsingCountryGuineaBissau)
+        case .guyana: return String(localized: .browsingCountryGuyana)
+        case .haiti: return String(localized: .browsingCountryHaiti)
+        case .heardIslandAndMcDonaldIslands: return String(localized: .browsingCountryHeardIslandAndMcDonaldIslands)
+        case .vaticanCityState: return String(localized: .browsingCountryVaticanCityState)
+        case .honduras: return String(localized: .browsingCountryHonduras)
+        case .hongKong: return String(localized: .browsingCountryHongKong)
+        case .hungary: return String(localized: .browsingCountryHungary)
+        case .iceland: return String(localized: .browsingCountryIceland)
+        case .india: return String(localized: .browsingCountryIndia)
+        case .indonesia: return String(localized: .browsingCountryIndonesia)
+        case .iran: return String(localized: .browsingCountryIran)
+        case .iraq: return String(localized: .browsingCountryIraq)
+        case .ireland: return String(localized: .browsingCountryIreland)
+        case .isleOfMan: return String(localized: .browsingCountryIsleOfMan)
+        case .israel: return String(localized: .browsingCountryIsrael)
+        case .italy: return String(localized: .browsingCountryItaly)
+        case .jamaica: return String(localized: .browsingCountryJamaica)
+        case .japan: return String(localized: .browsingCountryJapan)
+        case .jersey: return String(localized: .browsingCountryJersey)
+        case .jordan: return String(localized: .browsingCountryJordan)
+        case .kazakhstan: return String(localized: .browsingCountryKazakhstan)
+        case .kenya: return String(localized: .browsingCountryKenya)
+        case .kiribati: return String(localized: .browsingCountryKiribati)
+        case .kuwait: return String(localized: .browsingCountryKuwait)
+        case .kyrgyzstan: return String(localized: .browsingCountryKyrgyzstan)
+        case .laoPeoplesDemocraticRepublic: return String(localized: .browsingCountryLaoPeoplesDemocraticRepublic)
+        case .latvia: return String(localized: .browsingCountryLatvia)
+        case .lebanon: return String(localized: .browsingCountryLebanon)
+        case .lesotho: return String(localized: .browsingCountryLesotho)
+        case .liberia: return String(localized: .browsingCountryLiberia)
+        case .libya: return String(localized: .browsingCountryLibya)
+        case .liechtenstein: return String(localized: .browsingCountryLiechtenstein)
+        case .lithuania: return String(localized: .browsingCountryLithuania)
+        case .luxembourg: return String(localized: .browsingCountryLuxembourg)
+        case .macau: return String(localized: .browsingCountryMacau)
+        case .macedonia: return String(localized: .browsingCountryMacedonia)
+        case .madagascar: return String(localized: .browsingCountryMadagascar)
+        case .malawi: return String(localized: .browsingCountryMalawi)
+        case .malaysia: return String(localized: .browsingCountryMalaysia)
+        case .maldives: return String(localized: .browsingCountryMaldives)
+        case .mali: return String(localized: .browsingCountryMali)
+        case .malta: return String(localized: .browsingCountryMalta)
+        case .marshallIslands: return String(localized: .browsingCountryMarshallIslands)
+        case .martinique: return String(localized: .browsingCountryMartinique)
+        case .mauritania: return String(localized: .browsingCountryMauritania)
+        case .mauritius: return String(localized: .browsingCountryMauritius)
+        case .mayotte: return String(localized: .browsingCountryMayotte)
+        case .mexico: return String(localized: .browsingCountryMexico)
+        case .micronesia: return String(localized: .browsingCountryMicronesia)
+        case .moldova: return String(localized: .browsingCountryMoldova)
+        case .monaco: return String(localized: .browsingCountryMonaco)
+        case .mongolia: return String(localized: .browsingCountryMongolia)
+        case .montenegro: return String(localized: .browsingCountryMontenegro)
+        case .montserrat: return String(localized: .browsingCountryMontserrat)
+        case .morocco: return String(localized: .browsingCountryMorocco)
+        case .mozambique: return String(localized: .browsingCountryMozambique)
+        case .myanmar: return String(localized: .browsingCountryMyanmar)
+        case .namibia: return String(localized: .browsingCountryNamibia)
+        case .nauru: return String(localized: .browsingCountryNauru)
+        case .nepal: return String(localized: .browsingCountryNepal)
+        case .netherlands: return String(localized: .browsingCountryNetherlands)
+        case .newCaledonia: return String(localized: .browsingCountryNewCaledonia)
+        case .newZealand: return String(localized: .browsingCountryNewZealand)
+        case .nicaragua: return String(localized: .browsingCountryNicaragua)
+        case .niger: return String(localized: .browsingCountryNiger)
+        case .nigeria: return String(localized: .browsingCountryNigeria)
+        case .niue: return String(localized: .browsingCountryNiue)
+        case .norfolkIsland: return String(localized: .browsingCountryNorfolkIsland)
+        case .northKorea: return String(localized: .browsingCountryNorthKorea)
+        case .northernMarianaIslands: return String(localized: .browsingCountryNorthernMarianaIslands)
+        case .norway: return String(localized: .browsingCountryNorway)
+        case .oman: return String(localized: .browsingCountryOman)
+        case .pakistan: return String(localized: .browsingCountryPakistan)
+        case .palau: return String(localized: .browsingCountryPalau)
+        case .palestinianTerritory: return String(localized: .browsingCountryPalestinianTerritory)
+        case .panama: return String(localized: .browsingCountryPanama)
+        case .papuaNewGuinea: return String(localized: .browsingCountryPapuaNewGuinea)
+        case .paraguay: return String(localized: .browsingCountryParaguay)
+        case .peru: return String(localized: .browsingCountryPeru)
+        case .philippines: return String(localized: .browsingCountryPhilippines)
+        case .pitcairnIslands: return String(localized: .browsingCountryPitcairnIslands)
+        case .poland: return String(localized: .browsingCountryPoland)
+        case .portugal: return String(localized: .browsingCountryPortugal)
+        case .puertoRico: return String(localized: .browsingCountryPuertoRico)
+        case .qatar: return String(localized: .browsingCountryQatar)
+        case .reunion: return String(localized: .browsingCountryReunion)
+        case .romania: return String(localized: .browsingCountryRomania)
+        case .russianFederation: return String(localized: .browsingCountryRussianFederation)
+        case .rwanda: return String(localized: .browsingCountryRwanda)
+        case .saintBarthelemy: return String(localized: .browsingCountrySaintBarthelemy)
+        case .saintHelena: return String(localized: .browsingCountrySaintHelena)
+        case .saintKittsAndNevis: return String(localized: .browsingCountrySaintKittsAndNevis)
+        case .saintLucia: return String(localized: .browsingCountrySaintLucia)
+        case .saintMartin: return String(localized: .browsingCountrySaintMartin)
+        case .saintPierreAndMiquelon: return String(localized: .browsingCountrySaintPierreAndMiquelon)
+        case .saintVincentAndTheGrenadines: return String(localized: .browsingCountrySaintVincentAndTheGrenadines)
+        case .samoa: return String(localized: .browsingCountrySamoa)
+        case .sanMarino: return String(localized: .browsingCountrySanMarino)
+        case .saoTomeAndPrincipe: return String(localized: .browsingCountrySaoTomeAndPrincipe)
+        case .saudiArabia: return String(localized: .browsingCountrySaudiArabia)
+        case .senegal: return String(localized: .browsingCountrySenegal)
+        case .serbia: return String(localized: .browsingCountrySerbia)
+        case .seychelles: return String(localized: .browsingCountrySeychelles)
+        case .sierraLeone: return String(localized: .browsingCountrySierraLeone)
+        case .singapore: return String(localized: .browsingCountrySingapore)
+        case .sintMaarten: return String(localized: .browsingCountrySintMaarten)
+        case .slovakia: return String(localized: .browsingCountrySlovakia)
+        case .slovenia: return String(localized: .browsingCountrySlovenia)
+        case .solomonIslands: return String(localized: .browsingCountrySolomonIslands)
+        case .somalia: return String(localized: .browsingCountrySomalia)
+        case .southAfrica: return String(localized: .browsingCountrySouthAfrica)
+        case .southGeorgiaAndTheSouthSandwichIslands: return String(localized: .browsingCountrySouthGeorgiaAndTheSouthSandwichIslands)
+        case .southKorea: return String(localized: .browsingCountrySouthKorea)
+        case .southSudan: return String(localized: .browsingCountrySouthSudan)
+        case .spain: return String(localized: .browsingCountrySpain)
+        case .sriLanka: return String(localized: .browsingCountrySriLanka)
+        case .sudan: return String(localized: .browsingCountrySudan)
+        case .suriname: return String(localized: .browsingCountrySuriname)
+        case .svalbardAndJanMayen: return String(localized: .browsingCountrySvalbardAndJanMayen)
+        case .swaziland: return String(localized: .browsingCountrySwaziland)
+        case .sweden: return String(localized: .browsingCountrySweden)
+        case .switzerland: return String(localized: .browsingCountrySwitzerland)
+        case .syrianArabRepublic: return String(localized: .browsingCountrySyrianArabRepublic)
+        case .taiwan: return String(localized: .browsingCountryTaiwan)
+        case .tajikistan: return String(localized: .browsingCountryTajikistan)
+        case .tanzania: return String(localized: .browsingCountryTanzania)
+        case .thailand: return String(localized: .browsingCountryThailand)
+        case .timorLeste: return String(localized: .browsingCountryTimorLeste)
+        case .togo: return String(localized: .browsingCountryTogo)
+        case .tokelau: return String(localized: .browsingCountryTokelau)
+        case .tonga: return String(localized: .browsingCountryTonga)
+        case .trinidadAndTobago: return String(localized: .browsingCountryTrinidadAndTobago)
+        case .tunisia: return String(localized: .browsingCountryTunisia)
+        case .turkey: return String(localized: .browsingCountryTurkey)
+        case .turkmenistan: return String(localized: .browsingCountryTurkmenistan)
+        case .turksAndCaicosIslands: return String(localized: .browsingCountryTurksAndCaicosIslands)
+        case .tuvalu: return String(localized: .browsingCountryTuvalu)
+        case .uganda: return String(localized: .browsingCountryUganda)
+        case .ukraine: return String(localized: .browsingCountryUkraine)
+        case .unitedArabEmirates: return String(localized: .browsingCountryUnitedArabEmirates)
+        case .unitedKingdom: return String(localized: .browsingCountryUnitedKingdom)
+        case .unitedStates: return String(localized: .browsingCountryUnitedStates)
+        case .unitedStatesMinorOutlyingIslands: return String(localized: .browsingCountryUnitedStatesMinorOutlyingIslands)
+        case .uruguay: return String(localized: .browsingCountryUruguay)
+        case .uzbekistan: return String(localized: .browsingCountryUzbekistan)
+        case .vanuatu: return String(localized: .browsingCountryVanuatu)
+        case .venezuela: return String(localized: .browsingCountryVenezuela)
+        case .vietnam: return String(localized: .browsingCountryVietnam)
+        case .virginIslandsBritish: return String(localized: .browsingCountryVirginIslandsBritish)
+        case .virginIslandsUS: return String(localized: .browsingCountryVirginIslandsUs)
+        case .wallisAndFutuna: return String(localized: .browsingCountryWallisAndFutuna)
+        case .westernSahara: return String(localized: .browsingCountryWesternSahara)
+        case .yemen: return String(localized: .browsingCountryYemen)
+        case .zambia: return String(localized: .browsingCountryZambia)
+        case .zimbabwe: return String(localized: .browsingCountryZimbabwe)
         }
     }
 }

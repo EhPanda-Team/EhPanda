@@ -47,17 +47,17 @@ extension Category {
     }
     public var value: String {
         switch self {
-        case .doujinshi: return L10n.Localizable.Category.doujinshi
-        case .manga: return L10n.Localizable.Category.manga
-        case .artistCG: return L10n.Localizable.Category.artistCG
-        case .gameCG: return L10n.Localizable.Category.gameCG
-        case .western: return L10n.Localizable.Category.western
-        case .nonH: return L10n.Localizable.Category.nonH
-        case .imageSet: return L10n.Localizable.Category.imageSet
-        case .cosplay: return L10n.Localizable.Category.cosplay
-        case .asianPorn: return L10n.Localizable.Category.asianPorn
-        case .misc: return L10n.Localizable.Category.misc
-        case .private: return L10n.Localizable.Category.private
+        case .doujinshi: return String(localized: .categoryDoujinshi)
+        case .manga: return String(localized: .categoryManga)
+        case .artistCG: return String(localized: .categoryArtistCg)
+        case .gameCG: return String(localized: .categoryGameCg)
+        case .western: return String(localized: .categoryWestern)
+        case .nonH: return String(localized: .categoryNonH)
+        case .imageSet: return String(localized: .categoryImageSet)
+        case .cosplay: return String(localized: .categoryCosplay)
+        case .asianPorn: return String(localized: .categoryAsianPorn)
+        case .misc: return String(localized: .categoryMisc)
+        case .private: return String(localized: .categoryPrivate)
         }
     }
 }

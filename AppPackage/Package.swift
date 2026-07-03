@@ -310,6 +310,7 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .targetDependency(.casePaths)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),

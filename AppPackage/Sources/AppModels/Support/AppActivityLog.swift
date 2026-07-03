@@ -84,12 +84,12 @@ public extension OSLogEntryLog.Level {
 
     var title: String {
         switch self {
-        case .undefined: L10n.Localizable.AppActivityLogsView.Level.undefined
-        case .debug: L10n.Localizable.AppActivityLogsView.Level.debug
-        case .info: L10n.Localizable.AppActivityLogsView.Level.info
-        case .notice: L10n.Localizable.AppActivityLogsView.Level.notice
-        case .error: L10n.Localizable.AppActivityLogsView.Level.error
-        case .fault: L10n.Localizable.AppActivityLogsView.Level.fault
+        case .undefined: String(localized: .appActivityLogLevelUndefined)
+        case .debug: String(localized: .appActivityLogLevelDebug)
+        case .info: String(localized: .appActivityLogLevelInfo)
+        case .notice: String(localized: .appActivityLogLevelNotice)
+        case .error: String(localized: .appActivityLogLevelError)
+        case .fault: String(localized: .appActivityLogLevelFault)
         @unknown default: ""
         }
     }

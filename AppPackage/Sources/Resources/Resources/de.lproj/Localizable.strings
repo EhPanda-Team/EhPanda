@@ -1,11 +1,6 @@
 // MARK: BanInterval
-"ban_interval.and" = "und";
 
 // MARK: ToplistsType
-"toplists_type.yesterday" = "Gestern";
-"toplists_type.past_month" = "Letzter Monat";
-"toplists_type.past_year" = "Letztes Jahr";
-"toplists_type.all_time" = "Gesamt";
 
 // MARK: Response
 
@@ -49,33 +44,8 @@
 // MARK: AlertView
 "not_login_viewlogin" = "Einloggen";
 "error_view.retry" = "Erneut versuchen";
-"error_view.try_later" = "Bitte versuche es später erneut.";
-"error_view.network" = "Ein Netzwerkfehler ist aufgetreten.";
-"error_view.parsing" = "Ein Parserfehler ist aufgetreten.";
-"error_view.unknown" = "Ein unbekannter Fehler ist aufgetreten.";
-"error_view.not_found" = "Hier scheint es nichts zu geben.";
-"error_view.database_corrupted" = "Die Datenbank ist beschädigt.\nBitte erstelle ein Issue auf GitHub.";
-"error_view.ip_banned" = "Deine IP-Adresse wurde wegen übermäßig vieler Seitenaufrufe vorübergehend gesperrt. Das deutet auf automatische Mirroring- oder Harvesting-Software hin. Die Sperre läuft in %@ ab.";
-"error_view.copyright_claim" = "Diese Galerie ist wegen eines Urheberrechtsanspruchs von %@ nicht verfügbar. Das tut uns leid.";
-"error_view.gallery_unavailable" = "Diese Galerie wurde entfernt oder ist nicht verfügbar.";
 
 // MARK: AppError
-"app_error.database_corrupted" = "Datenbank beschädigt";
-"app_error.copyright_claim" = "Urheberrechtsanspruch";
-"app_error.ip_banned" = "IP-Adresse gesperrt";
-"app_error.gallery_expunged" = "Galerie entfernt";
-"app_error.network_error" = "Netzwerkfehler";
-"app_error.web_image_loading_error" = "Fehler beim Laden des Webbilds";
-"app_error.parse_error" = "Parserfehler";
-"app_error.quota_exceeded" = "Kontingent überschritten";
-"app_error.authentication_required" = "Authentifizierung erforderlich";
-"app_error.file_operation_failed" = "Dateivorgang fehlgeschlagen";
-"app_error.no_updates_available" = "Keine Updates verfügbar";
-"app_error.not_found" = "Nicht gefunden";
-"app_error.unknown_error" = "Unbekannter Fehler";
-"app_error.quota_exceeded_description" = "Bildkontingent überschritten.\nBitte warte einen Moment und versuche es dann erneut.";
-"app_error.authentication_required_description" = "Für diesen Download ist eine Anmeldung erforderlich.";
-"app_error.local_file_operation_failed" = "Lokaler Dateivorgang fehlgeschlagen.";
 
 // MARK: ConfirmationDialog
 "confirmation_dialog.delete_description" = "Möchtest du dieses Element wirklich löschen?";
@@ -87,10 +57,6 @@
 
 // MARK: NewDawnView
 // Greeting
-"greeting.start" = "Du erhälst ";
-"greeting.separator" = ", ";
-"greeting.and" = " und ";
-"greeting.end" = "!";
 
 // MARK: HomeView
 "home_view.home" = "Start";
@@ -109,8 +75,6 @@
 // MARK: FavoritesView
 "favorites_view.favorites" = "Favoriten";
 // FavoriteCategory
-"favorite_category.default" = "Favoriten %@";
-"favorite_category.all" = "Alle";
 
 // MARK: SearchView
 "search_view.search" = "Suche";
@@ -134,39 +98,18 @@
 // MARK: GeneralSettingView
 "general_setting_view.language" = "Sprache";
 // AutoLockPolicy
-"auto_lock_policy.never" = "Nie";
-"auto_lock_policy.instantly" = "Sofort";
 
 // MARK: AppActivityLogsView
-"app_activity_logs_view.level.undefined" = "Undefiniert";
-"app_activity_logs_view.level.debug" = "Debug";
-"app_activity_logs_view.level.info" = "Info";
-"app_activity_logs_view.level.notice" = "Hinweis";
-"app_activity_logs_view.level.error" = "Fehler";
-"app_activity_logs_view.level.fault" = "Störung";
 
 // MARK: AppearanceSettingView
 // PreferredColorScheme
-"preferred_color_scheme.automatic" = "Automatisch";
-"preferred_color_scheme.light" = "Hell";
-"preferred_color_scheme.dark" = "Dunkel";
 // AppIconType
-"app_icon_type.default" = "Standard";
-"app_icon_type.ukiyoe" = "Ukiyo-e";
-"app_icon_type.developer" = "Entwickler";
-"app_icon_type.stand_with_ukraine_2022" = "Solidarität mit der Ukraine (2022)";
-"app_icon_type.not_my_president" = "NICHT MEIN PRÄSIDENT";
 // ListDisplayMode
-"list_display_mode.detail" = "Details";
-"list_display_mode.thumbnail" = "Vorschaubilder";
 
 // MARK: AppIconView
 
 // MARK: reading_settingView
 // ReadingDirection
-"reading_direction.vertical" = "Vertikal";
-"reading_direction.right_to_left" = "Von rechts nach links";
-"reading_direction.left_to_right" = "Von links nach rechts";
 
 // MARK: LaboratorySettingView
 
@@ -182,22 +125,16 @@
 
 // MARK: ArchivesView
 // HathArchive
-"hath_archive.free" = "Frei";
 // ArchiveResolution
-"archive_resolution.original" = "Original";
 
 // MARK: TorrentsView
 
 // MARK: GalleryInfosView
 // GalleryVisibility
-"gallery_visibility.yes" = "Ja";
-"gallery_visibility.no" = "Nein (%@)";
-"gallery_visibility.expunged" = "Entfernt";
 
 // MARK: TagDetailView
 
 // MARK: DownloadsView
-"download_folder_filter.all" = "Alle";
 "detail_view.manage_folders" = "Ordner verwalten";
 "downloads_view.manage_folders" = "Ordner verwalten";
 "downloads_view.downloads" = "Downloads";
@@ -229,441 +166,49 @@
 // MARK: FiltersView
 "filters_view.filters" = "Filter";
 // FilterRange
-"filter_range.search" = "Suche";
-"filter_range.global" = "Global";
-"filter_range.watched" = "Meine Tags";
 
 // MARK: EhSettingView
 
 // EhSetting.LoadThroughHathSetting
-"load_through_hath_setting.any_client" = "Jeder Client";
-"load_through_hath_setting.default_port_only" = "Nur Clients mit Standardport";
-"load_through_hath_setting.modern_no" = "Nein [Modern/HTTPS]";
-"load_through_hath_setting.legacy_no" = "Nein [Legacy/HTTP]";
-"load_through_hath_setting.any_client_description" = "Empfohlen.";
-"load_through_hath_setting.default_port_only_description" = "Kann langsamer sein. Aktiviere dies nur, wenn eine Firewall oder ein Proxy ausgehende Nicht-Standard-Ports blockiert.";
-"load_through_hath_setting.modern_no_description" = "Nur für Spender. Du kannst damit weniger Seiten aufrufen. Nur bei schwerwiegenden Problemen empfohlen.";
-"load_through_hath_setting.legacy_no_description" = "Nur für Spender. Funktioniert in modernen Browsern unter Umständen nicht. Nur für alte oder veraltete Browser empfohlen.";
 
 // EhSetting.ImageResolution
-"image_resolution.auto" = "Automatisch";
 
 // EhSetting.GalleryName
-"gallery_name.default" = "Standardtitel";
-"gallery_name.japanese" = "Japanischer Titel (falls vorhanden)";
 
 // EhSetting.ArchiverBehavior
-"eh_setting.archiver_behavior.manual_select_manual_start" = "Manuell wählen, manuell starten (Standard)";
-"eh_setting.archiver_behavior.manual_select_auto_start" = "Manuell wählen, automatisch starten";
-"eh_setting.archiver_behavior.auto_select_original_manual_start" = "Original automatisch wählen, manuell starten";
-"eh_setting.archiver_behavior.auto_select_original_auto_start" = "Original automatisch wählen, automatisch starten";
-"eh_setting.archiver_behavior.auto_select_resample_manual_start" = "Neu berechnete Version automatisch wählen, manuell starten";
-"eh_setting.archiver_behavior.auto_select_resample_auto_start" = "Neu berechnete Version automatisch wählen, automatisch starten";
 
 // EhSetting.DisplayMode
-"display_mode.compact" = "Kompakt";
-"display_mode.thumbnail" = "Vorschaubilder";
-"display_mode.extended" = "Erweitert";
-"display_mode.minimal" = "Minimal";
-"display_mode.minimalPlus" = "Minimal+";
 
 
 // EhSetting.FavoritesSortOrder
-"favorites_sort_order.last_update_time" = "Nach letzter Aktualisierung der Galerie";
-"favorites_sort_order.favorited_time" = "Nach Zeitpunkt des Favorisierens";
 
 
 
 
 
 // EhSetting.ExcludedLanguagesCategory
-"excluded_languages_category.original" = "Original";
-"excluded_languages_category.translated" = "Übersetzt";
-"excluded_languages_category.rewrite" = "Umgeschrieben";
 
 
 
 // EhSetting.ThumbnailLoadTiming
-"thumbnail_load_timing.on_mouse_over" = "Bei Mouseover";
-"thumbnail_load_timing.on_page_load" = "Beim Laden der Seite";
-"thumbnail_load_timing.on_mouse_over_description" = "Seiten laden schneller, Vorschaubilder erscheinen aber unter Umständen leicht verzögert.";
-"thumbnail_load_timing.on_page_load_description" = "Seiten brauchen länger zum Laden, dafür erscheinen die Vorschaubilder danach ohne Verzögerung.";
 // EhSetting.ThumbnailSize
-"thumbnail_size.normal" = "Normal";
-"thumbnail_size.large" = "Groß";
-"thumbnail_size.small" = "Klein";
-"thumbnail_size.auto" = "Automatisch";
 
 
 
 // EhSetting.CommentsSortOrder
-"comments_sort_order.oldest" = "Älteste Kommentare zuerst";
-"comments_sort_order.recent" = "Neueste Kommentare zuerst";
-"comments_sort_order.highest_score" = "Nach höchster Punktzahl";
 // EhSetting.CommentVotesShowTiming
-"comments_votes_show_timing.on_hover_or_click" = "Beim Überfahren oder Anklicken der Punktzahl";
-"comments_votes_show_timing.always" = "Immer";
 
 // EhSetting.tags_sort_order
-"tags_sort_order.alphabetical" = "Alphabetisch";
-"tags_sort_order.tag_power" = "Nach Tag-Gewicht";
 
 
 
 // EhSetting.MultiplePageViewerStyle
-"multiple_page_viewer_style.align_left_scale_if_over_width" = "Linksbündig, bei Überbreite skalieren";
-"multiple_page_viewer_style.align_center_scale_if_over_width" = "Zentriert, bei Überbreite skalieren";
-"multiple_page_viewer_style.align_center_always_scale" = "Zentriert, immer skalieren";
 // EhSetting.GalleryPageNumbering
-"gallery_page_numbering.none" = "Keine";
-"gallery_page_numbering.page_number_only" = "Nur Seitenzahl";
-"gallery_page_numbering.page_number_and_name" = "Seitenzahl + Name";
 
 // MARK: Category
-"category.doujinshi" = "Doujinshi";
-"category.manga" = "Manga";
-"category.artist_CG" = "Artist CG";
-"category.game_CG" = "Game CG";
-"category.western" = "Western";
-"category.non_h" = "Non-H";
-"category.image_set" = "Image Set";
-"category.cosplay" = "Cosplay";
-"category.asian_porn" = "Asian Porn";
-"category.misc" = "Misc";
-"category.private" = "Private";
 
 // MARK: TagNamespace
-"tag_namespace.reclass" = "Reclass";
-"tag_namespace.language" = "Sprache";
-"tag_namespace.parody" = "Parodie";
-"tag_namespace.character" = "Charakter";
-"tag_namespace.group" = "Gruppe";
-"tag_namespace.artist" = "Künstler";
-"tag_namespace.male" = "Männlich";
-"tag_namespace.female" = "Weiblich";
-"tag_namespace.mixed" = "Mixed";
-"tag_namespace.cosplayer" = "Cosplayer";
-"tag_namespace.other" = "Other";
-"tag_namespace.temp" = "Temp";
 
 // MARK: Language
-"language.invalid" = "./.";
-"language.other" = "Other";
-"language.afrikaans" = "Afrikaan";
-"language.albanian" = "Albanisch";
-"language.arabic" = "Arabisch";
-"language.bengali" = "Bengali";
-"language.bosnian" = "Bosnisch";
-"language.bulgarian" = "Bulgarisch";
-"language.burmese" = "Birmanisch";
-"language.catalan" = "Katalanisch";
-"language.cebuano" = "Cebuano";
-"language.chinese" = "Chinesisch";
-"language.croatian" = "Kroatisch";
-"language.czech" = "Tschechisch";
-"language.danish" = "Dänisch";
-"language.dutch" = "Niederländisch";
-"language.english" = "Englisch";
-"language.esperanto" = "Esperanto";
-"language.estonian" = "Estländisch";
-"language.finnish" = "Finnisch";
-"language.french" = "Französisch";
-"language.georgian" = "Georgisch";
-"language.german" = "Deutsch";
-"language.greek" = "Griechisch";
-"language.hebrew" = "Hebräisch";
-"language.hindi" = "Hindi";
-"language.hmong" = "Hmong";
-"language.hungarian" = "Ungarisch";
-"language.indonesian" = "Indonesisch";
-"language.italian" = "Italian";
-"language.japanese" = "Japanisch";
-"language.kazakh" = "Kazakhstanisch";
-"language.khmer" = "Khmer";
-"language.korean" = "Koreanisch";
-"language.kurdish" = "Kurdisch";
-"language.lao" = "Lao";
-"language.latin" = "Latein";
-"language.mongolian" = "Mongolisch";
-"language.ndebele" = "Ndebele";
-"language.nepali" = "Nepali";
-"language.norwegian" = "Norwegisch";
-"language.oromo" = "Oromo";
-"language.pashto" = "Pashto";
-"language.persian" = "Persisch";
-"language.polish" = "Polnisch";
-"language.portuguese" = "Portugiesisch";
-"language.punjabi" = "Punjabi";
-"language.romanian" = "Rumänisch";
-"language.russian" = "Russisch";
-"language.sango" = "Sango";
-"language.serbian" = "Serbisch";
-"language.shona" = "Shona";
-"language.slovak" = "Slovakisch";
-"language.slovenian" = "Slovenisch";
-"language.somali" = "Somali";
-"language.spanish" = "Spanisch";
-"language.swahili" = "Swahili";
-"language.swedish" = "Schwedisch";
-"language.tagalog" = "Tagalog";
-"language.thai" = "Thai";
-"language.tigrinya" = "Tigrinya";
-"language.turkish" = "Türkisch";
-"language.ukrainian" = "Ukrainisch";
-"language.urdu" = "Urdu";
-"language.vietnamese" = "Vietnamesisch";
-"language.zulu" = "Zulu";
 
 // MARK: BrowsingCountry
-"browsing_country.auto_detect" = "Auto-Detect";
-"browsing_country.afghanistan" = "Afghanistan";
-"browsing_country.aland_islands" = "Aland Islands";
-"browsing_country.albania" = "Albania";
-"browsing_country.algeria" = "Algeria";
-"browsing_country.american_samoa" = "American Samoa";
-"browsing_country.andorra" = "Andorra";
-"browsing_country.angola" = "Angola";
-"browsing_country.anguilla" = "Anguilla";
-"browsing_country.antarctica" = "Antarctica";
-"browsing_country.antigua_and_barbuda" = "Antigua and Barbuda";
-"browsing_country.argentina" = "Argentina";
-"browsing_country.armenia" = "Armenia";
-"browsing_country.aruba" = "Aruba";
-"browsing_country.asia_pacific_region" = "Asia-Pacific Region";
-"browsing_country.australia" = "Australia";
-"browsing_country.austria" = "Austria";
-"browsing_country.azerbaijan" = "Azerbaijan";
-"browsing_country.bahamas" = "Bahamas";
-"browsing_country.bahrain" = "Bahrain";
-"browsing_country.bangladesh" = "Bangladesh";
-"browsing_country.barbados" = "Barbados";
-"browsing_country.belarus" = "Belarus";
-"browsing_country.belgium" = "Belgium";
-"browsing_country.belize" = "Belize";
-"browsing_country.benin" = "Benin";
-"browsing_country.bermuda" = "Bermuda";
-"browsing_country.bhutan" = "Bhutan";
-"browsing_country.bolivia" = "Bolivia";
-"browsing_country.bonaire_saint_eustatius_and_saba" = "Bonaire Saint Eustatius and Saba";
-"browsing_country.bosnia_and_herzegovina" = "Bosnia and Herzegovina";
-"browsing_country.botswana" = "Botswana";
-"browsing_country.bouvet_island" = "Bouvet Island";
-"browsing_country.brazil" = "Brazil";
-"browsing_country.british_indian_ocean_territory" = "British Indian Ocean Territory";
-"browsing_country.brunei_darussalam" = "Brunei Darussalam";
-"browsing_country.bulgaria" = "Bulgaria";
-"browsing_country.burkina_faso" = "Burkina Faso";
-"browsing_country.burundi" = "Burundi";
-"browsing_country.cambodia" = "Cambodia";
-"browsing_country.cameroon" = "Cameroon";
-"browsing_country.canada" = "Canada";
-"browsing_country.cape_verde" = "Cape Verde";
-"browsing_country.cayman_islands" = "Cayman Islands";
-"browsing_country.central_african_republic" = "Central African Republic";
-"browsing_country.chad" = "Chad";
-"browsing_country.chile" = "Chile";
-"browsing_country.china" = "China";
-"browsing_country.christmas_island" = "Christmas Island";
-"browsing_country.cocos_islands" = "Cocos Islands";
-"browsing_country.colombia" = "Colombia";
-"browsing_country.comoros" = "Comoros";
-"browsing_country.congo" = "Congo";
-"browsing_country.the_democratic_republic_of_the_congo" = "The Democratic Republic of the Congo";
-"browsing_country.cook_islands" = "Cook Islands";
-"browsing_country.costa_rica" = "Costa Rica";
-"browsing_country.cote_d_ivoire" = "Cote D'Ivoire";
-"browsing_country.croatia" = "Croatia";
-"browsing_country.cuba" = "Cuba";
-"browsing_country.curacao" = "Curacao";
-"browsing_country.cyprus" = "Cyprus";
-"browsing_country.czech_republic" = "Czech Republic";
-"browsing_country.denmark" = "Denmark";
-"browsing_country.djibouti" = "Djibouti";
-"browsing_country.dominica" = "Dominica";
-"browsing_country.dominican_republic" = "Dominican Republic";
-"browsing_country.ecuador" = "Ecuador";
-"browsing_country.egypt" = "Egypt";
-"browsing_country.el_salvador" = "El Salvador";
-"browsing_country.equatorial_guinea" = "Equatorial Guinea";
-"browsing_country.eritrea" = "Eritrea";
-"browsing_country.estonia" = "Estonia";
-"browsing_country.ethiopia" = "Ethiopia";
-"browsing_country.europe" = "Europe";
-"browsing_country.falkland_islands" = "Falkland Islands";
-"browsing_country.faroe_islands" = "Faroe Islands";
-"browsing_country.fiji" = "Fiji";
-"browsing_country.finland" = "Finland";
-"browsing_country.france" = "France";
-"browsing_country.french_guiana" = "French Guiana";
-"browsing_country.french_polynesia" = "French Polynesia";
-"browsing_country.french_southern_territories" = "French Southern Territories";
-"browsing_country.gabon" = "Gabon";
-"browsing_country.gambia" = "Gambia";
-"browsing_country.georgia" = "Georgia";
-"browsing_country.germany" = "Germany";
-"browsing_country.ghana" = "Ghana";
-"browsing_country.gibraltar" = "Gibraltar";
-"browsing_country.greece" = "Greece";
-"browsing_country.greenland" = "Greenland";
-"browsing_country.grenada" = "Grenada";
-"browsing_country.guadeloupe" = "Guadeloupe";
-"browsing_country.guam" = "Guam";
-"browsing_country.guatemala" = "Guatemala";
-"browsing_country.guernsey" = "Guernsey";
-"browsing_country.guinea" = "Guinea";
-"browsing_country.guinea_bissau" = "Guinea-Bissau";
-"browsing_country.guyana" = "Guyana";
-"browsing_country.haiti" = "Haiti";
-"browsing_country.heard_island_and_mc_donald_islands" = "Heard Island and McDonald Islands";
-"browsing_country.vatican_city_state" = "Vatican City State";
-"browsing_country.honduras" = "Honduras";
-"browsing_country.hong_kong" = "Hong Kong";
-"browsing_country.hungary" = "Hungary";
-"browsing_country.iceland" = "Iceland";
-"browsing_country.india" = "India";
-"browsing_country.indonesia" = "Indonesia";
-"browsing_country.iran" = "Iran";
-"browsing_country.iraq" = "Iraq";
-"browsing_country.ireland" = "Ireland";
-"browsing_country.isle_of_man" = "Isle of Man";
-"browsing_country.israel" = "Israel";
-"browsing_country.italy" = "Italy";
-"browsing_country.jamaica" = "Jamaica";
-"browsing_country.japan" = "Japan";
-"browsing_country.jersey" = "Jersey";
-"browsing_country.jordan" = "Jordan";
-"browsing_country.kazakhstan" = "Kazakhstan";
-"browsing_country.kenya" = "Kenya";
-"browsing_country.kiribati" = "Kiribati";
-"browsing_country.kuwait" = "Kuwait";
-"browsing_country.kyrgyzstan" = "Kyrgyzstan";
-"browsing_country.lao_peoples_democratic_republic" = "Lao People's Democratic Republic";
-"browsing_country.latvia" = "Latvia";
-"browsing_country.lebanon" = "Lebanon";
-"browsing_country.lesotho" = "Lesotho";
-"browsing_country.liberia" = "Liberia";
-"browsing_country.libya" = "Libya";
-"browsing_country.liechtenstein" = "Liechtenstein";
-"browsing_country.lithuania" = "Lithuania";
-"browsing_country.luxembourg" = "Luxembourg";
-"browsing_country.macau" = "Macau";
-"browsing_country.macedonia" = "Macedonia";
-"browsing_country.madagascar" = "Madagascar";
-"browsing_country.malawi" = "Malawi";
-"browsing_country.malaysia" = "Malaysia";
-"browsing_country.maldives" = "Maldives";
-"browsing_country.mali" = "Mali";
-"browsing_country.malta" = "Malta";
-"browsing_country.marshall_islands" = "Marshall Islands";
-"browsing_country.martinique" = "Martinique";
-"browsing_country.mauritania" = "Mauritania";
-"browsing_country.mauritius" = "Mauritius";
-"browsing_country.mayotte" = "Mayotte";
-"browsing_country.mexico" = "Mexico";
-"browsing_country.micronesia" = "Micronesia";
-"browsing_country.moldova" = "Moldova";
-"browsing_country.monaco" = "Monaco";
-"browsing_country.mongolia" = "Mongolia";
-"browsing_country.montenegro" = "Montenegro";
-"browsing_country.montserrat" = "Montserrat";
-"browsing_country.morocco" = "Morocco";
-"browsing_country.mozambique" = "Mozambique";
-"browsing_country.myanmar" = "Myanmar";
-"browsing_country.namibia" = "Namibia";
-"browsing_country.nauru" = "Nauru";
-"browsing_country.nepal" = "Nepal";
-"browsing_country.netherlands" = "Netherlands";
-"browsing_country.new_caledonia" = "New Caledonia";
-"browsing_country.new_zealand" = "New Zealand";
-"browsing_country.nicaragua" = "Nicaragua";
-"browsing_country.niger" = "Niger";
-"browsing_country.nigeria" = "Nigeria";
-"browsing_country.niue" = "Niue";
-"browsing_country.norfolk_island" = "Norfolk Island";
-"browsing_country.north_korea" = "North Korea";
-"browsing_country.northern_mariana_islands" = "Northern Mariana Islands";
-"browsing_country.norway" = "Norway";
-"browsing_country.oman" = "Oman";
-"browsing_country.pakistan" = "Pakistan";
-"browsing_country.palau" = "Palau";
-"browsing_country.palestinian_territory" = "Palestinian Territory";
-"browsing_country.panama" = "Panama";
-"browsing_country.papua_new_guinea" = "Papua New Guinea";
-"browsing_country.paraguay" = "Paraguay";
-"browsing_country.peru" = "Peru";
-"browsing_country.philippines" = "Philippines";
-"browsing_country.pitcairn_islands" = "Pitcairn Islands";
-"browsing_country.poland" = "Poland";
-"browsing_country.portugal" = "Portugal";
-"browsing_country.puerto_rico" = "Puerto Rico";
-"browsing_country.qatar" = "Qatar";
-"browsing_country.reunion" = "Reunion";
-"browsing_country.romania" = "Romania";
-"browsing_country.russian_federation" = "Russian Federation";
-"browsing_country.rwanda" = "Rwanda";
-"browsing_country.saint_barthelemy" = "Saint Barthelemy";
-"browsing_country.saint_helena" = "Saint Helena";
-"browsing_country.saint_kitts_and_nevis" = "Saint Kitts and Nevis";
-"browsing_country.saint_lucia" = "Saint Lucia";
-"browsing_country.saint_martin" = "Saint Martin";
-"browsing_country.saint_pierre_and_miquelon" = "Saint Pierre and Miquelon";
-"browsing_country.saint_vincent_and_the_grenadines" = "Saint Vincent and the Grenadines";
-"browsing_country.samoa" = "Samoa";
-"browsing_country.san_marino" = "San Marino";
-"browsing_country.sao_tome_and_principe" = "Sao Tome and Principe";
-"browsing_country.saudi_arabia" = "Saudi Arabia";
-"browsing_country.senegal" = "Senegal";
-"browsing_country.serbia" = "Serbia";
-"browsing_country.seychelles" = "Seychelles";
-"browsing_country.sierra_leone" = "Sierra Leone";
-"browsing_country.singapore" = "Singapore";
-"browsing_country.sint_maarten" = "Sint Maarten";
-"browsing_country.slovakia" = "Slovakia";
-"browsing_country.slovenia" = "Slovenia";
-"browsing_country.solomon_islands" = "Solomon Islands";
-"browsing_country.somalia" = "Somalia";
-"browsing_country.south_africa" = "South Africa";
-"browsing_country.south_georgia_and_the_south_sandwich_islands" = "South Georgia and the South Sandwich Islands";
-"browsing_country.south_korea" = "South Korea";
-"browsing_country.south_sudan" = "South Sudan";
-"browsing_country.spain" = "Spain";
-"browsing_country.sri_lanka" = "Sri Lanka";
-"browsing_country.sudan" = "Sudan";
-"browsing_country.suriname" = "Suriname";
-"browsing_country.svalbard_and_jan_mayen" = "Svalbard and Jan Mayen";
-"browsing_country.swaziland" = "Swaziland";
-"browsing_country.sweden" = "Sweden";
-"browsing_country.switzerland" = "Switzerland";
-"browsing_country.syrian_arab_republic" = "Syrian Arab Republic";
-"browsing_country.taiwan" = "Taiwan";
-"browsing_country.tajikistan" = "Tajikistan";
-"browsing_country.tanzania" = "Tanzania";
-"browsing_country.thailand" = "Thailand";
-"browsing_country.timor_leste" = "Timor-Leste";
-"browsing_country.togo" = "Togo";
-"browsing_country.tokelau" = "Tokelau";
-"browsing_country.tonga" = "Tonga";
-"browsing_country.trinidad_and_tobago" = "Trinidad and Tobago";
-"browsing_country.tunisia" = "Tunisia";
-"browsing_country.turkey" = "Turkey";
-"browsing_country.turkmenistan" = "Turkmenistan";
-"browsing_country.turks_and_caicos_islands" = "Turks and Caicos Islands";
-"browsing_country.tuvalu" = "Tuvalu";
-"browsing_country.uganda" = "Uganda";
-"browsing_country.ukraine" = "Ukraine";
-"browsing_country.united_arab_emirates" = "United Arab Emirates";
-"browsing_country.united_kingdom" = "United Kingdom";
-"browsing_country.united_states" = "United States";
-"browsing_country.united_states_minor_outlying_islands" = "United States Minor Outlying Islands";
-"browsing_country.uruguay" = "Uruguay";
-"browsing_country.uzbekistan" = "Uzbekistan";
-"browsing_country.vanuatu" = "Vanuatu";
-"browsing_country.venezuela" = "Venezuela";
-"browsing_country.vietnam" = "Vietnam";
-"browsing_country.virgin_islands_british" = "British Virgin Islands";
-"browsing_country.virgin_islands_US" = "U.S. Virgin Islands";
-"browsing_country.wallis_and_futuna" = "Wallis and Futuna";
-"browsing_country.western_sahara" = "Western Sahara";
-"browsing_country.yemen" = "Yemen";
-"browsing_country.zambia" = "Zambia";
-"browsing_country.zimbabwe" = "Zimbabwe";

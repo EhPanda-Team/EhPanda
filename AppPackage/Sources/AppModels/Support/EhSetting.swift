@@ -232,25 +232,25 @@ extension EhSetting.LoadThroughHathSetting {
     public var value: String {
         switch self {
         case .anyClient:
-            return L10n.Localizable.LoadThroughHathSetting.anyClient
+            return String(localized: .loadThroughHathSettingAnyClient)
         case .defaultPortOnly:
-            return L10n.Localizable.LoadThroughHathSetting.defaultPortOnly
+            return String(localized: .loadThroughHathSettingDefaultPortOnly)
         case .modernNo:
-            return L10n.Localizable.LoadThroughHathSetting.modernNo
+            return String(localized: .loadThroughHathSettingModernNo)
         case .legacyNo:
-            return L10n.Localizable.LoadThroughHathSetting.legacyNo
+            return String(localized: .loadThroughHathSettingLegacyNo)
         }
     }
     public var description: String {
         switch self {
         case .anyClient:
-            return L10n.Localizable.LoadThroughHathSetting.anyClientDescription
+            return String(localized: .loadThroughHathSettingAnyClientDescription)
         case .defaultPortOnly:
-            return L10n.Localizable.LoadThroughHathSetting.defaultPortOnlyDescription
+            return String(localized: .loadThroughHathSettingDefaultPortOnlyDescription)
         case .modernNo:
-            return L10n.Localizable.LoadThroughHathSetting.modernNoDescription
+            return String(localized: .loadThroughHathSettingModernNoDescription)
         case .legacyNo:
-            return L10n.Localizable.LoadThroughHathSetting.legacyNoDescription
+            return String(localized: .loadThroughHathSettingLegacyNoDescription)
         }
     }
 }
@@ -276,7 +276,7 @@ extension EhSetting.ImageResolution {
     public var value: String {
         switch self {
         case .auto:
-            return L10n.Localizable.ImageResolution.auto
+            return String(localized: .imageResolutionAuto)
         case .x780:
             return "780x"
         case .x980:
@@ -304,9 +304,9 @@ extension EhSetting.GalleryName {
     public var value: String {
         switch self {
         case .default:
-            return L10n.Localizable.GalleryName.default
+            return String(localized: .galleryNameDefault)
         case .japanese:
-            return L10n.Localizable.GalleryName.japanese
+            return String(localized: .galleryNameJapanese)
         }
     }
 }
@@ -328,17 +328,17 @@ extension EhSetting.ArchiverBehavior {
     public var value: String {
         switch self {
         case .manualSelectManualStart:
-            return L10n.Localizable.EhSetting.ArchiverBehavior.manualSelectManualStart
+            return String(localized: .ehSettingArchiverBehaviorManualSelectManualStart)
         case .manualSelectAutoStart:
-            return L10n.Localizable.EhSetting.ArchiverBehavior.manualSelectAutoStart
+            return String(localized: .ehSettingArchiverBehaviorManualSelectAutoStart)
         case .autoSelectOriginalManualStart:
-            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectOriginalManualStart
+            return String(localized: .ehSettingArchiverBehaviorAutoSelectOriginalManualStart)
         case .autoSelectOriginalAutoStart:
-            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectOriginalAutoStart
+            return String(localized: .ehSettingArchiverBehaviorAutoSelectOriginalAutoStart)
         case .autoSelectResampleManualStart:
-            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectResampleManualStart
+            return String(localized: .ehSettingArchiverBehaviorAutoSelectResampleManualStart)
         case .autoSelectResampleAutoStart:
-            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectResampleAutoStart
+            return String(localized: .ehSettingArchiverBehaviorAutoSelectResampleAutoStart)
         }
     }
 }
@@ -359,15 +359,15 @@ extension EhSetting.DisplayMode {
     public var value: String {
         switch self {
         case .compact:
-            return L10n.Localizable.DisplayMode.compact
+            return String(localized: .displayModeCompact)
         case .thumbnail:
-            return L10n.Localizable.DisplayMode.thumbnail
+            return String(localized: .displayModeThumbnail)
         case .extended:
-            return L10n.Localizable.DisplayMode.extended
+            return String(localized: .displayModeExtended)
         case .minimal:
-            return L10n.Localizable.DisplayMode.minimal
+            return String(localized: .displayModeMinimal)
         case .minimalPlus:
-            return L10n.Localizable.DisplayMode.minimalPlus
+            return String(localized: .displayModeMinimalPlus)
         }
     }
 }
@@ -385,9 +385,9 @@ extension EhSetting.FavoritesSortOrder {
     public var value: String {
         switch self {
         case .lastUpdateTime:
-            return L10n.Localizable.FavoritesSortOrder.lastUpdateTime
+            return String(localized: .favoritesSortOrderLastUpdateTime)
         case .favoritedTime:
-            return L10n.Localizable.FavoritesSortOrder.favoritedTime
+            return String(localized: .favoritesSortOrderFavoritedTime)
         }
     }
 }
@@ -406,11 +406,11 @@ extension EhSetting.ExcludedLanguagesCategory {
     public var value: String {
         switch self {
         case .original:
-            return L10n.Localizable.ExcludedLanguagesCategory.original
+            return String(localized: .excludedLanguagesCategoryOriginal)
         case .translated:
-            return L10n.Localizable.ExcludedLanguagesCategory.translated
+            return String(localized: .excludedLanguagesCategoryTranslated)
         case .rewrite:
-            return L10n.Localizable.ExcludedLanguagesCategory.rewrite
+            return String(localized: .excludedLanguagesCategoryRewrite)
         }
     }
 }
