@@ -3,6 +3,7 @@ import Resources
 import ComposableArchitecture
 import AppTools
 import AppComponents
+import SFSafeSymbolsExt
 
 // MARK: ToolBar
 extension DetailView {
@@ -12,7 +13,7 @@ extension DetailView {
                 Button {
                     store.send(.archivesButtonTapped)
                 } label: {
-                    Label(String(localized: .archivesAction), systemSymbol: .zipperPage)
+                    Label(.archivesAction, systemSymbol: .zipperPage)
                 }
                 .disabled(store.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
                 Button {
@@ -29,7 +30,7 @@ extension DetailView {
                         store.send(.shareButtonTapped(galleryURL))
                     }
                 } label: {
-                    Label(String(localized: .RLocalizable.share), systemSymbol: .squareAndArrowUp)
+                    Label(.RLocalizable.share, systemSymbol: .squareAndArrowUp)
                 }
             }
             .disabled(store.galleryDetail == nil || store.loadingState == .loading)

@@ -100,6 +100,7 @@ enum Module: String {
     case resources = "Resources"
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
+    case sfSafeSymbolsExt = "SFSafeSymbolsExt"
     case systemNotificationExt = "SystemNotificationExt"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
@@ -481,6 +482,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .appComponents,
         dependencies: [
+            .module(.sfSafeSymbolsExt),
             .module(.appModels),
             .module(.appTools),
             .module(.parserFeature),
@@ -522,6 +524,14 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.casePaths),
             .targetDependency(.commonMark)
+        ],
+        swiftSettings: sharedSwiftSettings,
+        plugins: swiftLintPlugins
+    ),
+    .target(
+        module: .sfSafeSymbolsExt,
+        dependencies: [
+            .targetDependency(.sfSafeSymbols)
         ],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
@@ -632,6 +642,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .downloadsFeature,
         dependencies: [
+            .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
@@ -675,6 +686,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .settingFeature,
         dependencies: [
+            .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appDelegateClient),
             .module(.appModels),
@@ -763,6 +775,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .detailFeature,
         dependencies: [
+            .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
@@ -795,6 +808,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .readingFeature,
         dependencies: [
+            .module(.sfSafeSymbolsExt),
             .module(.appComponents),
             .module(.appDelegateClient),
             .module(.appModels),

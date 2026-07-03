@@ -4,6 +4,7 @@ import AppModels
 import AppComponents
 import SFSafeSymbols
 import ComposableArchitecture
+import SFSafeSymbolsExt
 
 struct AppActivityLogsView: View {
     @Bindable private var store: StoreOf<AppActivityLogsReducer>
@@ -63,7 +64,7 @@ struct AppActivityLogsView: View {
             Button {
                 store.send(.navigateToFileApp)
             } label: {
-                Label(String(localized: .appActivityLogsViewOpenInFiles), systemSymbol: .folderBadgeGearshape)
+                Label(.appActivityLogsViewOpenInFiles, systemSymbol: .folderBadgeGearshape)
             }
         }
     }
@@ -97,7 +98,7 @@ struct AppActivityLogsView: View {
             Button {
                 isRunPickerPresented = true
             } label: {
-                Label(String(localized: .appActivityLogsViewMoreLogs), systemSymbol: .ellipsisCalendar)
+                Label(.appActivityLogsViewMoreLogs, systemSymbol: .ellipsisCalendar)
             }
         }
     }
