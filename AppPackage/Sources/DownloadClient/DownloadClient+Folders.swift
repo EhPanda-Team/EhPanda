@@ -15,7 +15,7 @@ extension DownloadCoordinator {
         guard let normalizedName = storage.normalizedUserFolderName(name) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.invalidFolderName
+                    String(localized: .RLocalizable.downloadStoreInvalidFolderName)
                 )
             )
         }
@@ -45,7 +45,7 @@ extension DownloadCoordinator {
         guard let normalizedName = storage.normalizedUserFolderName(newName) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.invalidFolderName
+                    String(localized: .RLocalizable.downloadStoreInvalidFolderName)
                 )
             )
         }
@@ -144,7 +144,7 @@ extension DownloadCoordinator {
         guard let normalizedName = storage.normalizedUserFolderName(folderName) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.invalidFolderName
+                    String(localized: .RLocalizable.downloadStoreInvalidFolderName)
                 )
             )
         }

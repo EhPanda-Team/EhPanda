@@ -92,13 +92,13 @@ public struct QuickSearchReducer: Sendable {
                         TextState("")
                     } actions: {
                         ButtonState(role: .destructive, action: .confirmDelete(word)) {
-                            TextState(L10n.Localizable.ConfirmationDialog.delete)
+                            TextState(String(localized: .RLocalizable.delete))
                         }
                         ButtonState(role: .cancel) {
-                            TextState(L10n.Localizable.Common.cancel)
+                            TextState(String(localized: .RLocalizable.cancel))
                         }
                     } message: {
-                        TextState(L10n.Localizable.ConfirmationDialog.deleteDescription)
+                        TextState(String(localized: .RLocalizable.deleteDescription))
                     }
                     return .none
 

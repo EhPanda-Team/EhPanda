@@ -39,7 +39,7 @@ public struct FiltersView: View {
                 )
             }
             .synchronize($store.focusedBound, $focusedBound)
-            .navigationTitle(L10n.Localizable.FiltersView.filters)
+            .navigationTitle(String(localized: .RLocalizable.filters))
             .onAppear { store.send(.fetchFilters) }
         }
     }
@@ -153,7 +153,7 @@ private struct MinimumRatingSetter: View {
     var body: some View {
         Picker(String(localized: .minimumRating), selection: $minimum) {
             ForEach(Array(2...5), id: \.self) { number in
-                Text(L10n.Localizable.Common.stars("\(number)")).tag(number)
+                Text(String(localized: .RLocalizable.stars("\(number)"))).tag(number)
             }
         }
         .pickerStyle(.menu)

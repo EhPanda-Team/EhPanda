@@ -13,16 +13,16 @@ extension DetailReducer {
             switch action {
             case .deleteDownloadButtonTapped:
                 state.alert = AppAlertState {
-                    TextState(L10n.Localizable.DetailView.deleteDownload)
+                    TextState(String(localized: .RLocalizable.deleteDownload))
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDeleteDownload) {
-                        TextState(L10n.Localizable.ConfirmationDialog.delete)
+                        TextState(String(localized: .RLocalizable.delete))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
-                    TextState(L10n.Localizable.DetailView.deleteDownloadedGallery)
+                    TextState(String(localized: .RLocalizable.deleteDownloadedGallery))
                 }
                 return .none
 
@@ -34,7 +34,7 @@ extension DetailReducer {
                         TextState(Self.retryDownloadConfirmTitle(for: mode))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
                     TextState(Self.retryDownloadMessage(for: mode))
@@ -329,7 +329,7 @@ extension DetailReducer {
         case .repair:
             return String(localized: .repair)
         case .update:
-            return L10n.Localizable.DetailView.update
+            return String(localized: .RLocalizable.update)
         case .initial, .redownload:
             return String(localized: .redownload)
         }

@@ -90,7 +90,7 @@ public struct AccountSettingReducer: Sendable {
                         TextState(String(localized: .logout))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
                     TextState(String(localized: .logoutDescription))

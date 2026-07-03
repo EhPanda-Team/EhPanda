@@ -95,7 +95,7 @@ private struct AccountSection: View {
 
     var body: some View {
         if !CookieUtil.didLogin {
-            Button(L10n.Localizable.AccountSettingView.login, action: loginAction)
+            Button(String(localized: .RLocalizable.login), action: loginAction)
         } else {
             Button(
                 String(localized: .logout),

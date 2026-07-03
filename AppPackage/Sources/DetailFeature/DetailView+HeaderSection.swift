@@ -88,7 +88,7 @@ struct HeaderSection: View {
                     Section {
                         Button(action: manageFoldersAction) {
                             Label(
-                                L10n.Localizable.DetailView.manageFolders,
+                                String(localized: .RLocalizable.manageFolders),
                                 systemSymbol: .folderBadgeGearshape
                             )
                         }

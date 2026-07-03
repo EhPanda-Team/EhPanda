@@ -298,7 +298,7 @@ private extension DetailView {
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.orange)
             if error.isRetryable != false {
-                Button(L10n.Localizable.ErrorView.retry) {
+                Button(String(localized: .RLocalizable.retry)) {
                     store.send(.fetchGalleryDetail)
                 }
                 .buttonStyle(.glass)

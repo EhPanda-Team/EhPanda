@@ -137,15 +137,15 @@ extension TabBarItemType {
     var title: String {
         switch self {
         case .home:
-            return L10n.Localizable.TabItem.home
+            return String(localized: .RLocalizable.home)
         case .favorites:
-            return L10n.Localizable.TabItem.favorites
+            return String(localized: .RLocalizable.favorites)
         case .search:
-            return L10n.Localizable.TabItem.search
+            return String(localized: .RLocalizable.search)
         case .downloads:
-            return L10n.Localizable.TabItem.downloads
+            return String(localized: .RLocalizable.downloads)
         case .setting:
-            return L10n.Localizable.TabItem.setting
+            return String(localized: .RLocalizable.setting)
         }
     }
     var symbol: SFSymbol {

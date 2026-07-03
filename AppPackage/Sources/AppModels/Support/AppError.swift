@@ -79,7 +79,7 @@ extension AppError {
             return String(localized: .ipBanned(interval.description))
         case .expunged(let reason):
             switch reason {
-            case L10n.Constant.galleryUnavailable:
+            case String(localized: .RConstant.responseGalleryUnavailable):
                 return String(localized: .galleryUnavailable)
             default:
                 return reason
@@ -141,19 +141,15 @@ extension BanInterval {
     }
 
     private func daysWithUnit(_ days: Int) -> String {
-        days > 1 ? L10n.Localizable.Common.days("\(days)")
-            : L10n.Localizable.Common.day("\(days)")
+        String(localized: .RLocalizable.days(days))
     }
     private func hoursWithUnit(_ hours: Int) -> String {
-        hours > 1 ? L10n.Localizable.Common.hours("\(hours)")
-            : L10n.Localizable.Common.hour("\(hours)")
+        String(localized: .RLocalizable.hours(hours))
     }
     private func minutesWithUnit(_ minutes: Int) -> String {
-        minutes > 1 ? L10n.Localizable.Common.minutes("\(minutes)")
-            : L10n.Localizable.Common.minute("\(minutes)")
+        String(localized: .RLocalizable.minutes(minutes))
     }
     private func secondsWithUnit(_ seconds: Int) -> String {
-        seconds > 1 ? L10n.Localizable.Common.seconds("\(seconds)")
-            : L10n.Localizable.Common.second("\(seconds)")
+        String(localized: .RLocalizable.seconds(seconds))
     }
 }

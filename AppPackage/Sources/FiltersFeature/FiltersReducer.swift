@@ -71,7 +71,7 @@ public struct FiltersReducer: Sendable {
                         TextState(String(localized: .reset))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
                     TextState(String(localized: .resetDescription))

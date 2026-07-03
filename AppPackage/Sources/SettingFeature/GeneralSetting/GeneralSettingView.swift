@@ -51,7 +51,7 @@ struct GeneralSettingView: View {
         Form {
             Section {
                 HStack {
-                    Text(L10n.Localizable.GeneralSettingView.language)
+                    Text(String(localized: .RLocalizable.language))
                     Spacer()
                     Button(language) {
                         store.send(.navigateToSystemSetting)

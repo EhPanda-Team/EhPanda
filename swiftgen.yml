@@ -1,9 +1,0 @@
-output_dir: AppPackage/Sources/Resources
-
-strings:
- inputs: AppPackage/Sources/Resources/Resources/en.lproj
- outputs:
-  - templateName: structured-swift5
-    output: Strings.swift
-    params:
-      publicAccess: true

@@ -21,7 +21,7 @@ public struct FolderManagerReducer: Sendable {
 
     private static var invalidFolderNameError: AppError {
         .fileOperationFailed(
-            L10n.Localizable.DownloadStore.invalidFolderName
+            String(localized: .RLocalizable.downloadStoreInvalidFolderName)
         )
     }
 
@@ -87,10 +87,10 @@ public struct FolderManagerReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(folder)) {
-                        TextState(L10n.Localizable.ConfirmationDialog.delete)
+                        TextState(String(localized: .RLocalizable.delete))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
                     TextState(String(localized: .deleteFolder))

@@ -56,7 +56,7 @@ public struct NotLoginView: View {
             symbol: .personCropCircleBadgeQuestionmarkFill,
             message: String(localized: .needLogin)
         ) {
-            AlertViewButton(title: L10n.Localizable.notLoginViewlogin, action: action)
+            AlertViewButton(title: String(localized: .RLocalizable.login), action: action)
         }
     }
 }
@@ -68,7 +68,7 @@ public struct ErrorView: View {
 
     public init(
         error: AppError,
-        buttonTitle: String = L10n.Localizable.ErrorView.retry,
+        buttonTitle: String = String(localized: .RLocalizable.retry),
         action: (() -> Void)? = nil
     ) {
         self.error = error
