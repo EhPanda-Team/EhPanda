@@ -63,11 +63,9 @@
 
 // MARK: AlertView
 "loading_view.loading" = "載入中...";
-"loading_view.preparing_database" = "正在準備...";
 "not_login_view.need_login" = "你需要登入才能完成這個動作";
 "not_login_viewlogin" = "登入";
 "error_view.retry" = "重試";
-"error_view.drop_database" = "刪除資料庫";
 "error_view.try_later" = "請稍後再試";
 "error_view.network" = "網路發生故障，請檢查網路狀態";
 "error_view.parsing" = "網頁解析器發生故障";
@@ -97,13 +95,11 @@
 "app_error.local_file_operation_failed" = "本機檔案操作失敗。";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.drop_database_description" = "繼續此操作將會清除 APP 中的所有資料\n確定要刪除資料庫?";
 "confirmation_dialog.remove_custom_translations" = "是否確定要刪除所有自訂翻譯?";
 "confirmation_dialog.logout_description" = "確定要登出嗎?";
 "confirmation_dialog.delete_description" = "確定要刪除?";
 "confirmation_dialog.clear_description" = "確定要清空嗎?";
 "confirmation_dialog.reset_description" = "確定要重設嗎?";
-"confirmation_dialog.drop_database" = "刪除資料庫";
 "confirmation_dialog.remove" = "移除";
 "confirmation_dialog.logout" = "登出";
 "confirmation_dialog.delete" = "刪除";

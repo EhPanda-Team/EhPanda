@@ -63,11 +63,9 @@
 
 // MARK: AlertView
 "loading_view.loading" = "Wird geladen...";
-"loading_view.preparing_database" = "Datenbank wird vorbereitet...";
 "not_login_view.need_login" = "Du musst dich einloggen, um diese Funktion nutzen zu können.";
 "not_login_viewlogin" = "Einloggen";
 "error_view.retry" = "Erneut versuchen";
-"error_view.drop_database" = "Datenbank löschen";
 "error_view.try_later" = "Bitte versuche es später erneut.";
 "error_view.network" = "Ein Netzwerkfehler ist aufgetreten.";
 "error_view.parsing" = "Ein Parserfehler ist aufgetreten.";
@@ -97,13 +95,11 @@
 "app_error.local_file_operation_failed" = "Lokaler Dateivorgang fehlgeschlagen.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.drop_database_description" = "Du verlierst alle Daten in dieser App.\nMöchtest du die Datenbank wirklich löschen?";
 "confirmation_dialog.remove_custom_translations" = "Möchtest du deine benutzerdefinierten Übersetzungen wirklich entfernen?";
 "confirmation_dialog.logout_description" = "Bist du sicher das du dich ausloggen möchtest?";
 "confirmation_dialog.delete_description" = "Möchtest du dieses Element wirklich löschen?";
 "confirmation_dialog.clear_description" = "Bist du sicher das du das löschen möchtest?";
 "confirmation_dialog.reset_description" = "Bist du sicher?";
-"confirmation_dialog.drop_database" = "Datenbank löschen";
 "confirmation_dialog.remove" = "Entfernen";
 "confirmation_dialog.logout" = "Ausloggen";
 "confirmation_dialog.delete" = "Löschen";

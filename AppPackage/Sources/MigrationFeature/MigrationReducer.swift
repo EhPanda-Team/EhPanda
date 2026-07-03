@@ -47,13 +47,13 @@ public struct MigrationReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDropDatabase) {
-                        TextState(L10n.Localizable.ConfirmationDialog.dropDatabase)
+                        TextState(String(localized: .dropDatabase))
                     }
                     ButtonState(role: .cancel) {
                         TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.dropDatabaseDescription)
+                    TextState(String(localized: .dropDatabaseDescription))
                 }
                 return .none
 

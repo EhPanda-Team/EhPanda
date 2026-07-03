@@ -63,11 +63,9 @@
 
 // MARK: AlertView
 "loading_view.loading" = "로딩 중...";
-"loading_view.preparing_database" = "데이터베이스 준비 중...";
 "not_login_view.need_login" = "이 기능을 사용하려면 로그인이 필요해요.";
 "not_login_viewlogin" = "로그인";
 "error_view.retry" = "재시도";
-"error_view.drop_database" = "데이터베이스 삭제";
 "error_view.try_later" = "잠시 후 다시 시도해 주세요.";
 "error_view.network" = "인터넷 접속 오류가 발생했어요.";
 "error_view.parsing" = "구분 분석 오류가 발생했어요.";
@@ -97,13 +95,11 @@
 "app_error.local_file_operation_failed" = "로컬 파일 작업에 실패했습니다.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.drop_database_description" = "이 앱의 모든 데이터를 잃게 돼요.\n정말 데이터베이스를 삭제하시겠어요?";
 "confirmation_dialog.remove_custom_translations" = "사용자 지정 번역을 삭제하시겠어요?";
 "confirmation_dialog.logout_description" = "로그아웃 하시겠어요?";
 "confirmation_dialog.delete_description" = "이 항목을 삭제하시겠어요?";
 "confirmation_dialog.clear_description" = "삭제하시겠어요?";
 "confirmation_dialog.reset_description" = "초기화하시겠어요?";
-"confirmation_dialog.drop_database" = "데이터베이스 삭제";
 "confirmation_dialog.remove" = "삭제";
 "confirmation_dialog.logout" = "로그아웃";
 "confirmation_dialog.delete" = "삭제";
