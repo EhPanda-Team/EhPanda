@@ -151,7 +151,7 @@ private struct UpperPanel: View {
                         Button {
                             setting.enablesDualPageMode.toggle()
                         } label: {
-                            Text(L10n.Localizable.ReadingView.dualPageMode)
+                            Text(String(localized: .dualPageMode))
                             if setting.enablesDualPageMode {
                                 Image(systemSymbol: .checkmark)
                             }
@@ -159,7 +159,7 @@ private struct UpperPanel: View {
                         Button {
                             setting.exceptCover.toggle()
                         } label: {
-                            Text(L10n.Localizable.ReadingView.exceptTheCover)
+                            Text(String(localized: .exceptTheCover))
                             if setting.exceptCover {
                                 Image(systemSymbol: .checkmark)
                             }
@@ -173,7 +173,7 @@ private struct UpperPanel: View {
                 }
 
                 Menu {
-                    Text(L10n.Localizable.ReadingView.autoPlay).foregroundColor(.secondary)
+                    Text(String(localized: .autoPlay)).foregroundColor(.secondary)
                     ForEach(AutoPlayPolicy.allCases) { policy in
                         Button {
                             autoPlayPolicy = policy
@@ -193,15 +193,15 @@ private struct UpperPanel: View {
                 ToolbarFeaturesMenu {
                     Button(action: retryAllFailedImagesAction) {
                         Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                        Text(L10n.Localizable.ReadingView.retryAllFailedImages)
+                        Text(String(localized: .retryAllFailedImages))
                     }
                     Button(action: reloadAllImagesAction) {
                         Image(systemSymbol: .arrowCounterclockwise)
-                        Text(L10n.Localizable.ReadingView.reloadAllImages)
+                        Text(String(localized: .reloadAllImages))
                     }
                     Button(action: navigateSettingAction) {
                         Image(systemSymbol: .gear)
-                        Text(L10n.Localizable.ReadingView.readingSetting)
+                        Text(String(localized: .readingSetting))
                     }
                 }
                 .buttonStyle(.borderless)

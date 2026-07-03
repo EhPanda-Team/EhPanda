@@ -319,10 +319,6 @@ public enum L10n {
       /// Never
       public static let never = L10n.tr("Localizable", "auto_lock_policy.never", fallback: "Never")
     }
-    public enum AutoPlayPolicy {
-      /// Off
-      public static let off = L10n.tr("Localizable", "auto_play_policy.off", fallback: "Off")
-    }
     public enum BanInterval {
       /// and
       public static let and = L10n.tr("Localizable", "ban_interval.and", fallback: "and")
@@ -1852,26 +1848,6 @@ public enum L10n {
       public static let vertical = L10n.tr("Localizable", "reading_direction.vertical", fallback: "Vertical")
     }
     public enum ReadingView {
-      /// Auto-Play
-      public static let autoPlay = L10n.tr("Localizable", "reading_view.auto_play", fallback: "Auto-Play")
-      /// Copy
-      public static let copy = L10n.tr("Localizable", "reading_view.copy", fallback: "Copy")
-      /// Dual-Page mode
-      public static let dualPageMode = L10n.tr("Localizable", "reading_view.dual_page_mode", fallback: "Dual-Page mode")
-      /// Except the cover
-      public static let exceptTheCover = L10n.tr("Localizable", "reading_view.except_the_cover", fallback: "Except the cover")
-      /// Reading setting
-      public static let readingSetting = L10n.tr("Localizable", "reading_view.reading_setting", fallback: "Reading setting")
-      /// Reload
-      public static let reload = L10n.tr("Localizable", "reading_view.reload", fallback: "Reload")
-      /// Reload all images
-      public static let reloadAllImages = L10n.tr("Localizable", "reading_view.reload_all_images", fallback: "Reload all images")
-      /// Retry all failed images
-      public static let retryAllFailedImages = L10n.tr("Localizable", "reading_view.retry_all_failed_images", fallback: "Retry all failed images")
-      /// Save
-      public static let save = L10n.tr("Localizable", "reading_view.save", fallback: "Save")
-      /// Save original
-      public static let saveOriginal = L10n.tr("Localizable", "reading_view.save_original", fallback: "Save original")
       /// Share
       public static let share = L10n.tr("Localizable", "reading_view.share", fallback: "Share")
     }
