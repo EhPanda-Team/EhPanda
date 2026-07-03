@@ -249,14 +249,6 @@
 "app_icon_view.app_icon" = "App 圖案";
 
 // MARK: reading_settingView
-"reading_setting_view.reading" = "閱讀設定";
-"reading_setting_view.direction" = "翻頁方向";
-"reading_setting_view.preload_limit" = "預先載入頁數";
-"reading_setting_view.enables_landscape" = "啟用橫向顯示";
-"reading_setting_view.separator_height" = "頁間分隔高度";
-"reading_setting_view.maximum_scale_factor" = "縮放上限";
-"reading_setting_view.double_tap_scale_factor" = "雙擊縮放值";
-"reading_setting_view.appearance" = "外觀";
 // ReadingDirection
 "reading_direction.vertical" = "垂直";
 "reading_direction.right_to_left" = "由右至左滑";

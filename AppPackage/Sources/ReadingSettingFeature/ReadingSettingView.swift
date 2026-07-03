@@ -27,25 +27,25 @@ public struct ReadingSettingView: View {
     public var body: some View {
         Form {
             Section {
-                Picker(L10n.Localizable.ReadingSettingView.direction, selection: $readingDirection) {
+                Picker(String(localized: .direction), selection: $readingDirection) {
                     ForEach(ReadingDirection.allCases) {
                         Text($0.value).tag($0)
                     }
                 }
                 .pickerStyle(.menu)
-                Picker(L10n.Localizable.ReadingSettingView.preloadLimit, selection: $prefetchLimit) {
+                Picker(String(localized: .preloadLimit), selection: $prefetchLimit) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
                         Text(L10n.Localizable.Common.pages("\(value)")).tag(value)
                     }
                 }
                 .pickerStyle(.menu)
                 if !DeviceUtil.isPad {
-                    Toggle(L10n.Localizable.ReadingSettingView.enablesLandscape, isOn: $enablesLandscape)
+                    Toggle(String(localized: .enablesLandscape), isOn: $enablesLandscape)
                 }
             }
-            Section(L10n.Localizable.ReadingSettingView.appearance) {
+            Section(String(localized: .readingAppearance)) {
                 Picker(
-                    L10n.Localizable.ReadingSettingView.separatorHeight,
+                    String(localized: .separatorHeight),
                     selection: $contentDividerHeight
                 ) {
                     ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
@@ -56,17 +56,17 @@ public struct ReadingSettingView: View {
                 .disabled(readingDirection != .vertical)
                 ScaleFactorRow(
                     scaleFactor: $maximumScaleFactor,
-                    labelContent: L10n.Localizable.ReadingSettingView.maximumScaleFactor,
+                    labelContent: String(localized: .maximumScaleFactor),
                     minFactor: 1.5, maxFactor: 10
                 )
                 ScaleFactorRow(
                     scaleFactor: $doubleTapScaleFactor,
-                    labelContent: L10n.Localizable.ReadingSettingView.doubleTapScaleFactor,
+                    labelContent: String(localized: .doubleTapScaleFactor),
                     minFactor: 1.5, maxFactor: 5
                 )
             }
         }
-        .navigationTitle(L10n.Localizable.ReadingSettingView.reading)
+        .navigationTitle(String(localized: .reading))
     }
 }
 

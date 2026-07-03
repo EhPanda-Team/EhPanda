@@ -249,14 +249,6 @@
 "app_icon_view.app_icon" = "앱 아이콘";
 
 // MARK: reading_settingView
-"reading_setting_view.reading" = "읽기";
-"reading_setting_view.direction" = "방향";
-"reading_setting_view.preload_limit" = "페이지 미리 로딩";
-"reading_setting_view.enables_landscape" = "가로 화면 사용하기";
-"reading_setting_view.separator_height" = "페이지 간 여백 두께";
-"reading_setting_view.maximum_scale_factor" = "최대 확대 비율";
-"reading_setting_view.double_tap_scale_factor" = "더블 탭 확대 비율";
-"reading_setting_view.appearance" = "외관";
 // ReadingDirection
 "reading_direction.vertical" = "위에서 아래로";
 "reading_direction.right_to_left" = "오른쪽에서 왼쪽으로";
