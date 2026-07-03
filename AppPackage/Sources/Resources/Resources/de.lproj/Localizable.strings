@@ -52,10 +52,6 @@
 
 // MARK: DateSeek
 "date_seek_view.date_seek" = "Datum aufsuchen";
-"date_seek_view.date" = "Datum";
-"date_seek_view.seek_around_date" = "Galerien rund um das gewählte Datum aufsuchen.";
-"date_seek_view.seek_newer" = "Neuere";
-"date_seek_view.seek_older" = "Ältere";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "Zu Seite springen";
 "jump_page_view.jump_page_description" = "Geben Sie eine Seitenzahl zwischen 1 und %d ein.";
