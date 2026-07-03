@@ -8,9 +8,6 @@
 "toplists_type.all_time" = "전체";
 
 // MARK: Response
-"hath_client_not_found" = "H@H 클라이언트를 아이디에 연동시킨 후 사용해주세요.";
-"hath_client_not_online" = "H@H 클라이언트가 오프라인인 것 같네요. 클라이언트를 켜고 다시 시도해주세요.";
-"invalid_resolution" = "이 콘텐츠는 선택한　해상도로 다운로드할 수 없어요.";
 
 // MARK: Toast
 
@@ -241,108 +238,33 @@
 "about_view.acknowledgements" = "도움을 주신 분들";
 
 // MARK: DetailView
-"detail_view.read" = "읽기";
-"detail_view.post_comment" = "평가 남기기";
-"detail_view.accessibility.login" = "다운로드하려면 로그인해야 합니다";
-"detail_view.accessibility.download" = "다운로드";
-"detail_view.accessibility.queued" = "다운로드 대기 중";
-"detail_view.accessibility.downloading" = "%d / %d 페이지 다운로드 중";
-"detail_view.accessibility.downloaded" = "다운로드한 갤러리 삭제";
-"detail_view.accessibility.update" = "다운로드 업데이트";
-"detail_view.accessibility.retry" = "다운로드 다시 시도";
-"detail_view.accessibility.repair" = "다운로드 복구";
-"detail_view.accessibility.preparing" = "다운로드 정보를 불러오는 중";
-"detail_view.accessibility.pause_action" = "다운로드 일시 정지";
-"detail_view.accessibility.paused" = "다운로드 다시 시작. %d / %d 페이지에서 일시 정지됨";
-"detail_view.accessibility.partial" = "다운로드 다시 시도. 이미 %d / %d 페이지를 사용할 수 있습니다.";
-"detail_view.archives" = "아카이브";
-"detail_view.torrents" = "토렌트";
 "detail_view.share" = "공유";
 "detail_view.detail" = "세부 정보";
-"detail_view.withdraw_vote" = "투표 취소";
-"detail_view.vote_up" = "찬성 투표";
-"detail_view.vote_down" = "반대 투표";
-"detail_view.favorited" = "즐겨찾기";
 "detail_view.language" = "언어";
-"detail_view.ratings" = "%@명의 별점";
-"detail_view.page_count" = "페이지 수";
-"detail_view.file_size" = "파일　크기";
-"detail_view.favorited_unit" = "번";
-"detail_view.page_count_unit" = "페이지";
-"detail_view.give_a_rating" = "별점 주기";
-"detail_view.similar_gallery" = "비슷한 작품";
-"detail_view.previews" = "미리보기";
-"detail_view.comments" = "댓글";
 "detail_view.delete_download" = "다운로드를 삭제할까요?";
-"detail_view.repair_download" = "다운로드를 복구할까요?";
-"detail_view.update_download" = "다운로드를 업데이트할까요?";
-"detail_view.redownload_gallery" = "갤러리를 다시 다운로드할까요?";
 "detail_view.delete_downloaded_gallery" = "다운로드한 갤러리를 이 기기에서 삭제합니다.";
-"detail_view.repair_download_description" = "이 갤러리의 오프라인 파일을 지금 복구할까요?";
-"detail_view.update_download_description" = "이 갤러리를 지금 온라인 최신 버전으로 업데이트할까요?";
-"detail_view.redownload_gallery_description" = "이 갤러리를 지금 처음부터 다시 다운로드할까요?";
-"detail_view.repair" = "복구";
 "detail_view.update" = "업데이트";
-"detail_view.redownload" = "다시 다운로드";
-"detail_view.saved_details" = "온라인 세부 정보를 새로고침할 수 없어 저장된 세부 정보를 표시합니다.";
 
 // MARK: ArchivesView
-"archives_view.archives" = "아카이브";
-"archives_view.download_to_hath_client" = "H@H 클라이언트로 저장";
 // HathArchive
 "hath_archive.free" = "무료";
 // ArchiveResolution
 "archive_resolution.original" = "원본";
 
 // MARK: TorrentsView
-"torrents_view.torrents" = "토렌트";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "갤러리 정보";
-"gallery_infos_view.id" = "ID";
-"gallery_infos_view.token" = "토큰";
-"gallery_infos_view.title" = "제목";
-"gallery_infos_view.japanese_title" = "일본어 제목";
-"gallery_infos_view.gallery_URL" = "갤러리 주소";
-"gallery_infos_view.cover_URL" = "표지 주소";
-"gallery_infos_view.archive_URL" = "아카이브 주소";
-"gallery_infos_view.torrent_URL" = "토렌트 주소";
-"gallery_infos_view.parent_URL" = "부모 갤러리 링크";
-"gallery_infos_view.category" = "장르";
-"gallery_infos_view.uploader" = "업로드";
-"gallery_infos_view.posted_date" = "업로드된 날짜";
-"gallery_infos_view.visibility" = "가시성";
-"gallery_infos_view.language" = "언어";
-"gallery_infos_view.page_count" = "페이지 수";
-"gallery_infos_view.file_size" = "파일 크기";
-"gallery_infos_view.favorited_times" = "즐겨찾기된 수";
-"gallery_infos_view.favorited" = "즐겨찾기에 저장 됨";
-"gallery_infos_view.rating_count" = "별점 갯수";
-"gallery_infos_view.average_rating" = "평균 별점";
-"gallery_infos_view.my_rating" = "내 별점";
-"gallery_infos_view.torrent_count" = "토렌트 수";
-"gallery_infos_view.none" = "없음";
-"gallery_infos_view.yes" = "네";
-"gallery_infos_view.no" = "아니요";
 // GalleryVisibility
 "gallery_visibility.yes" = "네";
 "gallery_visibility.no" = "아니요 (%@)";
 "gallery_visibility.expunged" = "삭제됨";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "이미지";
-"tag_detail_view.links" = "링크";
 
 // MARK: DownloadsView
 "download_folder_filter.all" = "전체";
 "detail_view.manage_folders" = "폴더 관리";
-"detail_view.create_default_folder" = "기본 폴더 만들기";
-"detail_view.no_folders" = "아직 폴더가 없습니다";
 "downloads_view.manage_folders" = "폴더 관리";
-"folder_manager_view.folders" = "폴더";
-"folder_manager_view.folder_name" = "폴더 이름";
-"folder_manager_view.delete_folder" = "폴더와 그 안에 다운로드한 모든 갤러리를 삭제합니다.";
-"folder_manager_view.empty_folders" = "만든 폴더가 여기에 표시됩니다.";
 "downloads_view.downloads" = "다운로드";
 "downloads_view.delete_download" = "다운로드를 삭제할까요?";
 "downloads_view.delete_downloaded_gallery" = "다운로드한 갤러리를 이 기기에서 삭제합니다.";
@@ -357,14 +279,10 @@
 "download_setting_view.network_description" = "한 번에 하나의 갤러리만 다운로드됩니다. 이 설정으로 한 갤러리 안에서 동시에 다운로드할 페이지 수, 셀룰러 다운로드 허용 여부, 그리고 파일을 앱의 Downloads 폴더에 저장하는 방식을 제어합니다.";
 
 // MARK: CommentsView
-"comments_view.comments" = "댓글";
 
 // MARK: PostCommentView
-"post_comment_view.post_comment" = "평가 남기기";
-"post_comment_view.edit_comment" = "평가 수정";
 
 // MARK: PreviewsView
-"previews_view.previews" = "미리보기";
 
 // MARK: ReadingView
 "reading_view.share" = "공유";

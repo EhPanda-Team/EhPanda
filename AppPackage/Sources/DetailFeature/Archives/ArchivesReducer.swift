@@ -124,14 +124,14 @@ public struct ArchivesReducer: Sendable {
                 switch result {
                 case .success(let response):
                     switch response {
-                    case L10n.Constant.hathClientNotFound:
-                        state.toast = .error(caption: L10n.Localizable.hathClientNotFound)
+                    case String(localized: .Constant.responseHathClientNotFound):
+                        state.toast = .error(caption: String(localized: .hathClientNotFound))
                         isSuccess = false
-                    case L10n.Constant.hathClientNotOnline:
-                        state.toast = .error(caption: L10n.Localizable.hathClientNotOnline)
+                    case String(localized: .Constant.responseHathClientNotOnline):
+                        state.toast = .error(caption: String(localized: .hathClientNotOnline))
                         isSuccess = false
-                    case L10n.Constant.invalidResolution:
-                        state.toast = .error(caption: L10n.Localizable.invalidResolution)
+                    case String(localized: .Constant.responseInvalidResolution):
+                        state.toast = .error(caption: String(localized: .invalidResolution))
                         isSuccess = false
                     default:
                         state.toast = .success(caption: response)

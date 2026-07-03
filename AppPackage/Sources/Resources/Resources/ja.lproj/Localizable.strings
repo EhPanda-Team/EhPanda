@@ -8,9 +8,6 @@
 "toplists_type.all_time" = "すべて";
 
 // MARK: Response
-"hath_client_not_found" = "この機能を使うには、アカウントに関連付けられている H@H クライアントが必要です";
-"hath_client_not_online" = "H@H クライアントは現在オフラインのようです、起動してからもう一度お試しください";
-"invalid_resolution" = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: Toast
 
@@ -241,108 +238,33 @@
 "about_view.acknowledgements" = "謝辞";
 
 // MARK: DetailView
-"detail_view.read" = "閲覧";
-"detail_view.post_comment" = "コメントを書く";
-"detail_view.accessibility.login" = "ダウンロードするにはログインが必要です";
-"detail_view.accessibility.download" = "ダウンロード";
-"detail_view.accessibility.queued" = "ダウンロード待ち";
-"detail_view.accessibility.downloading" = "%d / %d ページをダウンロード中";
-"detail_view.accessibility.downloaded" = "ダウンロード済みのギャラリーを削除";
-"detail_view.accessibility.update" = "ダウンロードを更新";
-"detail_view.accessibility.retry" = "ダウンロードを再試行";
-"detail_view.accessibility.repair" = "ダウンロードを修復";
-"detail_view.accessibility.preparing" = "ダウンロード情報を取得中";
-"detail_view.accessibility.pause_action" = "ダウンロードを一時停止";
-"detail_view.accessibility.paused" = "ダウンロードを再開。%d / %d ページで停止中";
-"detail_view.accessibility.partial" = "ダウンロードを再試行。すでに %d / %d ページが利用可能です。";
-"detail_view.archives" = "アーカイブ";
-"detail_view.torrents" = "トレント";
 "detail_view.share" = "共有";
 "detail_view.detail" = "詳細";
-"detail_view.withdraw_vote" = "投票を取り消す";
-"detail_view.vote_up" = "賛成票を投じる";
-"detail_view.vote_down" = "反対票を投じる";
-"detail_view.favorited" = "気に入り";
 "detail_view.language" = "言語";
-"detail_view.ratings" = "%@ 件の評価";
-"detail_view.page_count" = "ページ数";
-"detail_view.file_size" = "ファイルサイズ";
-"detail_view.favorited_unit" = "回";
-"detail_view.page_count_unit" = "ページ";
-"detail_view.give_a_rating" = "評価する";
-"detail_view.similar_gallery" = "類似ギャラリー";
-"detail_view.previews" = "プレビュー";
-"detail_view.comments" = "コメント";
 "detail_view.delete_download" = "ダウンロードを削除しますか？";
-"detail_view.repair_download" = "ダウンロードを修復しますか？";
-"detail_view.update_download" = "ダウンロードを更新しますか？";
-"detail_view.redownload_gallery" = "ギャラリーを再ダウンロードしますか？";
 "detail_view.delete_downloaded_gallery" = "ダウンロード済みのギャラリーをこのデバイスから削除します。";
-"detail_view.repair_download_description" = "このギャラリーのオフラインファイルを今すぐ修復しますか？";
-"detail_view.update_download_description" = "このギャラリーを今すぐオンラインの最新バージョンに更新しますか？";
-"detail_view.redownload_gallery_description" = "このギャラリーを今すぐ最初から再ダウンロードしますか？";
-"detail_view.repair" = "修復";
 "detail_view.update" = "更新";
-"detail_view.redownload" = "再ダウンロード";
-"detail_view.saved_details" = "オンラインの詳細を更新できなかったため、保存済みの詳細を表示しています。";
 
 // MARK: ArchivesView
-"archives_view.archives" = "アーカイブ";
-"archives_view.download_to_hath_client" = "H@H クライアントにダウンロード";
 // HathArchive
 "hath_archive.free" = "無料";
 // ArchiveResolution
 "archive_resolution.original" = "オリジナル";
 
 // MARK: TorrentsView
-"torrents_view.torrents" = "トレント";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "ギャラリー情報";
-"gallery_infos_view.id" = "ID";
-"gallery_infos_view.token" = "Token";
-"gallery_infos_view.title" = "タイトル";
-"gallery_infos_view.japanese_title" = "日本語タイトル";
-"gallery_infos_view.gallery_URL" = "ギャラリーリンク";
-"gallery_infos_view.cover_URL" = "カバーリンク";
-"gallery_infos_view.archive_URL" = "アーカイブリンク";
-"gallery_infos_view.torrent_URL" = "トレントリンク";
-"gallery_infos_view.parent_URL" = "親ギャラリーリンク";
-"gallery_infos_view.category" = "カテゴリー";
-"gallery_infos_view.uploader" = "アップローダー";
-"gallery_infos_view.posted_date" = "投稿日付";
-"gallery_infos_view.visibility" = "可視";
-"gallery_infos_view.language" = "言語";
-"gallery_infos_view.page_count" = "ページ数";
-"gallery_infos_view.file_size" = "ファイルサイズ";
-"gallery_infos_view.favorited_times" = "気に入り数";
-"gallery_infos_view.favorited" = "お気に入り済み";
-"gallery_infos_view.rating_count" = "評価数";
-"gallery_infos_view.average_rating" = "平均評価";
-"gallery_infos_view.my_rating" = "自分の評価";
-"gallery_infos_view.torrent_count" = "トレント数";
-"gallery_infos_view.none" = "なし";
-"gallery_infos_view.yes" = "はい";
-"gallery_infos_view.no" = "いいえ";
 // GalleryVisibility
 "gallery_visibility.yes" = "はい";
 "gallery_visibility.no" = "いいえ (%@)";
 "gallery_visibility.expunged" = "削除済み";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "画像";
-"tag_detail_view.links" = "リンク";
 
 // MARK: DownloadsView
 "download_folder_filter.all" = "すべて";
 "detail_view.manage_folders" = "フォルダを管理";
-"detail_view.create_default_folder" = "デフォルトフォルダを作成";
-"detail_view.no_folders" = "フォルダはまだありません";
 "downloads_view.manage_folders" = "フォルダを管理";
-"folder_manager_view.folders" = "フォルダ";
-"folder_manager_view.folder_name" = "フォルダ名";
-"folder_manager_view.delete_folder" = "フォルダとその中のダウンロード済みギャラリーをすべて削除します。";
-"folder_manager_view.empty_folders" = "作成したフォルダはここに表示されます。";
 "downloads_view.downloads" = "ダウンロード";
 "downloads_view.delete_download" = "ダウンロードを削除しますか？";
 "downloads_view.delete_downloaded_gallery" = "ダウンロード済みのギャラリーをこのデバイスから削除します。";
@@ -357,14 +279,10 @@
 "download_setting_view.network_description" = "一度にダウンロードされるギャラリーは 1 件だけです。この設定では、1 つのギャラリー内で同時にダウンロードするページ数、モバイル通信の許可または禁止、そしてファイルをアプリの Downloads フォルダに保存する動作を管理します。";
 
 // MARK: CommentsView
-"comments_view.comments" = "コメント";
 
 // MARK: PostCommentView
-"post_comment_view.post_comment" = "コメントを書く";
-"post_comment_view.edit_comment" = "コメントを編集";
 
 // MARK: PreviewsView
-"previews_view.previews" = "プレビュー";
 
 // MARK: ReadingView
 "reading_view.share" = "共有";

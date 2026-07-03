@@ -8,9 +8,6 @@
 "toplists_type.all_time" = "All time";
 
 // MARK: Response
-"hath_client_not_found" = "You must have a H@H client assigned to your account to use this feature.";
-"hath_client_not_online" = "Your H@H client appears to be offline. Turn it on, then try again.";
-"invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
 
 // MARK: Toast
 
@@ -241,108 +238,33 @@
 "about_view.acknowledgements" = "Acknowledgements";
 
 // MARK: DetailView
-"detail_view.read" = "Read";
-"detail_view.post_comment" = "Post comment";
-"detail_view.accessibility.login" = "Log in to download";
-"detail_view.accessibility.download" = "Download";
-"detail_view.accessibility.queued" = "Queued";
-"detail_view.accessibility.downloading" = "Downloading %d of %d";
-"detail_view.accessibility.downloaded" = "Delete downloaded gallery";
-"detail_view.accessibility.update" = "Update download";
-"detail_view.accessibility.retry" = "Retry download";
-"detail_view.accessibility.repair" = "Repair download";
-"detail_view.accessibility.preparing" = "Preparing download";
-"detail_view.accessibility.pause_action" = "Pause download";
-"detail_view.accessibility.paused" = "Resume download. Paused at %d of %d";
-"detail_view.accessibility.partial" = "Retry download. %d of %d pages are already available.";
-"detail_view.archives" = "Archives";
-"detail_view.torrents" = "Torrents";
 "detail_view.share" = "Share";
 "detail_view.detail" = "Detail";
-"detail_view.withdraw_vote" = "Withdraw vote";
-"detail_view.vote_up" = "Vote up";
-"detail_view.vote_down" = "Vote down";
-"detail_view.favorited" = "Favorited";
 "detail_view.language" = "Language";
-"detail_view.ratings" = "%@ Ratings";
-"detail_view.page_count" = "Page Count";
-"detail_view.file_size" = "File Size";
-"detail_view.favorited_unit" = "Times";
-"detail_view.page_count_unit" = "Pages";
-"detail_view.give_a_rating" = "Give a Rating";
-"detail_view.similar_gallery" = "Similar Gallery";
-"detail_view.previews" = "Previews";
-"detail_view.comments" = "Comments";
 "detail_view.delete_download" = "Delete Download?";
-"detail_view.repair_download" = "Repair Download?";
-"detail_view.update_download" = "Update Download?";
-"detail_view.redownload_gallery" = "Redownload Gallery?";
 "detail_view.delete_downloaded_gallery" = "This will remove the downloaded gallery from this device.";
-"detail_view.repair_download_description" = "Repair the offline files for this gallery now?";
-"detail_view.update_download_description" = "Update this gallery to the newest online version now?";
-"detail_view.redownload_gallery_description" = "Start a fresh download for this gallery now?";
-"detail_view.repair" = "Repair";
 "detail_view.update" = "Update";
-"detail_view.redownload" = "Redownload";
-"detail_view.saved_details" = "Couldn't refresh online details. Showing saved details instead.";
 
 // MARK: ArchivesView
-"archives_view.archives" = "Archives";
-"archives_view.download_to_hath_client" = "Download To H@H Client";
 // HathArchive
 "hath_archive.free" = "Free";
 // ArchiveResolution
 "archive_resolution.original" = "Original";
 
 // MARK: TorrentsView
-"torrents_view.torrents" = "Torrents";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "Gallery infos";
-"gallery_infos_view.id" = "ID";
-"gallery_infos_view.token" = "Token";
-"gallery_infos_view.title" = "Title";
-"gallery_infos_view.japanese_title" = "Japanese title";
-"gallery_infos_view.gallery_URL" = "Gallery URL";
-"gallery_infos_view.cover_URL" = "Cover URL";
-"gallery_infos_view.archive_URL" = "Archive URL";
-"gallery_infos_view.torrent_URL" = "Torrent URL";
-"gallery_infos_view.parent_URL" = "Parent URL";
-"gallery_infos_view.category" = "Category";
-"gallery_infos_view.uploader" = "Uploader";
-"gallery_infos_view.posted_date" = "Posted date";
-"gallery_infos_view.visibility" = "Visibility";
-"gallery_infos_view.language" = "Language";
-"gallery_infos_view.page_count" = "Page count";
-"gallery_infos_view.file_size" = "File size";
-"gallery_infos_view.favorited_times" = "Favorited times";
-"gallery_infos_view.favorited" = "Favorited";
-"gallery_infos_view.rating_count" = "Rating count";
-"gallery_infos_view.average_rating" = "Average rating";
-"gallery_infos_view.my_rating" = "My rating";
-"gallery_infos_view.torrent_count" = "Torrent count";
-"gallery_infos_view.none" = "None";
-"gallery_infos_view.yes" = "Yes";
-"gallery_infos_view.no" = "No";
 // GalleryVisibility
 "gallery_visibility.yes" = "Yes";
 "gallery_visibility.no" = "No (%@)";
 "gallery_visibility.expunged" = "Expunged";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "Images";
-"tag_detail_view.links" = "Links";
 
 // MARK: DownloadsView
 "download_folder_filter.all" = "All";
 "detail_view.manage_folders" = "Manage Folders";
-"detail_view.create_default_folder" = "Create Default Folder";
-"detail_view.no_folders" = "No folders yet";
 "downloads_view.manage_folders" = "Manage Folders";
-"folder_manager_view.folders" = "Folders";
-"folder_manager_view.folder_name" = "Folder name";
-"folder_manager_view.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
-"folder_manager_view.empty_folders" = "Folders you create will appear here.";
 "downloads_view.downloads" = "Downloads";
 "downloads_view.delete_download" = "Delete Download?";
 "downloads_view.delete_downloaded_gallery" = "This will remove the downloaded gallery from this device.";
@@ -357,14 +279,10 @@
 "download_setting_view.network_description" = "Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.";
 
 // MARK: CommentsView
-"comments_view.comments" = "Comments";
 
 // MARK: PostCommentView
-"post_comment_view.post_comment" = "Post comment";
-"post_comment_view.edit_comment" = "Edit comment";
 
 // MARK: PreviewsView
-"previews_view.previews" = "Previews";
 
 // MARK: ReadingView
 "reading_view.share" = "Share";

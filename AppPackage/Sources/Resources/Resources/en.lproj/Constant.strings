@@ -4,9 +4,6 @@
 */
 
 // MARK: Website response
-"hath_client_not_found" = "You must have a H@H client assigned to your account to use this feature.";
-"hath_client_not_online" = "Your H@H client appears to be offline. Turn it on, then try again.";
-"invalid_resolution" = "The requested gallery cannot be downloaded with the selected resolution.";
 "gallery_unavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: App

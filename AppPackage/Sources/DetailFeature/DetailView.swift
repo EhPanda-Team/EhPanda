@@ -185,7 +185,7 @@ private extension DetailView {
         primaryModalModifiers(content: content)
             .sheet(item: $store.destination.postComment, id: \.id) { _ in
                 PostCommentView(
-                    title: L10n.Localizable.PostCommentView.postComment,
+                    title: String(localized: .postComment),
                     content: $store.commentContent,
                     isFocused: $store.postCommentFocused,
                     postAction: {
@@ -292,7 +292,7 @@ private extension DetailView {
     @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Label(
-                L10n.Localizable.DetailView.savedDetails,
+                String(localized: .savedDetails),
                 systemSymbol: .wifiExclamationmark
             )
             .font(.subheadline.weight(.semibold))
