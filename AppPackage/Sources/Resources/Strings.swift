@@ -1941,10 +1941,6 @@ public enum L10n {
     public enum SearchView {
       /// Quick search
       public static let quickSearch = L10n.tr("Localizable", "search_view.quick_search", fallback: "Quick search")
-      /// Recently searched
-      public static let recentlySearched = L10n.tr("Localizable", "search_view.recently_searched", fallback: "Recently searched")
-      /// Recently seen
-      public static let recentlySeen = L10n.tr("Localizable", "search_view.recently_seen", fallback: "Recently seen")
       /// Search
       public static let search = L10n.tr("Localizable", "search_view.search", fallback: "Search")
     }

@@ -225,7 +225,7 @@ private struct HistoryKeywordsSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.SearchView.recentlySearched, showAll: false) {
+        SubSection(title: String(localized: .recentlySearched), showAll: false) {
             DoubleVerticalKeywordsStack(
                 keywords: keywords.map(WrappedKeyword.init),
                 searchAction: searchAction,
@@ -246,7 +246,7 @@ private struct HistoryGalleriesSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.SearchView.recentlySeen, showAll: false) {
+        SubSection(title: String(localized: .recentlySeen), showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(galleries) { gallery in
