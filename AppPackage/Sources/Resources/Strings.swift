@@ -1840,16 +1840,6 @@ public enum L10n {
       public static let previews = L10n.tr("Localizable", "previews_view.previews", fallback: "Previews")
     }
     public enum QuickSearchView {
-      /// Content
-      public static let content = L10n.tr("Localizable", "quick_search_view.content", fallback: "Content")
-      /// Edit word
-      public static let editWord = L10n.tr("Localizable", "quick_search_view.edit_word", fallback: "Edit word")
-      /// Name
-      public static let name = L10n.tr("Localizable", "quick_search_view.name", fallback: "Name")
-      /// New word
-      public static let newWord = L10n.tr("Localizable", "quick_search_view.new_word", fallback: "New word")
-      /// Optional
-      public static let `optional` = L10n.tr("Localizable", "quick_search_view.optional", fallback: "Optional")
       /// Quick search
       public static let quickSearch = L10n.tr("Localizable", "quick_search_view.quick_search", fallback: "Quick search")
     }

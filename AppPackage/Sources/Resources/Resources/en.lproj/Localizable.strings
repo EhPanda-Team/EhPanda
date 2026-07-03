@@ -154,11 +154,6 @@
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "Quick search";
-"quick_search_view.edit_word" = "Edit word";
-"quick_search_view.new_word" = "New word";
-"quick_search_view.content" = "Content";
-"quick_search_view.name" = "Name";
-"quick_search_view.optional" = "Optional";
 
 // MARK: SettingView
 "setting_view.setting" = "Setting";

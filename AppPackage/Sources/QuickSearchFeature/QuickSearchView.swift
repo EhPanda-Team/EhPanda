@@ -112,8 +112,8 @@ public struct QuickSearchView: View {
     @ViewBuilder private func editWordView(for kind: QuickSearchReducer.WordEditKind) -> some View {
         EditWordView(
             title: kind == .new
-                ? L10n.Localizable.QuickSearchView.newWord
-                : L10n.Localizable.QuickSearchView.editWord,
+                ? String(localized: .newWord)
+                : String(localized: .editWord),
             word: $store.editingWord,
             focusedField: $focusedField,
             submitAction: onTextFieldSubmitted,
@@ -147,11 +147,11 @@ extension QuickSearchView {
 
         var body: some View {
             Form {
-                Section(L10n.Localizable.QuickSearchView.name) {
-                    TextField(L10n.Localizable.QuickSearchView.optional, text: $word.name)
+                Section(String(localized: .name)) {
+                    TextField(String(localized: .optional), text: $word.name)
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
-                Section(L10n.Localizable.QuickSearchView.content) {
+                Section(String(localized: .content)) {
                     TextEditor(text: $word.content)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
