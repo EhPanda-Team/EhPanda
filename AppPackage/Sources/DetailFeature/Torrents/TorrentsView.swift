@@ -52,7 +52,7 @@ struct TorrentsView: View {
             .onAppear {
                 store.send(.fetchGalleryTorrents(gid, token))
             }
-            .navigationTitle(String(localized: .torrents))
+            .navigationTitle(.torrents)
         }
     }
 }

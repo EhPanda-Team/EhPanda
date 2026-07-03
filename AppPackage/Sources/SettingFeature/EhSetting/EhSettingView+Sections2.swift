@@ -68,7 +68,7 @@ struct FavoritesSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(String(localized: .favoritesSortOrderDescription))
+            Text(.favoritesSortOrderDescription)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -174,7 +174,7 @@ struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
         } header: {
-            Text(String(localized: .thumbnailConfiguration))
+            Text(.thumbnailConfiguration)
                 .ehSettingRegularHeaderStyled()
         }
     }

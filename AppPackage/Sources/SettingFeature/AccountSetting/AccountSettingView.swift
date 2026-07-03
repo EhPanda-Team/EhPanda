@@ -60,7 +60,7 @@ struct AccountSettingView: View {
                 .autoBlur(radius: blurRadius)
         }
         .onAppear { store.send(.loadCookies) }
-        .navigationTitle(String(localized: .account))
+        .navigationTitle(.account)
     }
 }
 

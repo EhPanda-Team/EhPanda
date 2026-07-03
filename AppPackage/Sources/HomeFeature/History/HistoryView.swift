@@ -49,7 +49,7 @@ struct HistoryView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .history))
+        .navigationTitle(.history)
     }
 
     private func toolbar() -> some ToolbarContent {

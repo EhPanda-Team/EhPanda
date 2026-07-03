@@ -106,7 +106,7 @@ public struct DownloadsView: View {
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )
-        .navigationTitle(String(localized: .RLocalizable.downloads))
+        .navigationTitle(.RLocalizable.downloads)
         .navigationBarTitleDisplayMode(.large)
         .toolbar(content: toolbar)
     }

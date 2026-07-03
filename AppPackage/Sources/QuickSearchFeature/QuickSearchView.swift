@@ -81,7 +81,7 @@ public struct QuickSearchView: View {
             }
             .toolbar(content: toolbar)
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
-            .navigationTitle(String(localized: .RLocalizable.quickSearch))
+            .navigationTitle(.RLocalizable.quickSearch)
         }
     }
 

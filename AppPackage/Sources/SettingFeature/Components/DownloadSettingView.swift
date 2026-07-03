@@ -38,12 +38,12 @@ struct DownloadSettingView: View {
                     isOn: $downloadAllowCellular
                 )
             } header: {
-                Text(String(localized: .network))
+                Text(.network)
             } footer: {
-                Text(String(localized: .networkDescription))
+                Text(.networkDescription)
             }
         }
-        .navigationTitle(String(localized: .title))
+        .navigationTitle(.title)
     }
 
     private var downloadThreadLimitValue: Binding<Double> {

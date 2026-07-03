@@ -122,14 +122,14 @@ struct ActionSection: View {
                     Button(action: showUserRatingAction) {
                         Spacer()
                         Image(systemSymbol: .squareAndPencil)
-                        Text(String(localized: .giveARating)).bold()
+                        Text(.giveARating).bold()
                         Spacer()
                     }
                     .disabled(!CookieUtil.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
-                        Text(String(localized: .similarGallery)).bold()
+                        Text(.similarGallery).bold()
                         Spacer()
                     }
                 }
@@ -242,7 +242,7 @@ extension TagsSection {
                     ))
                 } label: {
                     Image(systemSymbol: .richtextPage)
-                    Text(String(localized: .RLocalizable.detail))
+                    Text(.RLocalizable.detail)
                 }
             }
             if CookieUtil.didLogin {
@@ -258,20 +258,20 @@ extension TagsSection {
                 } label: {
                     Image(systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
                         .symbolVariant(.fill)
-                    Text(String(localized: .withdrawVote))
+                    Text(.withdrawVote)
                 }
             } else {
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), 1)
                 } label: {
                     Image(systemSymbol: .handThumbsup)
-                    Text(String(localized: .voteUp))
+                    Text(.voteUp)
                 }
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), -1)
                 } label: {
                     Image(systemSymbol: .handThumbsdown)
-                    Text(String(localized: .voteDown))
+                    Text(.voteDown)
                 }
             }
         }

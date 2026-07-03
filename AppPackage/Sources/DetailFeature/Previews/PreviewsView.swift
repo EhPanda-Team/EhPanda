@@ -76,7 +76,7 @@ struct PreviewsView: View {
         .onAppear {
             store.send(.fetchDatabaseInfos(gid))
         }
-        .navigationTitle(String(localized: .previews))
+        .navigationTitle(.previews)
     }
 }
 

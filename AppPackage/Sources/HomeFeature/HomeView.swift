@@ -91,7 +91,7 @@ public struct HomeView: View {
                 }
             }
             .toolbar(content: toolbar)
-            .navigationTitle(String(localized: .RLocalizable.home))
+            .navigationTitle(.RLocalizable.home)
         } destination: { store in
             switch store.case {
             case .frontpage(let store):

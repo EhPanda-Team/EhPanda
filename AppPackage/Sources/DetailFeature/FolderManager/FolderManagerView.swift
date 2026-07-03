@@ -52,7 +52,7 @@ public struct FolderManagerView: View {
                 store.send(.fetchFolders)
             }
             .toolbar(content: toolbar)
-            .navigationTitle(String(localized: .folders))
+            .navigationTitle(.folders)
             .navigationBarTitleDisplayMode(.inline)
         }
     }

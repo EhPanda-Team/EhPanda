@@ -21,7 +21,7 @@ struct LaboratorySettingView: View {
             }
             .padding()
         }
-        .navigationTitle(String(localized: .laboratory))
+        .navigationTitle(.laboratory)
     }
 }
 

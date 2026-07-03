@@ -39,7 +39,7 @@ public struct FiltersView: View {
                 )
             }
             .synchronize($store.focusedBound, $focusedBound)
-            .navigationTitle(String(localized: .RLocalizable.filters))
+            .navigationTitle(.RLocalizable.filters)
             .onAppear { store.send(.fetchFilters) }
         }
     }
@@ -79,7 +79,7 @@ private struct BasicSection: View {
             .pickerStyle(.segmented)
             CategoryView(bindings: categoryBindings)
             Button(action: resetFiltersDialogAction) {
-                Text(String(localized: .resetFilters)).foregroundStyle(.red)
+                Text(.resetFilters).foregroundStyle(.red)
             }
             .confirmationDialog(confirmationDialog)
             Toggle(String(localized: .advancedSettings), isOn: $filter.advanced)
@@ -153,7 +153,7 @@ private struct MinimumRatingSetter: View {
     var body: some View {
         Picker(String(localized: .minimumRating), selection: $minimum) {
             ForEach(Array(2...5), id: \.self) { number in
-                Text(String(localized: .RLocalizable.stars("\(number)"))).tag(number)
+                Text(.RLocalizable.stars("\(number)")).tag(number)
             }
         }
         .pickerStyle(.menu)
@@ -181,7 +181,7 @@ private struct PagesRangeSetter: View {
 
     var body: some View {
         HStack {
-            Text(String(localized: .pagesRange))
+            Text(.pagesRange)
             Spacer()
             SettingTextField(text: $lowerBound)
                 .focused(focusedBound, equals: .lower)

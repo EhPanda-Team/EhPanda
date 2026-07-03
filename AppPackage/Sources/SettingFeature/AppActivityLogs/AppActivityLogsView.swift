@@ -27,7 +27,7 @@ struct AppActivityLogsView: View {
             LoadingView()
                 .opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
 
-            Text(String(localized: .appActivityLogsViewNoLogs))
+            Text(.appActivityLogsViewNoLogs)
                 .foregroundColor(.secondary)
                 .opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
         }
@@ -44,7 +44,7 @@ struct AppActivityLogsView: View {
             store.send(.refreshAvailableRuns)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .appActivityLogsViewTitle))
+        .navigationTitle(.appActivityLogsViewTitle)
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $isRunPickerPresented) {
             RunPickerSheet(store: store) { isRunPickerPresented = false }
@@ -136,7 +136,7 @@ private struct RunPickerSheet: View {
                     }
                 }
             }
-            .navigationTitle(String(localized: .appActivityLogsViewRuns))
+            .navigationTitle(.appActivityLogsViewRuns)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

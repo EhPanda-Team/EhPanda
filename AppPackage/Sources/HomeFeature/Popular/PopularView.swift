@@ -53,7 +53,7 @@ struct PopularView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .popular))
+        .navigationTitle(.popular)
     }
 
     private func toolbar() -> some ToolbarContent {

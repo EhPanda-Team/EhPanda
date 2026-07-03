@@ -151,7 +151,7 @@ private struct UpperPanel: View {
                         Button {
                             setting.enablesDualPageMode.toggle()
                         } label: {
-                            Text(String(localized: .dualPageMode))
+                            Text(.dualPageMode)
                             if setting.enablesDualPageMode {
                                 Image(systemSymbol: .checkmark)
                             }
@@ -159,7 +159,7 @@ private struct UpperPanel: View {
                         Button {
                             setting.exceptCover.toggle()
                         } label: {
-                            Text(String(localized: .exceptTheCover))
+                            Text(.exceptTheCover)
                             if setting.exceptCover {
                                 Image(systemSymbol: .checkmark)
                             }
@@ -173,7 +173,7 @@ private struct UpperPanel: View {
                 }
 
                 Menu {
-                    Text(String(localized: .autoPlay)).foregroundColor(.secondary)
+                    Text(.autoPlay).foregroundColor(.secondary)
                     ForEach(AutoPlayPolicy.allCases) { policy in
                         Button {
                             autoPlayPolicy = policy
@@ -193,15 +193,15 @@ private struct UpperPanel: View {
                 ToolbarFeaturesMenu {
                     Button(action: retryAllFailedImagesAction) {
                         Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                        Text(String(localized: .retryAllFailedImages))
+                        Text(.retryAllFailedImages)
                     }
                     Button(action: reloadAllImagesAction) {
                         Image(systemSymbol: .arrowCounterclockwise)
-                        Text(String(localized: .reloadAllImages))
+                        Text(.reloadAllImages)
                     }
                     Button(action: navigateSettingAction) {
                         Image(systemSymbol: .gear)
-                        Text(String(localized: .readingSetting))
+                        Text(.readingSetting)
                     }
                 }
                 .buttonStyle(.borderless)
