@@ -570,6 +570,7 @@ let targets: [PackageDescription.Target] = [
             .module(.resources),
             .targetDependency(.composableArchitecture)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),

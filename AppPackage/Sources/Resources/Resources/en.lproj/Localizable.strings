@@ -63,11 +63,9 @@
 
 // MARK: AlertView
 "loading_view.loading" = "Loading...";
-"loading_view.preparing_database" = "Preparing the database...";
 "not_login_view.need_login" = "You need to login to access this feature.";
 "not_login_viewlogin" = "Login";
 "error_view.retry" = "Retry";
-"error_view.drop_database" = "Drop the database";
 "error_view.try_later" = "Please try again later.";
 "error_view.network" = "A network error occurred.";
 "error_view.parsing" = "A parsing error occurred.";
@@ -97,13 +95,11 @@
 "app_error.local_file_operation_failed" = "Local file operation failed.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.drop_database_description" = "You will lose all your data in this app.\nAre you sure to drop the database?";
 "confirmation_dialog.remove_custom_translations" = "Are you sure to remove your custom translations?";
 "confirmation_dialog.logout_description" = "Are you sure to logout?";
 "confirmation_dialog.delete_description" = "Are you sure to delete this item?";
 "confirmation_dialog.clear_description" = "Are you sure to clear?";
 "confirmation_dialog.reset_description" = "Are you sure to reset?";
-"confirmation_dialog.drop_database" = "Drop the database";
 "confirmation_dialog.remove" = "Remove";
 "confirmation_dialog.logout" = "Logout";
 "confirmation_dialog.delete" = "Delete";
