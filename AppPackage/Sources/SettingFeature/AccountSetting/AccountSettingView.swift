@@ -95,7 +95,7 @@ private struct AccountSection: View {
 
     var body: some View {
         if !CookieUtil.didLogin {
-            Button(String(localized: .RLocalizable.login), action: loginAction)
+            Button(.RLocalizable.login, action: loginAction)
         } else {
             Button(
                 String(localized: .logout),
@@ -115,7 +115,7 @@ private struct AccountSection: View {
                     )
                     .withArrow()
                 }
-                Toggle(String(localized: .showsNewDawnGreeting), isOn: $showsNewDawnGreeting)
+                Toggle(.showsNewDawnGreeting, isOn: $showsNewDawnGreeting)
             }
             .foregroundColor(.primary)
         }
@@ -142,7 +142,7 @@ private struct CookieSection: View {
         Section(GalleryHost.ehentai.rawValue) {
             CookieRow(cookieState: $ehCookiesState.memberID)
             CookieRow(cookieState: $ehCookiesState.passHash)
-            Button(String(localized: .copyCookies)) {
+            Button(.copyCookies) {
                 copyAction(.ehentai)
             }
             .foregroundStyle(.tint).font(.subheadline)
@@ -151,7 +151,7 @@ private struct CookieSection: View {
             CookieRow(cookieState: $exCookiesState.igneous)
             CookieRow(cookieState: $exCookiesState.memberID)
             CookieRow(cookieState: $exCookiesState.passHash)
-            Button(String(localized: .copyCookies)) {
+            Button(.copyCookies) {
                 copyAction(.exhentai)
             }
             .foregroundStyle(.tint).font(.subheadline)

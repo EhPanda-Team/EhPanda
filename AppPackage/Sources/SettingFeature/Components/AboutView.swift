@@ -20,22 +20,22 @@ struct AboutView: View {
                     LinkRow(urlString: contact.urlString, text: contact.text)
                 }
             }
-            Section(String(localized: .specialThanks)) {
+            Section(.specialThanks) {
                 ForEach(specialThanks) { specialThank in
                     LinkRow(urlString: specialThank.urlString, text: specialThank.text)
                 }
             }
-            Section(String(localized: .codeLevelContributors)) {
+            Section(.codeLevelContributors) {
                 ForEach(codeLevelContributors) { codeLevelContributor in
                     LinkRow(urlString: codeLevelContributor.urlString, text: codeLevelContributor.text)
                 }
             }
-            Section(String(localized: .translationContributors)) {
+            Section(.translationContributors) {
                 ForEach(translationContributors) { translationContributor in
                     LinkRow(urlString: translationContributor.urlString, text: translationContributor.text)
                 }
             }
-            Section(String(localized: .acknowledgements)) {
+            Section(.acknowledgements) {
                 ForEach(acknowledgements) { acknowledgement in
                     LinkRow(urlString: acknowledgement.urlString, text: acknowledgement.text)
                 }

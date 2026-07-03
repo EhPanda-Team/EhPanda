@@ -147,11 +147,11 @@ extension QuickSearchView {
 
         var body: some View {
             Form {
-                Section(String(localized: .name)) {
-                    TextField(String(localized: .optional), text: $word.name)
+                Section(.name) {
+                    TextField(.optional, text: $word.name)
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
-                Section(String(localized: .content)) {
+                Section(.content) {
                     TextEditor(text: $word.content)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
