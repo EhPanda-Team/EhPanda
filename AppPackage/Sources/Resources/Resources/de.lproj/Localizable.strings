@@ -8,9 +8,6 @@
 "toplists_type.all_time" = "Gesamt";
 
 // MARK: Response
-"hath_client_not_found" = "Du benötigst einen deinem Konto zugehörigen H@H Client um diese Funktion nutzen zu können";
-"hath_client_not_online" = "Dein H@H Client scheint offline zu sein. Sieh nach, ob er läuft und probier's nochmal";
-"invalid_resolution" = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
 
 // MARK: Toast
 
@@ -241,108 +238,33 @@
 "about_view.acknowledgements" = "Danksagungen";
 
 // MARK: DetailView
-"detail_view.read" = "Lesen";
-"detail_view.post_comment" = "Kommentar abgeben";
-"detail_view.accessibility.login" = "Zum Herunterladen anmelden";
-"detail_view.accessibility.download" = "Herunterladen";
-"detail_view.accessibility.queued" = "In Warteschlange";
-"detail_view.accessibility.downloading" = "Lädt %d von %d herunter";
-"detail_view.accessibility.downloaded" = "Heruntergeladene Galerie löschen";
-"detail_view.accessibility.update" = "Download aktualisieren";
-"detail_view.accessibility.retry" = "Download erneut versuchen";
-"detail_view.accessibility.repair" = "Download reparieren";
-"detail_view.accessibility.preparing" = "Download-Informationen werden geladen";
-"detail_view.accessibility.pause_action" = "Download pausieren";
-"detail_view.accessibility.paused" = "Download fortsetzen. Pausiert bei %d von %d";
-"detail_view.accessibility.partial" = "Download erneut versuchen. %d von %d Seiten sind bereits verfügbar.";
-"detail_view.archives" = "Archiv";
-"detail_view.torrents" = "Torrents";
 "detail_view.share" = "Teilen";
 "detail_view.detail" = "Details";
-"detail_view.withdraw_vote" = "Stimme zurückziehen";
-"detail_view.vote_up" = "Dafür stimmen";
-"detail_view.vote_down" = "Dagegen stimmen";
-"detail_view.favorited" = "Favorisiert";
 "detail_view.language" = "Sprache";
-"detail_view.ratings" = "%@ Bewertungen";
-"detail_view.page_count" = "Seitenzahl";
-"detail_view.file_size" = "Dateigröße";
-"detail_view.favorited_unit" = "mal";
-"detail_view.page_count_unit" = "Seiten";
-"detail_view.give_a_rating" = "Bewertung abgeben";
-"detail_view.similar_gallery" = "Ähnliche Galerien";
-"detail_view.previews" = "Vorschau";
-"detail_view.comments" = "Kommentar";
 "detail_view.delete_download" = "Download löschen?";
-"detail_view.repair_download" = "Download reparieren?";
-"detail_view.update_download" = "Download aktualisieren?";
-"detail_view.redownload_gallery" = "Galerie erneut herunterladen?";
 "detail_view.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
-"detail_view.repair_download_description" = "Die Offline-Dateien dieser Galerie jetzt reparieren?";
-"detail_view.update_download_description" = "Diese Galerie jetzt auf die neueste Online-Version aktualisieren?";
-"detail_view.redownload_gallery_description" = "Diese Galerie jetzt vollständig neu herunterladen?";
-"detail_view.repair" = "Reparieren";
 "detail_view.update" = "Aktualisieren";
-"detail_view.redownload" = "Erneut laden";
-"detail_view.saved_details" = "Online-Details konnten nicht aktualisiert werden. Stattdessen werden gespeicherte Details angezeigt.";
 
 // MARK: ArchivesView
-"archives_view.archives" = "Archiv";
-"archives_view.download_to_hath_client" = "Mit H@H Client herunterladen";
 // HathArchive
 "hath_archive.free" = "Frei";
 // ArchiveResolution
 "archive_resolution.original" = "Original";
 
 // MARK: TorrentsView
-"torrents_view.torrents" = "Torrents";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "Galerie-Infos";
-"gallery_infos_view.id" = "ID";
-"gallery_infos_view.token" = "Token";
-"gallery_infos_view.title" = "Titel";
-"gallery_infos_view.japanese_title" = "Japanischer Titel";
-"gallery_infos_view.gallery_URL" = "Galerie-URL";
-"gallery_infos_view.cover_URL" = "Cover-URL";
-"gallery_infos_view.archive_URL" = "Archiv-URL";
-"gallery_infos_view.torrent_URL" = "Torrent-URL";
-"gallery_infos_view.parent_URL" = "Übergeordnete URL";
-"gallery_infos_view.category" = "Kategorie";
-"gallery_infos_view.uploader" = "Uploader";
-"gallery_infos_view.posted_date" = "Veröffentlicht am";
-"gallery_infos_view.visibility" = "Sichtbarkeit";
-"gallery_infos_view.language" = "Sprache";
-"gallery_infos_view.page_count" = "Seitenzahl";
-"gallery_infos_view.file_size" = "Dateigröße";
-"gallery_infos_view.favorited_times" = "Anzahl Favorisierungen";
-"gallery_infos_view.favorited" = "Favorisiert";
-"gallery_infos_view.rating_count" = "Anzahl Bewertungen";
-"gallery_infos_view.average_rating" = "Durchschnittliche Bewertung";
-"gallery_infos_view.my_rating" = "Meine Bewertung";
-"gallery_infos_view.torrent_count" = "Anzahl Torrents";
-"gallery_infos_view.none" = "Keine";
-"gallery_infos_view.yes" = "Ja";
-"gallery_infos_view.no" = "Nein";
 // GalleryVisibility
 "gallery_visibility.yes" = "Ja";
 "gallery_visibility.no" = "Nein (%@)";
 "gallery_visibility.expunged" = "Entfernt";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "Bilder";
-"tag_detail_view.links" = "Links";
 
 // MARK: DownloadsView
 "download_folder_filter.all" = "Alle";
 "detail_view.manage_folders" = "Ordner verwalten";
-"detail_view.create_default_folder" = "Standardordner erstellen";
-"detail_view.no_folders" = "Noch keine Ordner";
 "downloads_view.manage_folders" = "Ordner verwalten";
-"folder_manager_view.folders" = "Ordner";
-"folder_manager_view.folder_name" = "Ordnername";
-"folder_manager_view.delete_folder" = "Der Ordner und alle heruntergeladenen Galerien darin werden gelöscht.";
-"folder_manager_view.empty_folders" = "Von dir erstellte Ordner werden hier angezeigt.";
 "downloads_view.downloads" = "Downloads";
 "downloads_view.delete_download" = "Download löschen?";
 "downloads_view.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
@@ -357,14 +279,10 @@
 "download_setting_view.network_description" = "Es wird immer nur eine Galerie gleichzeitig heruntergeladen. Mit dieser Einstellung steuerst du, wie viele Galerieseiten parallel geladen werden, ob Mobilfunk erlaubt ist und dass Dateien im Downloads-Ordner der App gespeichert werden.";
 
 // MARK: CommentsView
-"comments_view.comments" = "Kommentar";
 
 // MARK: PostCommentView
-"post_comment_view.post_comment" = "Kommentar abgeben";
-"post_comment_view.edit_comment" = "Kommentar bearbeiten";
 
 // MARK: PreviewsView
-"previews_view.previews" = "Vorschau";
 
 // MARK: ReadingView
 "reading_view.share" = "Teilen";

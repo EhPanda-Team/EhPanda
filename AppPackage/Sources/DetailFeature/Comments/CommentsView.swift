@@ -93,8 +93,8 @@ struct CommentsView: View {
             let hasCommentID = !commentID.wrappedValue.isEmpty
             PostCommentView(
                 title: hasCommentID
-                    ? L10n.Localizable.PostCommentView.editComment
-                    : L10n.Localizable.PostCommentView.postComment,
+                    ? String(localized: .editComment)
+                    : String(localized: .postComment),
                 content: $store.commentContent,
                 isFocused: $store.postCommentFocused,
                 postAction: {
@@ -117,7 +117,7 @@ struct CommentsView: View {
             store.send(.onAppear)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.CommentsView.comments)
+        .navigationTitle(String(localized: .comments))
     }
 
     private func toolbar() -> some ToolbarContent {

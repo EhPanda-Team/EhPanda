@@ -14,8 +14,8 @@ struct DescriptionSection: View {
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.favorited,
-            description: L10n.Localizable.DetailView.favoritedUnit,
+            title: String(localized: .favorited),
+            description: String(localized: .favoritedUnit),
             value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
@@ -24,16 +24,16 @@ struct DescriptionSection: View {
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.ratings("\(galleryDetail.ratingCount)"),
+            title: String(localized: .ratingsCount("\(galleryDetail.ratingCount)")),
             description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.pageCount,
-            description: L10n.Localizable.DetailView.pageCountUnit,
+            title: String(localized: .pageCount),
+            description: String(localized: .pageCountUnit),
             value: .init(galleryDetail.pageCount)
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.fileSize,
+            title: String(localized: .fileSize),
             description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
         )
     ]}
@@ -122,14 +122,14 @@ struct ActionSection: View {
                     Button(action: showUserRatingAction) {
                         Spacer()
                         Image(systemSymbol: .squareAndPencil)
-                        Text(L10n.Localizable.DetailView.giveARating).bold()
+                        Text(String(localized: .giveARating)).bold()
                         Spacer()
                     }
                     .disabled(!CookieUtil.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
-                        Text(L10n.Localizable.DetailView.similarGallery).bold()
+                        Text(String(localized: .similarGallery)).bold()
                         Spacer()
                     }
                 }
@@ -258,20 +258,20 @@ extension TagsSection {
                 } label: {
                     Image(systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
                         .symbolVariant(.fill)
-                    Text(L10n.Localizable.DetailView.withdrawVote)
+                    Text(String(localized: .withdrawVote))
                 }
             } else {
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), 1)
                 } label: {
                     Image(systemSymbol: .handThumbsup)
-                    Text(L10n.Localizable.DetailView.voteUp)
+                    Text(String(localized: .voteUp))
                 }
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), -1)
                 } label: {
                     Image(systemSymbol: .handThumbsdown)
-                    Text(L10n.Localizable.DetailView.voteDown)
+                    Text(String(localized: .voteDown))
                 }
             }
         }
@@ -290,7 +290,7 @@ struct PreviewsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.DetailView.previews,
+            title: String(localized: .previews),
             showAll: pageCount > 20, showAllAction: navigatePreviewsAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -325,7 +325,7 @@ struct CommentsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.DetailView.comments,
+            title: String(localized: .comments),
             showAll: !comments.isEmpty, showAllAction: navigateCommentAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {

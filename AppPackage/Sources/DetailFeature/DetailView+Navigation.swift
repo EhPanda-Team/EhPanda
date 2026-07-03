@@ -12,13 +12,13 @@ extension DetailView {
                 Button {
                     store.send(.archivesButtonTapped)
                 } label: {
-                    Label(L10n.Localizable.DetailView.archives, systemSymbol: .zipperPage)
+                    Label(String(localized: .archivesAction), systemSymbol: .zipperPage)
                 }
                 .disabled(store.galleryDetail?.archiveURL == nil || !CookieUtil.didLogin)
                 Button {
                     store.send(.torrentsButtonTapped)
                 } label: {
-                    let base = L10n.Localizable.DetailView.torrents
+                    let base = String(localized: .torrents)
                     let torrentCount = store.galleryDetail?.torrentCount ?? 0
                     let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
                     Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)

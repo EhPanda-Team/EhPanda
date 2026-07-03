@@ -305,33 +305,33 @@ extension DetailReducer {
     private static func retryDownloadTitle(for mode: DownloadStartMode) -> String {
         switch mode {
         case .repair:
-            return L10n.Localizable.DetailView.repairDownload
+            return String(localized: .repairDownload)
         case .update:
-            return L10n.Localizable.DetailView.updateDownload
+            return String(localized: .updateDownload)
         case .initial, .redownload:
-            return L10n.Localizable.DetailView.redownloadGallery
+            return String(localized: .redownloadGallery)
         }
     }
 
     private static func retryDownloadMessage(for mode: DownloadStartMode) -> String {
         switch mode {
         case .repair:
-            return L10n.Localizable.DetailView.repairDownloadDescription
+            return String(localized: .repairDownloadDescription)
         case .update:
-            return L10n.Localizable.DetailView.updateDownloadDescription
+            return String(localized: .updateDownloadDescription)
         case .initial, .redownload:
-            return L10n.Localizable.DetailView.redownloadGalleryDescription
+            return String(localized: .redownloadGalleryDescription)
         }
     }
 
     private static func retryDownloadConfirmTitle(for mode: DownloadStartMode) -> String {
         switch mode {
         case .repair:
-            return L10n.Localizable.DetailView.repair
+            return String(localized: .repair)
         case .update:
             return L10n.Localizable.DetailView.update
         case .initial, .redownload:
-            return L10n.Localizable.DetailView.redownload
+            return String(localized: .redownload)
         }
     }
 }

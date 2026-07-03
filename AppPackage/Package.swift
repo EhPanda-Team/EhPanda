@@ -786,6 +786,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),

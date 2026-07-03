@@ -1,0 +1,42 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "response.hath_client_not_found": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You must have a H@H client assigned to your account to use this feature."
+          }
+        }
+      }
+    },
+    "response.hath_client_not_online": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your H@H client appears to be offline. Turn it on, then try again."
+          }
+        }
+      }
+    },
+    "response.invalid_resolution": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The requested gallery cannot be downloaded with the selected resolution."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
