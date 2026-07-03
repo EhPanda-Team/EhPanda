@@ -21,7 +21,6 @@
 "toast.saved_to_photo_library" = "Saved to photo library";
 
 // MARK: AutoLock
-"local_authorization.reason" = "The App has been locked due to the Auto-Lock expiration.";
 
 // MARK: Common value
 "common.stars" = "%@ stars";

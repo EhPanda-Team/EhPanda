@@ -298,6 +298,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.uiImageColors),
             .targetDependency(.waterfallGrid)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),

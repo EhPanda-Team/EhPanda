@@ -21,7 +21,6 @@
 "toast.saved_to_photo_library" = "In der Fotomediathek gesichert";
 
 // MARK: AutoLock
-"local_authorization.reason" = "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist.";
 
 // MARK: Common value
 "common.stars" = "%@ Sterne";

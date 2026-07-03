@@ -21,7 +21,6 @@
 "toast.saved_to_photo_library" = "ライブラリに保存しました";
 
 // MARK: AutoLock
-"local_authorization.reason" = "自動ロック期限が切れたため、アプリがロックされています";
 
 // MARK: Common value
 "common.stars" = "%@ つ星";

@@ -60,7 +60,7 @@ struct AppLockReducer {
 
             case .authorize:
                 return .run { send in
-                    let success = await authorizationClient.localAuthroize(L10n.Localizable.LocalAuthorization.reason)
+                    let success = await authorizationClient.localAuthroize(String(localized: .autoLockReason))
                     await send(.authorizeDone(success))
                 }
 

@@ -21,7 +21,6 @@
 "toast.saved_to_photo_library" = "이미지 저장";
 
 // MARK: AutoLock
-"local_authorization.reason" = "자동 잠금으로 앱이 잠겼어요.";
 
 // MARK: Common value
 "common.stars" = "%@별";

@@ -1,0 +1,47 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "auto_lock_reason": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The App has been locked due to the Auto-Lock expiration."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動ロック期限が切れたため、アプリがロックされています"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 잠금으로 앱이 잠겼어요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "因超过设置的自动锁定期限，App 已被锁定"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由於超過 APP 自動鎖定期限，APP 已被鎖定，請重新解鎖"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
