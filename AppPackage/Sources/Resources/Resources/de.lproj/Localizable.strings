@@ -447,13 +447,7 @@
 // MARK: DownloadBadge
 
 // MARK: DownloadStore
-"download_store.asset_unreadable" = "Asset-Datei ist nicht lesbar: %@";
 "download_store.invalid_folder_name" = "Der Ordnername ist ungültig.";
-"download_store.folder_already_exists" = "Ein Ordner mit diesem Namen existiert bereits.";
-"download_store.folder_busy_downloading" = "Der Ordner enthält einen aktiven Download.";
-"download_store.download_busy" = "Der Download läuft gerade.";
-"download_store.download_folder_missing" = "Download-Ordner fehlt.";
-"download_store.manifest_missing" = "Manifest-Datei fehlt.";
 "download_store.manifest_corrupted" = "Manifest-Datei ist beschädigt.";
 "download_store.page_missing" = "Seite %d fehlt.";
 "download_store.page_image_corrupted" = "Bilddaten von Seite %d sind beschädigt.";

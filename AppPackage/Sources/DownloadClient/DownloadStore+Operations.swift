@@ -7,7 +7,7 @@ extension DownloadStore {
     public func linkOrCopyReadableAsset(at sourceURL: URL, to destinationURL: URL) throws {
         guard sanitizeAssetFileIfNeeded(at: sourceURL) else {
             throw AppError.fileOperationFailed(
-                L10n.Localizable.DownloadStore.assetUnreadable(sourceURL.lastPathComponent)
+                String(localized: .downloadStoreAssetUnreadable(sourceURL.lastPathComponent))
             )
         }
 
@@ -201,11 +201,11 @@ extension DownloadStore {
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
-            return .missingFiles(L10n.Localizable.DownloadStore.downloadFolderMissing)
+            return .missingFiles(String(localized: .downloadStoreDownloadFolderMissing))
         }
         let manifestURL = download.manifestURL
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
-            return .missingFiles(L10n.Localizable.DownloadStore.manifestMissing)
+            return .missingFiles(String(localized: .downloadStoreManifestMissing))
         }
         guard let manifest = try? readManifest(folderURL: folderURL) else {
             return .missingFiles(L10n.Localizable.DownloadStore.manifestCorrupted)

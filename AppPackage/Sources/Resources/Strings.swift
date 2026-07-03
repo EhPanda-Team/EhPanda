@@ -1104,24 +1104,10 @@ public enum L10n {
       public static let title = L10n.tr("Localizable", "download_setting_view.title", fallback: "Download")
     }
     public enum DownloadStore {
-      /// Asset file is unreadable: %@
-      public static func assetUnreadable(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "download_store.asset_unreadable", String(describing: p1), fallback: "Asset file is unreadable: %@")
-      }
-      /// The download is currently active.
-      public static let downloadBusy = L10n.tr("Localizable", "download_store.download_busy", fallback: "The download is currently active.")
-      /// Download folder is missing.
-      public static let downloadFolderMissing = L10n.tr("Localizable", "download_store.download_folder_missing", fallback: "Download folder is missing.")
-      /// A folder with this name already exists.
-      public static let folderAlreadyExists = L10n.tr("Localizable", "download_store.folder_already_exists", fallback: "A folder with this name already exists.")
-      /// The folder contains an active download.
-      public static let folderBusyDownloading = L10n.tr("Localizable", "download_store.folder_busy_downloading", fallback: "The folder contains an active download.")
       /// The folder name is invalid.
       public static let invalidFolderName = L10n.tr("Localizable", "download_store.invalid_folder_name", fallback: "The folder name is invalid.")
       /// Manifest file is corrupted.
       public static let manifestCorrupted = L10n.tr("Localizable", "download_store.manifest_corrupted", fallback: "Manifest file is corrupted.")
-      /// Manifest file is missing.
-      public static let manifestMissing = L10n.tr("Localizable", "download_store.manifest_missing", fallback: "Manifest file is missing.")
       /// Page %d image data is corrupted.
       public static func pageImageCorrupted(_ p1: Int) -> String {
         return L10n.tr("Localizable", "download_store.page_image_corrupted", p1, fallback: "Page %d image data is corrupted.")
