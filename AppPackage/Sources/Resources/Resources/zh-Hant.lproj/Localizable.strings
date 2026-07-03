@@ -456,13 +456,6 @@
 
 
 // MARK: DownloadBadge
-"download_badge.queued" = "已排隊";
-"download_badge.downloading" = "下載中";
-"download_badge.paused" = "已暫停";
-"download_badge.downloaded" = "已下載";
-"download_badge.needs_attention" = "需處理";
-"download_badge.update_available" = "有可更新";
-"download_badge.progress" = "%d/%d";
 
 // MARK: DownloadStore
 "download_store.asset_unreadable" = "資源檔案無法讀取：%@";

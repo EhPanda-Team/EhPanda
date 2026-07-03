@@ -1,7 +1,6 @@
 import SwiftUI
 import SFSafeSymbols
 import AppModels
-import Resources
 
 public struct DownloadBadgeLabel: View {
     private let badge: DownloadBadge
@@ -28,27 +27,26 @@ public struct DownloadBadgeLabel: View {
     }
 
     private var progressText: String {
-        L10n.Localizable.DownloadBadge.progress(
+        String(localized: .downloadBadgeProgress(
             badge.progress.displayCompletedPageCount,
             badge.progress.displayPageCount
-        )
+        ))
     }
 
     private var statusText: String {
-        typealias BadgeText = L10n.Localizable.DownloadBadge
         switch badge.status {
         case .queued:
-            return BadgeText.queued
+            return String(localized: .downloadBadgeQueued)
         case .active:
-            return BadgeText.downloading
+            return String(localized: .downloadBadgeDownloading)
         case .inactive:
-            return BadgeText.paused
+            return String(localized: .downloadBadgePaused)
         case .completed:
-            return BadgeText.downloaded
+            return String(localized: .downloadBadgeDownloaded)
         case .updateAvailable:
-            return BadgeText.updateAvailable
+            return String(localized: .downloadBadgeUpdateAvailable)
         case .error:
-            return BadgeText.needsAttention
+            return String(localized: .downloadBadgeNeedsAttention)
         }
     }
 

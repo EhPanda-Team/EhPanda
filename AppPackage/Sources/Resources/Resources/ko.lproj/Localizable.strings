@@ -456,13 +456,6 @@
 
 
 // MARK: DownloadBadge
-"download_badge.queued" = "대기 중";
-"download_badge.downloading" = "다운로드 중";
-"download_badge.paused" = "일시 정지";
-"download_badge.downloaded" = "다운로드됨";
-"download_badge.needs_attention" = "조치 필요";
-"download_badge.update_available" = "업데이트 가능";
-"download_badge.progress" = "%d/%d";
 
 // MARK: DownloadStore
 "download_store.asset_unreadable" = "에셋 파일을 읽을 수 없습니다: %@";

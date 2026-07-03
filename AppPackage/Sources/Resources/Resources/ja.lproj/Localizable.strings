@@ -456,13 +456,6 @@
 
 
 // MARK: DownloadBadge
-"download_badge.queued" = "待機中";
-"download_badge.downloading" = "ダウンロード中";
-"download_badge.paused" = "一時停止";
-"download_badge.downloaded" = "ダウンロード済み";
-"download_badge.needs_attention" = "要対応";
-"download_badge.update_available" = "更新あり";
-"download_badge.progress" = "%d/%d";
 
 // MARK: DownloadStore
 "download_store.asset_unreadable" = "アセットファイルを読み取れません: %@";
