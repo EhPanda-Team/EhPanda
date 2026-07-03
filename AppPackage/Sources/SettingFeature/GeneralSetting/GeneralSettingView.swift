@@ -51,7 +51,7 @@ struct GeneralSettingView: View {
         Form {
             Section {
                 HStack {
-                    Text(String(localized: .RLocalizable.language))
+                    Text(.RLocalizable.language)
                     Spacer()
                     Button(language) {
                         store.send(.navigateToSystemSetting)
@@ -65,7 +65,7 @@ struct GeneralSettingView: View {
             }
             Section(String(localized: .tags)) {
                 HStack {
-                    Text(String(localized: .enablesTagsExtension))
+                    Text(.enablesTagsExtension)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     ZStack {
@@ -139,7 +139,7 @@ struct GeneralSettingView: View {
                     }
                 }
                 VStack(alignment: .leading) {
-                    Text(String(localized: .backgroundBlurRadius))
+                    Text(.backgroundBlurRadius)
                     HStack {
                         Image(systemSymbol: .eye)
                         Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
@@ -152,7 +152,7 @@ struct GeneralSettingView: View {
                     store.send(.clearImageCachesButtonTapped)
                 } label: {
                     HStack {
-                        Text(String(localized: .clearImageCaches))
+                        Text(.clearImageCaches)
                         Spacer()
                         Text(store.diskImageCacheSize).foregroundStyle(.tint)
                     }
@@ -171,7 +171,7 @@ struct GeneralSettingView: View {
             store.send(.checkPasscodeSetting)
             store.send(.calculateWebImageDiskCache)
         }
-        .navigationTitle(String(localized: .general))
+        .navigationTitle(.general)
     }
 }
 

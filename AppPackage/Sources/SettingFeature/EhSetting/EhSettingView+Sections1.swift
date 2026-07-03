@@ -42,7 +42,7 @@ struct EhProfileSection: View {
                 .confirmationDialog(deleteConfirmationDialog)
             }
         } header: {
-            Text(String(localized: .profileSettings))
+            Text(.profileSettings)
                 .ehSettingRegularHeaderStyled()
         }
         .onChange(of: ehProfile) { _, newValue in
@@ -137,13 +137,13 @@ struct ImageSizeSettingsSection: View {
                     isOn: useOriginalImagesBinding
                 )
             } header: {
-                Text(String(localized: .originalImages))
+                Text(.originalImages)
                     .ehSettingRegularHeaderStyled()
             }
         }
 
         Section {
-            Text(String(localized: .imageSize))
+            Text(.imageSize)
 
             ValuePicker(
                 title: String(localized: .horizontal),
@@ -155,7 +155,7 @@ struct ImageSizeSettingsSection: View {
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
         } header: {
-            Text(String(localized: .imageSizeDescription))
+            Text(.imageSizeDescription)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -232,7 +232,7 @@ struct FrontPageSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(String(localized: .displayModeDescription))
+            Text(.displayModeDescription)
                 .ehSettingRegularHeaderStyled()
         }
 
@@ -242,7 +242,7 @@ struct FrontPageSettingsSection: View {
                 isOn: $ehSetting.showSearchRangeIndicator
             )
         } header: {
-            Text(String(localized: .showSearchRangeIndicator))
+            Text(.showSearchRangeIndicator)
                 .ehSettingRegularHeaderStyled()
         }
     }

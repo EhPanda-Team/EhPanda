@@ -63,7 +63,7 @@ struct ArchivesView: View {
             .onAppear {
                 store.send(.fetchArchive(gid, galleryURL, archiveURL))
             }
-            .navigationTitle(String(localized: .archives))
+            .navigationTitle(.archives)
         }
     }
 }
@@ -205,7 +205,7 @@ private struct DownloadButton: View {
     }
 
     var body: some View {
-        Text(String(localized: .downloadToHathClient))
+        Text(.downloadToHathClient)
             .font(.headline)
             .foregroundStyle(textColor)
             .frame(maxWidth: .infinity)

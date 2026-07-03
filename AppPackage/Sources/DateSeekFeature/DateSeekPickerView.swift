@@ -40,7 +40,7 @@ public struct DateSeekPickerView: View {
                     )
                     .datePickerStyle(.graphical)
                 } footer: {
-                    Text(String(localized: .seekAroundDate))
+                    Text(.seekAroundDate)
                 }
 
                 Section {
@@ -80,7 +80,7 @@ public struct DateSeekPickerView: View {
                     .listRowInsets(.init())
                 }
             }
-            .navigationTitle(String(localized: .RLocalizable.dateSeek))
+            .navigationTitle(.RLocalizable.dateSeek)
             .navigationBarTitleDisplayMode(.large)
         }
     }

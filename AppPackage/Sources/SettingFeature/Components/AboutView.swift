@@ -41,11 +41,11 @@ struct AboutView: View {
                 }
             }
         }
-        .navigationTitle(String(localized: .ehPanda))
+        .navigationTitle(.ehPanda)
         .toolbar {
             ToolbarItem(placement: .largeSubtitle) {
                 VStack(alignment: .leading) {
-                    Text(String(localized: .Constant.copyright))
+                    Text(.Constant.copyright)
                     Text(version)
                 }
                 .foregroundStyle(.gray)

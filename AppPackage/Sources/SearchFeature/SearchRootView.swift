@@ -77,7 +77,7 @@ public struct SearchRootView: View {
                     store.send(.fetchDatabaseInfos)
                 }
                 .toolbar(content: toolbar)
-                .navigationTitle(String(localized: .RLocalizable.search))
+                .navigationTitle(.RLocalizable.search)
 
             // Workaround: Prevent the title disappearing issue.
             if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
