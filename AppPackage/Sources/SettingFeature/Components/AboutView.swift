@@ -151,12 +151,12 @@ struct AboutView: View {
             text: L10n.Constant.App.Acknowledgement.Text.kanna
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.swiftGen,
-            text: L10n.Constant.App.Acknowledgement.Text.swiftGen
-        ),
-        .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.colorful,
             text: L10n.Constant.App.Acknowledgement.Text.colorful
+        ),
+        .init(
+            urlString: L10n.Constant.App.Acknowledgement.Link.swiftGen,
+            text: L10n.Constant.App.Acknowledgement.Text.swiftGen
         ),
         .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.kingfisher,
@@ -185,10 +185,6 @@ struct AboutView: View {
         .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.systemNotification,
             text: L10n.Constant.App.Acknowledgement.Text.systemNotification
-        ),
-        .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.swiftUINavigation,
-            text: L10n.Constant.App.Acknowledgement.Text.swiftUINavigation
         ),
         .init(
             urlString: L10n.Constant.App.Acknowledgement.Link.swiftCommonMark,
