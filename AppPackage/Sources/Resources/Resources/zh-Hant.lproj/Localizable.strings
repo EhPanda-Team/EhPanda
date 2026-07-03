@@ -85,12 +85,10 @@
 "confirmation_dialog.logout_description" = "確定要登出嗎?";
 "confirmation_dialog.delete_description" = "確定要刪除?";
 "confirmation_dialog.clear_description" = "確定要清空嗎?";
-"confirmation_dialog.reset_description" = "確定要重設嗎?";
 "confirmation_dialog.remove" = "移除";
 "confirmation_dialog.logout" = "登出";
 "confirmation_dialog.delete" = "刪除";
 "confirmation_dialog.clear" = "清空";
-"confirmation_dialog.reset" = "重設";
 
 // MARK: SubSection
 
@@ -404,25 +402,6 @@
 
 // MARK: FiltersView
 "filters_view.filters" = "過濾";
-"filters_view.advanced_settings" = "進階選項";
-"filters_view.search_gallery_name" = "搜尋畫廊名稱";
-"filters_view.search_gallery_tags" = "搜尋畫廊標籤";
-"filters_view.search_gallery_description" = "搜尋畫廊描述";
-"filters_view.search_torrent_filenames" = "搜尋種子檔案名";
-"filters_view.only_show_galleries_with_torrents" = "只顯示有種子的畫廊";
-"filters_view.search_low_power_tags" = "搜尋低期望標籤";
-"filters_view.search_downvoted_tags" = "搜尋低評價標籤";
-"filters_view.search_expunged_galleries" = "顯示被刪除的畫廊";
-"filters_view.set_minimum_rating" = "設定評分下限";
-"filters_view.minimum_rating" = "評分下限";
-"filters_view.set_pages_range" = "設定頁數範圍";
-"filters_view.pages_range" = "頁數範圍";
-"filters_view.disable_language_filter" = "停用語言篩選";
-"filters_view.disable_uploader_filter" = "停用上傳者篩選";
-"filters_view.disable_tags_filter" = "停用標籤篩選";
-"filters_view.reset_filters" = "重設所有選項";
-"filters_view.advanced" = "進階";
-"filters_view.default_filter" = "預設篩選";
 // FilterRange
 "filter_range.search" = "搜尋";
 "filter_range.global" = "全域";

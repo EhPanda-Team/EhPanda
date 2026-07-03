@@ -932,10 +932,6 @@ public enum L10n {
       public static let remove = L10n.tr("Localizable", "confirmation_dialog.remove", fallback: "Remove")
       /// Are you sure to remove your custom translations?
       public static let removeCustomTranslations = L10n.tr("Localizable", "confirmation_dialog.remove_custom_translations", fallback: "Are you sure to remove your custom translations?")
-      /// Reset
-      public static let reset = L10n.tr("Localizable", "confirmation_dialog.reset", fallback: "Reset")
-      /// Are you sure to reset?
-      public static let resetDescription = L10n.tr("Localizable", "confirmation_dialog.reset_description", fallback: "Are you sure to reset?")
     }
     public enum DateSeekView {
       /// Seek to date
@@ -1396,46 +1392,8 @@ public enum L10n {
       public static let watched = L10n.tr("Localizable", "filter_range.watched", fallback: "Watched")
     }
     public enum FiltersView {
-      /// Advanced
-      public static let advanced = L10n.tr("Localizable", "filters_view.advanced", fallback: "Advanced")
-      /// Advanced settings
-      public static let advancedSettings = L10n.tr("Localizable", "filters_view.advanced_settings", fallback: "Advanced settings")
-      /// Default filter
-      public static let defaultFilter = L10n.tr("Localizable", "filters_view.default_filter", fallback: "Default filter")
-      /// Disable language filter
-      public static let disableLanguageFilter = L10n.tr("Localizable", "filters_view.disable_language_filter", fallback: "Disable language filter")
-      /// Disable tags filter
-      public static let disableTagsFilter = L10n.tr("Localizable", "filters_view.disable_tags_filter", fallback: "Disable tags filter")
-      /// Disable uploader filter
-      public static let disableUploaderFilter = L10n.tr("Localizable", "filters_view.disable_uploader_filter", fallback: "Disable uploader filter")
       /// Filters
       public static let filters = L10n.tr("Localizable", "filters_view.filters", fallback: "Filters")
-      /// Minimum rating
-      public static let minimumRating = L10n.tr("Localizable", "filters_view.minimum_rating", fallback: "Minimum rating")
-      /// Only show galleries with torrents
-      public static let onlyShowGalleriesWithTorrents = L10n.tr("Localizable", "filters_view.only_show_galleries_with_torrents", fallback: "Only show galleries with torrents")
-      /// Pages range
-      public static let pagesRange = L10n.tr("Localizable", "filters_view.pages_range", fallback: "Pages range")
-      /// Reset filters
-      public static let resetFilters = L10n.tr("Localizable", "filters_view.reset_filters", fallback: "Reset filters")
-      /// Search downvoted tags
-      public static let searchDownvotedTags = L10n.tr("Localizable", "filters_view.search_downvoted_tags", fallback: "Search downvoted tags")
-      /// Search expunged galleries
-      public static let searchExpungedGalleries = L10n.tr("Localizable", "filters_view.search_expunged_galleries", fallback: "Search expunged galleries")
-      /// Search gallery description
-      public static let searchGalleryDescription = L10n.tr("Localizable", "filters_view.search_gallery_description", fallback: "Search gallery description")
-      /// Search gallery name
-      public static let searchGalleryName = L10n.tr("Localizable", "filters_view.search_gallery_name", fallback: "Search gallery name")
-      /// Search gallery tags
-      public static let searchGalleryTags = L10n.tr("Localizable", "filters_view.search_gallery_tags", fallback: "Search gallery tags")
-      /// Search Low-Power tags
-      public static let searchLowPowerTags = L10n.tr("Localizable", "filters_view.search_low_power_tags", fallback: "Search Low-Power tags")
-      /// Search torrent filenames
-      public static let searchTorrentFilenames = L10n.tr("Localizable", "filters_view.search_torrent_filenames", fallback: "Search torrent filenames")
-      /// Set minimum rating
-      public static let setMinimumRating = L10n.tr("Localizable", "filters_view.set_minimum_rating", fallback: "Set minimum rating")
-      /// Set pages range
-      public static let setPagesRange = L10n.tr("Localizable", "filters_view.set_pages_range", fallback: "Set pages range")
     }
     public enum FolderManagerView {
       /// This will delete the folder and all downloaded galleries inside it.

@@ -85,12 +85,10 @@
 "confirmation_dialog.logout_description" = "로그아웃 하시겠어요?";
 "confirmation_dialog.delete_description" = "이 항목을 삭제하시겠어요?";
 "confirmation_dialog.clear_description" = "삭제하시겠어요?";
-"confirmation_dialog.reset_description" = "초기화하시겠어요?";
 "confirmation_dialog.remove" = "삭제";
 "confirmation_dialog.logout" = "로그아웃";
 "confirmation_dialog.delete" = "삭제";
 "confirmation_dialog.clear" = "삭제";
-"confirmation_dialog.reset" = "초기화";
 
 // MARK: SubSection
 
@@ -404,25 +402,6 @@
 
 // MARK: FiltersView
 "filters_view.filters" = "필터";
-"filters_view.advanced_settings" = "고급 설정";
-"filters_view.search_gallery_name" = "갤러리 이름을 찾아보기";
-"filters_view.search_gallery_tags" = "갤러리 태그를 찾아보기";
-"filters_view.search_gallery_description" = "갤러리 설명을 찾아보기";
-"filters_view.search_torrent_filenames" = "토렌트 파일 이름을 찾아보기";
-"filters_view.only_show_galleries_with_torrents" = "토렌트 있는 갤러리만 보이기";
-"filters_view.search_low_power_tags" = "인기가 없는 태그를 찾아보기";
-"filters_view.search_downvoted_tags" = "낮은 평가의 태그를 찾아보기";
-"filters_view.search_expunged_galleries" = "삭제된 갤러리를 보여주기";
-"filters_view.set_minimum_rating" = "최소 별점 설정하기";
-"filters_view.minimum_rating" = "최소 별점";
-"filters_view.set_pages_range" = "페이지 범위 설정";
-"filters_view.pages_range" = "페이지 범위";
-"filters_view.disable_language_filter" = "언어 필터 끄기";
-"filters_view.disable_uploader_filter" = "업로더 필터 끄기";
-"filters_view.disable_tags_filter" = "태그 필터 끄기";
-"filters_view.reset_filters" = "모든 필터 초기화";
-"filters_view.advanced" = "고급";
-"filters_view.default_filter" = "기본 옵션";
 // FilterRange
 "filter_range.search" = "검색";
 "filter_range.global" = "전체";
