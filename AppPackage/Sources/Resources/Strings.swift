@@ -30,8 +30,6 @@ public enum L10n {
           public static let swiftCommonMark = L10n.tr("Constant", "app.acknowledgement.link.swiftCommonMark", fallback: "https://github.com/gonzalezreal/SwiftCommonMark")
           /// https://github.com/SwiftGen/SwiftGen
           public static let swiftGen = L10n.tr("Constant", "app.acknowledgement.link.swiftGen", fallback: "https://github.com/SwiftGen/SwiftGen")
-          /// https://github.com/pointfreeco/swiftui-navigation
-          public static let swiftUINavigation = L10n.tr("Constant", "app.acknowledgement.link.swiftUINavigation", fallback: "https://github.com/pointfreeco/swiftui-navigation")
           /// https://github.com/fermoya/SwiftUIPager
           public static let swiftUIPager = L10n.tr("Constant", "app.acknowledgement.link.swiftUIPager", fallback: "https://github.com/fermoya/SwiftUIPager")
           /// https://github.com/ddddxxx/SwiftyOpenCC
@@ -80,10 +78,10 @@ public enum L10n {
         public enum Link {
           /// https://github.com/aalberrty
           public static let aalberrty = L10n.tr("Constant", "app.code_level_contributor.link.aalberrty", fallback: "https://github.com/aalberrty")
-          /// https://github.com/chihchy
-          public static let chihchy = L10n.tr("Constant", "app.code_level_contributor.link.chihchy", fallback: "https://github.com/chihchy")
           /// https://github.com/Jimmy-Prime
           public static let jimmyPrime = L10n.tr("Constant", "app.code_level_contributor.link.Jimmy-Prime", fallback: "https://github.com/Jimmy-Prime")
+          /// https://github.com/Kaed3mi
+          public static let kaed3mi = L10n.tr("Constant", "app.code_level_contributor.link.Kaed3mi", fallback: "https://github.com/Kaed3mi")
           /// https://github.com/vvbbnn00
           public static let vvbbnn00 = L10n.tr("Constant", "app.code_level_contributor.link.vvbbnn00", fallback: "https://github.com/vvbbnn00")
           /// https://github.com/xioxin
@@ -92,10 +90,10 @@ public enum L10n {
         public enum Text {
           /// Zack Asahina
           public static let aalberrty = L10n.tr("Constant", "app.code_level_contributor.text.aalberrty", fallback: "Zack Asahina")
-          /// Chihchy
-          public static let chihchy = L10n.tr("Constant", "app.code_level_contributor.text.chihchy", fallback: "Chihchy")
           /// Jimmy Prime
           public static let jimmyPrime = L10n.tr("Constant", "app.code_level_contributor.text.Jimmy-Prime", fallback: "Jimmy Prime")
+          /// Kaed3mi
+          public static let kaed3mi = L10n.tr("Constant", "app.code_level_contributor.text.Kaed3mi", fallback: "Kaed3mi")
           /// vvbbnn00
           public static let vvbbnn00 = L10n.tr("Constant", "app.code_level_contributor.text.vvbbnn00", fallback: "vvbbnn00")
           /// xioxin

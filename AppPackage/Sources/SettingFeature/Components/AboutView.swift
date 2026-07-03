@@ -103,8 +103,12 @@ struct AboutView: View {
     // MARK: Code level contributors
     private let codeLevelContributors: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.chihchy,
-            text: L10n.Constant.App.CodeLevelContributor.Text.chihchy
+            urlString: L10n.Constant.App.CodeLevelContributor.Link.vvbbnn00,
+            text: L10n.Constant.App.CodeLevelContributor.Text.vvbbnn00
+        ),
+        .init(
+            urlString: L10n.Constant.App.CodeLevelContributor.Link.kaed3mi,
+            text: L10n.Constant.App.CodeLevelContributor.Text.kaed3mi
         ),
         .init(
             urlString: L10n.Constant.App.CodeLevelContributor.Link.aalberrty,
@@ -117,10 +121,6 @@ struct AboutView: View {
         .init(
             urlString: L10n.Constant.App.CodeLevelContributor.Link.xioxin,
             text: L10n.Constant.App.CodeLevelContributor.Text.xioxin
-        ),
-        .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.vvbbnn00,
-            text: L10n.Constant.App.CodeLevelContributor.Text.vvbbnn00
         )
     ]}()
 
