@@ -290,7 +290,7 @@ struct PreviewsSection: View {
 
     var body: some View {
         SubSection(
-            title: String(localized: .previews),
+            title: .previews,
             showAll: pageCount > 20, showAllAction: navigatePreviewsAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -325,7 +325,7 @@ struct CommentsSection: View {
 
     var body: some View {
         SubSection(
-            title: String(localized: .comments),
+            title: .comments,
             showAll: !comments.isEmpty, showAllAction: navigateCommentAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {

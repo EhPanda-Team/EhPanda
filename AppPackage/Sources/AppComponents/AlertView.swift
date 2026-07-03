@@ -5,10 +5,10 @@ import SFSafeSymbols
 import AppTools
 
 public struct LoadingView: View {
-    private let title: String
+    private let title: LocalizedStringResource
 
-    public init(title: String? = nil) {
-        self.title = title ?? String(localized: .loading)
+    public init(title: LocalizedStringResource? = nil) {
+        self.title = title ?? .loading
     }
 
     public var body: some View {
@@ -56,19 +56,19 @@ public struct NotLoginView: View {
             symbol: .personCropCircleBadgeQuestionmarkFill,
             message: String(localized: .needLogin)
         ) {
-            AlertViewButton(title: String(localized: .RLocalizable.login), action: action)
+            AlertViewButton(title: .RLocalizable.login, action: action)
         }
     }
 }
 
 public struct ErrorView: View {
     private let error: AppError
-    private let buttonTitle: String
+    private let buttonTitle: LocalizedStringResource
     private let action: (() -> Void)?
 
     public init(
         error: AppError,
-        buttonTitle: String = String(localized: .RLocalizable.retry),
+        buttonTitle: LocalizedStringResource = .RLocalizable.retry,
         action: (() -> Void)? = nil
     ) {
         self.error = error
@@ -109,10 +109,10 @@ public struct AlertView<Content: View>: View {
 }
 
 public struct AlertViewButton: View {
-    private let title: String
+    private let title: LocalizedStringResource
     private let action: () -> Void
 
-    public init(title: String, action: @escaping () -> Void) {
+    public init(title: LocalizedStringResource, action: @escaping () -> Void) {
         self.title = title
         self.action = action
     }
