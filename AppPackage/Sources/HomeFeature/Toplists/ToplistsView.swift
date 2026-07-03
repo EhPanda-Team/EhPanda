@@ -26,7 +26,7 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        [L10n.Localizable.ToplistsView.toplists, store.type.value].joined(separator: " - ")
+        [String(localized: .toplists), store.type.value].joined(separator: " - ")
     }
 
     var body: some View {
@@ -43,7 +43,7 @@ struct ToplistsView: View {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.filter)
+        .searchable(text: $store.keyword, prompt: String(localized: .filter))
         .appAlert($store.scope(state: \.alert, action: \.alert), text: $store.jumpPageIndex)
         .onAppear {
             if store.galleries?.isEmpty != false {

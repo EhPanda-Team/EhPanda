@@ -54,8 +54,6 @@
 "date_seek_view.date_seek" = "날짜로 이동";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "페이지 이동";
-"jump_page_view.jump_page_description" = "1에서 %d 사이의 페이지 번호를 입력하세요.";
-"jump_page_view.confirm" = "확인";
 
 // MARK: AlertView
 "loading_view.loading" = "로딩 중...";
@@ -116,28 +114,17 @@
 
 // MARK: HomeView
 "home_view.home" = "홈";
-"home_view.frontpage" = "프론트 페이지";
-"home_view.toplists" = "상위 목록";
-"home_view.other" = "기타";
 // HomeMiscGridType
-"home_misc_grid_type.popular" = "인기 작품";
-"home_misc_grid_type.watched" = "주시 태그";
-"home_misc_grid_type.history" = "읽은 목록";
 
 // MARK: FrontpageView
-"frontpage_view.frontpage" = "프론트 페이지";
 
 // MARK: ToplistsView
-"toplists_view.toplists" = "상위 목록";
 
 // MARK: PopularView
-"popular_view.popular" = "인기 작품";
 
 // MARK: WatchedView
-"watched_view.watched" = "주시 태그";
 
 // MARK: HistoryView
-"history_view.history" = "읽은 목록";
 
 // MARK: FavoritesView
 "favorites_view.favorites" = "즐겨찾기";
@@ -149,7 +136,6 @@
 "search_view.search" = "검색";
 "search_view.quick_search" = "빠른 검색";
 // Searchable
-"searchable.filter" = "필터";
 "searchable.matches_count" = "검색 결과 %d개";
 
 // MARK: QuickSearchView
