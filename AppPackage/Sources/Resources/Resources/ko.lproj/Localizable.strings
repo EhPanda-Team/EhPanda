@@ -657,7 +657,6 @@
 "eh_setting_view.gallery_page_thumbnail_labeling" = "갤러리 페이지 썸네일 라벨";
 "eh_setting_view.show_label_below_gallery_thumbnails" = "갤러리 썸네일 아래에 라벨 표시";
 
-
 "eh_setting_view.original_images" = "다시 샘플링된 버전 대신 원본 이미지를 사용할까요? 위에서 가로 해상도를 \"자동\" 이외로 선택했고 해당 이미지가 그보다 넓은 경우나, 원본 이미지가 10 MiB(1년 넘은 갤러리는 4 MiB)보다 큰 경우에는 다시 샘플링된 이미지가 계속 사용되어요.";
 "eh_setting_view.use_original_images" = "원본 뷰어 적용";
 

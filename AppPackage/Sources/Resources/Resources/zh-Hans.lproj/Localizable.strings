@@ -657,7 +657,6 @@
 "eh_setting_view.gallery_page_thumbnail_labeling" = "画廊页面缩略图标签";
 "eh_setting_view.show_label_below_gallery_thumbnails" = "在画廊缩略图下方显示标签";
 
-
 "eh_setting_view.original_images" = "是否使用原始图像而非重新采样的版本？如果您在上方选择的水平分辨率不是“自动”，并且所查看的图像更宽，或者原始图像大于 10 MiB（对于超过一年的图库，则为 4 MiB），那么仍将使用重新采样的图像。";
 "eh_setting_view.use_original_images" = "显示原图";
 
