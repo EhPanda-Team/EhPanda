@@ -47,8 +47,8 @@ public struct NewDawnView: View {
             }
             VStack(spacing: 50) {
                 VStack(spacing: 10) {
-                    TextView(text: L10n.Localizable.NewDawnView.Title.first, font: .largeTitle)
-                    TextView(text: L10n.Localizable.NewDawnView.Title.second, font: .title2)
+                    TextView(text: L10n.Localizable.NewDawnView.first, font: .largeTitle)
+                    TextView(text: L10n.Localizable.NewDawnView.second, font: .title2)
                 }
                 TextView(text: greeting.gainContent ?? "", font: .title3, fontWeight: .bold)
             }

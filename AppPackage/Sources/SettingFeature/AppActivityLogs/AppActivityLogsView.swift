@@ -26,7 +26,7 @@ struct AppActivityLogsView: View {
             LoadingView()
                 .opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
 
-            Text(L10n.Localizable.AppActivityLogsView.Placeholder.noLogs)
+            Text(L10n.Localizable.AppActivityLogsView.noLogs)
                 .foregroundColor(.secondary)
                 .opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
         }
@@ -70,7 +70,7 @@ struct AppActivityLogsView: View {
 
     @ViewBuilder
     private var runMenu: some View {
-        Section(L10n.Localizable.AppActivityLogsView.Section.current) {
+        Section(L10n.Localizable.AppActivityLogsView.current) {
             RunButton(
                 run: store.currentRun,
                 isSelected: store.selectedRun == nil
@@ -111,7 +111,7 @@ private struct RunPickerSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(L10n.Localizable.AppActivityLogsView.Section.current) {
+                Section(L10n.Localizable.AppActivityLogsView.current) {
                     RunButton(
                         run: store.currentRun,
                         isSelected: store.selectedRun == nil
@@ -167,7 +167,7 @@ private struct RunButton: View {
 // A nil run is the current run before its count is resolved; fall back to "Current".
 private func runLabel(_ run: RunLogFile?) -> String {
     guard let run else {
-        return L10n.Localizable.AppActivityLogsView.Section.current
+        return L10n.Localizable.AppActivityLogsView.current
     }
     let title = L10n.Localizable.AppActivityLogsView.run("\(run.runCount)")
     return "\(title) (\(runTimeFormatter.string(from: run.date)))"

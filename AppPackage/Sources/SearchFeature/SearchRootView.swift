@@ -77,7 +77,7 @@ public struct SearchRootView: View {
                     store.send(.fetchDatabaseInfos)
                 }
                 .toolbar(content: toolbar)
-                .navigationTitle(L10n.Localizable.SearchView.Title.search)
+                .navigationTitle(L10n.Localizable.SearchView.search)
 
             // Workaround: Prevent the title disappearing issue.
             if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
@@ -204,7 +204,7 @@ private struct QuickSearchWordsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.SearchView.Section.Title.quickSearch,
+            title: L10n.Localizable.SearchView.quickSearch,
             showAll: true, tint: .primary, showAllAction: showAllAction
         ) {
             DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
@@ -225,7 +225,7 @@ private struct HistoryKeywordsSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.SearchView.Section.Title.recentlySearched, showAll: false) {
+        SubSection(title: L10n.Localizable.SearchView.recentlySearched, showAll: false) {
             DoubleVerticalKeywordsStack(
                 keywords: keywords.map(WrappedKeyword.init),
                 searchAction: searchAction,
@@ -246,7 +246,7 @@ private struct HistoryGalleriesSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.SearchView.Section.Title.recentlySeen, showAll: false) {
+        SubSection(title: L10n.Localizable.SearchView.recentlySeen, showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(galleries) { gallery in

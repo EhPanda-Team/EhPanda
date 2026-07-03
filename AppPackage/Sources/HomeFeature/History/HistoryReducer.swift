@@ -76,13 +76,13 @@ public struct HistoryReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearHistory) {
-                        TextState(L10n.Localizable.ConfirmationDialog.Button.clear)
+                        TextState(L10n.Localizable.ConfirmationDialog.clear)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.Title.clear)
+                    TextState(L10n.Localizable.ConfirmationDialog.clearDescription)
                 }
                 return .none
 

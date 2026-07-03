@@ -61,18 +61,18 @@ extension TagNamespace {
     }
     public var value: String {
         switch self {
-        case .reclass: return L10n.Localizable.Enum.TagNamespace.Value.reclass
-        case .language: return L10n.Localizable.Enum.TagNamespace.Value.language
-        case .parody: return L10n.Localizable.Enum.TagNamespace.Value.parody
-        case .character: return L10n.Localizable.Enum.TagNamespace.Value.character
-        case .group: return L10n.Localizable.Enum.TagNamespace.Value.group
-        case .artist: return L10n.Localizable.Enum.TagNamespace.Value.artist
-        case .male: return L10n.Localizable.Enum.TagNamespace.Value.male
-        case .female: return L10n.Localizable.Enum.TagNamespace.Value.female
-        case .mixed: return L10n.Localizable.Enum.TagNamespace.Value.mixed
-        case .cosplayer: return L10n.Localizable.Enum.TagNamespace.Value.cosplayer
-        case .other: return L10n.Localizable.Enum.TagNamespace.Value.other
-        case .temp: return L10n.Localizable.Enum.TagNamespace.Value.temp
+        case .reclass: return L10n.Localizable.TagNamespace.reclass
+        case .language: return L10n.Localizable.TagNamespace.language
+        case .parody: return L10n.Localizable.TagNamespace.parody
+        case .character: return L10n.Localizable.TagNamespace.character
+        case .group: return L10n.Localizable.TagNamespace.group
+        case .artist: return L10n.Localizable.TagNamespace.artist
+        case .male: return L10n.Localizable.TagNamespace.male
+        case .female: return L10n.Localizable.TagNamespace.female
+        case .mixed: return L10n.Localizable.TagNamespace.mixed
+        case .cosplayer: return L10n.Localizable.TagNamespace.cosplayer
+        case .other: return L10n.Localizable.TagNamespace.other
+        case .temp: return L10n.Localizable.TagNamespace.temp
         }
     }
 }

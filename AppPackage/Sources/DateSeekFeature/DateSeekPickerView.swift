@@ -33,21 +33,21 @@ public struct DateSeekPickerView: View {
             Form {
                 Section {
                     DatePicker(
-                        L10n.Localizable.DateSeekView.Title.date,
+                        L10n.Localizable.DateSeekView.date,
                         selection: $selectedDate,
                         in: navigation.dateRange,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
                 } footer: {
-                    Text(L10n.Localizable.DateSeekView.Footer.seekAroundDate)
+                    Text(L10n.Localizable.DateSeekView.seekAroundDate)
                 }
 
                 Section {
                     let seekOlderButton =
                     SeekButton(
                         symbol: .chevronLeftChevronLeftDotted,
-                        title: L10n.Localizable.DateSeekView.Button.seekOlder,
+                        title: L10n.Localizable.DateSeekView.seekOlder,
                         reversedIconTitlePosition: false,
                         action: { seekAction(.older) }
                     )
@@ -56,7 +56,7 @@ public struct DateSeekPickerView: View {
                     let seekNewerButton =
                     SeekButton(
                         symbol: .chevronRightDottedChevronRight,
-                        title: L10n.Localizable.DateSeekView.Button.seekNewer,
+                        title: L10n.Localizable.DateSeekView.seekNewer,
                         reversedIconTitlePosition: true,
                         action: { seekAction(.newer) }
                     )
@@ -80,7 +80,7 @@ public struct DateSeekPickerView: View {
                     .listRowInsets(.init())
                 }
             }
-            .navigationTitle(L10n.Localizable.DateSeekView.Title.dateSeek)
+            .navigationTitle(L10n.Localizable.DateSeekView.dateSeek)
             .navigationBarTitleDisplayMode(.large)
         }
     }

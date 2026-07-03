@@ -52,7 +52,7 @@ public struct FolderManagerView: View {
                 store.send(.fetchFolders)
             }
             .toolbar(content: toolbar)
-            .navigationTitle(L10n.Localizable.FolderManagerView.Title.folders)
+            .navigationTitle(L10n.Localizable.FolderManagerView.folders)
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -71,7 +71,7 @@ public struct FolderManagerView: View {
             if store.folders.isEmpty && store.editingField != .newFolder {
                 AlertView(
                     symbol: .folder,
-                    message: L10n.Localizable.FolderManagerView.EmptyState.folders
+                    message: L10n.Localizable.FolderManagerView.emptyFolders
                 ) {
                     EmptyView()
                 }
@@ -101,7 +101,7 @@ public struct FolderManagerView: View {
 
     private func editingTextField(_ field: FolderManagerReducer.EditingField) -> some View {
         TextField(
-            L10n.Localizable.FolderManagerView.Placeholder.folderName,
+            L10n.Localizable.FolderManagerView.folderName,
             text: $store.editingFolderName
         )
         .disableAutocorrection(true)

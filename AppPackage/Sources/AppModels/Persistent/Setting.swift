@@ -169,15 +169,15 @@ extension AutoLockPolicy {
     public var value: String {
         switch self {
         case .never:
-            return L10n.Localizable.Enum.AutoLockPolicy.Value.never
+            return L10n.Localizable.AutoLockPolicy.never
         case .instantly:
-            return L10n.Localizable.Enum.AutoLockPolicy.Value.instantly
+            return L10n.Localizable.AutoLockPolicy.instantly
         case .sec15:
-            return L10n.Localizable.Common.Value.seconds("\(rawValue)")
+            return L10n.Localizable.Common.seconds("\(rawValue)")
         case .min1:
-            return L10n.Localizable.Common.Value.minute("\(rawValue / 60)")
+            return L10n.Localizable.Common.minute("\(rawValue / 60)")
         case .min5, .min10, .min30:
-            return L10n.Localizable.Common.Value.minutes("\(rawValue / 60)")
+            return L10n.Localizable.Common.minutes("\(rawValue / 60)")
         }
     }
 }
@@ -193,11 +193,11 @@ extension PreferredColorScheme {
     public var value: String {
         switch self {
         case .automatic:
-            return L10n.Localizable.Enum.PreferredColorScheme.Value.automatic
+            return L10n.Localizable.PreferredColorScheme.automatic
         case .light:
-            return L10n.Localizable.Enum.PreferredColorScheme.Value.light
+            return L10n.Localizable.PreferredColorScheme.light
         case .dark:
-            return L10n.Localizable.Enum.PreferredColorScheme.Value.dark
+            return L10n.Localizable.PreferredColorScheme.dark
         }
     }
     public var userInterfaceStyle: UIUserInterfaceStyle {
@@ -223,11 +223,11 @@ extension ReadingDirection {
     public var value: String {
         switch self {
         case .vertical:
-            return L10n.Localizable.Enum.ReadingDirection.Value.vertical
+            return L10n.Localizable.ReadingDirection.vertical
         case .rightToLeft:
-            return L10n.Localizable.Enum.ReadingDirection.Value.rightToLeft
+            return L10n.Localizable.ReadingDirection.rightToLeft
         case .leftToRight:
-            return L10n.Localizable.Enum.ReadingDirection.Value.leftToRight
+            return L10n.Localizable.ReadingDirection.leftToRight
         }
     }
 }
@@ -242,9 +242,9 @@ extension ListDisplayMode {
     public var value: String {
         switch self {
         case .detail:
-            return L10n.Localizable.Enum.ListDisplayMode.Value.detail
+            return L10n.Localizable.ListDisplayMode.detail
         case .thumbnail:
-            return L10n.Localizable.Enum.ListDisplayMode.Value.thumbnail
+            return L10n.Localizable.ListDisplayMode.thumbnail
         }
     }
 }

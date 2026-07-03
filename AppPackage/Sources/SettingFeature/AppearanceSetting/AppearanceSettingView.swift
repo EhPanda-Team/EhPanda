@@ -39,7 +39,7 @@ struct AppearanceSettingView: View {
         Form {
             Section {
                 Picker(
-                    L10n.Localizable.AppearanceSettingView.Title.theme,
+                    L10n.Localizable.AppearanceSettingView.theme,
                     selection: $preferredColorScheme
                 ) {
                     ForEach(PreferredColorScheme.allCases) { colorScheme in
@@ -49,17 +49,17 @@ struct AppearanceSettingView: View {
                 }
                 .pickerStyle(.menu)
 
-                ColorPicker(L10n.Localizable.AppearanceSettingView.Title.tintColor, selection: $accentColor)
+                ColorPicker(L10n.Localizable.AppearanceSettingView.tintColor, selection: $accentColor)
 
-                Button(L10n.Localizable.AppearanceSettingView.Button.appIcon) {
+                Button(L10n.Localizable.AppearanceSettingView.appIcon) {
                     store.send(.delegate(.pushAppIcon))
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
             }
-            Section(L10n.Localizable.AppearanceSettingView.Section.Title.list) {
+            Section(L10n.Localizable.AppearanceSettingView.list) {
                 Picker(
-                    L10n.Localizable.AppearanceSettingView.Title.displayMode,
+                    L10n.Localizable.AppearanceSettingView.displayMode,
                     selection: $listDisplayMode,
                     content: {
                         ForEach(ListDisplayMode.allCases) { listMode in
@@ -71,14 +71,14 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
 
                 Toggle(isOn: $showsTagsInList) {
-                    Text(L10n.Localizable.AppearanceSettingView.Title.showsTagsInList)
+                    Text(L10n.Localizable.AppearanceSettingView.showsTagsInList)
                 }
 
                 Picker(
-                    L10n.Localizable.AppearanceSettingView.Title.maximumNumberOfTags,
+                    L10n.Localizable.AppearanceSettingView.maximumNumberOfTags,
                     selection: $listTagsNumberMaximum
                 ) {
-                    Text(L10n.Localizable.AppearanceSettingView.Menu.Title.infite)
+                    Text(L10n.Localizable.AppearanceSettingView.infite)
                         .tag(0)
 
                     ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
@@ -89,14 +89,14 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
                 .disabled(!showsTagsInList)
             }
-            Section(L10n.Localizable.AppearanceSettingView.Section.Title.gallery) {
+            Section(L10n.Localizable.AppearanceSettingView.gallery) {
                 Toggle(
-                    L10n.Localizable.AppearanceSettingView.Title.displaysJapaneseTitle,
+                    L10n.Localizable.AppearanceSettingView.displaysJapaneseTitle,
                     isOn: $displaysJapaneseTitle
                 )
             }
         }
-        .navigationTitle(L10n.Localizable.AppearanceSettingView.Title.appearance)
+        .navigationTitle(L10n.Localizable.AppearanceSettingView.appearance)
     }
 }
 
@@ -122,7 +122,7 @@ struct AppIconView: View {
                 }
             }
         }
-        .navigationTitle(L10n.Localizable.AppIconView.Title.appIcon)
+        .navigationTitle(L10n.Localizable.AppIconView.appIcon)
     }
 }
 

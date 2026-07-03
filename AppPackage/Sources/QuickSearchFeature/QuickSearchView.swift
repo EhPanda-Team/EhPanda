@@ -81,7 +81,7 @@ public struct QuickSearchView: View {
             }
             .toolbar(content: toolbar)
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
-            .navigationTitle(L10n.Localizable.QuickSearchView.Title.quickSearch)
+            .navigationTitle(L10n.Localizable.QuickSearchView.quickSearch)
         }
     }
 
@@ -112,8 +112,8 @@ public struct QuickSearchView: View {
     @ViewBuilder private func editWordView(for kind: QuickSearchReducer.WordEditKind) -> some View {
         EditWordView(
             title: kind == .new
-                ? L10n.Localizable.QuickSearchView.Title.newWord
-                : L10n.Localizable.QuickSearchView.Title.editWord,
+                ? L10n.Localizable.QuickSearchView.newWord
+                : L10n.Localizable.QuickSearchView.editWord,
             word: $store.editingWord,
             focusedField: $focusedField,
             submitAction: onTextFieldSubmitted,
@@ -147,11 +147,11 @@ extension QuickSearchView {
 
         var body: some View {
             Form {
-                Section(L10n.Localizable.QuickSearchView.Title.name) {
-                    TextField(L10n.Localizable.QuickSearchView.Placeholder.optional, text: $word.name)
+                Section(L10n.Localizable.QuickSearchView.name) {
+                    TextField(L10n.Localizable.QuickSearchView.optional, text: $word.name)
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
-                Section(L10n.Localizable.QuickSearchView.Title.content) {
+                Section(L10n.Localizable.QuickSearchView.content) {
                     TextEditor(text: $word.content)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)

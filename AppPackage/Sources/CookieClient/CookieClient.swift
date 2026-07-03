@@ -32,7 +32,7 @@ extension CookieClient {
             },
             getCookie: { url, key in
                 var value = CookieValue(
-                    rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.none
+                    rawValue: "", localizedString: L10n.Localizable.CookieValue.none
                 )
                 guard let cookies = cookieStorage.cookies(for: url), !cookies.isEmpty else { return value }
 
@@ -42,14 +42,14 @@ extension CookieClient {
                        expiresDate <= .now {
                         value = CookieValue(
                             rawValue: "",
-                            localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.expired
+                            localizedString: L10n.Localizable.CookieValue.expired
                         )
                         return
                     }
                     guard cookie.value != Defaults.Cookie.mystery else {
                         value = CookieValue(
                             rawValue: cookie.value, localizedString:
-                                L10n.Localizable.Struct.CookieValue.LocalizedString.mystery
+                                L10n.Localizable.CookieValue.mystery
                         )
                         return
                     }

@@ -185,7 +185,7 @@ private extension DetailView {
         primaryModalModifiers(content: content)
             .sheet(item: $store.destination.postComment, id: \.id) { _ in
                 PostCommentView(
-                    title: L10n.Localizable.PostCommentView.Title.postComment,
+                    title: L10n.Localizable.PostCommentView.postComment,
                     content: $store.commentContent,
                     isFocused: $store.postCommentFocused,
                     postAction: {
@@ -292,13 +292,13 @@ private extension DetailView {
     @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Label(
-                L10n.Localizable.DetailView.OfflineNotice.savedDetails,
+                L10n.Localizable.DetailView.savedDetails,
                 systemSymbol: .wifiExclamationmark
             )
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.orange)
             if error.isRetryable != false {
-                Button(L10n.Localizable.ErrorView.Button.retry) {
+                Button(L10n.Localizable.ErrorView.retry) {
                     store.send(.fetchGalleryDetail)
                 }
                 .buttonStyle(.glass)

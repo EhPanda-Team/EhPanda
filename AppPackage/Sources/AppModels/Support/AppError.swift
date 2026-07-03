@@ -37,71 +37,71 @@ extension AppError {
     public var localizedDescription: String {
         switch self {
         case .databaseCorrupted:
-            return L10n.Localizable.AppError.LocalizedDescription.databaseCorrupted
+            return L10n.Localizable.AppError.databaseCorrupted
         case .copyrightClaim:
-            return L10n.Localizable.AppError.LocalizedDescription.copyrightClaim
+            return L10n.Localizable.AppError.copyrightClaim
         case .ipBanned:
-            return L10n.Localizable.AppError.LocalizedDescription.ipBanned
+            return L10n.Localizable.AppError.ipBanned
         case .expunged:
-            return L10n.Localizable.AppError.LocalizedDescription.galleryExpunged
+            return L10n.Localizable.AppError.galleryExpunged
         case .networkingFailed:
-            return L10n.Localizable.AppError.LocalizedDescription.networkError
+            return L10n.Localizable.AppError.networkError
         case .webImageFailed:
-            return L10n.Localizable.AppError.LocalizedDescription.webImageLoadingError
+            return L10n.Localizable.AppError.webImageLoadingError
         case .parseFailed:
-            return L10n.Localizable.AppError.LocalizedDescription.parseError
+            return L10n.Localizable.AppError.parseError
         case .quotaExceeded:
-            return L10n.Localizable.AppError.LocalizedDescription.quotaExceeded
+            return L10n.Localizable.AppError.quotaExceeded
         case .authenticationRequired:
-            return L10n.Localizable.AppError.LocalizedDescription.authenticationRequired
+            return L10n.Localizable.AppError.authenticationRequired
         case .fileOperationFailed:
-            return L10n.Localizable.AppError.LocalizedDescription.fileOperationFailed
+            return L10n.Localizable.AppError.fileOperationFailed
         case .noUpdates:
-            return L10n.Localizable.AppError.LocalizedDescription.noUpdatesAvailable
+            return L10n.Localizable.AppError.noUpdatesAvailable
         case .notFound:
-            return L10n.Localizable.AppError.LocalizedDescription.notFound
+            return L10n.Localizable.AppError.notFound
         case .unknown:
-            return L10n.Localizable.AppError.LocalizedDescription.unknownError
+            return L10n.Localizable.AppError.unknownError
         }
     }
     public var alertText: String {
-        let tryLater = L10n.Localizable.ErrorView.Title.tryLater
+        let tryLater = L10n.Localizable.ErrorView.tryLater
         switch self {
         case .databaseCorrupted(let reason):
-            var lines = [L10n.Localizable.ErrorView.Title.databaseCorrupted]
+            var lines = [L10n.Localizable.ErrorView.databaseCorrupted]
             if let reason = reason {
                 lines.append("(\(reason))")
             }
             return lines.joined(separator: "\n")
         case .copyrightClaim(let owner):
-            return L10n.Localizable.ErrorView.Title.copyrightClaim(owner)
+            return L10n.Localizable.ErrorView.copyrightClaim(owner)
         case .ipBanned(let interval):
-            return L10n.Localizable.ErrorView.Title.ipBanned(interval.description)
+            return L10n.Localizable.ErrorView.ipBanned(interval.description)
         case .expunged(let reason):
             switch reason {
-            case L10n.Constant.Website.Response.galleryUnavailable:
-                return L10n.Localizable.ErrorView.Title.galleryUnavailable
+            case L10n.Constant.galleryUnavailable:
+                return L10n.Localizable.ErrorView.galleryUnavailable
             default:
                 return reason
             }
         case .networkingFailed:
-            return [L10n.Localizable.ErrorView.Title.network, tryLater].joined(separator: "\n")
+            return [L10n.Localizable.ErrorView.network, tryLater].joined(separator: "\n")
         case .parseFailed:
-            return [L10n.Localizable.ErrorView.Title.parsing, tryLater].joined(separator: "\n")
+            return [L10n.Localizable.ErrorView.parsing, tryLater].joined(separator: "\n")
         case .quotaExceeded:
-            return L10n.Localizable.AppError.Alert.quotaExceeded
+            return L10n.Localizable.AppError.quotaExceededDescription
         case .authenticationRequired:
-            return L10n.Localizable.AppError.Alert.authenticationRequired
+            return L10n.Localizable.AppError.authenticationRequiredDescription
         case .fileOperationFailed(let reason):
-            return [L10n.Localizable.AppError.Alert.localFileOperationFailed, reason]
+            return [L10n.Localizable.AppError.localFileOperationFailed, reason]
                 .filter { !$0.isEmpty }
                 .joined(separator: "\n")
         case .noUpdates, .webImageFailed:
             return ""
         case .notFound:
-            return L10n.Localizable.ErrorView.Title.notFound
+            return L10n.Localizable.ErrorView.notFound
         case .unknown:
-            return [L10n.Localizable.ErrorView.Title.unknown, tryLater].joined(separator: "\n")
+            return [L10n.Localizable.ErrorView.unknown, tryLater].joined(separator: "\n")
         }
     }
 }
@@ -116,7 +116,7 @@ public enum BanInterval: Equatable, Hashable, Sendable {
 extension BanInterval {
     public var description: String {
         var params: [String]
-        let and = L10n.Localizable.Enum.BanInterval.Description.and
+        let and = L10n.Localizable.BanInterval.and
 
         switch self {
         case .days(let days, let hours):
@@ -141,19 +141,19 @@ extension BanInterval {
     }
 
     private func daysWithUnit(_ days: Int) -> String {
-        days > 1 ? L10n.Localizable.Common.Value.days("\(days)")
-            : L10n.Localizable.Common.Value.day("\(days)")
+        days > 1 ? L10n.Localizable.Common.days("\(days)")
+            : L10n.Localizable.Common.day("\(days)")
     }
     private func hoursWithUnit(_ hours: Int) -> String {
-        hours > 1 ? L10n.Localizable.Common.Value.hours("\(hours)")
-            : L10n.Localizable.Common.Value.hour("\(hours)")
+        hours > 1 ? L10n.Localizable.Common.hours("\(hours)")
+            : L10n.Localizable.Common.hour("\(hours)")
     }
     private func minutesWithUnit(_ minutes: Int) -> String {
-        minutes > 1 ? L10n.Localizable.Common.Value.minutes("\(minutes)")
-            : L10n.Localizable.Common.Value.minute("\(minutes)")
+        minutes > 1 ? L10n.Localizable.Common.minutes("\(minutes)")
+            : L10n.Localizable.Common.minute("\(minutes)")
     }
     private func secondsWithUnit(_ seconds: Int) -> String {
-        seconds > 1 ? L10n.Localizable.Common.Value.seconds("\(seconds)")
-            : L10n.Localizable.Common.Value.second("\(seconds)")
+        seconds > 1 ? L10n.Localizable.Common.seconds("\(seconds)")
+            : L10n.Localizable.Common.second("\(seconds)")
     }
 }

@@ -404,7 +404,7 @@ struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
 
         let validation = await manager.validateImageData(gid: "440")
 
-        #expect(validation == .missingFiles(L10n.Localizable.DownloadStore.Validation.pageMissing(1)))
+        #expect(validation == .missingFiles(L10n.Localizable.DownloadStore.pageMissing(1)))
         let download = try #require(await manager.fetchDownload(gid: "440"))
         #expect(download.displayStatus == .error)
         #expect(download.displayStatus == .error)

@@ -13,16 +13,16 @@ extension DetailReducer {
             switch action {
             case .deleteDownloadButtonTapped:
                 state.alert = AppAlertState {
-                    TextState(L10n.Localizable.DetailView.Dialog.Title.deleteDownload)
+                    TextState(L10n.Localizable.DetailView.deleteDownload)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDeleteDownload) {
-                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                        TextState(L10n.Localizable.ConfirmationDialog.delete)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.DetailView.Dialog.Message.deleteDownloadedGallery)
+                    TextState(L10n.Localizable.DetailView.deleteDownloadedGallery)
                 }
                 return .none
 
@@ -34,7 +34,7 @@ extension DetailReducer {
                         TextState(Self.retryDownloadConfirmTitle(for: mode))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
                     TextState(Self.retryDownloadMessage(for: mode))
@@ -305,33 +305,33 @@ extension DetailReducer {
     private static func retryDownloadTitle(for mode: DownloadStartMode) -> String {
         switch mode {
         case .repair:
-            return L10n.Localizable.DetailView.Dialog.Title.repairDownload
+            return L10n.Localizable.DetailView.repairDownload
         case .update:
-            return L10n.Localizable.DetailView.Dialog.Title.updateDownload
+            return L10n.Localizable.DetailView.updateDownload
         case .initial, .redownload:
-            return L10n.Localizable.DetailView.Dialog.Title.redownloadGallery
+            return L10n.Localizable.DetailView.redownloadGallery
         }
     }
 
     private static func retryDownloadMessage(for mode: DownloadStartMode) -> String {
         switch mode {
         case .repair:
-            return L10n.Localizable.DetailView.Dialog.Message.repairDownload
+            return L10n.Localizable.DetailView.repairDownloadDescription
         case .update:
-            return L10n.Localizable.DetailView.Dialog.Message.updateDownload
+            return L10n.Localizable.DetailView.updateDownloadDescription
         case .initial, .redownload:
-            return L10n.Localizable.DetailView.Dialog.Message.redownloadGallery
+            return L10n.Localizable.DetailView.redownloadGalleryDescription
         }
     }
 
     private static func retryDownloadConfirmTitle(for mode: DownloadStartMode) -> String {
         switch mode {
         case .repair:
-            return L10n.Localizable.DetailView.Dialog.Button.repair
+            return L10n.Localizable.DetailView.repair
         case .update:
-            return L10n.Localizable.DetailView.Dialog.Button.update
+            return L10n.Localizable.DetailView.update
         case .initial, .redownload:
-            return L10n.Localizable.DetailView.Dialog.Button.redownload
+            return L10n.Localizable.DetailView.redownload
         }
     }
 }
