@@ -49,15 +49,15 @@ struct AppearanceSettingView: View {
                 }
                 .pickerStyle(.menu)
 
-                ColorPicker(String(localized: .tintColor), selection: $accentColor)
+                ColorPicker(.tintColor, selection: $accentColor)
 
-                Button(String(localized: .appIcon)) {
+                Button(.appIcon) {
                     store.send(.delegate(.pushAppIcon))
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
             }
-            Section(String(localized: .list)) {
+            Section(.list) {
                 Picker(
                     String(localized: .appearanceDisplayMode),
                     selection: $listDisplayMode,
@@ -89,7 +89,7 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
                 .disabled(!showsTagsInList)
             }
-            Section(String(localized: .gallery)) {
+            Section(.gallery) {
                 Toggle(
                     String(localized: .displaysJapaneseTitle),
                     isOn: $displaysJapaneseTitle

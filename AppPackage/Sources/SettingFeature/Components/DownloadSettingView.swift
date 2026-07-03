@@ -20,7 +20,7 @@ struct DownloadSettingView: View {
         Form {
             Section {
                 VStack(alignment: .leading) {
-                    LabeledContent(String(localized: .concurrentImageDownloads)) {
+                    LabeledContent(.concurrentImageDownloads) {
                         Text(downloadThreadLimit, format: .number)
                             .monospacedDigit()
                     }

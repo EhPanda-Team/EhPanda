@@ -58,12 +58,12 @@ struct GeneralSettingView: View {
                     }
                     .foregroundStyle(.tint)
                 }
-                Button(String(localized: .appActivityLogs)) {
+                Button(.appActivityLogs) {
                     store.send(.delegate(.pushAppActivityLogs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
-            Section(String(localized: .tags)) {
+            Section(.tags) {
                 HStack {
                     Text(.enablesTagsExtension)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -85,14 +85,14 @@ struct GeneralSettingView: View {
                         .padding(.leading, 20)
                 }
                 if enablesTagsExtension && !tagTranslatorEmpty {
-                    Toggle(String(localized: .translatesTags), isOn: $translatesTags)
+                    Toggle(.translatesTags, isOn: $translatesTags)
                     Toggle(
                         String(localized: .showsTagsSearchSuggestion),
                         isOn: $showsTagsSearchSuggestion
                     )
-                    Toggle(String(localized: .showsImagesInTags), isOn: $showsImagesInTags)
+                    Toggle(.showsImagesInTags, isOn: $showsImagesInTags)
                 }
-                Button(String(localized: .importCustomTranslations)) {
+                Button(.importCustomTranslations) {
                     store.send(.importCustomTranslationsButtonTapped)
                 }
                 .fileImporter(
@@ -113,7 +113,7 @@ struct GeneralSettingView: View {
                     )
                 }
             }
-            Section(String(localized: .navigation)) {
+            Section(.navigation) {
                 Toggle(
                     String(localized: .redirectsLinksToTheSelectedHost),
                     isOn: $redirectsLinksToSelectedHost
@@ -123,7 +123,7 @@ struct GeneralSettingView: View {
                     isOn: $detectsLinksFromClipboard
                 )
             }
-            Section(String(localized: .security)) {
+            Section(.security) {
                 HStack {
                     Picker(
                         String(localized: .autoLock),
@@ -147,7 +147,7 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            Section(String(localized: .caches)) {
+            Section(.caches) {
                 Button {
                     store.send(.clearImageCachesButtonTapped)
                 } label: {

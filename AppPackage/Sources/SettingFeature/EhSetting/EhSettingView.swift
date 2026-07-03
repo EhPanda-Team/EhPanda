@@ -120,7 +120,7 @@ struct EhSettingView: View {
             }
 
             ToolbarItem(placement: .keyboard) {
-                Button(String(localized: .done)) {
+                Button(.done) {
                     store.send(.setKeyboardHidden)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)

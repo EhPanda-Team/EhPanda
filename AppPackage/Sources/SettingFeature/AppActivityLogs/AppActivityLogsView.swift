@@ -71,7 +71,7 @@ struct AppActivityLogsView: View {
 
     @ViewBuilder
     private var runMenu: some View {
-        Section(String(localized: .appActivityLogsViewCurrent)) {
+        Section(.appActivityLogsViewCurrent) {
             RunButton(
                 run: store.currentRun,
                 isSelected: store.selectedRun == nil
@@ -112,7 +112,7 @@ private struct RunPickerSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(String(localized: .appActivityLogsViewCurrent)) {
+                Section(.appActivityLogsViewCurrent) {
                     RunButton(
                         run: store.currentRun,
                         isSelected: store.selectedRun == nil

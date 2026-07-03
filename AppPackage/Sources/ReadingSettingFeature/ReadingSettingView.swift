@@ -27,23 +27,23 @@ public struct ReadingSettingView: View {
     public var body: some View {
         Form {
             Section {
-                Picker(String(localized: .direction), selection: $readingDirection) {
+                Picker(.direction, selection: $readingDirection) {
                     ForEach(ReadingDirection.allCases) {
                         Text($0.value).tag($0)
                     }
                 }
                 .pickerStyle(.menu)
-                Picker(String(localized: .preloadLimit), selection: $prefetchLimit) {
+                Picker(.preloadLimit, selection: $prefetchLimit) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
                         Text(.RLocalizable.pages("\(value)")).tag(value)
                     }
                 }
                 .pickerStyle(.menu)
                 if !DeviceUtil.isPad {
-                    Toggle(String(localized: .enablesLandscape), isOn: $enablesLandscape)
+                    Toggle(.enablesLandscape, isOn: $enablesLandscape)
                 }
             }
-            Section(String(localized: .readingAppearance)) {
+            Section(.readingAppearance) {
                 Picker(
                     String(localized: .separatorHeight),
                     selection: $contentDividerHeight
