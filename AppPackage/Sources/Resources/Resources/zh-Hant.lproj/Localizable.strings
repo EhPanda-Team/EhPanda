@@ -154,11 +154,6 @@
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "快速搜尋";
-"quick_search_view.edit_word" = "編輯關鍵字";
-"quick_search_view.new_word" = "新關鍵字";
-"quick_search_view.content" = "搜尋內容";
-"quick_search_view.name" = "名稱";
-"quick_search_view.optional" = "(可選)";
 
 // MARK: SettingView
 "setting_view.setting" = "設定";

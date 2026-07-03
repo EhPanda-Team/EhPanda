@@ -154,11 +154,6 @@
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "クイック検索";
-"quick_search_view.edit_word" = "キーワードを編集";
-"quick_search_view.new_word" = "キーワードを追加";
-"quick_search_view.content" = "内容";
-"quick_search_view.name" = "名前";
-"quick_search_view.optional" = "任意";
 
 // MARK: SettingView
 "setting_view.setting" = "設定";
