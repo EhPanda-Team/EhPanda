@@ -156,8 +156,6 @@
 
 // MARK: SearchView
 "search_view.search" = "検索";
-"search_view.recently_searched" = "最近検索した項目";
-"search_view.recently_seen" = "最近閲覧した項目";
 "search_view.quick_search" = "クイック検索";
 // Searchable
 "searchable.filter" = "フィルター";

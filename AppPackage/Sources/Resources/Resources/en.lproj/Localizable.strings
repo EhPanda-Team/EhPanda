@@ -156,8 +156,6 @@
 
 // MARK: SearchView
 "search_view.search" = "Search";
-"search_view.recently_searched" = "Recently searched";
-"search_view.recently_seen" = "Recently seen";
 "search_view.quick_search" = "Quick search";
 // Searchable
 "searchable.filter" = "Filter";

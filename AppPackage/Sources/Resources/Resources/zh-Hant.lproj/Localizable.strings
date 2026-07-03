@@ -156,8 +156,6 @@
 
 // MARK: SearchView
 "search_view.search" = "搜尋";
-"search_view.recently_searched" = "最近搜尋";
-"search_view.recently_seen" = "最近閱讀";
 "search_view.quick_search" = "快速搜尋";
 // Searchable
 "searchable.filter" = "過濾";
