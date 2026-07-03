@@ -154,11 +154,6 @@
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "빠른 검색";
-"quick_search_view.edit_word" = "키워드 편집";
-"quick_search_view.new_word" = "새 키워드";
-"quick_search_view.content" = "내용";
-"quick_search_view.name" = "이름";
-"quick_search_view.optional" = "선택 사항";
 
 // MARK: SettingView
 "setting_view.setting" = "설정";
