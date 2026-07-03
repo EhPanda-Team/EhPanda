@@ -416,19 +416,8 @@
 "previews_view.previews" = "預覽";
 
 // MARK: ReadingView
-"reading_view.reload" = "重新整理";
-"reading_view.copy" = "複製";
-"reading_view.save" = "儲存圖片";
-"reading_view.save_original" = "儲存原始圖片";
 "reading_view.share" = "分享";
-"reading_view.auto_play" = "自動播放";
-"reading_view.dual_page_mode" = "雙頁模式";
-"reading_view.except_the_cover" = "封面除外";
-"reading_view.retry_all_failed_images" = "重新載入失敗圖片";
-"reading_view.reload_all_images" = "重新載入所有圖片";
-"reading_view.reading_setting" = "閱讀設定";
 // AutoPlayPolicy
-"auto_play_policy.off" = "關閉";
 
 
 // MARK: DownloadBadge

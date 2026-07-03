@@ -416,19 +416,8 @@
 "previews_view.previews" = "Previews";
 
 // MARK: ReadingView
-"reading_view.reload" = "Reload";
-"reading_view.copy" = "Copy";
-"reading_view.save" = "Save";
-"reading_view.save_original" = "Save original";
 "reading_view.share" = "Share";
-"reading_view.auto_play" = "Auto-Play";
-"reading_view.dual_page_mode" = "Dual-Page mode";
-"reading_view.except_the_cover" = "Except the cover";
-"reading_view.retry_all_failed_images" = "Retry all failed images";
-"reading_view.reload_all_images" = "Reload all images";
-"reading_view.reading_setting" = "Reading setting";
 // AutoPlayPolicy
-"auto_play_policy.off" = "Off";
 
 
 // MARK: DownloadBadge

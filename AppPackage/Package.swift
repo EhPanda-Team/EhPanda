@@ -812,6 +812,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUIPager)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
