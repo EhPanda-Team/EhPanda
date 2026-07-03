@@ -1822,10 +1822,6 @@ public enum L10n {
       /// Preparing the database...
       public static let preparingDatabase = L10n.tr("Localizable", "loading_view.preparing_database", fallback: "Preparing the database...")
     }
-    public enum LocalAuthorization {
-      /// The App has been locked due to the Auto-Lock expiration.
-      public static let reason = L10n.tr("Localizable", "local_authorization.reason", fallback: "The App has been locked due to the Auto-Lock expiration.")
-    }
     public enum LoginView {
       /// Login
       public static let login = L10n.tr("Localizable", "login_view.login", fallback: "Login")

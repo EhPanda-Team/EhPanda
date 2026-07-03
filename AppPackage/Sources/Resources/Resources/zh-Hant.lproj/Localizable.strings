@@ -21,7 +21,6 @@
 "toast.saved_to_photo_library" = "已儲存到照片";
 
 // MARK: AutoLock
-"local_authorization.reason" = "由於超過 APP 自動鎖定期限，APP 已被鎖定，請重新解鎖";
 
 // MARK: Common value
 "common.stars" = "%@ 星";
