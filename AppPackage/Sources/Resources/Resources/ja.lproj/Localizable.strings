@@ -416,19 +416,8 @@
 "previews_view.previews" = "プレビュー";
 
 // MARK: ReadingView
-"reading_view.reload" = "再読み込み";
-"reading_view.copy" = "コピー";
-"reading_view.save" = "保存";
-"reading_view.save_original" = "オリジナルを保存";
 "reading_view.share" = "共有";
-"reading_view.auto_play" = "自動再生";
-"reading_view.dual_page_mode" = "デュアルページモード";
-"reading_view.except_the_cover" = "カバーを除く";
-"reading_view.retry_all_failed_images" = "読み込み失敗した画像をすべてリトライ";
-"reading_view.reload_all_images" = "画像をすべて再読み込み";
-"reading_view.reading_setting" = "閲覧設定";
 // AutoPlayPolicy
-"auto_play_policy.off" = "オフ";
 
 
 // MARK: DownloadBadge

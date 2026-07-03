@@ -34,7 +34,7 @@ extension AutoPlayPolicy {
     var value: String {
         switch self {
         case .off:
-            return L10n.Localizable.AutoPlayPolicy.off
+            return String(localized: .autoPlayPolicyOff)
         default:
             return L10n.Localizable.Common.seconds("\(rawValue)")
         }
@@ -144,25 +144,25 @@ struct HorizontalImageStack: View {
         Button {
             refetchAction(index)
         } label: {
-            Label(L10n.Localizable.ReadingView.reload, systemSymbol: .arrowCounterclockwise)
+            Label(String(localized: .reload), systemSymbol: .arrowCounterclockwise)
         }
         if let imageURL = imageURLs[index] {
             Button {
                 copyImageAction(imageURL)
             } label: {
-                Label(L10n.Localizable.ReadingView.copy, systemSymbol: .plusSquareOnSquare)
+                Label(String(localized: .copy), systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 saveImageAction(imageURL)
             } label: {
-                Label(L10n.Localizable.ReadingView.save, systemSymbol: .squareAndArrowDown)
+                Label(String(localized: .save), systemSymbol: .squareAndArrowDown)
             }
             if let originalImageURL = originalImageURLs[index] {
                 Button {
                     saveImageAction(originalImageURL)
                 } label: {
                     Label(
-                        L10n.Localizable.ReadingView.saveOriginal,
+                        String(localized: .saveOriginal),
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }

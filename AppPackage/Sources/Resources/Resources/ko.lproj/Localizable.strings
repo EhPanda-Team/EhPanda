@@ -416,19 +416,8 @@
 "previews_view.previews" = "미리보기";
 
 // MARK: ReadingView
-"reading_view.reload" = "재시도";
-"reading_view.copy" = "복사";
-"reading_view.save" = "저장";
-"reading_view.save_original" = "원본 저장";
 "reading_view.share" = "공유";
-"reading_view.auto_play" = "자동 재생";
-"reading_view.dual_page_mode" = "두 장을 한 화면으로 보기";
-"reading_view.except_the_cover" = "표지 제외하기";
-"reading_view.retry_all_failed_images" = "실패한 이미지 모두 재시도";
-"reading_view.reload_all_images" = "모든 이미지 다시 불러오기";
-"reading_view.reading_setting" = "읽기 설정";
 // AutoPlayPolicy
-"auto_play_policy.off" = "끔";
 
 
 // MARK: DownloadBadge

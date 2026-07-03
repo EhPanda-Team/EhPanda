@@ -416,19 +416,8 @@
 "previews_view.previews" = "预览";
 
 // MARK: ReadingView
-"reading_view.reload" = "重新加载";
-"reading_view.copy" = "复制";
-"reading_view.save" = "保存";
-"reading_view.save_original" = "保存原图";
 "reading_view.share" = "分享";
-"reading_view.auto_play" = "自动播放";
-"reading_view.dual_page_mode" = "双页模式";
-"reading_view.except_the_cover" = "封面除外";
-"reading_view.retry_all_failed_images" = "重试所有读取失败图片";
-"reading_view.reload_all_images" = "重新加载所有图片";
-"reading_view.reading_setting" = "阅读设置";
 // AutoPlayPolicy
-"auto_play_policy.off" = "不启用";
 
 
 // MARK: DownloadBadge
