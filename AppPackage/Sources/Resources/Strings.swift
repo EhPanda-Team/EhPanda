@@ -1755,10 +1755,6 @@ public enum L10n {
       /// Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.
       public static let modernNoDescription = L10n.tr("Localizable", "load_through_hath_setting.modern_no_description", fallback: "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.")
     }
-    public enum LoadingView {
-      /// Loading...
-      public static let loading = L10n.tr("Localizable", "loading_view.loading", fallback: "Loading...")
-    }
     public enum LoginView {
       /// Login
       public static let login = L10n.tr("Localizable", "login_view.login", fallback: "Login")
@@ -1774,16 +1770,6 @@ public enum L10n {
       public static let alignCenterScaleIfOverWidth = L10n.tr("Localizable", "multiple_page_viewer_style.align_center_scale_if_over_width", fallback: "Align center, scale if overwidth")
       /// Align left, scale if overwidth
       public static let alignLeftScaleIfOverWidth = L10n.tr("Localizable", "multiple_page_viewer_style.align_left_scale_if_over_width", fallback: "Align left, scale if overwidth")
-    }
-    public enum NewDawnView {
-      /// It is the dawn of a new day!
-      public static let first = L10n.tr("Localizable", "new_dawn_view.first", fallback: "It is the dawn of a new day!")
-      /// Reflecting on your journey so far, you find that you are a little wiser.
-      public static let second = L10n.tr("Localizable", "new_dawn_view.second", fallback: "Reflecting on your journey so far, you find that you are a little wiser.")
-    }
-    public enum NotLoginView {
-      /// You need to login to access this feature.
-      public static let needLogin = L10n.tr("Localizable", "not_login_view.need_login", fallback: "You need to login to access this feature.")
     }
     public enum PostCommentView {
       /// Edit comment
@@ -1825,12 +1811,6 @@ public enum L10n {
       /// Search
       public static let search = L10n.tr("Localizable", "search_view.search", fallback: "Search")
     }
-    public enum Searchable {
-      /// Found %d matches.
-      public static func matchesCount(_ p1: Int) -> String {
-        return L10n.tr("Localizable", "searchable.matches_count", p1, fallback: "Found %d matches.")
-      }
-    }
     public enum SettingStateRoute {
       /// About
       public static let about = L10n.tr("Localizable", "setting_state_route.about", fallback: "About")
@@ -1850,10 +1830,6 @@ public enum L10n {
     public enum SettingView {
       /// Setting
       public static let setting = L10n.tr("Localizable", "setting_view.setting", fallback: "Setting")
-    }
-    public enum SubSection {
-      /// Show all
-      public static let showAll = L10n.tr("Localizable", "sub_section.show_all", fallback: "Show all")
     }
     public enum TabItem {
       /// Downloads
@@ -1924,20 +1900,6 @@ public enum L10n {
       public static let normal = L10n.tr("Localizable", "thumbnail_size.normal", fallback: "Normal")
       /// Small
       public static let small = L10n.tr("Localizable", "thumbnail_size.small", fallback: "Small")
-    }
-    public enum Toast {
-      /// Communicating...
-      public static let communicating = L10n.tr("Localizable", "toast.communicating", fallback: "Communicating...")
-      /// Copied to clipboard
-      public static let copiedToClipboard = L10n.tr("Localizable", "toast.copied_to_clipboard", fallback: "Copied to clipboard")
-      /// Error
-      public static let error = L10n.tr("Localizable", "toast.error", fallback: "Error")
-      /// Loading...
-      public static let loading = L10n.tr("Localizable", "toast.loading", fallback: "Loading...")
-      /// Saved to photo library
-      public static let savedToPhotoLibrary = L10n.tr("Localizable", "toast.saved_to_photo_library", fallback: "Saved to photo library")
-      /// Success
-      public static let success = L10n.tr("Localizable", "toast.success", fallback: "Success")
     }
     public enum ToolbarItem {
       /// Seek to date
