@@ -62,7 +62,7 @@ public struct FiltersButton: View {
         Button(action: action) {
             Image(systemSymbol: .line3HorizontalDecrease)
             if !hideText {
-                Text(L10n.Localizable.ToolbarItem.filters)
+                Text(String(localized: .RLocalizable.filters))
             }
         }
     }
@@ -81,7 +81,7 @@ public struct QuickSearchButton: View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
             if !hideText {
-                Text(L10n.Localizable.ToolbarItem.quickSearch)
+                Text(String(localized: .RLocalizable.quickSearch))
             }
         }
     }
@@ -102,7 +102,7 @@ public struct JumpPageButton: View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
             if !hideText {
-                Text(L10n.Localizable.ToolbarItem.jumpPage)
+                Text(String(localized: .RLocalizable.jumpPage))
             }
         }
         .disabled(pageNumber.isSinglePage)
@@ -122,7 +122,7 @@ public struct DateSeekButton: View {
         Button {
             navigation.map(action)
         } label: {
-            Label(L10n.Localizable.ToolbarItem.dateSeek, systemSymbol: .calendar)
+            Label(String(localized: .RLocalizable.dateSeek), systemSymbol: .calendar)
         }
         .disabled(navigation == nil)
     }

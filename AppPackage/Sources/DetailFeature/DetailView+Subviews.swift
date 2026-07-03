@@ -19,7 +19,7 @@ struct DescriptionSection: View {
             value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.language,
+            title: String(localized: .RLocalizable.language),
             description: galleryDetail.language.value,
             value: galleryDetail.language.abbreviation
         ),
@@ -242,7 +242,7 @@ extension TagsSection {
                     ))
                 } label: {
                     Image(systemSymbol: .richtextPage)
-                    Text(L10n.Localizable.DetailView.detail)
+                    Text(String(localized: .RLocalizable.detail))
                 }
             }
             if CookieUtil.didLogin {

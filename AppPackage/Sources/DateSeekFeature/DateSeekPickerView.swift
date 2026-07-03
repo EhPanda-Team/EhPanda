@@ -80,7 +80,7 @@ public struct DateSeekPickerView: View {
                     .listRowInsets(.init())
                 }
             }
-            .navigationTitle(L10n.Localizable.DateSeekView.dateSeek)
+            .navigationTitle(String(localized: .RLocalizable.dateSeek))
             .navigationBarTitleDisplayMode(.large)
         }
     }

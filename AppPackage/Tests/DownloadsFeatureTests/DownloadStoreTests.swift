@@ -70,7 +70,7 @@ struct DownloadStoreTests {
 
         #expect(
             throws: AppError.fileOperationFailed(
-                L10n.Localizable.DownloadStore.manifestCorrupted
+                String(localized: .RLocalizable.downloadStoreManifestCorrupted)
             )
         ) {
             try storage.readManifest(folderURL: folderURL)
@@ -89,7 +89,7 @@ struct DownloadStoreTests {
 
         #expect(
             throws: AppError.fileOperationFailed(
-                L10n.Localizable.DownloadStore.manifestCorrupted
+                String(localized: .RLocalizable.downloadStoreManifestCorrupted)
             )
         ) {
             try storage.readManifest(folderURL: folderURL)
@@ -132,7 +132,7 @@ struct DownloadStoreTests {
 
         #expect(
             storage.validate(download: download, verifiesContentHashes: true) == .missingFiles(
-                L10n.Localizable.DownloadStore.pageMissing(2)
+                String(localized: .RLocalizable.downloadStorePageMissing(2))
             )
         )
     }
@@ -169,7 +169,7 @@ struct DownloadStoreTests {
 
         #expect(
             storage.validate(download: download, verifiesContentHashes: true) == .missingFiles(
-                L10n.Localizable.DownloadStore.pageMissing(1)
+                String(localized: .RLocalizable.downloadStorePageMissing(1))
             )
         )
         #expect(

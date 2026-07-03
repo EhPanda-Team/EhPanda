@@ -96,7 +96,7 @@ public struct GeneralSettingReducer: Sendable {
                         TextState(String(localized: .remove))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
                     TextState(String(localized: .removeCustomTranslationsConfirmation))
@@ -108,13 +108,13 @@ public struct GeneralSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearCache) {
-                        TextState(L10n.Localizable.ConfirmationDialog.clear)
+                        TextState(String(localized: .RLocalizable.clear))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.clearDescription)
+                    TextState(String(localized: .RLocalizable.clearDescription))
                 }
                 return .none
 

@@ -74,7 +74,7 @@ extension DownloadCoordinator {
             } else {
                 return .failure(
                     .fileOperationFailed(
-                        L10n.Localizable.DownloadStore.invalidFolderName
+                        String(localized: .RLocalizable.downloadStoreInvalidFolderName)
                     )
                 )
             }

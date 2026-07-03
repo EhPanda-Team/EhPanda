@@ -29,7 +29,7 @@ extension DetailView {
                         store.send(.shareButtonTapped(galleryURL))
                     }
                 } label: {
-                    Label(L10n.Localizable.DetailView.share, systemSymbol: .squareAndArrowUp)
+                    Label(String(localized: .RLocalizable.share), systemSymbol: .squareAndArrowUp)
                 }
             }
             .disabled(store.galleryDetail == nil || store.loadingState == .loading)

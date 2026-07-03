@@ -113,10 +113,10 @@ public struct ToplistsReducer: Sendable {
                 let maximumPage = (state.pageNumber?.maximum ?? 0) + 1
                 state.alert = AppAlertState(
                     title: {
-                        TextState(L10n.Localizable.JumpPageView.jumpPage)
+                        TextState(String(localized: .RLocalizable.jumpPage))
                     },
                     textField: .init(
-                        placeholder: TextState(L10n.Localizable.JumpPageView.jumpPage),
+                        placeholder: TextState(String(localized: .RLocalizable.jumpPage)),
                         keyboard: .numberPad
                     ),
                     actions: {
@@ -124,7 +124,7 @@ public struct ToplistsReducer: Sendable {
                             TextState(String(localized: .confirm))
                         }
                         ButtonState(role: .cancel) {
-                            TextState(L10n.Localizable.Common.cancel)
+                            TextState(String(localized: .RLocalizable.cancel))
                         }
                     },
                     message: {
