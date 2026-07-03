@@ -20,30 +20,30 @@ struct DownloadSettingView: View {
         Form {
             Section {
                 VStack(alignment: .leading) {
-                    LabeledContent(L10n.Localizable.DownloadSettingView.concurrentImageDownloads) {
+                    LabeledContent(String(localized: .concurrentImageDownloads)) {
                         Text(downloadThreadLimit, format: .number)
                             .monospacedDigit()
                     }
                     Slider(value: downloadThreadLimitValue, in: 1...5, step: 1)
                 }
                 Toggle(
-                    L10n.Localizable.DownloadSettingView.retryFailedPagesAutomatically,
+                    String(localized: .retryFailedPagesAutomatically),
                     isOn: $downloadAutoRetryFailedPages
                 )
             }
 
             Section {
                 Toggle(
-                    L10n.Localizable.DownloadSettingView.allowCellularDownloads,
+                    String(localized: .allowCellularDownloads),
                     isOn: $downloadAllowCellular
                 )
             } header: {
-                Text(L10n.Localizable.DownloadSettingView.network)
+                Text(String(localized: .network))
             } footer: {
-                Text(L10n.Localizable.DownloadSettingView.networkDescription)
+                Text(String(localized: .networkDescription))
             }
         }
-        .navigationTitle(L10n.Localizable.DownloadSettingView.title)
+        .navigationTitle(String(localized: .title))
     }
 
     private var downloadThreadLimitValue: Binding<Double> {

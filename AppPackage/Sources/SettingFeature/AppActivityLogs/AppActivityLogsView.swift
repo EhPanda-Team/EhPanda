@@ -26,7 +26,7 @@ struct AppActivityLogsView: View {
             LoadingView()
                 .opacity(store.loadingState == .loading && store.displayedLogs.isEmpty ? 1 : 0)
 
-            Text(L10n.Localizable.AppActivityLogsView.noLogs)
+            Text(String(localized: .appActivityLogsViewNoLogs))
                 .foregroundColor(.secondary)
                 .opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
         }
@@ -43,7 +43,7 @@ struct AppActivityLogsView: View {
             store.send(.refreshAvailableRuns)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.AppActivityLogsView.title)
+        .navigationTitle(String(localized: .appActivityLogsViewTitle))
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $isRunPickerPresented) {
             RunPickerSheet(store: store) { isRunPickerPresented = false }
@@ -63,14 +63,14 @@ struct AppActivityLogsView: View {
             Button {
                 store.send(.navigateToFileApp)
             } label: {
-                Label(L10n.Localizable.AppActivityLogsView.openInFiles, systemSymbol: .folderBadgeGearshape)
+                Label(String(localized: .appActivityLogsViewOpenInFiles), systemSymbol: .folderBadgeGearshape)
             }
         }
     }
 
     @ViewBuilder
     private var runMenu: some View {
-        Section(L10n.Localizable.AppActivityLogsView.current) {
+        Section(String(localized: .appActivityLogsViewCurrent)) {
             RunButton(
                 run: store.currentRun,
                 isSelected: store.selectedRun == nil
@@ -97,7 +97,7 @@ struct AppActivityLogsView: View {
             Button {
                 isRunPickerPresented = true
             } label: {
-                Label(L10n.Localizable.AppActivityLogsView.moreLogs, systemSymbol: .ellipsisCalendar)
+                Label(String(localized: .appActivityLogsViewMoreLogs), systemSymbol: .ellipsisCalendar)
             }
         }
     }
@@ -111,7 +111,7 @@ private struct RunPickerSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(L10n.Localizable.AppActivityLogsView.current) {
+                Section(String(localized: .appActivityLogsViewCurrent)) {
                     RunButton(
                         run: store.currentRun,
                         isSelected: store.selectedRun == nil
@@ -135,7 +135,7 @@ private struct RunPickerSheet: View {
                     }
                 }
             }
-            .navigationTitle(L10n.Localizable.AppActivityLogsView.runs)
+            .navigationTitle(String(localized: .appActivityLogsViewRuns))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -167,9 +167,9 @@ private struct RunButton: View {
 // A nil run is the current run before its count is resolved; fall back to "Current".
 private func runLabel(_ run: RunLogFile?) -> String {
     guard let run else {
-        return L10n.Localizable.AppActivityLogsView.current
+        return String(localized: .appActivityLogsViewCurrent)
     }
-    let title = L10n.Localizable.AppActivityLogsView.run("\(run.runCount)")
+    let title = String(localized: .appActivityLogsViewRun("\(run.runCount)"))
     return "\(title) (\(runTimeFormatter.string(from: run.date)))"
 }
 

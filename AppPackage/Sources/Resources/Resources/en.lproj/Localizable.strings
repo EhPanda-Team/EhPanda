@@ -78,12 +78,8 @@
 "app_error.local_file_operation_failed" = "Local file operation failed.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.remove_custom_translations" = "Are you sure to remove your custom translations?";
-"confirmation_dialog.logout_description" = "Are you sure to logout?";
 "confirmation_dialog.delete_description" = "Are you sure to delete this item?";
 "confirmation_dialog.clear_description" = "Are you sure to clear?";
-"confirmation_dialog.remove" = "Remove";
-"confirmation_dialog.logout" = "Logout";
 "confirmation_dialog.delete" = "Delete";
 "confirmation_dialog.clear" = "Clear";
 
@@ -127,60 +123,21 @@
 // MARK: SettingView
 "setting_view.setting" = "Setting";
 // SettingStateRoute
-"setting_state_route.account" = "Account";
-"setting_state_route.general" = "General";
-"setting_state_route.appearance" = "Appearance";
-"setting_state_route.reading" = "Reading";
-"setting_state_route.download" = "Download";
-"setting_state_route.laboratory" = "Laboratory";
-"setting_state_route.about" = "About";
 
 // MARK: AccountSettingView
-"account_setting_view.account" = "Account";
-"account_setting_view.shows_new_dawn_greeting" = "Shows new dawn greeting";
 "account_setting_view.login" = "Login";
-"account_setting_view.account_configuration" = "Account configuration";
-"account_setting_view.tags_management" = "Manage tags subscription";
-"account_setting_view.copy_cookies" = "Copy cookies";
 // CookieValue
 
 // MARK: LoginView
 "login_view.login" = "Login";
-"login_view.username" = "Username";
-"login_view.password" = "Password";
 
 // MARK: GeneralSettingView
-"general_setting_view.general" = "General";
 "general_setting_view.language" = "Language";
-"general_setting_view.auto_lock" = "Auto-Lock";
-"general_setting_view.enables_tags_extension" = "Enables tags extension";
-"general_setting_view.translates_tags" = "Translates tags";
-"general_setting_view.shows_tags_search_suggestion" = "Shows tags search suggestion";
-"general_setting_view.shows_images_in_tags" = "Shows images in tags";
-"general_setting_view.redirects_links_to_the_selected_host" = "Redirects links to the selected host";
-"general_setting_view.detects_links_from_clipboard" = "Detects links from the clipboard";
-"general_setting_view.background_blur_radius" = "Background blur radius";
-"general_setting_view.app_activity_logs" = "App activity logs";
-"general_setting_view.import_custom_translations" = "Import custom translations";
-"general_setting_view.remove_custom_translations" = "Remove custom translations";
-"general_setting_view.clear_image_caches" = "Clear image caches";
-"general_setting_view.default_language_description" = "N/A";
-"general_setting_view.tags" = "Tags";
-"general_setting_view.navigation" = "Navigation";
-"general_setting_view.security" = "Security";
-"general_setting_view.caches" = "Caches";
 // AutoLockPolicy
 "auto_lock_policy.never" = "Never";
 "auto_lock_policy.instantly" = "Instantly";
 
 // MARK: AppActivityLogsView
-"app_activity_logs_view.title" = "App activity logs";
-"app_activity_logs_view.no_logs" = "No logs found";
-"app_activity_logs_view.current" = "Current";
-"app_activity_logs_view.run" = "Run %@";
-"app_activity_logs_view.more_logs" = "More logs";
-"app_activity_logs_view.open_in_files" = "Open in Files";
-"app_activity_logs_view.runs" = "Runs";
 "app_activity_logs_view.level.undefined" = "Undefined";
 "app_activity_logs_view.level.debug" = "Debug";
 "app_activity_logs_view.level.info" = "Info";
@@ -189,17 +146,6 @@
 "app_activity_logs_view.level.fault" = "Fault";
 
 // MARK: AppearanceSettingView
-"appearance_setting_view.appearance" = "Appearance";
-"appearance_setting_view.theme" = "Theme";
-"appearance_setting_view.tint_color" = "Tint color";
-"appearance_setting_view.display_mode" = "Display mode";
-"appearance_setting_view.shows_tags_in_list" = "Shows tags in list";
-"appearance_setting_view.maximum_number_of_tags" = "Maximum number of tags";
-"appearance_setting_view.displays_japanese_title" = "Displays Japanese title";
-"appearance_setting_view.app_icon" = "App icon";
-"appearance_setting_view.infite" = "Infite";
-"appearance_setting_view.list" = "List";
-"appearance_setting_view.gallery" = "Gallery";
 // PreferredColorScheme
 "preferred_color_scheme.automatic" = "Automatic";
 "preferred_color_scheme.light" = "Light";
@@ -215,7 +161,6 @@
 "list_display_mode.thumbnail" = "Thumbnail";
 
 // MARK: AppIconView
-"app_icon_view.app_icon" = "App icon";
 
 // MARK: reading_settingView
 // ReadingDirection
@@ -224,18 +169,8 @@
 "reading_direction.left_to_right" = "Left-to-right";
 
 // MARK: LaboratorySettingView
-"laboratory_setting_view.laboratory" = "Laboratory";
-"laboratory_setting_view.bypasses_SNI_filtering" = "Bypasses SNI Filtering";
 
 // MARK: AboutView
-"about_view.ehPanda" = "EhPanda";
-"about_view.website" = "Website";
-"about_view.altStore_source" = "AltStore source";
-"about_view.version" = "Version";
-"about_view.special_thanks" = "Special thanks";
-"about_view.code_level_contributors" = "Code-level contributors";
-"about_view.translation_contributors" = "Translation contributors";
-"about_view.acknowledgements" = "Acknowledgements";
 
 // MARK: DetailView
 "detail_view.share" = "Share";
@@ -271,12 +206,6 @@
 "downloads_view.update" = "Update";
 
 // MARK: DownloadSettingView
-"download_setting_view.title" = "Download";
-"download_setting_view.network" = "Network";
-"download_setting_view.concurrent_image_downloads" = "Concurrent image downloads";
-"download_setting_view.retry_failed_pages_automatically" = "Retry failed pages automatically";
-"download_setting_view.allow_cellular_downloads" = "Allow cellular downloads";
-"download_setting_view.network_description" = "Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.";
 
 // MARK: CommentsView
 
@@ -305,19 +234,7 @@
 "filter_range.watched" = "Watched";
 
 // MARK: EhSettingView
-"eh_setting_view.host_settings" = "%@ settings";
-"eh_setting_view.profile_settings" = "Profile Settings";
-"eh_setting_view.selected_profile" = "Selected profile";
-"eh_setting_view.set_as_default" = "Set as default";
-"eh_setting_view.delete_profile" = "Delete profile";
-"eh_setting_view.rename" = "Rename";
-"eh_setting_view.create_new" = "Create new";
-"eh_setting_view.done" = "Done";
 
-"eh_setting_view.image_load_settings" = "Image Load Settings";
-"eh_setting_view.load_images_through_the_hath_network" = "Load images through the Hath network";
-"eh_setting_view.browsing_country" = "Browsing country";
-"eh_setting_view.browsing_country_description" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
 // EhSetting.LoadThroughHathSetting
 "load_through_hath_setting.any_client" = "Any client";
 "load_through_hath_setting.default_port_only" = "Default port clients only";
@@ -328,26 +245,13 @@
 "load_through_hath_setting.modern_no_description" = "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.";
 "load_through_hath_setting.legacy_no_description" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
 
-"eh_setting_view.image_size_settings" = "Image Size Settings";
-"eh_setting_view.image_resolution" = "Image resolution";
-"eh_setting_view.image_resolution_description" = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.";
-"eh_setting_view.image_size" = "Image size";
-"eh_setting_view.image_size_description" = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)";
-"eh_setting_view.horizontal" = "Horizontal";
-"eh_setting_view.vertical" = "Vertical";
 // EhSetting.ImageResolution
 "image_resolution.auto" = "Auto";
 
-"eh_setting_view.gallery_name_display" = "Gallery Name Display";
-"eh_setting_view.gallery_name" = "Gallery name";
-"eh_setting_view.gallery_name_description" = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?";
 // EhSetting.GalleryName
 "gallery_name.default" = "Default Title";
 "gallery_name.japanese" = "Japanese Title (if available)";
 
-"eh_setting_view.archiver_settings" = "Archiver Settings";
-"eh_setting_view.archiver_behavior" = "Archiver behavior";
-"eh_setting_view.archiver_behavior_description" = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.";
 // EhSetting.ArchiverBehavior
 "eh_setting.archiver_behavior.manual_select_manual_start" = "Manual Select, Manual Start (Default)";
 "eh_setting.archiver_behavior.manual_select_auto_start" = "Manual Select, Auto Start";
@@ -356,12 +260,6 @@
 "eh_setting.archiver_behavior.auto_select_resample_manual_start" = "Auto Select Resample, Manual Start";
 "eh_setting.archiver_behavior.auto_select_resample_auto_start" = "Auto Select Resample, Auto Start";
 
-"eh_setting_view.front_page_settings" = "Front Page Settings";
-"eh_setting_view.display_mode" = "Display mode";
-"eh_setting_view.display_mode_description" = "Which display mode would you like to use on the front and search pages?";
-"eh_setting_view.show_search_range_indicator" = "Search Range Indicator";
-"eh_setting_view.show_search_range_indicator_description" = "Show search range indicator";
-"eh_setting_view.gallery_category" = "What categories would you like to show by default on the front page and in searches?";
 // EhSetting.DisplayMode
 "display_mode.compact" = "Compact";
 "display_mode.thumbnail" = "Thumbnail";
@@ -369,54 +267,22 @@
 "display_mode.minimal" = "Minimal";
 "display_mode.minimalPlus" = "Minimal+";
 
-"eh_setting_view.optional_UI_elements" = "Optional UI Elements";
-"eh_setting_view.optional_UI_elements_description" = "Some historic UI elements are now disabled by default. You can enable those here.";
-"eh_setting_view.enable_gallery_thumbnail_selector" = "Enable thumbnail selector on gallery screen";
 
-"eh_setting_view.favorites" = "Favorites";
-"eh_setting_view.favorite_categories" = "Here you can choose and rename your favorite categories.";
-"eh_setting_view.favorites_sort_order" = "Favorites sort order";
-"eh_setting_view.favorites_sort_order_description" = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.";
 // EhSetting.FavoritesSortOrder
 "favorites_sort_order.last_update_time" = "By last gallery update time";
 "favorites_sort_order.favorited_time" = "By favorited time";
 
-"eh_setting_view.ratings" = "Ratings";
-"eh_setting_view.ratings_color" = "Ratings color";
-"eh_setting_view.ratings_color_prompt" = "RRGGB";
-"eh_setting_view.ratings_color_description" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
 
-"eh_setting_view.tag_filtering_threshold" = "Tag Filtering Threshold";
-"eh_setting_view.tag_filtering_threshold_description" = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.";
 
-"eh_setting_view.tag_watching_threshold" = "Tag Watching Threshold";
-"eh_setting_view.tag_watching_threshold_description" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
 
-"eh_setting_viewfiltered_removal_count" = "Show Filtered Removal Count";
-"eh_setting_view.filtered_removal_count_description" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh_setting_view.show_filtered_removal_count" = "Show filtered removal count";
 
-"eh_setting_view.excluded_languages" = "Excluded Languages";
-"eh_setting_view.excluded_languages_description" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
 // EhSetting.ExcludedLanguagesCategory
 "excluded_languages_category.original" = "Original";
 "excluded_languages_category.translated" = "Translated";
 "excluded_languages_category.rewrite" = "Rewrite";
 
-"eh_setting_view.excluded_uploaders" = "Excluded Uploaders";
-"eh_setting_view.excluded_uploaders_description" = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.";
-"eh_setting_view.excluded_uploaders_count" = "You are currently using **%@ / %@** exclusion slots.";
 
-"eh_setting_view.search_result_count" = "Search Result Count";
-"eh_setting_view.result_count" = "Result count";
-"eh_setting_view.result_count_description" = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)";
 
-"eh_setting_view.thumbnail_settings" = "Thumbnail Settings";
-"eh_setting_view.thumbnail_load_timing" = "Thumbnail load timing";
-"eh_setting_view.thumbnail_load_timing_description" = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?";
-"eh_setting_view.thumbnail_configuration" = "You can set a default thumbnail configuration for all galleries you visit.";
-"eh_setting_view.thumbnail_size" = "Size";
-"eh_setting_view.thumbnail_row_count" = "Rows";
 // EhSetting.ThumbnailLoadTiming
 "thumbnail_load_timing.on_mouse_over" = "On mouse-over";
 "thumbnail_load_timing.on_page_load" = "On page load";
@@ -428,17 +294,8 @@
 "thumbnail_size.small" = "Small";
 "thumbnail_size.auto" = "Auto";
 
-"eh_setting_view.cover_scaling" = "Cover Scaling";
-"eh_setting_view.scale_factor" = "Scale factor";
-"eh_setting_view.cover_scale_factor" = "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.";
 
-"eh_setting_view.viewport_override" = "Viewport Override";
-"eh_setting_view.virtual_width" = "Virtual width";
-"eh_setting_view.virtual_width_description" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.";
 
-"eh_setting_view.gallery_comments" = "Gallery Comments";
-"eh_setting_view.comments_sort_order" = "Comments sort order";
-"eh_setting_view.comments_votes_show_timing" = "Comment votes show timing";
 // EhSetting.CommentsSortOrder
 "comments_sort_order.oldest" = "Oldest comments first";
 "comments_sort_order.recent" = "Recent comments first";
@@ -447,22 +304,12 @@
 "comments_votes_show_timing.on_hover_or_click" = "On score hover or click";
 "comments_votes_show_timing.always" = "Always";
 
-"eh_setting_view.gallery_tags" = "Gallery Tags";
-"eh_setting_view.tags_sort_order" = "Tags sort order";
 // EhSetting.tags_sort_order
 "tags_sort_order.alphabetical" = "Alphabetical";
 "tags_sort_order.tag_power" = "By tag power";
 
-"eh_setting_view.gallery_page_thumbnail_labeling" = "Gallery Page Thumbnail Labeling";
-"eh_setting_view.show_label_below_gallery_thumbnails" = "Show label below gallery thumbnails";
 
-"eh_setting_view.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
-"eh_setting_view.use_original_images" = "Use original images";
 
-"eh_setting_view.multi_page_viewer" = "Multi-Page Viewer";
-"eh_setting_view.use_multi_page_viewer" = "Use Multi-Page Viewer";
-"eh_setting_view.display_style" = "Display style";
-"eh_setting_view.show_thumbnail_pane" = "Show thumbnail pane";
 // EhSetting.MultiplePageViewerStyle
 "multiple_page_viewer_style.align_left_scale_if_over_width" = "Align left, scale if overwidth";
 "multiple_page_viewer_style.align_center_scale_if_over_width" = "Align center, scale if overwidth";

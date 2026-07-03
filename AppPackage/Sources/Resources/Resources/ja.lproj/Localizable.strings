@@ -78,12 +78,8 @@
 "app_error.local_file_operation_failed" = "ローカルファイルの操作に失敗しました。";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.remove_custom_translations" = "本当にカスタム翻訳を削除してもよろしいですか？";
-"confirmation_dialog.logout_description" = "本当にログアウトしてもよろしいですか？";
 "confirmation_dialog.delete_description" = "本当にこれを削除してもよろしいですか？";
 "confirmation_dialog.clear_description" = "本当に削除してもよろしいですか？";
-"confirmation_dialog.remove" = "削除";
-"confirmation_dialog.logout" = "ログアウト";
 "confirmation_dialog.delete" = "削除";
 "confirmation_dialog.clear" = "削除";
 
@@ -127,60 +123,21 @@
 // MARK: SettingView
 "setting_view.setting" = "設定";
 // SettingStateRoute
-"setting_state_route.account" = "アカウント";
-"setting_state_route.general" = "一般";
-"setting_state_route.appearance" = "外観";
-"setting_state_route.reading" = "閲覧";
-"setting_state_route.download" = "ダウンロード";
-"setting_state_route.laboratory" = "ラボ";
-"setting_state_route.about" = "アプリについて";
 
 // MARK: AccountSettingView
-"account_setting_view.account" = "アカウント";
-"account_setting_view.shows_new_dawn_greeting" = "夜明けの挨拶を表示";
 "account_setting_view.login" = "ログイン";
-"account_setting_view.account_configuration" = "アカウント設定";
-"account_setting_view.tags_management" = "タグの購読を管理";
-"account_setting_view.copy_cookies" = "クッキーをコピー";
 // CookieValue
 
 // MARK: LoginView
 "login_view.login" = "ログイン";
-"login_view.username" = "ユーザー名";
-"login_view.password" = "パスワード";
 
 // MARK: GeneralSettingView
-"general_setting_view.general" = "一般";
 "general_setting_view.language" = "言語";
-"general_setting_view.auto_lock" = "自動ロック";
-"general_setting_view.enables_tags_extension" = "タグの拡張機能を有効";
-"general_setting_view.translates_tags" = "タグを訳す";
-"general_setting_view.shows_tags_search_suggestion" = "タグの検索提案を表示";
-"general_setting_view.shows_images_in_tags" = "タグの画像を表示";
-"general_setting_view.redirects_links_to_the_selected_host" = "リンクを選択されたホストへリダイレクト";
-"general_setting_view.detects_links_from_clipboard" = "クリップボードからリンクを探知";
-"general_setting_view.background_blur_radius" = "バッググラウンドぼかし度";
-"general_setting_view.app_activity_logs" = "アプリアクティビティログ";
-"general_setting_view.import_custom_translations" = "カスタム翻訳を取り込む";
-"general_setting_view.remove_custom_translations" = "カスタム翻訳を削除";
-"general_setting_view.clear_image_caches" = "画像キャッシュを削除";
-"general_setting_view.default_language_description" = "無効";
-"general_setting_view.tags" = "タグ";
-"general_setting_view.navigation" = "ナビゲーション";
-"general_setting_view.security" = "セキュリティ";
-"general_setting_view.caches" = "キャッシュ";
 // AutoLockPolicy
 "auto_lock_policy.never" = "なし";
 "auto_lock_policy.instantly" = "すぐに";
 
 // MARK: AppActivityLogsView
-"app_activity_logs_view.title" = "アプリアクティビティログ";
-"app_activity_logs_view.no_logs" = "ログが見つかりません";
-"app_activity_logs_view.current" = "現在";
-"app_activity_logs_view.run" = "起動 %@";
-"app_activity_logs_view.more_logs" = "他のログ";
-"app_activity_logs_view.open_in_files" = "ファイルで開く";
-"app_activity_logs_view.runs" = "起動";
 "app_activity_logs_view.level.undefined" = "未定義";
 "app_activity_logs_view.level.debug" = "デバッグ";
 "app_activity_logs_view.level.info" = "情報";
@@ -189,17 +146,6 @@
 "app_activity_logs_view.level.fault" = "障害";
 
 // MARK: AppearanceSettingView
-"appearance_setting_view.appearance" = "外観";
-"appearance_setting_view.theme" = "テーマ";
-"appearance_setting_view.tint_color" = "テーマの色";
-"appearance_setting_view.display_mode" = "表示モード";
-"appearance_setting_view.shows_tags_in_list" = "リストでタグを表示";
-"appearance_setting_view.maximum_number_of_tags" = "タグ数上限";
-"appearance_setting_view.displays_japanese_title" = "日本語タイトルを表示";
-"appearance_setting_view.app_icon" = "アプリアイコン";
-"appearance_setting_view.infite" = "無制限";
-"appearance_setting_view.list" = "リスト";
-"appearance_setting_view.gallery" = "ギャラリー";
 // PreferredColorScheme
 "preferred_color_scheme.automatic" = "自動";
 "preferred_color_scheme.light" = "ライト";
@@ -215,7 +161,6 @@
 "list_display_mode.thumbnail" = "サムネイル";
 
 // MARK: AppIconView
-"app_icon_view.app_icon" = "アプリアイコン";
 
 // MARK: reading_settingView
 // ReadingDirection
@@ -224,18 +169,8 @@
 "reading_direction.left_to_right" = "左開き";
 
 // MARK: LaboratorySettingView
-"laboratory_setting_view.laboratory" = "ラボ";
-"laboratory_setting_view.bypasses_SNI_filtering" = "SNI フィルタリング回避";
 
 // MARK: AboutView
-"about_view.ehPanda" = "EhPanda";
-"about_view.website" = "ウェブサイト";
-"about_view.altStore_source" = "AltStore ソース";
-"about_view.version" = "バージョン";
-"about_view.special_thanks" = "特別な感謝";
-"about_view.code_level_contributors" = "コードレベル貢献者";
-"about_view.translation_contributors" = "翻訳貢献者";
-"about_view.acknowledgements" = "謝辞";
 
 // MARK: DetailView
 "detail_view.share" = "共有";
@@ -271,12 +206,6 @@
 "downloads_view.update" = "更新";
 
 // MARK: DownloadSettingView
-"download_setting_view.title" = "ダウンロード";
-"download_setting_view.network" = "ネットワーク";
-"download_setting_view.concurrent_image_downloads" = "同時画像ダウンロード数";
-"download_setting_view.retry_failed_pages_automatically" = "失敗したページを自動で再試行";
-"download_setting_view.allow_cellular_downloads" = "モバイル通信でのダウンロードを許可";
-"download_setting_view.network_description" = "一度にダウンロードされるギャラリーは 1 件だけです。この設定では、1 つのギャラリー内で同時にダウンロードするページ数、モバイル通信の許可または禁止、そしてファイルをアプリの Downloads フォルダに保存する動作を管理します。";
 
 // MARK: CommentsView
 
@@ -305,19 +234,7 @@
 "filter_range.watched" = "タグの購読";
 
 // MARK: EhSettingView
-"eh_setting_view.host_settings" = "%@ 設定";
-"eh_setting_view.profile_settings" = "プロファイル設定";
-"eh_setting_view.selected_profile" = "選択されたプロファイル";
-"eh_setting_view.set_as_default" = "デフォルトに設定";
-"eh_setting_view.delete_profile" = "プロファイルを削除";
-"eh_setting_view.rename" = "名前を変更";
-"eh_setting_view.create_new" = "新規作成";
-"eh_setting_view.done" = "完了";
 
-"eh_setting_view.image_load_settings" = "画像読み込み設定";
-"eh_setting_view.load_images_through_the_hath_network" = "Hath ネットワーク経由で画像を読み込む";
-"eh_setting_view.browsing_country" = "閲覧国";
-"eh_setting_view.browsing_country_description" = "**%@** から本サイトを閲覧している、またはその国の VPN・プロキシを使用しているようです。本サイトはその地域の H@H クライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネル VPN を使用している）は下に手動選択できます。";
 // EhSetting.LoadThroughHathSetting
 "load_through_hath_setting.any_client" = "任意のクライアント";
 "load_through_hath_setting.default_port_only" = "デフォルトポートのクライアントのみ";
@@ -328,26 +245,13 @@
 "load_through_hath_setting.modern_no_description" = "寄付者独占オプション。閲覧による割当額の消耗は激しくなります。厳重な問題が起こった場合以外おすすめしません。";
 "load_through_hath_setting.legacy_no_description" = "寄付者独占オプション。モダンブラウザでは機能しないこともあります。レガシー・旧型ブラウザの場合以外おすすめしません。";
 
-"eh_setting_view.image_size_settings" = "画像サイズ設定";
-"eh_setting_view.image_resolution" = "画像解像度";
-"eh_setting_view.image_resolution_description" = "一般的に、オンライン閲覧の画像は 1280x までにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x 以上の解像度は現時点で寄付者、Hath Perks 利用者または UID が 3,000,000 以下の者に限定されます。";
-"eh_setting_view.image_size" = "画像サイズ";
-"eh_setting_view.image_size_description" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）";
-"eh_setting_view.horizontal" = "幅";
-"eh_setting_view.vertical" = "高さ";
 // EhSetting.ImageResolution
 "image_resolution.auto" = "自動";
 
-"eh_setting_view.gallery_name_display" = "ギャラリー名表示";
-"eh_setting_view.gallery_name" = "ギャラリー名";
-"eh_setting_view.gallery_name_description" = "英語・ローマ字と日本語両方のタイトルを持つギャラリーはたくさんあります。どちらをデフォルトにしますか？";
 // EhSetting.GalleryName
 "gallery_name.default" = "デフォルトタイトル";
 "gallery_name.japanese" = "日本語タイトル（可能なら）";
 
-"eh_setting_view.archiver_settings" = "アーカイバー設定";
-"eh_setting_view.archiver_behavior" = "アーカイバー動作";
-"eh_setting_view.archiver_behavior_description" = "アーカイバーのデフォルト動作はオリジナルとリサンプルのアーカイブのコストと選択を確認してからリンクを提供し、それからそのリンクをクリックしたりどこかにペーストしたりすることも可能です。そのデフォルト動作はここで変更できます。";
 // EhSetting.ArchiverBehavior
 "eh_setting.archiver_behavior.manual_select_manual_start" = "手動で選択、手動で開始（デフォルト）";
 "eh_setting.archiver_behavior.manual_select_auto_start" = "手動で選択、自動で開始";
@@ -356,12 +260,6 @@
 "eh_setting.archiver_behavior.auto_select_resample_manual_start" = "自動でリサンプルを選択、手動で開始";
 "eh_setting.archiver_behavior.auto_select_resample_auto_start" = "自動でリサンプルを選択、自動で開始";
 
-"eh_setting_view.front_page_settings" = "フロントページ設定";
-"eh_setting_view.display_mode" = "表示モード";
-"eh_setting_view.display_mode_description" = "フロント・検索ページで使う表示モードはどれにしますか？";
-"eh_setting_view.show_search_range_indicator" = "検索範囲インジケーター";
-"eh_setting_view.show_search_range_indicator_description" = "検索範囲インジケーターを表示";
-"eh_setting_view.gallery_category" = "フロント・検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
 // EhSetting.DisplayMode
 "display_mode.compact" = "コンパクト";
 "display_mode.thumbnail" = "サムネイル";
@@ -369,54 +267,22 @@
 "display_mode.minimal" = "最小化";
 "display_mode.minimalPlus" = "最小化＋";
 
-"eh_setting_view.optional_UI_elements" = "UI の表示制御";
-"eh_setting_view.optional_UI_elements_description" = "一部の従来の UI はデフォルトで無効になっています。ここで有効にすることができます。";
-"eh_setting_view.enable_gallery_thumbnail_selector" = "ギャラリーのサムネイルセレクタ";
 
-"eh_setting_view.favorites" = "お気に入り";
-"eh_setting_view.favorite_categories" = "ここではお気に入りカテゴリー名の変更ができます。";
-"eh_setting_view.favorites_sort_order" = "お気に入りの並び替え";
-"eh_setting_view.favorites_sort_order_description" = "お気に入りページのデフォルト並び替え順序も変更可能です。注意：平成28年3月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。";
 // EhSetting.FavoritesSortOrder
 "favorites_sort_order.last_update_time" = "更新時間の新しい順";
 "favorites_sort_order.favorited_time" = "気に入った時間の新しい順";
 
-"eh_setting_view.ratings" = "評価";
-"eh_setting_view.ratings_color" = "評価の色";
-"eh_setting_view.ratings_color_prompt" = "RRGGB";
-"eh_setting_view.ratings_color_description" = "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
 
-"eh_setting_view.tag_filtering_threshold" = "タグフィルタリングしきい値";
-"eh_setting_view.tag_filtering_threshold_description" = "負の重み付きでマイタグに追加することでタグをソフトフィルタリングすることができます。もしあるギャラリーが持つタグの重み総和がこのしきい値より低ければ、そのギャラリーはフィルタリングされます。このしきい値はゼロから -9999 まで設定できます。";
 
-"eh_setting_view.tag_watching_threshold" = "タグ購読しきい値";
-"eh_setting_view.tag_watching_threshold_description" = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。";
 
-"eh_setting_viewfiltered_removal_count" = "フィルター除去数";
-"eh_setting_view.filtered_removal_count_description" = "「既定フィルターにより本ページから XX 個のギャラリーが除去されました」を表示しますか？";
-"eh_setting_view.show_filtered_removal_count" = "フィルター除去数を表示";
 
-"eh_setting_view.excluded_languages" = "排除された言語";
-"eh_setting_view.excluded_languages_description" = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";
 // EhSetting.ExcludedLanguagesCategory
 "excluded_languages_category.original" = "オリジナル";
 "excluded_languages_category.translated" = "翻訳版";
 "excluded_languages_category.rewrite" = "書き換え版";
 
-"eh_setting_view.excluded_uploaders" = "排除された投稿者";
-"eh_setting_view.excluded_uploaders_description" = "特定の投稿者のギャラリーをリストと検索結果から隠したい場合、下に名前を記入してください。一行に一つのユーザー名で。注意：どんな検索クエリーを使ってもこの投稿者たちのギャラリーは表示されません。";
-"eh_setting_view.excluded_uploaders_count" = "現時点で **%@ / %@** の排除スロットが使用済みです。";
 
-"eh_setting_view.search_result_count" = "検索結果数";
-"eh_setting_view.result_count" = "結果数";
-"eh_setting_view.result_count_description" = "インデックス・トレントの検索ページで、各ページにどれくらいの結果数がお望みですか？\n（「Hath Perk：ページング拡張」が必要）";
 
-"eh_setting_view.thumbnail_settings" = "サムネイル設定";
-"eh_setting_view.thumbnail_load_timing" = "サムネイル読み込みタイミング";
-"eh_setting_view.thumbnail_load_timing_description" = "リストでは、どんなタイミングでホームページのマウスオーバーサムネイルを読み込みますか？";
-"eh_setting_view.thumbnail_configuration" = "すべてのギャラリーに適応するデフォルトのサムネイル構成を設定できます。";
-"eh_setting_view.thumbnail_size" = "サイズ";
-"eh_setting_view.thumbnail_row_count" = "行数";
 // EhSetting.ThumbnailLoadTiming
 "thumbnail_load_timing.on_mouse_over" = "マウス経過時";
 "thumbnail_load_timing.on_page_load" = "ページ読み込み時";
@@ -428,17 +294,8 @@
 "thumbnail_size.small" = "小さめ";
 "thumbnail_size.auto" = "自動";
 
-"eh_setting_view.cover_scaling" = "カバースケーリング";
-"eh_setting_view.scale_factor" = "スケール係数";
-"eh_setting_view.cover_scale_factor" = "サムネイル・拡張表示モードでのカバーを 75%% ~ 150%% にスケールすることができます。";
 
-"eh_setting_view.viewport_override" = "表示領域オーバーライド";
-"eh_setting_view.virtual_width" = "仮想幅";
-"eh_setting_view.virtual_width_description" = "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100%% の場合、640 ~ 1400 の幅が合理的です。";
 
-"eh_setting_view.gallery_comments" = "ギャラリーコメント";
-"eh_setting_view.comments_sort_order" = "コメントの並び替え";
-"eh_setting_view.comments_votes_show_timing" = "コメントスコア表示タイミング";
 // EhSetting.CommentsSortOrder
 "comments_sort_order.oldest" = "コメントの古い順";
 "comments_sort_order.recent" = "コメントの新しい順";
@@ -447,22 +304,12 @@
 "comments_votes_show_timing.on_hover_or_click" = "スコアに経過・クリック時";
 "comments_votes_show_timing.always" = "常時";
 
-"eh_setting_view.gallery_tags" = "ギャラリータグ";
-"eh_setting_view.tags_sort_order" = "タグの並び替え";
 // EhSetting.tags_sort_order
 "tags_sort_order.alphabetical" = "アルファベット順";
 "tags_sort_order.tag_power" = "タグパワーの高い順";
 
-"eh_setting_view.gallery_page_thumbnail_labeling" = "ギャラリーサムネイルのラベル";
-"eh_setting_view.show_label_below_gallery_thumbnails" = "ギャラリーサムネイルの下にラベルを表示";
 
-"eh_setting_view.original_images" = "オリジナル画像を使いますか？リサンプリングされた画像は、上記の解像度で「自動」以外を選択し、該当する画像の方が幅が広い場合、またはオリジナル画像が 10 MiB（一年以上前のギャラリーの場合は 4 MiB）より大きい場合に使用されます。";
-"eh_setting_view.use_original_images" = "オリジナル画像を使う";
 
-"eh_setting_view.multi_page_viewer" = "マルチページビューア";
-"eh_setting_view.use_multi_page_viewer" = "マルチページビューアを使う";
-"eh_setting_view.display_style" = "表示仕様";
-"eh_setting_view.show_thumbnail_pane" = "サムネイルパネルを表示";
 // EhSetting.MultiplePageViewerStyle
 "multiple_page_viewer_style.align_left_scale_if_over_width" = "左寄せ、幅によってスケール";
 "multiple_page_viewer_style.align_center_scale_if_over_width" = "中央揃え、幅によってスケール";

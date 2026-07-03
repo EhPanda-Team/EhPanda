@@ -78,12 +78,8 @@
 "app_error.local_file_operation_failed" = "Lokaler Dateivorgang fehlgeschlagen.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.remove_custom_translations" = "Möchtest du deine benutzerdefinierten Übersetzungen wirklich entfernen?";
-"confirmation_dialog.logout_description" = "Bist du sicher das du dich ausloggen möchtest?";
 "confirmation_dialog.delete_description" = "Möchtest du dieses Element wirklich löschen?";
 "confirmation_dialog.clear_description" = "Bist du sicher das du das löschen möchtest?";
-"confirmation_dialog.remove" = "Entfernen";
-"confirmation_dialog.logout" = "Ausloggen";
 "confirmation_dialog.delete" = "Löschen";
 "confirmation_dialog.clear" = "Löschen";
 
@@ -127,60 +123,21 @@
 // MARK: SettingView
 "setting_view.setting" = "Einstellungen";
 // SettingStateRoute
-"setting_state_route.account" = "Konto";
-"setting_state_route.general" = "Allgemein";
-"setting_state_route.appearance" = "Oberfläche";
-"setting_state_route.reading" = "Am Lesen";
-"setting_state_route.download" = "Download";
-"setting_state_route.laboratory" = "Experimentelles";
-"setting_state_route.about" = "Über diese App";
 
 // MARK: AccountSettingView
-"account_setting_view.account" = "Konto";
-"account_setting_view.shows_new_dawn_greeting" = "Neuer-Tag-Meldung anzeigen";
 "account_setting_view.login" = "Einloggen";
-"account_setting_view.account_configuration" = "Kontoeinstellungen";
-"account_setting_view.tags_management" = "Meine Tags bearbeiten";
-"account_setting_view.copy_cookies" = "Cookies kopieren";
 // CookieValue
 
 // MARK: LoginView
 "login_view.login" = "Einloggen";
-"login_view.username" = "Benutzername";
-"login_view.password" = "Passwort";
 
 // MARK: GeneralSettingView
-"general_setting_view.general" = "Allgemein";
 "general_setting_view.language" = "Sprache";
-"general_setting_view.auto_lock" = "Automatische Sperre";
-"general_setting_view.enables_tags_extension" = "Tag-Erweiterung aktivieren";
-"general_setting_view.translates_tags" = "Tags übersetzen";
-"general_setting_view.shows_tags_search_suggestion" = "Tag-Vorschläge bei der Suche anzeigen";
-"general_setting_view.shows_images_in_tags" = "Bilder in Tags anzeigen";
-"general_setting_view.redirects_links_to_the_selected_host" = "Links zum ausgewählten Host umleiten";
-"general_setting_view.detects_links_from_clipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
-"general_setting_view.background_blur_radius" = "Hintergrund-Unschärfe";
-"general_setting_view.app_activity_logs" = "App-Aktivitätsprotokolle";
-"general_setting_view.import_custom_translations" = "Benutzerdefinierte Übersetzungen importieren";
-"general_setting_view.remove_custom_translations" = "Benutzerdefinierte Übersetzungen entfernen";
-"general_setting_view.clear_image_caches" = "Zwischengespeicherte Bilder (Cache) löschen";
-"general_setting_view.default_language_description" = "Unbekannt";
-"general_setting_view.tags" = "Tags";
-"general_setting_view.navigation" = "Navigation";
-"general_setting_view.security" = "Sicherheit";
-"general_setting_view.caches" = "Cache";
 // AutoLockPolicy
 "auto_lock_policy.never" = "Nie";
 "auto_lock_policy.instantly" = "Sofort";
 
 // MARK: AppActivityLogsView
-"app_activity_logs_view.title" = "App-Aktivitätsprotokolle";
-"app_activity_logs_view.no_logs" = "Keine Protokolle gefunden";
-"app_activity_logs_view.current" = "Aktuell";
-"app_activity_logs_view.run" = "Ausführung %@";
-"app_activity_logs_view.more_logs" = "Weitere Protokolle";
-"app_activity_logs_view.open_in_files" = "In „Dateien“ öffnen";
-"app_activity_logs_view.runs" = "Ausführungen";
 "app_activity_logs_view.level.undefined" = "Undefiniert";
 "app_activity_logs_view.level.debug" = "Debug";
 "app_activity_logs_view.level.info" = "Info";
@@ -189,17 +146,6 @@
 "app_activity_logs_view.level.fault" = "Störung";
 
 // MARK: AppearanceSettingView
-"appearance_setting_view.appearance" = "Oberfläche";
-"appearance_setting_view.theme" = "Erscheinungsbild";
-"appearance_setting_view.tint_color" = "Farbe";
-"appearance_setting_view.display_mode" = "Anzeigemodus";
-"appearance_setting_view.shows_tags_in_list" = "Tags als Liste anzeigen";
-"appearance_setting_view.maximum_number_of_tags" = "Maximale Anzahl an Tags";
-"appearance_setting_view.displays_japanese_title" = "Japanischen Titel anzeigen";
-"appearance_setting_view.app_icon" = "App-Symbol";
-"appearance_setting_view.infite" = "Unbegrenzt";
-"appearance_setting_view.list" = "Liste";
-"appearance_setting_view.gallery" = "Galerie";
 // PreferredColorScheme
 "preferred_color_scheme.automatic" = "Automatisch";
 "preferred_color_scheme.light" = "Hell";
@@ -215,7 +161,6 @@
 "list_display_mode.thumbnail" = "Vorschaubilder";
 
 // MARK: AppIconView
-"app_icon_view.app_icon" = "App-Symbol";
 
 // MARK: reading_settingView
 // ReadingDirection
@@ -224,18 +169,8 @@
 "reading_direction.left_to_right" = "Von links nach rechts";
 
 // MARK: LaboratorySettingView
-"laboratory_setting_view.laboratory" = "Experimentelles";
-"laboratory_setting_view.bypasses_SNI_filtering" = "SNI Filter umgehen";
 
 // MARK: AboutView
-"about_view.ehPanda" = "EhPanda";
-"about_view.website" = "Website";
-"about_view.altStore_source" = "AltStore Quelle";
-"about_view.version" = "Version";
-"about_view.special_thanks" = "Besonderer Dank";
-"about_view.code_level_contributors" = "Mitwirkende am Code";
-"about_view.translation_contributors" = "Mitwirkende an der Übersetzung";
-"about_view.acknowledgements" = "Danksagungen";
 
 // MARK: DetailView
 "detail_view.share" = "Teilen";
@@ -271,12 +206,6 @@
 "downloads_view.update" = "Aktualisieren";
 
 // MARK: DownloadSettingView
-"download_setting_view.title" = "Download";
-"download_setting_view.network" = "Netzwerk";
-"download_setting_view.concurrent_image_downloads" = "Gleichzeitige Bilddownloads";
-"download_setting_view.retry_failed_pages_automatically" = "Fehlgeschlagene Seiten automatisch erneut versuchen";
-"download_setting_view.allow_cellular_downloads" = "Downloads über Mobilfunk erlauben";
-"download_setting_view.network_description" = "Es wird immer nur eine Galerie gleichzeitig heruntergeladen. Mit dieser Einstellung steuerst du, wie viele Galerieseiten parallel geladen werden, ob Mobilfunk erlaubt ist und dass Dateien im Downloads-Ordner der App gespeichert werden.";
 
 // MARK: CommentsView
 
@@ -305,19 +234,7 @@
 "filter_range.watched" = "Meine Tags";
 
 // MARK: EhSettingView
-"eh_setting_view.host_settings" = "%@-Einstellungen";
-"eh_setting_view.profile_settings" = "Profile";
-"eh_setting_view.selected_profile" = "Ausgewähltes Profil";
-"eh_setting_view.set_as_default" = "Als Standard festlegen";
-"eh_setting_view.delete_profile" = "Profil löschen";
-"eh_setting_view.rename" = "Umbenennen";
-"eh_setting_view.create_new" = "Neu erstellen";
-"eh_setting_view.done" = "Fertig";
 
-"eh_setting_view.image_load_settings" = "Laden von Bildern";
-"eh_setting_view.load_images_through_the_hath_network" = "Bilder über das Hath-Netzwerk laden";
-"eh_setting_view.browsing_country" = "Browsing-Land";
-"eh_setting_view.browsing_country_description" = "Es sieht so aus, als würdest du die Seite aus **%@** aufrufen oder ein VPN bzw. einen Proxy in diesem Land verwenden. Die Seite versucht daher, Bilder von H@H-Clients in dieser Region zu laden. Falls das nicht stimmt oder du aus irgendeinem Grund eine andere Region verwenden möchtest (etwa mit einem Split-Tunneling-VPN), kannst du unten ein anderes Land auswählen.";
 // EhSetting.LoadThroughHathSetting
 "load_through_hath_setting.any_client" = "Jeder Client";
 "load_through_hath_setting.default_port_only" = "Nur Clients mit Standardport";
@@ -328,26 +245,13 @@
 "load_through_hath_setting.modern_no_description" = "Nur für Spender. Du kannst damit weniger Seiten aufrufen. Nur bei schwerwiegenden Problemen empfohlen.";
 "load_through_hath_setting.legacy_no_description" = "Nur für Spender. Funktioniert in modernen Browsern unter Umständen nicht. Nur für alte oder veraltete Browser empfohlen.";
 
-"eh_setting_view.image_size_settings" = "Bildgrößen-Einstellungen";
-"eh_setting_view.image_resolution" = "Bildauflösung";
-"eh_setting_view.image_resolution_description" = "Normalerweise werden Bilder für die Online-Ansicht auf eine horizontale Auflösung von 1280 Pixeln neu berechnet. Alternativ kannst du eine der folgenden Auflösungen wählen. Um die Server nicht zu überlasten, sind Auflösungen über 1280x vorübergehend Spendern, Nutzern mit einem Hath-Perk und Nutzern mit einer UID unter 3.000.000 vorbehalten.";
-"eh_setting_view.image_size" = "Bildgröße";
-"eh_setting_view.image_size_description" = "Die Seite verkleinert Bilder automatisch passend zu deiner Bildschirmbreite, du kannst die maximale Anzeigegröße aber auch manuell begrenzen. Wie bei der automatischen Skalierung wird das Bild dabei nicht neu berechnet, da die Größenänderung im Browser erfolgt. (0 = keine Begrenzung)";
-"eh_setting_view.horizontal" = "Horizontal";
-"eh_setting_view.vertical" = "Vertikal";
 // EhSetting.ImageResolution
 "image_resolution.auto" = "Automatisch";
 
-"eh_setting_view.gallery_name_display" = "Anzeige des Galerienamens";
-"eh_setting_view.gallery_name" = "Galeriename";
-"eh_setting_view.gallery_name_description" = "Viele Galerien haben sowohl einen englischen bzw. romanisierten Titel als auch einen Titel in japanischer Schrift. Welchen Namen möchtest du standardmäßig sehen?";
 // EhSetting.GalleryName
 "gallery_name.default" = "Standardtitel";
 "gallery_name.japanese" = "Japanischer Titel (falls vorhanden)";
 
-"eh_setting_view.archiver_settings" = "Archiver";
-"eh_setting_view.archiver_behavior" = "Archiver-Verhalten";
-"eh_setting_view.archiver_behavior_description" = "Standardmäßig fragt der Archiver Kosten und Auswahl (Original oder neu berechnet) ab und zeigt dann einen Link an, den du anklicken oder woanders kopieren kannst. Dieses Verhalten kannst du hier ändern.";
 // EhSetting.ArchiverBehavior
 "eh_setting.archiver_behavior.manual_select_manual_start" = "Manuell wählen, manuell starten (Standard)";
 "eh_setting.archiver_behavior.manual_select_auto_start" = "Manuell wählen, automatisch starten";
@@ -356,12 +260,6 @@
 "eh_setting.archiver_behavior.auto_select_resample_manual_start" = "Neu berechnete Version automatisch wählen, manuell starten";
 "eh_setting.archiver_behavior.auto_select_resample_auto_start" = "Neu berechnete Version automatisch wählen, automatisch starten";
 
-"eh_setting_view.front_page_settings" = "Startseite";
-"eh_setting_view.display_mode" = "Anzeigemodus";
-"eh_setting_view.display_mode_description" = "Welchen Anzeigemodus möchtest du auf der Startseite und den Suchseiten verwenden?";
-"eh_setting_view.show_search_range_indicator" = "Suchbereichsanzeige";
-"eh_setting_view.show_search_range_indicator_description" = "Suchbereichsanzeige einblenden";
-"eh_setting_view.gallery_category" = "Welche Kategorien sollen standardmäßig auf der Startseite und in Suchergebnissen angezeigt werden?";
 // EhSetting.DisplayMode
 "display_mode.compact" = "Kompakt";
 "display_mode.thumbnail" = "Vorschaubilder";
@@ -369,54 +267,22 @@
 "display_mode.minimal" = "Minimal";
 "display_mode.minimalPlus" = "Minimal+";
 
-"eh_setting_view.optional_UI_elements" = "Optionale UI-Elemente";
-"eh_setting_view.optional_UI_elements_description" = "Einige ältere UI-Elemente sind inzwischen standardmäßig deaktiviert. Hier kannst du sie wieder aktivieren.";
-"eh_setting_view.enable_gallery_thumbnail_selector" = "Vorschaubild-Auswahl auf der Galerieseite aktivieren";
 
-"eh_setting_view.favorites" = "Favoriten";
-"eh_setting_view.favorite_categories" = "Hier kannst du deine Favoriten-Kategorien auswählen und umbenennen.";
-"eh_setting_view.favorites_sort_order" = "Sortierung der Favoriten";
-"eh_setting_view.favorites_sort_order_description" = "Du kannst auch die Standardsortierung für Galerien auf deiner Favoritenseite festlegen. Favoriten, die vor der Überarbeitung im März 2016 hinzugefügt wurden, haben keinen Zeitstempel und werden unabhängig von dieser Einstellung nach dem Veröffentlichungszeitpunkt der Galerie sortiert.";
 // EhSetting.FavoritesSortOrder
 "favorites_sort_order.last_update_time" = "Nach letzter Aktualisierung der Galerie";
 "favorites_sort_order.favorited_time" = "Nach Zeitpunkt des Favorisierens";
 
-"eh_setting_view.ratings" = "Bewertungen";
-"eh_setting_view.ratings_color" = "Farbe der Bewertungen";
-"eh_setting_view.ratings_color_prompt" = "RRGGB";
-"eh_setting_view.ratings_color_description" = "Standardmäßig erscheinen von dir bewertete Galerien mit roten Sternen bei Bewertungen bis 2 Sternen, mit grünen zwischen 2,5 und 4 Sternen und mit blauen bei 4,5 oder 5 Sternen. Du kannst das anpassen, indem du unten deine gewünschte Farbkombination eingibst. Jeder Buchstabe steht für einen Stern. Das Standard-RRGGB bedeutet R(ot) für den ersten und zweiten Stern, G(rün) für den dritten und vierten und B(lau) für den fünften. Mit Y bekommst du gelbe Sterne. Jede fünfstellige Kombination aus R/G/B/Y funktioniert.";
 
-"eh_setting_view.tag_filtering_threshold" = "Schwellenwert für Tag-Filterung";
-"eh_setting_view.tag_filtering_threshold_description" = "Du kannst Tags weich filtern, indem du sie mit negativem Gewicht zu „Meine Tags“ hinzufügst. Ergeben die Tags einer Galerie zusammen ein Gewicht unter diesem Wert, wird sie ausgeblendet. Der Schwellenwert kann zwischen 0 und -9999 liegen.";
 
-"eh_setting_view.tag_watching_threshold" = "Schwellenwert für Tag-Beobachtung";
-"eh_setting_view.tag_watching_threshold_description" = "Kürzlich hochgeladene Galerien erscheinen unter „Meine Tags“, wenn sie mindestens einen beobachteten Tag mit positivem Gewicht haben und die Gewichte ihrer beobachteten Tags zusammen diesen Wert erreichen oder überschreiten. Der Schwellenwert kann zwischen 0 und 9999 liegen.";
 
-"eh_setting_viewfiltered_removal_count" = "Anzahl gefilterter Galerien";
-"eh_setting_view.filtered_removal_count_description" = "Soll die Meldung „Deine Standardfilter haben XX Galerien von dieser Seite entfernt“ angezeigt werden?";
-"eh_setting_view.show_filtered_removal_count" = "Anzahl gefilterter Galerien anzeigen";
 
-"eh_setting_view.excluded_languages" = "Ausgeschlossene Sprachen";
-"eh_setting_view.excluded_languages_description" = "Wenn du Galerien in bestimmten Sprachen aus der Galerieliste und den Suchergebnissen ausblenden möchtest, wähle sie unten aus. Passende Galerien erscheinen dann unabhängig von deiner Suchanfrage nie.";
 // EhSetting.ExcludedLanguagesCategory
 "excluded_languages_category.original" = "Original";
 "excluded_languages_category.translated" = "Übersetzt";
 "excluded_languages_category.rewrite" = "Umgeschrieben";
 
-"eh_setting_view.excluded_uploaders" = "Ausgeschlossene Uploader";
-"eh_setting_view.excluded_uploaders_description" = "Wenn du Galerien bestimmter Uploader aus der Galerieliste und den Suchergebnissen ausblenden möchtest, füge sie unten hinzu. Ein Benutzername pro Zeile. Galerien dieser Uploader erscheinen dann unabhängig von deiner Suchanfrage nie.";
-"eh_setting_view.excluded_uploaders_count" = "Du belegst derzeit **%@ / %@** Ausschlussplätze.";
 
-"eh_setting_view.search_result_count" = "Anzahl der Suchergebnisse";
-"eh_setting_view.result_count" = "Anzahl Ergebnisse";
-"eh_setting_view.result_count_description" = "Wie viele Ergebnisse pro Seite möchtest du auf Index-, Such- und Torrent-Suchseiten sehen?\n(Hath-Perk „Paging Enlargement“ erforderlich)";
 
-"eh_setting_view.thumbnail_settings" = "Vorschaubilder";
-"eh_setting_view.thumbnail_load_timing" = "Ladezeitpunkt der Vorschaubilder";
-"eh_setting_view.thumbnail_load_timing_description" = "Wann sollen die Mouseover-Vorschaubilder auf der Startseite im Listenmodus geladen werden?";
-"eh_setting_view.thumbnail_configuration" = "Du kannst eine Standardkonfiguration der Vorschaubilder für alle Galerien festlegen, die du besuchst.";
-"eh_setting_view.thumbnail_size" = "Größe";
-"eh_setting_view.thumbnail_row_count" = "Zeilen";
 // EhSetting.ThumbnailLoadTiming
 "thumbnail_load_timing.on_mouse_over" = "Bei Mouseover";
 "thumbnail_load_timing.on_page_load" = "Beim Laden der Seite";
@@ -428,17 +294,8 @@
 "thumbnail_size.small" = "Klein";
 "thumbnail_size.auto" = "Automatisch";
 
-"eh_setting_view.cover_scaling" = "Cover-Skalierung";
-"eh_setting_view.scale_factor" = "Skalierungsfaktor";
-"eh_setting_view.cover_scale_factor" = "Die Covergröße in Galerielisten kann in den Anzeigemodi „Vorschaubilder“ und „Erweitert“ auf 75%% bis 150%% skaliert werden.";
 
-"eh_setting_view.viewport_override" = "Viewport-Überschreibung";
-"eh_setting_view.virtual_width" = "Virtuelle Breite";
-"eh_setting_view.virtual_width_description" = "Hiermit kannst du die virtuelle Breite der Seite auf Mobilgeräten überschreiben. Normalerweise bestimmt dein Gerät sie automatisch anhand der DPI. Sinnvolle Werte bei 100%% Vorschaubild-Skalierung liegen zwischen 640 und 1400.";
 
-"eh_setting_view.gallery_comments" = "Galerie-Kommentare";
-"eh_setting_view.comments_sort_order" = "Sortierung der Kommentare";
-"eh_setting_view.comments_votes_show_timing" = "Anzeige der Kommentarbewertungen";
 // EhSetting.CommentsSortOrder
 "comments_sort_order.oldest" = "Älteste Kommentare zuerst";
 "comments_sort_order.recent" = "Neueste Kommentare zuerst";
@@ -447,22 +304,12 @@
 "comments_votes_show_timing.on_hover_or_click" = "Beim Überfahren oder Anklicken der Punktzahl";
 "comments_votes_show_timing.always" = "Immer";
 
-"eh_setting_view.gallery_tags" = "Galerie-Tags";
-"eh_setting_view.tags_sort_order" = "Sortierung der Tags";
 // EhSetting.tags_sort_order
 "tags_sort_order.alphabetical" = "Alphabetisch";
 "tags_sort_order.tag_power" = "Nach Tag-Gewicht";
 
-"eh_setting_view.gallery_page_thumbnail_labeling" = "Beschriftung der Vorschaubilder";
-"eh_setting_view.show_label_below_gallery_thumbnails" = "Beschriftung unter Galerie-Vorschaubildern anzeigen";
 
-"eh_setting_view.original_images" = "Sollen Originalbilder statt der neu berechneten Versionen verwendet werden? Neu berechnete Bilder werden weiterhin verwendet, wenn du oben eine andere horizontale Auflösung als „Automatisch“ wählst und das betreffende Bild breiter ist, oder wenn das Originalbild größer als 10 MiB ist (bzw. 4 MiB bei Galerien, die älter als ein Jahr sind).";
-"eh_setting_view.use_original_images" = "Originalbilder verwenden";
 
-"eh_setting_view.multi_page_viewer" = "Multi-Page-Viewer";
-"eh_setting_view.use_multi_page_viewer" = "Multi-Page-Viewer verwenden";
-"eh_setting_view.display_style" = "Darstellungsstil";
-"eh_setting_view.show_thumbnail_pane" = "Vorschaubild-Leiste anzeigen";
 // EhSetting.MultiplePageViewerStyle
 "multiple_page_viewer_style.align_left_scale_if_over_width" = "Linksbündig, bei Überbreite skalieren";
 "multiple_page_viewer_style.align_center_scale_if_over_width" = "Zentriert, bei Überbreite skalieren";
