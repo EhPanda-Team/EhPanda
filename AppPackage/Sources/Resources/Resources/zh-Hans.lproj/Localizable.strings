@@ -447,13 +447,7 @@
 // MARK: DownloadBadge
 
 // MARK: DownloadStore
-"download_store.asset_unreadable" = "资源文件无法读取：%@";
 "download_store.invalid_folder_name" = "文件夹名称无效。";
-"download_store.folder_already_exists" = "已存在同名文件夹。";
-"download_store.folder_busy_downloading" = "该文件夹中有正在进行的下载。";
-"download_store.download_busy" = "该下载正在进行中。";
-"download_store.download_folder_missing" = "下载文件夹缺失。";
-"download_store.manifest_missing" = "Manifest 文件缺失。";
 "download_store.manifest_corrupted" = "Manifest 文件已损坏。";
 "download_store.page_missing" = "第 %d 页缺失。";
 "download_store.page_image_corrupted" = "第 %d 页图片数据已损坏。";

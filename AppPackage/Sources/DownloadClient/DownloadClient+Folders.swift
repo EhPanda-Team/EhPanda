@@ -23,7 +23,7 @@ extension DownloadCoordinator {
         guard !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.folderAlreadyExists
+                    String(localized: .downloadStoreFolderAlreadyExists)
                 )
             )
         }
@@ -60,7 +60,7 @@ extension DownloadCoordinator {
         guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.folderAlreadyExists
+                    String(localized: .downloadStoreFolderAlreadyExists)
                 )
             )
         }
@@ -70,7 +70,7 @@ extension DownloadCoordinator {
            downloadIndex[activeGalleryID]?.parentFolderName == oldName {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.folderBusyDownloading
+                    String(localized: .downloadStoreFolderBusyDownloading)
                 )
             )
         }
@@ -158,7 +158,7 @@ extension DownloadCoordinator {
         guard activeGalleryID != gid else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.downloadBusy
+                    String(localized: .downloadStoreDownloadBusy)
                 )
             )
         }
@@ -173,7 +173,7 @@ extension DownloadCoordinator {
         guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.folderAlreadyExists
+                    String(localized: .downloadStoreFolderAlreadyExists)
                 )
             )
         }
