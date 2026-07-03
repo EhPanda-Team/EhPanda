@@ -1076,24 +1076,6 @@ public enum L10n {
       /// Thumbnail
       public static let thumbnail = L10n.tr("Localizable", "display_mode.thumbnail", fallback: "Thumbnail")
     }
-    public enum DownloadBadge {
-      /// Downloaded
-      public static let downloaded = L10n.tr("Localizable", "download_badge.downloaded", fallback: "Downloaded")
-      /// Downloading
-      public static let downloading = L10n.tr("Localizable", "download_badge.downloading", fallback: "Downloading")
-      /// Needs Attention
-      public static let needsAttention = L10n.tr("Localizable", "download_badge.needs_attention", fallback: "Needs Attention")
-      /// Paused
-      public static let paused = L10n.tr("Localizable", "download_badge.paused", fallback: "Paused")
-      /// %d/%d
-      public static func progress(_ p1: Int, _ p2: Int) -> String {
-        return L10n.tr("Localizable", "download_badge.progress", p1, p2, fallback: "%d/%d")
-      }
-      /// Queued
-      public static let queued = L10n.tr("Localizable", "download_badge.queued", fallback: "Queued")
-      /// Update Available
-      public static let updateAvailable = L10n.tr("Localizable", "download_badge.update_available", fallback: "Update Available")
-    }
     public enum DownloadFolderFilter {
       /// All
       public static let all = L10n.tr("Localizable", "download_folder_filter.all", fallback: "All")

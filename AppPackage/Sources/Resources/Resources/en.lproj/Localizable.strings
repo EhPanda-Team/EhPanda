@@ -456,13 +456,6 @@
 
 
 // MARK: DownloadBadge
-"download_badge.queued" = "Queued";
-"download_badge.downloading" = "Downloading";
-"download_badge.paused" = "Paused";
-"download_badge.downloaded" = "Downloaded";
-"download_badge.needs_attention" = "Needs Attention";
-"download_badge.update_available" = "Update Available";
-"download_badge.progress" = "%d/%d";
 
 // MARK: DownloadStore
 "download_store.asset_unreadable" = "Asset file is unreadable: %@";
