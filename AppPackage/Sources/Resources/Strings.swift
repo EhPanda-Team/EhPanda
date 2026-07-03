@@ -928,11 +928,6 @@ public enum L10n {
       public static let delete = L10n.tr("Localizable", "confirmation_dialog.delete", fallback: "Delete")
       /// Are you sure to delete this item?
       public static let deleteDescription = L10n.tr("Localizable", "confirmation_dialog.delete_description", fallback: "Are you sure to delete this item?")
-      /// Drop the database
-      public static let dropDatabase = L10n.tr("Localizable", "confirmation_dialog.drop_database", fallback: "Drop the database")
-      /// You will lose all your data in this app.
-      /// Are you sure to drop the database?
-      public static let dropDatabaseDescription = L10n.tr("Localizable", "confirmation_dialog.drop_database_description", fallback: "You will lose all your data in this app.\nAre you sure to drop the database?")
       /// Logout
       public static let logout = L10n.tr("Localizable", "confirmation_dialog.logout", fallback: "Logout")
       /// Are you sure to logout?
@@ -1373,8 +1368,6 @@ public enum L10n {
       /// The database is corrupted.
       /// Please submit an issue on GitHub.
       public static let databaseCorrupted = L10n.tr("Localizable", "error_view.database_corrupted", fallback: "The database is corrupted.\nPlease submit an issue on GitHub.")
-      /// Drop the database
-      public static let dropDatabase = L10n.tr("Localizable", "error_view.drop_database", fallback: "Drop the database")
       /// This gallery has been removed or is unavailable.
       public static let galleryUnavailable = L10n.tr("Localizable", "error_view.gallery_unavailable", fallback: "This gallery has been removed or is unavailable.")
       /// Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.
@@ -1819,8 +1812,6 @@ public enum L10n {
     public enum LoadingView {
       /// Loading...
       public static let loading = L10n.tr("Localizable", "loading_view.loading", fallback: "Loading...")
-      /// Preparing the database...
-      public static let preparingDatabase = L10n.tr("Localizable", "loading_view.preparing_database", fallback: "Preparing the database...")
     }
     public enum LoginView {
       /// Login
