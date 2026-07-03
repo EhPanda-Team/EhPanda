@@ -39,7 +39,7 @@ struct HistoryView: View {
             },
             downloadBadges: store.downloadBadges
         )
-        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.filter)
+        .searchable(text: $store.keyword, prompt: String(localized: .filter))
         .onAppear {
             store.send(.onAppear)
             if store.galleries.isEmpty {
@@ -49,7 +49,7 @@ struct HistoryView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.HistoryView.history)
+        .navigationTitle(String(localized: .history))
     }
 
     private func toolbar() -> some ToolbarContent {

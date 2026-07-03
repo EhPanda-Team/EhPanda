@@ -121,14 +121,14 @@ public struct ToplistsReducer: Sendable {
                     ),
                     actions: {
                         ButtonState(action: .performJumpPage) {
-                            TextState(L10n.Localizable.JumpPageView.confirm)
+                            TextState(String(localized: .confirm))
                         }
                         ButtonState(role: .cancel) {
                             TextState(L10n.Localizable.Common.cancel)
                         }
                     },
                     message: {
-                        TextState(L10n.Localizable.JumpPageView.jumpPageDescription(maximumPage))
+                        TextState(String(localized: .jumpPageDescription(maximumPage)))
                     }
                 )
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })

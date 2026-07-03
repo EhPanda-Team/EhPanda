@@ -164,11 +164,11 @@ extension HomeMiscGridType {
     var title: String {
         switch self {
         case .popular:
-            return L10n.Localizable.HomeMiscGridType.popular
+            return String(localized: .homeMiscGridTypePopular)
         case .watched:
-            return L10n.Localizable.HomeMiscGridType.watched
+            return String(localized: .homeMiscGridTypeWatched)
         case .history:
-            return L10n.Localizable.HomeMiscGridType.history
+            return String(localized: .homeMiscGridTypeHistory)
         }
     }
     var symbol: SFSymbol {

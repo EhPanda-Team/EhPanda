@@ -1447,10 +1447,6 @@ public enum L10n {
       /// Folders
       public static let folders = L10n.tr("Localizable", "folder_manager_view.folders", fallback: "Folders")
     }
-    public enum FrontpageView {
-      /// Frontpage
-      public static let frontpage = L10n.tr("Localizable", "frontpage_view.frontpage", fallback: "Frontpage")
-    }
     public enum GalleryInfosView {
       /// Archive URL
       public static let archiveURL = L10n.tr("Localizable", "gallery_infos_view.archive_URL", fallback: "Archive URL")
@@ -1583,41 +1579,17 @@ public enum L10n {
       /// Free
       public static let free = L10n.tr("Localizable", "hath_archive.free", fallback: "Free")
     }
-    public enum HistoryView {
-      /// History
-      public static let history = L10n.tr("Localizable", "history_view.history", fallback: "History")
-    }
-    public enum HomeMiscGridType {
-      /// History
-      public static let history = L10n.tr("Localizable", "home_misc_grid_type.history", fallback: "History")
-      /// Popular
-      public static let popular = L10n.tr("Localizable", "home_misc_grid_type.popular", fallback: "Popular")
-      /// Watched
-      public static let watched = L10n.tr("Localizable", "home_misc_grid_type.watched", fallback: "Watched")
-    }
     public enum HomeView {
-      /// Frontpage
-      public static let frontpage = L10n.tr("Localizable", "home_view.frontpage", fallback: "Frontpage")
       /// Home
       public static let home = L10n.tr("Localizable", "home_view.home", fallback: "Home")
-      /// Other
-      public static let other = L10n.tr("Localizable", "home_view.other", fallback: "Other")
-      /// Toplists
-      public static let toplists = L10n.tr("Localizable", "home_view.toplists", fallback: "Toplists")
     }
     public enum ImageResolution {
       /// Auto
       public static let auto = L10n.tr("Localizable", "image_resolution.auto", fallback: "Auto")
     }
     public enum JumpPageView {
-      /// Confirm
-      public static let confirm = L10n.tr("Localizable", "jump_page_view.confirm", fallback: "Confirm")
       /// Jump page
       public static let jumpPage = L10n.tr("Localizable", "jump_page_view.jump_page", fallback: "Jump page")
-      /// Enter a page number between 1 and %d to jump to.
-      public static func jumpPageDescription(_ p1: Int) -> String {
-        return L10n.tr("Localizable", "jump_page_view.jump_page_description", p1, fallback: "Enter a page number between 1 and %d to jump to.")
-      }
     }
     public enum LaboratorySettingView {
       /// Bypasses SNI Filtering
@@ -1813,10 +1785,6 @@ public enum L10n {
       /// You need to login to access this feature.
       public static let needLogin = L10n.tr("Localizable", "not_login_view.need_login", fallback: "You need to login to access this feature.")
     }
-    public enum PopularView {
-      /// Popular
-      public static let popular = L10n.tr("Localizable", "popular_view.popular", fallback: "Popular")
-    }
     public enum PostCommentView {
       /// Edit comment
       public static let editComment = L10n.tr("Localizable", "post_comment_view.edit_comment", fallback: "Edit comment")
@@ -1858,8 +1826,6 @@ public enum L10n {
       public static let search = L10n.tr("Localizable", "search_view.search", fallback: "Search")
     }
     public enum Searchable {
-      /// Filter
-      public static let filter = L10n.tr("Localizable", "searchable.filter", fallback: "Filter")
       /// Found %d matches.
       public static func matchesCount(_ p1: Int) -> String {
         return L10n.tr("Localizable", "searchable.matches_count", p1, fallback: "Found %d matches.")
@@ -1993,17 +1959,9 @@ public enum L10n {
       /// Yesterday
       public static let yesterday = L10n.tr("Localizable", "toplists_type.yesterday", fallback: "Yesterday")
     }
-    public enum ToplistsView {
-      /// Toplists
-      public static let toplists = L10n.tr("Localizable", "toplists_view.toplists", fallback: "Toplists")
-    }
     public enum TorrentsView {
       /// Torrents
       public static let torrents = L10n.tr("Localizable", "torrents_view.torrents", fallback: "Torrents")
-    }
-    public enum WatchedView {
-      /// Watched
-      public static let watched = L10n.tr("Localizable", "watched_view.watched", fallback: "Watched")
     }
   }
 }

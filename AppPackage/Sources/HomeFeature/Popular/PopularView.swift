@@ -44,7 +44,7 @@ struct PopularView: View {
             FiltersView(store: store)
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.filter)
+        .searchable(text: $store.keyword, prompt: String(localized: .filter))
         .onAppear {
             if store.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -53,7 +53,7 @@ struct PopularView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.PopularView.popular)
+        .navigationTitle(String(localized: .popular))
     }
 
     private func toolbar() -> some ToolbarContent {

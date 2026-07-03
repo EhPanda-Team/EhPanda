@@ -96,7 +96,7 @@ struct WatchedView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.WatchedView.watched)
+        .navigationTitle(String(localized: .watched))
     }
 
     private func toolbar() -> some ToolbarContent {

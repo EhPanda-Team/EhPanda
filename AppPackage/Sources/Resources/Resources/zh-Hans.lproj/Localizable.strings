@@ -54,8 +54,6 @@
 "date_seek_view.date_seek" = "日期定位";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "页码跳转";
-"jump_page_view.jump_page_description" = "请输入 1 到 %d 之间的页码。";
-"jump_page_view.confirm" = "确认";
 
 // MARK: AlertView
 "loading_view.loading" = "加载中...";
@@ -116,28 +114,17 @@
 
 // MARK: HomeView
 "home_view.home" = "主页";
-"home_view.frontpage" = "扉页";
-"home_view.toplists" = "排行";
-"home_view.other" = "其它";
 // HomeMiscGridType
-"home_misc_grid_type.popular" = "热门";
-"home_misc_grid_type.watched" = "标签";
-"home_misc_grid_type.history" = "历史";
 
 // MARK: FrontpageView
-"frontpage_view.frontpage" = "扉页";
 
 // MARK: ToplistsView
-"toplists_view.toplists" = "排行";
 
 // MARK: PopularView
-"popular_view.popular" = "热门";
 
 // MARK: WatchedView
-"watched_view.watched" = "标签";
 
 // MARK: HistoryView
-"history_view.history" = "历史";
 
 // MARK: FavoritesView
 "favorites_view.favorites" = "收藏";
@@ -149,7 +136,6 @@
 "search_view.search" = "搜索";
 "search_view.quick_search" = "快速搜索";
 // Searchable
-"searchable.filter" = "筛选";
 "searchable.matches_count" = "找到 %d 项结果";
 
 // MARK: QuickSearchView

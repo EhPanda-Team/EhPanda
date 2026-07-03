@@ -751,6 +751,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.swiftUIPager),
             .targetDependency(.uiImageColors)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
