@@ -36,6 +36,10 @@ private struct ToastViewModifier: ViewModifier {
             ZStack {
                 if let store = item {
                     let toast = store.toastContent
+                    // The dismiss timer keys off the state's own UUID. Not `store.id`: TCA declares
+                    // `Store: Identifiable`, so that is the Store object's identity, which shadows
+                    // the state's UUID and only coincidentally tracks replacement.
+                    let id = store.state.id
                     // SwiftUI keeps this conditional child alive through its removal transition, so
                     // the last content stays visible while the toast slides back off-screen — no
                     // manual hold.
@@ -43,10 +47,7 @@ private struct ToastViewModifier: ViewModifier {
                         .padding(.horizontal)
                         .padding(.bottom)
                         .gesture(dismissGesture(autoHide: toast.autoHide))
-                        // The timer must restart whenever the presented state is replaced. That id
-                        // is `store.state.id`; `store.id` is the Store object's own identity (TCA
-                        // declares `Store: Identifiable`), which shadows the state's UUID.
-                        .task(id: store.state.id) { await autoDismiss(toast) }
+                        .task(id: id) { await autoDismiss(toast, presentedID: id) }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
@@ -57,21 +58,27 @@ private struct ToastViewModifier: ViewModifier {
     }
 
     // Only auto-hiding toasts (success / error) can be flicked away; a loading toast stays until
-    // its reducer clears the state, so a downward drag on it is ignored.
+    // its reducer clears the state, so a downward drag on it is ignored. As in the ported design,
+    // the drag must also be predominantly vertical — a sideways flick is not a dismissal.
     private func dismissGesture(autoHide: Bool) -> some Gesture {
         DragGesture(minimumDistance: 20)
             .onEnded { value in
-                guard autoHide, value.translation.height > 0 else { return }
+                let translation = value.translation
+                guard autoHide,
+                      abs(translation.height) > abs(translation.width),
+                      translation.height > 0
+                else { return }
                 item = nil
             }
     }
 
-    private func autoDismiss(_ toast: ToastContent) async {
+    private func autoDismiss(_ toast: ToastContent, presentedID: UUID) async {
         guard toast.autoHide else { return }
         try? await Task.sleep(for: .seconds(3))
-        // The task is cancelled when the toast is replaced or dismissed; only a timer that ran to
-        // completion should clear the state, so bail out on cancellation.
-        guard !Task.isCancelled else { return }
+        // The task is cancelled when the toast is replaced or dismissed, but a continuation already
+        // enqueued when the replacement lands can still run before SwiftUI restarts the task. Only
+        // a completed timer whose state is still presented may clear it.
+        guard !Task.isCancelled, item?.state.id == presentedID else { return }
         item = nil
     }
 }
