@@ -496,12 +496,12 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.resources),
             .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.waterfallGrid)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
