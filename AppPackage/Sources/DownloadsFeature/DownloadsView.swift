@@ -64,7 +64,7 @@ public struct DownloadsView: View {
         .searchable(
             text: $store.keyword,
             placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: L10n.Localizable.DownloadsView.searchDownloads
+            prompt: String(localized: .searchDownloads)
         )
         .sheet(
             item: $store.scope(state: \.destination?.inspector, action: \.destination.inspector)
@@ -140,7 +140,7 @@ private extension DownloadsView {
                             store.send(.inspectorButtonTapped(download.gid))
                         } label: {
                             Label(
-                                L10n.Localizable.DownloadsView.pages,
+                                String(localized: .inspectPages),
                                 systemSymbol: .listBulletRectanglePortrait
                             )
                         }
@@ -151,7 +151,7 @@ private extension DownloadsView {
                                 store.send(.moveButtonTapped(download))
                             } label: {
                                 Label(
-                                    L10n.Localizable.DownloadsView.move,
+                                    String(localized: .move),
                                     systemSymbol: .folder
                                 )
                             }
@@ -177,8 +177,8 @@ private extension DownloadsView {
                             } label: {
                                 Label(
                                     download.displayStatus == .inactive
-                                        ? L10n.Localizable.DownloadsView.resume
-                                        : L10n.Localizable.DownloadsView.pause,
+                                        ? String(localized: .resume)
+                                        : String(localized: .pause),
                                     systemSymbol: download.displayStatus == .inactive
                                         ? .playFill
                                         : .pauseFill
@@ -213,7 +213,7 @@ private extension DownloadsView {
             store.send(.inspectorButtonTapped(download.gid))
         } label: {
             Label(
-                L10n.Localizable.DownloadsView.pages,
+                String(localized: .inspectPages),
                 systemSymbol: .listBulletRectanglePortrait
             )
         }
@@ -227,7 +227,7 @@ private extension DownloadsView {
                 }
             } label: {
                 Label(
-                    L10n.Localizable.DownloadsView.moveToFolder,
+                    String(localized: .moveToFolder),
                     systemSymbol: .folder
                 )
             }
@@ -250,8 +250,8 @@ private extension DownloadsView {
             } label: {
                 Label(
                     download.displayStatus == .inactive
-                        ? L10n.Localizable.DownloadsView.resume
-                        : L10n.Localizable.DownloadsView.pause,
+                        ? String(localized: .resume)
+                        : String(localized: .pause),
                     systemSymbol: download.displayStatus == .inactive
                         ? .playFill
                         : .pauseFill
@@ -270,16 +270,16 @@ private extension DownloadsView {
         if store.downloads.isEmpty {
             AlertView(
                 symbol: .squareAndArrowDown,
-                message: L10n.Localizable.DownloadsView.emptyDownloads
+                message: String(localized: .emptyDownloads)
             ) {
                 EmptyView()
             }
         } else {
             AlertView(
                 symbol: .line3HorizontalDecreaseCircle,
-                message: L10n.Localizable.DownloadsView.noMatchingFilters
+                message: String(localized: .noMatchingFilters)
             ) {
-                AlertViewButton(title: L10n.Localizable.DownloadsView.clearFilters) {
+                AlertViewButton(title: String(localized: .clearFilters)) {
                     store.keyword = ""
                     store.folderFilter = .all
                 }

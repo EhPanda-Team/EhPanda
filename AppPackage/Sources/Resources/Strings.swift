@@ -1059,28 +1059,6 @@ public enum L10n {
       /// All
       public static let all = L10n.tr("Localizable", "download_folder_filter.all", fallback: "All")
     }
-    public enum DownloadInspectorView {
-      /// Actions
-      public static let actions = L10n.tr("Localizable", "download_inspector_view.actions", fallback: "Actions")
-      /// Download Status
-      public static let downloadStatus = L10n.tr("Localizable", "download_inspector_view.download_status", fallback: "Download Status")
-      /// Downloaded
-      public static let downloaded = L10n.tr("Localizable", "download_inspector_view.downloaded", fallback: "Downloaded")
-      /// Failed
-      public static let failed = L10n.tr("Localizable", "download_inspector_view.failed", fallback: "Failed")
-      /// Image data could not be validated.
-      public static let imageDataUnavailable = L10n.tr("Localizable", "download_inspector_view.image_data_unavailable", fallback: "Image data could not be validated.")
-      /// Image data is valid
-      public static let imageDataValid = L10n.tr("Localizable", "download_inspector_view.image_data_valid", fallback: "Image data is valid")
-      /// No pages
-      public static let `none` = L10n.tr("Localizable", "download_inspector_view.none", fallback: "No pages")
-      /// Pending
-      public static let pending = L10n.tr("Localizable", "download_inspector_view.pending", fallback: "Pending")
-      /// Retry Failed Pages
-      public static let retryFailedPages = L10n.tr("Localizable", "download_inspector_view.retry_failed_pages", fallback: "Retry Failed Pages")
-      /// Validating Image Data...
-      public static let validatingImageData = L10n.tr("Localizable", "download_inspector_view.validating_image_data", fallback: "Validating Image Data...")
-    }
     public enum DownloadSettingView {
       /// Allow cellular downloads
       public static let allowCellularDownloads = L10n.tr("Localizable", "download_setting_view.allow_cellular_downloads", fallback: "Allow cellular downloads")
@@ -1110,38 +1088,16 @@ public enum L10n {
       }
     }
     public enum DownloadsView {
-      /// Clear Filters
-      public static let clearFilters = L10n.tr("Localizable", "downloads_view.clear_filters", fallback: "Clear Filters")
-      /// This will cancel the current download and remove it from this device.
-      public static let deleteActiveDownload = L10n.tr("Localizable", "downloads_view.delete_active_download", fallback: "This will cancel the current download and remove it from this device.")
       /// Delete Download?
       public static let deleteDownload = L10n.tr("Localizable", "downloads_view.delete_download", fallback: "Delete Download?")
       /// This will remove the downloaded gallery from this device.
       public static let deleteDownloadedGallery = L10n.tr("Localizable", "downloads_view.delete_downloaded_gallery", fallback: "This will remove the downloaded gallery from this device.")
       /// Downloads
       public static let downloads = L10n.tr("Localizable", "downloads_view.downloads", fallback: "Downloads")
-      /// Downloaded galleries will appear here.
-      public static let emptyDownloads = L10n.tr("Localizable", "downloads_view.empty_downloads", fallback: "Downloaded galleries will appear here.")
       /// Manage Folders
       public static let manageFolders = L10n.tr("Localizable", "downloads_view.manage_folders", fallback: "Manage Folders")
-      /// Move
-      public static let move = L10n.tr("Localizable", "downloads_view.move", fallback: "Move")
-      /// Move to Folder
-      public static let moveToFolder = L10n.tr("Localizable", "downloads_view.move_to_folder", fallback: "Move to Folder")
-      /// No downloads match the current filters.
-      public static let noMatchingFilters = L10n.tr("Localizable", "downloads_view.no_matching_filters", fallback: "No downloads match the current filters.")
-      /// Pages
-      public static let pages = L10n.tr("Localizable", "downloads_view.pages", fallback: "Pages")
-      /// Pause
-      public static let pause = L10n.tr("Localizable", "downloads_view.pause", fallback: "Pause")
-      /// Resume
-      public static let resume = L10n.tr("Localizable", "downloads_view.resume", fallback: "Resume")
-      /// Search downloads
-      public static let searchDownloads = L10n.tr("Localizable", "downloads_view.search_downloads", fallback: "Search downloads")
       /// Update
       public static let update = L10n.tr("Localizable", "downloads_view.update", fallback: "Update")
-      /// Validate Image Data
-      public static let validateImageData = L10n.tr("Localizable", "downloads_view.validate_image_data", fallback: "Validate Image Data")
     }
     public enum EhSetting {
       public enum ArchiverBehavior {
