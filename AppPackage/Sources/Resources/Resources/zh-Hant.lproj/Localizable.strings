@@ -13,12 +13,6 @@
 "invalid_resolution" = "該畫廊不能以目前選擇的解析度下載";
 
 // MARK: Toast
-"toast.error" = "錯誤";
-"toast.success" = "成功";
-"toast.loading" = "載入中...";
-"toast.communicating" = "連線中...";
-"toast.copied_to_clipboard" = "已複製到剪貼簿";
-"toast.saved_to_photo_library" = "已儲存到照片";
 
 // MARK: AutoLock
 
@@ -56,8 +50,6 @@
 "jump_page_view.jump_page" = "跳到...";
 
 // MARK: AlertView
-"loading_view.loading" = "載入中...";
-"not_login_view.need_login" = "你需要登入才能完成這個動作";
 "not_login_viewlogin" = "登入";
 "error_view.retry" = "重試";
 "error_view.try_later" = "請稍後再試";
@@ -101,11 +93,8 @@
 "confirmation_dialog.reset" = "重設";
 
 // MARK: SubSection
-"sub_section.show_all" = "顯示全部";
 
 // MARK: NewDawnView
-"new_dawn_view.first" = "現在是嶄新的一天！";
-"new_dawn_view.second" = "回顧到目前為止的旅程，你發現自己睿智了一點。";
 // Greeting
 "greeting.start" = "你獲得了 ";
 "greeting.separator" = "、";
@@ -136,7 +125,6 @@
 "search_view.search" = "搜尋";
 "search_view.quick_search" = "快速搜尋";
 // Searchable
-"searchable.matches_count" = "找到 %d 項結果";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "快速搜尋";

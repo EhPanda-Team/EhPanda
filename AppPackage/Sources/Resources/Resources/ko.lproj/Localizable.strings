@@ -13,12 +13,6 @@
 "invalid_resolution" = "이 콘텐츠는 선택한　해상도로 다운로드할 수 없어요.";
 
 // MARK: Toast
-"toast.error" = "실패";
-"toast.success" = "성공";
-"toast.loading" = "로딩 중...";
-"toast.communicating" = "접속 중...";
-"toast.copied_to_clipboard" = "클립보드에 복사되었어요";
-"toast.saved_to_photo_library" = "이미지 저장";
 
 // MARK: AutoLock
 
@@ -56,8 +50,6 @@
 "jump_page_view.jump_page" = "페이지 이동";
 
 // MARK: AlertView
-"loading_view.loading" = "로딩 중...";
-"not_login_view.need_login" = "이 기능을 사용하려면 로그인이 필요해요.";
 "not_login_viewlogin" = "로그인";
 "error_view.retry" = "재시도";
 "error_view.try_later" = "잠시 후 다시 시도해 주세요.";
@@ -101,11 +93,8 @@
 "confirmation_dialog.reset" = "초기화";
 
 // MARK: SubSection
-"sub_section.show_all" = "모두　보기";
 
 // MARK: NewDawnView
-"new_dawn_view.first" = "새로운 하루가 시작되었어요!";
-"new_dawn_view.second" = "지금까지의 여정을 돌이켜보면, 당신은 조금 더 현명해진 것 같죠?";
 // Greeting
 "greeting.start" = "";
 "greeting.separator" = ", ";
@@ -136,7 +125,6 @@
 "search_view.search" = "검색";
 "search_view.quick_search" = "빠른 검색";
 // Searchable
-"searchable.matches_count" = "검색 결과 %d개";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "빠른 검색";

@@ -7,8 +7,8 @@ import AppTools
 public struct LoadingView: View {
     private let title: String
 
-    public init(title: String = L10n.Localizable.LoadingView.loading) {
-        self.title = title
+    public init(title: String? = nil) {
+        self.title = title ?? String(localized: .loading)
     }
 
     public var body: some View {
@@ -54,7 +54,7 @@ public struct NotLoginView: View {
     public var body: some View {
         AlertView(
             symbol: .personCropCircleBadgeQuestionmarkFill,
-            message: L10n.Localizable.NotLoginView.needLogin
+            message: String(localized: .needLogin)
         ) {
             AlertViewButton(title: L10n.Localizable.notLoginViewlogin, action: action)
         }

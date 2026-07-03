@@ -13,12 +13,6 @@
 "invalid_resolution" = "该画廊不能以选中的分辨率下载";
 
 // MARK: Toast
-"toast.error" = "错误";
-"toast.success" = "成功";
-"toast.loading" = "加载中...";
-"toast.communicating" = "通信中...";
-"toast.copied_to_clipboard" = "已复制到剪切板";
-"toast.saved_to_photo_library" = "已保存到图库";
 
 // MARK: AutoLock
 
@@ -56,8 +50,6 @@
 "jump_page_view.jump_page" = "页码跳转";
 
 // MARK: AlertView
-"loading_view.loading" = "加载中...";
-"not_login_view.need_login" = "你需要登录才能使用该功能";
 "not_login_viewlogin" = "登录";
 "error_view.retry" = "重试";
 "error_view.try_later" = "请稍后再试";
@@ -101,11 +93,8 @@
 "confirmation_dialog.reset" = "重置";
 
 // MARK: SubSection
-"sub_section.show_all" = "显示全部";
 
 // MARK: NewDawnView
-"new_dawn_view.first" = "又是全新的一天！";
-"new_dawn_view.second" = "回顾至今的历程，发觉自己更睿智了一些。";
 // Greeting
 "greeting.start" = "你获得了 ";
 "greeting.separator" = "、";
@@ -136,7 +125,6 @@
 "search_view.search" = "搜索";
 "search_view.quick_search" = "快速搜索";
 // Searchable
-"searchable.matches_count" = "找到 %d 项结果";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "快速搜索";
