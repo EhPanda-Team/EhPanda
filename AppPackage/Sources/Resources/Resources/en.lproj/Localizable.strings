@@ -249,14 +249,6 @@
 "app_icon_view.app_icon" = "App icon";
 
 // MARK: reading_settingView
-"reading_setting_view.reading" = "Reading";
-"reading_setting_view.direction" = "Direction";
-"reading_setting_view.preload_limit" = "Preload limit";
-"reading_setting_view.enables_landscape" = "Enables landscape";
-"reading_setting_view.separator_height" = "Separator height";
-"reading_setting_view.maximum_scale_factor" = "Maximum scale factor";
-"reading_setting_view.double_tap_scale_factor" = "Double tap scale factor";
-"reading_setting_view.appearance" = "Appearance";
 // ReadingDirection
 "reading_direction.vertical" = "Vertical";
 "reading_direction.right_to_left" = "Right-to-left";

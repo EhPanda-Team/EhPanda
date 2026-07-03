@@ -1851,24 +1851,6 @@ public enum L10n {
       /// Vertical
       public static let vertical = L10n.tr("Localizable", "reading_direction.vertical", fallback: "Vertical")
     }
-    public enum ReadingSettingView {
-      /// Appearance
-      public static let appearance = L10n.tr("Localizable", "reading_setting_view.appearance", fallback: "Appearance")
-      /// Direction
-      public static let direction = L10n.tr("Localizable", "reading_setting_view.direction", fallback: "Direction")
-      /// Double tap scale factor
-      public static let doubleTapScaleFactor = L10n.tr("Localizable", "reading_setting_view.double_tap_scale_factor", fallback: "Double tap scale factor")
-      /// Enables landscape
-      public static let enablesLandscape = L10n.tr("Localizable", "reading_setting_view.enables_landscape", fallback: "Enables landscape")
-      /// Maximum scale factor
-      public static let maximumScaleFactor = L10n.tr("Localizable", "reading_setting_view.maximum_scale_factor", fallback: "Maximum scale factor")
-      /// Preload limit
-      public static let preloadLimit = L10n.tr("Localizable", "reading_setting_view.preload_limit", fallback: "Preload limit")
-      /// Reading
-      public static let reading = L10n.tr("Localizable", "reading_setting_view.reading", fallback: "Reading")
-      /// Separator height
-      public static let separatorHeight = L10n.tr("Localizable", "reading_setting_view.separator_height", fallback: "Separator height")
-    }
     public enum ReadingView {
       /// Auto-Play
       public static let autoPlay = L10n.tr("Localizable", "reading_view.auto_play", fallback: "Auto-Play")
