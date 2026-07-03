@@ -51,8 +51,6 @@ public enum L10n {
       public static let swiftGen = L10n.tr("Constant", "acknowledgement.swiftGen", fallback: "SwiftGen")
       /// https://github.com/SwiftGen/SwiftGen
       public static let swiftGenLink = L10n.tr("Constant", "acknowledgement.swiftGen_link", fallback: "https://github.com/SwiftGen/SwiftGen")
-      /// SwiftUI Navigation
-      public static let swiftUINavigation = L10n.tr("Constant", "acknowledgement.swiftUINavigation", fallback: "SwiftUI Navigation")
       /// SwiftUIPager
       public static let swiftUIPager = L10n.tr("Constant", "acknowledgement.swiftUIPager", fallback: "SwiftUIPager")
       /// https://github.com/fermoya/SwiftUIPager
@@ -193,8 +191,6 @@ public enum L10n {
       public static let copyCookies = L10n.tr("Localizable", "account_setting_view.copy_cookies", fallback: "Copy cookies")
       /// Login
       public static let login = L10n.tr("Localizable", "account_setting_view.login", fallback: "Login")
-      /// Logout
-      public static let logout = L10n.tr("Localizable", "account_setting_view.logout", fallback: "Logout")
       /// Shows new dawn greeting
       public static let showsNewDawnGreeting = L10n.tr("Localizable", "account_setting_view.shows_new_dawn_greeting", fallback: "Shows new dawn greeting")
       /// Manage tags subscription
@@ -910,10 +906,6 @@ public enum L10n {
       public static func pages(_ p1: Any) -> String {
         return L10n.tr("Localizable", "common.pages", String(describing: p1), fallback: "%@ pages")
       }
-      /// %@ records
-      public static func records(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "common.records", String(describing: p1), fallback: "%@ records")
-      }
       /// %@ second
       public static func second(_ p1: Any) -> String {
         return L10n.tr("Localizable", "common.second", String(describing: p1), fallback: "%@ second")
@@ -925,10 +917,6 @@ public enum L10n {
       /// %@ stars
       public static func stars(_ p1: Any) -> String {
         return L10n.tr("Localizable", "common.stars", String(describing: p1), fallback: "%@ stars")
-      }
-      /// %@ times
-      public static func times(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "common.times", String(describing: p1), fallback: "%@ times")
       }
     }
     public enum ConfirmationDialog {
@@ -991,20 +979,6 @@ public enum L10n {
       public static let deleteDownloadedGallery = L10n.tr("Localizable", "detail_view.delete_downloaded_gallery", fallback: "This will remove the downloaded gallery from this device.")
       /// Detail
       public static let detail = L10n.tr("Localizable", "detail_view.detail", fallback: "Detail")
-      /// DONE
-      public static let downloadDone = L10n.tr("Localizable", "detail_view.download_done", fallback: "DONE")
-      /// GET
-      public static let downloadGet = L10n.tr("Localizable", "detail_view.download_get", fallback: "GET")
-      /// LOG IN
-      public static let downloadLogin = L10n.tr("Localizable", "detail_view.download_login", fallback: "LOG IN")
-      /// REPAIR
-      public static let downloadRepair = L10n.tr("Localizable", "detail_view.download_repair", fallback: "REPAIR")
-      /// RETRY
-      public static let downloadRetry = L10n.tr("Localizable", "detail_view.download_retry", fallback: "RETRY")
-      /// UPDATE
-      public static let downloadUpdate = L10n.tr("Localizable", "detail_view.download_update", fallback: "UPDATE")
-      /// WAIT
-      public static let downloadWait = L10n.tr("Localizable", "detail_view.download_wait", fallback: "WAIT")
       /// Favorited
       public static let favorited = L10n.tr("Localizable", "detail_view.favorited", fallback: "Favorited")
       /// Times
@@ -1117,8 +1091,6 @@ public enum L10n {
       public static let downloading = L10n.tr("Localizable", "download_badge.downloading", fallback: "Downloading")
       /// Needs Attention
       public static let needsAttention = L10n.tr("Localizable", "download_badge.needs_attention", fallback: "Needs Attention")
-      /// Needs Repair
-      public static let needsRepair = L10n.tr("Localizable", "download_badge.needs_repair", fallback: "Needs Repair")
       /// Paused
       public static let paused = L10n.tr("Localizable", "download_badge.paused", fallback: "Paused")
       /// %d/%d
@@ -1149,20 +1121,10 @@ public enum L10n {
       public static let imageDataValid = L10n.tr("Localizable", "download_inspector_view.image_data_valid", fallback: "Image data is valid")
       /// No pages
       public static let `none` = L10n.tr("Localizable", "download_inspector_view.none", fallback: "No pages")
-      /// Pages
-      public static let pages = L10n.tr("Localizable", "download_inspector_view.pages", fallback: "Pages")
       /// Pending
       public static let pending = L10n.tr("Localizable", "download_inspector_view.pending", fallback: "Pending")
       /// Retry Failed Pages
       public static let retryFailedPages = L10n.tr("Localizable", "download_inspector_view.retry_failed_pages", fallback: "Retry Failed Pages")
-      /// Tap to retry this page
-      public static let tapToRetry = L10n.tr("Localizable", "download_inspector_view.tap_to_retry", fallback: "Tap to retry this page")
-      /// Page %d
-      public static func title(_ p1: Int) -> String {
-        return L10n.tr("Localizable", "download_inspector_view.title", p1, fallback: "Page %d")
-      }
-      /// Update Download
-      public static let updateDownload = L10n.tr("Localizable", "download_inspector_view.update_download", fallback: "Update Download")
       /// Validating Image Data...
       public static let validatingImageData = L10n.tr("Localizable", "download_inspector_view.validating_image_data", fallback: "Validating Image Data...")
     }
@@ -1171,8 +1133,6 @@ public enum L10n {
       public static let allowCellularDownloads = L10n.tr("Localizable", "download_setting_view.allow_cellular_downloads", fallback: "Allow cellular downloads")
       /// Concurrent image downloads
       public static let concurrentImageDownloads = L10n.tr("Localizable", "download_setting_view.concurrent_image_downloads", fallback: "Concurrent image downloads")
-      /// Download Queue
-      public static let downloadQueue = L10n.tr("Localizable", "download_setting_view.download_queue", fallback: "Download Queue")
       /// Network
       public static let network = L10n.tr("Localizable", "download_setting_view.network", fallback: "Network")
       /// Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.
@@ -1187,18 +1147,10 @@ public enum L10n {
       public static func assetUnreadable(_ p1: Any) -> String {
         return L10n.tr("Localizable", "download_store.asset_unreadable", String(describing: p1), fallback: "Asset file is unreadable: %@")
       }
-      /// Cover image data is corrupted.
-      public static let coverImageCorrupted = L10n.tr("Localizable", "download_store.cover_image_corrupted", fallback: "Cover image data is corrupted.")
-      /// Cover image is missing.
-      public static let coverImageMissing = L10n.tr("Localizable", "download_store.cover_image_missing", fallback: "Cover image is missing.")
       /// The download is currently active.
       public static let downloadBusy = L10n.tr("Localizable", "download_store.download_busy", fallback: "The download is currently active.")
       /// Download folder is missing.
       public static let downloadFolderMissing = L10n.tr("Localizable", "download_store.download_folder_missing", fallback: "Download folder is missing.")
-      /// Download folder could not be resolved.
-      public static let downloadFolderUnresolved = L10n.tr("Localizable", "download_store.download_folder_unresolved", fallback: "Download folder could not be resolved.")
-      /// Downloaded pages are incomplete.
-      public static let downloadedPagesIncomplete = L10n.tr("Localizable", "download_store.downloaded_pages_incomplete", fallback: "Downloaded pages are incomplete.")
       /// A folder with this name already exists.
       public static let folderAlreadyExists = L10n.tr("Localizable", "download_store.folder_already_exists", fallback: "A folder with this name already exists.")
       /// The folder contains an active download.
@@ -1341,8 +1293,6 @@ public enum L10n {
       public static let galleryPageThumbnailLabeling = L10n.tr("Localizable", "eh_setting_view.gallery_page_thumbnail_labeling", fallback: "Gallery Page Thumbnail Labeling")
       /// Gallery Tags
       public static let galleryTags = L10n.tr("Localizable", "eh_setting_view.gallery_tags", fallback: "Gallery Tags")
-      /// Hath Local Network Host
-      public static let hathLocalNetworkHost = L10n.tr("Localizable", "eh_setting_view.hath_local_network_host", fallback: "Hath Local Network Host")
       /// Horizontal
       public static let horizontal = L10n.tr("Localizable", "eh_setting_view.horizontal", fallback: "Horizontal")
       /// %@ settings
@@ -1361,11 +1311,6 @@ public enum L10n {
       public static let imageSizeDescription = L10n.tr("Localizable", "eh_setting_view.image_size_description", fallback: "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)")
       /// Image Size Settings
       public static let imageSizeSettings = L10n.tr("Localizable", "eh_setting_view.image_size_settings", fallback: "Image Size Settings")
-      /// IP address:Port
-      public static let ipAddressPort = L10n.tr("Localizable", "eh_setting_view.ip_address_port", fallback: "IP address:Port")
-      /// This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.
-      /// If you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.
-      public static let ipAddressPortDescription = L10n.tr("Localizable", "eh_setting_view.ip_address_port_description", fallback: "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.")
       /// Load images through the Hath network
       public static let loadImagesThroughTheHathNetwork = L10n.tr("Localizable", "eh_setting_view.load_images_through_the_hath_network", fallback: "Load images through the Hath network")
       /// Multi-Page Viewer
@@ -1696,8 +1641,6 @@ public enum L10n {
     public enum HathArchive {
       /// Free
       public static let free = L10n.tr("Localizable", "hath_archive.free", fallback: "Free")
-      /// N/A
-      public static let notAvailable = L10n.tr("Localizable", "hath_archive.not_available", fallback: "N/A")
     }
     public enum HistoryView {
       /// History

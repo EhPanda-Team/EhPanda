@@ -657,7 +657,6 @@
 "eh_setting_view.gallery_page_thumbnail_labeling" = "ギャラリーサムネイルのラベル";
 "eh_setting_view.show_label_below_gallery_thumbnails" = "ギャラリーサムネイルの下にラベルを表示";
 
-
 "eh_setting_view.original_images" = "オリジナル画像を使いますか？リサンプリングされた画像は、上記の解像度で「自動」以外を選択し、該当する画像の方が幅が広い場合、またはオリジナル画像が 10 MiB（一年以上前のギャラリーの場合は 4 MiB）より大きい場合に使用されます。";
 "eh_setting_view.use_original_images" = "オリジナル画像を使う";
 

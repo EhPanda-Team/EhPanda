@@ -657,7 +657,6 @@
 "eh_setting_view.gallery_page_thumbnail_labeling" = "畫廊頁面縮圖標籤";
 "eh_setting_view.show_label_below_gallery_thumbnails" = "在畫廊縮圖下方顯示標籤";
 
-
 "eh_setting_view.original_images" = "要使用原始圖片而非重新取樣的版本嗎? 若您在上方選擇「自動」以外的水準解析度且圖片較寬，或原始圖片大於 10 MiB（一年以上的圖庫則為 4 MiB），系統仍會使用重新取樣的圖片。";
 "eh_setting_view.use_original_images" = "使用原始圖片(原解析度)";
 
