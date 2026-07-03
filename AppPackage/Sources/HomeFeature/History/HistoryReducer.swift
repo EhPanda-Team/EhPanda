@@ -6,6 +6,7 @@ import AppTools
 import HapticsClient
 import DatabaseClient
 import DownloadClient
+import AppComponents
 
 @Reducer
 public struct HistoryReducer: Sendable {
@@ -76,13 +77,13 @@ public struct HistoryReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearHistory) {
-                        TextState(String(localized: .RLocalizable.clear))
+                        TextState(localized: .RLocalizable.clear)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .RLocalizable.clearDescription))
+                    TextState(localized: .RLocalizable.clearDescription)
                 }
                 return .none
 

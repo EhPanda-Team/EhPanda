@@ -122,29 +122,29 @@ public struct AppAlertTextFieldState: Equatable, Hashable, Sendable {
 // Button-less toast presentations. `SystemNotificationExt` maps `ToastIcon` + `title`/`message`
 // onto the rendered Liquid Glass toast content.
 extension AppAlertState where Action == Never {
-    public static func loading(title: String? = nil) -> Self {
+    public static func loading(title: LocalizedStringResource? = nil) -> Self {
         .init(
             style: .toast(icon: .loading, autoHide: false),
-            title: TextState(title ?? String(localized: .toastLoading))
+            title: TextState(localized: title ?? .toastLoading)
         )
     }
     public static var communicating: Self {
         .init(
             style: .toast(icon: .loading, autoHide: false),
-            title: TextState(String(localized: .toastCommunicating))
+            title: TextState(localized: .toastCommunicating)
         )
     }
     public static func error(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .error, autoHide: true),
-            title: TextState(String(localized: .toastError)),
+            title: TextState(localized: .toastError),
             message: caption.map { TextState($0) }
         )
     }
     public static func success(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .success, autoHide: true),
-            title: TextState(String(localized: .toastSuccess)),
+            title: TextState(localized: .toastSuccess),
             message: caption.map { TextState($0) }
         )
     }

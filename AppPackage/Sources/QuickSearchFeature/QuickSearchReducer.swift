@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DatabaseClient
+import AppComponents
 
 @Reducer
 public struct QuickSearchReducer: Sendable {
@@ -92,13 +93,13 @@ public struct QuickSearchReducer: Sendable {
                         TextState("")
                     } actions: {
                         ButtonState(role: .destructive, action: .confirmDelete(word)) {
-                            TextState(String(localized: .RLocalizable.delete))
+                            TextState(localized: .RLocalizable.delete)
                         }
                         ButtonState(role: .cancel) {
-                            TextState(String(localized: .RLocalizable.cancel))
+                            TextState(localized: .RLocalizable.cancel)
                         }
                     } message: {
-                        TextState(String(localized: .RLocalizable.deleteDescription))
+                        TextState(localized: .RLocalizable.deleteDescription)
                     }
                     return .none
 
