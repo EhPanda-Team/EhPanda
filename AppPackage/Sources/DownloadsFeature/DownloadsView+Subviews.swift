@@ -72,7 +72,7 @@ struct DownloadInspectorView: View {
                         let isRetryFailedPagesDisabled = !inspection.canRetryFailedPages
                         let isValidateImageDataDisabled =
                             !inspection.canValidateImageData || store.isValidatingImageData
-                        Section(String(localized: .actions)) {
+                        Section(.actions) {
                             Button {
                                 store.send(.toggleDownloadPause)
                             } label: {

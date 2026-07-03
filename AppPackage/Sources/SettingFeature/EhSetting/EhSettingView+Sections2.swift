@@ -81,7 +81,7 @@ struct RatingsSection: View {
 
     var body: some View {
         Section {
-            LabeledContent(String(localized: .ratingsColor)) {
+            LabeledContent(.ratingsColor) {
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
                     promptText: String(localized: .ratingsColorPrompt),
@@ -106,7 +106,7 @@ struct SearchResultCountSection: View {
 
     var body: some View {
         Section {
-            Picker(String(localized: .resultCount), selection: $ehSetting.searchResultCount) {
+            Picker(.resultCount, selection: $ehSetting.searchResultCount) {
                 ForEach(ehSetting.capableSearchResultCounts) { count in
                     Text(String(count.value))
                         .tag(count)
@@ -148,7 +148,7 @@ struct ThumbnailSettingsSection: View {
         }
 
         Section {
-            LabeledContent(String(localized: .thumbnailSize)) {
+            LabeledContent(.thumbnailSize) {
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
                         Text(size.value)
@@ -161,7 +161,7 @@ struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
 
-            LabeledContent(String(localized: .thumbnailRowCount)) {
+            LabeledContent(.thumbnailRowCount) {
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
                         Text(row.value)

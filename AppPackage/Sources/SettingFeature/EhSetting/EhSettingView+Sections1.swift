@@ -21,7 +21,7 @@ struct EhProfileSection: View {
 
     var body: some View {
         Section {
-            Picker(String(localized: .selectedProfile), selection: $ehProfile) {
+            Picker(.selectedProfile, selection: $ehProfile) {
                 ForEach(ehSetting.ehProfiles) { ehProfile in
                     Text(ehProfile.name)
                         .tag(ehProfile)
@@ -30,7 +30,7 @@ struct EhProfileSection: View {
             .pickerStyle(.menu)
 
             if !ehProfile.isDefault {
-                Button(String(localized: .setAsDefault)) {
+                Button(.setAsDefault) {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
 
@@ -53,13 +53,13 @@ struct EhProfileSection: View {
             SettingTextField(text: $editingProfileName, width: nil, alignment: .leading, background: .clear)
                 .focused($isFocused)
 
-            Button(String(localized: .rename)) {
+            Button(.rename) {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
             .disabled(isFocused)
 
             if ehSetting.isCapableOfCreatingNewProfile {
-                Button(String(localized: .createNew)) {
+                Button(.createNew) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
                 .disabled(isFocused)
@@ -91,7 +91,7 @@ struct ImageLoadSettingsSection: View {
         }
 
         Section {
-            Picker(String(localized: .browsingCountry), selection: $ehSetting.browsingCountry) {
+            Picker(.browsingCountry, selection: $ehSetting.browsingCountry) {
                 ForEach(EhSetting.BrowsingCountry.allCases) { country in
                     Text(country.name)
                         .tag(country)
@@ -116,7 +116,7 @@ struct ImageSizeSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker(String(localized: .imageResolution), selection: $ehSetting.imageResolution) {
+            Picker(.imageResolution, selection: $ehSetting.imageResolution) {
                 ForEach(ehSetting.capableImageResolutions) { setting in
                     Text(setting.value)
                         .tag(setting)
@@ -167,7 +167,7 @@ struct GalleryNameDisplaySection: View {
 
     var body: some View {
         Section {
-            Picker(String(localized: .galleryName), selection: $ehSetting.galleryName) {
+            Picker(.galleryName, selection: $ehSetting.galleryName) {
                 ForEach(EhSetting.GalleryName.allCases) { name in
                     Text(name.value)
                         .tag(name)
@@ -189,7 +189,7 @@ struct ArchiverSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker(String(localized: .archiverBehavior), selection: $ehSetting.archiverBehavior) {
+            Picker(.archiverBehavior, selection: $ehSetting.archiverBehavior) {
                 ForEach(EhSetting.ArchiverBehavior.allCases) { behavior in
                     Text(behavior.value)
                         .tag(behavior)
@@ -224,7 +224,7 @@ struct FrontPageSettingsSection: View {
         }
 
         Section {
-            Picker(String(localized: .displayMode), selection: $ehSetting.displayMode) {
+            Picker(.displayMode, selection: $ehSetting.displayMode) {
                 ForEach(EhSetting.DisplayMode.allCases) { mode in
                     Text(mode.value)
                         .tag(mode)

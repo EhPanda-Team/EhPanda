@@ -263,7 +263,7 @@ struct GalleryTagsSection: View {
 
     var body: some View {
         Section {
-            Picker(String(localized: .tagsSortOrder), selection: $ehSetting.tagsSortOrder) {
+            Picker(.tagsSortOrder, selection: $ehSetting.tagsSortOrder) {
                 ForEach(EhSetting.TagsSortOrder.allCases) { order in
                     Text(order.value)
                         .tag(order)
