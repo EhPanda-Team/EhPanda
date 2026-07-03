@@ -12,8 +12,8 @@ import Foundation
 public enum L10n {
   public enum Constant {
     public enum App {
-      /// Copyright © 2025 EhPanda Team
-      public static let copyright = L10n.tr("Constant", "app.copyright", fallback: "Copyright © 2025 EhPanda Team")
+      /// Copyright © 2026 EhPanda Team
+      public static let copyright = L10n.tr("Constant", "app.copyright", fallback: "Copyright © 2026 EhPanda Team")
       public enum Acknowledgement {
         public enum Link {
           /// https://github.com/Co2333/Colorful
