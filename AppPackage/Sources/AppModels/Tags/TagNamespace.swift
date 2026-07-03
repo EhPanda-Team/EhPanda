@@ -61,18 +61,18 @@ extension TagNamespace {
     }
     public var value: String {
         switch self {
-        case .reclass: return L10n.Localizable.TagNamespace.reclass
-        case .language: return L10n.Localizable.TagNamespace.language
-        case .parody: return L10n.Localizable.TagNamespace.parody
-        case .character: return L10n.Localizable.TagNamespace.character
-        case .group: return L10n.Localizable.TagNamespace.group
-        case .artist: return L10n.Localizable.TagNamespace.artist
-        case .male: return L10n.Localizable.TagNamespace.male
-        case .female: return L10n.Localizable.TagNamespace.female
-        case .mixed: return L10n.Localizable.TagNamespace.mixed
-        case .cosplayer: return L10n.Localizable.TagNamespace.cosplayer
-        case .other: return L10n.Localizable.TagNamespace.other
-        case .temp: return L10n.Localizable.TagNamespace.temp
+        case .reclass: return String(localized: .tagNamespaceReclass)
+        case .language: return String(localized: .tagNamespaceLanguage)
+        case .parody: return String(localized: .tagNamespaceParody)
+        case .character: return String(localized: .tagNamespaceCharacter)
+        case .group: return String(localized: .tagNamespaceGroup)
+        case .artist: return String(localized: .tagNamespaceArtist)
+        case .male: return String(localized: .tagNamespaceMale)
+        case .female: return String(localized: .tagNamespaceFemale)
+        case .mixed: return String(localized: .tagNamespaceMixed)
+        case .cosplayer: return String(localized: .tagNamespaceCosplayer)
+        case .other: return String(localized: .tagNamespaceOther)
+        case .temp: return String(localized: .tagNamespaceTemp)
         }
     }
 }

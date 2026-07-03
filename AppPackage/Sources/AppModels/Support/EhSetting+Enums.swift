@@ -14,11 +14,11 @@ extension EhSetting.CommentsSortOrder {
     public var value: String {
         switch self {
         case .oldest:
-            return L10n.Localizable.CommentsSortOrder.oldest
+            return String(localized: .commentsSortOrderOldest)
         case .recent:
-            return L10n.Localizable.CommentsSortOrder.recent
+            return String(localized: .commentsSortOrderRecent)
         case .highestScore:
-            return L10n.Localizable.CommentsSortOrder.highestScore
+            return String(localized: .commentsSortOrderHighestScore)
         }
     }
 }
@@ -36,9 +36,9 @@ extension EhSetting.CommentVotesShowTiming {
     public var value: String {
         switch self {
         case .onHoverOrClick:
-            return L10n.Localizable.CommentsVotesShowTiming.onHoverOrClick
+            return String(localized: .commentsVotesShowTimingOnHoverOrClick)
         case .always:
-            return L10n.Localizable.CommentsVotesShowTiming.always
+            return String(localized: .commentsVotesShowTimingAlways)
         }
     }
 }
@@ -56,9 +56,9 @@ extension EhSetting.TagsSortOrder {
     public var value: String {
         switch self {
         case .alphabetical:
-            return L10n.Localizable.TagsSortOrder.alphabetical
+            return String(localized: .tagsSortOrderAlphabetical)
         case .tagPower:
-            return L10n.Localizable.TagsSortOrder.tagPower
+            return String(localized: .tagsSortOrderTagPower)
         }
     }
 }
@@ -77,11 +77,11 @@ extension EhSetting.MultiplePageViewerStyle {
     public var value: String {
         switch self {
         case .alignLeftScaleIfOverWidth:
-            return L10n.Localizable.MultiplePageViewerStyle.alignLeftScaleIfOverWidth
+            return String(localized: .multiplePageViewerStyleAlignLeftScaleIfOverWidth)
         case .alignCenterScaleIfOverWidth:
-            return L10n.Localizable.MultiplePageViewerStyle.alignCenterScaleIfOverWidth
+            return String(localized: .multiplePageViewerStyleAlignCenterScaleIfOverWidth)
         case .alignCenterAlwaysScale:
-            return L10n.Localizable.MultiplePageViewerStyle.alignCenterAlwaysScale
+            return String(localized: .multiplePageViewerStyleAlignCenterAlwaysScale)
         }
     }
 }
@@ -99,9 +99,9 @@ extension EhSetting.GalleryPageNumbering {
 
     public var value: String {
         switch self {
-        case .none: L10n.Localizable.GalleryPageNumbering.none
-        case .pageNumberOnly: L10n.Localizable.GalleryPageNumbering.pageNumberOnly
-        case .pageNumberAndName: L10n.Localizable.GalleryPageNumbering.pageNumberAndName
+        case .none: String(localized: .galleryPageNumberingNone)
+        case .pageNumberOnly: String(localized: .galleryPageNumberingPageNumberOnly)
+        case .pageNumberAndName: String(localized: .galleryPageNumberingPageNumberAndName)
         }
     }
 }

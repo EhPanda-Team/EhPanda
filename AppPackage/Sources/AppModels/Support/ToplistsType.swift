@@ -13,13 +13,13 @@ extension ToplistsType {
     public var value: String {
         switch self {
         case .yesterday:
-            return L10n.Localizable.ToplistsType.yesterday
+            return String(localized: .toplistsTypeYesterday)
         case .pastMonth:
-            return L10n.Localizable.ToplistsType.pastMonth
+            return String(localized: .toplistsTypePastMonth)
         case .pastYear:
-            return L10n.Localizable.ToplistsType.pastYear
+            return String(localized: .toplistsTypePastYear)
         case .allTime:
-            return L10n.Localizable.ToplistsType.allTime
+            return String(localized: .toplistsTypeAllTime)
         }
     }
     public var categoryIndex: Int {

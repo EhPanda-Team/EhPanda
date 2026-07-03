@@ -13,17 +13,17 @@ extension EhSetting.ThumbnailLoadTiming {
     public var value: String {
         switch self {
         case .onMouseOver:
-            return L10n.Localizable.ThumbnailLoadTiming.onMouseOver
+            return String(localized: .thumbnailLoadTimingOnMouseOver)
         case .onPageLoad:
-            return L10n.Localizable.ThumbnailLoadTiming.onPageLoad
+            return String(localized: .thumbnailLoadTimingOnPageLoad)
         }
     }
     public var description: String {
         switch self {
         case .onMouseOver:
-            return L10n.Localizable.ThumbnailLoadTiming.onMouseOverDescription
+            return String(localized: .thumbnailLoadTimingOnMouseOverDescription)
         case .onPageLoad:
-            return L10n.Localizable.ThumbnailLoadTiming.onPageLoadDescription
+            return String(localized: .thumbnailLoadTimingOnPageLoadDescription)
         }
     }
 }
@@ -47,13 +47,13 @@ extension EhSetting.ThumbnailSize {
     public var value: String {
         switch self {
         case .normal:
-            return L10n.Localizable.ThumbnailSize.normal
+            return String(localized: .thumbnailSizeNormal)
         case .large:
-            return L10n.Localizable.ThumbnailSize.large
+            return String(localized: .thumbnailSizeLarge)
         case .small:
-            return L10n.Localizable.ThumbnailSize.small
+            return String(localized: .thumbnailSizeSmall)
         case .auto:
-            return L10n.Localizable.ThumbnailSize.auto
+            return String(localized: .thumbnailSizeAuto)
         }
     }
 }

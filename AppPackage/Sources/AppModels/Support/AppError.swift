@@ -37,71 +37,71 @@ extension AppError {
     public var localizedDescription: String {
         switch self {
         case .databaseCorrupted:
-            return L10n.Localizable.AppError.databaseCorrupted
+            return String(localized: .appErrorDatabaseCorrupted)
         case .copyrightClaim:
-            return L10n.Localizable.AppError.copyrightClaim
+            return String(localized: .appErrorCopyrightClaim)
         case .ipBanned:
-            return L10n.Localizable.AppError.ipBanned
+            return String(localized: .appErrorIpBanned)
         case .expunged:
-            return L10n.Localizable.AppError.galleryExpunged
+            return String(localized: .appErrorGalleryExpunged)
         case .networkingFailed:
-            return L10n.Localizable.AppError.networkError
+            return String(localized: .appErrorNetworkError)
         case .webImageFailed:
-            return L10n.Localizable.AppError.webImageLoadingError
+            return String(localized: .appErrorWebImageLoadingError)
         case .parseFailed:
-            return L10n.Localizable.AppError.parseError
+            return String(localized: .appErrorParseError)
         case .quotaExceeded:
-            return L10n.Localizable.AppError.quotaExceeded
+            return String(localized: .appErrorQuotaExceeded)
         case .authenticationRequired:
-            return L10n.Localizable.AppError.authenticationRequired
+            return String(localized: .appErrorAuthenticationRequired)
         case .fileOperationFailed:
-            return L10n.Localizable.AppError.fileOperationFailed
+            return String(localized: .appErrorFileOperationFailed)
         case .noUpdates:
-            return L10n.Localizable.AppError.noUpdatesAvailable
+            return String(localized: .appErrorNoUpdatesAvailable)
         case .notFound:
-            return L10n.Localizable.AppError.notFound
+            return String(localized: .appErrorNotFound)
         case .unknown:
-            return L10n.Localizable.AppError.unknownError
+            return String(localized: .appErrorUnknownError)
         }
     }
     public var alertText: String {
-        let tryLater = L10n.Localizable.ErrorView.tryLater
+        let tryLater = String(localized: .tryLater)
         switch self {
         case .databaseCorrupted(let reason):
-            var lines = [L10n.Localizable.ErrorView.databaseCorrupted]
+            var lines = [String(localized: .databaseCorrupted)]
             if let reason = reason {
                 lines.append("(\(reason))")
             }
             return lines.joined(separator: "\n")
         case .copyrightClaim(let owner):
-            return L10n.Localizable.ErrorView.copyrightClaim(owner)
+            return String(localized: .copyrightClaim(owner))
         case .ipBanned(let interval):
-            return L10n.Localizable.ErrorView.ipBanned(interval.description)
+            return String(localized: .ipBanned(interval.description))
         case .expunged(let reason):
             switch reason {
             case L10n.Constant.galleryUnavailable:
-                return L10n.Localizable.ErrorView.galleryUnavailable
+                return String(localized: .galleryUnavailable)
             default:
                 return reason
             }
         case .networkingFailed:
-            return [L10n.Localizable.ErrorView.network, tryLater].joined(separator: "\n")
+            return [String(localized: .networkError), tryLater].joined(separator: "\n")
         case .parseFailed:
-            return [L10n.Localizable.ErrorView.parsing, tryLater].joined(separator: "\n")
+            return [String(localized: .parsing), tryLater].joined(separator: "\n")
         case .quotaExceeded:
-            return L10n.Localizable.AppError.quotaExceededDescription
+            return String(localized: .appErrorQuotaExceededDescription)
         case .authenticationRequired:
-            return L10n.Localizable.AppError.authenticationRequiredDescription
+            return String(localized: .appErrorAuthenticationRequiredDescription)
         case .fileOperationFailed(let reason):
-            return [L10n.Localizable.AppError.localFileOperationFailed, reason]
+            return [String(localized: .appErrorLocalFileOperationFailed), reason]
                 .filter { !$0.isEmpty }
                 .joined(separator: "\n")
         case .noUpdates, .webImageFailed:
             return ""
         case .notFound:
-            return L10n.Localizable.ErrorView.notFound
+            return String(localized: .notFound)
         case .unknown:
-            return [L10n.Localizable.ErrorView.unknown, tryLater].joined(separator: "\n")
+            return [String(localized: .unknown), tryLater].joined(separator: "\n")
         }
     }
 }
@@ -116,7 +116,7 @@ public enum BanInterval: Equatable, Hashable, Sendable {
 extension BanInterval {
     public var description: String {
         var params: [String]
-        let and = L10n.Localizable.BanInterval.and
+        let and = String(localized: .banIntervalAnd)
 
         switch self {
         case .days(let days, let hours):
