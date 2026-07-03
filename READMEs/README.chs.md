@@ -15,15 +15,6 @@
   <a href="/READMEs/README.chs.md">简体中文</a>
 </p>
 
-## 📢 募集翻译 📢
-如果你想帮助翻译这个应用程序，请提交一个 Pull Request。
-
-App Strings: [{lang}.lproj](/EhPanda/App)
-
-GitHub Readme: [README.{lang}.md](/READMEs)
-
-https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/blob/main/src/main.js)
-
 ## 安装步骤
 1. 在 [Releases](https://github.com/EhPanda-Team/EhPanda/releases) 取得 ipa 文件。
 2. 使用 [AltStore](https://altstore.io) 这类软件将 ipa 文件安装到你的设备。
