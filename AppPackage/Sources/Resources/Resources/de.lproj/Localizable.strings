@@ -657,7 +657,6 @@
 "eh_setting_view.gallery_page_thumbnail_labeling" = "Beschriftung der Vorschaubilder";
 "eh_setting_view.show_label_below_gallery_thumbnails" = "Beschriftung unter Galerie-Vorschaubildern anzeigen";
 
-
 "eh_setting_view.original_images" = "Sollen Originalbilder statt der neu berechneten Versionen verwendet werden? Neu berechnete Bilder werden weiterhin verwendet, wenn du oben eine andere horizontale Auflösung als „Automatisch“ wählst und das betreffende Bild breiter ist, oder wenn das Originalbild größer als 10 MiB ist (bzw. 4 MiB bei Galerien, die älter als ein Jahr sind).";
 "eh_setting_view.use_original_images" = "Originalbilder verwenden";
 
