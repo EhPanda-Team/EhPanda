@@ -1,7 +1,2 @@
-/* 
-  InfoPlist.strings
-  EhPanda
-*/
-
 "NSFaceIDUsageDescription" = "We need this permission to provide Face ID option while unlocking the App.";
 "NSPhotoLibraryAddUsageDescription" = "We need this permission to save images to your photo library.";
