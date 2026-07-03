@@ -9,6 +9,7 @@ import AppTools
 import ImageClient
 import AppComponents
 import SFSafeSymbols
+import SFSafeSymbolsExt
 
 // MARK: ImageStackConfig
 struct ImageStackConfig {
@@ -144,18 +145,18 @@ struct HorizontalImageStack: View {
         Button {
             refetchAction(index)
         } label: {
-            Label(String(localized: .reload), systemSymbol: .arrowCounterclockwise)
+            Label(.reload, systemSymbol: .arrowCounterclockwise)
         }
         if let imageURL = imageURLs[index] {
             Button {
                 copyImageAction(imageURL)
             } label: {
-                Label(String(localized: .copy), systemSymbol: .plusSquareOnSquare)
+                Label(.copy, systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 saveImageAction(imageURL)
             } label: {
-                Label(String(localized: .save), systemSymbol: .squareAndArrowDown)
+                Label(.save, systemSymbol: .squareAndArrowDown)
             }
             if let originalImageURL = originalImageURLs[index] {
                 Button {
@@ -170,7 +171,7 @@ struct HorizontalImageStack: View {
             Button {
                 shareImageAction(imageURL)
             } label: {
-                Label(String(localized: .RLocalizable.share), systemSymbol: .squareAndArrowUp)
+                Label(.RLocalizable.share, systemSymbol: .squareAndArrowUp)
             }
         }
     }
