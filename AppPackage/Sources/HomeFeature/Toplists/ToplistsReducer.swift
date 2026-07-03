@@ -113,22 +113,22 @@ public struct ToplistsReducer: Sendable {
                 let maximumPage = (state.pageNumber?.maximum ?? 0) + 1
                 state.alert = AppAlertState(
                     title: {
-                        TextState(String(localized: .RLocalizable.jumpPage))
+                        TextState(localized: .RLocalizable.jumpPage)
                     },
                     textField: .init(
-                        placeholder: TextState(String(localized: .RLocalizable.jumpPage)),
+                        placeholder: TextState(localized: .RLocalizable.jumpPage),
                         keyboard: .numberPad
                     ),
                     actions: {
                         ButtonState(action: .performJumpPage) {
-                            TextState(String(localized: .confirm))
+                            TextState(localized: .confirm)
                         }
                         ButtonState(role: .cancel) {
-                            TextState(String(localized: .RLocalizable.cancel))
+                            TextState(localized: .RLocalizable.cancel)
                         }
                     },
                     message: {
-                        TextState(String(localized: .jumpPageDescription(maximumPage)))
+                        TextState(localized: .jumpPageDescription(maximumPage))
                     }
                 )
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })

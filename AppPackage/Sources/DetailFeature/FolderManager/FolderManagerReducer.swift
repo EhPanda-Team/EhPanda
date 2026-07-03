@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DownloadClient
+import AppComponents
 
 @Reducer
 public struct FolderManagerReducer: Sendable {
@@ -87,13 +88,13 @@ public struct FolderManagerReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(folder)) {
-                        TextState(String(localized: .RLocalizable.delete))
+                        TextState(localized: .RLocalizable.delete)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .deleteFolder))
+                    TextState(localized: .deleteFolder)
                 }
                 return .none
 

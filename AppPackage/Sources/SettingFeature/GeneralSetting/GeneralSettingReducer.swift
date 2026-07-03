@@ -7,6 +7,7 @@ import ApplicationClient
 import LibraryClient
 import DatabaseClient
 import OSLogExt
+import AppComponents
 
 private let logger = Logger(category: .init(describing: GeneralSettingReducer.self))
 
@@ -93,13 +94,13 @@ public struct GeneralSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmRemoveCustomTranslations) {
-                        TextState(String(localized: .remove))
+                        TextState(localized: .remove)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .removeCustomTranslationsConfirmation))
+                    TextState(localized: .removeCustomTranslationsConfirmation)
                 }
                 return .none
 
@@ -108,13 +109,13 @@ public struct GeneralSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearCache) {
-                        TextState(String(localized: .RLocalizable.clear))
+                        TextState(localized: .RLocalizable.clear)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .RLocalizable.clearDescription))
+                    TextState(localized: .RLocalizable.clearDescription)
                 }
                 return .none
 

@@ -2,6 +2,7 @@ import ComposableArchitecture
 import AppModels
 import Resources
 import DatabaseClient
+import AppComponents
 
 @Reducer
 public struct FiltersReducer: Sendable {
@@ -68,13 +69,13 @@ public struct FiltersReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmReset) {
-                        TextState(String(localized: .reset))
+                        TextState(localized: .reset)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .resetDescription))
+                    TextState(localized: .resetDescription)
                 }
                 return .none
 
