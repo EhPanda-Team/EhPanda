@@ -36,7 +36,7 @@ extension AutoPlayPolicy {
         case .off:
             return String(localized: .autoPlayPolicyOff)
         default:
-            return L10n.Localizable.Common.seconds("\(rawValue)")
+            return String(localized: .RLocalizable.seconds(rawValue))
         }
     }
 }
@@ -170,7 +170,7 @@ struct HorizontalImageStack: View {
             Button {
                 shareImageAction(imageURL)
             } label: {
-                Label(L10n.Localizable.ReadingView.share, systemSymbol: .squareAndArrowUp)
+                Label(String(localized: .RLocalizable.share), systemSymbol: .squareAndArrowUp)
             }
         }
     }

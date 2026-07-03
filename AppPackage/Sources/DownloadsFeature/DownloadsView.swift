@@ -105,7 +105,7 @@ public struct DownloadsView: View {
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )
-        .navigationTitle(L10n.Localizable.DownloadsView.downloads)
+        .navigationTitle(String(localized: .RLocalizable.downloads))
         .navigationBarTitleDisplayMode(.large)
         .toolbar(content: toolbar)
     }
@@ -164,7 +164,7 @@ private extension DownloadsView {
                                 store.send(.updateDownload(download.gid))
                             } label: {
                                 Label(
-                                    L10n.Localizable.DownloadsView.update,
+                                    String(localized: .RLocalizable.update),
                                     systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                                 )
                             }
@@ -190,7 +190,7 @@ private extension DownloadsView {
                         Button(role: .destructive) {
                             store.send(.deleteDownloadButtonTapped(download))
                         } label: {
-                            Label(L10n.Localizable.ConfirmationDialog.delete, systemSymbol: .trash)
+                            Label(String(localized: .RLocalizable.delete), systemSymbol: .trash)
                         }
                     }
                 }
@@ -204,7 +204,7 @@ private extension DownloadsView {
             store.send(.galleryTapped(download.gid))
         } label: {
             Label(
-                L10n.Localizable.DetailView.detail,
+                String(localized: .RLocalizable.detail),
                 systemSymbol: .infoCircle
             )
         }
@@ -238,7 +238,7 @@ private extension DownloadsView {
                 store.send(.updateDownload(download.gid))
             } label: {
                 Label(
-                    L10n.Localizable.DownloadsView.update,
+                    String(localized: .RLocalizable.update),
                     systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                 )
             }
@@ -262,7 +262,7 @@ private extension DownloadsView {
         Button(role: .destructive) {
             store.send(.deleteDownloadButtonTapped(download))
         } label: {
-            Label(L10n.Localizable.ConfirmationDialog.delete, systemSymbol: .trash)
+            Label(String(localized: .RLocalizable.delete), systemSymbol: .trash)
         }
     }
 
@@ -303,7 +303,7 @@ private extension DownloadsView {
                         store.send(.folderManagerButtonTapped)
                     } label: {
                         Label(
-                            L10n.Localizable.DownloadsView.manageFolders,
+                            String(localized: .RLocalizable.manageFolders),
                             systemSymbol: .folderBadgeGearshape
                         )
                     }

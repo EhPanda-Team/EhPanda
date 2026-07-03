@@ -44,7 +44,6 @@
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA0C92482C3EB45E00D211F6 /* AltStore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = AltStore.json; sourceTree = "<group>"; };
-		EA0C92492C3EB45E00D211F6 /* swiftgen.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = swiftgen.yml; sourceTree = "<group>"; };
 		EA0C924A2C3EB45E00D211F6 /* .gitattributes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitattributes; sourceTree = "<group>"; };
 		EA0C924B2C3EB45E00D211F6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		EA0C924C2C3EB45E00D211F6 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -157,7 +156,6 @@
 				EA0C924C2C3EB45E00D211F6 /* .gitignore */,
 				EA0C924B2C3EB45E00D211F6 /* .swiftlint.yml */,
 				EA0C92482C3EB45E00D211F6 /* AltStore.json */,
-				EA0C92492C3EB45E00D211F6 /* swiftgen.yml */,
 			);
 			name = Config;
 			sourceTree = "<group>";

@@ -140,19 +140,19 @@ public struct DownloadsReducer: Sendable {
 
             case .deleteDownloadButtonTapped(let download):
                 state.alert = AppAlertState {
-                    TextState(L10n.Localizable.DownloadsView.deleteDownload)
+                    TextState(String(localized: .RLocalizable.deleteDownload))
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(download.gid)) {
-                        TextState(L10n.Localizable.ConfirmationDialog.delete)
+                        TextState(String(localized: .RLocalizable.delete))
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 } message: {
                     TextState(
                         download.canTogglePause
                             ? String(localized: .deleteActiveDownload)
-                            : L10n.Localizable.DownloadsView.deleteDownloadedGallery
+                            : String(localized: .RLocalizable.deleteDownloadedGallery)
                     )
                 }
                 return .none
@@ -168,7 +168,7 @@ public struct DownloadsReducer: Sendable {
                         }
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.cancel)
+                        TextState(String(localized: .RLocalizable.cancel))
                     }
                 }
                 return .none

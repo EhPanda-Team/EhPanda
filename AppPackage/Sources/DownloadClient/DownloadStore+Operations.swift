@@ -91,13 +91,13 @@ extension DownloadStore {
             }
             guard let relativePath = existingPages[index] else {
                 throw AppError.fileOperationFailed(
-                    L10n.Localizable.DownloadStore.pageMissing(index)
+                    String(localized: .RLocalizable.downloadStorePageMissing(index))
                 )
             }
             pages[index] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: relativePath,
-                missingMessage: L10n.Localizable.DownloadStore.pageMissing(index)
+                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(index))
             )
         }
 
@@ -152,7 +152,7 @@ extension DownloadStore {
             pages[index] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: refreshedRelativePath,
-                missingMessage: L10n.Localizable.DownloadStore.pageMissing(index)
+                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(index))
             )
             didUpdate = true
         }
@@ -208,7 +208,7 @@ extension DownloadStore {
             return .missingFiles(String(localized: .downloadStoreManifestMissing))
         }
         guard let manifest = try? readManifest(folderURL: folderURL) else {
-            return .missingFiles(L10n.Localizable.DownloadStore.manifestCorrupted)
+            return .missingFiles(String(localized: .RLocalizable.downloadStoreManifestCorrupted))
         }
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
@@ -290,12 +290,12 @@ extension DownloadStore {
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
-            return .missingFiles(L10n.Localizable.DownloadStore.pageMissing(index))
+            return .missingFiles(String(localized: .RLocalizable.downloadStorePageMissing(index)))
         }
 
         if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
             return .missingFiles(
-                L10n.Localizable.DownloadStore.pageImageCorrupted(index)
+                String(localized: .RLocalizable.downloadStorePageImageCorrupted(index))
             )
         }
 

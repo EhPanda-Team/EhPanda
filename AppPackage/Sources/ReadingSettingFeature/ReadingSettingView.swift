@@ -35,7 +35,7 @@ public struct ReadingSettingView: View {
                 .pickerStyle(.menu)
                 Picker(String(localized: .preloadLimit), selection: $prefetchLimit) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
-                        Text(L10n.Localizable.Common.pages("\(value)")).tag(value)
+                        Text(String(localized: .RLocalizable.pages("\(value)"))).tag(value)
                     }
                 }
                 .pickerStyle(.menu)

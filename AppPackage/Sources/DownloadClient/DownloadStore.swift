@@ -409,7 +409,7 @@ public struct DownloadStore: Sendable {
     }
 
     private func manifestCorruptedError() -> AppError {
-        .fileOperationFailed(L10n.Localizable.DownloadStore.manifestCorrupted)
+        .fileOperationFailed(String(localized: .RLocalizable.downloadStoreManifestCorrupted))
     }
 
     public func scanDownloadFolders() throws -> [DownloadFolderRecord] {

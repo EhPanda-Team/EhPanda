@@ -30,7 +30,7 @@ public struct FavoritesView: View {
 
     private var navigationTitle: String {
         let favoriteCategory = user.getFavoriteCategory(index: store.index)
-        return (store.index == -1 ? L10n.Localizable.FavoritesView.favorites : favoriteCategory)
+        return (store.index == -1 ? String(localized: .RLocalizable.favorites) : favoriteCategory)
     }
 
     public var body: some View {

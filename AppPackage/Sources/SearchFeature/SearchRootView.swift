@@ -77,7 +77,7 @@ public struct SearchRootView: View {
                     store.send(.fetchDatabaseInfos)
                 }
                 .toolbar(content: toolbar)
-                .navigationTitle(L10n.Localizable.SearchView.search)
+                .navigationTitle(String(localized: .RLocalizable.search))
 
             // Workaround: Prevent the title disappearing issue.
             if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
@@ -204,7 +204,7 @@ private struct QuickSearchWordsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.SearchView.quickSearch,
+            title: String(localized: .RLocalizable.quickSearch),
             showAll: true, tint: .primary, showAllAction: showAllAction
         ) {
             DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
