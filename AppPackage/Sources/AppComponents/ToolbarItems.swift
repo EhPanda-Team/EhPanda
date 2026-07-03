@@ -2,6 +2,7 @@ import SwiftUI
 import SFSafeSymbols
 import AppModels
 import Resources
+import SFSafeSymbolsExt
 
 public struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let placement: ToolbarItemPlacement
@@ -122,7 +123,7 @@ public struct DateSeekButton: View {
         Button {
             navigation.map(action)
         } label: {
-            Label(String(localized: .RLocalizable.dateSeek), systemSymbol: .calendar)
+            Label(.RLocalizable.dateSeek, systemSymbol: .calendar)
         }
         .disabled(navigation == nil)
     }

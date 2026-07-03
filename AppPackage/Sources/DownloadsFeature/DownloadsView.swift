@@ -7,6 +7,7 @@ import AppTools
 import AppComponents
 import ReadingFeature
 import DetailFeature
+import SFSafeSymbolsExt
 
 public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>
@@ -190,7 +191,7 @@ private extension DownloadsView {
                         Button(role: .destructive) {
                             store.send(.deleteDownloadButtonTapped(download))
                         } label: {
-                            Label(String(localized: .RLocalizable.delete), systemSymbol: .trash)
+                            Label(.RLocalizable.delete, systemSymbol: .trash)
                         }
                     }
                 }
@@ -262,7 +263,7 @@ private extension DownloadsView {
         Button(role: .destructive) {
             store.send(.deleteDownloadButtonTapped(download))
         } label: {
-            Label(String(localized: .RLocalizable.delete), systemSymbol: .trash)
+            Label(.RLocalizable.delete, systemSymbol: .trash)
         }
     }
 
