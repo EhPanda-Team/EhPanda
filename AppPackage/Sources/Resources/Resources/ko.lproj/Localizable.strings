@@ -156,8 +156,6 @@
 
 // MARK: SearchView
 "search_view.search" = "검색";
-"search_view.recently_searched" = "최근 검색어";
-"search_view.recently_seen" = "최근 본 항목";
 "search_view.quick_search" = "빠른 검색";
 // Searchable
 "searchable.filter" = "필터";
