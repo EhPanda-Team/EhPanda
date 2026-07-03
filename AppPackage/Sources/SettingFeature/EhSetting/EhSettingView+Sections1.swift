@@ -21,7 +21,7 @@ struct EhProfileSection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.selectedProfile, selection: $ehProfile) {
+            Picker(String(localized: .selectedProfile), selection: $ehProfile) {
                 ForEach(ehSetting.ehProfiles) { ehProfile in
                     Text(ehProfile.name)
                         .tag(ehProfile)
@@ -30,19 +30,19 @@ struct EhProfileSection: View {
             .pickerStyle(.menu)
 
             if !ehProfile.isDefault {
-                Button(L10n.Localizable.EhSettingView.setAsDefault) {
+                Button(String(localized: .setAsDefault)) {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
 
                 Button(
-                    L10n.Localizable.EhSettingView.deleteProfile,
+                    String(localized: .deleteProfile),
                     role: .destructive,
                     action: deleteDialogAction
                 )
                 .confirmationDialog(deleteConfirmationDialog)
             }
         } header: {
-            Text(L10n.Localizable.EhSettingView.profileSettings)
+            Text(String(localized: .profileSettings))
                 .ehSettingRegularHeaderStyled()
         }
         .onChange(of: ehProfile) { _, newValue in
@@ -53,13 +53,13 @@ struct EhProfileSection: View {
             SettingTextField(text: $editingProfileName, width: nil, alignment: .leading, background: .clear)
                 .focused($isFocused)
 
-            Button(L10n.Localizable.EhSettingView.rename) {
+            Button(String(localized: .rename)) {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
             .disabled(isFocused)
 
             if ehSetting.isCapableOfCreatingNewProfile {
-                Button(L10n.Localizable.EhSettingView.createNew) {
+                Button(String(localized: .createNew)) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
                 .disabled(isFocused)
@@ -75,7 +75,7 @@ struct ImageLoadSettingsSection: View {
     var body: some View {
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.loadImagesThroughTheHathNetwork,
+                String(localized: .loadImagesThroughTheHathNetwork),
                 selection: $ehSetting.loadThroughHathSetting
             ) {
                 ForEach(ehSetting.capableLoadThroughHathSettings) { setting in
@@ -85,13 +85,13 @@ struct ImageLoadSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text.ehSettingBoldHeader(L10n.Localizable.EhSettingView.imageLoadSettings)
+            Text.ehSettingBoldHeader(String(localized: .imageLoadSettings))
         } footer: {
             Text(ehSetting.loadThroughHathSetting.description)
         }
 
         Section {
-            Picker(L10n.Localizable.EhSettingView.browsingCountry, selection: $ehSetting.browsingCountry) {
+            Picker(String(localized: .browsingCountry), selection: $ehSetting.browsingCountry) {
                 ForEach(EhSetting.BrowsingCountry.allCases) { country in
                     Text(country.name)
                         .tag(country)
@@ -100,9 +100,9 @@ struct ImageLoadSettingsSection: View {
             }
         } header: {
             Text(
-                L10n.Localizable.EhSettingView.browsingCountryDescription(
+                String(localized: .browsingCountryDescription(
                     ehSetting.localizedLiteralBrowsingCountry ?? ehSetting.literalBrowsingCountry
-                )
+                ))
                 .localizedKey
             )
             .ehSettingRegularHeaderStyled()
@@ -116,7 +116,7 @@ struct ImageSizeSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.imageResolution, selection: $ehSetting.imageResolution) {
+            Picker(String(localized: .imageResolution), selection: $ehSetting.imageResolution) {
                 ForEach(ehSetting.capableImageResolutions) { setting in
                     Text(setting.value)
                         .tag(setting)
@@ -125,37 +125,37 @@ struct ImageSizeSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.imageSizeSettings,
-                description: L10n.Localizable.EhSettingView.imageResolutionDescription
+                String(localized: .imageSizeSettings),
+                description: String(localized: .imageResolutionDescription)
             )
         }
 
         if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
             Section {
                 Toggle(
-                    L10n.Localizable.EhSettingView.useOriginalImages,
+                    String(localized: .useOriginalImages),
                     isOn: useOriginalImagesBinding
                 )
             } header: {
-                Text(L10n.Localizable.EhSettingView.originalImages)
+                Text(String(localized: .originalImages))
                     .ehSettingRegularHeaderStyled()
             }
         }
 
         Section {
-            Text(L10n.Localizable.EhSettingView.imageSize)
+            Text(String(localized: .imageSize))
 
             ValuePicker(
-                title: L10n.Localizable.EhSettingView.horizontal,
+                title: String(localized: .horizontal),
                 value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px"
             )
 
             ValuePicker(
-                title: L10n.Localizable.EhSettingView.vertical,
+                title: String(localized: .vertical),
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.imageSizeDescription)
+            Text(String(localized: .imageSizeDescription))
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -167,7 +167,7 @@ struct GalleryNameDisplaySection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.galleryName, selection: $ehSetting.galleryName) {
+            Picker(String(localized: .galleryName), selection: $ehSetting.galleryName) {
                 ForEach(EhSetting.GalleryName.allCases) { name in
                     Text(name.value)
                         .tag(name)
@@ -176,8 +176,8 @@ struct GalleryNameDisplaySection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.galleryNameDisplay,
-                description: L10n.Localizable.EhSettingView.galleryNameDescription
+                String(localized: .galleryNameDisplay),
+                description: String(localized: .galleryNameDescription)
             )
         }
     }
@@ -189,7 +189,7 @@ struct ArchiverSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.archiverBehavior, selection: $ehSetting.archiverBehavior) {
+            Picker(String(localized: .archiverBehavior), selection: $ehSetting.archiverBehavior) {
                 ForEach(EhSetting.ArchiverBehavior.allCases) { behavior in
                     Text(behavior.value)
                         .tag(behavior)
@@ -198,8 +198,8 @@ struct ArchiverSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.archiverSettings,
-                description: L10n.Localizable.EhSettingView.archiverBehaviorDescription
+                String(localized: .archiverSettings),
+                description: String(localized: .archiverBehaviorDescription)
             )
         }
     }
@@ -218,13 +218,13 @@ struct FrontPageSettingsSection: View {
             CategoryView(bindings: categoryBindings)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.frontPageSettings,
-                description: L10n.Localizable.EhSettingView.galleryCategory
+                String(localized: .frontPageSettings),
+                description: String(localized: .galleryCategory)
             )
         }
 
         Section {
-            Picker(L10n.Localizable.EhSettingView.displayMode, selection: $ehSetting.displayMode) {
+            Picker(String(localized: .displayMode), selection: $ehSetting.displayMode) {
                 ForEach(EhSetting.DisplayMode.allCases) { mode in
                     Text(mode.value)
                         .tag(mode)
@@ -232,17 +232,17 @@ struct FrontPageSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.displayModeDescription)
+            Text(String(localized: .displayModeDescription))
                 .ehSettingRegularHeaderStyled()
         }
 
         Section {
             Toggle(
-                L10n.Localizable.EhSettingView.showSearchRangeIndicatorDescription,
+                String(localized: .showSearchRangeIndicatorDescription),
                 isOn: $ehSetting.showSearchRangeIndicator
             )
         } header: {
-            Text(L10n.Localizable.EhSettingView.showSearchRangeIndicator)
+            Text(String(localized: .showSearchRangeIndicator))
                 .ehSettingRegularHeaderStyled()
         }
     }

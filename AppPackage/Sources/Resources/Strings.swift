@@ -11,196 +11,18 @@ import Foundation
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
   public enum Constant {
-    /// Copyright © 2026 EhPanda Team
-    public static let copyright = L10n.tr("Constant", "copyright", fallback: "Copyright © 2026 EhPanda Team")
     /// Constant.strings
     ///   EhPanda
     public static let galleryUnavailable = L10n.tr("Constant", "gallery_unavailable", fallback: "This gallery has been removed or is unavailable.")
-    public enum Acknowledgement {
-      /// Colorful
-      public static let colorful = L10n.tr("Constant", "acknowledgement.colorful", fallback: "Colorful")
-      /// https://github.com/Co2333/Colorful
-      public static let colorfulLink = L10n.tr("Constant", "acknowledgement.colorful_link", fallback: "https://github.com/Co2333/Colorful")
-      /// EhTagTranslation/Database
-      public static let ehTagTranslationDatabase = L10n.tr("Constant", "acknowledgement.ehTagTranslationDatabase", fallback: "EhTagTranslation/Database")
-      /// https://github.com/EhTagTranslation/Database
-      public static let ehTagTranslationDatabaseLink = L10n.tr("Constant", "acknowledgement.ehTagTranslationDatabase_link", fallback: "https://github.com/EhTagTranslation/Database")
-      /// Kanna
-      public static let kanna = L10n.tr("Constant", "acknowledgement.kanna", fallback: "Kanna")
-      /// https://github.com/tid-kijyun/Kanna
-      public static let kannaLink = L10n.tr("Constant", "acknowledgement.kanna_link", fallback: "https://github.com/tid-kijyun/Kanna")
-      /// Kingfisher
-      public static let kingfisher = L10n.tr("Constant", "acknowledgement.kingfisher", fallback: "Kingfisher")
-      /// https://github.com/onevcat/Kingfisher
-      public static let kingfisherLink = L10n.tr("Constant", "acknowledgement.kingfisher_link", fallback: "https://github.com/onevcat/Kingfisher")
-      /// SFSafeSymbols
-      public static let sfSafeSymbols = L10n.tr("Constant", "acknowledgement.sfSafeSymbols", fallback: "SFSafeSymbols")
-      /// https://github.com/SFSafeSymbols/SFSafeSymbols
-      public static let sfSafeSymbolsLink = L10n.tr("Constant", "acknowledgement.sfSafeSymbols_link", fallback: "https://github.com/SFSafeSymbols/SFSafeSymbols")
-      /// SwiftCommonMark
-      public static let swiftCommonMark = L10n.tr("Constant", "acknowledgement.swiftCommonMark", fallback: "SwiftCommonMark")
-      /// https://github.com/gonzalezreal/SwiftCommonMark
-      public static let swiftCommonMarkLink = L10n.tr("Constant", "acknowledgement.swiftCommonMark_link", fallback: "https://github.com/gonzalezreal/SwiftCommonMark")
-      /// SwiftGen
-      public static let swiftGen = L10n.tr("Constant", "acknowledgement.swiftGen", fallback: "SwiftGen")
-      /// https://github.com/SwiftGen/SwiftGen
-      public static let swiftGenLink = L10n.tr("Constant", "acknowledgement.swiftGen_link", fallback: "https://github.com/SwiftGen/SwiftGen")
-      /// SwiftUIPager
-      public static let swiftUIPager = L10n.tr("Constant", "acknowledgement.swiftUIPager", fallback: "SwiftUIPager")
-      /// https://github.com/fermoya/SwiftUIPager
-      public static let swiftUIPagerLink = L10n.tr("Constant", "acknowledgement.swiftUIPager_link", fallback: "https://github.com/fermoya/SwiftUIPager")
-      /// SwiftyOpenCC
-      public static let swiftyOpenCC = L10n.tr("Constant", "acknowledgement.swiftyOpenCC", fallback: "SwiftyOpenCC")
-      /// https://github.com/ddddxxx/SwiftyOpenCC
-      public static let swiftyOpenCCLink = L10n.tr("Constant", "acknowledgement.swiftyOpenCC_link", fallback: "https://github.com/ddddxxx/SwiftyOpenCC")
-      /// SystemNotification
-      public static let systemNotification = L10n.tr("Constant", "acknowledgement.systemNotification", fallback: "SystemNotification")
-      /// https://github.com/danielsaidi/SystemNotification
-      public static let systemNotificationLink = L10n.tr("Constant", "acknowledgement.systemNotification_link", fallback: "https://github.com/danielsaidi/SystemNotification")
-      /// The Composable Architecture
-      public static let tca = L10n.tr("Constant", "acknowledgement.tca", fallback: "The Composable Architecture")
-      /// https://github.com/pointfreeco/swift-composable-architecture
-      public static let tcaLink = L10n.tr("Constant", "acknowledgement.tca_link", fallback: "https://github.com/pointfreeco/swift-composable-architecture")
-      /// UIImageColors
-      public static let uiImageColors = L10n.tr("Constant", "acknowledgement.uiImageColors", fallback: "UIImageColors")
-      /// https://github.com/jathu/UIImageColors
-      public static let uiImageColorsLink = L10n.tr("Constant", "acknowledgement.uiImageColors_link", fallback: "https://github.com/jathu/UIImageColors")
-      /// WaterfallGrid
-      public static let waterfallGrid = L10n.tr("Constant", "acknowledgement.waterfallGrid", fallback: "WaterfallGrid")
-      /// https://github.com/paololeonardi/WaterfallGrid
-      public static let waterfallGridLink = L10n.tr("Constant", "acknowledgement.waterfallGrid_link", fallback: "https://github.com/paololeonardi/WaterfallGrid")
-    }
-    public enum CodeLevelContributor {
-      /// Zack Asahina
-      public static let aalberrty = L10n.tr("Constant", "code_level_contributor.aalberrty", fallback: "Zack Asahina")
-      /// https://github.com/aalberrty
-      public static let aalberrtyLink = L10n.tr("Constant", "code_level_contributor.aalberrty_link", fallback: "https://github.com/aalberrty")
-      /// Jimmy Prime
-      public static let jimmyPrime = L10n.tr("Constant", "code_level_contributor.Jimmy-Prime", fallback: "Jimmy Prime")
-      /// https://github.com/Jimmy-Prime
-      public static let jimmyPrimeLink = L10n.tr("Constant", "code_level_contributor.Jimmy-Prime_link", fallback: "https://github.com/Jimmy-Prime")
-      /// Kaed3mi
-      public static let kaed3mi = L10n.tr("Constant", "code_level_contributor.Kaed3mi", fallback: "Kaed3mi")
-      /// https://github.com/Kaed3mi
-      public static let kaed3miLink = L10n.tr("Constant", "code_level_contributor.Kaed3mi_link", fallback: "https://github.com/Kaed3mi")
-      /// vvbbnn00
-      public static let vvbbnn00 = L10n.tr("Constant", "code_level_contributor.vvbbnn00", fallback: "vvbbnn00")
-      /// https://github.com/vvbbnn00
-      public static let vvbbnn00Link = L10n.tr("Constant", "code_level_contributor.vvbbnn00_link", fallback: "https://github.com/vvbbnn00")
-      /// xioxin
-      public static let xioxin = L10n.tr("Constant", "code_level_contributor.xioxin", fallback: "xioxin")
-      /// https://github.com/xioxin
-      public static let xioxinLink = L10n.tr("Constant", "code_level_contributor.xioxin_link", fallback: "https://github.com/xioxin")
-    }
-    public enum Contact {
-      /// altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json
-      public static let altStoreLink = L10n.tr("Constant", "contact.altStore_link", fallback: "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json")
-      /// https://discord.gg/BSBE9FCBTq
-      public static let discord = L10n.tr("Constant", "contact.discord", fallback: "https://discord.gg/BSBE9FCBTq")
-      /// Discord
-      public static let discordLink = L10n.tr("Constant", "contact.discord_link", fallback: "Discord")
-      /// https://github.com/EhPanda-Team/EhPanda
-      public static let gitHub = L10n.tr("Constant", "contact.gitHub", fallback: "https://github.com/EhPanda-Team/EhPanda")
-      /// GitHub
-      public static let gitHubLink = L10n.tr("Constant", "contact.gitHub_link", fallback: "GitHub")
-      /// https://t.me/ehpanda
-      public static let telegram = L10n.tr("Constant", "contact.telegram", fallback: "https://t.me/ehpanda")
-      /// Telegram
-      public static let telegramLink = L10n.tr("Constant", "contact.telegram_link", fallback: "Telegram")
-      /// https://ehpanda.app
-      public static let website = L10n.tr("Constant", "contact.website", fallback: "https://ehpanda.app")
-    }
-    public enum SpecialThanks {
-      /// caxerx
-      public static let caxerx = L10n.tr("Constant", "special_thanks.caxerx", fallback: "caxerx")
-      /// https://github.com/caxerx
-      public static let caxerxLink = L10n.tr("Constant", "special_thanks.caxerx_link", fallback: "https://github.com/caxerx")
-      /// honjow
-      public static let honjow = L10n.tr("Constant", "special_thanks.honjow", fallback: "honjow")
-      /// https://github.com/honjow
-      public static let honjowLink = L10n.tr("Constant", "special_thanks.honjow_link", fallback: "https://github.com/honjow")
-      /// Luminescent_yq
-      public static let luminescentYq = L10n.tr("Constant", "special_thanks.luminescent_yq", fallback: "Luminescent_yq")
-      /// 
-      public static let luminescentYqLink = L10n.tr("Constant", "special_thanks.luminescent_yq_link", fallback: "")
-      /// taylorlannister
-      public static let taylorlannister = L10n.tr("Constant", "special_thanks.taylorlannister", fallback: "taylorlannister")
-      /// https://github.com/taylorlannister
-      public static let taylorlannisterLink = L10n.tr("Constant", "special_thanks.taylorlannister_link", fallback: "https://github.com/taylorlannister")
-    }
-    public enum TranslationContributor {
-      /// caxerx
-      public static let caxerx = L10n.tr("Constant", "translation_contributor.caxerx", fallback: "caxerx")
-      /// https://github.com/caxerx
-      public static let caxerxLink = L10n.tr("Constant", "translation_contributor.caxerx_link", fallback: "https://github.com/caxerx")
-      /// 雲豹 ΦωΦ
-      public static let nebulosaCat = L10n.tr("Constant", "translation_contributor.nebulosa-cat", fallback: "雲豹 ΦωΦ")
-      /// https://github.com/Nebulosa-Cat
-      public static let nebulosaCatLink = L10n.tr("Constant", "translation_contributor.nebulosa-cat_link", fallback: "https://github.com/Nebulosa-Cat")
-      /// ɴᴇᴋᴏ
-      public static let neKoOuO = L10n.tr("Constant", "translation_contributor.NeKoOuO", fallback: "ɴᴇᴋᴏ")
-      /// https://github.com/NeKoOuO
-      public static let neKoOuOLink = L10n.tr("Constant", "translation_contributor.NeKoOuO_link", fallback: "https://github.com/NeKoOuO")
-      /// PaulHaeussler
-      public static let paulHaeussler = L10n.tr("Constant", "translation_contributor.paulHaeussler", fallback: "PaulHaeussler")
-      /// https://github.com/PaulHaeussler
-      public static let paulHaeusslerLink = L10n.tr("Constant", "translation_contributor.paulHaeussler_link", fallback: "https://github.com/PaulHaeussler")
-    }
   }
   public enum Localizable {
-    /// Show Filtered Removal Count
-    public static let ehSettingViewfilteredRemovalCount = L10n.tr("Localizable", "eh_setting_viewfiltered_removal_count", fallback: "Show Filtered Removal Count")
     /// Login
     public static let notLoginViewlogin = L10n.tr("Localizable", "not_login_viewlogin", fallback: "Login")
-    public enum AboutView {
-      /// Acknowledgements
-      public static let acknowledgements = L10n.tr("Localizable", "about_view.acknowledgements", fallback: "Acknowledgements")
-      /// AltStore source
-      public static let altStoreSource = L10n.tr("Localizable", "about_view.altStore_source", fallback: "AltStore source")
-      /// Code-level contributors
-      public static let codeLevelContributors = L10n.tr("Localizable", "about_view.code_level_contributors", fallback: "Code-level contributors")
-      /// EhPanda
-      public static let ehPanda = L10n.tr("Localizable", "about_view.ehPanda", fallback: "EhPanda")
-      /// Special thanks
-      public static let specialThanks = L10n.tr("Localizable", "about_view.special_thanks", fallback: "Special thanks")
-      /// Translation contributors
-      public static let translationContributors = L10n.tr("Localizable", "about_view.translation_contributors", fallback: "Translation contributors")
-      /// Version
-      public static let version = L10n.tr("Localizable", "about_view.version", fallback: "Version")
-      /// Website
-      public static let website = L10n.tr("Localizable", "about_view.website", fallback: "Website")
-    }
     public enum AccountSettingView {
-      /// Account
-      public static let account = L10n.tr("Localizable", "account_setting_view.account", fallback: "Account")
-      /// Account configuration
-      public static let accountConfiguration = L10n.tr("Localizable", "account_setting_view.account_configuration", fallback: "Account configuration")
-      /// Copy cookies
-      public static let copyCookies = L10n.tr("Localizable", "account_setting_view.copy_cookies", fallback: "Copy cookies")
       /// Login
       public static let login = L10n.tr("Localizable", "account_setting_view.login", fallback: "Login")
-      /// Shows new dawn greeting
-      public static let showsNewDawnGreeting = L10n.tr("Localizable", "account_setting_view.shows_new_dawn_greeting", fallback: "Shows new dawn greeting")
-      /// Manage tags subscription
-      public static let tagsManagement = L10n.tr("Localizable", "account_setting_view.tags_management", fallback: "Manage tags subscription")
     }
     public enum AppActivityLogsView {
-      /// Current
-      public static let current = L10n.tr("Localizable", "app_activity_logs_view.current", fallback: "Current")
-      /// More logs
-      public static let moreLogs = L10n.tr("Localizable", "app_activity_logs_view.more_logs", fallback: "More logs")
-      /// No logs found
-      public static let noLogs = L10n.tr("Localizable", "app_activity_logs_view.no_logs", fallback: "No logs found")
-      /// Open in Files
-      public static let openInFiles = L10n.tr("Localizable", "app_activity_logs_view.open_in_files", fallback: "Open in Files")
-      /// Run %@
-      public static func run(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "app_activity_logs_view.run", String(describing: p1), fallback: "Run %@")
-      }
-      /// Runs
-      public static let runs = L10n.tr("Localizable", "app_activity_logs_view.runs", fallback: "Runs")
-      /// App activity logs
-      public static let title = L10n.tr("Localizable", "app_activity_logs_view.title", fallback: "App activity logs")
       public enum Level {
         /// Debug
         public static let debug = L10n.tr("Localizable", "app_activity_logs_view.level.debug", fallback: "Debug")
@@ -262,34 +84,6 @@ public enum L10n {
       public static let standWithUkraine2022 = L10n.tr("Localizable", "app_icon_type.stand_with_ukraine_2022", fallback: "Stand With Ukraine (2022)")
       /// Ukiyo-e
       public static let ukiyoe = L10n.tr("Localizable", "app_icon_type.ukiyoe", fallback: "Ukiyo-e")
-    }
-    public enum AppIconView {
-      /// App icon
-      public static let appIcon = L10n.tr("Localizable", "app_icon_view.app_icon", fallback: "App icon")
-    }
-    public enum AppearanceSettingView {
-      /// App icon
-      public static let appIcon = L10n.tr("Localizable", "appearance_setting_view.app_icon", fallback: "App icon")
-      /// Appearance
-      public static let appearance = L10n.tr("Localizable", "appearance_setting_view.appearance", fallback: "Appearance")
-      /// Display mode
-      public static let displayMode = L10n.tr("Localizable", "appearance_setting_view.display_mode", fallback: "Display mode")
-      /// Displays Japanese title
-      public static let displaysJapaneseTitle = L10n.tr("Localizable", "appearance_setting_view.displays_japanese_title", fallback: "Displays Japanese title")
-      /// Gallery
-      public static let gallery = L10n.tr("Localizable", "appearance_setting_view.gallery", fallback: "Gallery")
-      /// Infite
-      public static let infite = L10n.tr("Localizable", "appearance_setting_view.infite", fallback: "Infite")
-      /// List
-      public static let list = L10n.tr("Localizable", "appearance_setting_view.list", fallback: "List")
-      /// Maximum number of tags
-      public static let maximumNumberOfTags = L10n.tr("Localizable", "appearance_setting_view.maximum_number_of_tags", fallback: "Maximum number of tags")
-      /// Shows tags in list
-      public static let showsTagsInList = L10n.tr("Localizable", "appearance_setting_view.shows_tags_in_list", fallback: "Shows tags in list")
-      /// Theme
-      public static let theme = L10n.tr("Localizable", "appearance_setting_view.theme", fallback: "Theme")
-      /// Tint color
-      public static let tintColor = L10n.tr("Localizable", "appearance_setting_view.tint_color", fallback: "Tint color")
     }
     public enum ArchiveResolution {
       /// Original
@@ -902,14 +696,6 @@ public enum L10n {
       public static let delete = L10n.tr("Localizable", "confirmation_dialog.delete", fallback: "Delete")
       /// Are you sure to delete this item?
       public static let deleteDescription = L10n.tr("Localizable", "confirmation_dialog.delete_description", fallback: "Are you sure to delete this item?")
-      /// Logout
-      public static let logout = L10n.tr("Localizable", "confirmation_dialog.logout", fallback: "Logout")
-      /// Are you sure to logout?
-      public static let logoutDescription = L10n.tr("Localizable", "confirmation_dialog.logout_description", fallback: "Are you sure to logout?")
-      /// Remove
-      public static let remove = L10n.tr("Localizable", "confirmation_dialog.remove", fallback: "Remove")
-      /// Are you sure to remove your custom translations?
-      public static let removeCustomTranslations = L10n.tr("Localizable", "confirmation_dialog.remove_custom_translations", fallback: "Are you sure to remove your custom translations?")
     }
     public enum DateSeekView {
       /// Seek to date
@@ -946,20 +732,6 @@ public enum L10n {
     public enum DownloadFolderFilter {
       /// All
       public static let all = L10n.tr("Localizable", "download_folder_filter.all", fallback: "All")
-    }
-    public enum DownloadSettingView {
-      /// Allow cellular downloads
-      public static let allowCellularDownloads = L10n.tr("Localizable", "download_setting_view.allow_cellular_downloads", fallback: "Allow cellular downloads")
-      /// Concurrent image downloads
-      public static let concurrentImageDownloads = L10n.tr("Localizable", "download_setting_view.concurrent_image_downloads", fallback: "Concurrent image downloads")
-      /// Network
-      public static let network = L10n.tr("Localizable", "download_setting_view.network", fallback: "Network")
-      /// Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.
-      public static let networkDescription = L10n.tr("Localizable", "download_setting_view.network_description", fallback: "Only one gallery downloads at a time. This setting controls how many gallery pages can download in parallel, can allow or block cellular downloads, and stores files in the app's Downloads folder.")
-      /// Retry failed pages automatically
-      public static let retryFailedPagesAutomatically = L10n.tr("Localizable", "download_setting_view.retry_failed_pages_automatically", fallback: "Retry failed pages automatically")
-      /// Download
-      public static let title = L10n.tr("Localizable", "download_setting_view.title", fallback: "Download")
     }
     public enum DownloadStore {
       /// The folder name is invalid.
@@ -1002,177 +774,6 @@ public enum L10n {
         /// Manual Select, Manual Start (Default)
         public static let manualSelectManualStart = L10n.tr("Localizable", "eh_setting.archiver_behavior.manual_select_manual_start", fallback: "Manual Select, Manual Start (Default)")
       }
-    }
-    public enum EhSettingView {
-      /// Archiver behavior
-      public static let archiverBehavior = L10n.tr("Localizable", "eh_setting_view.archiver_behavior", fallback: "Archiver behavior")
-      /// The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.
-      public static let archiverBehaviorDescription = L10n.tr("Localizable", "eh_setting_view.archiver_behavior_description", fallback: "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.")
-      /// Archiver Settings
-      public static let archiverSettings = L10n.tr("Localizable", "eh_setting_view.archiver_settings", fallback: "Archiver Settings")
-      /// Browsing country
-      public static let browsingCountry = L10n.tr("Localizable", "eh_setting_view.browsing_country", fallback: "Browsing country")
-      /// You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.
-      public static func browsingCountryDescription(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "eh_setting_view.browsing_country_description", String(describing: p1), fallback: "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.")
-      }
-      /// Comments sort order
-      public static let commentsSortOrder = L10n.tr("Localizable", "eh_setting_view.comments_sort_order", fallback: "Comments sort order")
-      /// Comment votes show timing
-      public static let commentsVotesShowTiming = L10n.tr("Localizable", "eh_setting_view.comments_votes_show_timing", fallback: "Comment votes show timing")
-      /// The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.
-      public static let coverScaleFactor = L10n.tr("Localizable", "eh_setting_view.cover_scale_factor", fallback: "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.")
-      /// Cover Scaling
-      public static let coverScaling = L10n.tr("Localizable", "eh_setting_view.cover_scaling", fallback: "Cover Scaling")
-      /// Create new
-      public static let createNew = L10n.tr("Localizable", "eh_setting_view.create_new", fallback: "Create new")
-      /// Delete profile
-      public static let deleteProfile = L10n.tr("Localizable", "eh_setting_view.delete_profile", fallback: "Delete profile")
-      /// Display mode
-      public static let displayMode = L10n.tr("Localizable", "eh_setting_view.display_mode", fallback: "Display mode")
-      /// Which display mode would you like to use on the front and search pages?
-      public static let displayModeDescription = L10n.tr("Localizable", "eh_setting_view.display_mode_description", fallback: "Which display mode would you like to use on the front and search pages?")
-      /// Display style
-      public static let displayStyle = L10n.tr("Localizable", "eh_setting_view.display_style", fallback: "Display style")
-      /// Done
-      public static let done = L10n.tr("Localizable", "eh_setting_view.done", fallback: "Done")
-      /// Enable thumbnail selector on gallery screen
-      public static let enableGalleryThumbnailSelector = L10n.tr("Localizable", "eh_setting_view.enable_gallery_thumbnail_selector", fallback: "Enable thumbnail selector on gallery screen")
-      /// Excluded Languages
-      public static let excludedLanguages = L10n.tr("Localizable", "eh_setting_view.excluded_languages", fallback: "Excluded Languages")
-      /// If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.
-      public static let excludedLanguagesDescription = L10n.tr("Localizable", "eh_setting_view.excluded_languages_description", fallback: "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.")
-      /// Excluded Uploaders
-      public static let excludedUploaders = L10n.tr("Localizable", "eh_setting_view.excluded_uploaders", fallback: "Excluded Uploaders")
-      /// You are currently using **%@ / %@** exclusion slots.
-      public static func excludedUploadersCount(_ p1: Any, _ p2: Any) -> String {
-        return L10n.tr("Localizable", "eh_setting_view.excluded_uploaders_count", String(describing: p1), String(describing: p2), fallback: "You are currently using **%@ / %@** exclusion slots.")
-      }
-      /// If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.
-      public static let excludedUploadersDescription = L10n.tr("Localizable", "eh_setting_view.excluded_uploaders_description", fallback: "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.")
-      /// Here you can choose and rename your favorite categories.
-      public static let favoriteCategories = L10n.tr("Localizable", "eh_setting_view.favorite_categories", fallback: "Here you can choose and rename your favorite categories.")
-      /// Favorites
-      public static let favorites = L10n.tr("Localizable", "eh_setting_view.favorites", fallback: "Favorites")
-      /// Favorites sort order
-      public static let favoritesSortOrder = L10n.tr("Localizable", "eh_setting_view.favorites_sort_order", fallback: "Favorites sort order")
-      /// You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.
-      public static let favoritesSortOrderDescription = L10n.tr("Localizable", "eh_setting_view.favorites_sort_order_description", fallback: "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.")
-      /// Show the "Your default filters removed XX galleries from this page" readout?
-      public static let filteredRemovalCountDescription = L10n.tr("Localizable", "eh_setting_view.filtered_removal_count_description", fallback: "Show the \"Your default filters removed XX galleries from this page\" readout?")
-      /// Front Page Settings
-      public static let frontPageSettings = L10n.tr("Localizable", "eh_setting_view.front_page_settings", fallback: "Front Page Settings")
-      /// What categories would you like to show by default on the front page and in searches?
-      public static let galleryCategory = L10n.tr("Localizable", "eh_setting_view.gallery_category", fallback: "What categories would you like to show by default on the front page and in searches?")
-      /// Gallery Comments
-      public static let galleryComments = L10n.tr("Localizable", "eh_setting_view.gallery_comments", fallback: "Gallery Comments")
-      /// Gallery name
-      public static let galleryName = L10n.tr("Localizable", "eh_setting_view.gallery_name", fallback: "Gallery name")
-      /// Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?
-      public static let galleryNameDescription = L10n.tr("Localizable", "eh_setting_view.gallery_name_description", fallback: "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?")
-      /// Gallery Name Display
-      public static let galleryNameDisplay = L10n.tr("Localizable", "eh_setting_view.gallery_name_display", fallback: "Gallery Name Display")
-      /// Gallery Page Thumbnail Labeling
-      public static let galleryPageThumbnailLabeling = L10n.tr("Localizable", "eh_setting_view.gallery_page_thumbnail_labeling", fallback: "Gallery Page Thumbnail Labeling")
-      /// Gallery Tags
-      public static let galleryTags = L10n.tr("Localizable", "eh_setting_view.gallery_tags", fallback: "Gallery Tags")
-      /// Horizontal
-      public static let horizontal = L10n.tr("Localizable", "eh_setting_view.horizontal", fallback: "Horizontal")
-      /// %@ settings
-      public static func hostSettings(_ p1: Any) -> String {
-        return L10n.tr("Localizable", "eh_setting_view.host_settings", String(describing: p1), fallback: "%@ settings")
-      }
-      /// Image Load Settings
-      public static let imageLoadSettings = L10n.tr("Localizable", "eh_setting_view.image_load_settings", fallback: "Image Load Settings")
-      /// Image resolution
-      public static let imageResolution = L10n.tr("Localizable", "eh_setting_view.image_resolution", fallback: "Image resolution")
-      /// Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.
-      public static let imageResolutionDescription = L10n.tr("Localizable", "eh_setting_view.image_resolution_description", fallback: "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.")
-      /// Image size
-      public static let imageSize = L10n.tr("Localizable", "eh_setting_view.image_size", fallback: "Image size")
-      /// While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)
-      public static let imageSizeDescription = L10n.tr("Localizable", "eh_setting_view.image_size_description", fallback: "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)")
-      /// Image Size Settings
-      public static let imageSizeSettings = L10n.tr("Localizable", "eh_setting_view.image_size_settings", fallback: "Image Size Settings")
-      /// Load images through the Hath network
-      public static let loadImagesThroughTheHathNetwork = L10n.tr("Localizable", "eh_setting_view.load_images_through_the_hath_network", fallback: "Load images through the Hath network")
-      /// Multi-Page Viewer
-      public static let multiPageViewer = L10n.tr("Localizable", "eh_setting_view.multi_page_viewer", fallback: "Multi-Page Viewer")
-      /// Optional UI Elements
-      public static let optionalUIElements = L10n.tr("Localizable", "eh_setting_view.optional_UI_elements", fallback: "Optional UI Elements")
-      /// Some historic UI elements are now disabled by default. You can enable those here.
-      public static let optionalUIElementsDescription = L10n.tr("Localizable", "eh_setting_view.optional_UI_elements_description", fallback: "Some historic UI elements are now disabled by default. You can enable those here.")
-      /// Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than "Auto" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).
-      public static let originalImages = L10n.tr("Localizable", "eh_setting_view.original_images", fallback: "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).")
-      /// Profile Settings
-      public static let profileSettings = L10n.tr("Localizable", "eh_setting_view.profile_settings", fallback: "Profile Settings")
-      /// Ratings
-      public static let ratings = L10n.tr("Localizable", "eh_setting_view.ratings", fallback: "Ratings")
-      /// Ratings color
-      public static let ratingsColor = L10n.tr("Localizable", "eh_setting_view.ratings_color", fallback: "Ratings color")
-      /// By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.
-      public static let ratingsColorDescription = L10n.tr("Localizable", "eh_setting_view.ratings_color_description", fallback: "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.")
-      /// RRGGB
-      public static let ratingsColorPrompt = L10n.tr("Localizable", "eh_setting_view.ratings_color_prompt", fallback: "RRGGB")
-      /// Rename
-      public static let rename = L10n.tr("Localizable", "eh_setting_view.rename", fallback: "Rename")
-      /// Result count
-      public static let resultCount = L10n.tr("Localizable", "eh_setting_view.result_count", fallback: "Result count")
-      /// How many results would you like per page for the index/search page and torrent search pages?
-      /// (Hath Perk: Paging Enlargement Required)
-      public static let resultCountDescription = L10n.tr("Localizable", "eh_setting_view.result_count_description", fallback: "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)")
-      /// Scale factor
-      public static let scaleFactor = L10n.tr("Localizable", "eh_setting_view.scale_factor", fallback: "Scale factor")
-      /// Search Result Count
-      public static let searchResultCount = L10n.tr("Localizable", "eh_setting_view.search_result_count", fallback: "Search Result Count")
-      /// Selected profile
-      public static let selectedProfile = L10n.tr("Localizable", "eh_setting_view.selected_profile", fallback: "Selected profile")
-      /// Set as default
-      public static let setAsDefault = L10n.tr("Localizable", "eh_setting_view.set_as_default", fallback: "Set as default")
-      /// Show filtered removal count
-      public static let showFilteredRemovalCount = L10n.tr("Localizable", "eh_setting_view.show_filtered_removal_count", fallback: "Show filtered removal count")
-      /// Show label below gallery thumbnails
-      public static let showLabelBelowGalleryThumbnails = L10n.tr("Localizable", "eh_setting_view.show_label_below_gallery_thumbnails", fallback: "Show label below gallery thumbnails")
-      /// Search Range Indicator
-      public static let showSearchRangeIndicator = L10n.tr("Localizable", "eh_setting_view.show_search_range_indicator", fallback: "Search Range Indicator")
-      /// Show search range indicator
-      public static let showSearchRangeIndicatorDescription = L10n.tr("Localizable", "eh_setting_view.show_search_range_indicator_description", fallback: "Show search range indicator")
-      /// Show thumbnail pane
-      public static let showThumbnailPane = L10n.tr("Localizable", "eh_setting_view.show_thumbnail_pane", fallback: "Show thumbnail pane")
-      /// Tag Filtering Threshold
-      public static let tagFilteringThreshold = L10n.tr("Localizable", "eh_setting_view.tag_filtering_threshold", fallback: "Tag Filtering Threshold")
-      /// You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.
-      public static let tagFilteringThresholdDescription = L10n.tr("Localizable", "eh_setting_view.tag_filtering_threshold_description", fallback: "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.")
-      /// Tag Watching Threshold
-      public static let tagWatchingThreshold = L10n.tr("Localizable", "eh_setting_view.tag_watching_threshold", fallback: "Tag Watching Threshold")
-      /// Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.
-      public static let tagWatchingThresholdDescription = L10n.tr("Localizable", "eh_setting_view.tag_watching_threshold_description", fallback: "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.")
-      /// Tags sort order
-      public static let tagsSortOrder = L10n.tr("Localizable", "eh_setting_view.tags_sort_order", fallback: "Tags sort order")
-      /// You can set a default thumbnail configuration for all galleries you visit.
-      public static let thumbnailConfiguration = L10n.tr("Localizable", "eh_setting_view.thumbnail_configuration", fallback: "You can set a default thumbnail configuration for all galleries you visit.")
-      /// Thumbnail load timing
-      public static let thumbnailLoadTiming = L10n.tr("Localizable", "eh_setting_view.thumbnail_load_timing", fallback: "Thumbnail load timing")
-      /// How would you like the mouse-over thumbnails on the front page to load when using List Mode?
-      public static let thumbnailLoadTimingDescription = L10n.tr("Localizable", "eh_setting_view.thumbnail_load_timing_description", fallback: "How would you like the mouse-over thumbnails on the front page to load when using List Mode?")
-      /// Rows
-      public static let thumbnailRowCount = L10n.tr("Localizable", "eh_setting_view.thumbnail_row_count", fallback: "Rows")
-      /// Thumbnail Settings
-      public static let thumbnailSettings = L10n.tr("Localizable", "eh_setting_view.thumbnail_settings", fallback: "Thumbnail Settings")
-      /// Size
-      public static let thumbnailSize = L10n.tr("Localizable", "eh_setting_view.thumbnail_size", fallback: "Size")
-      /// Use Multi-Page Viewer
-      public static let useMultiPageViewer = L10n.tr("Localizable", "eh_setting_view.use_multi_page_viewer", fallback: "Use Multi-Page Viewer")
-      /// Use original images
-      public static let useOriginalImages = L10n.tr("Localizable", "eh_setting_view.use_original_images", fallback: "Use original images")
-      /// Vertical
-      public static let vertical = L10n.tr("Localizable", "eh_setting_view.vertical", fallback: "Vertical")
-      /// Viewport Override
-      public static let viewportOverride = L10n.tr("Localizable", "eh_setting_view.viewport_override", fallback: "Viewport Override")
-      /// Virtual width
-      public static let virtualWidth = L10n.tr("Localizable", "eh_setting_view.virtual_width", fallback: "Virtual width")
-      /// Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.
-      public static let virtualWidthDescription = L10n.tr("Localizable", "eh_setting_view.virtual_width_description", fallback: "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.")
     }
     public enum ErrorView {
       /// This gallery is unavailable due to a copyright claim by %@. Sorry about that.
@@ -1264,44 +865,8 @@ public enum L10n {
       public static let yes = L10n.tr("Localizable", "gallery_visibility.yes", fallback: "Yes")
     }
     public enum GeneralSettingView {
-      /// App activity logs
-      public static let appActivityLogs = L10n.tr("Localizable", "general_setting_view.app_activity_logs", fallback: "App activity logs")
-      /// Auto-Lock
-      public static let autoLock = L10n.tr("Localizable", "general_setting_view.auto_lock", fallback: "Auto-Lock")
-      /// Background blur radius
-      public static let backgroundBlurRadius = L10n.tr("Localizable", "general_setting_view.background_blur_radius", fallback: "Background blur radius")
-      /// Caches
-      public static let caches = L10n.tr("Localizable", "general_setting_view.caches", fallback: "Caches")
-      /// Clear image caches
-      public static let clearImageCaches = L10n.tr("Localizable", "general_setting_view.clear_image_caches", fallback: "Clear image caches")
-      /// N/A
-      public static let defaultLanguageDescription = L10n.tr("Localizable", "general_setting_view.default_language_description", fallback: "N/A")
-      /// Detects links from the clipboard
-      public static let detectsLinksFromClipboard = L10n.tr("Localizable", "general_setting_view.detects_links_from_clipboard", fallback: "Detects links from the clipboard")
-      /// Enables tags extension
-      public static let enablesTagsExtension = L10n.tr("Localizable", "general_setting_view.enables_tags_extension", fallback: "Enables tags extension")
-      /// General
-      public static let general = L10n.tr("Localizable", "general_setting_view.general", fallback: "General")
-      /// Import custom translations
-      public static let importCustomTranslations = L10n.tr("Localizable", "general_setting_view.import_custom_translations", fallback: "Import custom translations")
       /// Language
       public static let language = L10n.tr("Localizable", "general_setting_view.language", fallback: "Language")
-      /// Navigation
-      public static let navigation = L10n.tr("Localizable", "general_setting_view.navigation", fallback: "Navigation")
-      /// Redirects links to the selected host
-      public static let redirectsLinksToTheSelectedHost = L10n.tr("Localizable", "general_setting_view.redirects_links_to_the_selected_host", fallback: "Redirects links to the selected host")
-      /// Remove custom translations
-      public static let removeCustomTranslations = L10n.tr("Localizable", "general_setting_view.remove_custom_translations", fallback: "Remove custom translations")
-      /// Security
-      public static let security = L10n.tr("Localizable", "general_setting_view.security", fallback: "Security")
-      /// Shows images in tags
-      public static let showsImagesInTags = L10n.tr("Localizable", "general_setting_view.shows_images_in_tags", fallback: "Shows images in tags")
-      /// Shows tags search suggestion
-      public static let showsTagsSearchSuggestion = L10n.tr("Localizable", "general_setting_view.shows_tags_search_suggestion", fallback: "Shows tags search suggestion")
-      /// Tags
-      public static let tags = L10n.tr("Localizable", "general_setting_view.tags", fallback: "Tags")
-      /// Translates tags
-      public static let translatesTags = L10n.tr("Localizable", "general_setting_view.translates_tags", fallback: "Translates tags")
     }
     public enum Greeting {
       ///  and 
@@ -1328,12 +893,6 @@ public enum L10n {
     public enum JumpPageView {
       /// Jump page
       public static let jumpPage = L10n.tr("Localizable", "jump_page_view.jump_page", fallback: "Jump page")
-    }
-    public enum LaboratorySettingView {
-      /// Bypasses SNI Filtering
-      public static let bypassesSNIFiltering = L10n.tr("Localizable", "laboratory_setting_view.bypasses_SNI_filtering", fallback: "Bypasses SNI Filtering")
-      /// Laboratory
-      public static let laboratory = L10n.tr("Localizable", "laboratory_setting_view.laboratory", fallback: "Laboratory")
     }
     public enum Language {
       /// Afrikaans
@@ -1496,10 +1055,6 @@ public enum L10n {
     public enum LoginView {
       /// Login
       public static let login = L10n.tr("Localizable", "login_view.login", fallback: "Login")
-      /// Password
-      public static let password = L10n.tr("Localizable", "login_view.password", fallback: "Password")
-      /// Username
-      public static let username = L10n.tr("Localizable", "login_view.username", fallback: "Username")
     }
     public enum MultiplePageViewerStyle {
       /// Align center, always scale
@@ -1538,22 +1093,6 @@ public enum L10n {
       public static let quickSearch = L10n.tr("Localizable", "search_view.quick_search", fallback: "Quick search")
       /// Search
       public static let search = L10n.tr("Localizable", "search_view.search", fallback: "Search")
-    }
-    public enum SettingStateRoute {
-      /// About
-      public static let about = L10n.tr("Localizable", "setting_state_route.about", fallback: "About")
-      /// Account
-      public static let account = L10n.tr("Localizable", "setting_state_route.account", fallback: "Account")
-      /// Appearance
-      public static let appearance = L10n.tr("Localizable", "setting_state_route.appearance", fallback: "Appearance")
-      /// Download
-      public static let download = L10n.tr("Localizable", "setting_state_route.download", fallback: "Download")
-      /// General
-      public static let general = L10n.tr("Localizable", "setting_state_route.general", fallback: "General")
-      /// Laboratory
-      public static let laboratory = L10n.tr("Localizable", "setting_state_route.laboratory", fallback: "Laboratory")
-      /// Reading
-      public static let reading = L10n.tr("Localizable", "setting_state_route.reading", fallback: "Reading")
     }
     public enum SettingView {
       /// Setting

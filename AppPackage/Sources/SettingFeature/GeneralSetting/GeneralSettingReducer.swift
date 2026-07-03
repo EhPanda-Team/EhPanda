@@ -93,13 +93,13 @@ public struct GeneralSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmRemoveCustomTranslations) {
-                        TextState(L10n.Localizable.ConfirmationDialog.remove)
+                        TextState(String(localized: .remove))
                     }
                     ButtonState(role: .cancel) {
                         TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.removeCustomTranslations)
+                    TextState(String(localized: .removeCustomTranslationsConfirmation))
                 }
                 return .none
 

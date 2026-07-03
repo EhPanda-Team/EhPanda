@@ -167,19 +167,19 @@ extension SettingReducer.RootScreen {
     var value: String {
         switch self {
         case .account:
-            return L10n.Localizable.SettingStateRoute.account
+            return String(localized: .settingStateRouteAccount)
         case .general:
-            return L10n.Localizable.SettingStateRoute.general
+            return String(localized: .settingStateRouteGeneral)
         case .appearance:
-            return L10n.Localizable.SettingStateRoute.appearance
+            return String(localized: .settingStateRouteAppearance)
         case .download:
-            return L10n.Localizable.SettingStateRoute.download
+            return String(localized: .settingStateRouteDownload)
         case .reading:
-            return L10n.Localizable.SettingStateRoute.reading
+            return String(localized: .settingStateRouteReading)
         case .laboratory:
-            return L10n.Localizable.SettingStateRoute.laboratory
+            return String(localized: .settingStateRouteLaboratory)
         case .about:
-            return L10n.Localizable.SettingStateRoute.about
+            return String(localized: .settingStateRouteAbout)
         }
     }
     var symbol: SFSymbol {

@@ -13,13 +13,13 @@ struct OptionalUIElementsSection: View {
     var body: some View {
         Section {
             Toggle(
-                L10n.Localizable.EhSettingView.enableGalleryThumbnailSelector,
+                String(localized: .enableGalleryThumbnailSelector),
                 isOn: $ehSetting.enableGalleryThumbnailSelector
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.optionalUIElements,
-                description: L10n.Localizable.EhSettingView.optionalUIElementsDescription
+                String(localized: .optionalUiElements),
+                description: String(localized: .optionalUiElementsDescription)
             )
         }
     }
@@ -51,14 +51,14 @@ struct FavoritesSection: View {
             }
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.favorites,
-                description: L10n.Localizable.EhSettingView.favoriteCategories
+                String(localized: .favoritesSection),
+                description: String(localized: .favoriteCategories)
             )
         }
 
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.favoritesSortOrder,
+                String(localized: .favoritesSortOrder),
                 selection: $ehSetting.favoritesSortOrder
             ) {
                 ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
@@ -68,7 +68,7 @@ struct FavoritesSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.favoritesSortOrderDescription)
+            Text(String(localized: .favoritesSortOrderDescription))
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -81,18 +81,18 @@ struct RatingsSection: View {
 
     var body: some View {
         Section {
-            LabeledContent(L10n.Localizable.EhSettingView.ratingsColor) {
+            LabeledContent(String(localized: .ratingsColor)) {
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
-                    promptText: L10n.Localizable.EhSettingView.ratingsColorPrompt,
+                    promptText: String(localized: .ratingsColorPrompt),
                     width: 80
                 )
                 .focused($isFocused)
             }
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.ratings,
-                description: L10n.Localizable.EhSettingView.ratingsColorDescription
+                String(localized: .ratings),
+                description: String(localized: .ratingsColorDescription)
             )
         }
     }
@@ -106,7 +106,7 @@ struct SearchResultCountSection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.resultCount, selection: $ehSetting.searchResultCount) {
+            Picker(String(localized: .resultCount), selection: $ehSetting.searchResultCount) {
                 ForEach(ehSetting.capableSearchResultCounts) { count in
                     Text(String(count.value))
                         .tag(count)
@@ -115,8 +115,8 @@ struct SearchResultCountSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.searchResultCount,
-                description: L10n.Localizable.EhSettingView.resultCountDescription
+                String(localized: .searchResultCount),
+                description: String(localized: .resultCountDescription)
             )
         }
     }
@@ -129,7 +129,7 @@ struct ThumbnailSettingsSection: View {
     var body: some View {
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.thumbnailLoadTiming,
+                String(localized: .thumbnailLoadTiming),
                 selection: $ehSetting.thumbnailLoadTiming
             ) {
                 ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
@@ -140,15 +140,15 @@ struct ThumbnailSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.thumbnailSettings,
-                description: L10n.Localizable.EhSettingView.thumbnailLoadTimingDescription
+                String(localized: .thumbnailSettings),
+                description: String(localized: .thumbnailLoadTimingDescription)
             )
         } footer: {
             Text(ehSetting.thumbnailLoadTiming.description)
         }
 
         Section {
-            LabeledContent(L10n.Localizable.EhSettingView.thumbnailSize) {
+            LabeledContent(String(localized: .thumbnailSize)) {
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
                         Text(size.value)
@@ -161,7 +161,7 @@ struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
 
-            LabeledContent(L10n.Localizable.EhSettingView.thumbnailRowCount) {
+            LabeledContent(String(localized: .thumbnailRowCount)) {
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
                         Text(row.value)
@@ -174,7 +174,7 @@ struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
         } header: {
-            Text(L10n.Localizable.EhSettingView.thumbnailConfiguration)
+            Text(String(localized: .thumbnailConfiguration))
                 .ehSettingRegularHeaderStyled()
         }
     }
