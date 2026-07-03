@@ -339,35 +339,14 @@
 "detail_view.create_default_folder" = "Create Default Folder";
 "detail_view.no_folders" = "No folders yet";
 "downloads_view.manage_folders" = "Manage Folders";
-"downloads_view.move_to_folder" = "Move to Folder";
-"downloads_view.move" = "Move";
 "folder_manager_view.folders" = "Folders";
 "folder_manager_view.folder_name" = "Folder name";
 "folder_manager_view.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
 "folder_manager_view.empty_folders" = "Folders you create will appear here.";
 "downloads_view.downloads" = "Downloads";
-"downloads_view.search_downloads" = "Search downloads";
 "downloads_view.delete_download" = "Delete Download?";
-"downloads_view.delete_active_download" = "This will cancel the current download and remove it from this device.";
 "downloads_view.delete_downloaded_gallery" = "This will remove the downloaded gallery from this device.";
-"downloads_view.pages" = "Pages";
 "downloads_view.update" = "Update";
-"downloads_view.resume" = "Resume";
-"downloads_view.pause" = "Pause";
-"downloads_view.empty_downloads" = "Downloaded galleries will appear here.";
-"downloads_view.no_matching_filters" = "No downloads match the current filters.";
-"downloads_view.clear_filters" = "Clear Filters";
-"downloads_view.validate_image_data" = "Validate Image Data";
-"download_inspector_view.actions" = "Actions";
-"download_inspector_view.retry_failed_pages" = "Retry Failed Pages";
-"download_inspector_view.validating_image_data" = "Validating Image Data...";
-"download_inspector_view.image_data_valid" = "Image data is valid";
-"download_inspector_view.image_data_unavailable" = "Image data could not be validated.";
-"download_inspector_view.download_status" = "Download Status";
-"download_inspector_view.pending" = "Pending";
-"download_inspector_view.none" = "No pages";
-"download_inspector_view.downloaded" = "Downloaded";
-"download_inspector_view.failed" = "Failed";
 
 // MARK: DownloadSettingView
 "download_setting_view.title" = "Download";

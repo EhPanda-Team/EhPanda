@@ -339,35 +339,14 @@
 "detail_view.create_default_folder" = "Standardordner erstellen";
 "detail_view.no_folders" = "Noch keine Ordner";
 "downloads_view.manage_folders" = "Ordner verwalten";
-"downloads_view.move_to_folder" = "In Ordner verschieben";
-"downloads_view.move" = "Verschieben";
 "folder_manager_view.folders" = "Ordner";
 "folder_manager_view.folder_name" = "Ordnername";
 "folder_manager_view.delete_folder" = "Der Ordner und alle heruntergeladenen Galerien darin werden gelöscht.";
 "folder_manager_view.empty_folders" = "Von dir erstellte Ordner werden hier angezeigt.";
 "downloads_view.downloads" = "Downloads";
-"downloads_view.search_downloads" = "Downloads durchsuchen";
 "downloads_view.delete_download" = "Download löschen?";
-"downloads_view.delete_active_download" = "Der aktuelle Download wird abgebrochen und von diesem Gerät entfernt.";
 "downloads_view.delete_downloaded_gallery" = "Die heruntergeladene Galerie wird von diesem Gerät entfernt.";
-"downloads_view.pages" = "Seiten";
 "downloads_view.update" = "Aktualisieren";
-"downloads_view.resume" = "Fortsetzen";
-"downloads_view.pause" = "Pausieren";
-"downloads_view.empty_downloads" = "Heruntergeladene Galerien werden hier angezeigt.";
-"downloads_view.no_matching_filters" = "Keine Downloads entsprechen den aktuellen Filtern.";
-"downloads_view.clear_filters" = "Filter löschen";
-"downloads_view.validate_image_data" = "Bilddaten validieren";
-"download_inspector_view.actions" = "Aktionen";
-"download_inspector_view.retry_failed_pages" = "Fehlgeschlagene Seiten erneut versuchen";
-"download_inspector_view.validating_image_data" = "Bilddaten werden geprüft...";
-"download_inspector_view.image_data_valid" = "Bilddaten sind gültig";
-"download_inspector_view.image_data_unavailable" = "Bilddaten konnten nicht geprüft werden.";
-"download_inspector_view.download_status" = "Downloadstatus";
-"download_inspector_view.pending" = "Ausstehend";
-"download_inspector_view.none" = "Keine Seiten";
-"download_inspector_view.downloaded" = "Heruntergeladen";
-"download_inspector_view.failed" = "Fehlgeschlagen";
 
 // MARK: DownloadSettingView
 "download_setting_view.title" = "Download";
