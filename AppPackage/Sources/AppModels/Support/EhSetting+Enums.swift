@@ -14,11 +14,11 @@ extension EhSetting.CommentsSortOrder {
     public var value: String {
         switch self {
         case .oldest:
-            return L10n.Localizable.Enum.EhSetting.CommentsSortOrder.Value.oldest
+            return L10n.Localizable.CommentsSortOrder.oldest
         case .recent:
-            return L10n.Localizable.Enum.EhSetting.CommentsSortOrder.Value.recent
+            return L10n.Localizable.CommentsSortOrder.recent
         case .highestScore:
-            return L10n.Localizable.Enum.EhSetting.CommentsSortOrder.Value.highestScore
+            return L10n.Localizable.CommentsSortOrder.highestScore
         }
     }
 }
@@ -36,9 +36,9 @@ extension EhSetting.CommentVotesShowTiming {
     public var value: String {
         switch self {
         case .onHoverOrClick:
-            return L10n.Localizable.Enum.EhSetting.CommentsVotesShowTiming.Value.onHoverOrClick
+            return L10n.Localizable.CommentsVotesShowTiming.onHoverOrClick
         case .always:
-            return L10n.Localizable.Enum.EhSetting.CommentsVotesShowTiming.Value.always
+            return L10n.Localizable.CommentsVotesShowTiming.always
         }
     }
 }
@@ -56,9 +56,9 @@ extension EhSetting.TagsSortOrder {
     public var value: String {
         switch self {
         case .alphabetical:
-            return L10n.Localizable.Enum.EhSetting.TagsSortOrder.Value.alphabetical
+            return L10n.Localizable.TagsSortOrder.alphabetical
         case .tagPower:
-            return L10n.Localizable.Enum.EhSetting.TagsSortOrder.Value.tagPower
+            return L10n.Localizable.TagsSortOrder.tagPower
         }
     }
 }
@@ -77,11 +77,11 @@ extension EhSetting.MultiplePageViewerStyle {
     public var value: String {
         switch self {
         case .alignLeftScaleIfOverWidth:
-            return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignLeftScaleIfOverWidth
+            return L10n.Localizable.MultiplePageViewerStyle.alignLeftScaleIfOverWidth
         case .alignCenterScaleIfOverWidth:
-            return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignCenterScaleIfOverWidth
+            return L10n.Localizable.MultiplePageViewerStyle.alignCenterScaleIfOverWidth
         case .alignCenterAlwaysScale:
-            return L10n.Localizable.Enum.EhSetting.MultiplePageViewerStyle.Value.alignCenterAlwaysScale
+            return L10n.Localizable.MultiplePageViewerStyle.alignCenterAlwaysScale
         }
     }
 }
@@ -99,9 +99,9 @@ extension EhSetting.GalleryPageNumbering {
 
     public var value: String {
         switch self {
-        case .none: L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.none
-        case .pageNumberOnly: L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberOnly
-        case .pageNumberAndName: L10n.Localizable.Enum.EhSetting.GalleryPageNumbering.Value.pageNumberAndName
+        case .none: L10n.Localizable.GalleryPageNumbering.none
+        case .pageNumberOnly: L10n.Localizable.GalleryPageNumbering.pageNumberOnly
+        case .pageNumberAndName: L10n.Localizable.GalleryPageNumbering.pageNumberAndName
         }
     }
 }

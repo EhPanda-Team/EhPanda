@@ -13,13 +13,13 @@ struct OptionalUIElementsSection: View {
     var body: some View {
         Section {
             Toggle(
-                L10n.Localizable.EhSettingView.Title.enableGalleryThumbnailSelector,
+                L10n.Localizable.EhSettingView.enableGalleryThumbnailSelector,
                 isOn: $ehSetting.enableGalleryThumbnailSelector
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.optionalUIElements,
-                description: L10n.Localizable.EhSettingView.Description.optionalUIElements
+                L10n.Localizable.EhSettingView.optionalUIElements,
+                description: L10n.Localizable.EhSettingView.optionalUIElementsDescription
             )
         }
     }
@@ -51,14 +51,14 @@ struct FavoritesSection: View {
             }
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.favorites,
-                description: L10n.Localizable.EhSettingView.Description.favoriteCategories
+                L10n.Localizable.EhSettingView.favorites,
+                description: L10n.Localizable.EhSettingView.favoriteCategories
             )
         }
 
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.Title.favoritesSortOrder,
+                L10n.Localizable.EhSettingView.favoritesSortOrder,
                 selection: $ehSetting.favoritesSortOrder
             ) {
                 ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
@@ -68,7 +68,7 @@ struct FavoritesSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Description.favoritesSortOrder)
+            Text(L10n.Localizable.EhSettingView.favoritesSortOrderDescription)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -81,18 +81,18 @@ struct RatingsSection: View {
 
     var body: some View {
         Section {
-            LabeledContent(L10n.Localizable.EhSettingView.Title.ratingsColor) {
+            LabeledContent(L10n.Localizable.EhSettingView.ratingsColor) {
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
-                    promptText: L10n.Localizable.EhSettingView.Promt.ratingsColor,
+                    promptText: L10n.Localizable.EhSettingView.ratingsColorPrompt,
                     width: 80
                 )
                 .focused($isFocused)
             }
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.ratings,
-                description: L10n.Localizable.EhSettingView.Description.ratingsColor
+                L10n.Localizable.EhSettingView.ratings,
+                description: L10n.Localizable.EhSettingView.ratingsColorDescription
             )
         }
     }
@@ -106,7 +106,7 @@ struct SearchResultCountSection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.Title.resultCount, selection: $ehSetting.searchResultCount) {
+            Picker(L10n.Localizable.EhSettingView.resultCount, selection: $ehSetting.searchResultCount) {
                 ForEach(ehSetting.capableSearchResultCounts) { count in
                     Text(String(count.value))
                         .tag(count)
@@ -115,8 +115,8 @@ struct SearchResultCountSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.searchResultCount,
-                description: L10n.Localizable.EhSettingView.Description.resultCount
+                L10n.Localizable.EhSettingView.searchResultCount,
+                description: L10n.Localizable.EhSettingView.resultCountDescription
             )
         }
     }
@@ -129,7 +129,7 @@ struct ThumbnailSettingsSection: View {
     var body: some View {
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.Title.thumbnailLoadTiming,
+                L10n.Localizable.EhSettingView.thumbnailLoadTiming,
                 selection: $ehSetting.thumbnailLoadTiming
             ) {
                 ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
@@ -140,15 +140,15 @@ struct ThumbnailSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.thumbnailSettings,
-                description: L10n.Localizable.EhSettingView.Description.thumbnailLoadTiming
+                L10n.Localizable.EhSettingView.thumbnailSettings,
+                description: L10n.Localizable.EhSettingView.thumbnailLoadTimingDescription
             )
         } footer: {
             Text(ehSetting.thumbnailLoadTiming.description)
         }
 
         Section {
-            LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailSize) {
+            LabeledContent(L10n.Localizable.EhSettingView.thumbnailSize) {
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
                         Text(size.value)
@@ -161,7 +161,7 @@ struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
 
-            LabeledContent(L10n.Localizable.EhSettingView.Title.thumbnailRowCount) {
+            LabeledContent(L10n.Localizable.EhSettingView.thumbnailRowCount) {
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
                         Text(row.value)
@@ -174,7 +174,7 @@ struct ThumbnailSettingsSection: View {
                 .frame(width: 200)
             }
         } header: {
-            Text(L10n.Localizable.EhSettingView.Description.thumbnailConfiguration)
+            Text(L10n.Localizable.EhSettingView.thumbnailConfiguration)
                 .ehSettingRegularHeaderStyled()
         }
     }

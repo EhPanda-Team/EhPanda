@@ -57,7 +57,7 @@ private struct ImagesSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.TagDetailView.Section.Title.images, showAll: false) {
+        SubSection(title: L10n.Localizable.TagDetailView.images, showAll: false) {
             VStack {
                 if !imageURLs.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -92,7 +92,7 @@ private struct LinksSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.TagDetailView.Section.Title.links, showAll: false) {
+        SubSection(title: L10n.Localizable.TagDetailView.links, showAll: false) {
             HStack {
                 if !links.isEmpty {
                     VStack(alignment: .leading) {

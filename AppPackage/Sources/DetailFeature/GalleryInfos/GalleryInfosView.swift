@@ -18,72 +18,72 @@ struct GalleryInfosView: View {
 
     private var infos: [Info] {
         [
-            Info(title: L10n.Localizable.GalleryInfosView.Title.id, value: galleryDetail.gid),
-            Info(title: L10n.Localizable.GalleryInfosView.Title.token, value: gallery.token),
-            Info(title: L10n.Localizable.GalleryInfosView.Title.title, value: galleryDetail.title),
-            Info(title: L10n.Localizable.GalleryInfosView.Title.japaneseTitle, value: galleryDetail.jpnTitle),
+            Info(title: L10n.Localizable.GalleryInfosView.id, value: galleryDetail.gid),
+            Info(title: L10n.Localizable.GalleryInfosView.token, value: gallery.token),
+            Info(title: L10n.Localizable.GalleryInfosView.title, value: galleryDetail.title),
+            Info(title: L10n.Localizable.GalleryInfosView.japaneseTitle, value: galleryDetail.jpnTitle),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.galleryURL,
+                title: L10n.Localizable.GalleryInfosView.galleryURL,
                 value: gallery.galleryURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.coverURL,
+                title: L10n.Localizable.GalleryInfosView.coverURL,
                 value: galleryDetail.coverURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.archiveURL,
+                title: L10n.Localizable.GalleryInfosView.archiveURL,
                 value: galleryDetail.archiveURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.torrentURL,
+                title: L10n.Localizable.GalleryInfosView.torrentURL,
                 value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.parentURL,
+                title: L10n.Localizable.GalleryInfosView.parentURL,
                 value: galleryDetail.parentURL?.absoluteString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.category,
+                title: L10n.Localizable.GalleryInfosView.category,
                 value: galleryDetail.category.value
             ),
-            Info(title: L10n.Localizable.GalleryInfosView.Title.uploader, value: galleryDetail.uploader),
+            Info(title: L10n.Localizable.GalleryInfosView.uploader, value: galleryDetail.uploader),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.postedDate,
+                title: L10n.Localizable.GalleryInfosView.postedDate,
                 value: galleryDetail.formattedDateString
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.visibility,
+                title: L10n.Localizable.GalleryInfosView.visibility,
                 value: galleryDetail.visibility.value
             ),
-            Info(title: L10n.Localizable.GalleryInfosView.Title.language, value: galleryDetail.language.value),
-            Info(title: L10n.Localizable.GalleryInfosView.Title.pageCount, value: String(galleryDetail.pageCount)),
+            Info(title: L10n.Localizable.GalleryInfosView.language, value: galleryDetail.language.value),
+            Info(title: L10n.Localizable.GalleryInfosView.pageCount, value: String(galleryDetail.pageCount)),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.fileSize,
+                title: L10n.Localizable.GalleryInfosView.fileSize,
                 value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.favoritedTimes,
+                title: L10n.Localizable.GalleryInfosView.favoritedTimes,
                 value: String(galleryDetail.favoritedCount)
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.favorited,
-                value: galleryDetail.isFavorited ? L10n.Localizable.GalleryInfosView.Value.yes
-                    : L10n.Localizable.GalleryInfosView.Value.no
+                title: L10n.Localizable.GalleryInfosView.favorited,
+                value: galleryDetail.isFavorited ? L10n.Localizable.GalleryInfosView.yes
+                    : L10n.Localizable.GalleryInfosView.no
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.ratingCount,
+                title: L10n.Localizable.GalleryInfosView.ratingCount,
                 value: String(galleryDetail.ratingCount)
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.averageRating,
+                title: L10n.Localizable.GalleryInfosView.averageRating,
                 value: String(Int(galleryDetail.rating))
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.myRating,
+                title: L10n.Localizable.GalleryInfosView.myRating,
                 value: galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))
             ),
             Info(
-                title: L10n.Localizable.GalleryInfosView.Title.torrentCount,
+                title: L10n.Localizable.GalleryInfosView.torrentCount,
                 value: String(galleryDetail.torrentCount)
             )
         ]
@@ -104,7 +104,7 @@ struct GalleryInfosView: View {
                             store.send(.copyText(text))
                         }
                     } label: {
-                        Text(info.value ?? L10n.Localizable.GalleryInfosView.Value.none)
+                        Text(info.value ?? L10n.Localizable.GalleryInfosView.none)
                             .lineLimit(3).font(.caption)
                             .foregroundStyle(.tint)
                     }
@@ -112,7 +112,7 @@ struct GalleryInfosView: View {
             }
         }
         .toast($store.scope(state: \.toast, action: \.toast))
-        .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)
+        .navigationTitle(L10n.Localizable.GalleryInfosView.galleryInfos)
     }
 }
 

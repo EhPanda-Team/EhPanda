@@ -15,7 +15,7 @@ extension DownloadCoordinator {
         guard let normalizedName = storage.normalizedUserFolderName(name) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.invalidFolderName
+                    L10n.Localizable.DownloadStore.invalidFolderName
                 )
             )
         }
@@ -23,7 +23,7 @@ extension DownloadCoordinator {
         guard !fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.folderAlreadyExists
+                    L10n.Localizable.DownloadStore.folderAlreadyExists
                 )
             )
         }
@@ -45,7 +45,7 @@ extension DownloadCoordinator {
         guard let normalizedName = storage.normalizedUserFolderName(newName) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.invalidFolderName
+                    L10n.Localizable.DownloadStore.invalidFolderName
                 )
             )
         }
@@ -60,7 +60,7 @@ extension DownloadCoordinator {
         guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.folderAlreadyExists
+                    L10n.Localizable.DownloadStore.folderAlreadyExists
                 )
             )
         }
@@ -70,7 +70,7 @@ extension DownloadCoordinator {
            downloadIndex[activeGalleryID]?.parentFolderName == oldName {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.folderBusyDownloading
+                    L10n.Localizable.DownloadStore.folderBusyDownloading
                 )
             )
         }
@@ -144,7 +144,7 @@ extension DownloadCoordinator {
         guard let normalizedName = storage.normalizedUserFolderName(folderName) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.invalidFolderName
+                    L10n.Localizable.DownloadStore.invalidFolderName
                 )
             )
         }
@@ -158,7 +158,7 @@ extension DownloadCoordinator {
         guard activeGalleryID != gid else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.downloadBusy
+                    L10n.Localizable.DownloadStore.downloadBusy
                 )
             )
         }
@@ -173,7 +173,7 @@ extension DownloadCoordinator {
         guard !fileManager.operate({ $0.fileExists(atPath: destinationURL.path) }) else {
             return .failure(
                 .fileOperationFailed(
-                    L10n.Localizable.DownloadStore.Error.folderAlreadyExists
+                    L10n.Localizable.DownloadStore.folderAlreadyExists
                 )
             )
         }

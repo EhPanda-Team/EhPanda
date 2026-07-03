@@ -64,7 +64,7 @@ public struct DownloadsView: View {
         .searchable(
             text: $store.keyword,
             placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: L10n.Localizable.DownloadsView.Search.Prompt.downloads
+            prompt: L10n.Localizable.DownloadsView.searchDownloads
         )
         .sheet(
             item: $store.scope(state: \.destination?.inspector, action: \.destination.inspector)
@@ -105,7 +105,7 @@ public struct DownloadsView: View {
         .confirmationDialog(
             $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
         )
-        .navigationTitle(L10n.Localizable.DownloadsView.Title.downloads)
+        .navigationTitle(L10n.Localizable.DownloadsView.downloads)
         .navigationBarTitleDisplayMode(.large)
         .toolbar(content: toolbar)
     }
@@ -140,7 +140,7 @@ private extension DownloadsView {
                             store.send(.inspectorButtonTapped(download.gid))
                         } label: {
                             Label(
-                                L10n.Localizable.DownloadsView.Swipe.Button.pages,
+                                L10n.Localizable.DownloadsView.pages,
                                 systemSymbol: .listBulletRectanglePortrait
                             )
                         }
@@ -151,7 +151,7 @@ private extension DownloadsView {
                                 store.send(.moveButtonTapped(download))
                             } label: {
                                 Label(
-                                    L10n.Localizable.DownloadsView.Swipe.Button.move,
+                                    L10n.Localizable.DownloadsView.move,
                                     systemSymbol: .folder
                                 )
                             }
@@ -164,7 +164,7 @@ private extension DownloadsView {
                                 store.send(.updateDownload(download.gid))
                             } label: {
                                 Label(
-                                    L10n.Localizable.DownloadsView.Swipe.Button.update,
+                                    L10n.Localizable.DownloadsView.update,
                                     systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                                 )
                             }
@@ -177,8 +177,8 @@ private extension DownloadsView {
                             } label: {
                                 Label(
                                     download.displayStatus == .inactive
-                                        ? L10n.Localizable.DownloadsView.Swipe.Button.resume
-                                        : L10n.Localizable.DownloadsView.Swipe.Button.pause,
+                                        ? L10n.Localizable.DownloadsView.resume
+                                        : L10n.Localizable.DownloadsView.pause,
                                     systemSymbol: download.displayStatus == .inactive
                                         ? .playFill
                                         : .pauseFill
@@ -190,7 +190,7 @@ private extension DownloadsView {
                         Button(role: .destructive) {
                             store.send(.deleteDownloadButtonTapped(download))
                         } label: {
-                            Label(L10n.Localizable.ConfirmationDialog.Button.delete, systemSymbol: .trash)
+                            Label(L10n.Localizable.ConfirmationDialog.delete, systemSymbol: .trash)
                         }
                     }
                 }
@@ -204,7 +204,7 @@ private extension DownloadsView {
             store.send(.galleryTapped(download.gid))
         } label: {
             Label(
-                L10n.Localizable.DetailView.ContextMenu.Button.detail,
+                L10n.Localizable.DetailView.detail,
                 systemSymbol: .infoCircle
             )
         }
@@ -213,7 +213,7 @@ private extension DownloadsView {
             store.send(.inspectorButtonTapped(download.gid))
         } label: {
             Label(
-                L10n.Localizable.DownloadsView.Swipe.Button.pages,
+                L10n.Localizable.DownloadsView.pages,
                 systemSymbol: .listBulletRectanglePortrait
             )
         }
@@ -227,7 +227,7 @@ private extension DownloadsView {
                 }
             } label: {
                 Label(
-                    L10n.Localizable.DownloadsView.Menu.Button.moveToFolder,
+                    L10n.Localizable.DownloadsView.moveToFolder,
                     systemSymbol: .folder
                 )
             }
@@ -238,7 +238,7 @@ private extension DownloadsView {
                 store.send(.updateDownload(download.gid))
             } label: {
                 Label(
-                    L10n.Localizable.DownloadsView.Swipe.Button.update,
+                    L10n.Localizable.DownloadsView.update,
                     systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                 )
             }
@@ -250,8 +250,8 @@ private extension DownloadsView {
             } label: {
                 Label(
                     download.displayStatus == .inactive
-                        ? L10n.Localizable.DownloadsView.Swipe.Button.resume
-                        : L10n.Localizable.DownloadsView.Swipe.Button.pause,
+                        ? L10n.Localizable.DownloadsView.resume
+                        : L10n.Localizable.DownloadsView.pause,
                     systemSymbol: download.displayStatus == .inactive
                         ? .playFill
                         : .pauseFill
@@ -262,7 +262,7 @@ private extension DownloadsView {
         Button(role: .destructive) {
             store.send(.deleteDownloadButtonTapped(download))
         } label: {
-            Label(L10n.Localizable.ConfirmationDialog.Button.delete, systemSymbol: .trash)
+            Label(L10n.Localizable.ConfirmationDialog.delete, systemSymbol: .trash)
         }
     }
 
@@ -270,16 +270,16 @@ private extension DownloadsView {
         if store.downloads.isEmpty {
             AlertView(
                 symbol: .squareAndArrowDown,
-                message: L10n.Localizable.DownloadsView.EmptyState.downloads
+                message: L10n.Localizable.DownloadsView.emptyDownloads
             ) {
                 EmptyView()
             }
         } else {
             AlertView(
                 symbol: .line3HorizontalDecreaseCircle,
-                message: L10n.Localizable.DownloadsView.EmptyState.noMatchingFilters
+                message: L10n.Localizable.DownloadsView.noMatchingFilters
             ) {
-                AlertViewButton(title: L10n.Localizable.DownloadsView.Button.clearFilters) {
+                AlertViewButton(title: L10n.Localizable.DownloadsView.clearFilters) {
                     store.keyword = ""
                     store.folderFilter = .all
                 }
@@ -303,7 +303,7 @@ private extension DownloadsView {
                         store.send(.folderManagerButtonTapped)
                     } label: {
                         Label(
-                            L10n.Localizable.DownloadsView.Menu.Button.manageFolders,
+                            L10n.Localizable.DownloadsView.manageFolders,
                             systemSymbol: .folderBadgeGearshape
                         )
                     }

@@ -15,13 +15,13 @@ struct LaboratorySettingView: View {
             VStack {
                 LaboratoryCell(
                     isOn: $bypassesSNIFiltering,
-                    title: L10n.Localizable.LaboratorySettingView.Title.bypassesSNIFiltering,
+                    title: L10n.Localizable.LaboratorySettingView.bypassesSNIFiltering,
                     symbol: .theatermasksFill, tintColor: .purple
                 )
             }
             .padding()
         }
-        .navigationTitle(L10n.Localizable.LaboratorySettingView.Title.laboratory)
+        .navigationTitle(L10n.Localizable.LaboratorySettingView.laboratory)
     }
 }
 

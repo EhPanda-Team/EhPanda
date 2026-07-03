@@ -232,25 +232,25 @@ extension EhSetting.LoadThroughHathSetting {
     public var value: String {
         switch self {
         case .anyClient:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.anyClient
+            return L10n.Localizable.LoadThroughHathSetting.anyClient
         case .defaultPortOnly:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.defaultPortOnly
+            return L10n.Localizable.LoadThroughHathSetting.defaultPortOnly
         case .modernNo:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.modernNo
+            return L10n.Localizable.LoadThroughHathSetting.modernNo
         case .legacyNo:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Value.legacyNo
+            return L10n.Localizable.LoadThroughHathSetting.legacyNo
         }
     }
     public var description: String {
         switch self {
         case .anyClient:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.anyClient
+            return L10n.Localizable.LoadThroughHathSetting.anyClientDescription
         case .defaultPortOnly:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.defaultPortOnly
+            return L10n.Localizable.LoadThroughHathSetting.defaultPortOnlyDescription
         case .modernNo:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.modernNo
+            return L10n.Localizable.LoadThroughHathSetting.modernNoDescription
         case .legacyNo:
-            return L10n.Localizable.Enum.EhSetting.LoadThroughHathSetting.Description.legacyNo
+            return L10n.Localizable.LoadThroughHathSetting.legacyNoDescription
         }
     }
 }
@@ -276,7 +276,7 @@ extension EhSetting.ImageResolution {
     public var value: String {
         switch self {
         case .auto:
-            return L10n.Localizable.Enum.EhSetting.ImageResolution.Value.auto
+            return L10n.Localizable.ImageResolution.auto
         case .x780:
             return "780x"
         case .x980:
@@ -304,9 +304,9 @@ extension EhSetting.GalleryName {
     public var value: String {
         switch self {
         case .default:
-            return L10n.Localizable.Enum.EhSetting.GalleryName.Value.default
+            return L10n.Localizable.GalleryName.default
         case .japanese:
-            return L10n.Localizable.Enum.EhSetting.GalleryName.Value.japanese
+            return L10n.Localizable.GalleryName.japanese
         }
     }
 }
@@ -328,17 +328,17 @@ extension EhSetting.ArchiverBehavior {
     public var value: String {
         switch self {
         case .manualSelectManualStart:
-            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.manualSelectManualStart
+            return L10n.Localizable.EhSetting.ArchiverBehavior.manualSelectManualStart
         case .manualSelectAutoStart:
-            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.manualSelectAutoStart
+            return L10n.Localizable.EhSetting.ArchiverBehavior.manualSelectAutoStart
         case .autoSelectOriginalManualStart:
-            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectOriginalManualStart
+            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectOriginalManualStart
         case .autoSelectOriginalAutoStart:
-            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectOriginalAutoStart
+            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectOriginalAutoStart
         case .autoSelectResampleManualStart:
-            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectResampleManualStart
+            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectResampleManualStart
         case .autoSelectResampleAutoStart:
-            return L10n.Localizable.Enum.EhSetting.ArchiverBehavior.Value.autoSelectResampleAutoStart
+            return L10n.Localizable.EhSetting.ArchiverBehavior.autoSelectResampleAutoStart
         }
     }
 }
@@ -359,15 +359,15 @@ extension EhSetting.DisplayMode {
     public var value: String {
         switch self {
         case .compact:
-            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.compact
+            return L10n.Localizable.DisplayMode.compact
         case .thumbnail:
-            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.thumbnail
+            return L10n.Localizable.DisplayMode.thumbnail
         case .extended:
-            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.extended
+            return L10n.Localizable.DisplayMode.extended
         case .minimal:
-            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.minimal
+            return L10n.Localizable.DisplayMode.minimal
         case .minimalPlus:
-            return L10n.Localizable.Enum.EhSetting.DisplayMode.Value.minimalPlus
+            return L10n.Localizable.DisplayMode.minimalPlus
         }
     }
 }
@@ -385,9 +385,9 @@ extension EhSetting.FavoritesSortOrder {
     public var value: String {
         switch self {
         case .lastUpdateTime:
-            return L10n.Localizable.Enum.EhSetting.FavoritesSortOrder.Value.lastUpdateTime
+            return L10n.Localizable.FavoritesSortOrder.lastUpdateTime
         case .favoritedTime:
-            return L10n.Localizable.Enum.EhSetting.FavoritesSortOrder.Value.favoritedTime
+            return L10n.Localizable.FavoritesSortOrder.favoritedTime
         }
     }
 }
@@ -406,11 +406,11 @@ extension EhSetting.ExcludedLanguagesCategory {
     public var value: String {
         switch self {
         case .original:
-            return L10n.Localizable.Enum.EhSetting.ExcludedLanguagesCategory.Value.original
+            return L10n.Localizable.ExcludedLanguagesCategory.original
         case .translated:
-            return L10n.Localizable.Enum.EhSetting.ExcludedLanguagesCategory.Value.translated
+            return L10n.Localizable.ExcludedLanguagesCategory.translated
         case .rewrite:
-            return L10n.Localizable.Enum.EhSetting.ExcludedLanguagesCategory.Value.rewrite
+            return L10n.Localizable.ExcludedLanguagesCategory.rewrite
         }
     }
 }

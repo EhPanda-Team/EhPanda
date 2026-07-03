@@ -60,7 +60,7 @@ struct AccountSettingView: View {
                 .autoBlur(radius: blurRadius)
         }
         .onAppear { store.send(.loadCookies) }
-        .navigationTitle(L10n.Localizable.AccountSettingView.Title.account)
+        .navigationTitle(L10n.Localizable.AccountSettingView.account)
     }
 }
 
@@ -95,27 +95,27 @@ private struct AccountSection: View {
 
     var body: some View {
         if !CookieUtil.didLogin {
-            Button(L10n.Localizable.AccountSettingView.Button.login, action: loginAction)
+            Button(L10n.Localizable.AccountSettingView.login, action: loginAction)
         } else {
             Button(
-                L10n.Localizable.ConfirmationDialog.Button.logout,
+                L10n.Localizable.ConfirmationDialog.logout,
                 role: .destructive, action: logoutDialogAction
             )
             .confirmationDialog(logoutConfirmationDialog)
             Group {
                 Button(
-                    L10n.Localizable.AccountSettingView.Button.accountConfiguration,
+                    L10n.Localizable.AccountSettingView.accountConfiguration,
                     action: configureAccountAction
                 )
                 .withArrow()
                 if !bypassesSNIFiltering {
                     Button(
-                        L10n.Localizable.AccountSettingView.Button.tagsManagement,
+                        L10n.Localizable.AccountSettingView.tagsManagement,
                         action: manageTagsAction
                     )
                     .withArrow()
                 }
-                Toggle(L10n.Localizable.AccountSettingView.Title.showsNewDawnGreeting, isOn: $showsNewDawnGreeting)
+                Toggle(L10n.Localizable.AccountSettingView.showsNewDawnGreeting, isOn: $showsNewDawnGreeting)
             }
             .foregroundColor(.primary)
         }
@@ -142,7 +142,7 @@ private struct CookieSection: View {
         Section(GalleryHost.ehentai.rawValue) {
             CookieRow(cookieState: $ehCookiesState.memberID)
             CookieRow(cookieState: $ehCookiesState.passHash)
-            Button(L10n.Localizable.AccountSettingView.Button.copyCookies) {
+            Button(L10n.Localizable.AccountSettingView.copyCookies) {
                 copyAction(.ehentai)
             }
             .foregroundStyle(.tint).font(.subheadline)
@@ -151,7 +151,7 @@ private struct CookieSection: View {
             CookieRow(cookieState: $exCookiesState.igneous)
             CookieRow(cookieState: $exCookiesState.memberID)
             CookieRow(cookieState: $exCookiesState.passHash)
-            Button(L10n.Localizable.AccountSettingView.Button.copyCookies) {
+            Button(L10n.Localizable.AccountSettingView.copyCookies) {
                 copyAction(.exhentai)
             }
             .foregroundStyle(.tint).font(.subheadline)

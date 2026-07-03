@@ -39,7 +39,7 @@ public struct FiltersView: View {
                 )
             }
             .synchronize($store.focusedBound, $focusedBound)
-            .navigationTitle(L10n.Localizable.FiltersView.Title.filters)
+            .navigationTitle(L10n.Localizable.FiltersView.filters)
             .onAppear { store.send(.fetchFilters) }
         }
     }
@@ -79,10 +79,10 @@ private struct BasicSection: View {
             .pickerStyle(.segmented)
             CategoryView(bindings: categoryBindings)
             Button(action: resetFiltersDialogAction) {
-                Text(L10n.Localizable.FiltersView.Button.resetFilters).foregroundStyle(.red)
+                Text(L10n.Localizable.FiltersView.resetFilters).foregroundStyle(.red)
             }
             .confirmationDialog(confirmationDialog)
-            Toggle(L10n.Localizable.FiltersView.Title.advancedSettings, isOn: $filter.advanced)
+            Toggle(L10n.Localizable.FiltersView.advancedSettings, isOn: $filter.advanced)
         }
     }
 }
@@ -105,24 +105,24 @@ private struct AdvancedSection: View {
 
     var body: some View {
         Group {
-            Section(L10n.Localizable.FiltersView.Section.Title.advanced) {
-                Toggle(L10n.Localizable.FiltersView.Title.searchGalleryName, isOn: $filter.galleryName)
-                Toggle(L10n.Localizable.FiltersView.Title.searchGalleryTags, isOn: $filter.galleryTags)
-                Toggle(L10n.Localizable.FiltersView.Title.searchGalleryDescription, isOn: $filter.galleryDesc)
-                Toggle(L10n.Localizable.FiltersView.Title.searchTorrentFilenames, isOn: $filter.torrentFilenames)
+            Section(L10n.Localizable.FiltersView.advanced) {
+                Toggle(L10n.Localizable.FiltersView.searchGalleryName, isOn: $filter.galleryName)
+                Toggle(L10n.Localizable.FiltersView.searchGalleryTags, isOn: $filter.galleryTags)
+                Toggle(L10n.Localizable.FiltersView.searchGalleryDescription, isOn: $filter.galleryDesc)
+                Toggle(L10n.Localizable.FiltersView.searchTorrentFilenames, isOn: $filter.torrentFilenames)
                 Toggle(
-                    L10n.Localizable.FiltersView.Title.onlyShowGalleriesWithTorrents,
+                    L10n.Localizable.FiltersView.onlyShowGalleriesWithTorrents,
                     isOn: $filter.onlyWithTorrents
                 )
-                Toggle(L10n.Localizable.FiltersView.Title.searchLowPowerTags, isOn: $filter.lowPowerTags)
-                Toggle(L10n.Localizable.FiltersView.Title.searchDownvotedTags, isOn: $filter.downvotedTags)
-                Toggle(L10n.Localizable.FiltersView.Title.searchExpungedGalleries, isOn: $filter.expungedGalleries)
+                Toggle(L10n.Localizable.FiltersView.searchLowPowerTags, isOn: $filter.lowPowerTags)
+                Toggle(L10n.Localizable.FiltersView.searchDownvotedTags, isOn: $filter.downvotedTags)
+                Toggle(L10n.Localizable.FiltersView.searchExpungedGalleries, isOn: $filter.expungedGalleries)
             }
             Section {
-                Toggle(L10n.Localizable.FiltersView.Title.setMinimumRating, isOn: $filter.minRatingActivated)
+                Toggle(L10n.Localizable.FiltersView.setMinimumRating, isOn: $filter.minRatingActivated)
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
-                Toggle(L10n.Localizable.FiltersView.Title.setPagesRange, isOn: $filter.pageRangeActivated)
+                Toggle(L10n.Localizable.FiltersView.setPagesRange, isOn: $filter.pageRangeActivated)
                     .disabled(focusedBound.wrappedValue != nil)
                 PagesRangeSetter(
                     lowerBound: $filter.pageLowerBound,
@@ -132,10 +132,10 @@ private struct AdvancedSection: View {
                 )
                 .disabled(!filter.pageRangeActivated)
             }
-            Section(L10n.Localizable.FiltersView.Section.Title.defaultFilter) {
-                Toggle(L10n.Localizable.FiltersView.Title.disableLanguageFilter, isOn: $filter.disableLanguage)
-                Toggle(L10n.Localizable.FiltersView.Title.disableUploaderFilter, isOn: $filter.disableUploader)
-                Toggle(L10n.Localizable.FiltersView.Title.disableTagsFilter, isOn: $filter.disableTags)
+            Section(L10n.Localizable.FiltersView.defaultFilter) {
+                Toggle(L10n.Localizable.FiltersView.disableLanguageFilter, isOn: $filter.disableLanguage)
+                Toggle(L10n.Localizable.FiltersView.disableUploaderFilter, isOn: $filter.disableUploader)
+                Toggle(L10n.Localizable.FiltersView.disableTagsFilter, isOn: $filter.disableTags)
             }
         }
         .disabled(!filter.advanced)
@@ -151,9 +151,9 @@ private struct MinimumRatingSetter: View {
     }
 
     var body: some View {
-        Picker(L10n.Localizable.FiltersView.Title.minimumRating, selection: $minimum) {
+        Picker(L10n.Localizable.FiltersView.minimumRating, selection: $minimum) {
             ForEach(Array(2...5), id: \.self) { number in
-                Text(L10n.Localizable.Common.Value.stars("\(number)")).tag(number)
+                Text(L10n.Localizable.Common.stars("\(number)")).tag(number)
             }
         }
         .pickerStyle(.menu)
@@ -181,7 +181,7 @@ private struct PagesRangeSetter: View {
 
     var body: some View {
         HStack {
-            Text(L10n.Localizable.FiltersView.Title.pagesRange)
+            Text(L10n.Localizable.FiltersView.pagesRange)
             Spacer()
             SettingTextField(text: $lowerBound)
                 .focused(focusedBound, equals: .lower)

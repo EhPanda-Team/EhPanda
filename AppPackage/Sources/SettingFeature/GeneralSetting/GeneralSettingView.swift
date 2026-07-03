@@ -44,28 +44,28 @@ struct GeneralSettingView: View {
 
     private var language: String {
         Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
-            ?? L10n.Localizable.GeneralSettingView.Value.defaultLanguageDescription
+            ?? L10n.Localizable.GeneralSettingView.defaultLanguageDescription
     }
 
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text(L10n.Localizable.GeneralSettingView.Title.language)
+                    Text(L10n.Localizable.GeneralSettingView.language)
                     Spacer()
                     Button(language) {
                         store.send(.navigateToSystemSetting)
                     }
                     .foregroundStyle(.tint)
                 }
-                Button(L10n.Localizable.GeneralSettingView.Button.appActivityLogs) {
+                Button(L10n.Localizable.GeneralSettingView.appActivityLogs) {
                     store.send(.delegate(.pushAppActivityLogs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
-            Section(L10n.Localizable.GeneralSettingView.Section.Title.tags) {
+            Section(L10n.Localizable.GeneralSettingView.tags) {
                 HStack {
-                    Text(L10n.Localizable.GeneralSettingView.Title.enablesTagsExtension)
+                    Text(L10n.Localizable.GeneralSettingView.enablesTagsExtension)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     ZStack {
@@ -85,14 +85,14 @@ struct GeneralSettingView: View {
                         .padding(.leading, 20)
                 }
                 if enablesTagsExtension && !tagTranslatorEmpty {
-                    Toggle(L10n.Localizable.GeneralSettingView.Title.translatesTags, isOn: $translatesTags)
+                    Toggle(L10n.Localizable.GeneralSettingView.translatesTags, isOn: $translatesTags)
                     Toggle(
-                        L10n.Localizable.GeneralSettingView.Title.showsTagsSearchSuggestion,
+                        L10n.Localizable.GeneralSettingView.showsTagsSearchSuggestion,
                         isOn: $showsTagsSearchSuggestion
                     )
-                    Toggle(L10n.Localizable.GeneralSettingView.Title.showsImagesInTags, isOn: $showsImagesInTags)
+                    Toggle(L10n.Localizable.GeneralSettingView.showsImagesInTags, isOn: $showsImagesInTags)
                 }
-                Button(L10n.Localizable.GeneralSettingView.Button.importCustomTranslations) {
+                Button(L10n.Localizable.GeneralSettingView.importCustomTranslations) {
                     store.send(.importCustomTranslationsButtonTapped)
                 }
                 .fileImporter(
@@ -105,7 +105,7 @@ struct GeneralSettingView: View {
                 }
                 if tagTranslatorHasCustomTranslations {
                     Button(
-                        L10n.Localizable.GeneralSettingView.Button.removeCustomTranslations,
+                        L10n.Localizable.GeneralSettingView.removeCustomTranslations,
                         role: .destructive, action: { store.send(.removeCustomTranslationsButtonTapped) }
                     )
                     .confirmationDialog(
@@ -113,20 +113,20 @@ struct GeneralSettingView: View {
                     )
                 }
             }
-            Section(L10n.Localizable.GeneralSettingView.Section.Title.navigation) {
+            Section(L10n.Localizable.GeneralSettingView.navigation) {
                 Toggle(
-                    L10n.Localizable.GeneralSettingView.Title.redirectsLinksToTheSelectedHost,
+                    L10n.Localizable.GeneralSettingView.redirectsLinksToTheSelectedHost,
                     isOn: $redirectsLinksToSelectedHost
                 )
                 Toggle(
-                    L10n.Localizable.GeneralSettingView.Title.detectsLinksFromClipboard,
+                    L10n.Localizable.GeneralSettingView.detectsLinksFromClipboard,
                     isOn: $detectsLinksFromClipboard
                 )
             }
-            Section(L10n.Localizable.GeneralSettingView.Section.Title.security) {
+            Section(L10n.Localizable.GeneralSettingView.security) {
                 HStack {
                     Picker(
-                        L10n.Localizable.GeneralSettingView.Title.autoLock,
+                        L10n.Localizable.GeneralSettingView.autoLock,
                         selection: $autoLockPolicy
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
@@ -139,7 +139,7 @@ struct GeneralSettingView: View {
                     }
                 }
                 VStack(alignment: .leading) {
-                    Text(L10n.Localizable.GeneralSettingView.Title.backgroundBlurRadius)
+                    Text(L10n.Localizable.GeneralSettingView.backgroundBlurRadius)
                     HStack {
                         Image(systemSymbol: .eye)
                         Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
@@ -147,12 +147,12 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            Section(L10n.Localizable.GeneralSettingView.Section.Title.caches) {
+            Section(L10n.Localizable.GeneralSettingView.caches) {
                 Button {
                     store.send(.clearImageCachesButtonTapped)
                 } label: {
                     HStack {
-                        Text(L10n.Localizable.GeneralSettingView.Button.clearImageCaches)
+                        Text(L10n.Localizable.GeneralSettingView.clearImageCaches)
                         Spacer()
                         Text(store.diskImageCacheSize).foregroundStyle(.tint)
                     }
@@ -171,7 +171,7 @@ struct GeneralSettingView: View {
             store.send(.checkPasscodeSetting)
             store.send(.calculateWebImageDiskCache)
         }
-        .navigationTitle(L10n.Localizable.GeneralSettingView.Title.general)
+        .navigationTitle(L10n.Localizable.GeneralSettingView.general)
     }
 }
 

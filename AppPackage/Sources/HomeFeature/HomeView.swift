@@ -91,7 +91,7 @@ public struct HomeView: View {
                 }
             }
             .toolbar(content: toolbar)
-            .navigationTitle(L10n.Localizable.HomeView.Title.home)
+            .navigationTitle(L10n.Localizable.HomeView.home)
         } destination: { store in
             switch store.case {
             case .frontpage(let store):
@@ -164,11 +164,11 @@ extension HomeMiscGridType {
     var title: String {
         switch self {
         case .popular:
-            return L10n.Localizable.Enum.HomeMiscGridType.Title.popular
+            return L10n.Localizable.HomeMiscGridType.popular
         case .watched:
-            return L10n.Localizable.Enum.HomeMiscGridType.Title.watched
+            return L10n.Localizable.HomeMiscGridType.watched
         case .history:
-            return L10n.Localizable.Enum.HomeMiscGridType.Title.history
+            return L10n.Localizable.HomeMiscGridType.history
         }
     }
     var symbol: SFSymbol {

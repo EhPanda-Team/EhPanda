@@ -12,15 +12,15 @@ struct CoverScalingSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: L10n.Localizable.EhSettingView.Title.scaleFactor,
+                title: L10n.Localizable.EhSettingView.scaleFactor,
                 value: $ehSetting.coverScaleFactor,
                 range: 75...150,
                 unit: "%"
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.coverScaling,
-                description: L10n.Localizable.EhSettingView.Description.coverScaleFactor
+                L10n.Localizable.EhSettingView.coverScaling,
+                description: L10n.Localizable.EhSettingView.coverScaleFactor
             )
         }
     }
@@ -33,13 +33,13 @@ struct TagFilteringThresholdSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: L10n.Localizable.EhSettingView.Title.tagFilteringThreshold,
+                title: L10n.Localizable.EhSettingView.tagFilteringThreshold,
                 value: $ehSetting.tagFilteringThreshold, range: -9999...0
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.tagFilteringThreshold,
-                description: L10n.Localizable.EhSettingView.Description.tagFilteringThreshold
+                L10n.Localizable.EhSettingView.tagFilteringThreshold,
+                description: L10n.Localizable.EhSettingView.tagFilteringThresholdDescription
             )
         }
     }
@@ -52,13 +52,13 @@ struct TagWatchingThresholdSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: L10n.Localizable.EhSettingView.Title.tagWatchingThreshold,
+                title: L10n.Localizable.EhSettingView.tagWatchingThreshold,
                 value: $ehSetting.tagWatchingThreshold, range: 0...9999
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.tagWatchingThreshold,
-                description: L10n.Localizable.EhSettingView.Description.tagWatchingThreshold
+                L10n.Localizable.EhSettingView.tagWatchingThreshold,
+                description: L10n.Localizable.EhSettingView.tagWatchingThresholdDescription
             )
         }
     }
@@ -71,13 +71,13 @@ struct FilteredRemovalCountSection: View {
     var body: some View {
         Section {
             Toggle(
-                L10n.Localizable.EhSettingView.Title.showFilteredRemovalCount,
+                L10n.Localizable.EhSettingView.showFilteredRemovalCount,
                 isOn: $ehSetting.showFilteredRemovalCount
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.filteredRemovalCount,
-                description: L10n.Localizable.EhSettingView.Description.filteredRemovalCount
+                L10n.Localizable.ehSettingViewfilteredRemovalCount,
+                description: L10n.Localizable.EhSettingView.filteredRemovalCountDescription
             )
         }
     }
@@ -128,8 +128,8 @@ struct ExcludedLanguagesSection: View {
             }
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.excludedLanguages,
-                description: L10n.Localizable.EhSettingView.Description.excludedLanguages
+                L10n.Localizable.EhSettingView.excludedLanguages,
+                description: L10n.Localizable.EhSettingView.excludedLanguagesDescription
             )
         }
     }
@@ -188,12 +188,12 @@ struct ExcludedUploadersSection: View {
                 .focused($isFocused)
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.excludedUploaders,
-                description: L10n.Localizable.EhSettingView.Description.excludedUploaders
+                L10n.Localizable.EhSettingView.excludedUploaders,
+                description: L10n.Localizable.EhSettingView.excludedUploadersDescription
             )
         } footer: {
             Text(
-                L10n.Localizable.EhSettingView.Description.excludedUploadersCount(
+                L10n.Localizable.EhSettingView.excludedUploadersCount(
                     "\(ehSetting.excludedUploaders.ehSettingLineCount)", "\(1000)"
                 )
                 .localizedKey
@@ -209,15 +209,15 @@ struct ViewportOverrideSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: L10n.Localizable.EhSettingView.Title.virtualWidth,
+                title: L10n.Localizable.EhSettingView.virtualWidth,
                 value: $ehSetting.viewportVirtualWidth,
                 range: 0...9999,
                 unit: "px"
             )
         } header: {
             Text.ehSettingBoldHeader(
-                L10n.Localizable.EhSettingView.Section.Title.viewportOverride,
-                description: L10n.Localizable.EhSettingView.Description.virtualWidth
+                L10n.Localizable.EhSettingView.viewportOverride,
+                description: L10n.Localizable.EhSettingView.virtualWidthDescription
             )
         }
     }
@@ -230,7 +230,7 @@ struct GalleryCommentsSection: View {
     var body: some View {
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.Title.commentsSortOrder,
+                L10n.Localizable.EhSettingView.commentsSortOrder,
                 selection: $ehSetting.commentsSortOrder
             ) {
                 ForEach(EhSetting.CommentsSortOrder.allCases) { order in
@@ -241,7 +241,7 @@ struct GalleryCommentsSection: View {
             .pickerStyle(.menu)
 
             Picker(
-                L10n.Localizable.EhSettingView.Title.commentsVotesShowTiming,
+                L10n.Localizable.EhSettingView.commentsVotesShowTiming,
                 selection: $ehSetting.commentVotesShowTiming
             ) {
                 ForEach(EhSetting.CommentVotesShowTiming.allCases) { timing in
@@ -251,7 +251,7 @@ struct GalleryCommentsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.galleryComments)
+            Text(L10n.Localizable.EhSettingView.galleryComments)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -263,7 +263,7 @@ struct GalleryTagsSection: View {
 
     var body: some View {
         Section {
-            Picker(L10n.Localizable.EhSettingView.Title.tagsSortOrder, selection: $ehSetting.tagsSortOrder) {
+            Picker(L10n.Localizable.EhSettingView.tagsSortOrder, selection: $ehSetting.tagsSortOrder) {
                 ForEach(EhSetting.TagsSortOrder.allCases) { order in
                     Text(order.value)
                         .tag(order)
@@ -271,7 +271,7 @@ struct GalleryTagsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.galleryTags)
+            Text(L10n.Localizable.EhSettingView.galleryTags)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -284,7 +284,7 @@ struct GalleryPageThumbnailLabelingSection: View {
     var body: some View {
         Section {
             Picker(
-                L10n.Localizable.EhSettingView.Title.showLabelBelowGalleryThumbnails,
+                L10n.Localizable.EhSettingView.showLabelBelowGalleryThumbnails,
                 selection: $ehSetting.galleryPageNumbering
             ) {
                 ForEach(EhSetting.GalleryPageNumbering.allCases) { behavior in
@@ -294,7 +294,7 @@ struct GalleryPageThumbnailLabelingSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(L10n.Localizable.EhSettingView.Section.Title.galleryPageThumbnailLabeling)
+            Text(L10n.Localizable.EhSettingView.galleryPageThumbnailLabeling)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -310,12 +310,12 @@ struct MultiplePageViewerSection: View {
            let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane) {
             Section {
                 Toggle(
-                    L10n.Localizable.EhSettingView.Title.useMultiPageViewer,
+                    L10n.Localizable.EhSettingView.useMultiPageViewer,
                     isOn: useMultiplePageViewerBinding
                 )
 
                 Picker(
-                    L10n.Localizable.EhSettingView.Title.displayStyle,
+                    L10n.Localizable.EhSettingView.displayStyle,
                     selection: multiplePageViewerStyleBinding
                 ) {
                     ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
@@ -326,11 +326,11 @@ struct MultiplePageViewerSection: View {
                 .pickerStyle(.menu)
 
                 Toggle(
-                    L10n.Localizable.EhSettingView.Title.showThumbnailPane,
+                    L10n.Localizable.EhSettingView.showThumbnailPane,
                     isOn: multiplePageViewerShowPaneBinding
                 )
             } header: {
-                Text(L10n.Localizable.EhSettingView.Section.Title.multiPageViewer)
+                Text(L10n.Localizable.EhSettingView.multiPageViewer)
                     .ehSettingRegularHeaderStyled()
             }
         }

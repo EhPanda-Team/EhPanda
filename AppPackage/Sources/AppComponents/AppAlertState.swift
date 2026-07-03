@@ -125,34 +125,34 @@ extension AppAlertState where Action == Never {
     public static func loading(title: String? = nil) -> Self {
         .init(
             style: .toast(icon: .loading, autoHide: false),
-            title: TextState(title ?? L10n.Localizable.Toast.Title.loading)
+            title: TextState(title ?? L10n.Localizable.Toast.loading)
         )
     }
     public static var communicating: Self {
         .init(
             style: .toast(icon: .loading, autoHide: false),
-            title: TextState(L10n.Localizable.Toast.Title.communicating)
+            title: TextState(L10n.Localizable.Toast.communicating)
         )
     }
     public static func error(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .error, autoHide: true),
-            title: TextState(L10n.Localizable.Toast.Title.error),
+            title: TextState(L10n.Localizable.Toast.error),
             message: caption.map { TextState($0) }
         )
     }
     public static func success(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .success, autoHide: true),
-            title: TextState(L10n.Localizable.Toast.Title.success),
+            title: TextState(L10n.Localizable.Toast.success),
             message: caption.map { TextState($0) }
         )
     }
     public static var savedToPhotoLibrary: Self {
-        .success(caption: L10n.Localizable.Toast.Caption.savedToPhotoLibrary)
+        .success(caption: L10n.Localizable.Toast.savedToPhotoLibrary)
     }
     public static var copiedToClipboardSucceeded: Self {
-        .success(caption: L10n.Localizable.Toast.Caption.copiedToClipboard)
+        .success(caption: L10n.Localizable.Toast.copiedToClipboard)
     }
 }
 

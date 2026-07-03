@@ -86,13 +86,13 @@ public struct EhSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDeleteProfile) {
-                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                        TextState(L10n.Localizable.ConfirmationDialog.delete)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.Title.delete)
+                    TextState(L10n.Localizable.ConfirmationDialog.deleteDescription)
                 }
                 return .none
 

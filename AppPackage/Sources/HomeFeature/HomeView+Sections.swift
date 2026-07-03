@@ -97,7 +97,7 @@ struct CoverWallSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.HomeView.Section.Title.frontpage,
+            title: L10n.Localizable.HomeView.frontpage,
             tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
@@ -190,7 +190,7 @@ struct ToplistsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.HomeView.Section.Title.toplists,
+            title: L10n.Localizable.HomeView.toplists,
             tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
@@ -264,7 +264,7 @@ struct MiscGridSection: View {
     }
 
     var body: some View {
-        SubSection(title: L10n.Localizable.HomeView.Section.Title.other, showAll: false) {
+        SubSection(title: L10n.Localizable.HomeView.other, showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     let types = HomeMiscGridType.allCases

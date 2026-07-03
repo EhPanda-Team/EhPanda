@@ -59,7 +59,7 @@ struct FrontpageView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.Prompt.filter)
+        .searchable(text: $store.keyword, prompt: L10n.Localizable.Searchable.filter)
         .onAppear {
             if store.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -68,7 +68,7 @@ struct FrontpageView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.FrontpageView.Title.frontpage)
+        .navigationTitle(L10n.Localizable.FrontpageView.frontpage)
     }
 
     private func toolbar() -> some ToolbarContent {

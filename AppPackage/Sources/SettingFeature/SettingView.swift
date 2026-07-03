@@ -27,7 +27,7 @@ public struct SettingView: View {
                 }
                 .padding(.vertical, 40).padding(.horizontal)
             }
-            .navigationTitle(L10n.Localizable.SettingView.Title.setting)
+            .navigationTitle(L10n.Localizable.SettingView.setting)
         } destination: { pathStore in
             destination(pathStore)
                 .tint(store.setting.accentColor)
@@ -167,19 +167,19 @@ extension SettingReducer.RootScreen {
     var value: String {
         switch self {
         case .account:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.account
+            return L10n.Localizable.SettingStateRoute.account
         case .general:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.general
+            return L10n.Localizable.SettingStateRoute.general
         case .appearance:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.appearance
+            return L10n.Localizable.SettingStateRoute.appearance
         case .download:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.download
+            return L10n.Localizable.SettingStateRoute.download
         case .reading:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.reading
+            return L10n.Localizable.SettingStateRoute.reading
         case .laboratory:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.laboratory
+            return L10n.Localizable.SettingStateRoute.laboratory
         case .about:
-            return L10n.Localizable.Enum.SettingStateRoute.Value.about
+            return L10n.Localizable.SettingStateRoute.about
         }
     }
     var symbol: SFSymbol {

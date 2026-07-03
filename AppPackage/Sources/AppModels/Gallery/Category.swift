@@ -47,17 +47,17 @@ extension Category {
     }
     public var value: String {
         switch self {
-        case .doujinshi: return L10n.Localizable.Enum.Category.Value.doujinshi
-        case .manga: return L10n.Localizable.Enum.Category.Value.manga
-        case .artistCG: return L10n.Localizable.Enum.Category.Value.artistCG
-        case .gameCG: return L10n.Localizable.Enum.Category.Value.gameCG
-        case .western: return L10n.Localizable.Enum.Category.Value.western
-        case .nonH: return L10n.Localizable.Enum.Category.Value.nonH
-        case .imageSet: return L10n.Localizable.Enum.Category.Value.imageSet
-        case .cosplay: return L10n.Localizable.Enum.Category.Value.cosplay
-        case .asianPorn: return L10n.Localizable.Enum.Category.Value.asianPorn
-        case .misc: return L10n.Localizable.Enum.Category.Value.misc
-        case .private: return L10n.Localizable.Enum.Category.Value.private
+        case .doujinshi: return L10n.Localizable.Category.doujinshi
+        case .manga: return L10n.Localizable.Category.manga
+        case .artistCG: return L10n.Localizable.Category.artistCG
+        case .gameCG: return L10n.Localizable.Category.gameCG
+        case .western: return L10n.Localizable.Category.western
+        case .nonH: return L10n.Localizable.Category.nonH
+        case .imageSet: return L10n.Localizable.Category.imageSet
+        case .cosplay: return L10n.Localizable.Category.cosplay
+        case .asianPorn: return L10n.Localizable.Category.asianPorn
+        case .misc: return L10n.Localizable.Category.misc
+        case .private: return L10n.Localizable.Category.private
         }
     }
 }

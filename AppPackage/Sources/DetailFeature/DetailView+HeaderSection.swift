@@ -88,7 +88,7 @@ struct HeaderSection: View {
                     Section {
                         Button(action: manageFoldersAction) {
                             Label(
-                                L10n.Localizable.DetailView.Menu.Button.manageFolders,
+                                L10n.Localizable.DetailView.manageFolders,
                                 systemSymbol: .folderBadgeGearshape
                             )
                         }
@@ -98,7 +98,7 @@ struct HeaderSection: View {
                         if downloadFolders.isEmpty {
                             Button(action: createDefaultFolderAction) {
                                 Label(
-                                    L10n.Localizable.DetailView.Menu.Button.createDefaultFolder,
+                                    L10n.Localizable.DetailView.createDefaultFolder,
                                     systemSymbol: .folderBadgePlus
                                 )
                             }
@@ -107,7 +107,7 @@ struct HeaderSection: View {
                     }
                     Section {
                         if downloadFolders.isEmpty {
-                            Text(L10n.Localizable.DetailView.Menu.Text.noFolders)
+                            Text(L10n.Localizable.DetailView.noFolders)
                         } else {
                             ForEach(downloadFolders, id: \.self) { folder in
                                 Button {
@@ -181,7 +181,7 @@ struct HeaderSection: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
-        .accessibilityLabel(L10n.Localizable.DetailView.Button.read)
+        .accessibilityLabel(L10n.Localizable.DetailView.read)
     }
     private func progressIndicator(
         progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol
@@ -293,43 +293,43 @@ struct HeaderSection: View {
 // MARK: HeaderSection Accessibility
 extension HeaderSection {
     var downloadButtonAccessibilityLabel: String {
-        guard canDownload else { return L10n.Localizable.DetailView.Accessibility.DownloadButton.login }
+        guard canDownload else { return L10n.Localizable.DetailView.Accessibility.login }
         guard !showsMetadataPreparation else {
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.preparing
+            return L10n.Localizable.DetailView.Accessibility.preparing
         }
         return downloadBadgeAccessibilityLabel
     }
     var downloadBadgeAccessibilityLabel: String {
         guard let badge = downloadBadge else {
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.download
+            return L10n.Localizable.DetailView.Accessibility.download
         }
         let progress = badge.progress
         switch badge.status {
         case .queued:
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.queued
+            return L10n.Localizable.DetailView.Accessibility.queued
         case .active:
-            let downloading = L10n.Localizable.DetailView.Accessibility.DownloadButton.downloading(
+            let downloading = L10n.Localizable.DetailView.Accessibility.downloading(
                 progress.completedPageCount, progress.displayPageCount
             )
-            return [downloading, L10n.Localizable.DetailView.Accessibility.DownloadButton.pauseAction]
+            return [downloading, L10n.Localizable.DetailView.Accessibility.pauseAction]
                 .joined(separator: ". ")
         case .inactive:
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.paused(
+            return L10n.Localizable.DetailView.Accessibility.paused(
                 progress.completedPageCount, progress.displayPageCount
             )
         case .completed:
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.downloaded
+            return L10n.Localizable.DetailView.Accessibility.downloaded
         case .updateAvailable:
-            return L10n.Localizable.DetailView.Accessibility.DownloadButton.update
+            return L10n.Localizable.DetailView.Accessibility.update
         case .error:
             if isPartialDownloadError {
-                return L10n.Localizable.DetailView.Accessibility.DownloadButton.partial(
+                return L10n.Localizable.DetailView.Accessibility.partial(
                     progress.completedPageCount, progress.displayPageCount
                 )
             }
             return downloadNeedsRepair
-                ? L10n.Localizable.DetailView.Accessibility.DownloadButton.repair
-                : L10n.Localizable.DetailView.Accessibility.DownloadButton.retry
+                ? L10n.Localizable.DetailView.Accessibility.repair
+                : L10n.Localizable.DetailView.Accessibility.retry
         }
     }
 }

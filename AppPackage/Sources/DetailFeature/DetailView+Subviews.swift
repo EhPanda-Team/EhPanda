@@ -14,26 +14,26 @@ struct DescriptionSection: View {
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.DescriptionSection.Title.favorited,
-            description: L10n.Localizable.DetailView.DescriptionSection.Description.favorited,
+            title: L10n.Localizable.DetailView.favorited,
+            description: L10n.Localizable.DetailView.favoritedUnit,
             value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.DescriptionSection.Title.language,
+            title: L10n.Localizable.DetailView.language,
             description: galleryDetail.language.value,
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.DescriptionSection.Title.ratings("\(galleryDetail.ratingCount)"),
+            title: L10n.Localizable.DetailView.ratings("\(galleryDetail.ratingCount)"),
             description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.DescriptionSection.Title.pageCount,
-            description: L10n.Localizable.DetailView.DescriptionSection.Description.pageCount,
+            title: L10n.Localizable.DetailView.pageCount,
+            description: L10n.Localizable.DetailView.pageCountUnit,
             value: .init(galleryDetail.pageCount)
         ),
         DescScrollInfo(
-            title: L10n.Localizable.DetailView.DescriptionSection.Title.fileSize,
+            title: L10n.Localizable.DetailView.fileSize,
             description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
         )
     ]}
@@ -122,14 +122,14 @@ struct ActionSection: View {
                     Button(action: showUserRatingAction) {
                         Spacer()
                         Image(systemSymbol: .squareAndPencil)
-                        Text(L10n.Localizable.DetailView.ActionSection.Button.giveARating).bold()
+                        Text(L10n.Localizable.DetailView.giveARating).bold()
                         Spacer()
                     }
                     .disabled(!CookieUtil.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
-                        Text(L10n.Localizable.DetailView.ActionSection.Button.similarGallery).bold()
+                        Text(L10n.Localizable.DetailView.similarGallery).bold()
                         Spacer()
                     }
                 }
@@ -242,7 +242,7 @@ extension TagsSection {
                     ))
                 } label: {
                     Image(systemSymbol: .richtextPage)
-                    Text(L10n.Localizable.DetailView.ContextMenu.Button.detail)
+                    Text(L10n.Localizable.DetailView.detail)
                 }
             }
             if CookieUtil.didLogin {
@@ -258,20 +258,20 @@ extension TagsSection {
                 } label: {
                     Image(systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
                         .symbolVariant(.fill)
-                    Text(L10n.Localizable.DetailView.ContextMenu.Button.withdrawVote)
+                    Text(L10n.Localizable.DetailView.withdrawVote)
                 }
             } else {
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), 1)
                 } label: {
                     Image(systemSymbol: .handThumbsup)
-                    Text(L10n.Localizable.DetailView.ContextMenu.Button.voteUp)
+                    Text(L10n.Localizable.DetailView.voteUp)
                 }
                 Button {
                     voteTagAction(content.voteKeyword(tag: tag), -1)
                 } label: {
                     Image(systemSymbol: .handThumbsdown)
-                    Text(L10n.Localizable.DetailView.ContextMenu.Button.voteDown)
+                    Text(L10n.Localizable.DetailView.voteDown)
                 }
             }
         }
@@ -290,7 +290,7 @@ struct PreviewsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.DetailView.Section.Title.previews,
+            title: L10n.Localizable.DetailView.previews,
             showAll: pageCount > 20, showAllAction: navigatePreviewsAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -325,7 +325,7 @@ struct CommentsSection: View {
 
     var body: some View {
         SubSection(
-            title: L10n.Localizable.DetailView.Section.Title.comments,
+            title: L10n.Localizable.DetailView.comments,
             showAll: !comments.isEmpty, showAllAction: navigateCommentAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {

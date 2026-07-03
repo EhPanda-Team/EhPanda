@@ -128,16 +128,16 @@ extension GalleryVisibility {
     public var value: String {
         switch self {
         case .yes:
-            return L10n.Localizable.Enum.GalleryVisibility.Value.yes
+            return L10n.Localizable.GalleryVisibility.yes
         case .no(let reason):
             let localizedReason: String
             switch reason {
             case "Expunged":
-                localizedReason = L10n.Localizable.Enum.GalleryVisibility.Value.No.Reason.expunged
+                localizedReason = L10n.Localizable.GalleryVisibility.expunged
             default:
                 localizedReason = reason
             }
-            return L10n.Localizable.Enum.GalleryVisibility.Value.no(localizedReason)
+            return L10n.Localizable.GalleryVisibility.no(localizedReason)
         }
     }
 }
