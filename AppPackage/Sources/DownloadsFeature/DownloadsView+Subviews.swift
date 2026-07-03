@@ -113,7 +113,7 @@ struct DownloadInspectorView: View {
         }
         .autoBlur(radius: blurRadius)
         .toast($store.scope(state: \.toast, action: \.toast))
-        .navigationTitle(String(localized: .downloadStatus))
+        .navigationTitle(.downloadStatus)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {

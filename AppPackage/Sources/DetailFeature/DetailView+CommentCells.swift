@@ -52,7 +52,7 @@ struct CommentButton: View {
         Button(action: action) {
             HStack {
                 Image(systemSymbol: .squareAndPencil)
-                Text(String(localized: .postComment))
+                Text(.postComment)
                     .bold()
             }
             .padding()

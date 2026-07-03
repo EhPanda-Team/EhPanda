@@ -27,7 +27,7 @@ public struct SettingView: View {
                 }
                 .padding(.vertical, 40).padding(.horizontal)
             }
-            .navigationTitle(String(localized: .RLocalizable.setting))
+            .navigationTitle(.RLocalizable.setting)
         } destination: { pathStore in
             destination(pathStore)
                 .tint(store.setting.accentColor)

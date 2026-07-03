@@ -86,7 +86,7 @@ struct LoginView: View {
         }
         .animation(.default, value: store.loginState)
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .RLocalizable.login))
+        .navigationTitle(.RLocalizable.login)
         .ignoresSafeArea()
     }
     // MARK: Toolbar

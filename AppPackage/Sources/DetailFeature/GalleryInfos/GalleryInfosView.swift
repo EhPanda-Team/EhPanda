@@ -112,7 +112,7 @@ struct GalleryInfosView: View {
             }
         }
         .toast($store.scope(state: \.toast, action: \.toast))
-        .navigationTitle(String(localized: .metadataGalleryInfos))
+        .navigationTitle(.metadataGalleryInfos)
     }
 }
 

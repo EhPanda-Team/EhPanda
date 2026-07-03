@@ -68,7 +68,7 @@ struct FrontpageView: View {
             }
         }
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .frontpage))
+        .navigationTitle(.frontpage)
     }
 
     private func toolbar() -> some ToolbarContent {

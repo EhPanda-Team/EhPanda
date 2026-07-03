@@ -107,7 +107,7 @@ struct HeaderSection: View {
                     }
                     Section {
                         if downloadFolders.isEmpty {
-                            Text(String(localized: .noFolders))
+                            Text(.noFolders)
                         } else {
                             ForEach(downloadFolders, id: \.self) { folder in
                                 Button {
@@ -181,7 +181,7 @@ struct HeaderSection: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
-        .accessibilityLabel(String(localized: .read))
+        .accessibilityLabel(.read)
     }
     private func progressIndicator(
         progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol

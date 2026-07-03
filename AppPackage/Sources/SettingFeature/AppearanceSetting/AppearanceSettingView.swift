@@ -71,14 +71,14 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
 
                 Toggle(isOn: $showsTagsInList) {
-                    Text(String(localized: .showsTagsInList))
+                    Text(.showsTagsInList)
                 }
 
                 Picker(
                     String(localized: .maximumNumberOfTags),
                     selection: $listTagsNumberMaximum
                 ) {
-                    Text(String(localized: .infite))
+                    Text(.infite)
                         .tag(0)
 
                     ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
@@ -96,7 +96,7 @@ struct AppearanceSettingView: View {
                 )
             }
         }
-        .navigationTitle(String(localized: .appearance))
+        .navigationTitle(.appearance)
     }
 }
 
@@ -122,7 +122,7 @@ struct AppIconView: View {
                 }
             }
         }
-        .navigationTitle(String(localized: .appIcon))
+        .navigationTitle(.appIcon)
     }
 }
 

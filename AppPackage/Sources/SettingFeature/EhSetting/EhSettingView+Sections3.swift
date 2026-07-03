@@ -251,7 +251,7 @@ struct GalleryCommentsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(String(localized: .galleryComments))
+            Text(.galleryComments)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -271,7 +271,7 @@ struct GalleryTagsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(String(localized: .galleryTags))
+            Text(.galleryTags)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -294,7 +294,7 @@ struct GalleryPageThumbnailLabelingSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text(String(localized: .galleryPageThumbnailLabeling))
+            Text(.galleryPageThumbnailLabeling)
                 .ehSettingRegularHeaderStyled()
         }
     }
@@ -330,7 +330,7 @@ struct MultiplePageViewerSection: View {
                     isOn: multiplePageViewerShowPaneBinding
                 )
             } header: {
-                Text(String(localized: .multiPageViewer))
+                Text(.multiPageViewer)
                     .ehSettingRegularHeaderStyled()
             }
         }

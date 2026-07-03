@@ -53,7 +53,7 @@ struct EhSettingView: View {
                 .autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .hostSettings(galleryHost.rawValue)))
+        .navigationTitle(.hostSettings(galleryHost.rawValue))
     }
     // MARK: Form
     private func form(ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>) -> some View {

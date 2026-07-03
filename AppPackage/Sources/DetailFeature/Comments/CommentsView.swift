@@ -117,7 +117,7 @@ struct CommentsView: View {
             store.send(.onAppear)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(String(localized: .comments))
+        .navigationTitle(.comments)
     }
 
     private func toolbar() -> some ToolbarContent {

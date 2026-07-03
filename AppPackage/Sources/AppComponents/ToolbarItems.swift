@@ -63,7 +63,7 @@ public struct FiltersButton: View {
         Button(action: action) {
             Image(systemSymbol: .line3HorizontalDecrease)
             if !hideText {
-                Text(String(localized: .RLocalizable.filters))
+                Text(.RLocalizable.filters)
             }
         }
     }
@@ -82,7 +82,7 @@ public struct QuickSearchButton: View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
             if !hideText {
-                Text(String(localized: .RLocalizable.quickSearch))
+                Text(.RLocalizable.quickSearch)
             }
         }
     }
@@ -103,7 +103,7 @@ public struct JumpPageButton: View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
             if !hideText {
-                Text(String(localized: .RLocalizable.jumpPage))
+                Text(.RLocalizable.jumpPage)
             }
         }
         .disabled(pageNumber.isSinglePage)
