@@ -218,7 +218,7 @@ private extension Optional where Wrapped == DownloadValidationState {
         switch self {
         case .some(.valid):
             return .success(
-                caption: L10n.Localizable.DownloadInspectorView.imageDataValid
+                caption: String(localized: .imageDataValid)
             )
 
         case .some(.missingFiles(let message)):
@@ -226,7 +226,7 @@ private extension Optional where Wrapped == DownloadValidationState {
 
         case nil:
             return .error(
-                caption: L10n.Localizable.DownloadInspectorView.imageDataUnavailable
+                caption: String(localized: .imageDataUnavailable)
             )
         }
     }

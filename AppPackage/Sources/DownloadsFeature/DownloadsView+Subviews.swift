@@ -72,7 +72,7 @@ struct DownloadInspectorView: View {
                         let isRetryFailedPagesDisabled = !inspection.canRetryFailedPages
                         let isValidateImageDataDisabled =
                             !inspection.canValidateImageData || store.isValidatingImageData
-                        Section(L10n.Localizable.DownloadInspectorView.actions) {
+                        Section(String(localized: .actions)) {
                             Button {
                                 store.send(.toggleDownloadPause)
                             } label: {
@@ -88,7 +88,7 @@ struct DownloadInspectorView: View {
                                 store.send(.retryPages(inspection.failedPageIndices))
                             } label: {
                                 Label(
-                                    L10n.Localizable.DownloadInspectorView.retryFailedPages,
+                                    String(localized: .retryFailedPages),
                                     systemSymbol: .arrowClockwise
                                 )
                                 .disabledActionForegroundStyle(isRetryFailedPagesDisabled)
@@ -113,7 +113,7 @@ struct DownloadInspectorView: View {
         }
         .autoBlur(radius: blurRadius)
         .toast($store.scope(state: \.toast, action: \.toast))
-        .navigationTitle(L10n.Localizable.DownloadInspectorView.downloadStatus)
+        .navigationTitle(String(localized: .downloadStatus))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -133,8 +133,8 @@ private struct DownloadInspectorValidationActionLabel: View {
 
     private var title: String {
         isValidating
-            ? L10n.Localizable.DownloadInspectorView.validatingImageData
-            : L10n.Localizable.DownloadsView.validateImageData
+            ? String(localized: .validatingImageData)
+            : String(localized: .validateImageData)
     }
 
     private var progressAnimation: Animation? {
@@ -174,7 +174,7 @@ struct DownloadInspectorPageGroupRow: View {
     private var pageNumbersText: String {
         let indices = pages.map(\.index).sorted()
         guard !indices.isEmpty else {
-            return L10n.Localizable.DownloadInspectorView.none
+            return String(localized: .none)
         }
         return Self.formattedPageRanges(indices)
     }
@@ -244,11 +244,11 @@ private extension DownloadPageStatus {
     var title: String {
         switch self {
         case .pending:
-            return L10n.Localizable.DownloadInspectorView.pending
+            return String(localized: .pending)
         case .downloaded:
-            return L10n.Localizable.DownloadInspectorView.downloaded
+            return String(localized: .downloaded)
         case .failed:
-            return L10n.Localizable.DownloadInspectorView.failed
+            return String(localized: .failed)
         }
     }
 
@@ -276,8 +276,8 @@ private extension DownloadPageStatus {
 private extension DownloadedGallery {
     var inspectorPauseResumeTitle: String {
         displayStatus == .inactive
-            ? L10n.Localizable.DownloadsView.resume
-            : L10n.Localizable.DownloadsView.pause
+            ? String(localized: .resume)
+            : String(localized: .pause)
     }
 
     var inspectorPauseResumeSymbol: SFSymbol {

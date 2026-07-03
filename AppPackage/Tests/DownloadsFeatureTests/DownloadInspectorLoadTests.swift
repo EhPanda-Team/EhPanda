@@ -156,7 +156,7 @@ struct DownloadInspectorLoadTests: DownloadFeatureTestCase {
         await store.receive(\.validateImageDataDone) {
             $0.isValidatingImageData = false
             $0.toast = .success(
-                caption: L10n.Localizable.DownloadInspectorView.imageDataValid
+                caption: String(localized: .imageDataValid)
             )
         }
         await store.receive(\.loadInspection)

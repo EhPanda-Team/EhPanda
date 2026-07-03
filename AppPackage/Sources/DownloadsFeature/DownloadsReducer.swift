@@ -151,7 +151,7 @@ public struct DownloadsReducer: Sendable {
                 } message: {
                     TextState(
                         download.canTogglePause
-                            ? L10n.Localizable.DownloadsView.deleteActiveDownload
+                            ? String(localized: .deleteActiveDownload)
                             : L10n.Localizable.DownloadsView.deleteDownloadedGallery
                     )
                 }
@@ -160,7 +160,7 @@ public struct DownloadsReducer: Sendable {
             case .moveButtonTapped(let download):
                 let destinations = state.folders.filter { $0 != download.folderName }
                 state.confirmationDialog = ConfirmationDialogState {
-                    TextState(L10n.Localizable.DownloadsView.moveToFolder)
+                    TextState(String(localized: .moveToFolder))
                 } actions: {
                     for folder in destinations {
                         ButtonState(action: .move(download.gid, folder)) {
