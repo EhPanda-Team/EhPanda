@@ -85,12 +85,10 @@
 "confirmation_dialog.logout_description" = "Bist du sicher das du dich ausloggen möchtest?";
 "confirmation_dialog.delete_description" = "Möchtest du dieses Element wirklich löschen?";
 "confirmation_dialog.clear_description" = "Bist du sicher das du das löschen möchtest?";
-"confirmation_dialog.reset_description" = "Bist du sicher?";
 "confirmation_dialog.remove" = "Entfernen";
 "confirmation_dialog.logout" = "Ausloggen";
 "confirmation_dialog.delete" = "Löschen";
 "confirmation_dialog.clear" = "Löschen";
-"confirmation_dialog.reset" = "Zurücksetzen";
 
 // MARK: SubSection
 
@@ -404,25 +402,6 @@
 
 // MARK: FiltersView
 "filters_view.filters" = "Filter";
-"filters_view.advanced_settings" = "Erweiterte Einstellungen";
-"filters_view.search_gallery_name" = "Galerienamen durchsuchen";
-"filters_view.search_gallery_tags" = "Galerietags durchsuchen";
-"filters_view.search_gallery_description" = "Galeriebeschreibung durchsuchen";
-"filters_view.search_torrent_filenames" = "Torrents durchsuchen";
-"filters_view.only_show_galleries_with_torrents" = "Nur Galerien mit Torrents zeigen";
-"filters_view.search_low_power_tags" = "Low-Power Tags miteinbeziehen";
-"filters_view.search_downvoted_tags" = "Negativ bewertete Tags miteinbeziehen";
-"filters_view.search_expunged_galleries" = "Gelöschte Galerien zeigen";
-"filters_view.set_minimum_rating" = "Minimaleste Bewertung festlegen";
-"filters_view.minimum_rating" = "Minimale Bewertung";
-"filters_view.set_pages_range" = "Seitenzahl-Bereich festlegen";
-"filters_view.pages_range" = "Seitenzahl-Bereich";
-"filters_view.disable_language_filter" = "Gefilterte Sprachen miteinbeziehen";
-"filters_view.disable_uploader_filter" = "Gefilterte Uploader miteinbeziehen";
-"filters_view.disable_tags_filter" = "Gefilterte Tags miteinbeziehen";
-"filters_view.reset_filters" = "Filter zurücksetzen";
-"filters_view.advanced" = "Erweitert";
-"filters_view.default_filter" = "Standardfilter";
 // FilterRange
 "filter_range.search" = "Suche";
 "filter_range.global" = "Global";
