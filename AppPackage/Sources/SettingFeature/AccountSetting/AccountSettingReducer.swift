@@ -87,13 +87,13 @@ public struct AccountSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmLogout) {
-                        TextState(L10n.Localizable.ConfirmationDialog.logout)
+                        TextState(String(localized: .logout))
                     }
                     ButtonState(role: .cancel) {
                         TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.logoutDescription)
+                    TextState(String(localized: .logoutDescription))
                 }
                 return .none
 

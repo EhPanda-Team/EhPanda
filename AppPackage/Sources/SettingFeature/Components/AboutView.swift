@@ -7,7 +7,7 @@ import AppComponents
 struct AboutView: View {
     private var version: String {
         [
-            L10n.Localizable.AboutView.version,
+            String(localized: .version),
             AppUtil.version, "(\(AppUtil.build))"
         ]
         .joined(separator: " ")
@@ -20,32 +20,32 @@ struct AboutView: View {
                     LinkRow(urlString: contact.urlString, text: contact.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.specialThanks) {
+            Section(String(localized: .specialThanks)) {
                 ForEach(specialThanks) { specialThank in
                     LinkRow(urlString: specialThank.urlString, text: specialThank.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.codeLevelContributors) {
+            Section(String(localized: .codeLevelContributors)) {
                 ForEach(codeLevelContributors) { codeLevelContributor in
                     LinkRow(urlString: codeLevelContributor.urlString, text: codeLevelContributor.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.translationContributors) {
+            Section(String(localized: .translationContributors)) {
                 ForEach(translationContributors) { translationContributor in
                     LinkRow(urlString: translationContributor.urlString, text: translationContributor.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.acknowledgements) {
+            Section(String(localized: .acknowledgements)) {
                 ForEach(acknowledgements) { acknowledgement in
                     LinkRow(urlString: acknowledgement.urlString, text: acknowledgement.text)
                 }
             }
         }
-        .navigationTitle(L10n.Localizable.AboutView.ehPanda)
+        .navigationTitle(String(localized: .ehPanda))
         .toolbar {
             ToolbarItem(placement: .largeSubtitle) {
                 VStack(alignment: .leading) {
-                    Text(L10n.Constant.copyright)
+                    Text(String(localized: .Constant.copyright))
                     Text(version)
                 }
                 .foregroundStyle(.gray)
@@ -59,144 +59,144 @@ struct AboutView: View {
     // MARK: Contacts
     private let contacts: [Info] = {[
         .init(
-            urlString: L10n.Constant.Contact.website,
-            text: L10n.Localizable.AboutView.website
+            urlString: String(localized: .Constant.contactWebsite),
+            text: String(localized: .website)
         ),
         .init(
-            urlString: L10n.Constant.Contact.gitHub,
-            text: L10n.Constant.Contact.gitHubLink
+            urlString: String(localized: .Constant.contactGitHub),
+            text: String(localized: .Constant.contactGitHubLink)
         ),
         .init(
-            urlString: L10n.Constant.Contact.discord,
-            text: L10n.Constant.Contact.discordLink
+            urlString: String(localized: .Constant.contactDiscord),
+            text: String(localized: .Constant.contactDiscordLink)
         ),
         .init(
-            urlString: L10n.Constant.Contact.telegram,
-            text: L10n.Constant.Contact.telegramLink
+            urlString: String(localized: .Constant.contactTelegram),
+            text: String(localized: .Constant.contactTelegramLink)
         ),
         .init(
-            urlString: L10n.Constant.Contact.altStoreLink,
-            text: L10n.Localizable.AboutView.altStoreSource
+            urlString: String(localized: .Constant.contactAltStoreLink),
+            text: String(localized: .altStoreSource)
         )
     ]}()
 
     // MARK: Special thanks
     private let specialThanks: [Info] = {[
         .init(
-            urlString: L10n.Constant.SpecialThanks.taylorlannisterLink,
-            text: L10n.Constant.SpecialThanks.taylorlannister
+            urlString: String(localized: .Constant.specialThanksTaylorlannisterLink),
+            text: String(localized: .Constant.specialThanksTaylorlannister)
         ),
         .init(
-            urlString: L10n.Constant.SpecialThanks.luminescentYqLink,
-            text: L10n.Constant.SpecialThanks.luminescentYq
+            urlString: String(localized: .Constant.specialThanksLuminescentYqLink),
+            text: String(localized: .Constant.specialThanksLuminescentYq)
         ),
         .init(
-            urlString: L10n.Constant.SpecialThanks.caxerxLink,
-            text: L10n.Constant.SpecialThanks.caxerx
+            urlString: String(localized: .Constant.specialThanksCaxerxLink),
+            text: String(localized: .Constant.specialThanksCaxerx)
         ),
         .init(
-            urlString: L10n.Constant.SpecialThanks.honjowLink,
-            text: L10n.Constant.SpecialThanks.honjow
+            urlString: String(localized: .Constant.specialThanksHonjowLink),
+            text: String(localized: .Constant.specialThanksHonjow)
         )
     ]}()
 
     // MARK: Code level contributors
     private let codeLevelContributors: [Info] = {[
         .init(
-            urlString: L10n.Constant.CodeLevelContributor.vvbbnn00Link,
-            text: L10n.Constant.CodeLevelContributor.vvbbnn00
+            urlString: String(localized: .Constant.codeLevelContributorVvbbnn00Link),
+            text: String(localized: .Constant.codeLevelContributorVvbbnn00)
         ),
         .init(
-            urlString: L10n.Constant.CodeLevelContributor.kaed3miLink,
-            text: L10n.Constant.CodeLevelContributor.kaed3mi
+            urlString: String(localized: .Constant.codeLevelContributorKaed3MiLink),
+            text: String(localized: .Constant.codeLevelContributorKaed3Mi)
         ),
         .init(
-            urlString: L10n.Constant.CodeLevelContributor.aalberrtyLink,
-            text: L10n.Constant.CodeLevelContributor.aalberrty
+            urlString: String(localized: .Constant.codeLevelContributorAalberrtyLink),
+            text: String(localized: .Constant.codeLevelContributorAalberrty)
         ),
         .init(
-            urlString: L10n.Constant.CodeLevelContributor.jimmyPrimeLink,
-            text: L10n.Constant.CodeLevelContributor.jimmyPrime
+            urlString: String(localized: .Constant.codeLevelContributorJimmyPrimeLink),
+            text: String(localized: .Constant.codeLevelContributorJimmyPrime)
         ),
         .init(
-            urlString: L10n.Constant.CodeLevelContributor.xioxinLink,
-            text: L10n.Constant.CodeLevelContributor.xioxin
+            urlString: String(localized: .Constant.codeLevelContributorXioxinLink),
+            text: String(localized: .Constant.codeLevelContributorXioxin)
         )
     ]}()
 
     // MARK: Translation contributors
     private let translationContributors: [Info] = {[
         .init(
-            urlString: L10n.Constant.TranslationContributor.nebulosaCatLink,
-            text: L10n.Constant.TranslationContributor.nebulosaCat
+            urlString: String(localized: .Constant.translationContributorNebulosaCatLink),
+            text: String(localized: .Constant.translationContributorNebulosaCat)
         ),
         .init(
-            urlString: L10n.Constant.TranslationContributor.paulHaeusslerLink,
-            text: L10n.Constant.TranslationContributor.paulHaeussler
+            urlString: String(localized: .Constant.translationContributorPaulHaeusslerLink),
+            text: String(localized: .Constant.translationContributorPaulHaeussler)
         ),
         .init(
-            urlString: L10n.Constant.TranslationContributor.caxerxLink,
-            text: L10n.Constant.TranslationContributor.caxerx
+            urlString: String(localized: .Constant.translationContributorCaxerxLink),
+            text: String(localized: .Constant.translationContributorCaxerx)
         ),
         .init(
-            urlString: L10n.Constant.TranslationContributor.neKoOuOLink,
-            text: L10n.Constant.TranslationContributor.neKoOuO
+            urlString: String(localized: .Constant.translationContributorNeKoOuOLink),
+            text: String(localized: .Constant.translationContributorNeKoOuO)
         )
     ]}()
 
     // MARK: Acknowledgements
     private let acknowledgements: [Info] = {[
         .init(
-            urlString: L10n.Constant.Acknowledgement.kannaLink,
-            text: L10n.Constant.Acknowledgement.kanna
+            urlString: String(localized: .Constant.acknowledgementKannaLink),
+            text: String(localized: .Constant.acknowledgementKanna)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.colorfulLink,
-            text: L10n.Constant.Acknowledgement.colorful
+            urlString: String(localized: .Constant.acknowledgementColorfulLink),
+            text: String(localized: .Constant.acknowledgementColorful)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.swiftGenLink,
-            text: L10n.Constant.Acknowledgement.swiftGen
+            urlString: String(localized: .Constant.acknowledgementSwiftGenLink),
+            text: String(localized: .Constant.acknowledgementSwiftGen)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.kingfisherLink,
-            text: L10n.Constant.Acknowledgement.kingfisher
+            urlString: String(localized: .Constant.acknowledgementKingfisherLink),
+            text: String(localized: .Constant.acknowledgementKingfisher)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.swiftUIPagerLink,
-            text: L10n.Constant.Acknowledgement.swiftUIPager
+            urlString: String(localized: .Constant.acknowledgementSwiftUIPagerLink),
+            text: String(localized: .Constant.acknowledgementSwiftUIPager)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.waterfallGridLink,
-            text: L10n.Constant.Acknowledgement.waterfallGrid
+            urlString: String(localized: .Constant.acknowledgementWaterfallGridLink),
+            text: String(localized: .Constant.acknowledgementWaterfallGrid)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.swiftyOpenCCLink,
-            text: L10n.Constant.Acknowledgement.swiftyOpenCC
+            urlString: String(localized: .Constant.acknowledgementSwiftyOpenCCLink),
+            text: String(localized: .Constant.acknowledgementSwiftyOpenCC)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.uiImageColorsLink,
-            text: L10n.Constant.Acknowledgement.uiImageColors
+            urlString: String(localized: .Constant.acknowledgementUiImageColorsLink),
+            text: String(localized: .Constant.acknowledgementUiImageColors)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.sfSafeSymbolsLink,
-            text: L10n.Constant.Acknowledgement.sfSafeSymbols
+            urlString: String(localized: .Constant.acknowledgementSfSafeSymbolsLink),
+            text: String(localized: .Constant.acknowledgementSfSafeSymbols)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.systemNotificationLink,
-            text: L10n.Constant.Acknowledgement.systemNotification
+            urlString: String(localized: .Constant.acknowledgementSystemNotificationLink),
+            text: String(localized: .Constant.acknowledgementSystemNotification)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.swiftCommonMarkLink,
-            text: L10n.Constant.Acknowledgement.swiftCommonMark
+            urlString: String(localized: .Constant.acknowledgementSwiftCommonMarkLink),
+            text: String(localized: .Constant.acknowledgementSwiftCommonMark)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.ehTagTranslationDatabaseLink,
-            text: L10n.Constant.Acknowledgement.ehTagTranslationDatabase
+            urlString: String(localized: .Constant.acknowledgementEhTagTranslationDatabaseLink),
+            text: String(localized: .Constant.acknowledgementEhTagTranslationDatabase)
         ),
         .init(
-            urlString: L10n.Constant.Acknowledgement.tcaLink,
-            text: L10n.Constant.Acknowledgement.tca
+            urlString: String(localized: .Constant.acknowledgementTcaLink),
+            text: String(localized: .Constant.acknowledgementTca)
         )
     ]}()
 }

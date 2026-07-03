@@ -44,7 +44,7 @@ struct GeneralSettingView: View {
 
     private var language: String {
         Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
-            ?? L10n.Localizable.GeneralSettingView.defaultLanguageDescription
+            ?? String(localized: .defaultLanguageDescription)
     }
 
     var body: some View {
@@ -58,14 +58,14 @@ struct GeneralSettingView: View {
                     }
                     .foregroundStyle(.tint)
                 }
-                Button(L10n.Localizable.GeneralSettingView.appActivityLogs) {
+                Button(String(localized: .appActivityLogs)) {
                     store.send(.delegate(.pushAppActivityLogs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
-            Section(L10n.Localizable.GeneralSettingView.tags) {
+            Section(String(localized: .tags)) {
                 HStack {
-                    Text(L10n.Localizable.GeneralSettingView.enablesTagsExtension)
+                    Text(String(localized: .enablesTagsExtension))
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     ZStack {
@@ -85,14 +85,14 @@ struct GeneralSettingView: View {
                         .padding(.leading, 20)
                 }
                 if enablesTagsExtension && !tagTranslatorEmpty {
-                    Toggle(L10n.Localizable.GeneralSettingView.translatesTags, isOn: $translatesTags)
+                    Toggle(String(localized: .translatesTags), isOn: $translatesTags)
                     Toggle(
-                        L10n.Localizable.GeneralSettingView.showsTagsSearchSuggestion,
+                        String(localized: .showsTagsSearchSuggestion),
                         isOn: $showsTagsSearchSuggestion
                     )
-                    Toggle(L10n.Localizable.GeneralSettingView.showsImagesInTags, isOn: $showsImagesInTags)
+                    Toggle(String(localized: .showsImagesInTags), isOn: $showsImagesInTags)
                 }
-                Button(L10n.Localizable.GeneralSettingView.importCustomTranslations) {
+                Button(String(localized: .importCustomTranslations)) {
                     store.send(.importCustomTranslationsButtonTapped)
                 }
                 .fileImporter(
@@ -105,7 +105,7 @@ struct GeneralSettingView: View {
                 }
                 if tagTranslatorHasCustomTranslations {
                     Button(
-                        L10n.Localizable.GeneralSettingView.removeCustomTranslations,
+                        String(localized: .removeCustomTranslations),
                         role: .destructive, action: { store.send(.removeCustomTranslationsButtonTapped) }
                     )
                     .confirmationDialog(
@@ -113,20 +113,20 @@ struct GeneralSettingView: View {
                     )
                 }
             }
-            Section(L10n.Localizable.GeneralSettingView.navigation) {
+            Section(String(localized: .navigation)) {
                 Toggle(
-                    L10n.Localizable.GeneralSettingView.redirectsLinksToTheSelectedHost,
+                    String(localized: .redirectsLinksToTheSelectedHost),
                     isOn: $redirectsLinksToSelectedHost
                 )
                 Toggle(
-                    L10n.Localizable.GeneralSettingView.detectsLinksFromClipboard,
+                    String(localized: .detectsLinksFromClipboard),
                     isOn: $detectsLinksFromClipboard
                 )
             }
-            Section(L10n.Localizable.GeneralSettingView.security) {
+            Section(String(localized: .security)) {
                 HStack {
                     Picker(
-                        L10n.Localizable.GeneralSettingView.autoLock,
+                        String(localized: .autoLock),
                         selection: $autoLockPolicy
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
@@ -139,7 +139,7 @@ struct GeneralSettingView: View {
                     }
                 }
                 VStack(alignment: .leading) {
-                    Text(L10n.Localizable.GeneralSettingView.backgroundBlurRadius)
+                    Text(String(localized: .backgroundBlurRadius))
                     HStack {
                         Image(systemSymbol: .eye)
                         Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
@@ -147,12 +147,12 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            Section(L10n.Localizable.GeneralSettingView.caches) {
+            Section(String(localized: .caches)) {
                 Button {
                     store.send(.clearImageCachesButtonTapped)
                 } label: {
                     HStack {
-                        Text(L10n.Localizable.GeneralSettingView.clearImageCaches)
+                        Text(String(localized: .clearImageCaches))
                         Spacer()
                         Text(store.diskImageCacheSize).foregroundStyle(.tint)
                     }
@@ -171,7 +171,7 @@ struct GeneralSettingView: View {
             store.send(.checkPasscodeSetting)
             store.send(.calculateWebImageDiskCache)
         }
-        .navigationTitle(L10n.Localizable.GeneralSettingView.general)
+        .navigationTitle(String(localized: .general))
     }
 }
 

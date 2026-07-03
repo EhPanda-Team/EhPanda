@@ -78,12 +78,8 @@
 "app_error.local_file_operation_failed" = "로컬 파일 작업에 실패했습니다.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.remove_custom_translations" = "사용자 지정 번역을 삭제하시겠어요?";
-"confirmation_dialog.logout_description" = "로그아웃 하시겠어요?";
 "confirmation_dialog.delete_description" = "이 항목을 삭제하시겠어요?";
 "confirmation_dialog.clear_description" = "삭제하시겠어요?";
-"confirmation_dialog.remove" = "삭제";
-"confirmation_dialog.logout" = "로그아웃";
 "confirmation_dialog.delete" = "삭제";
 "confirmation_dialog.clear" = "삭제";
 
@@ -127,60 +123,21 @@
 // MARK: SettingView
 "setting_view.setting" = "설정";
 // SettingStateRoute
-"setting_state_route.account" = "계정";
-"setting_state_route.general" = "일반";
-"setting_state_route.appearance" = "외관";
-"setting_state_route.reading" = "읽기";
-"setting_state_route.download" = "다운로드";
-"setting_state_route.laboratory" = "실험실";
-"setting_state_route.about" = "정보";
 
 // MARK: AccountSettingView
-"account_setting_view.account" = "계정";
-"account_setting_view.shows_new_dawn_greeting" = "새벽 인사 구독하기";
 "account_setting_view.login" = "로그인";
-"account_setting_view.account_configuration" = "계정 설정";
-"account_setting_view.tags_management" = "태그 구독 관리";
-"account_setting_view.copy_cookies" = "쿠키 복사하기";
 // CookieValue
 
 // MARK: LoginView
 "login_view.login" = "로그인";
-"login_view.username" = "이름";
-"login_view.password" = "비밀번호";
 
 // MARK: GeneralSettingView
-"general_setting_view.general" = "일반";
 "general_setting_view.language" = "언어";
-"general_setting_view.auto_lock" = "앱 자동 잠금";
-"general_setting_view.enables_tags_extension" = "태그 확장 기능 사용하기";
-"general_setting_view.translates_tags" = "태그 번역하기";
-"general_setting_view.shows_tags_search_suggestion" = "태그 검색 제안 보여주기";
-"general_setting_view.shows_images_in_tags" = "태그에 이미지 보여주기";
-"general_setting_view.redirects_links_to_the_selected_host" = "선택한 서버로 이동하기";
-"general_setting_view.detects_links_from_clipboard" = "클립보드의 링크 인식하기";
-"general_setting_view.background_blur_radius" = "백그라운드 흐림 정도";
-"general_setting_view.app_activity_logs" = "앱 활동 로그";
-"general_setting_view.import_custom_translations" = "사용자 지정 번역 가져오기";
-"general_setting_view.remove_custom_translations" = "사용자 지정 번역 삭제";
-"general_setting_view.clear_image_caches" = "이미지 캐시 지우기";
-"general_setting_view.default_language_description" = "알 수 없음";
-"general_setting_view.tags" = "태그";
-"general_setting_view.navigation" = "내비게이션";
-"general_setting_view.security" = "개인 정보 보호";
-"general_setting_view.caches" = "캐시";
 // AutoLockPolicy
 "auto_lock_policy.never" = "안 함";
 "auto_lock_policy.instantly" = "즉시";
 
 // MARK: AppActivityLogsView
-"app_activity_logs_view.title" = "앱 활동 로그";
-"app_activity_logs_view.no_logs" = "로그가 없습니다";
-"app_activity_logs_view.current" = "현재";
-"app_activity_logs_view.run" = "실행 %@";
-"app_activity_logs_view.more_logs" = "더 많은 로그";
-"app_activity_logs_view.open_in_files" = "파일 앱에서 열기";
-"app_activity_logs_view.runs" = "실행";
 "app_activity_logs_view.level.undefined" = "정의되지 않음";
 "app_activity_logs_view.level.debug" = "디버그";
 "app_activity_logs_view.level.info" = "정보";
@@ -189,17 +146,6 @@
 "app_activity_logs_view.level.fault" = "결함";
 
 // MARK: AppearanceSettingView
-"appearance_setting_view.appearance" = "외관";
-"appearance_setting_view.theme" = "테마";
-"appearance_setting_view.tint_color" = "액센트 색상";
-"appearance_setting_view.display_mode" = "표시방식";
-"appearance_setting_view.shows_tags_in_list" = "리스트에서 태그 보여주기";
-"appearance_setting_view.maximum_number_of_tags" = "태그 갯수";
-"appearance_setting_view.displays_japanese_title" = "일본어 제목 보여주기";
-"appearance_setting_view.app_icon" = "앱 아이콘";
-"appearance_setting_view.infite" = "제한 없음";
-"appearance_setting_view.list" = "리스트";
-"appearance_setting_view.gallery" = "갤러리";
 // PreferredColorScheme
 "preferred_color_scheme.automatic" = "자동";
 "preferred_color_scheme.light" = "라이트";
@@ -215,7 +161,6 @@
 "list_display_mode.thumbnail" = "썸네일";
 
 // MARK: AppIconView
-"app_icon_view.app_icon" = "앱 아이콘";
 
 // MARK: reading_settingView
 // ReadingDirection
@@ -224,18 +169,8 @@
 "reading_direction.left_to_right" = "왼쪽에서 오른쪽으로";
 
 // MARK: LaboratorySettingView
-"laboratory_setting_view.laboratory" = "실험실";
-"laboratory_setting_view.bypasses_SNI_filtering" = "SNI 차단 우회";
 
 // MARK: AboutView
-"about_view.ehPanda" = "EhPanda";
-"about_view.website" = "웹사이트";
-"about_view.altStore_source" = "AltStore 소스";
-"about_view.version" = "버전";
-"about_view.special_thanks" = "특별히 감사드리는 분들";
-"about_view.code_level_contributors" = "코드 기여자";
-"about_view.translation_contributors" = "번역 기여자";
-"about_view.acknowledgements" = "도움을 주신 분들";
 
 // MARK: DetailView
 "detail_view.share" = "공유";
@@ -271,12 +206,6 @@
 "downloads_view.update" = "업데이트";
 
 // MARK: DownloadSettingView
-"download_setting_view.title" = "다운로드";
-"download_setting_view.network" = "네트워크";
-"download_setting_view.concurrent_image_downloads" = "동시 이미지 다운로드 수";
-"download_setting_view.retry_failed_pages_automatically" = "실패한 페이지 자동 재시도";
-"download_setting_view.allow_cellular_downloads" = "셀룰러 다운로드 허용";
-"download_setting_view.network_description" = "한 번에 하나의 갤러리만 다운로드됩니다. 이 설정으로 한 갤러리 안에서 동시에 다운로드할 페이지 수, 셀룰러 다운로드 허용 여부, 그리고 파일을 앱의 Downloads 폴더에 저장하는 방식을 제어합니다.";
 
 // MARK: CommentsView
 
@@ -305,19 +234,7 @@
 "filter_range.watched" = "주시 태그";
 
 // MARK: EhSettingView
-"eh_setting_view.host_settings" = "%@ 설정";
-"eh_setting_view.profile_settings" = "프로필 설정";
-"eh_setting_view.selected_profile" = "선택한 프로필";
-"eh_setting_view.set_as_default" = "기본으로 설정";
-"eh_setting_view.delete_profile" = "프로필 삭제";
-"eh_setting_view.rename" = "이름 변경";
-"eh_setting_view.create_new" = "추가";
-"eh_setting_view.done" = "완료";
 
-"eh_setting_view.image_load_settings" = "이미지 로드 설정";
-"eh_setting_view.load_images_through_the_hath_network" = "Hath 네트워크를 통하여 이미지 로드";
-"eh_setting_view.browsing_country" = "브라우징하는 나라";
-"eh_setting_view.browsing_country_description" = "**%@**에서 사이트를 탐색하거나 이 나라에서 VPN이나 프록시를 사용하려고 하는 것 같네요. 이런 경우엔 사이트에서 이 지역의 H@H 클라이언트의 이미지를 로드하려고 시도할 거에요. 만약에 이 나라가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 다른 나라를 선택할 수 있어요.";
 // EhSetting.LoadThroughHathSetting
 "load_through_hath_setting.any_client" = "어떤 클라이언트에서든";
 "load_through_hath_setting.default_port_only" = "기본 포트 클라이언트만";
@@ -328,26 +245,13 @@
 "load_through_hath_setting.modern_no_description" = "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.";
 "load_through_hath_setting.legacy_no_description" = "기부자 전용 기능이에요. 최신 브라우저에서는 제대로 작동하지 않을 수 있어요. 오래된 브라우저에서만 사용해주세요.";
 
-"eh_setting_view.image_size_settings" = "이미지 사이즈 설정";
-"eh_setting_view.image_resolution" = "이미지 해상도";
-"eh_setting_view.image_resolution_description" = "일반적으로 이미지는 온라인 뷰어를 위해 1280 픽셀의 수평 해상도로 작아져요. 아래의 압축된 해상도 중 하나를 선택할 수 있어요. 서버 과부하를 막기 위해, 1280 이상의 해상도는 도네이션을 한 사람, hath perk를 가진 사람, 그리고 UID가 300만 이하인 사람들로 일시적으로 제한되어요.";
-"eh_setting_view.image_size" = "이미지 사이즈";
-"eh_setting_view.image_size_description" = "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소시키지만, 수동으로 크기를 정할 수도 있어요. 크기 조정은 브라우저 측에서 수행되므로 이미지가 다시 샘플링되지 않아요. (0 = no limit)";
-"eh_setting_view.horizontal" = "가로";
-"eh_setting_view.vertical" = "세로";
 // EhSetting.ImageResolution
 "image_resolution.auto" = "자동";
 
-"eh_setting_view.gallery_name_display" = "갤러리 이름 보이기";
-"eh_setting_view.gallery_name" = "갤러리 이름";
-"eh_setting_view.gallery_name_description" = "영어 제목과 일본어 제목 중 기본값으로 보일 언어를 선택해주세요.";
 // EhSetting.GalleryName
 "gallery_name.default" = "영어 제목";
 "gallery_name.japanese" = "일본어 제목(가능하면)";
 
-"eh_setting_view.archiver_settings" = "아카이버";
-"eh_setting_view.archiver_behavior" = "아카이버 동작 방법 설정";
-"eh_setting_view.archiver_behavior_description" = "아카이버의 기본 동작은 원본 또는 저화질 갤러리 저장에 대한 비용과 선택을 확인한 다음 다른 곳에서 클릭하거나 복사할 수 있는 링크를 표시하는 것입니다. 여기서 이 동작을 변경할 수 있습니다.";
 // EhSetting.ArchiverBehavior
 "eh_setting.archiver_behavior.manual_select_manual_start" = "수동 선택, 수동 시작 (기본)";
 "eh_setting.archiver_behavior.manual_select_auto_start" = "수동 선택, 자동 시작";
@@ -356,12 +260,6 @@
 "eh_setting.archiver_behavior.auto_select_resample_manual_start" = "자동으로 저화질을 선택, 수동 시작";
 "eh_setting.archiver_behavior.auto_select_resample_auto_start" = "자동으로 저화질을 선택, 자동 시작";
 
-"eh_setting_view.front_page_settings" = "프론트 페이지 설정";
-"eh_setting_view.display_mode" = "표시방식";
-"eh_setting_view.display_mode_description" = "프론트와 검색 페이지에서 사용할 디스플레이 모드를 선택하세요.";
-"eh_setting_view.show_search_range_indicator" = "검색 범위 표시기";
-"eh_setting_view.show_search_range_indicator_description" = "검색 범위 표시기 표시";
-"eh_setting_view.gallery_category" = "프론트와 검색 페이지에서 어떤 카테고리가 보여지도록 할까요?";
 // EhSetting.DisplayMode
 "display_mode.compact" = "컴팩트";
 "display_mode.thumbnail" = "썸네일";
@@ -369,54 +267,22 @@
 "display_mode.minimal" = "미니멀";
 "display_mode.minimalPlus" = "미니멀+";
 
-"eh_setting_view.optional_UI_elements" = "선택적 UI 요소";
-"eh_setting_view.optional_UI_elements_description" = "일부 예전 UI 요소는 이제 기본적으로 꺼져 있어요. 여기서 다시 켤 수 있어요.";
-"eh_setting_view.enable_gallery_thumbnail_selector" = "갤러리 화면에서 썸네일 선택기 사용";
 
-"eh_setting_view.favorites" = "즐겨찾기";
-"eh_setting_view.favorite_categories" = "여기서 좋아하는 장르들을 선택하고 이름을 바꿀 수 있어요.";
-"eh_setting_view.favorites_sort_order" = "관심 순서를 배열";
-"eh_setting_view.favorites_sort_order_description" = "당신의 관심 페이지의 기본 정렬 방식을 선택할 수 있어요. 2016년 3월 개정 전에 추가된 즐겨찾기는 타임스탬프가 저장되지 않아 이 설정에 관계없이 갤러리가 게시된 시간으로 정렬되어요.";
 // EhSetting.FavoritesSortOrder
 "favorites_sort_order.last_update_time" = "마지막 업데이트 시간으로";
 "favorites_sort_order.favorited_time" = "별점 시간으로";
 
-"eh_setting_view.ratings" = "별점";
-"eh_setting_view.ratings_color" = "별점 색깔";
-"eh_setting_view.ratings_color_prompt" = "RRGGB";
-"eh_setting_view.ratings_color_description" = "기본적으로 등급을 매긴 갤러리는 별 2개 이하의 등급에 대해 빨간색, 2.5~4개의 등급에 대해 녹색, 4.5~5개의 등급에 대해 파란색 별로 표시되어요. 아래에 원하는 색상 조합을 입력하여 사용자 정의할 수 있어요. 각 문자는 별 하나를 표현해요. 기본 RRGGB는 첫 번째와 두 번째 별의 경우 R(ed), 세 번째와 네 번째 별의 경우 G(reen), 다섯 번째 별의 경우 B(lue)를 의미해요. 일반 별에 (Y)ellow를 사용할 수도 있어요. 모든 5글자의 R/G/B/Y 콤보가 작동해요.";
 
-"eh_setting_view.tag_filtering_threshold" = "태그 필터링 임계값";
-"eh_setting_view.tag_filtering_threshold_description" = "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있어요. 갤러리에 이 값 이하의 가중치를 추가하는 태그가 있으면 보기에서 필터링되어요. 이 임계값은 0과 -9999 사이에서 설정할 수 있어요.";
 
-"eh_setting_view.tag_watching_threshold" = "태그 보여주기 임계값";
-"eh_setting_view.tag_watching_threshold_description" = "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요.";
 
-"eh_setting_viewfiltered_removal_count" = "필터로 제거된 수";
-"eh_setting_view.filtered_removal_count_description" = "\"기본 필터가 이 페이지에서 갤러리 XX개를 제거했어요\" 문구를 표시할까요?";
-"eh_setting_view.show_filtered_removal_count" = "필터로 제거된 수 표시";
 
-"eh_setting_view.excluded_languages" = "제외된 언어";
-"eh_setting_view.excluded_languages_description" = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요.";
 // EhSetting.ExcludedLanguagesCategory
 "excluded_languages_category.original" = "원본";
 "excluded_languages_category.translated" = "번역됨";
 "excluded_languages_category.rewrite" = "다시 쓰기";
 
-"eh_setting_view.excluded_uploaders" = "제외된 업로드";
-"eh_setting_view.excluded_uploaders_description" = "갤러리 목록 및 검색에서 특정 업로더의 갤러리를 숨기려면 아래에 해당 갤러리를 추가해주세요. 한 줄에 하나의 사용자 이름을 입력해주세요. 이러한 업로더의 갤러리는 검색 쿼리에 관계없이 나타나지 않아요.";
-"eh_setting_view.excluded_uploaders_count" = "**%@ / %@** 개의 슬롯을 사용하고 있어요.";
 
-"eh_setting_view.search_result_count" = "검색 결과 수";
-"eh_setting_view.result_count" = "결과 수";
-"eh_setting_view.result_count_description" = "인덱스 / 검색 / 토렌트 검색 페이지에 대해 페이지당 몇 개의 결과를 원하시나요?\n(Hath Perk: 페이징 확장 필요)";
 
-"eh_setting_view.thumbnail_settings" = "썸네일 설정";
-"eh_setting_view.thumbnail_load_timing" = "썸네일 로드 시간";
-"eh_setting_view.thumbnail_load_timing_description" = "목록 모드를 사용할 때 앞 페이지의 마우스 오버 미리 보기를 어떻게 로드할까요?";
-"eh_setting_view.thumbnail_configuration" = "모든 방문한 갤러리에 대하여 기본 썸네일을 설정할 수 있어요.";
-"eh_setting_view.thumbnail_size" = "사이즈";
-"eh_setting_view.thumbnail_row_count" = "줄";
 // EhSetting.ThumbnailLoadTiming
 "thumbnail_load_timing.on_mouse_over" = "마우스를 올릴 때";
 "thumbnail_load_timing.on_page_load" = "페이지 로드될 때";
@@ -428,17 +294,8 @@
 "thumbnail_size.small" = "작게";
 "thumbnail_size.auto" = "자동";
 
-"eh_setting_view.cover_scaling" = "표지 크기 조절";
-"eh_setting_view.scale_factor" = "크기 비율";
-"eh_setting_view.cover_scale_factor" = "썸네일 또는 확장 표시방식에서는 갤러리 목록의 표지 크기를 75%%에서 150%% 사이로 조절할 수 있어요.";
 
-"eh_setting_view.viewport_override" = "뷰포트 조정";
-"eh_setting_view.virtual_width" = "가상 너비";
-"eh_setting_view.virtual_width_description" = "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100%% 썸네일 스케일의 추천 값은 640에서 1400 사이에요.";
 
-"eh_setting_view.gallery_comments" = "갤러리 댓글";
-"eh_setting_view.comments_sort_order" = "댓글 순서";
-"eh_setting_view.comments_votes_show_timing" = "평가의 시간을 보이기";
 // EhSetting.CommentsSortOrder
 "comments_sort_order.oldest" = "가장 이른 순서";
 "comments_sort_order.recent" = "최신순";
@@ -447,22 +304,12 @@
 "comments_votes_show_timing.on_hover_or_click" = "점수를 가리키커나 클리하기";
 "comments_votes_show_timing.always" = "항상";
 
-"eh_setting_view.gallery_tags" = "갤러리 태그";
-"eh_setting_view.tags_sort_order" = "태그 순서를 배열";
 // EhSetting.tags_sort_order
 "tags_sort_order.alphabetical" = "알파벳순으로";
 "tags_sort_order.tag_power" = "태크 가중치로";
 
-"eh_setting_view.gallery_page_thumbnail_labeling" = "갤러리 페이지 썸네일 라벨";
-"eh_setting_view.show_label_below_gallery_thumbnails" = "갤러리 썸네일 아래에 라벨 표시";
 
-"eh_setting_view.original_images" = "다시 샘플링된 버전 대신 원본 이미지를 사용할까요? 위에서 가로 해상도를 \"자동\" 이외로 선택했고 해당 이미지가 그보다 넓은 경우나, 원본 이미지가 10 MiB(1년 넘은 갤러리는 4 MiB)보다 큰 경우에는 다시 샘플링된 이미지가 계속 사용되어요.";
-"eh_setting_view.use_original_images" = "원본 뷰어 적용";
 
-"eh_setting_view.multi_page_viewer" = "멀티 페이지 뷰어";
-"eh_setting_view.use_multi_page_viewer" = "다중 페이지 뷰어 적용";
-"eh_setting_view.display_style" = "보여주기 스타일";
-"eh_setting_view.show_thumbnail_pane" = "썸네일 창 표시";
 // EhSetting.MultiplePageViewerStyle
 "multiple_page_viewer_style.align_left_scale_if_over_width" = "왼쪽 정렬, 너비 초과할 때 크기 맞추기";
 "multiple_page_viewer_style.align_center_scale_if_over_width" = "가운데 정렬, 너비 초과할 때 크기 맞추기";

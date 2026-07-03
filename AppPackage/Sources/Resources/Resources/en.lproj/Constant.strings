@@ -7,76 +7,15 @@
 "gallery_unavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: App
-"copyright" = "Copyright © 2026 EhPanda Team";
 
 // Contact
-"contact.website" = "https://ehpanda.app";
-"contact.gitHub" = "https://github.com/EhPanda-Team/EhPanda";
-"contact.discord" = "https://discord.gg/BSBE9FCBTq";
-"contact.telegram" = "https://t.me/ehpanda";
-"contact.altStore_link" = "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json";
-"contact.gitHub_link" = "GitHub";
-"contact.discord_link" = "Discord";
-"contact.telegram_link" = "Telegram";
 
 // Special thanks
-"special_thanks.taylorlannister_link" = "https://github.com/taylorlannister";
-"special_thanks.luminescent_yq_link" = "";
-"special_thanks.caxerx_link" = "https://github.com/caxerx";
-"special_thanks.honjow_link" = "https://github.com/honjow";
-"special_thanks.taylorlannister" = "taylorlannister";
-"special_thanks.luminescent_yq" = "Luminescent_yq";
-"special_thanks.caxerx" = "caxerx";
-"special_thanks.honjow" = "honjow";
 
 // Code level contributor
-"code_level_contributor.vvbbnn00_link" = "https://github.com/vvbbnn00";
-"code_level_contributor.Kaed3mi_link" = "https://github.com/Kaed3mi";
-"code_level_contributor.aalberrty_link" = "https://github.com/aalberrty";
-"code_level_contributor.Jimmy-Prime_link" = "https://github.com/Jimmy-Prime";
-"code_level_contributor.xioxin_link" = "https://github.com/xioxin";
-"code_level_contributor.vvbbnn00" = "vvbbnn00";
-"code_level_contributor.Kaed3mi" = "Kaed3mi";
-"code_level_contributor.aalberrty" = "Zack Asahina";
-"code_level_contributor.Jimmy-Prime" = "Jimmy Prime";
-"code_level_contributor.xioxin" = "xioxin";
 
 // Translation contributor
-"translation_contributor.nebulosa-cat_link" = "https://github.com/Nebulosa-Cat";
-"translation_contributor.paulHaeussler_link" = "https://github.com/PaulHaeussler";
-"translation_contributor.caxerx_link" = "https://github.com/caxerx";
-"translation_contributor.NeKoOuO_link" = "https://github.com/NeKoOuO";
-"translation_contributor.nebulosa-cat" = "雲豹 ΦωΦ";
-"translation_contributor.paulHaeussler" = "PaulHaeussler";
-"translation_contributor.caxerx" = "caxerx";
-"translation_contributor.NeKoOuO" = "ɴᴇᴋᴏ";
 
 // Acknowledgement link
-"acknowledgement.kanna_link" = "https://github.com/tid-kijyun/Kanna";
-"acknowledgement.swiftGen_link" = "https://github.com/SwiftGen/SwiftGen";
-"acknowledgement.colorful_link" = "https://github.com/Co2333/Colorful";
-"acknowledgement.kingfisher_link" = "https://github.com/onevcat/Kingfisher";
-"acknowledgement.swiftUIPager_link" = "https://github.com/fermoya/SwiftUIPager";
-"acknowledgement.waterfallGrid_link" = "https://github.com/paololeonardi/WaterfallGrid";
-"acknowledgement.swiftyOpenCC_link" = "https://github.com/ddddxxx/SwiftyOpenCC";
-"acknowledgement.uiImageColors_link" = "https://github.com/jathu/UIImageColors";
-"acknowledgement.sfSafeSymbols_link" = "https://github.com/SFSafeSymbols/SFSafeSymbols";
-"acknowledgement.systemNotification_link" = "https://github.com/danielsaidi/SystemNotification";
-"acknowledgement.swiftCommonMark_link" = "https://github.com/gonzalezreal/SwiftCommonMark";
-"acknowledgement.ehTagTranslationDatabase_link" = "https://github.com/EhTagTranslation/Database";
-"acknowledgement.tca_link" = "https://github.com/pointfreeco/swift-composable-architecture";
 
 // Acknowledgement text
-"acknowledgement.kanna" = "Kanna";
-"acknowledgement.swiftGen" = "SwiftGen";
-"acknowledgement.colorful" = "Colorful";
-"acknowledgement.kingfisher" = "Kingfisher";
-"acknowledgement.swiftUIPager" = "SwiftUIPager";
-"acknowledgement.waterfallGrid" = "WaterfallGrid";
-"acknowledgement.swiftyOpenCC" = "SwiftyOpenCC";
-"acknowledgement.uiImageColors" = "UIImageColors";
-"acknowledgement.sfSafeSymbols" = "SFSafeSymbols";
-"acknowledgement.systemNotification" = "SystemNotification";
-"acknowledgement.swiftCommonMark" = "SwiftCommonMark";
-"acknowledgement.ehTagTranslationDatabase" = "EhTagTranslation/Database";
-"acknowledgement.tca" = "The Composable Architecture";

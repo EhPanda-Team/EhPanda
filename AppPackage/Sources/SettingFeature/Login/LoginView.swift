@@ -34,13 +34,13 @@ struct LoginView: View {
                         LoginTextField(
                             focusedField: $focusedField,
                             text: $store.username,
-                            description: L10n.Localizable.LoginView.username,
+                            description: String(localized: .username),
                             isPassword: false
                         )
                         LoginTextField(
                             focusedField: $focusedField,
                             text: $store.password,
-                            description: L10n.Localizable.LoginView.password,
+                            description: String(localized: .password),
                             isPassword: true
                         )
                     }

@@ -699,6 +699,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.sharing)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
