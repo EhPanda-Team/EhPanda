@@ -140,13 +140,13 @@ public struct DownloadsReducer: Sendable {
 
             case .deleteDownloadButtonTapped(let download):
                 state.alert = AppAlertState {
-                    TextState(String(localized: .RLocalizable.deleteDownload))
+                    TextState(localized: .RLocalizable.deleteDownload)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(download.gid)) {
-                        TextState(String(localized: .RLocalizable.delete))
+                        TextState(localized: .RLocalizable.delete)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
                     TextState(
@@ -160,7 +160,7 @@ public struct DownloadsReducer: Sendable {
             case .moveButtonTapped(let download):
                 let destinations = state.folders.filter { $0 != download.folderName }
                 state.confirmationDialog = ConfirmationDialogState {
-                    TextState(String(localized: .moveToFolder))
+                    TextState(localized: .moveToFolder)
                 } actions: {
                     for folder in destinations {
                         ButtonState(action: .move(download.gid, folder)) {
@@ -168,7 +168,7 @@ public struct DownloadsReducer: Sendable {
                         }
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 }
                 return .none

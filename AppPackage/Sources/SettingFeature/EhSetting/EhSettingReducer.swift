@@ -7,6 +7,7 @@ import ApplicationClient
 import HapticsClient
 import NetworkingFeature
 import CookieClient
+import AppComponents
 
 @Reducer
 public struct EhSettingReducer: Sendable {
@@ -86,13 +87,13 @@ public struct EhSettingReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDeleteProfile) {
-                        TextState(String(localized: .RLocalizable.delete))
+                        TextState(localized: .RLocalizable.delete)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .RLocalizable.deleteDescription))
+                    TextState(localized: .RLocalizable.deleteDescription)
                 }
                 return .none
 

@@ -3,6 +3,7 @@ import AppModels
 import Resources
 import ComposableArchitecture
 import DatabaseClient
+import AppComponents
 
 @Reducer
 public struct MigrationReducer: Sendable {
@@ -47,13 +48,13 @@ public struct MigrationReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDropDatabase) {
-                        TextState(String(localized: .dropDatabase))
+                        TextState(localized: .dropDatabase)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(String(localized: .RLocalizable.cancel))
+                        TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(String(localized: .dropDatabaseDescription))
+                    TextState(localized: .dropDatabaseDescription)
                 }
                 return .none
 
