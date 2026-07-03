@@ -249,14 +249,6 @@
 "app_icon_view.app_icon" = "App-Symbol";
 
 // MARK: reading_settingView
-"reading_setting_view.reading" = "Am Lesen";
-"reading_setting_view.direction" = "Leserichtung";
-"reading_setting_view.preload_limit" = "Vorausladen";
-"reading_setting_view.enables_landscape" = "Querformat aktivieren";
-"reading_setting_view.separator_height" = "Höhe der Teilung";
-"reading_setting_view.maximum_scale_factor" = "Maximaler Skalierungsfaktor";
-"reading_setting_view.double_tap_scale_factor" = "Doppel-Tap Skalierungsfaktor";
-"reading_setting_view.appearance" = "Oberfläche";
 // ReadingDirection
 "reading_direction.vertical" = "Vertikal";
 "reading_direction.right_to_left" = "Von rechts nach links";

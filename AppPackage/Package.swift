@@ -608,6 +608,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.resources)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),

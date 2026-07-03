@@ -249,14 +249,6 @@
 "app_icon_view.app_icon" = "应用图标";
 
 // MARK: reading_settingView
-"reading_setting_view.reading" = "阅读";
-"reading_setting_view.direction" = "方向";
-"reading_setting_view.preload_limit" = "预加载数量上限";
-"reading_setting_view.enables_landscape" = "启用横屏";
-"reading_setting_view.separator_height" = "分隔线高度";
-"reading_setting_view.maximum_scale_factor" = "最大缩放系数";
-"reading_setting_view.double_tap_scale_factor" = "双击缩放系数";
-"reading_setting_view.appearance" = "外观";
 // ReadingDirection
 "reading_direction.vertical" = "垂直";
 "reading_direction.right_to_left" = "右至左";

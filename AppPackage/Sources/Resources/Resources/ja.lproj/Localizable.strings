@@ -249,14 +249,6 @@
 "app_icon_view.app_icon" = "アプリアイコン";
 
 // MARK: reading_settingView
-"reading_setting_view.reading" = "閲覧";
-"reading_setting_view.direction" = "方向";
-"reading_setting_view.preload_limit" = "プリロード上限数";
-"reading_setting_view.enables_landscape" = "横向きを有効";
-"reading_setting_view.separator_height" = "仕切りの高さ";
-"reading_setting_view.maximum_scale_factor" = "最大スケール係数";
-"reading_setting_view.double_tap_scale_factor" = "ダブルタップスケール係数";
-"reading_setting_view.appearance" = "外観";
 // ReadingDirection
 "reading_direction.vertical" = "縦読み";
 "reading_direction.right_to_left" = "右開き";
