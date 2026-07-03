@@ -54,8 +54,6 @@
 "date_seek_view.date_seek" = "日期定位";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "跳到...";
-"jump_page_view.jump_page_description" = "請輸入 1 到 %d 之間的頁碼。";
-"jump_page_view.confirm" = "確定";
 
 // MARK: AlertView
 "loading_view.loading" = "載入中...";
@@ -116,28 +114,17 @@
 
 // MARK: HomeView
 "home_view.home" = "總覽";
-"home_view.frontpage" = "首頁";
-"home_view.toplists" = "排行";
-"home_view.other" = "其他";
 // HomeMiscGridType
-"home_misc_grid_type.popular" = "熱門";
-"home_misc_grid_type.watched" = "關注";
-"home_misc_grid_type.history" = "歷程";
 
 // MARK: FrontpageView
-"frontpage_view.frontpage" = "首頁";
 
 // MARK: ToplistsView
-"toplists_view.toplists" = "排行";
 
 // MARK: PopularView
-"popular_view.popular" = "熱門";
 
 // MARK: WatchedView
-"watched_view.watched" = "關注";
 
 // MARK: HistoryView
-"history_view.history" = "歷程";
 
 // MARK: FavoritesView
 "favorites_view.favorites" = "收藏";
@@ -149,7 +136,6 @@
 "search_view.search" = "搜尋";
 "search_view.quick_search" = "快速搜尋";
 // Searchable
-"searchable.filter" = "過濾";
 "searchable.matches_count" = "找到 %d 項結果";
 
 // MARK: QuickSearchView

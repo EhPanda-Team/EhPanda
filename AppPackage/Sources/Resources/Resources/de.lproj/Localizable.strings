@@ -54,8 +54,6 @@
 "date_seek_view.date_seek" = "Datum aufsuchen";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "Zu Seite springen";
-"jump_page_view.jump_page_description" = "Geben Sie eine Seitenzahl zwischen 1 und %d ein.";
-"jump_page_view.confirm" = "Bestätigen";
 
 // MARK: AlertView
 "loading_view.loading" = "Wird geladen...";
@@ -116,28 +114,17 @@
 
 // MARK: HomeView
 "home_view.home" = "Start";
-"home_view.frontpage" = "Startseite";
-"home_view.toplists" = "Toplisten";
-"home_view.other" = "Sonstiges";
 // HomeMiscGridType
-"home_misc_grid_type.popular" = "Beliebt";
-"home_misc_grid_type.watched" = "Meine Tags";
-"home_misc_grid_type.history" = "Verlauf";
 
 // MARK: FrontpageView
-"frontpage_view.frontpage" = "Startseite";
 
 // MARK: ToplistsView
-"toplists_view.toplists" = "Toplisten";
 
 // MARK: PopularView
-"popular_view.popular" = "Beliebt";
 
 // MARK: WatchedView
-"watched_view.watched" = "Meine Tags";
 
 // MARK: HistoryView
-"history_view.history" = "Verlauf";
 
 // MARK: FavoritesView
 "favorites_view.favorites" = "Favoriten";
@@ -149,7 +136,6 @@
 "search_view.search" = "Suche";
 "search_view.quick_search" = "Schnellsuche";
 // Searchable
-"searchable.filter" = "Filter";
 "searchable.matches_count" = "%d Treffer gefunden.";
 
 // MARK: QuickSearchView

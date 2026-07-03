@@ -54,8 +54,6 @@
 "date_seek_view.date_seek" = "Seek to date";
 // MARK: JumpPage
 "jump_page_view.jump_page" = "Jump page";
-"jump_page_view.jump_page_description" = "Enter a page number between 1 and %d to jump to.";
-"jump_page_view.confirm" = "Confirm";
 
 // MARK: AlertView
 "loading_view.loading" = "Loading...";
@@ -116,28 +114,17 @@
 
 // MARK: HomeView
 "home_view.home" = "Home";
-"home_view.frontpage" = "Frontpage";
-"home_view.toplists" = "Toplists";
-"home_view.other" = "Other";
 // HomeMiscGridType
-"home_misc_grid_type.popular" = "Popular";
-"home_misc_grid_type.watched" = "Watched";
-"home_misc_grid_type.history" = "History";
 
 // MARK: FrontpageView
-"frontpage_view.frontpage" = "Frontpage";
 
 // MARK: ToplistsView
-"toplists_view.toplists" = "Toplists";
 
 // MARK: PopularView
-"popular_view.popular" = "Popular";
 
 // MARK: WatchedView
-"watched_view.watched" = "Watched";
 
 // MARK: HistoryView
-"history_view.history" = "History";
 
 // MARK: FavoritesView
 "favorites_view.favorites" = "Favorites";
@@ -149,7 +136,6 @@
 "search_view.search" = "Search";
 "search_view.quick_search" = "Quick search";
 // Searchable
-"searchable.filter" = "Filter";
 "searchable.matches_count" = "Found %d matches.";
 
 // MARK: QuickSearchView
