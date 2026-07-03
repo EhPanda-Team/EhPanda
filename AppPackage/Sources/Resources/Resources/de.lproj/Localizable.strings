@@ -1,11 +1,11 @@
 // MARK: BanInterval
-"ban_interval.and" = "and";
+"ban_interval.and" = "und";
 
 // MARK: ToplistsType
-"toplists_type.yesterday" = "Yesterday";
-"toplists_type.past_month" = "Past month";
-"toplists_type.past_year" = "Past year";
-"toplists_type.all_time" = "All time";
+"toplists_type.yesterday" = "Gestern";
+"toplists_type.past_month" = "Letzter Monat";
+"toplists_type.past_year" = "Letztes Jahr";
+"toplists_type.all_time" = "Gesamt";
 
 // MARK: Response
 "hath_client_not_found" = "Du benötigst einen deinem Konto zugehörigen H@H Client um diese Funktion nutzen zu können";
@@ -18,38 +18,38 @@
 "toast.loading" = "Wird geladen...";
 "toast.communicating" = "Verbinde...";
 "toast.copied_to_clipboard" = "In Zwischenablage kopiert";
-"toast.saved_to_photo_library" = "Saved to photo library";
+"toast.saved_to_photo_library" = "In der Fotomediathek gesichert";
 
 // MARK: AutoLock
 "local_authorization.reason" = "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist.";
 
 // MARK: Common value
 "common.stars" = "%@ Sterne";
-"common.pages" = "%@ pages";
-"common.day" = "%@ day";
-"common.days" = "%@ days";
-"common.hour" = "%@ hour";
-"common.hours" = "%@ hours";
-"common.minute" = "Nach %@ Minute";
-"common.minutes" = "Nach %@ Minuten";
-"common.second" = "%@ second";
-"common.seconds" = "Nach %@ Sekunden";
+"common.pages" = "%@ Seiten";
+"common.day" = "%@ Tag";
+"common.days" = "%@ Tage";
+"common.hour" = "%@ Stunde";
+"common.hours" = "%@ Stunden";
+"common.minute" = "%@ Minute";
+"common.minutes" = "%@ Minuten";
+"common.second" = "%@ Sekunde";
+"common.seconds" = "%@ Sekunden";
 
 // MARK: Common button
 "common.cancel" = "Abbrechen";
 
 // MARK: TabItem
-"tab_item.home" = "Home";
+"tab_item.home" = "Start";
 "tab_item.favorites" = "Favoriten";
 "tab_item.search" = "Suche";
 "tab_item.downloads" = "Downloads";
 "tab_item.setting" = "Einstellungen";
 
 // MARK: ToolbarItem
-"toolbar_item.filters" = "Filters";
-"toolbar_item.jump_page" = "Jump page";
+"toolbar_item.filters" = "Filter";
+"toolbar_item.jump_page" = "Zu Seite springen";
 "toolbar_item.date_seek" = "Datum aufsuchen";
-"toolbar_item.quick_search" = "Quick search";
+"toolbar_item.quick_search" = "Schnellsuche";
 
 // MARK: DateSeek
 "date_seek_view.date_seek" = "Datum aufsuchen";
@@ -58,26 +58,26 @@
 "date_seek_view.seek_newer" = "Neuere";
 "date_seek_view.seek_older" = "Ältere";
 // MARK: JumpPage
-"jump_page_view.jump_page" = "Jump page";
+"jump_page_view.jump_page" = "Zu Seite springen";
 "jump_page_view.jump_page_description" = "Geben Sie eine Seitenzahl zwischen 1 und %d ein.";
-"jump_page_view.confirm" = "Confirm";
+"jump_page_view.confirm" = "Bestätigen";
 
 // MARK: AlertView
 "loading_view.loading" = "Wird geladen...";
-"loading_view.preparing_database" = "Preparing the database...";
-"not_login_view.need_login" = "You need to login to access this feature.";
-"not_login_viewlogin" = "Login";
+"loading_view.preparing_database" = "Datenbank wird vorbereitet...";
+"not_login_view.need_login" = "Du musst dich einloggen, um diese Funktion nutzen zu können.";
+"not_login_viewlogin" = "Einloggen";
 "error_view.retry" = "Erneut versuchen";
-"error_view.drop_database" = "Drop the database";
-"error_view.try_later" = "Please try again later.";
-"error_view.network" = "A network error occurred.";
-"error_view.parsing" = "A parsing error occurred.";
-"error_view.unknown" = "An unknown error occurred.";
-"error_view.not_found" = "There seems to be nothing here.";
-"error_view.database_corrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
-"error_view.ip_banned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
-"error_view.copyright_claim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
-"error_view.gallery_unavailable" = "This gallery has been removed or is unavailable.";
+"error_view.drop_database" = "Datenbank löschen";
+"error_view.try_later" = "Bitte versuche es später erneut.";
+"error_view.network" = "Ein Netzwerkfehler ist aufgetreten.";
+"error_view.parsing" = "Ein Parserfehler ist aufgetreten.";
+"error_view.unknown" = "Ein unbekannter Fehler ist aufgetreten.";
+"error_view.not_found" = "Hier scheint es nichts zu geben.";
+"error_view.database_corrupted" = "Die Datenbank ist beschädigt.\nBitte erstelle ein Issue auf GitHub.";
+"error_view.ip_banned" = "Deine IP-Adresse wurde wegen übermäßig vieler Seitenaufrufe vorübergehend gesperrt. Das deutet auf automatische Mirroring- oder Harvesting-Software hin. Die Sperre läuft in %@ ab.";
+"error_view.copyright_claim" = "Diese Galerie ist wegen eines Urheberrechtsanspruchs von %@ nicht verfügbar. Das tut uns leid.";
+"error_view.gallery_unavailable" = "Diese Galerie wurde entfernt oder ist nicht verfügbar.";
 
 // MARK: AppError
 "app_error.database_corrupted" = "Datenbank beschädigt";
@@ -98,16 +98,16 @@
 "app_error.local_file_operation_failed" = "Lokaler Dateivorgang fehlgeschlagen.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.drop_database_description" = "You will lose all your data in this app.\nAre you sure to drop the database?";
-"confirmation_dialog.remove_custom_translations" = "Are you sure to remove your custom translations?";
+"confirmation_dialog.drop_database_description" = "Du verlierst alle Daten in dieser App.\nMöchtest du die Datenbank wirklich löschen?";
+"confirmation_dialog.remove_custom_translations" = "Möchtest du deine benutzerdefinierten Übersetzungen wirklich entfernen?";
 "confirmation_dialog.logout_description" = "Bist du sicher das du dich ausloggen möchtest?";
-"confirmation_dialog.delete_description" = "Are you sure to delete this item?";
+"confirmation_dialog.delete_description" = "Möchtest du dieses Element wirklich löschen?";
 "confirmation_dialog.clear_description" = "Bist du sicher das du das löschen möchtest?";
 "confirmation_dialog.reset_description" = "Bist du sicher?";
-"confirmation_dialog.drop_database" = "Drop the database";
-"confirmation_dialog.remove" = "Remove";
+"confirmation_dialog.drop_database" = "Datenbank löschen";
+"confirmation_dialog.remove" = "Entfernen";
 "confirmation_dialog.logout" = "Ausloggen";
-"confirmation_dialog.delete" = "Delete";
+"confirmation_dialog.delete" = "Löschen";
 "confirmation_dialog.clear" = "Löschen";
 "confirmation_dialog.reset" = "Zurücksetzen";
 
@@ -124,20 +124,20 @@
 "greeting.end" = "!";
 
 // MARK: HomeView
-"home_view.home" = "Home";
-"home_view.frontpage" = "Frontpage";
-"home_view.toplists" = "Toplists";
-"home_view.other" = "Other";
+"home_view.home" = "Start";
+"home_view.frontpage" = "Startseite";
+"home_view.toplists" = "Toplisten";
+"home_view.other" = "Sonstiges";
 // HomeMiscGridType
 "home_misc_grid_type.popular" = "Beliebt";
 "home_misc_grid_type.watched" = "Meine Tags";
 "home_misc_grid_type.history" = "Verlauf";
 
 // MARK: FrontpageView
-"frontpage_view.frontpage" = "Frontpage";
+"frontpage_view.frontpage" = "Startseite";
 
 // MARK: ToplistsView
-"toplists_view.toplists" = "Toplists";
+"toplists_view.toplists" = "Toplisten";
 
 // MARK: PopularView
 "popular_view.popular" = "Beliebt";
@@ -156,18 +156,18 @@
 
 // MARK: SearchView
 "search_view.search" = "Suche";
-"search_view.recently_searched" = "Recently searched";
-"search_view.recently_seen" = "Recently seen";
-"search_view.quick_search" = "Quick search";
+"search_view.recently_searched" = "Zuletzt gesucht";
+"search_view.recently_seen" = "Zuletzt angesehen";
+"search_view.quick_search" = "Schnellsuche";
 // Searchable
 "searchable.filter" = "Filter";
-"searchable.matches_count" = "Found %d matches.";
+"searchable.matches_count" = "%d Treffer gefunden.";
 
 // MARK: QuickSearchView
-"quick_search_view.quick_search" = "Quick search";
-"quick_search_view.edit_word" = "Edit word";
-"quick_search_view.new_word" = "New word";
-"quick_search_view.content" = "Content";
+"quick_search_view.quick_search" = "Schnellsuche";
+"quick_search_view.edit_word" = "Suchbegriff bearbeiten";
+"quick_search_view.new_word" = "Neuer Suchbegriff";
+"quick_search_view.content" = "Inhalt";
 "quick_search_view.name" = "Name";
 "quick_search_view.optional" = "Optional";
 
@@ -180,7 +180,7 @@
 "setting_state_route.reading" = "Am Lesen";
 "setting_state_route.download" = "Download";
 "setting_state_route.laboratory" = "Experimentelles";
-"setting_state_route.about" = "About";
+"setting_state_route.about" = "Über diese App";
 
 // MARK: AccountSettingView
 "account_setting_view.account" = "Konto";
@@ -192,33 +192,33 @@
 // CookieValue
 "cookie_value.expired" = "Abgelaufen";
 "cookie_value.mystery" = "Abgelehnt";
-"cookie_value.none" = "None";
+"cookie_value.none" = "Nicht vorhanden";
 
 // MARK: LoginView
 "login_view.login" = "Einloggen";
-"login_view.username" = "Username";
-"login_view.password" = "Password";
+"login_view.username" = "Benutzername";
+"login_view.password" = "Passwort";
 
 // MARK: GeneralSettingView
 "general_setting_view.general" = "Allgemein";
 "general_setting_view.language" = "Sprache";
-"general_setting_view.auto_lock" = "Auto-Lock";
-"general_setting_view.enables_tags_extension" = "Enables tags extension";
-"general_setting_view.translates_tags" = "Translates tags";
-"general_setting_view.shows_tags_search_suggestion" = "Shows tags search suggestion";
-"general_setting_view.shows_images_in_tags" = "Shows images in tags";
+"general_setting_view.auto_lock" = "Automatische Sperre";
+"general_setting_view.enables_tags_extension" = "Tag-Erweiterung aktivieren";
+"general_setting_view.translates_tags" = "Tags übersetzen";
+"general_setting_view.shows_tags_search_suggestion" = "Tag-Vorschläge bei der Suche anzeigen";
+"general_setting_view.shows_images_in_tags" = "Bilder in Tags anzeigen";
 "general_setting_view.redirects_links_to_the_selected_host" = "Links zum ausgewählten Host umleiten";
 "general_setting_view.detects_links_from_clipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
-"general_setting_view.background_blur_radius" = "Background blur radius";
+"general_setting_view.background_blur_radius" = "Hintergrund-Unschärfe";
 "general_setting_view.app_activity_logs" = "App-Aktivitätsprotokolle";
-"general_setting_view.import_custom_translations" = "Import custom translations";
-"general_setting_view.remove_custom_translations" = "Remove custom translations";
+"general_setting_view.import_custom_translations" = "Benutzerdefinierte Übersetzungen importieren";
+"general_setting_view.remove_custom_translations" = "Benutzerdefinierte Übersetzungen entfernen";
 "general_setting_view.clear_image_caches" = "Zwischengespeicherte Bilder (Cache) löschen";
-"general_setting_view.default_language_description" = "N/A";
+"general_setting_view.default_language_description" = "Unbekannt";
 "general_setting_view.tags" = "Tags";
 "general_setting_view.navigation" = "Navigation";
 "general_setting_view.security" = "Sicherheit";
-"general_setting_view.caches" = "Caches";
+"general_setting_view.caches" = "Cache";
 // AutoLockPolicy
 "auto_lock_policy.never" = "Nie";
 "auto_lock_policy.instantly" = "Sofort";
@@ -240,16 +240,16 @@
 
 // MARK: AppearanceSettingView
 "appearance_setting_view.appearance" = "Oberfläche";
-"appearance_setting_view.theme" = "Theme";
+"appearance_setting_view.theme" = "Erscheinungsbild";
 "appearance_setting_view.tint_color" = "Farbe";
-"appearance_setting_view.display_mode" = "Display mode";
+"appearance_setting_view.display_mode" = "Anzeigemodus";
 "appearance_setting_view.shows_tags_in_list" = "Tags als Liste anzeigen";
 "appearance_setting_view.maximum_number_of_tags" = "Maximale Anzahl an Tags";
-"appearance_setting_view.displays_japanese_title" = "Displays Japanese title";
-"appearance_setting_view.app_icon" = "App icon";
-"appearance_setting_view.infite" = "Infite";
-"appearance_setting_view.list" = "List";
-"appearance_setting_view.gallery" = "Gallery";
+"appearance_setting_view.displays_japanese_title" = "Japanischen Titel anzeigen";
+"appearance_setting_view.app_icon" = "App-Symbol";
+"appearance_setting_view.infite" = "Unbegrenzt";
+"appearance_setting_view.list" = "Liste";
+"appearance_setting_view.gallery" = "Galerie";
 // PreferredColorScheme
 "preferred_color_scheme.automatic" = "Automatisch";
 "preferred_color_scheme.light" = "Hell";
@@ -257,21 +257,21 @@
 // AppIconType
 "app_icon_type.default" = "Standard";
 "app_icon_type.ukiyoe" = "Ukiyo-e";
-"app_icon_type.developer" = "Developer";
-"app_icon_type.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
-"app_icon_type.not_my_president" = "NOT MY PRESIDENT";
+"app_icon_type.developer" = "Entwickler";
+"app_icon_type.stand_with_ukraine_2022" = "Solidarität mit der Ukraine (2022)";
+"app_icon_type.not_my_president" = "NICHT MEIN PRÄSIDENT";
 // ListDisplayMode
-"list_display_mode.detail" = "Detail";
-"list_display_mode.thumbnail" = "Thumbnail";
+"list_display_mode.detail" = "Details";
+"list_display_mode.thumbnail" = "Vorschaubilder";
 
 // MARK: AppIconView
-"app_icon_view.app_icon" = "App icon";
+"app_icon_view.app_icon" = "App-Symbol";
 
 // MARK: reading_settingView
 "reading_setting_view.reading" = "Am Lesen";
-"reading_setting_view.direction" = "Direction";
-"reading_setting_view.preload_limit" = "Preload limit";
-"reading_setting_view.enables_landscape" = "Enables landscape";
+"reading_setting_view.direction" = "Leserichtung";
+"reading_setting_view.preload_limit" = "Vorausladen";
+"reading_setting_view.enables_landscape" = "Querformat aktivieren";
 "reading_setting_view.separator_height" = "Höhe der Teilung";
 "reading_setting_view.maximum_scale_factor" = "Maximaler Skalierungsfaktor";
 "reading_setting_view.double_tap_scale_factor" = "Doppel-Tap Skalierungsfaktor";
@@ -290,10 +290,10 @@
 "about_view.website" = "Website";
 "about_view.altStore_source" = "AltStore Quelle";
 "about_view.version" = "Version";
-"about_view.special_thanks" = "Special thanks";
-"about_view.code_level_contributors" = "Code-level contributors";
-"about_view.translation_contributors" = "Translation contributors";
-"about_view.acknowledgements" = "OK";
+"about_view.special_thanks" = "Besonderer Dank";
+"about_view.code_level_contributors" = "Mitwirkende am Code";
+"about_view.translation_contributors" = "Mitwirkende an der Übersetzung";
+"about_view.acknowledgements" = "Danksagungen";
 
 // MARK: DetailView
 "detail_view.read" = "Lesen";
@@ -313,10 +313,10 @@
 "detail_view.archives" = "Archiv";
 "detail_view.torrents" = "Torrents";
 "detail_view.share" = "Teilen";
-"detail_view.detail" = "Detail";
-"detail_view.withdraw_vote" = "Withdraw vote";
-"detail_view.vote_up" = "Vote up";
-"detail_view.vote_down" = "Vote down";
+"detail_view.detail" = "Details";
+"detail_view.withdraw_vote" = "Stimme zurückziehen";
+"detail_view.vote_up" = "Dafür stimmen";
+"detail_view.vote_down" = "Dagegen stimmen";
 "detail_view.favorited" = "Favorisiert";
 "detail_view.language" = "Sprache";
 "detail_view.ratings" = "%@ Bewertungen";
@@ -353,53 +353,53 @@
 "torrents_view.torrents" = "Torrents";
 
 // MARK: GalleryInfosView
-"gallery_infos_view.gallery_infos" = "Gallery infos";
+"gallery_infos_view.gallery_infos" = "Galerie-Infos";
 "gallery_infos_view.id" = "ID";
 "gallery_infos_view.token" = "Token";
-"gallery_infos_view.title" = "Title";
-"gallery_infos_view.japanese_title" = "Japanese title";
-"gallery_infos_view.gallery_URL" = "Gallery URL";
-"gallery_infos_view.cover_URL" = "Cover URL";
-"gallery_infos_view.archive_URL" = "Archive URL";
-"gallery_infos_view.torrent_URL" = "Torrent URL";
-"gallery_infos_view.parent_URL" = "Parent URL";
-"gallery_infos_view.category" = "Category";
+"gallery_infos_view.title" = "Titel";
+"gallery_infos_view.japanese_title" = "Japanischer Titel";
+"gallery_infos_view.gallery_URL" = "Galerie-URL";
+"gallery_infos_view.cover_URL" = "Cover-URL";
+"gallery_infos_view.archive_URL" = "Archiv-URL";
+"gallery_infos_view.torrent_URL" = "Torrent-URL";
+"gallery_infos_view.parent_URL" = "Übergeordnete URL";
+"gallery_infos_view.category" = "Kategorie";
 "gallery_infos_view.uploader" = "Uploader";
-"gallery_infos_view.posted_date" = "Posted date";
-"gallery_infos_view.visibility" = "Visibility";
-"gallery_infos_view.language" = "Language";
-"gallery_infos_view.page_count" = "Page count";
-"gallery_infos_view.file_size" = "File size";
-"gallery_infos_view.favorited_times" = "Favorited times";
-"gallery_infos_view.favorited" = "Favorited";
-"gallery_infos_view.rating_count" = "Rating count";
-"gallery_infos_view.average_rating" = "Average rating";
-"gallery_infos_view.my_rating" = "My rating";
-"gallery_infos_view.torrent_count" = "Torrent count";
-"gallery_infos_view.none" = "None";
-"gallery_infos_view.yes" = "Yes";
-"gallery_infos_view.no" = "No";
+"gallery_infos_view.posted_date" = "Veröffentlicht am";
+"gallery_infos_view.visibility" = "Sichtbarkeit";
+"gallery_infos_view.language" = "Sprache";
+"gallery_infos_view.page_count" = "Seitenzahl";
+"gallery_infos_view.file_size" = "Dateigröße";
+"gallery_infos_view.favorited_times" = "Anzahl Favorisierungen";
+"gallery_infos_view.favorited" = "Favorisiert";
+"gallery_infos_view.rating_count" = "Anzahl Bewertungen";
+"gallery_infos_view.average_rating" = "Durchschnittliche Bewertung";
+"gallery_infos_view.my_rating" = "Meine Bewertung";
+"gallery_infos_view.torrent_count" = "Anzahl Torrents";
+"gallery_infos_view.none" = "Keine";
+"gallery_infos_view.yes" = "Ja";
+"gallery_infos_view.no" = "Nein";
 // GalleryVisibility
-"gallery_visibility.yes" = "Yes";
-"gallery_visibility.no" = "No (%@)";
-"gallery_visibility.expunged" = "Expunged";
+"gallery_visibility.yes" = "Ja";
+"gallery_visibility.no" = "Nein (%@)";
+"gallery_visibility.expunged" = "Entfernt";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "Images";
+"tag_detail_view.images" = "Bilder";
 "tag_detail_view.links" = "Links";
 
 // MARK: DownloadsView
-"download_folder_filter.all" = "All";
-"detail_view.manage_folders" = "Manage Folders";
-"detail_view.create_default_folder" = "Create Default Folder";
-"detail_view.no_folders" = "No folders yet";
-"downloads_view.manage_folders" = "Manage Folders";
-"downloads_view.move_to_folder" = "Move to Folder";
-"downloads_view.move" = "Move";
-"folder_manager_view.folders" = "Folders";
-"folder_manager_view.folder_name" = "Folder name";
-"folder_manager_view.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
-"folder_manager_view.empty_folders" = "Folders you create will appear here.";
+"download_folder_filter.all" = "Alle";
+"detail_view.manage_folders" = "Ordner verwalten";
+"detail_view.create_default_folder" = "Standardordner erstellen";
+"detail_view.no_folders" = "Noch keine Ordner";
+"downloads_view.manage_folders" = "Ordner verwalten";
+"downloads_view.move_to_folder" = "In Ordner verschieben";
+"downloads_view.move" = "Verschieben";
+"folder_manager_view.folders" = "Ordner";
+"folder_manager_view.folder_name" = "Ordnername";
+"folder_manager_view.delete_folder" = "Der Ordner und alle heruntergeladenen Galerien darin werden gelöscht.";
+"folder_manager_view.empty_folders" = "Von dir erstellte Ordner werden hier angezeigt.";
 "downloads_view.downloads" = "Downloads";
 "downloads_view.search_downloads" = "Downloads durchsuchen";
 "downloads_view.delete_download" = "Download löschen?";
@@ -443,19 +443,19 @@
 "previews_view.previews" = "Vorschau";
 
 // MARK: ReadingView
-"reading_view.reload" = "Reload";
-"reading_view.copy" = "Copy";
-"reading_view.save" = "Save";
-"reading_view.save_original" = "Save original";
+"reading_view.reload" = "Neu laden";
+"reading_view.copy" = "Kopieren";
+"reading_view.save" = "Sichern";
+"reading_view.save_original" = "Original sichern";
 "reading_view.share" = "Teilen";
-"reading_view.auto_play" = "Auto-Play";
-"reading_view.dual_page_mode" = "Dual-Page mode";
-"reading_view.except_the_cover" = "Except the cover";
-"reading_view.retry_all_failed_images" = "Retry failed images";
-"reading_view.reload_all_images" = "Reload all images";
-"reading_view.reading_setting" = "Reading setting";
+"reading_view.auto_play" = "Autoplay";
+"reading_view.dual_page_mode" = "Doppelseitenmodus";
+"reading_view.except_the_cover" = "Außer dem Cover";
+"reading_view.retry_all_failed_images" = "Fehlgeschlagene Bilder erneut laden";
+"reading_view.reload_all_images" = "Alle Bilder neu laden";
+"reading_view.reading_setting" = "Leseeinstellungen";
 // AutoPlayPolicy
-"auto_play_policy.off" = "Off";
+"auto_play_policy.off" = "Aus";
 
 
 // MARK: DownloadBadge
@@ -469,10 +469,10 @@
 
 // MARK: DownloadStore
 "download_store.asset_unreadable" = "Asset-Datei ist nicht lesbar: %@";
-"download_store.invalid_folder_name" = "The folder name is invalid.";
-"download_store.folder_already_exists" = "A folder with this name already exists.";
-"download_store.folder_busy_downloading" = "The folder contains an active download.";
-"download_store.download_busy" = "The download is currently active.";
+"download_store.invalid_folder_name" = "Der Ordnername ist ungültig.";
+"download_store.folder_already_exists" = "Ein Ordner mit diesem Namen existiert bereits.";
+"download_store.folder_busy_downloading" = "Der Ordner enthält einen aktiven Download.";
+"download_store.download_busy" = "Der Download läuft gerade.";
 "download_store.download_folder_missing" = "Download-Ordner fehlt.";
 "download_store.manifest_missing" = "Manifest-Datei fehlt.";
 "download_store.manifest_corrupted" = "Manifest-Datei ist beschädigt.";
@@ -480,7 +480,7 @@
 "download_store.page_image_corrupted" = "Bilddaten von Seite %d sind beschädigt.";
 
 // MARK: FiltersView
-"filters_view.filters" = "Filters";
+"filters_view.filters" = "Filter";
 "filters_view.advanced_settings" = "Erweiterte Einstellungen";
 "filters_view.search_gallery_name" = "Galerienamen durchsuchen";
 "filters_view.search_gallery_tags" = "Galerietags durchsuchen";
@@ -506,173 +506,173 @@
 "filter_range.watched" = "Meine Tags";
 
 // MARK: EhSettingView
-"eh_setting_view.host_settings" = "%@ settings";
-"eh_setting_view.profile_settings" = "Profile Settings";
-"eh_setting_view.selected_profile" = "Selected profile";
-"eh_setting_view.set_as_default" = "Set as default";
-"eh_setting_view.delete_profile" = "Delete profile";
-"eh_setting_view.rename" = "Rename";
-"eh_setting_view.create_new" = "Create new";
-"eh_setting_view.done" = "Done";
+"eh_setting_view.host_settings" = "%@-Einstellungen";
+"eh_setting_view.profile_settings" = "Profile";
+"eh_setting_view.selected_profile" = "Ausgewähltes Profil";
+"eh_setting_view.set_as_default" = "Als Standard festlegen";
+"eh_setting_view.delete_profile" = "Profil löschen";
+"eh_setting_view.rename" = "Umbenennen";
+"eh_setting_view.create_new" = "Neu erstellen";
+"eh_setting_view.done" = "Fertig";
 
-"eh_setting_view.image_load_settings" = "Image Load Settings";
-"eh_setting_view.load_images_through_the_hath_network" = "Load images through the Hath network";
-"eh_setting_view.browsing_country" = "Browsing country";
-"eh_setting_view.browsing_country_description" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
+"eh_setting_view.image_load_settings" = "Laden von Bildern";
+"eh_setting_view.load_images_through_the_hath_network" = "Bilder über das Hath-Netzwerk laden";
+"eh_setting_view.browsing_country" = "Browsing-Land";
+"eh_setting_view.browsing_country_description" = "Es sieht so aus, als würdest du die Seite aus **%@** aufrufen oder ein VPN bzw. einen Proxy in diesem Land verwenden. Die Seite versucht daher, Bilder von H@H-Clients in dieser Region zu laden. Falls das nicht stimmt oder du aus irgendeinem Grund eine andere Region verwenden möchtest (etwa mit einem Split-Tunneling-VPN), kannst du unten ein anderes Land auswählen.";
 // EhSetting.LoadThroughHathSetting
-"load_through_hath_setting.any_client" = "Any client";
-"load_through_hath_setting.default_port_only" = "Default port clients only";
-"load_through_hath_setting.modern_no" = "No [Modern/HTTPS]";
-"load_through_hath_setting.legacy_no" = "No [Legacy/HTTP]";
-"load_through_hath_setting.any_client_description" = "Recommended.";
-"load_through_hath_setting.default_port_only_description" = "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.";
-"load_through_hath_setting.modern_no_description" = "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.";
-"load_through_hath_setting.legacy_no_description" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
+"load_through_hath_setting.any_client" = "Jeder Client";
+"load_through_hath_setting.default_port_only" = "Nur Clients mit Standardport";
+"load_through_hath_setting.modern_no" = "Nein [Modern/HTTPS]";
+"load_through_hath_setting.legacy_no" = "Nein [Legacy/HTTP]";
+"load_through_hath_setting.any_client_description" = "Empfohlen.";
+"load_through_hath_setting.default_port_only_description" = "Kann langsamer sein. Aktiviere dies nur, wenn eine Firewall oder ein Proxy ausgehende Nicht-Standard-Ports blockiert.";
+"load_through_hath_setting.modern_no_description" = "Nur für Spender. Du kannst damit weniger Seiten aufrufen. Nur bei schwerwiegenden Problemen empfohlen.";
+"load_through_hath_setting.legacy_no_description" = "Nur für Spender. Funktioniert in modernen Browsern unter Umständen nicht. Nur für alte oder veraltete Browser empfohlen.";
 
-"eh_setting_view.image_size_settings" = "Image Size Settings";
-"eh_setting_view.image_resolution" = "Image resolution";
-"eh_setting_view.image_resolution_description" = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.";
-"eh_setting_view.image_size" = "Image size";
-"eh_setting_view.image_size_description" = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)";
+"eh_setting_view.image_size_settings" = "Bildgrößen-Einstellungen";
+"eh_setting_view.image_resolution" = "Bildauflösung";
+"eh_setting_view.image_resolution_description" = "Normalerweise werden Bilder für die Online-Ansicht auf eine horizontale Auflösung von 1280 Pixeln neu berechnet. Alternativ kannst du eine der folgenden Auflösungen wählen. Um die Server nicht zu überlasten, sind Auflösungen über 1280x vorübergehend Spendern, Nutzern mit einem Hath-Perk und Nutzern mit einer UID unter 3.000.000 vorbehalten.";
+"eh_setting_view.image_size" = "Bildgröße";
+"eh_setting_view.image_size_description" = "Die Seite verkleinert Bilder automatisch passend zu deiner Bildschirmbreite, du kannst die maximale Anzeigegröße aber auch manuell begrenzen. Wie bei der automatischen Skalierung wird das Bild dabei nicht neu berechnet, da die Größenänderung im Browser erfolgt. (0 = keine Begrenzung)";
 "eh_setting_view.horizontal" = "Horizontal";
-"eh_setting_view.vertical" = "Vertical";
+"eh_setting_view.vertical" = "Vertikal";
 // EhSetting.ImageResolution
-"image_resolution.auto" = "Auto";
+"image_resolution.auto" = "Automatisch";
 
-"eh_setting_view.gallery_name_display" = "Gallery Name Display";
-"eh_setting_view.gallery_name" = "Gallery name";
-"eh_setting_view.gallery_name_description" = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?";
+"eh_setting_view.gallery_name_display" = "Anzeige des Galerienamens";
+"eh_setting_view.gallery_name" = "Galeriename";
+"eh_setting_view.gallery_name_description" = "Viele Galerien haben sowohl einen englischen bzw. romanisierten Titel als auch einen Titel in japanischer Schrift. Welchen Namen möchtest du standardmäßig sehen?";
 // EhSetting.GalleryName
-"gallery_name.default" = "Default Title";
-"gallery_name.japanese" = "Japanese Title (if available)";
+"gallery_name.default" = "Standardtitel";
+"gallery_name.japanese" = "Japanischer Titel (falls vorhanden)";
 
-"eh_setting_view.archiver_settings" = "Archiver Settings";
-"eh_setting_view.archiver_behavior" = "Archiver behavior";
-"eh_setting_view.archiver_behavior_description" = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.";
+"eh_setting_view.archiver_settings" = "Archiver";
+"eh_setting_view.archiver_behavior" = "Archiver-Verhalten";
+"eh_setting_view.archiver_behavior_description" = "Standardmäßig fragt der Archiver Kosten und Auswahl (Original oder neu berechnet) ab und zeigt dann einen Link an, den du anklicken oder woanders kopieren kannst. Dieses Verhalten kannst du hier ändern.";
 // EhSetting.ArchiverBehavior
-"eh_setting.archiver_behavior.manual_select_manual_start" = "Manual Select, Manual Start (Default)";
-"eh_setting.archiver_behavior.manual_select_auto_start" = "Manual Select, Auto Start";
-"eh_setting.archiver_behavior.auto_select_original_manual_start" = "Auto Select Original, Manual Start";
-"eh_setting.archiver_behavior.auto_select_original_auto_start" = "Auto Select Original, Auto Start";
-"eh_setting.archiver_behavior.auto_select_resample_manual_start" = "Auto Select Resample, Manual Start";
-"eh_setting.archiver_behavior.auto_select_resample_auto_start" = "Auto Select Resample, Auto Start";
+"eh_setting.archiver_behavior.manual_select_manual_start" = "Manuell wählen, manuell starten (Standard)";
+"eh_setting.archiver_behavior.manual_select_auto_start" = "Manuell wählen, automatisch starten";
+"eh_setting.archiver_behavior.auto_select_original_manual_start" = "Original automatisch wählen, manuell starten";
+"eh_setting.archiver_behavior.auto_select_original_auto_start" = "Original automatisch wählen, automatisch starten";
+"eh_setting.archiver_behavior.auto_select_resample_manual_start" = "Neu berechnete Version automatisch wählen, manuell starten";
+"eh_setting.archiver_behavior.auto_select_resample_auto_start" = "Neu berechnete Version automatisch wählen, automatisch starten";
 
-"eh_setting_view.front_page_settings" = "Front Page Settings";
-"eh_setting_view.display_mode" = "Display mode";
-"eh_setting_view.display_mode_description" = "Which display mode would you like to use on the front and search pages?";
-"eh_setting_view.show_search_range_indicator" = "Search Range Indicator";
-"eh_setting_view.show_search_range_indicator_description" = "Show search range indicator";
-"eh_setting_view.gallery_category" = "What categories would you like to show by default on the front page and in searches?";
+"eh_setting_view.front_page_settings" = "Startseite";
+"eh_setting_view.display_mode" = "Anzeigemodus";
+"eh_setting_view.display_mode_description" = "Welchen Anzeigemodus möchtest du auf der Startseite und den Suchseiten verwenden?";
+"eh_setting_view.show_search_range_indicator" = "Suchbereichsanzeige";
+"eh_setting_view.show_search_range_indicator_description" = "Suchbereichsanzeige einblenden";
+"eh_setting_view.gallery_category" = "Welche Kategorien sollen standardmäßig auf der Startseite und in Suchergebnissen angezeigt werden?";
 // EhSetting.DisplayMode
-"display_mode.compact" = "Compact";
-"display_mode.thumbnail" = "Thumbnail";
-"display_mode.extended" = "Extended";
+"display_mode.compact" = "Kompakt";
+"display_mode.thumbnail" = "Vorschaubilder";
+"display_mode.extended" = "Erweitert";
 "display_mode.minimal" = "Minimal";
 "display_mode.minimalPlus" = "Minimal+";
 
-"eh_setting_view.optional_UI_elements" = "Optional UI Elements";
-"eh_setting_view.optional_UI_elements_description" = "Some historic UI elements are now disabled by default. You can enable those here.";
-"eh_setting_view.enable_gallery_thumbnail_selector" = "Enable thumbnail selector on gallery screen";
+"eh_setting_view.optional_UI_elements" = "Optionale UI-Elemente";
+"eh_setting_view.optional_UI_elements_description" = "Einige ältere UI-Elemente sind inzwischen standardmäßig deaktiviert. Hier kannst du sie wieder aktivieren.";
+"eh_setting_view.enable_gallery_thumbnail_selector" = "Vorschaubild-Auswahl auf der Galerieseite aktivieren";
 
-"eh_setting_view.favorites" = "Favorites";
-"eh_setting_view.favorite_categories" = "Here you can choose and rename your favorite categories.";
-"eh_setting_view.favorites_sort_order" = "Favorites sort order";
-"eh_setting_view.favorites_sort_order_description" = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.";
+"eh_setting_view.favorites" = "Favoriten";
+"eh_setting_view.favorite_categories" = "Hier kannst du deine Favoriten-Kategorien auswählen und umbenennen.";
+"eh_setting_view.favorites_sort_order" = "Sortierung der Favoriten";
+"eh_setting_view.favorites_sort_order_description" = "Du kannst auch die Standardsortierung für Galerien auf deiner Favoritenseite festlegen. Favoriten, die vor der Überarbeitung im März 2016 hinzugefügt wurden, haben keinen Zeitstempel und werden unabhängig von dieser Einstellung nach dem Veröffentlichungszeitpunkt der Galerie sortiert.";
 // EhSetting.FavoritesSortOrder
-"favorites_sort_order.last_update_time" = "By last gallery update time";
-"favorites_sort_order.favorited_time" = "By favorited time";
+"favorites_sort_order.last_update_time" = "Nach letzter Aktualisierung der Galerie";
+"favorites_sort_order.favorited_time" = "Nach Zeitpunkt des Favorisierens";
 
-"eh_setting_view.ratings" = "Ratings";
-"eh_setting_view.ratings_color" = "Ratings color";
+"eh_setting_view.ratings" = "Bewertungen";
+"eh_setting_view.ratings_color" = "Farbe der Bewertungen";
 "eh_setting_view.ratings_color_prompt" = "RRGGB";
-"eh_setting_view.ratings_color_description" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
+"eh_setting_view.ratings_color_description" = "Standardmäßig erscheinen von dir bewertete Galerien mit roten Sternen bei Bewertungen bis 2 Sternen, mit grünen zwischen 2,5 und 4 Sternen und mit blauen bei 4,5 oder 5 Sternen. Du kannst das anpassen, indem du unten deine gewünschte Farbkombination eingibst. Jeder Buchstabe steht für einen Stern. Das Standard-RRGGB bedeutet R(ot) für den ersten und zweiten Stern, G(rün) für den dritten und vierten und B(lau) für den fünften. Mit Y bekommst du gelbe Sterne. Jede fünfstellige Kombination aus R/G/B/Y funktioniert.";
 
-"eh_setting_view.tag_filtering_threshold" = "Tag Filtering Threshold";
-"eh_setting_view.tag_filtering_threshold_description" = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.";
+"eh_setting_view.tag_filtering_threshold" = "Schwellenwert für Tag-Filterung";
+"eh_setting_view.tag_filtering_threshold_description" = "Du kannst Tags weich filtern, indem du sie mit negativem Gewicht zu „Meine Tags“ hinzufügst. Ergeben die Tags einer Galerie zusammen ein Gewicht unter diesem Wert, wird sie ausgeblendet. Der Schwellenwert kann zwischen 0 und -9999 liegen.";
 
-"eh_setting_view.tag_watching_threshold" = "Tag Watching Threshold";
-"eh_setting_view.tag_watching_threshold_description" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
+"eh_setting_view.tag_watching_threshold" = "Schwellenwert für Tag-Beobachtung";
+"eh_setting_view.tag_watching_threshold_description" = "Kürzlich hochgeladene Galerien erscheinen unter „Meine Tags“, wenn sie mindestens einen beobachteten Tag mit positivem Gewicht haben und die Gewichte ihrer beobachteten Tags zusammen diesen Wert erreichen oder überschreiten. Der Schwellenwert kann zwischen 0 und 9999 liegen.";
 
-"eh_setting_viewfiltered_removal_count" = "Show Filtered Removal Count";
-"eh_setting_view.filtered_removal_count_description" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh_setting_view.show_filtered_removal_count" = "Show filtered removal count";
+"eh_setting_viewfiltered_removal_count" = "Anzahl gefilterter Galerien";
+"eh_setting_view.filtered_removal_count_description" = "Soll die Meldung „Deine Standardfilter haben XX Galerien von dieser Seite entfernt“ angezeigt werden?";
+"eh_setting_view.show_filtered_removal_count" = "Anzahl gefilterter Galerien anzeigen";
 
-"eh_setting_view.excluded_languages" = "Excluded Languages";
-"eh_setting_view.excluded_languages_description" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+"eh_setting_view.excluded_languages" = "Ausgeschlossene Sprachen";
+"eh_setting_view.excluded_languages_description" = "Wenn du Galerien in bestimmten Sprachen aus der Galerieliste und den Suchergebnissen ausblenden möchtest, wähle sie unten aus. Passende Galerien erscheinen dann unabhängig von deiner Suchanfrage nie.";
 // EhSetting.ExcludedLanguagesCategory
 "excluded_languages_category.original" = "Original";
-"excluded_languages_category.translated" = "Translated";
-"excluded_languages_category.rewrite" = "Rewrite";
+"excluded_languages_category.translated" = "Übersetzt";
+"excluded_languages_category.rewrite" = "Umgeschrieben";
 
-"eh_setting_view.excluded_uploaders" = "Excluded Uploaders";
-"eh_setting_view.excluded_uploaders_description" = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.";
-"eh_setting_view.excluded_uploaders_count" = "You are currently using **%@ / %@** exclusion slots.";
+"eh_setting_view.excluded_uploaders" = "Ausgeschlossene Uploader";
+"eh_setting_view.excluded_uploaders_description" = "Wenn du Galerien bestimmter Uploader aus der Galerieliste und den Suchergebnissen ausblenden möchtest, füge sie unten hinzu. Ein Benutzername pro Zeile. Galerien dieser Uploader erscheinen dann unabhängig von deiner Suchanfrage nie.";
+"eh_setting_view.excluded_uploaders_count" = "Du belegst derzeit **%@ / %@** Ausschlussplätze.";
 
-"eh_setting_view.search_result_count" = "Search Result Count";
-"eh_setting_view.result_count" = "Result count";
-"eh_setting_view.result_count_description" = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)";
+"eh_setting_view.search_result_count" = "Anzahl der Suchergebnisse";
+"eh_setting_view.result_count" = "Anzahl Ergebnisse";
+"eh_setting_view.result_count_description" = "Wie viele Ergebnisse pro Seite möchtest du auf Index-, Such- und Torrent-Suchseiten sehen?\n(Hath-Perk „Paging Enlargement“ erforderlich)";
 
-"eh_setting_view.thumbnail_settings" = "Thumbnail Settings";
-"eh_setting_view.thumbnail_load_timing" = "Thumbnail load timing";
-"eh_setting_view.thumbnail_load_timing_description" = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?";
-"eh_setting_view.thumbnail_configuration" = "You can set a default thumbnail configuration for all galleries you visit.";
-"eh_setting_view.thumbnail_size" = "Size";
-"eh_setting_view.thumbnail_row_count" = "Rows";
+"eh_setting_view.thumbnail_settings" = "Vorschaubilder";
+"eh_setting_view.thumbnail_load_timing" = "Ladezeitpunkt der Vorschaubilder";
+"eh_setting_view.thumbnail_load_timing_description" = "Wann sollen die Mouseover-Vorschaubilder auf der Startseite im Listenmodus geladen werden?";
+"eh_setting_view.thumbnail_configuration" = "Du kannst eine Standardkonfiguration der Vorschaubilder für alle Galerien festlegen, die du besuchst.";
+"eh_setting_view.thumbnail_size" = "Größe";
+"eh_setting_view.thumbnail_row_count" = "Zeilen";
 // EhSetting.ThumbnailLoadTiming
-"thumbnail_load_timing.on_mouse_over" = "On mouse-over";
-"thumbnail_load_timing.on_page_load" = "On page load";
-"thumbnail_load_timing.on_mouse_over_description" = "Pages load faster, but there may be a slight delay before a thumb appears.";
-"thumbnail_load_timing.on_page_load_description" = "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded.";
+"thumbnail_load_timing.on_mouse_over" = "Bei Mouseover";
+"thumbnail_load_timing.on_page_load" = "Beim Laden der Seite";
+"thumbnail_load_timing.on_mouse_over_description" = "Seiten laden schneller, Vorschaubilder erscheinen aber unter Umständen leicht verzögert.";
+"thumbnail_load_timing.on_page_load_description" = "Seiten brauchen länger zum Laden, dafür erscheinen die Vorschaubilder danach ohne Verzögerung.";
 // EhSetting.ThumbnailSize
 "thumbnail_size.normal" = "Normal";
-"thumbnail_size.large" = "Large";
-"thumbnail_size.small" = "Small";
-"thumbnail_size.auto" = "Auto";
+"thumbnail_size.large" = "Groß";
+"thumbnail_size.small" = "Klein";
+"thumbnail_size.auto" = "Automatisch";
 
-"eh_setting_view.cover_scaling" = "Cover Scaling";
-"eh_setting_view.scale_factor" = "Scale factor";
-"eh_setting_view.cover_scale_factor" = "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.";
+"eh_setting_view.cover_scaling" = "Cover-Skalierung";
+"eh_setting_view.scale_factor" = "Skalierungsfaktor";
+"eh_setting_view.cover_scale_factor" = "Die Covergröße in Galerielisten kann in den Anzeigemodi „Vorschaubilder“ und „Erweitert“ auf 75%% bis 150%% skaliert werden.";
 
-"eh_setting_view.viewport_override" = "Viewport Override";
-"eh_setting_view.virtual_width" = "Virtual width";
-"eh_setting_view.virtual_width_description" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.";
+"eh_setting_view.viewport_override" = "Viewport-Überschreibung";
+"eh_setting_view.virtual_width" = "Virtuelle Breite";
+"eh_setting_view.virtual_width_description" = "Hiermit kannst du die virtuelle Breite der Seite auf Mobilgeräten überschreiben. Normalerweise bestimmt dein Gerät sie automatisch anhand der DPI. Sinnvolle Werte bei 100%% Vorschaubild-Skalierung liegen zwischen 640 und 1400.";
 
-"eh_setting_view.gallery_comments" = "Gallery Comments";
-"eh_setting_view.comments_sort_order" = "Comments sort order";
-"eh_setting_view.comments_votes_show_timing" = "Comment votes show timing";
+"eh_setting_view.gallery_comments" = "Galerie-Kommentare";
+"eh_setting_view.comments_sort_order" = "Sortierung der Kommentare";
+"eh_setting_view.comments_votes_show_timing" = "Anzeige der Kommentarbewertungen";
 // EhSetting.CommentsSortOrder
-"comments_sort_order.oldest" = "Oldest comments first";
-"comments_sort_order.recent" = "Recent comments first";
-"comments_sort_order.highest_score" = "By highest score";
+"comments_sort_order.oldest" = "Älteste Kommentare zuerst";
+"comments_sort_order.recent" = "Neueste Kommentare zuerst";
+"comments_sort_order.highest_score" = "Nach höchster Punktzahl";
 // EhSetting.CommentVotesShowTiming
-"comments_votes_show_timing.on_hover_or_click" = "On score hover or click";
-"comments_votes_show_timing.always" = "Always";
+"comments_votes_show_timing.on_hover_or_click" = "Beim Überfahren oder Anklicken der Punktzahl";
+"comments_votes_show_timing.always" = "Immer";
 
-"eh_setting_view.gallery_tags" = "Gallery Tags";
-"eh_setting_view.tags_sort_order" = "Tags sort order";
+"eh_setting_view.gallery_tags" = "Galerie-Tags";
+"eh_setting_view.tags_sort_order" = "Sortierung der Tags";
 // EhSetting.tags_sort_order
-"tags_sort_order.alphabetical" = "Alphabetical";
-"tags_sort_order.tag_power" = "By tag power";
+"tags_sort_order.alphabetical" = "Alphabetisch";
+"tags_sort_order.tag_power" = "Nach Tag-Gewicht";
 
-"eh_setting_view.gallery_page_thumbnail_labeling" = "Gallery Page Thumbnail Labeling";
-"eh_setting_view.show_label_below_gallery_thumbnails" = "Show label below gallery thumbnails";
+"eh_setting_view.gallery_page_thumbnail_labeling" = "Beschriftung der Vorschaubilder";
+"eh_setting_view.show_label_below_gallery_thumbnails" = "Beschriftung unter Galerie-Vorschaubildern anzeigen";
 
 
-"eh_setting_view.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
-"eh_setting_view.use_original_images" = "Use original images";
+"eh_setting_view.original_images" = "Sollen Originalbilder statt der neu berechneten Versionen verwendet werden? Neu berechnete Bilder werden weiterhin verwendet, wenn du oben eine andere horizontale Auflösung als „Automatisch“ wählst und das betreffende Bild breiter ist, oder wenn das Originalbild größer als 10 MiB ist (bzw. 4 MiB bei Galerien, die älter als ein Jahr sind).";
+"eh_setting_view.use_original_images" = "Originalbilder verwenden";
 
-"eh_setting_view.multi_page_viewer" = "Multi-Page Viewer";
-"eh_setting_view.use_multi_page_viewer" = "Use Multi-Page Viewer";
-"eh_setting_view.display_style" = "Display style";
-"eh_setting_view.show_thumbnail_pane" = "Show thumbnail pane";
+"eh_setting_view.multi_page_viewer" = "Multi-Page-Viewer";
+"eh_setting_view.use_multi_page_viewer" = "Multi-Page-Viewer verwenden";
+"eh_setting_view.display_style" = "Darstellungsstil";
+"eh_setting_view.show_thumbnail_pane" = "Vorschaubild-Leiste anzeigen";
 // EhSetting.MultiplePageViewerStyle
-"multiple_page_viewer_style.align_left_scale_if_over_width" = "Align left, scale if overwidth";
-"multiple_page_viewer_style.align_center_scale_if_over_width" = "Align center, scale if overwidth";
-"multiple_page_viewer_style.align_center_always_scale" = "Align center, always scale";
+"multiple_page_viewer_style.align_left_scale_if_over_width" = "Linksbündig, bei Überbreite skalieren";
+"multiple_page_viewer_style.align_center_scale_if_over_width" = "Zentriert, bei Überbreite skalieren";
+"multiple_page_viewer_style.align_center_always_scale" = "Zentriert, immer skalieren";
 // EhSetting.GalleryPageNumbering
-"gallery_page_numbering.none" = "None";
-"gallery_page_numbering.page_number_only" = "Page Number Only";
-"gallery_page_numbering.page_number_and_name" = "Page Number + Name";
+"gallery_page_numbering.none" = "Keine";
+"gallery_page_numbering.page_number_only" = "Nur Seitenzahl";
+"gallery_page_numbering.page_number_and_name" = "Seitenzahl + Name";
 
 // MARK: Category
 "category.doujinshi" = "Doujinshi";

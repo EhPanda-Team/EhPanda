@@ -1,5 +1,5 @@
 // MARK: BanInterval
-"ban_interval.and" = "and";
+"ban_interval.and" = "";
 
 // MARK: ToplistsType
 "toplists_type.yesterday" = "어제";
@@ -26,20 +26,20 @@
 // MARK: Common value
 "common.stars" = "%@별";
 "common.pages" = "%@페이지";
-"common.day" = "%@ day";
-"common.days" = "%@ days";
-"common.hour" = "%@ hour";
-"common.hours" = "%@ hours";
-"common.minute" = "%@ 분";
-"common.minutes" = "%@ 분";
-"common.second" = "%@ 초";
-"common.seconds" = "%@ 초";
+"common.day" = "%@일";
+"common.days" = "%@일";
+"common.hour" = "%@시간";
+"common.hours" = "%@시간";
+"common.minute" = "%@분";
+"common.minutes" = "%@분";
+"common.second" = "%@초";
+"common.seconds" = "%@초";
 
 // MARK: Common button
 "common.cancel" = "취소";
 
 // MARK: TabItem
-"tab_item.home" = "Home";
+"tab_item.home" = "홈";
 "tab_item.favorites" = "즐겨찾기";
 "tab_item.search" = "검색";
 "tab_item.downloads" = "다운로드";
@@ -64,18 +64,18 @@
 
 // MARK: AlertView
 "loading_view.loading" = "로딩 중...";
-"loading_view.preparing_database" = "Preparing the database...";
-"not_login_view.need_login" = "You need to login to access this feature.";
-"not_login_viewlogin" = "Login";
+"loading_view.preparing_database" = "데이터베이스 준비 중...";
+"not_login_view.need_login" = "이 기능을 사용하려면 로그인이 필요해요.";
+"not_login_viewlogin" = "로그인";
 "error_view.retry" = "재시도";
-"error_view.drop_database" = "Drop the database";
+"error_view.drop_database" = "데이터베이스 삭제";
 "error_view.try_later" = "잠시 후 다시 시도해 주세요.";
 "error_view.network" = "인터넷 접속 오류가 발생했어요.";
 "error_view.parsing" = "구분 분석 오류가 발생했어요.";
 "error_view.unknown" = "알 수 없는 오류가 발생했어요.";
 "error_view.not_found" = "여기가 아무도 없는 것 같습니다.";
-"error_view.database_corrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
-"error_view.ip_banned" = "자동화된 미러링/수집 소프트웨어를 사용 중임을 나타내는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 금지되었습니다. 금지효과는 %@ 에서 만료되었습니다.";
+"error_view.database_corrupted" = "데이터베이스가 손상되었어요.\nGitHub에 이슈를 남겨주세요.";
+"error_view.ip_banned" = "자동화된 미러링/수집 소프트웨어 사용이 의심되는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 차단되었어요. 차단은 %@ 후에 해제돼요.";
 "error_view.copyright_claim" = "%@의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없어요.";
 "error_view.gallery_unavailable" = "이 갤러리는 제거되었거나 사용할 수 없어요.";
 
@@ -98,14 +98,14 @@
 "app_error.local_file_operation_failed" = "로컬 파일 작업에 실패했습니다.";
 
 // MARK: ConfirmationDialog
-"confirmation_dialog.drop_database_description" = "You will lose all your data in this app.\nAre you sure to drop the database?";
-"confirmation_dialog.remove_custom_translations" = "Are you sure to remove your custom translations?";
+"confirmation_dialog.drop_database_description" = "이 앱의 모든 데이터를 잃게 돼요.\n정말 데이터베이스를 삭제하시겠어요?";
+"confirmation_dialog.remove_custom_translations" = "사용자 지정 번역을 삭제하시겠어요?";
 "confirmation_dialog.logout_description" = "로그아웃 하시겠어요?";
-"confirmation_dialog.delete_description" = "Are you sure to delete this item?";
+"confirmation_dialog.delete_description" = "이 항목을 삭제하시겠어요?";
 "confirmation_dialog.clear_description" = "삭제하시겠어요?";
 "confirmation_dialog.reset_description" = "초기화하시겠어요?";
-"confirmation_dialog.drop_database" = "Drop the database";
-"confirmation_dialog.remove" = "Remove";
+"confirmation_dialog.drop_database" = "데이터베이스 삭제";
+"confirmation_dialog.remove" = "삭제";
 "confirmation_dialog.logout" = "로그아웃";
 "confirmation_dialog.delete" = "삭제";
 "confirmation_dialog.clear" = "삭제";
@@ -127,7 +127,7 @@
 "home_view.home" = "홈";
 "home_view.frontpage" = "프론트 페이지";
 "home_view.toplists" = "상위 목록";
-"home_view.other" = "Other";
+"home_view.other" = "기타";
 // HomeMiscGridType
 "home_misc_grid_type.popular" = "인기 작품";
 "home_misc_grid_type.watched" = "주시 태그";
@@ -156,20 +156,20 @@
 
 // MARK: SearchView
 "search_view.search" = "검색";
-"search_view.recently_searched" = "Recently searched";
-"search_view.recently_seen" = "Recently seen";
+"search_view.recently_searched" = "최근 검색어";
+"search_view.recently_seen" = "최근 본 항목";
 "search_view.quick_search" = "빠른 검색";
 // Searchable
-"searchable.filter" = "Filter";
-"searchable.matches_count" = "Found %d matches.";
+"searchable.filter" = "필터";
+"searchable.matches_count" = "검색 결과 %d개";
 
 // MARK: QuickSearchView
 "quick_search_view.quick_search" = "빠른 검색";
-"quick_search_view.edit_word" = "Edit word";
-"quick_search_view.new_word" = "New word";
-"quick_search_view.content" = "Content";
-"quick_search_view.name" = "Name";
-"quick_search_view.optional" = "Optional";
+"quick_search_view.edit_word" = "키워드 편집";
+"quick_search_view.new_word" = "새 키워드";
+"quick_search_view.content" = "내용";
+"quick_search_view.name" = "이름";
+"quick_search_view.optional" = "선택 사항";
 
 // MARK: SettingView
 "setting_view.setting" = "설정";
@@ -180,7 +180,7 @@
 "setting_state_route.reading" = "읽기";
 "setting_state_route.download" = "다운로드";
 "setting_state_route.laboratory" = "실험실";
-"setting_state_route.about" = "About";
+"setting_state_route.about" = "정보";
 
 // MARK: AccountSettingView
 "account_setting_view.account" = "계정";
@@ -192,7 +192,7 @@
 // CookieValue
 "cookie_value.expired" = "만료됨";
 "cookie_value.mystery" = "거절됨";
-"cookie_value.none" = "None";
+"cookie_value.none" = "없음";
 
 // MARK: LoginView
 "login_view.login" = "로그인";
@@ -203,19 +203,19 @@
 "general_setting_view.general" = "일반";
 "general_setting_view.language" = "언어";
 "general_setting_view.auto_lock" = "앱 자동 잠금";
-"general_setting_view.enables_tags_extension" = "Enables tags extension";
+"general_setting_view.enables_tags_extension" = "태그 확장 기능 사용하기";
 "general_setting_view.translates_tags" = "태그 번역하기";
-"general_setting_view.shows_tags_search_suggestion" = "Shows tags search suggestion";
-"general_setting_view.shows_images_in_tags" = "Shows images in tags";
+"general_setting_view.shows_tags_search_suggestion" = "태그 검색 제안 보여주기";
+"general_setting_view.shows_images_in_tags" = "태그에 이미지 보여주기";
 "general_setting_view.redirects_links_to_the_selected_host" = "선택한 서버로 이동하기";
 "general_setting_view.detects_links_from_clipboard" = "클립보드의 링크 인식하기";
-"general_setting_view.background_blur_radius" = "Background blur radius";
+"general_setting_view.background_blur_radius" = "백그라운드 흐림 정도";
 "general_setting_view.app_activity_logs" = "앱 활동 로그";
-"general_setting_view.import_custom_translations" = "Import custom translations";
-"general_setting_view.remove_custom_translations" = "Remove custom translations";
+"general_setting_view.import_custom_translations" = "사용자 지정 번역 가져오기";
+"general_setting_view.remove_custom_translations" = "사용자 지정 번역 삭제";
 "general_setting_view.clear_image_caches" = "이미지 캐시 지우기";
-"general_setting_view.default_language_description" = "N/A";
-"general_setting_view.tags" = "Tags";
+"general_setting_view.default_language_description" = "알 수 없음";
+"general_setting_view.tags" = "태그";
 "general_setting_view.navigation" = "내비게이션";
 "general_setting_view.security" = "개인 정보 보호";
 "general_setting_view.caches" = "캐시";
@@ -245,21 +245,21 @@
 "appearance_setting_view.display_mode" = "표시방식";
 "appearance_setting_view.shows_tags_in_list" = "리스트에서 태그 보여주기";
 "appearance_setting_view.maximum_number_of_tags" = "태그 갯수";
-"appearance_setting_view.displays_japanese_title" = "Displays Japanese title";
+"appearance_setting_view.displays_japanese_title" = "일본어 제목 보여주기";
 "appearance_setting_view.app_icon" = "앱 아이콘";
 "appearance_setting_view.infite" = "제한 없음";
 "appearance_setting_view.list" = "리스트";
-"appearance_setting_view.gallery" = "Gallery";
+"appearance_setting_view.gallery" = "갤러리";
 // PreferredColorScheme
 "preferred_color_scheme.automatic" = "자동";
 "preferred_color_scheme.light" = "라이트";
 "preferred_color_scheme.dark" = "다크";
 // AppIconType
 "app_icon_type.default" = "기본";
-"app_icon_type.ukiyoe" = "Ukiyo-e";
-"app_icon_type.developer" = "Developer";
-"app_icon_type.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
-"app_icon_type.not_my_president" = "NOT MY PRESIDENT";
+"app_icon_type.ukiyoe" = "우키요에";
+"app_icon_type.developer" = "개발자";
+"app_icon_type.stand_with_ukraine_2022" = "우크라이나와 함께 (2022)";
+"app_icon_type.not_my_president" = "내 대통령이 아니다";
 // ListDisplayMode
 "list_display_mode.detail" = "자세히";
 "list_display_mode.thumbnail" = "썸네일";
@@ -271,7 +271,7 @@
 "reading_setting_view.reading" = "읽기";
 "reading_setting_view.direction" = "방향";
 "reading_setting_view.preload_limit" = "페이지 미리 로딩";
-"reading_setting_view.enables_landscape" = "Enables landscape";
+"reading_setting_view.enables_landscape" = "가로 화면 사용하기";
 "reading_setting_view.separator_height" = "페이지 간 여백 두께";
 "reading_setting_view.maximum_scale_factor" = "최대 확대 비율";
 "reading_setting_view.double_tap_scale_factor" = "더블 탭 확대 비율";
@@ -290,9 +290,9 @@
 "about_view.website" = "웹사이트";
 "about_view.altStore_source" = "AltStore 소스";
 "about_view.version" = "버전";
-"about_view.special_thanks" = "Special thanks";
-"about_view.code_level_contributors" = "Code-level contributors";
-"about_view.translation_contributors" = "Translation contributors";
+"about_view.special_thanks" = "특별히 감사드리는 분들";
+"about_view.code_level_contributors" = "코드 기여자";
+"about_view.translation_contributors" = "번역 기여자";
 "about_view.acknowledgements" = "도움을 주신 분들";
 
 // MARK: DetailView
@@ -313,10 +313,10 @@
 "detail_view.archives" = "아카이브";
 "detail_view.torrents" = "토렌트";
 "detail_view.share" = "공유";
-"detail_view.detail" = "Detail";
-"detail_view.withdraw_vote" = "Withdraw vote";
-"detail_view.vote_up" = "Vote up";
-"detail_view.vote_down" = "Vote down";
+"detail_view.detail" = "세부 정보";
+"detail_view.withdraw_vote" = "투표 취소";
+"detail_view.vote_up" = "찬성 투표";
+"detail_view.vote_down" = "반대 투표";
 "detail_view.favorited" = "즐겨찾기";
 "detail_view.language" = "언어";
 "detail_view.ratings" = "%@명의 별점";
@@ -355,7 +355,7 @@
 // MARK: GalleryInfosView
 "gallery_infos_view.gallery_infos" = "갤러리 정보";
 "gallery_infos_view.id" = "ID";
-"gallery_infos_view.token" = "Token";
+"gallery_infos_view.token" = "토큰";
 "gallery_infos_view.title" = "제목";
 "gallery_infos_view.japanese_title" = "일본어 제목";
 "gallery_infos_view.gallery_URL" = "갤러리 주소";
@@ -374,9 +374,9 @@
 "gallery_infos_view.favorited" = "즐겨찾기에 저장 됨";
 "gallery_infos_view.rating_count" = "별점 갯수";
 "gallery_infos_view.average_rating" = "평균 별점";
-"gallery_infos_view.my_rating" = "My rating";
+"gallery_infos_view.my_rating" = "내 별점";
 "gallery_infos_view.torrent_count" = "토렌트 수";
-"gallery_infos_view.none" = "None";
+"gallery_infos_view.none" = "없음";
 "gallery_infos_view.yes" = "네";
 "gallery_infos_view.no" = "아니요";
 // GalleryVisibility
@@ -385,21 +385,21 @@
 "gallery_visibility.expunged" = "삭제됨";
 
 // MARK: TagDetailView
-"tag_detail_view.images" = "Images";
-"tag_detail_view.links" = "Links";
+"tag_detail_view.images" = "이미지";
+"tag_detail_view.links" = "링크";
 
 // MARK: DownloadsView
-"download_folder_filter.all" = "All";
-"detail_view.manage_folders" = "Manage Folders";
-"detail_view.create_default_folder" = "Create Default Folder";
-"detail_view.no_folders" = "No folders yet";
-"downloads_view.manage_folders" = "Manage Folders";
-"downloads_view.move_to_folder" = "Move to Folder";
-"downloads_view.move" = "Move";
-"folder_manager_view.folders" = "Folders";
-"folder_manager_view.folder_name" = "Folder name";
-"folder_manager_view.delete_folder" = "This will delete the folder and all downloaded galleries inside it.";
-"folder_manager_view.empty_folders" = "Folders you create will appear here.";
+"download_folder_filter.all" = "전체";
+"detail_view.manage_folders" = "폴더 관리";
+"detail_view.create_default_folder" = "기본 폴더 만들기";
+"detail_view.no_folders" = "아직 폴더가 없습니다";
+"downloads_view.manage_folders" = "폴더 관리";
+"downloads_view.move_to_folder" = "폴더로 이동";
+"downloads_view.move" = "이동";
+"folder_manager_view.folders" = "폴더";
+"folder_manager_view.folder_name" = "폴더 이름";
+"folder_manager_view.delete_folder" = "폴더와 그 안에 다운로드한 모든 갤러리를 삭제합니다.";
+"folder_manager_view.empty_folders" = "만든 폴더가 여기에 표시됩니다.";
 "downloads_view.downloads" = "다운로드";
 "downloads_view.search_downloads" = "다운로드 검색";
 "downloads_view.delete_download" = "다운로드를 삭제할까요?";
@@ -446,16 +446,16 @@
 "reading_view.reload" = "재시도";
 "reading_view.copy" = "복사";
 "reading_view.save" = "저장";
-"reading_view.save_original" = "Save original";
+"reading_view.save_original" = "원본 저장";
 "reading_view.share" = "공유";
 "reading_view.auto_play" = "자동 재생";
 "reading_view.dual_page_mode" = "두 장을 한 화면으로 보기";
 "reading_view.except_the_cover" = "표지 제외하기";
-"reading_view.retry_all_failed_images" = "Retry failed images";
-"reading_view.reload_all_images" = "Reload all images";
-"reading_view.reading_setting" = "Reading setting";
+"reading_view.retry_all_failed_images" = "실패한 이미지 모두 재시도";
+"reading_view.reload_all_images" = "모든 이미지 다시 불러오기";
+"reading_view.reading_setting" = "읽기 설정";
 // AutoPlayPolicy
-"auto_play_policy.off" = "Off";
+"auto_play_policy.off" = "끔";
 
 
 // MARK: DownloadBadge
@@ -469,10 +469,10 @@
 
 // MARK: DownloadStore
 "download_store.asset_unreadable" = "에셋 파일을 읽을 수 없습니다: %@";
-"download_store.invalid_folder_name" = "The folder name is invalid.";
-"download_store.folder_already_exists" = "A folder with this name already exists.";
-"download_store.folder_busy_downloading" = "The folder contains an active download.";
-"download_store.download_busy" = "The download is currently active.";
+"download_store.invalid_folder_name" = "폴더 이름이 올바르지 않습니다.";
+"download_store.folder_already_exists" = "같은 이름의 폴더가 이미 있습니다.";
+"download_store.folder_busy_downloading" = "폴더에 진행 중인 다운로드가 있습니다.";
+"download_store.download_busy" = "다운로드가 진행 중입니다.";
 "download_store.download_folder_missing" = "다운로드 폴더가 없습니다.";
 "download_store.manifest_missing" = "매니페스트 파일이 없습니다.";
 "download_store.manifest_corrupted" = "매니페스트 파일이 손상되었습니다.";
@@ -513,7 +513,7 @@
 "eh_setting_view.delete_profile" = "프로필 삭제";
 "eh_setting_view.rename" = "이름 변경";
 "eh_setting_view.create_new" = "추가";
-"eh_setting_view.done" = "Done";
+"eh_setting_view.done" = "완료";
 
 "eh_setting_view.image_load_settings" = "이미지 로드 설정";
 "eh_setting_view.load_images_through_the_hath_network" = "Hath 네트워크를 통하여 이미지 로드";
@@ -527,7 +527,7 @@
 "load_through_hath_setting.any_client_description" = "추천.";
 "load_through_hath_setting.default_port_only_description" = "더 느려질 수 있어요. 나가는 비표준 포트를 차단하는 방화벽/프록시가 있는 경우 사용하세요.";
 "load_through_hath_setting.modern_no_description" = "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.";
-"load_through_hath_setting.legacy_no_description" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
+"load_through_hath_setting.legacy_no_description" = "기부자 전용 기능이에요. 최신 브라우저에서는 제대로 작동하지 않을 수 있어요. 오래된 브라우저에서만 사용해주세요.";
 
 "eh_setting_view.image_size_settings" = "이미지 사이즈 설정";
 "eh_setting_view.image_resolution" = "이미지 해상도";
@@ -560,19 +560,19 @@
 "eh_setting_view.front_page_settings" = "프론트 페이지 설정";
 "eh_setting_view.display_mode" = "표시방식";
 "eh_setting_view.display_mode_description" = "프론트와 검색 페이지에서 사용할 디스플레이 모드를 선택하세요.";
-"eh_setting_view.show_search_range_indicator" = "Search Range Indicator";
-"eh_setting_view.show_search_range_indicator_description" = "Show search range indicator";
+"eh_setting_view.show_search_range_indicator" = "검색 범위 표시기";
+"eh_setting_view.show_search_range_indicator_description" = "검색 범위 표시기 표시";
 "eh_setting_view.gallery_category" = "프론트와 검색 페이지에서 어떤 카테고리가 보여지도록 할까요?";
 // EhSetting.DisplayMode
-"display_mode.compact" = "Compact";
-"display_mode.thumbnail" = "Thumbnail";
-"display_mode.extended" = "Extended";
-"display_mode.minimal" = "Minimal";
-"display_mode.minimalPlus" = "Minimal+";
+"display_mode.compact" = "컴팩트";
+"display_mode.thumbnail" = "썸네일";
+"display_mode.extended" = "확장";
+"display_mode.minimal" = "미니멀";
+"display_mode.minimalPlus" = "미니멀+";
 
-"eh_setting_view.optional_UI_elements" = "Optional UI Elements";
-"eh_setting_view.optional_UI_elements_description" = "Some historic UI elements are now disabled by default. You can enable those here.";
-"eh_setting_view.enable_gallery_thumbnail_selector" = "Enable thumbnail selector on gallery screen";
+"eh_setting_view.optional_UI_elements" = "선택적 UI 요소";
+"eh_setting_view.optional_UI_elements_description" = "일부 예전 UI 요소는 이제 기본적으로 꺼져 있어요. 여기서 다시 켤 수 있어요.";
+"eh_setting_view.enable_gallery_thumbnail_selector" = "갤러리 화면에서 썸네일 선택기 사용";
 
 "eh_setting_view.favorites" = "즐겨찾기";
 "eh_setting_view.favorite_categories" = "여기서 좋아하는 장르들을 선택하고 이름을 바꿀 수 있어요.";
@@ -593,9 +593,9 @@
 "eh_setting_view.tag_watching_threshold" = "태그 보여주기 임계값";
 "eh_setting_view.tag_watching_threshold_description" = "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요.";
 
-"eh_setting_viewfiltered_removal_count" = "Show Filtered Removal Count";
-"eh_setting_view.filtered_removal_count_description" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh_setting_view.show_filtered_removal_count" = "Show filtered removal count";
+"eh_setting_viewfiltered_removal_count" = "필터로 제거된 수";
+"eh_setting_view.filtered_removal_count_description" = "\"기본 필터가 이 페이지에서 갤러리 XX개를 제거했어요\" 문구를 표시할까요?";
+"eh_setting_view.show_filtered_removal_count" = "필터로 제거된 수 표시";
 
 "eh_setting_view.excluded_languages" = "제외된 언어";
 "eh_setting_view.excluded_languages_description" = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요.";
@@ -626,12 +626,12 @@
 // EhSetting.ThumbnailSize
 "thumbnail_size.normal" = "보통";
 "thumbnail_size.large" = "크게";
-"thumbnail_size.small" = "Small";
-"thumbnail_size.auto" = "Auto";
+"thumbnail_size.small" = "작게";
+"thumbnail_size.auto" = "자동";
 
-"eh_setting_view.cover_scaling" = "Cover Scaling";
+"eh_setting_view.cover_scaling" = "표지 크기 조절";
 "eh_setting_view.scale_factor" = "크기 비율";
-"eh_setting_view.cover_scale_factor" = "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes.";
+"eh_setting_view.cover_scale_factor" = "썸네일 또는 확장 표시방식에서는 갤러리 목록의 표지 크기를 75%%에서 150%% 사이로 조절할 수 있어요.";
 
 "eh_setting_view.viewport_override" = "뷰포트 조정";
 "eh_setting_view.virtual_width" = "가상 너비";
@@ -654,11 +654,11 @@
 "tags_sort_order.alphabetical" = "알파벳순으로";
 "tags_sort_order.tag_power" = "태크 가중치로";
 
-"eh_setting_view.gallery_page_thumbnail_labeling" = "Gallery Page Thumbnail Labeling";
-"eh_setting_view.show_label_below_gallery_thumbnails" = "Show label below gallery thumbnails";
+"eh_setting_view.gallery_page_thumbnail_labeling" = "갤러리 페이지 썸네일 라벨";
+"eh_setting_view.show_label_below_gallery_thumbnails" = "갤러리 썸네일 아래에 라벨 표시";
 
 
-"eh_setting_view.original_images" = "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year).";
+"eh_setting_view.original_images" = "다시 샘플링된 버전 대신 원본 이미지를 사용할까요? 위에서 가로 해상도를 \"자동\" 이외로 선택했고 해당 이미지가 그보다 넓은 경우나, 원본 이미지가 10 MiB(1년 넘은 갤러리는 4 MiB)보다 큰 경우에는 다시 샘플링된 이미지가 계속 사용되어요.";
 "eh_setting_view.use_original_images" = "원본 뷰어 적용";
 
 "eh_setting_view.multi_page_viewer" = "멀티 페이지 뷰어";
@@ -670,9 +670,9 @@
 "multiple_page_viewer_style.align_center_scale_if_over_width" = "가운데 정렬, 너비 초과할 때 크기 맞추기";
 "multiple_page_viewer_style.align_center_always_scale" = "가운데 정렬, 항상 크기 맞추기";
 // EhSetting.GalleryPageNumbering
-"gallery_page_numbering.none" = "None";
-"gallery_page_numbering.page_number_only" = "Page Number Only";
-"gallery_page_numbering.page_number_and_name" = "Page Number + Name";
+"gallery_page_numbering.none" = "표시 안 함";
+"gallery_page_numbering.page_number_only" = "페이지 번호만";
+"gallery_page_numbering.page_number_and_name" = "페이지 번호와 이름";
 
 // MARK: Category
 "category.doujinshi" = "동인지";
