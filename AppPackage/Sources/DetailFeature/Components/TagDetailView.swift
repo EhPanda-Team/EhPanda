@@ -57,7 +57,7 @@ private struct ImagesSection: View {
     }
 
     var body: some View {
-        SubSection(title: String(localized: .images), showAll: false) {
+        SubSection(title: .images, showAll: false) {
             VStack {
                 if !imageURLs.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -92,7 +92,7 @@ private struct LinksSection: View {
     }
 
     var body: some View {
-        SubSection(title: String(localized: .links), showAll: false) {
+        SubSection(title: .links, showAll: false) {
             HStack {
                 if !links.isEmpty {
                     VStack(alignment: .leading) {

@@ -204,7 +204,7 @@ private struct QuickSearchWordsSection: View {
 
     var body: some View {
         SubSection(
-            title: String(localized: .RLocalizable.quickSearch),
+            title: .RLocalizable.quickSearch,
             showAll: true, tint: .primary, showAllAction: showAllAction
         ) {
             DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
@@ -225,7 +225,7 @@ private struct HistoryKeywordsSection: View {
     }
 
     var body: some View {
-        SubSection(title: String(localized: .recentlySearched), showAll: false) {
+        SubSection(title: .recentlySearched, showAll: false) {
             DoubleVerticalKeywordsStack(
                 keywords: keywords.map(WrappedKeyword.init),
                 searchAction: searchAction,
@@ -246,7 +246,7 @@ private struct HistoryGalleriesSection: View {
     }
 
     var body: some View {
-        SubSection(title: String(localized: .recentlySeen), showAll: false) {
+        SubSection(title: .recentlySeen, showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(galleries) { gallery in

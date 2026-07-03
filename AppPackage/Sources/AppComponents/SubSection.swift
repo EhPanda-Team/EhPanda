@@ -3,7 +3,7 @@ import Resources
 import AppTools
 
 public struct SubSection<Content: View>: View {
-    private let title: String
+    private let title: LocalizedStringResource
     private let showAll: Bool
     private let tint: Color?
     private let isLoading: Bool?
@@ -12,7 +12,7 @@ public struct SubSection<Content: View>: View {
     private let content: Content
 
     public init(
-        title: String, showAll: Bool = true,
+        title: LocalizedStringResource, showAll: Bool = true,
         tint: Color? = nil, isLoading: Bool? = nil,
         reloadAction: (() -> Void)? = nil,
         showAllAction: @escaping () -> Void = {},

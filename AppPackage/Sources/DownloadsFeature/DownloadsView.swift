@@ -280,7 +280,7 @@ private extension DownloadsView {
                 symbol: .line3HorizontalDecreaseCircle,
                 message: String(localized: .noMatchingFilters)
             ) {
-                AlertViewButton(title: String(localized: .clearFilters)) {
+                AlertViewButton(title: .clearFilters) {
                     store.keyword = ""
                     store.folderFilter = .all
                 }
