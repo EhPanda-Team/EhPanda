@@ -190,9 +190,6 @@
 "account_setting_view.tags_management" = "Manage tags subscription";
 "account_setting_view.copy_cookies" = "Copy cookies";
 // CookieValue
-"cookie_value.expired" = "Expired";
-"cookie_value.mystery" = "Rejected";
-"cookie_value.none" = "None";
 
 // MARK: LoginView
 "login_view.login" = "Login";

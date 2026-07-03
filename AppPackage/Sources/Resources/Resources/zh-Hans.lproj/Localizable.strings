@@ -190,9 +190,6 @@
 "account_setting_view.tags_management" = "管理标签订阅";
 "account_setting_view.copy_cookies" = "复制 Cookies";
 // CookieValue
-"cookie_value.expired" = "已过期";
-"cookie_value.mystery" = "被拒绝";
-"cookie_value.none" = "无内容";
 
 // MARK: LoginView
 "login_view.login" = "登录";

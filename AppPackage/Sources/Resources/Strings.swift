@@ -946,14 +946,6 @@ public enum L10n {
       /// Are you sure to reset?
       public static let resetDescription = L10n.tr("Localizable", "confirmation_dialog.reset_description", fallback: "Are you sure to reset?")
     }
-    public enum CookieValue {
-      /// Expired
-      public static let expired = L10n.tr("Localizable", "cookie_value.expired", fallback: "Expired")
-      /// Rejected
-      public static let mystery = L10n.tr("Localizable", "cookie_value.mystery", fallback: "Rejected")
-      /// None
-      public static let `none` = L10n.tr("Localizable", "cookie_value.none", fallback: "None")
-    }
     public enum DateSeekView {
       /// Date
       public static let date = L10n.tr("Localizable", "date_seek_view.date", fallback: "Date")

@@ -423,9 +423,9 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .module(.resources),
             .targetDependency(.composableArchitecture)
         ],
+        resources: [.process(.resources)],
         swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
