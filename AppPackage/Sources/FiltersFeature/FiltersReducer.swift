@@ -68,13 +68,13 @@ public struct FiltersReducer: Sendable {
                     TextState("")
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmReset) {
-                        TextState(L10n.Localizable.ConfirmationDialog.Button.reset)
+                        TextState(L10n.Localizable.ConfirmationDialog.reset)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
-                    TextState(L10n.Localizable.ConfirmationDialog.Title.reset)
+                    TextState(L10n.Localizable.ConfirmationDialog.resetDescription)
                 }
                 return .none
 

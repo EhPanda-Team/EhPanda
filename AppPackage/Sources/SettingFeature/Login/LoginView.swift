@@ -34,13 +34,13 @@ struct LoginView: View {
                         LoginTextField(
                             focusedField: $focusedField,
                             text: $store.username,
-                            description: L10n.Localizable.LoginView.Title.username,
+                            description: L10n.Localizable.LoginView.username,
                             isPassword: false
                         )
                         LoginTextField(
                             focusedField: $focusedField,
                             text: $store.password,
-                            description: L10n.Localizable.LoginView.Title.password,
+                            description: L10n.Localizable.LoginView.password,
                             isPassword: true
                         )
                     }
@@ -86,7 +86,7 @@ struct LoginView: View {
         }
         .animation(.default, value: store.loginState)
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.LoginView.Title.login)
+        .navigationTitle(L10n.Localizable.LoginView.login)
         .ignoresSafeArea()
     }
     // MARK: Toolbar

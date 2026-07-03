@@ -28,14 +28,14 @@ public struct DownloadBadgeLabel: View {
     }
 
     private var progressText: String {
-        L10n.Localizable.Struct.DownloadBadge.progress(
+        L10n.Localizable.DownloadBadge.progress(
             badge.progress.displayCompletedPageCount,
             badge.progress.displayPageCount
         )
     }
 
     private var statusText: String {
-        typealias BadgeText = L10n.Localizable.Struct.DownloadBadge.Text
+        typealias BadgeText = L10n.Localizable.DownloadBadge
         switch badge.status {
         case .queued:
             return BadgeText.queued

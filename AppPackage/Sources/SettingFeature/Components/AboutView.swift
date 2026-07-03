@@ -7,7 +7,7 @@ import AppComponents
 struct AboutView: View {
     private var version: String {
         [
-            L10n.Localizable.AboutView.Title.version,
+            L10n.Localizable.AboutView.version,
             AppUtil.version, "(\(AppUtil.build))"
         ]
         .joined(separator: " ")
@@ -20,32 +20,32 @@ struct AboutView: View {
                     LinkRow(urlString: contact.urlString, text: contact.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.Section.Title.specialThanks) {
+            Section(L10n.Localizable.AboutView.specialThanks) {
                 ForEach(specialThanks) { specialThank in
                     LinkRow(urlString: specialThank.urlString, text: specialThank.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.Section.Title.codeLevelContributors) {
+            Section(L10n.Localizable.AboutView.codeLevelContributors) {
                 ForEach(codeLevelContributors) { codeLevelContributor in
                     LinkRow(urlString: codeLevelContributor.urlString, text: codeLevelContributor.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.Section.Title.translationContributors) {
+            Section(L10n.Localizable.AboutView.translationContributors) {
                 ForEach(translationContributors) { translationContributor in
                     LinkRow(urlString: translationContributor.urlString, text: translationContributor.text)
                 }
             }
-            Section(L10n.Localizable.AboutView.Section.Title.acknowledgements) {
+            Section(L10n.Localizable.AboutView.acknowledgements) {
                 ForEach(acknowledgements) { acknowledgement in
                     LinkRow(urlString: acknowledgement.urlString, text: acknowledgement.text)
                 }
             }
         }
-        .navigationTitle(L10n.Localizable.AboutView.Title.ehPanda)
+        .navigationTitle(L10n.Localizable.AboutView.ehPanda)
         .toolbar {
             ToolbarItem(placement: .largeSubtitle) {
                 VStack(alignment: .leading) {
-                    Text(L10n.Constant.App.copyright)
+                    Text(L10n.Constant.copyright)
                     Text(version)
                 }
                 .foregroundStyle(.gray)
@@ -59,144 +59,144 @@ struct AboutView: View {
     // MARK: Contacts
     private let contacts: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.Contact.Link.website,
-            text: L10n.Localizable.AboutView.Button.website
+            urlString: L10n.Constant.Contact.website,
+            text: L10n.Localizable.AboutView.website
         ),
         .init(
-            urlString: L10n.Constant.App.Contact.Link.gitHub,
-            text: L10n.Constant.App.Contact.Text.gitHub
+            urlString: L10n.Constant.Contact.gitHub,
+            text: L10n.Constant.Contact.gitHubLink
         ),
         .init(
-            urlString: L10n.Constant.App.Contact.Link.discord,
-            text: L10n.Constant.App.Contact.Text.discord
+            urlString: L10n.Constant.Contact.discord,
+            text: L10n.Constant.Contact.discordLink
         ),
         .init(
-            urlString: L10n.Constant.App.Contact.Link.telegram,
-            text: L10n.Constant.App.Contact.Text.telegram
+            urlString: L10n.Constant.Contact.telegram,
+            text: L10n.Constant.Contact.telegramLink
         ),
         .init(
-            urlString: L10n.Constant.App.Contact.Link.altStore,
-            text: L10n.Localizable.AboutView.Button.altStoreSource
+            urlString: L10n.Constant.Contact.altStoreLink,
+            text: L10n.Localizable.AboutView.altStoreSource
         )
     ]}()
 
     // MARK: Special thanks
     private let specialThanks: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.SpecialThanks.Link.taylorlannister,
-            text: L10n.Constant.App.SpecialThanks.Text.taylorlannister
+            urlString: L10n.Constant.SpecialThanks.taylorlannisterLink,
+            text: L10n.Constant.SpecialThanks.taylorlannister
         ),
         .init(
-            urlString: L10n.Constant.App.SpecialThanks.Link.luminescentYq,
-            text: L10n.Constant.App.SpecialThanks.Text.luminescentYq
+            urlString: L10n.Constant.SpecialThanks.luminescentYqLink,
+            text: L10n.Constant.SpecialThanks.luminescentYq
         ),
         .init(
-            urlString: L10n.Constant.App.SpecialThanks.Link.caxerx,
-            text: L10n.Constant.App.SpecialThanks.Text.caxerx
+            urlString: L10n.Constant.SpecialThanks.caxerxLink,
+            text: L10n.Constant.SpecialThanks.caxerx
         ),
         .init(
-            urlString: L10n.Constant.App.SpecialThanks.Link.honjow,
-            text: L10n.Constant.App.SpecialThanks.Text.honjow
+            urlString: L10n.Constant.SpecialThanks.honjowLink,
+            text: L10n.Constant.SpecialThanks.honjow
         )
     ]}()
 
     // MARK: Code level contributors
     private let codeLevelContributors: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.vvbbnn00,
-            text: L10n.Constant.App.CodeLevelContributor.Text.vvbbnn00
+            urlString: L10n.Constant.CodeLevelContributor.vvbbnn00Link,
+            text: L10n.Constant.CodeLevelContributor.vvbbnn00
         ),
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.kaed3mi,
-            text: L10n.Constant.App.CodeLevelContributor.Text.kaed3mi
+            urlString: L10n.Constant.CodeLevelContributor.kaed3miLink,
+            text: L10n.Constant.CodeLevelContributor.kaed3mi
         ),
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.aalberrty,
-            text: L10n.Constant.App.CodeLevelContributor.Text.aalberrty
+            urlString: L10n.Constant.CodeLevelContributor.aalberrtyLink,
+            text: L10n.Constant.CodeLevelContributor.aalberrty
         ),
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.jimmyPrime,
-            text: L10n.Constant.App.CodeLevelContributor.Text.jimmyPrime
+            urlString: L10n.Constant.CodeLevelContributor.jimmyPrimeLink,
+            text: L10n.Constant.CodeLevelContributor.jimmyPrime
         ),
         .init(
-            urlString: L10n.Constant.App.CodeLevelContributor.Link.xioxin,
-            text: L10n.Constant.App.CodeLevelContributor.Text.xioxin
+            urlString: L10n.Constant.CodeLevelContributor.xioxinLink,
+            text: L10n.Constant.CodeLevelContributor.xioxin
         )
     ]}()
 
     // MARK: Translation contributors
     private let translationContributors: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.TranslationContributor.Link.nebulosaCat,
-            text: L10n.Constant.App.TranslationContributor.Text.nebulosaCat
+            urlString: L10n.Constant.TranslationContributor.nebulosaCatLink,
+            text: L10n.Constant.TranslationContributor.nebulosaCat
         ),
         .init(
-            urlString: L10n.Constant.App.TranslationContributor.Link.paulHaeussler,
-            text: L10n.Constant.App.TranslationContributor.Text.paulHaeussler
+            urlString: L10n.Constant.TranslationContributor.paulHaeusslerLink,
+            text: L10n.Constant.TranslationContributor.paulHaeussler
         ),
         .init(
-            urlString: L10n.Constant.App.TranslationContributor.Link.caxerx,
-            text: L10n.Constant.App.TranslationContributor.Text.caxerx
+            urlString: L10n.Constant.TranslationContributor.caxerxLink,
+            text: L10n.Constant.TranslationContributor.caxerx
         ),
         .init(
-            urlString: L10n.Constant.App.TranslationContributor.Link.neKoOuO,
-            text: L10n.Constant.App.TranslationContributor.Text.neKoOuO
+            urlString: L10n.Constant.TranslationContributor.neKoOuOLink,
+            text: L10n.Constant.TranslationContributor.neKoOuO
         )
     ]}()
 
     // MARK: Acknowledgements
     private let acknowledgements: [Info] = {[
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.kanna,
-            text: L10n.Constant.App.Acknowledgement.Text.kanna
+            urlString: L10n.Constant.Acknowledgement.kannaLink,
+            text: L10n.Constant.Acknowledgement.kanna
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.colorful,
-            text: L10n.Constant.App.Acknowledgement.Text.colorful
+            urlString: L10n.Constant.Acknowledgement.colorfulLink,
+            text: L10n.Constant.Acknowledgement.colorful
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.swiftGen,
-            text: L10n.Constant.App.Acknowledgement.Text.swiftGen
+            urlString: L10n.Constant.Acknowledgement.swiftGenLink,
+            text: L10n.Constant.Acknowledgement.swiftGen
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.kingfisher,
-            text: L10n.Constant.App.Acknowledgement.Text.kingfisher
+            urlString: L10n.Constant.Acknowledgement.kingfisherLink,
+            text: L10n.Constant.Acknowledgement.kingfisher
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.swiftUIPager,
-            text: L10n.Constant.App.Acknowledgement.Text.swiftUIPager
+            urlString: L10n.Constant.Acknowledgement.swiftUIPagerLink,
+            text: L10n.Constant.Acknowledgement.swiftUIPager
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.waterfallGrid,
-            text: L10n.Constant.App.Acknowledgement.Text.waterfallGrid
+            urlString: L10n.Constant.Acknowledgement.waterfallGridLink,
+            text: L10n.Constant.Acknowledgement.waterfallGrid
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.swiftyOpenCC,
-            text: L10n.Constant.App.Acknowledgement.Text.swiftyOpenCC
+            urlString: L10n.Constant.Acknowledgement.swiftyOpenCCLink,
+            text: L10n.Constant.Acknowledgement.swiftyOpenCC
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.uiImageColors,
-            text: L10n.Constant.App.Acknowledgement.Text.uiImageColors
+            urlString: L10n.Constant.Acknowledgement.uiImageColorsLink,
+            text: L10n.Constant.Acknowledgement.uiImageColors
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.sfSafeSymbols,
-            text: L10n.Constant.App.Acknowledgement.Text.sfSafeSymbols
+            urlString: L10n.Constant.Acknowledgement.sfSafeSymbolsLink,
+            text: L10n.Constant.Acknowledgement.sfSafeSymbols
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.systemNotification,
-            text: L10n.Constant.App.Acknowledgement.Text.systemNotification
+            urlString: L10n.Constant.Acknowledgement.systemNotificationLink,
+            text: L10n.Constant.Acknowledgement.systemNotification
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.swiftCommonMark,
-            text: L10n.Constant.App.Acknowledgement.Text.swiftCommonMark
+            urlString: L10n.Constant.Acknowledgement.swiftCommonMarkLink,
+            text: L10n.Constant.Acknowledgement.swiftCommonMark
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.ehTagTranslationDatabase,
-            text: L10n.Constant.App.Acknowledgement.Text.ehTagTranslationDatabase
+            urlString: L10n.Constant.Acknowledgement.ehTagTranslationDatabaseLink,
+            text: L10n.Constant.Acknowledgement.ehTagTranslationDatabase
         ),
         .init(
-            urlString: L10n.Constant.App.Acknowledgement.Link.tca,
-            text: L10n.Constant.App.Acknowledgement.Text.tca
+            urlString: L10n.Constant.Acknowledgement.tcaLink,
+            text: L10n.Constant.Acknowledgement.tca
         )
     ]}()
 }

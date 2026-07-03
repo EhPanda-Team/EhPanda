@@ -7,7 +7,7 @@ import AppTools
 public struct LoadingView: View {
     private let title: String
 
-    public init(title: String = L10n.Localizable.LoadingView.Title.loading) {
+    public init(title: String = L10n.Localizable.LoadingView.loading) {
         self.title = title
     }
 
@@ -54,9 +54,9 @@ public struct NotLoginView: View {
     public var body: some View {
         AlertView(
             symbol: .personCropCircleBadgeQuestionmarkFill,
-            message: L10n.Localizable.NotLoginView.Title.needLogin
+            message: L10n.Localizable.NotLoginView.needLogin
         ) {
-            AlertViewButton(title: L10n.Localizable.NotLoginView.Button.login, action: action)
+            AlertViewButton(title: L10n.Localizable.notLoginViewlogin, action: action)
         }
     }
 }
@@ -68,7 +68,7 @@ public struct ErrorView: View {
 
     public init(
         error: AppError,
-        buttonTitle: String = L10n.Localizable.ErrorView.Button.retry,
+        buttonTitle: String = L10n.Localizable.ErrorView.retry,
         action: (() -> Void)? = nil
     ) {
         self.error = error

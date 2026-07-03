@@ -61,10 +61,10 @@ public struct Greeting: Codable, Equatable, Hashable, Identifiable, Sendable {
     public var gainContent: String? {
         let rewards = rewards
         guard !rewards.isEmpty else { return nil }
-        let and = L10n.Localizable.Struct.Greeting.Mark.and
-        let end = L10n.Localizable.Struct.Greeting.Mark.end
-        let start = L10n.Localizable.Struct.Greeting.Mark.start
-        let separator = L10n.Localizable.Struct.Greeting.Mark.separator
+        let and = L10n.Localizable.Greeting.and
+        let end = L10n.Localizable.Greeting.end
+        let start = L10n.Localizable.Greeting.start
+        let separator = L10n.Localizable.Greeting.separator
         let rewardDescription = rewards.enumerated().map { (offset, element) in
             if offset == 0 {
                 return element

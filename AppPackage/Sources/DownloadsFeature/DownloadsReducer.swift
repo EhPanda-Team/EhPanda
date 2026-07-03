@@ -140,19 +140,19 @@ public struct DownloadsReducer: Sendable {
 
             case .deleteDownloadButtonTapped(let download):
                 state.alert = AppAlertState {
-                    TextState(L10n.Localizable.DownloadsView.Dialog.Title.deleteDownload)
+                    TextState(L10n.Localizable.DownloadsView.deleteDownload)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(download.gid)) {
-                        TextState(L10n.Localizable.ConfirmationDialog.Button.delete)
+                        TextState(L10n.Localizable.ConfirmationDialog.delete)
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 } message: {
                     TextState(
                         download.canTogglePause
-                            ? L10n.Localizable.DownloadsView.Dialog.Message.deleteActiveDownload
-                            : L10n.Localizable.DownloadsView.Dialog.Message.deleteDownloadedGallery
+                            ? L10n.Localizable.DownloadsView.deleteActiveDownload
+                            : L10n.Localizable.DownloadsView.deleteDownloadedGallery
                     )
                 }
                 return .none
@@ -160,7 +160,7 @@ public struct DownloadsReducer: Sendable {
             case .moveButtonTapped(let download):
                 let destinations = state.folders.filter { $0 != download.folderName }
                 state.confirmationDialog = ConfirmationDialogState {
-                    TextState(L10n.Localizable.DownloadsView.Menu.Button.moveToFolder)
+                    TextState(L10n.Localizable.DownloadsView.moveToFolder)
                 } actions: {
                     for folder in destinations {
                         ButtonState(action: .move(download.gid, folder)) {
@@ -168,7 +168,7 @@ public struct DownloadsReducer: Sendable {
                         }
                     }
                     ButtonState(role: .cancel) {
-                        TextState(L10n.Localizable.Common.Button.cancel)
+                        TextState(L10n.Localizable.Common.cancel)
                     }
                 }
                 return .none

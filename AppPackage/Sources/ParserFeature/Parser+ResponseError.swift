@@ -43,7 +43,7 @@ extension Parser {
         // gallery-dl treats `404 + Gallery Not Available` as an authorization-like unavailable state:
         // https://github.com/mikf/gallery-dl/blob/master/gallery_dl/extractor/exhentai.py
         if normalizedContent.contains("gallery not available")
-            || normalizedContent.contains(L10n.Constant.Website.Response.galleryUnavailable.lowercased()) {
+            || normalizedContent.contains(L10n.Constant.galleryUnavailable.lowercased()) {
             return nil
         }
         // JDownloader treats `bounce_login.php` as an account / re-login required signal for EH/EX.

@@ -34,9 +34,9 @@ extension AutoPlayPolicy {
     var value: String {
         switch self {
         case .off:
-            return L10n.Localizable.Enum.AutoPlayPolicy.Value.off
+            return L10n.Localizable.AutoPlayPolicy.off
         default:
-            return L10n.Localizable.Common.Value.seconds("\(rawValue)")
+            return L10n.Localizable.Common.seconds("\(rawValue)")
         }
     }
 }
@@ -144,25 +144,25 @@ struct HorizontalImageStack: View {
         Button {
             refetchAction(index)
         } label: {
-            Label(L10n.Localizable.ReadingView.ContextMenu.Button.reload, systemSymbol: .arrowCounterclockwise)
+            Label(L10n.Localizable.ReadingView.reload, systemSymbol: .arrowCounterclockwise)
         }
         if let imageURL = imageURLs[index] {
             Button {
                 copyImageAction(imageURL)
             } label: {
-                Label(L10n.Localizable.ReadingView.ContextMenu.Button.copy, systemSymbol: .plusSquareOnSquare)
+                Label(L10n.Localizable.ReadingView.copy, systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 saveImageAction(imageURL)
             } label: {
-                Label(L10n.Localizable.ReadingView.ContextMenu.Button.save, systemSymbol: .squareAndArrowDown)
+                Label(L10n.Localizable.ReadingView.save, systemSymbol: .squareAndArrowDown)
             }
             if let originalImageURL = originalImageURLs[index] {
                 Button {
                     saveImageAction(originalImageURL)
                 } label: {
                     Label(
-                        L10n.Localizable.ReadingView.ContextMenu.Button.saveOriginal,
+                        L10n.Localizable.ReadingView.saveOriginal,
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }
@@ -170,7 +170,7 @@ struct HorizontalImageStack: View {
             Button {
                 shareImageAction(imageURL)
             } label: {
-                Label(L10n.Localizable.ReadingView.ContextMenu.Button.share, systemSymbol: .squareAndArrowUp)
+                Label(L10n.Localizable.ReadingView.share, systemSymbol: .squareAndArrowUp)
             }
         }
     }

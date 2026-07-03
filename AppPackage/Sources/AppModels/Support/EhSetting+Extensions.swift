@@ -13,17 +13,17 @@ extension EhSetting.ThumbnailLoadTiming {
     public var value: String {
         switch self {
         case .onMouseOver:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Value.onMouseOver
+            return L10n.Localizable.ThumbnailLoadTiming.onMouseOver
         case .onPageLoad:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Value.onPageLoad
+            return L10n.Localizable.ThumbnailLoadTiming.onPageLoad
         }
     }
     public var description: String {
         switch self {
         case .onMouseOver:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Description.onMouseOver
+            return L10n.Localizable.ThumbnailLoadTiming.onMouseOverDescription
         case .onPageLoad:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailLoadTiming.Description.onPageLoad
+            return L10n.Localizable.ThumbnailLoadTiming.onPageLoadDescription
         }
     }
 }
@@ -47,13 +47,13 @@ extension EhSetting.ThumbnailSize {
     public var value: String {
         switch self {
         case .normal:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.normal
+            return L10n.Localizable.ThumbnailSize.normal
         case .large:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.large
+            return L10n.Localizable.ThumbnailSize.large
         case .small:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.small
+            return L10n.Localizable.ThumbnailSize.small
         case .auto:
-            return L10n.Localizable.Enum.EhSetting.ThumbnailSize.Value.auto
+            return L10n.Localizable.ThumbnailSize.auto
         }
     }
 }

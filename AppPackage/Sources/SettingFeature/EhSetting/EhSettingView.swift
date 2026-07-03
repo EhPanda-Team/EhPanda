@@ -53,7 +53,7 @@ struct EhSettingView: View {
                 .autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(L10n.Localizable.EhSettingView.Title.hostSettings(galleryHost.rawValue))
+        .navigationTitle(L10n.Localizable.EhSettingView.hostSettings(galleryHost.rawValue))
     }
     // MARK: Form
     private func form(ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>) -> some View {
@@ -120,7 +120,7 @@ struct EhSettingView: View {
             }
 
             ToolbarItem(placement: .keyboard) {
-                Button(L10n.Localizable.EhSettingView.ToolbarItem.Button.done) {
+                Button(L10n.Localizable.EhSettingView.done) {
                     store.send(.setKeyboardHidden)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)

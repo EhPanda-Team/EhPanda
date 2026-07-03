@@ -162,11 +162,11 @@ public extension FilterRange {
     var value: String {
         switch self {
         case .search:
-            return L10n.Localizable.Enum.FilterRange.Value.search
+            return L10n.Localizable.FilterRange.search
         case .global:
-            return L10n.Localizable.Enum.FilterRange.Value.global
+            return L10n.Localizable.FilterRange.global
         case .watched:
-            return L10n.Localizable.Enum.FilterRange.Value.watched
+            return L10n.Localizable.FilterRange.watched
         }
     }
 }

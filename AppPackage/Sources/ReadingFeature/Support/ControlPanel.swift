@@ -151,7 +151,7 @@ private struct UpperPanel: View {
                         Button {
                             setting.enablesDualPageMode.toggle()
                         } label: {
-                            Text(L10n.Localizable.ReadingView.ToolbarItem.Title.dualPageMode)
+                            Text(L10n.Localizable.ReadingView.dualPageMode)
                             if setting.enablesDualPageMode {
                                 Image(systemSymbol: .checkmark)
                             }
@@ -159,7 +159,7 @@ private struct UpperPanel: View {
                         Button {
                             setting.exceptCover.toggle()
                         } label: {
-                            Text(L10n.Localizable.ReadingView.ToolbarItem.Title.exceptTheCover)
+                            Text(L10n.Localizable.ReadingView.exceptTheCover)
                             if setting.exceptCover {
                                 Image(systemSymbol: .checkmark)
                             }
@@ -173,7 +173,7 @@ private struct UpperPanel: View {
                 }
 
                 Menu {
-                    Text(L10n.Localizable.ReadingView.ToolbarItem.Title.autoPlay).foregroundColor(.secondary)
+                    Text(L10n.Localizable.ReadingView.autoPlay).foregroundColor(.secondary)
                     ForEach(AutoPlayPolicy.allCases) { policy in
                         Button {
                             autoPlayPolicy = policy
@@ -193,15 +193,15 @@ private struct UpperPanel: View {
                 ToolbarFeaturesMenu {
                     Button(action: retryAllFailedImagesAction) {
                         Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                        Text(L10n.Localizable.ReadingView.ToolbarItem.Button.retryAllFailedImages)
+                        Text(L10n.Localizable.ReadingView.retryAllFailedImages)
                     }
                     Button(action: reloadAllImagesAction) {
                         Image(systemSymbol: .arrowCounterclockwise)
-                        Text(L10n.Localizable.ReadingView.ToolbarItem.Button.reloadAllImages)
+                        Text(L10n.Localizable.ReadingView.reloadAllImages)
                     }
                     Button(action: navigateSettingAction) {
                         Image(systemSymbol: .gear)
-                        Text(L10n.Localizable.ReadingView.ToolbarItem.Button.readingSetting)
+                        Text(L10n.Localizable.ReadingView.readingSetting)
                     }
                 }
                 .buttonStyle(.borderless)
