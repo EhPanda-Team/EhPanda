@@ -10,6 +10,36 @@
             "state": "translated",
             "value": "This gallery has been removed or is unavailable."
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery has been removed or is unavailable."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery has been removed or is unavailable."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery has been removed or is unavailable."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery has been removed or is unavailable."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery has been removed or is unavailable."
+          }
         }
       }
     }

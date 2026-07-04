@@ -10,6 +10,36 @@
             "state": "translated",
             "value": "Colorful"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colorful"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colorful"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colorful"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colorful"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colorful"
+          }
         }
       }
     },
@@ -18,6 +48,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Co2333/Colorful"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Co2333/Colorful"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Co2333/Colorful"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Co2333/Colorful"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Co2333/Colorful"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/Co2333/Colorful"
@@ -34,6 +94,36 @@
             "state": "translated",
             "value": "EhTagTranslation/Database"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhTagTranslation/Database"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhTagTranslation/Database"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhTagTranslation/Database"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhTagTranslation/Database"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhTagTranslation/Database"
+          }
         }
       }
     },
@@ -42,6 +132,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhTagTranslation/Database"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhTagTranslation/Database"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhTagTranslation/Database"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhTagTranslation/Database"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhTagTranslation/Database"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/EhTagTranslation/Database"
@@ -58,6 +178,36 @@
             "state": "translated",
             "value": "Kanna"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanna"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanna"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanna"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kanna"
+          }
         }
       }
     },
@@ -66,6 +216,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/tid-kijyun/Kanna"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/tid-kijyun/Kanna"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/tid-kijyun/Kanna"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/tid-kijyun/Kanna"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/tid-kijyun/Kanna"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/tid-kijyun/Kanna"
@@ -82,6 +262,36 @@
             "state": "translated",
             "value": "Kingfisher"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kingfisher"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kingfisher"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kingfisher"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kingfisher"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kingfisher"
+          }
         }
       }
     },
@@ -90,6 +300,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/onevcat/Kingfisher"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/onevcat/Kingfisher"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/onevcat/Kingfisher"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/onevcat/Kingfisher"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/onevcat/Kingfisher"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/onevcat/Kingfisher"
@@ -106,6 +346,36 @@
             "state": "translated",
             "value": "SFSafeSymbols"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFSafeSymbols"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFSafeSymbols"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFSafeSymbols"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFSafeSymbols"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFSafeSymbols"
+          }
         }
       }
     },
@@ -114,6 +384,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SFSafeSymbols/SFSafeSymbols"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SFSafeSymbols/SFSafeSymbols"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SFSafeSymbols/SFSafeSymbols"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SFSafeSymbols/SFSafeSymbols"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SFSafeSymbols/SFSafeSymbols"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/SFSafeSymbols/SFSafeSymbols"
@@ -130,6 +430,36 @@
             "state": "translated",
             "value": "SwiftCommonMark"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftCommonMark"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftCommonMark"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftCommonMark"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftCommonMark"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftCommonMark"
+          }
         }
       }
     },
@@ -138,6 +468,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/gonzalezreal/SwiftCommonMark"
@@ -154,6 +514,36 @@
             "state": "translated",
             "value": "SwiftGen"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftGen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftGen"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftGen"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftGen"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftGen"
+          }
         }
       }
     },
@@ -162,6 +552,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SwiftGen/SwiftGen"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SwiftGen/SwiftGen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SwiftGen/SwiftGen"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SwiftGen/SwiftGen"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/SwiftGen/SwiftGen"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/SwiftGen/SwiftGen"
@@ -178,6 +598,36 @@
             "state": "translated",
             "value": "SwiftUIPager"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftUIPager"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftUIPager"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftUIPager"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftUIPager"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftUIPager"
+          }
         }
       }
     },
@@ -186,6 +636,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/fermoya/SwiftUIPager"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/fermoya/SwiftUIPager"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/fermoya/SwiftUIPager"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/fermoya/SwiftUIPager"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/fermoya/SwiftUIPager"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/fermoya/SwiftUIPager"
@@ -202,6 +682,36 @@
             "state": "translated",
             "value": "SwiftyOpenCC"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftyOpenCC"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftyOpenCC"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftyOpenCC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftyOpenCC"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SwiftyOpenCC"
+          }
         }
       }
     },
@@ -210,6 +720,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/ddddxxx/SwiftyOpenCC"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/ddddxxx/SwiftyOpenCC"
@@ -226,6 +766,36 @@
             "state": "translated",
             "value": "SystemNotification"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SystemNotification"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SystemNotification"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SystemNotification"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SystemNotification"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SystemNotification"
+          }
         }
       }
     },
@@ -234,6 +804,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/danielsaidi/SystemNotification"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/danielsaidi/SystemNotification"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/danielsaidi/SystemNotification"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/danielsaidi/SystemNotification"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/danielsaidi/SystemNotification"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/danielsaidi/SystemNotification"
@@ -250,6 +850,36 @@
             "state": "translated",
             "value": "The Composable Architecture"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Composable Architecture"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Composable Architecture"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Composable Architecture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Composable Architecture"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Composable Architecture"
+          }
         }
       }
     },
@@ -258,6 +888,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/pointfreeco/swift-composable-architecture"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/pointfreeco/swift-composable-architecture"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/pointfreeco/swift-composable-architecture"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/pointfreeco/swift-composable-architecture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/pointfreeco/swift-composable-architecture"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/pointfreeco/swift-composable-architecture"
@@ -274,6 +934,36 @@
             "state": "translated",
             "value": "UIImageColors"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UIImageColors"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UIImageColors"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UIImageColors"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UIImageColors"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UIImageColors"
+          }
         }
       }
     },
@@ -282,6 +972,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/jathu/UIImageColors"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/jathu/UIImageColors"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/jathu/UIImageColors"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/jathu/UIImageColors"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/jathu/UIImageColors"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/jathu/UIImageColors"
@@ -298,6 +1018,36 @@
             "state": "translated",
             "value": "WaterfallGrid"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WaterfallGrid"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WaterfallGrid"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WaterfallGrid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WaterfallGrid"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WaterfallGrid"
+          }
         }
       }
     },
@@ -306,6 +1056,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/paololeonardi/WaterfallGrid"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/paololeonardi/WaterfallGrid"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/paololeonardi/WaterfallGrid"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/paololeonardi/WaterfallGrid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/paololeonardi/WaterfallGrid"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/paololeonardi/WaterfallGrid"
@@ -322,6 +1102,36 @@
             "state": "translated",
             "value": "Jimmy Prime"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jimmy Prime"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jimmy Prime"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jimmy Prime"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jimmy Prime"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jimmy Prime"
+          }
         }
       }
     },
@@ -330,6 +1140,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Jimmy-Prime"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Jimmy-Prime"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Jimmy-Prime"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Jimmy-Prime"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Jimmy-Prime"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/Jimmy-Prime"
@@ -346,6 +1186,36 @@
             "state": "translated",
             "value": "Kaed3mi"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaed3mi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaed3mi"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaed3mi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaed3mi"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kaed3mi"
+          }
         }
       }
     },
@@ -354,6 +1224,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Kaed3mi"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Kaed3mi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Kaed3mi"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Kaed3mi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Kaed3mi"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/Kaed3mi"
@@ -370,6 +1270,36 @@
             "state": "translated",
             "value": "Zack Asahina"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zack Asahina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zack Asahina"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zack Asahina"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zack Asahina"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zack Asahina"
+          }
         }
       }
     },
@@ -378,6 +1308,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/aalberrty"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/aalberrty"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/aalberrty"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/aalberrty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/aalberrty"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/aalberrty"
@@ -394,6 +1354,36 @@
             "state": "translated",
             "value": "vvbbnn00"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vvbbnn00"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vvbbnn00"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vvbbnn00"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vvbbnn00"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vvbbnn00"
+          }
         }
       }
     },
@@ -402,6 +1392,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/vvbbnn00"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/vvbbnn00"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/vvbbnn00"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/vvbbnn00"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/vvbbnn00"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/vvbbnn00"
@@ -418,6 +1438,36 @@
             "state": "translated",
             "value": "xioxin"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xioxin"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xioxin"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xioxin"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xioxin"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xioxin"
+          }
         }
       }
     },
@@ -426,6 +1476,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/xioxin"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/xioxin"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/xioxin"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/xioxin"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/xioxin"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/xioxin"
@@ -442,6 +1522,36 @@
             "state": "translated",
             "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
+          }
         }
       }
     },
@@ -450,6 +1560,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://discord.gg/BSBE9FCBTq"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://discord.gg/BSBE9FCBTq"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://discord.gg/BSBE9FCBTq"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://discord.gg/BSBE9FCBTq"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://discord.gg/BSBE9FCBTq"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://discord.gg/BSBE9FCBTq"
@@ -466,6 +1606,36 @@
             "state": "translated",
             "value": "Discord"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discord"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discord"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discord"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discord"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discord"
+          }
         }
       }
     },
@@ -474,6 +1644,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/EhPanda"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/EhPanda"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/EhPanda"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/EhPanda"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/EhPanda-Team/EhPanda"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/EhPanda-Team/EhPanda"
@@ -490,6 +1690,36 @@
             "state": "translated",
             "value": "GitHub"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub"
+          }
         }
       }
     },
@@ -498,6 +1728,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://t.me/ehpanda"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://t.me/ehpanda"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://t.me/ehpanda"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://t.me/ehpanda"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://t.me/ehpanda"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://t.me/ehpanda"
@@ -514,6 +1774,36 @@
             "state": "translated",
             "value": "Telegram"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telegram"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telegram"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telegram"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telegram"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telegram"
+          }
         }
       }
     },
@@ -522,6 +1812,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://ehpanda.app"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://ehpanda.app"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://ehpanda.app"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://ehpanda.app"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://ehpanda.app"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://ehpanda.app"
@@ -538,6 +1858,36 @@
             "state": "translated",
             "value": "Copyright © 2026 EhPanda Team"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright © 2026 EhPanda Team"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright © 2026 EhPanda Team"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright © 2026 EhPanda Team"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright © 2026 EhPanda Team"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright © 2026 EhPanda Team"
+          }
         }
       }
     },
@@ -546,6 +1896,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "caxerx"
@@ -562,6 +1942,36 @@
             "state": "translated",
             "value": "https://github.com/caxerx"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
         }
       }
     },
@@ -570,6 +1980,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "honjow"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "honjow"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "honjow"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "honjow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "honjow"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "honjow"
@@ -586,6 +2026,36 @@
             "state": "translated",
             "value": "https://github.com/honjow"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/honjow"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/honjow"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/honjow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/honjow"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/honjow"
+          }
         }
       }
     },
@@ -594,6 +2064,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luminescent_yq"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luminescent_yq"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luminescent_yq"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luminescent_yq"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luminescent_yq"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "Luminescent_yq"
@@ -610,6 +2110,36 @@
             "state": "translated",
             "value": ""
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
         }
       }
     },
@@ -618,6 +2148,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taylorlannister"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taylorlannister"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taylorlannister"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taylorlannister"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "taylorlannister"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "taylorlannister"
@@ -634,6 +2194,36 @@
             "state": "translated",
             "value": "https://github.com/taylorlannister"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/taylorlannister"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/taylorlannister"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/taylorlannister"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/taylorlannister"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/taylorlannister"
+          }
         }
       }
     },
@@ -642,6 +2232,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ɴᴇᴋᴏ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ɴᴇᴋᴏ"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ɴᴇᴋᴏ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ɴᴇᴋᴏ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ɴᴇᴋᴏ"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "ɴᴇᴋᴏ"
@@ -658,6 +2278,36 @@
             "state": "translated",
             "value": "https://github.com/NeKoOuO"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/NeKoOuO"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/NeKoOuO"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/NeKoOuO"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/NeKoOuO"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/NeKoOuO"
+          }
         }
       }
     },
@@ -666,6 +2316,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "caxerx"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "caxerx"
@@ -682,6 +2362,36 @@
             "state": "translated",
             "value": "https://github.com/caxerx"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/caxerx"
+          }
         }
       }
     },
@@ -690,6 +2400,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲豹 ΦωΦ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲豹 ΦωΦ"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲豹 ΦωΦ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲豹 ΦωΦ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雲豹 ΦωΦ"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "雲豹 ΦωΦ"
@@ -706,6 +2446,36 @@
             "state": "translated",
             "value": "https://github.com/Nebulosa-Cat"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Nebulosa-Cat"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Nebulosa-Cat"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Nebulosa-Cat"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Nebulosa-Cat"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/Nebulosa-Cat"
+          }
         }
       }
     },
@@ -718,6 +2488,36 @@
             "state": "translated",
             "value": "PaulHaeussler"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PaulHaeussler"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PaulHaeussler"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PaulHaeussler"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PaulHaeussler"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PaulHaeussler"
+          }
         }
       }
     },
@@ -726,6 +2526,36 @@
       "shouldTranslate": false,
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/PaulHaeussler"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/PaulHaeussler"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/PaulHaeussler"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/PaulHaeussler"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://github.com/PaulHaeussler"
+          }
+        },
+        "zh-Hant": {
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/PaulHaeussler"
