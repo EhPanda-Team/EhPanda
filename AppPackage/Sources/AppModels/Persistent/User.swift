@@ -34,7 +34,7 @@ public struct User: Codable, Equatable, Sendable {
 
     public func getFavoriteCategory(index: Int) -> String {
         guard index != -1 else { return String(localized: .favoriteCategoryAll) }
-        let defaultCategory = String(localized: .favoriteCategoryDefault("\(index)"))
+        let defaultCategory = String(localized: .favoriteCategoryDefault(index: index))
         let category = favoriteCategories?[index] ?? defaultCategory
         let isDefault = category == "Favorites \(index)"
         return isDefault ? defaultCategory : category
