@@ -153,7 +153,7 @@ private struct MinimumRatingSetter: View {
     var body: some View {
         Picker(.minimumRating, selection: $minimum) {
             ForEach(Array(2...5), id: \.self) { number in
-                Text(.RLocalizable.stars("\(number)")).tag(number)
+                Text(.RLocalizable.stars(number)).tag(number)
             }
         }
         .pickerStyle(.menu)

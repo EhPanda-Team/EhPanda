@@ -1975,37 +1975,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You are currently using **%@ / %@** exclusion slots."
+            "value": "You are currently using **%lld / %lld** exclusion slots."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Du belegst derzeit **%@ / %@** Ausschlussplätze."
+            "value": "Du belegst derzeit **%lld / %lld** Ausschlussplätze."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "現時点で **%@ / %@** の排除スロットが使用済みです。"
+            "value": "現時点で **%lld / %lld** の排除スロットが使用済みです。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "**%@ / %@** 개의 슬롯을 사용하고 있어요."
+            "value": "**%lld / %lld** 개의 슬롯을 사용하고 있어요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已使用 **%@ / %@** 个屏蔽槽位。"
+            "value": "已使用 **%lld / %lld** 个屏蔽槽位。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你正在使用 **%@ / %@** 排除欄位"
+            "value": "你正在使用 **%lld / %lld** 排除欄位"
           }
         }
       }

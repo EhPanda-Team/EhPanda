@@ -1135,37 +1135,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ pages"
+            "value": "%lld pages"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Seiten"
+            "value": "%lld Seiten"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ ページ"
+            "value": "%lld ページ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@페이지"
+            "value": "%lld페이지"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 页"
+            "value": "%lld 页"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 頁"
+            "value": "%lld 頁"
           }
         }
       }
@@ -1470,37 +1470,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ stars"
+            "value": "%lld stars"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Sterne"
+            "value": "%lld Sterne"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ つ星"
+            "value": "%lld つ星"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@별"
+            "value": "%lld별"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 星"
+            "value": "%lld 星"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 星"
+            "value": "%lld 星"
           }
         }
       }
