@@ -134,11 +134,29 @@ extension AppAlertState where Action == Never {
             title: TextState(localized: .communicating)
         )
     }
+    // `caption` has two overloads: a `LocalizedStringResource` one for captions that come from a
+    // localized key (the applicable end of a chain), and a `String?` one for captions carrying a
+    // dynamic runtime value — a server response or a pre-formatted error message — that genuinely
+    // isn't a localization key and must not be looked up as one.
+    public static func error(caption: LocalizedStringResource) -> Self {
+        .init(
+            style: .toast(icon: .error, autoHide: true),
+            title: TextState(localized: .error),
+            message: TextState(localized: caption)
+        )
+    }
     public static func error(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .error, autoHide: true),
             title: TextState(localized: .error),
             message: caption.map { TextState($0) }
+        )
+    }
+    public static func success(caption: LocalizedStringResource) -> Self {
+        .init(
+            style: .toast(icon: .success, autoHide: true),
+            title: TextState(localized: .success),
+            message: TextState(localized: caption)
         )
     }
     public static func success(caption: String? = nil) -> Self {
@@ -149,10 +167,10 @@ extension AppAlertState where Action == Never {
         )
     }
     public static var savedToPhotoLibrary: Self {
-        .success(caption: String(localized: .savedToPhotoLibrary))
+        .success(caption: .savedToPhotoLibrary)
     }
     public static var copiedToClipboardSucceeded: Self {
-        .success(caption: String(localized: .copiedToClipboard))
+        .success(caption: .copiedToClipboard)
     }
 }
 
