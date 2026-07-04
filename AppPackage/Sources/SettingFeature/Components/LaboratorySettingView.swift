@@ -15,7 +15,7 @@ struct LaboratorySettingView: View {
             VStack {
                 LaboratoryCell(
                     isOn: $bypassesSNIFiltering,
-                    title: String(localized: .bypassesSniFiltering),
+                    title: .bypassesSniFiltering,
                     symbol: .theatermasksFill, tintColor: .purple
                 )
             }
@@ -27,12 +27,12 @@ struct LaboratorySettingView: View {
 
 struct LaboratoryCell: View {
     @Binding private var isOn: Bool
-    private let title: String
+    private let title: LocalizedStringResource
     private let symbol: SFSymbol
     private let tintColor: Color
 
     init(
-        isOn: Binding<Bool>, title: String,
+        isOn: Binding<Bool>, title: LocalizedStringResource,
         symbol: SFSymbol, tintColor: Color
     ) {
         _isOn = isOn

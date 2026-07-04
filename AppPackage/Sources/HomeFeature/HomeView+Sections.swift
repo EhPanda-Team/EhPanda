@@ -284,11 +284,11 @@ struct MiscGridSection: View {
 }
 
 struct MiscGridItem: View {
-    private let title: String
-    private let subTitle: String?
+    private let title: LocalizedStringResource
+    private let subTitle: LocalizedStringResource?
     private let symbol: SFSymbol
 
-    init(title: String, subTitle: String? = nil, symbol: SFSymbol) {
+    init(title: LocalizedStringResource, subTitle: LocalizedStringResource? = nil, symbol: SFSymbol) {
         self.title = title
         self.subTitle = subTitle
         self.symbol = symbol

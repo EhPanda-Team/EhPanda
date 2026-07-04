@@ -47,7 +47,7 @@ public struct DateSeekPickerView: View {
                     let seekOlderButton =
                     SeekButton(
                         symbol: .chevronLeftChevronLeftDotted,
-                        title: String(localized: .seekOlder),
+                        title: .seekOlder,
                         reversedIconTitlePosition: false,
                         action: { seekAction(.older) }
                     )
@@ -56,7 +56,7 @@ public struct DateSeekPickerView: View {
                     let seekNewerButton =
                     SeekButton(
                         symbol: .chevronRightDottedChevronRight,
-                        title: String(localized: .seekNewer),
+                        title: .seekNewer,
                         reversedIconTitlePosition: true,
                         action: { seekAction(.newer) }
                     )
@@ -88,7 +88,7 @@ public struct DateSeekPickerView: View {
 
 private struct SeekButton: View {
     let symbol: SFSymbol
-    let title: String
+    let title: LocalizedStringResource
     let reversedIconTitlePosition: Bool
     let action: () -> Void
 
