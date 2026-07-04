@@ -71,12 +71,13 @@ private struct BasicSection: View {
 
     var body: some View {
         Section {
-            Picker("", selection: $filterRange) {
+            Picker(.searchRange, selection: $filterRange) {
                 ForEach(FilterRange.allCases) { range in
                     Text(range.value).tag(range)
                 }
             }
             .pickerStyle(.segmented)
+            .labelsHidden()
             CategoryView(bindings: categoryBindings)
             Button(action: resetFiltersDialogAction) {
                 Text(.resetFilters).foregroundStyle(.red)
@@ -183,11 +184,11 @@ private struct PagesRangeSetter: View {
         HStack {
             Text(.pagesRange)
             Spacer()
-            SettingTextField(text: $lowerBound)
+            SettingTextField(text: $lowerBound, title: .pagesRange)
                 .focused(focusedBound, equals: .lower)
                 .submitLabel(.next)
             Text(.Constant.rangeSeparator)
-            SettingTextField(text: $upperBound)
+            SettingTextField(text: $upperBound, title: .pagesRange)
                 .focused(focusedBound, equals: .upper)
                 .submitLabel(.done)
         }

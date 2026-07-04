@@ -29,12 +29,13 @@ struct AccountSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker("", selection: $galleryHost) {
+                Picker(.website, selection: $galleryHost) {
                     ForEach(GalleryHost.allCases) {
                         Text($0.rawValue).tag($0)
                     }
                 }
                 .pickerStyle(.segmented)
+                .labelsHidden()
                 AccountSection(
                     showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,

@@ -4,6 +4,7 @@ public struct SettingTextField: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @Binding private var text: String
+    private let title: LocalizedStringResource
     private let promptText: String?
     private let width: CGFloat?
     private let alignment: TextAlignment
@@ -19,10 +20,12 @@ public struct SettingTextField: View {
     }
 
     public init(
-        text: Binding<String>, promptText: String? = nil, width: CGFloat? = 50,
+        text: Binding<String>, title: LocalizedStringResource,
+        promptText: String? = nil, width: CGFloat? = 50,
         alignment: TextAlignment = .center, background: Color? = nil
     ) {
         _text = text
+        self.title = title
         self.promptText = promptText
         self.width = width
         self.alignment = alignment
@@ -30,8 +33,14 @@ public struct SettingTextField: View {
     }
 
     public var body: some View {
-        TextField("", text: $text, prompt: prompt).keyboardType(.numbersAndPunctuation)
-            .textInputAutocapitalization(.none).multilineTextAlignment(alignment)
-            .disableAutocorrection(true).background(color).frame(width: width).cornerRadius(5)
+        // A non-empty, localized label keeps VoiceOver informative; `.labelsHidden()` keeps the
+        // field's appearance unchanged (only the prompt shows). Avoids an empty `""` title literal.
+        TextField(text: $text, prompt: prompt) {
+            Text(title)
+        }
+        .labelsHidden()
+        .keyboardType(.numbersAndPunctuation)
+        .textInputAutocapitalization(.none).multilineTextAlignment(alignment)
+        .disableAutocorrection(true).background(color).frame(width: width).cornerRadius(5)
     }
 }

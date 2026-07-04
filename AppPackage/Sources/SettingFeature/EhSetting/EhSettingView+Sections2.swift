@@ -44,8 +44,11 @@ struct FavoritesSection: View {
                         .foregroundColor(category.color(host: AppUtil.galleryHost))
                         .frame(width: 10)
 
-                    SettingTextField(text: nameBinding, width: nil, alignment: .leading, background: .clear)
-                        .focused($isFocused)
+                    SettingTextField(
+                        text: nameBinding, title: .favoriteCategories,
+                        width: nil, alignment: .leading, background: .clear
+                    )
+                    .focused($isFocused)
                 }
                 .padding(.leading)
             }
@@ -84,6 +87,7 @@ struct RatingsSection: View {
             LabeledContent(.ratingsColor) {
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
+                    title: .ratingsColor,
                     promptText: String(localized: .ratingsColorPrompt),
                     width: 80
                 )
