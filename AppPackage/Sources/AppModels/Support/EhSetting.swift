@@ -139,7 +139,8 @@ public struct EhSetting: Equatable, Sendable {
         }
     }
     public var localizedLiteralBrowsingCountry: String? {
-        BrowsingCountry.allCases.first(where: { $0.englishName == literalBrowsingCountry })?.name
+        BrowsingCountry.allCases.first(where: { $0.englishName == literalBrowsingCountry })
+            .map { String(localized: $0.name) }
     }
 
     public var loadThroughHathSetting: LoadThroughHathSetting
