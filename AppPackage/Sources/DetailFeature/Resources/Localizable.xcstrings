@@ -2549,37 +2549,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Ratings"
+            "value": "%lld Ratings"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Bewertungen"
+            "value": "%lld Bewertungen"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 件の評価"
+            "value": "%lld 件の評価"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@명의 별점"
+            "value": "%lld명의 별점"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 个评分"
+            "value": "%lld 个评分"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 個評分"
+            "value": "%lld 個評分"
           }
         }
       }
