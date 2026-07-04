@@ -186,7 +186,7 @@ private struct PagesRangeSetter: View {
             SettingTextField(text: $lowerBound)
                 .focused(focusedBound, equals: .lower)
                 .submitLabel(.next)
-            Text("-")
+            Text(.Constant.rangeSeparator)
             SettingTextField(text: $upperBound)
                 .focused(focusedBound, equals: .upper)
                 .submitLabel(.done)

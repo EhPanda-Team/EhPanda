@@ -1,6 +1,19 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "CFBundleName": {
+      "comment": "Bundle name",
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda"
+          }
+        }
+      }
+    },
     "NSFaceIDUsageDescription": {
       "extractionState": "manual",
       "localizations": {

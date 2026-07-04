@@ -73,8 +73,8 @@ public struct HistoryReducer: Sendable {
                 return .none
 
             case .clearHistoryButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
+                state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .RLocalizable.clear)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearHistory) {
                         TextState(localized: .RLocalizable.clear)

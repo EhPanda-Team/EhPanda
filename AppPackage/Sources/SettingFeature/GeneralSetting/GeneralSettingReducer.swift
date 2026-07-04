@@ -90,8 +90,8 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
 
             case .removeCustomTranslationsButtonTapped:
-                state.removeTranslationsDialog = ConfirmationDialogState {
-                    TextState("")
+                state.removeTranslationsDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .remove)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmRemoveCustomTranslations) {
                         TextState(localized: .remove)
@@ -105,8 +105,8 @@ public struct GeneralSettingReducer: Sendable {
                 return .none
 
             case .clearImageCachesButtonTapped:
-                state.clearCacheDialog = ConfirmationDialogState {
-                    TextState("")
+                state.clearCacheDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .RLocalizable.clear)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmClearCache) {
                         TextState(localized: .RLocalizable.clear)

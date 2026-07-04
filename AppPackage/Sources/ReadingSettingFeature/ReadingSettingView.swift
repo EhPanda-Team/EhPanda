@@ -49,7 +49,7 @@ public struct ReadingSettingView: View {
                     selection: $contentDividerHeight
                 ) {
                     ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
-                        Text("\(value)pt").tag(Double(value))
+                        Text(.Constant.pointValue(value)).tag(Double(value))
                     }
                 }
                 .pickerStyle(.menu)
@@ -91,13 +91,13 @@ private struct ScaleFactorRow: View {
             HStack {
                 Text(labelContent)
                 Spacer()
-                Text("\(scaleFactor.roundedString())x").foregroundStyle(.tint)
+                Text(.Constant.scaleFactor(scaleFactor.roundedString())).foregroundStyle(.tint)
             }
             Slider(
                 value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
-                minimumValueLabel: Text("\(minFactor.roundedString())x")
+                minimumValueLabel: Text(.Constant.scaleFactor(minFactor.roundedString()))
                     .fontWeight(.medium).font(.callout),
-                maximumValueLabel: Text("\(maxFactor.roundedString())x")
+                maximumValueLabel: Text(.Constant.scaleFactor(maxFactor.roundedString()))
                     .fontWeight(.medium).font(.callout),
                 label: EmptyView.init
             )

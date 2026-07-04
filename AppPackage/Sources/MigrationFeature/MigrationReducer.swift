@@ -44,8 +44,8 @@ public struct MigrationReducer: Sendable {
                 return .none
 
             case .dropDatabaseButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
+                state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .dropDatabase)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDropDatabase) {
                         TextState(localized: .dropDatabase)

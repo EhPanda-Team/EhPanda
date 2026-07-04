@@ -72,15 +72,15 @@ private extension TorrentsView {
                 HStack(spacing: 10) {
                     HStack(spacing: 3) {
                         Image(systemSymbol: .arrowUpCircle)
-                        Text("\(torrent.seedCount)")
+                        Text(torrent.seedCount, format: .number)
                     }
                     HStack(spacing: 3) {
                         Image(systemSymbol: .arrowDownCircle)
-                        Text("\(torrent.peerCount)")
+                        Text(torrent.peerCount, format: .number)
                     }
                     HStack(spacing: 3) {
                         Image(systemSymbol: .checkmarkCircle)
-                        Text("\(torrent.downloadCount)")
+                        Text(torrent.downloadCount, format: .number)
                     }
                     Spacer()
                     HStack(spacing: 3) {

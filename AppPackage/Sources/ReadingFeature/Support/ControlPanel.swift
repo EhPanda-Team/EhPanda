@@ -329,7 +329,7 @@ private struct SliderPreivew: View {
                     PreviewImageView(originalURL: previewURLs[index])
                         .frame(width: previewWidth, height: showsSliderPreview ? previewHeight : 0)
 
-                    Text("\(index)")
+                    Text(index, format: .number)
                         .font(DeviceUtil.isPadWidth ? .callout : .caption)
                         .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
