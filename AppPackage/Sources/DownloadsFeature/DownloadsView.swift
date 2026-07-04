@@ -141,7 +141,7 @@ private extension DownloadsView {
                             store.send(.inspectorButtonTapped(download.gid))
                         } label: {
                             Label(
-                                String(localized: .inspectPages),
+                                .inspectPages,
                                 systemSymbol: .listBulletRectanglePortrait
                             )
                         }
@@ -152,7 +152,7 @@ private extension DownloadsView {
                                 store.send(.moveButtonTapped(download))
                             } label: {
                                 Label(
-                                    String(localized: .move),
+                                    .move,
                                     systemSymbol: .folder
                                 )
                             }
@@ -165,7 +165,7 @@ private extension DownloadsView {
                                 store.send(.updateDownload(download.gid))
                             } label: {
                                 Label(
-                                    String(localized: .RLocalizable.update),
+                                    .RLocalizable.update,
                                     systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                                 )
                             }
@@ -178,8 +178,8 @@ private extension DownloadsView {
                             } label: {
                                 Label(
                                     download.displayStatus == .inactive
-                                        ? String(localized: .resume)
-                                        : String(localized: .pause),
+                                        ? .resume
+                                        : .pause,
                                     systemSymbol: download.displayStatus == .inactive
                                         ? .playFill
                                         : .pauseFill
@@ -205,7 +205,7 @@ private extension DownloadsView {
             store.send(.galleryTapped(download.gid))
         } label: {
             Label(
-                String(localized: .RLocalizable.detail),
+                .RLocalizable.detail,
                 systemSymbol: .infoCircle
             )
         }
@@ -214,7 +214,7 @@ private extension DownloadsView {
             store.send(.inspectorButtonTapped(download.gid))
         } label: {
             Label(
-                String(localized: .inspectPages),
+                .inspectPages,
                 systemSymbol: .listBulletRectanglePortrait
             )
         }
@@ -228,7 +228,7 @@ private extension DownloadsView {
                 }
             } label: {
                 Label(
-                    String(localized: .moveToFolder),
+                    .moveToFolder,
                     systemSymbol: .folder
                 )
             }
@@ -239,7 +239,7 @@ private extension DownloadsView {
                 store.send(.updateDownload(download.gid))
             } label: {
                 Label(
-                    String(localized: .RLocalizable.update),
+                    .RLocalizable.update,
                     systemSymbol: .arrowTrianglehead2ClockwiseRotate90
                 )
             }
@@ -251,8 +251,8 @@ private extension DownloadsView {
             } label: {
                 Label(
                     download.displayStatus == .inactive
-                        ? String(localized: .resume)
-                        : String(localized: .pause),
+                        ? .resume
+                        : .pause,
                     systemSymbol: download.displayStatus == .inactive
                         ? .playFill
                         : .pauseFill
@@ -304,7 +304,7 @@ private extension DownloadsView {
                         store.send(.folderManagerButtonTapped)
                     } label: {
                         Label(
-                            String(localized: .RLocalizable.manageFolders),
+                            .RLocalizable.manageFolders,
                             systemSymbol: .folderBadgeGearshape
                         )
                     }

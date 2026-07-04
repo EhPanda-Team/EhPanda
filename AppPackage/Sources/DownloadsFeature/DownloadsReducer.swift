@@ -150,9 +150,9 @@ public struct DownloadsReducer: Sendable {
                     }
                 } message: {
                     TextState(
-                        download.canTogglePause
-                            ? String(localized: .deleteActiveDownload)
-                            : String(localized: .RLocalizable.deleteDownloadedGallery)
+                        localized: download.canTogglePause
+                            ? .deleteActiveDownload
+                            : .RLocalizable.deleteDownloadedGallery
                     )
                 }
                 return .none
