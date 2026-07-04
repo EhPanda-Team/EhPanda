@@ -165,7 +165,7 @@
         }
       }
     },
-    "optional": {
+    "optional_placeholder": {
       "extractionState": "manual",
       "localizations": {
         "en": {
