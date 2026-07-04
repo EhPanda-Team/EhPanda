@@ -32,12 +32,12 @@ enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
 }
 
 extension AutoPlayPolicy {
-    var value: String {
+    var value: LocalizedStringResource {
         switch self {
         case .off:
-            return String(localized: .autoPlayPolicyOff)
+            return .autoPlayPolicyOff
         default:
-            return String(localized: .RLocalizable.seconds(count: rawValue))
+            return .RLocalizable.seconds(count: rawValue)
         }
     }
 }
@@ -163,7 +163,7 @@ struct HorizontalImageStack: View {
                     saveImageAction(originalImageURL)
                 } label: {
                     Label(
-                        String(localized: .saveOriginal),
+                        .saveOriginal,
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }
