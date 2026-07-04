@@ -1,16 +1,8 @@
 import Foundation
 
-#if SWIFT_PACKAGE
-private nonisolated let resourceStringSymbolsBundle = Foundation.Bundle.module
 @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
 private nonisolated let resourceStringSymbolsBundleDescription = LocalizedStringResource.BundleDescription
-    .atURL(resourceStringSymbolsBundle.bundleURL)
-#else
-private final class ResourceStringSymbolsBundleClass {}
-@available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
-private nonisolated let resourceStringSymbolsBundleDescription = LocalizedStringResource.BundleDescription
-    .forClass(ResourceStringSymbolsBundleClass.self)
-#endif
+    .atURL(#bundle.bundleURL)
 
 @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
 public nonisolated extension LocalizedStringResource {
