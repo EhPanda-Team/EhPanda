@@ -44,7 +44,7 @@ struct GalleryInfosView: View {
             ),
             Info(
                 title: .metadataCategory,
-                value: galleryDetail.category.value
+                value: String(localized: galleryDetail.category.value)
             ),
             Info(title: .metadataUploader, value: galleryDetail.uploader),
             Info(
