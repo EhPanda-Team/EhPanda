@@ -534,7 +534,7 @@
         }
       }
     },
-    "none": {
+    "no_pages": {
       "extractionState": "manual",
       "localizations": {
         "en": {

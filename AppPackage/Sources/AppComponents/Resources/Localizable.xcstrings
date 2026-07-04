@@ -1,6 +1,170 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "communicating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Communicating..."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinde..."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信中..."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접속 중..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信中..."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線中..."
+          }
+        }
+      }
+    },
+    "copied_to_clipboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied to clipboard"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Zwischenablage kopiert"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クリップボードにコピーしました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "클립보드에 복사되었어요"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已复制到剪切板"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已複製到剪貼簿"
+          }
+        }
+      }
+    },
+    "error": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エラー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "실패"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "錯誤"
+          }
+        }
+      }
+    },
+    "first": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is the dawn of a new day!"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es ist der Beginn eines neuen Tages!"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい一日の夜明けです！"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로운 하루가 시작되었어요!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "又是全新的一天！"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在是嶄新的一天！"
+          }
+        }
+      }
+    },
     "loading": {
       "extractionState": "manual",
       "localizations": {
@@ -172,48 +336,48 @@
         }
       }
     },
-    "new_dawn.first": {
+    "saved_to_photo_library": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "It is the dawn of a new day!"
+            "value": "Saved to photo library"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Es ist der Beginn eines neuen Tages!"
+            "value": "In der Fotomediathek gesichert"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "新しい一日の夜明けです！"
+            "value": "ライブラリに保存しました"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새로운 하루가 시작되었어요!"
+            "value": "이미지 저장"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "又是全新的一天！"
+            "value": "已保存到图库"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "現在是嶄新的一天！"
+            "value": "已儲存到照片"
           }
         }
       }
     },
-    "new_dawn.second": {
+    "second": {
       "extractionState": "manual",
       "localizations": {
         "en": {
@@ -295,125 +459,43 @@
         }
       }
     },
-    "toast.communicating": {
+    "success": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Communicating..."
+            "value": "Success"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbinde..."
+            "value": "Erfolg"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "通信中..."
+            "value": "成功"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "접속 중..."
+            "value": "성공"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "通信中..."
+            "value": "成功"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "連線中..."
-          }
-        }
-      }
-    },
-    "toast.copied_to_clipboard": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copied to clipboard"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In Zwischenablage kopiert"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "クリップボードにコピーしました"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "클립보드에 복사되었어요"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已复制到剪切板"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已複製到剪貼簿"
-          }
-        }
-      }
-    },
-    "toast.error": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Error"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fehler"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "エラー"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "실패"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "错误"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "錯誤"
+            "value": "成功"
           }
         }
       }
@@ -455,88 +537,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "載入中..."
-          }
-        }
-      }
-    },
-    "toast.saved_to_photo_library": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved to photo library"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In der Fotomediathek gesichert"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ライブラリに保存しました"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이미지 저장"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已保存到图库"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已儲存到照片"
-          }
-        }
-      }
-    },
-    "toast.success": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Success"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erfolg"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "성공"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功"
           }
         }
       }

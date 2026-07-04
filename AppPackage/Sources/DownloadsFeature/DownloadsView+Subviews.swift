@@ -174,7 +174,7 @@ struct DownloadInspectorPageGroupRow: View {
     private var pageNumbersText: String {
         let indices = pages.map(\.index).sorted()
         guard !indices.isEmpty else {
-            return String(localized: .none)
+            return String(localized: .noPages)
         }
         return Self.formattedPageRanges(indices)
     }
