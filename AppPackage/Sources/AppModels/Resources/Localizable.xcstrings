@@ -786,37 +786,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Image quota exceeded.\\nPlease wait and try again later."
+            "value": "Image quota exceeded.\nPlease wait and try again later."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bildkontingent überschritten.\\nBitte warte einen Moment und versuche es dann erneut."
+            "value": "Bildkontingent überschritten.\nBitte warte einen Moment und versuche es dann erneut."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画像の帯域割り当てを使い切りました。\\nしばらく待ってからもう一度お試しください。"
+            "value": "画像の帯域割り当てを使い切りました。\nしばらく待ってからもう一度お試しください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이미지 할당량을 모두 사용했습니다.\\n잠시 후 다시 시도해 주세요."
+            "value": "이미지 할당량을 모두 사용했습니다.\n잠시 후 다시 시도해 주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "图片流量额度已用尽。\\n请稍后再试。"
+            "value": "图片流量额度已用尽。\n请稍后再试。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "圖片流量額度已用盡。\\n請稍後再試。"
+            "value": "圖片流量額度已用盡。\n請稍後再試。"
           }
         }
       }
@@ -12307,37 +12307,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The database is corrupted.\\nPlease submit an issue on GitHub."
+            "value": "The database is corrupted.\nPlease submit an issue on GitHub."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Datenbank ist beschädigt.\\nBitte erstelle ein Issue auf GitHub."
+            "value": "Die Datenbank ist beschädigt.\nBitte erstelle ein Issue auf GitHub."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "データベースが破損しています。\\nGitHub で Issue を作成していただくようお願いいたします。"
+            "value": "データベースが破損しています。\nGitHub で Issue を作成していただくようお願いいたします。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "데이터베이스가 손상되었어요.\\nGitHub에 이슈를 남겨주세요."
+            "value": "데이터베이스가 손상되었어요.\nGitHub에 이슈를 남겨주세요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "数据库已损毁。\\n请到 GitHub 提起 Issue 反馈。"
+            "value": "数据库已损毁。\n请到 GitHub 提起 Issue 反馈。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "資料庫已經損壞\\n請提交 issue 至 GitHub."
+            "value": "資料庫已經損壞\n請提交 issue 至 GitHub."
           }
         }
       }
