@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 // MARK: ThumbnailLoadTiming
@@ -10,20 +11,20 @@ extension EhSetting {
 extension EhSetting.ThumbnailLoadTiming {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .onMouseOver:
-            return String(localized: .thumbnailLoadTimingOnMouseOver)
+            return .thumbnailLoadTimingOnMouseOver
         case .onPageLoad:
-            return String(localized: .thumbnailLoadTimingOnPageLoad)
+            return .thumbnailLoadTimingOnPageLoad
         }
     }
-    public var description: String {
+    public var description: LocalizedStringResource {
         switch self {
         case .onMouseOver:
-            return String(localized: .thumbnailLoadTimingOnMouseOverDescription)
+            return .thumbnailLoadTimingOnMouseOverDescription
         case .onPageLoad:
-            return String(localized: .thumbnailLoadTimingOnPageLoadDescription)
+            return .thumbnailLoadTimingOnPageLoadDescription
         }
     }
 }
@@ -44,16 +45,16 @@ extension EhSetting.ThumbnailSize {
         lhs.rawValue < rhs.rawValue
     }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .normal:
-            return String(localized: .thumbnailSizeNormal)
+            return .thumbnailSizeNormal
         case .large:
-            return String(localized: .thumbnailSizeLarge)
+            return .thumbnailSizeLarge
         case .small:
-            return String(localized: .thumbnailSizeSmall)
+            return .thumbnailSizeSmall
         case .auto:
-            return String(localized: .thumbnailSizeAuto)
+            return .thumbnailSizeAuto
         }
     }
 }

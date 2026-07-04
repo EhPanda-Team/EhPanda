@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 // MARK: EhSetting
@@ -230,28 +231,28 @@ extension EhSetting.LoadThroughHathSetting {
         lhs.rawValue < rhs.rawValue
     }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .anyClient:
-            return String(localized: .loadThroughHathSettingAnyClient)
+            return .loadThroughHathSettingAnyClient
         case .defaultPortOnly:
-            return String(localized: .loadThroughHathSettingDefaultPortOnly)
+            return .loadThroughHathSettingDefaultPortOnly
         case .modernNo:
-            return String(localized: .loadThroughHathSettingModernNo)
+            return .loadThroughHathSettingModernNo
         case .legacyNo:
-            return String(localized: .loadThroughHathSettingLegacyNo)
+            return .loadThroughHathSettingLegacyNo
         }
     }
-    public var description: String {
+    public var description: LocalizedStringResource {
         switch self {
         case .anyClient:
-            return String(localized: .loadThroughHathSettingAnyClientDescription)
+            return .loadThroughHathSettingAnyClientDescription
         case .defaultPortOnly:
-            return String(localized: .loadThroughHathSettingDefaultPortOnlyDescription)
+            return .loadThroughHathSettingDefaultPortOnlyDescription
         case .modernNo:
-            return String(localized: .loadThroughHathSettingModernNoDescription)
+            return .loadThroughHathSettingModernNoDescription
         case .legacyNo:
-            return String(localized: .loadThroughHathSettingLegacyNoDescription)
+            return .loadThroughHathSettingLegacyNoDescription
         }
     }
 }
@@ -302,12 +303,12 @@ extension EhSetting {
 extension EhSetting.GalleryName {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .default:
-            return String(localized: .galleryNameDefault)
+            return .galleryNameDefault
         case .japanese:
-            return String(localized: .galleryNameJapanese)
+            return .galleryNameJapanese
         }
     }
 }
@@ -326,20 +327,20 @@ extension EhSetting {
 extension EhSetting.ArchiverBehavior {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .manualSelectManualStart:
-            return String(localized: .ehSettingArchiverBehaviorManualSelectManualStart)
+            return .ehSettingArchiverBehaviorManualSelectManualStart
         case .manualSelectAutoStart:
-            return String(localized: .ehSettingArchiverBehaviorManualSelectAutoStart)
+            return .ehSettingArchiverBehaviorManualSelectAutoStart
         case .autoSelectOriginalManualStart:
-            return String(localized: .ehSettingArchiverBehaviorAutoSelectOriginalManualStart)
+            return .ehSettingArchiverBehaviorAutoSelectOriginalManualStart
         case .autoSelectOriginalAutoStart:
-            return String(localized: .ehSettingArchiverBehaviorAutoSelectOriginalAutoStart)
+            return .ehSettingArchiverBehaviorAutoSelectOriginalAutoStart
         case .autoSelectResampleManualStart:
-            return String(localized: .ehSettingArchiverBehaviorAutoSelectResampleManualStart)
+            return .ehSettingArchiverBehaviorAutoSelectResampleManualStart
         case .autoSelectResampleAutoStart:
-            return String(localized: .ehSettingArchiverBehaviorAutoSelectResampleAutoStart)
+            return .ehSettingArchiverBehaviorAutoSelectResampleAutoStart
         }
     }
 }
@@ -357,18 +358,18 @@ extension EhSetting {
 extension EhSetting.DisplayMode {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .compact:
-            return String(localized: .displayModeCompact)
+            return .displayModeCompact
         case .thumbnail:
-            return String(localized: .displayModeThumbnail)
+            return .displayModeThumbnail
         case .extended:
-            return String(localized: .displayModeExtended)
+            return .displayModeExtended
         case .minimal:
-            return String(localized: .displayModeMinimal)
+            return .displayModeMinimal
         case .minimalPlus:
-            return String(localized: .displayModeMinimalPlus)
+            return .displayModeMinimalPlus
         }
     }
 }
@@ -383,12 +384,12 @@ extension EhSetting {
 extension EhSetting.FavoritesSortOrder {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .lastUpdateTime:
-            return String(localized: .favoritesSortOrderLastUpdateTime)
+            return .favoritesSortOrderLastUpdateTime
         case .favoritedTime:
-            return String(localized: .favoritesSortOrderFavoritedTime)
+            return .favoritesSortOrderFavoritedTime
         }
     }
 }
@@ -404,14 +405,14 @@ extension EhSetting {
 extension EhSetting.ExcludedLanguagesCategory {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .original:
-            return String(localized: .excludedLanguagesCategoryOriginal)
+            return .excludedLanguagesCategoryOriginal
         case .translated:
-            return String(localized: .excludedLanguagesCategoryTranslated)
+            return .excludedLanguagesCategoryTranslated
         case .rewrite:
-            return String(localized: .excludedLanguagesCategoryRewrite)
+            return .excludedLanguagesCategoryRewrite
         }
     }
 }
