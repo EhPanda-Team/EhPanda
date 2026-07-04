@@ -101,7 +101,7 @@ public struct FolderManagerView: View {
 
     private func editingTextField(_ field: FolderManagerReducer.EditingField) -> some View {
         TextField(
-            String(localized: .folderName),
+            .folderName,
             text: $store.editingFolderName
         )
         .disableAutocorrection(true)
