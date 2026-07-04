@@ -11,6 +11,36 @@
             "state": "translated",
             "value": "EhPanda"
           }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EhPanda"
+          }
         }
       }
     },
