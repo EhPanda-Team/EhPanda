@@ -1278,37 +1278,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The cover size in gallery list views can be scaled to between 75%% and 150%% when using the Thumbnail or Extended display modes."
+            "value": "The cover size in gallery list views can be scaled to between 75% and 150% when using the Thumbnail or Extended display modes."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Die Covergröße in Galerielisten kann in den Anzeigemodi „Vorschaubilder“ und „Erweitert“ auf 75%% bis 150%% skaliert werden."
+            "value": "Die Covergröße in Galerielisten kann in den Anzeigemodi „Vorschaubilder“ und „Erweitert“ auf 75% bis 150% skaliert werden."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サムネイル・拡張表示モードでのカバーを 75%% ~ 150%% にスケールすることができます。"
+            "value": "サムネイル・拡張表示モードでのカバーを 75% ~ 150% にスケールすることができます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "썸네일 또는 확장 표시방식에서는 갤러리 목록의 표지 크기를 75%%에서 150%% 사이로 조절할 수 있어요."
+            "value": "썸네일 또는 확장 표시방식에서는 갤러리 목록의 표지 크기를 75%에서 150% 사이로 조절할 수 있어요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "缩略图和扩展模式下的画廊列表封面可以缩放为 75%% 到 150%% 之间的值。"
+            "value": "缩略图和扩展模式下的画廊列表封面可以缩放为 75% 到 150% 之间的值。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在縮圖與放大檢視這兩種檢視模式下，封面的重新採樣比率介於 75%% 至 150%%."
+            "value": "在縮圖與放大檢視這兩種檢視模式下，封面的重新採樣比率介於 75% 至 150%."
           }
         }
       }
@@ -2262,7 +2262,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show the \\\"Your default filters removed XX galleries from this page\\\" readout?"
+            "value": "Show the \"Your default filters removed XX galleries from this page\" readout?"
           }
         },
         "de": {
@@ -2280,7 +2280,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\\\"기본 필터가 이 페이지에서 갤러리 XX개를 제거했어요\\\" 문구를 표시할까요?"
+            "value": "\"기본 필터가 이 페이지에서 갤러리 XX개를 제거했어요\" 문구를 표시할까요?"
           }
         },
         "zh-Hans": {
@@ -2292,7 +2292,7 @@
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "顯示 \\\"Your default filters removed XX galleries from this page\\\" ?"
+            "value": "顯示 \"Your default filters removed XX galleries from this page\" ?"
           }
         }
       }
@@ -3615,7 +3615,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \\\"Auto\\\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year)."
+            "value": "Use original images instead of the resampled versions? Resampled images will still be used if you select a horizontal resolution different than \"Auto\" above and the image in question is wider, or if the original image is larger than 10 MiB (or 4 MiB for galleries older than one year)."
           }
         },
         "de": {
@@ -3633,7 +3633,7 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다시 샘플링된 버전 대신 원본 이미지를 사용할까요? 위에서 가로 해상도를 \\\"자동\\\" 이외로 선택했고 해당 이미지가 그보다 넓은 경우나, 원본 이미지가 10 MiB(1년 넘은 갤러리는 4 MiB)보다 큰 경우에는 다시 샘플링된 이미지가 계속 사용되어요."
+            "value": "다시 샘플링된 버전 대신 원본 이미지를 사용할까요? 위에서 가로 해상도를 \"자동\" 이외로 선택했고 해당 이미지가 그보다 넓은 경우나, 원본 이미지가 10 MiB(1년 넘은 갤러리는 4 MiB)보다 큰 경우에는 다시 샘플링된 이미지가 계속 사용되어요."
           }
         },
         "zh-Hans": {
@@ -4148,37 +4148,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "How many results would you like per page for the index/search page and torrent search pages?\\n(Hath Perk: Paging Enlargement Required)"
+            "value": "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wie viele Ergebnisse pro Seite möchtest du auf Index-, Such- und Torrent-Suchseiten sehen?\\n(Hath-Perk „Paging Enlargement“ erforderlich)"
+            "value": "Wie viele Ergebnisse pro Seite möchtest du auf Index-, Such- und Torrent-Suchseiten sehen?\n(Hath-Perk „Paging Enlargement“ erforderlich)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "インデックス・トレントの検索ページで、各ページにどれくらいの結果数がお望みですか？\\n（「Hath Perk：ページング拡張」が必要）"
+            "value": "インデックス・トレントの検索ページで、各ページにどれくらいの結果数がお望みですか？\n（「Hath Perk：ページング拡張」が必要）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "인덱스 / 검색 / 토렌트 검색 페이지에 대해 페이지당 몇 개의 결과를 원하시나요?\\n(Hath Perk: 페이징 확장 필요)"
+            "value": "인덱스 / 검색 / 토렌트 검색 페이지에 대해 페이지당 몇 개의 결과를 원하시나요?\n(Hath Perk: 페이징 확장 필요)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜索页面每页显示多少条数据？\\n（需要“Hath Perk：页面扩大”）"
+            "value": "搜索页面每页显示多少条数据？\n（需要“Hath Perk：页面扩大”）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "你希望每頁顯示幾個搜尋結果?\\n(該功能需要有 Hath Perk: Paging Enlargement)"
+            "value": "你希望每頁顯示幾個搜尋結果?\n(該功能需要有 Hath Perk: Paging Enlargement)"
           }
         }
       }
@@ -6157,37 +6157,37 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400."
+            "value": "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hiermit kannst du die virtuelle Breite der Seite auf Mobilgeräten überschreiben. Normalerweise bestimmt dein Gerät sie automatisch anhand der DPI. Sinnvolle Werte bei 100%% Vorschaubild-Skalierung liegen zwischen 640 und 1400."
+            "value": "Hiermit kannst du die virtuelle Breite der Seite auf Mobilgeräten überschreiben. Normalerweise bestimmt dein Gerät sie automatisch anhand der DPI. Sinnvolle Werte bei 100% Vorschaubild-Skalierung liegen zwischen 640 und 1400."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100%% の場合、640 ~ 1400 の幅が合理的です。"
+            "value": "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100% の場合、640 ~ 1400 の幅が合理的です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100%% 썸네일 스케일의 추천 값은 640에서 1400 사이에요."
+            "value": "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100% 썸네일 스케일의 추천 값은 640에서 1400 사이에요."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "允许你覆写移动设备的可视区域，默认是根据 DPI 自动计算的，100%% 缩略图比例下的合理值在 640 到 1400 之间。"
+            "value": "允许你覆写移动设备的可视区域，默认是根据 DPI 自动计算的，100% 缩略图比例下的合理值在 640 到 1400 之间。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的裝置根據其 DPI 自動確定。 100%% 縮圖比例的合理值介於 640 和 1400 之間。"
+            "value": "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的裝置根據其 DPI 自動確定。 100% 縮圖比例的合理值介於 640 和 1400 之間。"
           }
         }
       }
