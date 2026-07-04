@@ -89,7 +89,7 @@ custom_rules:
 
   label_text_image_shorthand:
     name: "Label Text + Image Shorthand"
-    regex: 'Label\s*\{\s*Text\s*\((?:[^()]|\([^()]*\))*\)\s*\}\s*icon:\s*\{\s*Image\s*\(\s*systemSymbol:\s*(?:[^()]|\([^()]*\))*\)\s*\}'
+    regex: 'Label\s*\{\s*Text\s*\((?:[^(),]|\([^()]*\))*\)\s*\}\s*icon:\s*\{\s*Image\s*\(\s*systemSymbol:\s*(?:[^()]|\([^()]*\))*\)\s*\}'
     message: "Use Label(_ titleResource:systemSymbol:) instead of an unmodified Text + Image(systemSymbol:) Label."
     excluded_match_kinds:
       - comment
