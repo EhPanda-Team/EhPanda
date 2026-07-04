@@ -217,17 +217,13 @@ private extension Optional where Wrapped == DownloadValidationState {
     var toastConfig: AppAlertState<Never> {
         switch self {
         case .some(.valid):
-            return .success(
-                caption: String(localized: .imageDataValid)
-            )
+            return .success(caption: .imageDataValid)
 
         case .some(.missingFiles(let message)):
             return .error(caption: message)
 
         case nil:
-            return .error(
-                caption: String(localized: .imageDataUnavailable)
-            )
+            return .error(caption: .imageDataUnavailable)
         }
     }
 }
