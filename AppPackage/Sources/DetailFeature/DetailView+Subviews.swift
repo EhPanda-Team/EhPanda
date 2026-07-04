@@ -24,7 +24,7 @@ struct DescriptionSection: View {
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
-            title: .ratingsCount(galleryDetail.ratingCount),
+            title: .ratingsCount(count: galleryDetail.ratingCount),
             description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(

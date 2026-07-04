@@ -28,8 +28,8 @@ public struct DownloadBadgeLabel: View {
 
     private var progressText: String {
         String(localized: .downloadBadgeProgress(
-            badge.progress.displayCompletedPageCount,
-            badge.progress.displayPageCount
+            completed: badge.progress.displayCompletedPageCount,
+            total: badge.progress.displayPageCount
         ))
     }
 

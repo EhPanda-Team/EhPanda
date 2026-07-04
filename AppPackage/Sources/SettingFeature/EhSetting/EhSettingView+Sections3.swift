@@ -194,7 +194,7 @@ struct ExcludedUploadersSection: View {
         } footer: {
             Text(
                 String(localized: .excludedUploadersCount(
-                    ehSetting.excludedUploaders.ehSettingLineCount, 1000
+                    used: ehSetting.excludedUploaders.ehSettingLineCount, limit: 1000
                 ))
                 .localizedKey
             )

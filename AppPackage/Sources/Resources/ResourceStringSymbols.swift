@@ -39,10 +39,10 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func days(_ arg1: Int) -> LocalizedStringResource {
+        public static func days(count: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "days",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(count, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -104,19 +104,19 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func downloadStorePageImageCorrupted(_ arg1: Int) -> LocalizedStringResource {
+        public static func downloadStorePageImageCorrupted(page: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "download_store.page_image_corrupted",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(page, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
         }
 
-        public static func downloadStorePageMissing(_ arg1: Int) -> LocalizedStringResource {
+        public static func downloadStorePageMissing(page: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "download_store.page_missing",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(page, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -154,10 +154,10 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func hours(_ arg1: Int) -> LocalizedStringResource {
+        public static func hours(count: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "hours",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(count, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -195,19 +195,19 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func minutes(_ arg1: Int) -> LocalizedStringResource {
+        public static func minutes(count: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "minutes",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(count, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
         }
 
-        public static func pages(_ arg1: Int) -> LocalizedStringResource {
+        public static func pages(count: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "pages",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(count, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -237,10 +237,10 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func seconds(_ arg1: Int) -> LocalizedStringResource {
+        public static func seconds(count: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "seconds",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(count, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -262,10 +262,10 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func stars(_ arg1: Int) -> LocalizedStringResource {
+        public static func stars(count: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "stars",
-                defaultValue: "\(arg1, specifier: "%lld")",
+                defaultValue: "\(count, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )

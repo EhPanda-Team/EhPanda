@@ -173,9 +173,9 @@ extension AutoLockPolicy {
         case .instantly:
             return String(localized: .autoLockPolicyInstantly)
         case .sec15:
-            return String(localized: .RLocalizable.seconds(rawValue))
+            return String(localized: .RLocalizable.seconds(count: rawValue))
         case .min1, .min5, .min10, .min30:
-            return String(localized: .RLocalizable.minutes(rawValue / 60))
+            return String(localized: .RLocalizable.minutes(count: rawValue / 60))
         }
     }
 }
