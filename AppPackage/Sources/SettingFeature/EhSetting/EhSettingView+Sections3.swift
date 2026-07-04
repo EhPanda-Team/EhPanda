@@ -12,7 +12,7 @@ struct CoverScalingSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: String(localized: .scaleFactor),
+                title: .scaleFactor,
                 value: $ehSetting.coverScaleFactor,
                 range: 75...150,
                 unit: "%"
@@ -33,7 +33,7 @@ struct TagFilteringThresholdSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: String(localized: .tagFilteringThreshold),
+                title: .tagFilteringThreshold,
                 value: $ehSetting.tagFilteringThreshold, range: -9999...0
             )
         } header: {
@@ -52,7 +52,7 @@ struct TagWatchingThresholdSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: String(localized: .tagWatchingThreshold),
+                title: .tagWatchingThreshold,
                 value: $ehSetting.tagWatchingThreshold, range: 0...9999
             )
         } header: {
@@ -209,7 +209,7 @@ struct ViewportOverrideSection: View {
     var body: some View {
         Section {
             ValuePicker(
-                title: String(localized: .virtualWidth),
+                title: .virtualWidth,
                 value: $ehSetting.viewportVirtualWidth,
                 range: 0...9999,
                 unit: "px"

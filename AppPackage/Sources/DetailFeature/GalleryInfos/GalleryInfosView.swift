@@ -18,72 +18,72 @@ struct GalleryInfosView: View {
 
     private var infos: [Info] {
         [
-            Info(title: String(localized: .metadataId), value: galleryDetail.gid),
-            Info(title: String(localized: .metadataToken), value: gallery.token),
-            Info(title: String(localized: .metadataTitle), value: galleryDetail.title),
-            Info(title: String(localized: .metadataJapaneseTitle), value: galleryDetail.jpnTitle),
+            Info(title: .metadataId, value: galleryDetail.gid),
+            Info(title: .metadataToken, value: gallery.token),
+            Info(title: .metadataTitle, value: galleryDetail.title),
+            Info(title: .metadataJapaneseTitle, value: galleryDetail.jpnTitle),
             Info(
-                title: String(localized: .metadataGalleryUrl),
+                title: .metadataGalleryUrl,
                 value: gallery.galleryURL?.absoluteString
             ),
             Info(
-                title: String(localized: .metadataCoverUrl),
+                title: .metadataCoverUrl,
                 value: galleryDetail.coverURL?.absoluteString
             ),
             Info(
-                title: String(localized: .metadataArchiveUrl),
+                title: .metadataArchiveUrl,
                 value: galleryDetail.archiveURL?.absoluteString
             ),
             Info(
-                title: String(localized: .metadataTorrentUrl),
+                title: .metadataTorrentUrl,
                 value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
             ),
             Info(
-                title: String(localized: .metadataParentUrl),
+                title: .metadataParentUrl,
                 value: galleryDetail.parentURL?.absoluteString
             ),
             Info(
-                title: String(localized: .metadataCategory),
+                title: .metadataCategory,
                 value: galleryDetail.category.value
             ),
-            Info(title: String(localized: .metadataUploader), value: galleryDetail.uploader),
+            Info(title: .metadataUploader, value: galleryDetail.uploader),
             Info(
-                title: String(localized: .metadataPostedDate),
+                title: .metadataPostedDate,
                 value: galleryDetail.formattedDateString
             ),
             Info(
-                title: String(localized: .metadataVisibility),
+                title: .metadataVisibility,
                 value: galleryDetail.visibility.value
             ),
-            Info(title: String(localized: .metadataLanguage), value: galleryDetail.language.value),
-            Info(title: String(localized: .metadataPageCount), value: String(galleryDetail.pageCount)),
+            Info(title: .metadataLanguage, value: galleryDetail.language.value),
+            Info(title: .metadataPageCount, value: String(galleryDetail.pageCount)),
             Info(
-                title: String(localized: .metadataFileSize),
+                title: .metadataFileSize,
                 value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
             ),
             Info(
-                title: String(localized: .metadataFavoritedTimes),
+                title: .metadataFavoritedTimes,
                 value: String(galleryDetail.favoritedCount)
             ),
             Info(
-                title: String(localized: .metadataFavorited),
+                title: .metadataFavorited,
                 value: galleryDetail.isFavorited ? String(localized: .metadataYes)
                     : String(localized: .metadataNo)
             ),
             Info(
-                title: String(localized: .metadataRatingCount),
+                title: .metadataRatingCount,
                 value: String(galleryDetail.ratingCount)
             ),
             Info(
-                title: String(localized: .metadataAverageRating),
+                title: .metadataAverageRating,
                 value: String(Int(galleryDetail.rating))
             ),
             Info(
-                title: String(localized: .metadataMyRating),
+                title: .metadataMyRating,
                 value: galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))
             ),
             Info(
-                title: String(localized: .metadataTorrentCount),
+                title: .metadataTorrentCount,
                 value: String(galleryDetail.torrentCount)
             )
         ]
@@ -117,8 +117,8 @@ struct GalleryInfosView: View {
 }
 
 private struct Info: Identifiable {
-    var id: Int { title.hashValue }
-    let title: String
+    var id: Int { String(localized: title).hashValue }
+    let title: LocalizedStringResource
     let value: String?
 }
 

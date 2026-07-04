@@ -2,7 +2,7 @@ import SwiftUI
 import AppComponents
 
 struct PostCommentView: View {
-    private let title: String
+    private let title: LocalizedStringResource
     @Binding private var content: String
     @Binding private var isFocused: Bool
     private let postAction: () -> Void
@@ -12,7 +12,7 @@ struct PostCommentView: View {
     @FocusState private var isTextEditorFocused: Bool
 
     init(
-        title: String,
+        title: LocalizedStringResource,
         content: Binding<String>,
         isFocused: Binding<Bool>,
         postAction: @escaping () -> Void,

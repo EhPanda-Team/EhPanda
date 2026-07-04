@@ -14,26 +14,26 @@ struct DescriptionSection: View {
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
-            title: String(localized: .favorited),
+            title: .favorited,
             description: String(localized: .favoritedUnit),
             value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
-            title: String(localized: .RLocalizable.language),
+            title: .RLocalizable.language,
             description: galleryDetail.language.value,
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
-            title: String(localized: .ratingsCount(galleryDetail.ratingCount)),
+            title: .ratingsCount(galleryDetail.ratingCount),
             description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(
-            title: String(localized: .pageCount),
+            title: .pageCount,
             description: String(localized: .pageCountUnit),
             value: .init(galleryDetail.pageCount)
         ),
         DescScrollInfo(
-            title: String(localized: .fileSize),
+            title: .fileSize,
             description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
         )
     ]}
@@ -71,15 +71,15 @@ struct DescriptionSection: View {
 
 extension DescriptionSection {
     struct DescScrollInfo: Identifiable, Equatable {
-        var id: String { title }
-        let title: String
+        var id: String { String(localized: title) }
+        let title: LocalizedStringResource
         let description: String
         let value: String
         var rating: Float = 0
         var isRating = false
     }
     struct DescScrollItem: View {
-        let title: String
+        let title: LocalizedStringResource
         let value: String
         let description: String
 
@@ -92,7 +92,7 @@ extension DescriptionSection {
         }
     }
     struct DescScrollRatingItem: View {
-        let title: String
+        let title: LocalizedStringResource
         let rating: Float
 
         var body: some View {

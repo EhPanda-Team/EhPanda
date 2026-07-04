@@ -185,7 +185,7 @@ private extension DetailView {
         primaryModalModifiers(content: content)
             .sheet(item: $store.destination.postComment, id: \.id) { _ in
                 PostCommentView(
-                    title: String(localized: .postComment),
+                    title: .postComment,
                     content: $store.commentContent,
                     isFocused: $store.postCommentFocused,
                     postAction: {

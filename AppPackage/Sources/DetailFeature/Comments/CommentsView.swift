@@ -92,9 +92,7 @@ struct CommentsView: View {
         .sheet(item: $store.destination.postComment, id: \.self) { commentID in
             let hasCommentID = !commentID.wrappedValue.isEmpty
             PostCommentView(
-                title: hasCommentID
-                    ? String(localized: .editComment)
-                    : String(localized: .postComment),
+                title: hasCommentID ? .editComment : .postComment,
                 content: $store.commentContent,
                 isFocused: $store.postCommentFocused,
                 postAction: {

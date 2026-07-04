@@ -146,12 +146,12 @@ struct ImageSizeSettingsSection: View {
             Text(.imageSize)
 
             ValuePicker(
-                title: String(localized: .horizontal),
+                title: .horizontal,
                 value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px"
             )
 
             ValuePicker(
-                title: String(localized: .vertical),
+                title: .vertical,
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
         } header: {
@@ -250,12 +250,12 @@ struct FrontPageSettingsSection: View {
 
 // MARK: Shared Helpers
 struct ValuePicker: View {
-    private let title: String
+    private let title: LocalizedStringResource
     @Binding var value: Float
     private let range: ClosedRange<Float>
     private let unit: String
 
-    init(title: String, value: Binding<Float>, range: ClosedRange<Float>, unit: String = "") {
+    init(title: LocalizedStringResource, value: Binding<Float>, range: ClosedRange<Float>, unit: String = "") {
         self.title = title
         _value = value
         self.range = range

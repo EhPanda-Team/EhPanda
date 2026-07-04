@@ -153,7 +153,7 @@ private extension HomeView {
 
 // MARK: Definition
 public enum HomeMiscGridType: CaseIterable, Identifiable, Sendable {
-    public var id: String { title }
+    public var id: String { String(localized: title) }
 
     case popular
     case watched
@@ -161,14 +161,14 @@ public enum HomeMiscGridType: CaseIterable, Identifiable, Sendable {
 }
 
 extension HomeMiscGridType {
-    var title: String {
+    var title: LocalizedStringResource {
         switch self {
         case .popular:
-            return String(localized: .homeMiscGridTypePopular)
+            return .homeMiscGridTypePopular
         case .watched:
-            return String(localized: .homeMiscGridTypeWatched)
+            return .homeMiscGridTypeWatched
         case .history:
-            return String(localized: .homeMiscGridTypeHistory)
+            return .homeMiscGridTypeHistory
         }
     }
     var symbol: SFSymbol {
