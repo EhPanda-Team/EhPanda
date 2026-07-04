@@ -23,9 +23,7 @@ struct DownloadStoreHashTests {
 
         #expect(
             storage.validate(download: download, verifiesContentHashes: true)
-                == .missingFiles(
-                    String(localized: .RLocalizable.downloadStorePageImageCorrupted(page: 2))
-                )
+                == .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: 2))
         )
     }
 

@@ -201,14 +201,14 @@ extension DownloadStore {
     ) -> DownloadValidationState {
         let folderURL = download.folderURL
         guard fileManager.operate({ $0.fileExists(atPath: folderURL.path) }) else {
-            return .missingFiles(String(localized: .downloadStoreDownloadFolderMissing))
+            return .missingFiles(.downloadStoreDownloadFolderMissing)
         }
         let manifestURL = download.manifestURL
         guard fileManager.operate({ $0.fileExists(atPath: manifestURL.path) }) else {
-            return .missingFiles(String(localized: .downloadStoreManifestMissing))
+            return .missingFiles(.downloadStoreManifestMissing)
         }
         guard let manifest = try? readManifest(folderURL: folderURL) else {
-            return .missingFiles(String(localized: .RLocalizable.downloadStoreManifestCorrupted))
+            return .missingFiles(.RLocalizable.downloadStoreManifestCorrupted)
         }
         if let pageValidationFailure = validatePages(
             folderURL: folderURL,
@@ -290,13 +290,11 @@ extension DownloadStore {
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
-            return .missingFiles(String(localized: .RLocalizable.downloadStorePageMissing(page: index)))
+            return .missingFiles(.RLocalizable.downloadStorePageMissing(page: index))
         }
 
         if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
-            return .missingFiles(
-                String(localized: .RLocalizable.downloadStorePageImageCorrupted(page: index))
-            )
+            return .missingFiles(.RLocalizable.downloadStorePageImageCorrupted(page: index))
         }
 
         return nil
