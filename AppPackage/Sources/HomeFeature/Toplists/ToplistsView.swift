@@ -26,7 +26,7 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        [String(localized: .toplists), store.type.value].joined(separator: " - ")
+        [String(localized: .toplists), String(localized: store.type.value)].joined(separator: " - ")
     }
 
     var body: some View {

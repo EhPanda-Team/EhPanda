@@ -159,14 +159,14 @@ public enum FilterRange: Int, CaseIterable, Identifiable, Sendable {
     case watched
 }
 public extension FilterRange {
-    var value: String {
+    var value: LocalizedStringResource {
         switch self {
         case .search:
-            return String(localized: .filterRangeSearch)
+            return .filterRangeSearch
         case .global:
-            return String(localized: .filterRangeGlobal)
+            return .filterRangeGlobal
         case .watched:
-            return String(localized: .filterRangeWatched)
+            return .filterRangeWatched
         }
     }
 }

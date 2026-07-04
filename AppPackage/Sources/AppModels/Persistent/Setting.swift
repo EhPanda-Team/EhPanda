@@ -166,16 +166,16 @@ public enum AutoLockPolicy: Int, Codable, CaseIterable, Identifiable, Sendable {
 }
 
 extension AutoLockPolicy {
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .never:
-            return String(localized: .autoLockPolicyNever)
+            return .autoLockPolicyNever
         case .instantly:
-            return String(localized: .autoLockPolicyInstantly)
+            return .autoLockPolicyInstantly
         case .sec15:
-            return String(localized: .RLocalizable.seconds(count: rawValue))
+            return .RLocalizable.seconds(count: rawValue)
         case .min1, .min5, .min10, .min30:
-            return String(localized: .RLocalizable.minutes(count: rawValue / 60))
+            return .RLocalizable.minutes(count: rawValue / 60)
         }
     }
 }
@@ -188,14 +188,14 @@ public enum PreferredColorScheme: Int, Codable, CaseIterable, Identifiable, Send
     case dark
 }
 extension PreferredColorScheme {
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .automatic:
-            return String(localized: .preferredColorSchemeAutomatic)
+            return .preferredColorSchemeAutomatic
         case .light:
-            return String(localized: .preferredColorSchemeLight)
+            return .preferredColorSchemeLight
         case .dark:
-            return String(localized: .preferredColorSchemeDark)
+            return .preferredColorSchemeDark
         }
     }
     public var userInterfaceStyle: UIUserInterfaceStyle {
@@ -218,14 +218,14 @@ public enum ReadingDirection: Int, Codable, CaseIterable, Identifiable, Sendable
     case leftToRight
 }
 extension ReadingDirection {
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .vertical:
-            return String(localized: .readingDirectionVertical)
+            return .readingDirectionVertical
         case .rightToLeft:
-            return String(localized: .readingDirectionRightToLeft)
+            return .readingDirectionRightToLeft
         case .leftToRight:
-            return String(localized: .readingDirectionLeftToRight)
+            return .readingDirectionLeftToRight
         }
     }
 }
@@ -237,12 +237,12 @@ public enum ListDisplayMode: Int, Codable, CaseIterable, Identifiable, Sendable 
     case thumbnail
 }
 extension ListDisplayMode {
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .detail:
-            return String(localized: .listDisplayModeDetail)
+            return .listDisplayModeDetail
         case .thumbnail:
-            return String(localized: .listDisplayModeThumbnail)
+            return .listDisplayModeThumbnail
         }
     }
 }
