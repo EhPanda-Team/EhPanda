@@ -148,7 +148,7 @@ extension QuickSearchView {
         var body: some View {
             Form {
                 Section(.name) {
-                    TextField(.optional, text: $word.name)
+                    TextField(.optionalPlaceholder, text: $word.name)
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
                 Section(.content) {

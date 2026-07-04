@@ -131,28 +131,28 @@ extension AppAlertState where Action == Never {
     public static var communicating: Self {
         .init(
             style: .toast(icon: .loading, autoHide: false),
-            title: TextState(localized: .toastCommunicating)
+            title: TextState(localized: .communicating)
         )
     }
     public static func error(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .error, autoHide: true),
-            title: TextState(localized: .toastError),
+            title: TextState(localized: .error),
             message: caption.map { TextState($0) }
         )
     }
     public static func success(caption: String? = nil) -> Self {
         .init(
             style: .toast(icon: .success, autoHide: true),
-            title: TextState(localized: .toastSuccess),
+            title: TextState(localized: .success),
             message: caption.map { TextState($0) }
         )
     }
     public static var savedToPhotoLibrary: Self {
-        .success(caption: String(localized: .toastSavedToPhotoLibrary))
+        .success(caption: String(localized: .savedToPhotoLibrary))
     }
     public static var copiedToClipboardSucceeded: Self {
-        .success(caption: String(localized: .toastCopiedToClipboard))
+        .success(caption: String(localized: .copiedToClipboard))
     }
 }
 
