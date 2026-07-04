@@ -28,16 +28,16 @@ extension DetailReducer {
 
             case .retryDownloadButtonTapped(let mode):
                 state.alert = AppAlertState {
-                    TextState(Self.retryDownloadTitle(for: mode))
+                    TextState(localized: Self.retryDownloadTitle(for: mode))
                 } actions: {
                     ButtonState(action: .confirmRetryDownload(mode)) {
-                        TextState(Self.retryDownloadConfirmTitle(for: mode))
+                        TextState(localized: Self.retryDownloadConfirmTitle(for: mode))
                     }
                     ButtonState(role: .cancel) {
                         TextState(localized: .RLocalizable.cancel)
                     }
                 } message: {
-                    TextState(Self.retryDownloadMessage(for: mode))
+                    TextState(localized: Self.retryDownloadMessage(for: mode))
                 }
                 return .none
 
@@ -302,36 +302,36 @@ extension DetailReducer {
         }
     }
 
-    private static func retryDownloadTitle(for mode: DownloadStartMode) -> String {
+    private static func retryDownloadTitle(for mode: DownloadStartMode) -> LocalizedStringResource {
         switch mode {
         case .repair:
-            return String(localized: .repairDownload)
+            return .repairDownload
         case .update:
-            return String(localized: .updateDownload)
+            return .updateDownload
         case .initial, .redownload:
-            return String(localized: .redownloadGallery)
+            return .redownloadGallery
         }
     }
 
-    private static func retryDownloadMessage(for mode: DownloadStartMode) -> String {
+    private static func retryDownloadMessage(for mode: DownloadStartMode) -> LocalizedStringResource {
         switch mode {
         case .repair:
-            return String(localized: .repairDownloadDescription)
+            return .repairDownloadDescription
         case .update:
-            return String(localized: .updateDownloadDescription)
+            return .updateDownloadDescription
         case .initial, .redownload:
-            return String(localized: .redownloadGalleryDescription)
+            return .redownloadGalleryDescription
         }
     }
 
-    private static func retryDownloadConfirmTitle(for mode: DownloadStartMode) -> String {
+    private static func retryDownloadConfirmTitle(for mode: DownloadStartMode) -> LocalizedStringResource {
         switch mode {
         case .repair:
-            return String(localized: .repair)
+            return .repair
         case .update:
-            return String(localized: .RLocalizable.update)
+            return .RLocalizable.update
         case .initial, .redownload:
-            return String(localized: .redownload)
+            return .redownload
         }
     }
 }

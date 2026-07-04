@@ -292,7 +292,7 @@ private extension DetailView {
     @ViewBuilder private func offlineFallbackNotice(error: AppError) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Label(
-                String(localized: .savedDetails),
+                .savedDetails,
                 systemSymbol: .wifiExclamationmark
             )
             .font(.subheadline.weight(.semibold))
