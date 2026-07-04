@@ -59,7 +59,7 @@ struct FrontpageView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .searchable(text: $store.keyword, prompt: String(localized: .filter))
+        .searchable(text: $store.keyword, prompt: .filter)
         .onAppear {
             if store.galleries.isEmpty {
                 DispatchQueue.main.async {
