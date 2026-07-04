@@ -88,7 +88,7 @@ struct DownloadInspectorView: View {
                                 store.send(.retryPages(inspection.failedPageIndices))
                             } label: {
                                 Label(
-                                    String(localized: .retryFailedPages),
+                                    .retryFailedPages,
                                     systemSymbol: .arrowClockwise
                                 )
                                 .disabledActionForegroundStyle(isRetryFailedPagesDisabled)
@@ -131,10 +131,10 @@ private struct DownloadInspectorValidationActionLabel: View {
     let isDisabled: Bool
     let reduceMotion: Bool
 
-    private var title: String {
+    private var title: LocalizedStringResource {
         isValidating
-            ? String(localized: .validatingImageData)
-            : String(localized: .validateImageData)
+            ? .validatingImageData
+            : .validateImageData
     }
 
     private var progressAnimation: Animation? {
@@ -274,10 +274,10 @@ private extension DownloadPageStatus {
 }
 
 private extension DownloadedGallery {
-    var inspectorPauseResumeTitle: String {
+    var inspectorPauseResumeTitle: LocalizedStringResource {
         displayStatus == .inactive
-            ? String(localized: .resume)
-            : String(localized: .pause)
+            ? .resume
+            : .pause
     }
 
     var inspectorPauseResumeSymbol: SFSymbol {
