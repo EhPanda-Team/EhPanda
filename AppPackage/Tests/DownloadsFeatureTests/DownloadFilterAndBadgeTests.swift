@@ -52,7 +52,9 @@ struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
             lastError: nil
         )
 
-        #expect(download.searchableText == ["Solo Title", AppModels.Category.doujinshi.value].joined(separator: " "))
+        #expect(download.searchableText == [
+            "Solo Title", String(localized: AppModels.Category.doujinshi.value)
+        ].joined(separator: " "))
         #expect(!download.searchableText.contains("  "))
         #expect(download.searchableText == download.searchableText.trimmingCharacters(in: .whitespaces))
     }

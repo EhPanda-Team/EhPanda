@@ -91,7 +91,7 @@ extension DownloadCoordinator {
         case .missingFiles(let message):
             validationErrors[download.gid] = DownloadFailure(
                 code: .fileOperationFailed,
-                message: message
+                message: String(localized: message)
             )
         }
         await notifyObservers()

@@ -222,7 +222,7 @@ extension DownloadCoordinator {
         case .valid:
             break
         case .missingFiles(let message):
-            return .failure(.fileOperationFailed(message))
+            return .failure(.fileOperationFailed(String(localized: message)))
         }
         do {
             let manifest = try storage.readManifest(folderURL: download.folderURL)
