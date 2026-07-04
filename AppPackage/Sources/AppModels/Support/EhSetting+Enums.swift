@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 // MARK: CommentsSortOrder
@@ -11,14 +12,14 @@ extension EhSetting {
 extension EhSetting.CommentsSortOrder {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .oldest:
-            return String(localized: .commentsSortOrderOldest)
+            return .commentsSortOrderOldest
         case .recent:
-            return String(localized: .commentsSortOrderRecent)
+            return .commentsSortOrderRecent
         case .highestScore:
-            return String(localized: .commentsSortOrderHighestScore)
+            return .commentsSortOrderHighestScore
         }
     }
 }
@@ -33,12 +34,12 @@ extension EhSetting {
 extension EhSetting.CommentVotesShowTiming {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .onHoverOrClick:
-            return String(localized: .commentsVotesShowTimingOnHoverOrClick)
+            return .commentsVotesShowTimingOnHoverOrClick
         case .always:
-            return String(localized: .commentsVotesShowTimingAlways)
+            return .commentsVotesShowTimingAlways
         }
     }
 }
@@ -53,12 +54,12 @@ extension EhSetting {
 extension EhSetting.TagsSortOrder {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .alphabetical:
-            return String(localized: .tagsSortOrderAlphabetical)
+            return .tagsSortOrderAlphabetical
         case .tagPower:
-            return String(localized: .tagsSortOrderTagPower)
+            return .tagsSortOrderTagPower
         }
     }
 }
@@ -74,14 +75,14 @@ extension EhSetting {
 extension EhSetting.MultiplePageViewerStyle {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .alignLeftScaleIfOverWidth:
-            return String(localized: .multiplePageViewerStyleAlignLeftScaleIfOverWidth)
+            return .multiplePageViewerStyleAlignLeftScaleIfOverWidth
         case .alignCenterScaleIfOverWidth:
-            return String(localized: .multiplePageViewerStyleAlignCenterScaleIfOverWidth)
+            return .multiplePageViewerStyleAlignCenterScaleIfOverWidth
         case .alignCenterAlwaysScale:
-            return String(localized: .multiplePageViewerStyleAlignCenterAlwaysScale)
+            return .multiplePageViewerStyleAlignCenterAlwaysScale
         }
     }
 }
@@ -97,11 +98,11 @@ extension EhSetting {
 extension EhSetting.GalleryPageNumbering {
     public var id: Int { rawValue }
 
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
-        case .none: String(localized: .galleryPageNumberingNone)
-        case .pageNumberOnly: String(localized: .galleryPageNumberingPageNumberOnly)
-        case .pageNumberAndName: String(localized: .galleryPageNumberingPageNumberAndName)
+        case .none: .galleryPageNumberingNone
+        case .pageNumberOnly: .galleryPageNumberingPageNumberOnly
+        case .pageNumberAndName: .galleryPageNumberingPageNumberAndName
         }
     }
 }
