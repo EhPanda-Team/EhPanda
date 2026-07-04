@@ -112,7 +112,7 @@ private struct AdvancedSection: View {
                 Toggle(.searchGalleryDescription, isOn: $filter.galleryDesc)
                 Toggle(.searchTorrentFilenames, isOn: $filter.torrentFilenames)
                 Toggle(
-                    String(localized: .onlyShowGalleriesWithTorrents),
+                    .onlyShowGalleriesWithTorrents,
                     isOn: $filter.onlyWithTorrents
                 )
                 Toggle(.searchLowPowerTags, isOn: $filter.lowPowerTags)

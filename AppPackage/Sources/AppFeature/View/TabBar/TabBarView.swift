@@ -134,18 +134,18 @@ struct TabBarView: View {
 
 // MARK: TabType
 extension TabBarItemType {
-    var title: String {
+    var title: LocalizedStringResource {
         switch self {
         case .home:
-            return String(localized: .RLocalizable.home)
+            return .RLocalizable.home
         case .favorites:
-            return String(localized: .RLocalizable.favorites)
+            return .RLocalizable.favorites
         case .search:
-            return String(localized: .RLocalizable.search)
+            return .RLocalizable.search
         case .downloads:
-            return String(localized: .RLocalizable.downloads)
+            return .RLocalizable.downloads
         case .setting:
-            return String(localized: .RLocalizable.setting)
+            return .RLocalizable.setting
         }
     }
     var symbol: SFSymbol {
