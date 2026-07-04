@@ -27,14 +27,14 @@ struct DownloadSettingView: View {
                     Slider(value: downloadThreadLimitValue, in: 1...5, step: 1)
                 }
                 Toggle(
-                    String(localized: .retryFailedPagesAutomatically),
+                    .retryFailedPagesAutomatically,
                     isOn: $downloadAutoRetryFailedPages
                 )
             }
 
             Section {
                 Toggle(
-                    String(localized: .allowCellularDownloads),
+                    .allowCellularDownloads,
                     isOn: $downloadAllowCellular
                 )
             } header: {

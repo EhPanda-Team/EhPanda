@@ -99,19 +99,19 @@ private struct AccountSection: View {
             Button(.RLocalizable.login, action: loginAction)
         } else {
             Button(
-                String(localized: .logout),
+                .logout,
                 role: .destructive, action: logoutDialogAction
             )
             .confirmationDialog(logoutConfirmationDialog)
             Group {
                 Button(
-                    String(localized: .accountConfiguration),
+                    .accountConfiguration,
                     action: configureAccountAction
                 )
                 .withArrow()
                 if !bypassesSNIFiltering {
                     Button(
-                        String(localized: .tagsManagement),
+                        .tagsManagement,
                         action: manageTagsAction
                     )
                     .withArrow()
