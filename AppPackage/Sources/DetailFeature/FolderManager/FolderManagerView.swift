@@ -71,7 +71,7 @@ public struct FolderManagerView: View {
             if store.folders.isEmpty && store.editingField != .newFolder {
                 AlertView(
                     symbol: .folder,
-                    message: String(localized: .emptyFolders)
+                    message: .emptyFolders
                 ) {
                     EmptyView()
                 }

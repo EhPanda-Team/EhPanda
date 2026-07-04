@@ -271,14 +271,14 @@ private extension DownloadsView {
         if store.downloads.isEmpty {
             AlertView(
                 symbol: .squareAndArrowDown,
-                message: String(localized: .emptyDownloads)
+                message: .emptyDownloads
             ) {
                 EmptyView()
             }
         } else {
             AlertView(
                 symbol: .line3HorizontalDecreaseCircle,
-                message: String(localized: .noMatchingFilters)
+                message: .noMatchingFilters
             ) {
                 AlertViewButton(title: .clearFilters) {
                     store.keyword = ""
