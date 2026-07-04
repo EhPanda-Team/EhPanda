@@ -266,7 +266,7 @@ private struct LowerPanel<G: Gesture>: View {
                 )
 
                 HStack {
-                    Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
+                    Text(isReversed ? Int(range.upperBound) : Int(range.lowerBound), format: .number)
                         .fontWeight(.medium)
                         .font(.caption)
                         .padding()
@@ -283,7 +283,7 @@ private struct LowerPanel<G: Gesture>: View {
                             .onChanged({ if $0 { showsSliderPreview = true } })
                     )
 
-                    Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
+                    Text(isReversed ? Int(range.lowerBound) : Int(range.upperBound), format: .number)
                         .fontWeight(.medium)
                         .font(.caption)
                         .padding()

@@ -128,11 +128,12 @@ private struct LoginTextField: View {
 
             Group {
                 if isPassword {
-                    SecureField("", text: $text)
+                    SecureField(description, text: $text)
                 } else {
-                    TextField("", text: $text)
+                    TextField(description, text: $text)
                 }
             }
+            .labelsHidden()
             .focused(focusedField.projectedValue, equals: isPassword ? .password : .username)
             .textContentType(isPassword ? .password : .username)
             .submitLabel(isPassword ? .done : .next)
