@@ -26,31 +26,31 @@ public struct DownloadBadgeLabel: View {
         .accessibilityLabel(accessibilityText)
     }
 
-    private var progressText: String {
-        String(localized: .downloadBadgeProgress(
+    private var progressText: LocalizedStringResource {
+        .downloadBadgeProgress(
             completed: badge.progress.displayCompletedPageCount,
             total: badge.progress.displayPageCount
-        ))
+        )
     }
 
-    private var statusText: String {
+    private var statusText: LocalizedStringResource {
         switch badge.status {
         case .queued:
-            return String(localized: .downloadBadgeQueued)
+            return .downloadBadgeQueued
         case .active:
-            return String(localized: .downloadBadgeDownloading)
+            return .downloadBadgeDownloading
         case .inactive:
-            return String(localized: .downloadBadgePaused)
+            return .downloadBadgePaused
         case .completed:
-            return String(localized: .downloadBadgeDownloaded)
+            return .downloadBadgeDownloaded
         case .updateAvailable:
-            return String(localized: .downloadBadgeUpdateAvailable)
+            return .downloadBadgeUpdateAvailable
         case .error:
-            return String(localized: .downloadBadgeNeedsAttention)
+            return .downloadBadgeNeedsAttention
         }
     }
 
     private var accessibilityText: String {
-        [statusText, progressText].joined(separator: " ")
+        [String(localized: statusText), String(localized: progressText)].joined(separator: " ")
     }
 }

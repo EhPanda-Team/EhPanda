@@ -45,7 +45,7 @@ public struct ReadingSettingView: View {
             }
             Section(.readingAppearance) {
                 Picker(
-                    String(localized: .separatorHeight),
+                    .separatorHeight,
                     selection: $contentDividerHeight
                 ) {
                     ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in

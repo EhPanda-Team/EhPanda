@@ -33,7 +33,7 @@ public struct DateSeekPickerView: View {
             Form {
                 Section {
                     DatePicker(
-                        String(localized: .date),
+                        .date,
                         selection: $selectedDate,
                         in: navigation.dateRange,
                         displayedComponents: .date
