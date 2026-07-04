@@ -191,7 +191,7 @@ extension PackageDescription.Target {
         packageAccess: Bool = true,
         cSettings: [PackageDescription.CSetting]? = nil,
         cxxSettings: [PackageDescription.CXXSetting]? = nil,
-        swiftSettings: [PackageDescription.SwiftSetting]? = nil,
+        swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
         linkerSettings: [PackageDescription.LinkerSetting]? = nil,
         plugins: [PackageDescription.Target.PluginUsage]? = nil
     ) -> PackageDescription.Target {
@@ -222,7 +222,7 @@ extension PackageDescription.Target {
         packageAccess: Bool = true,
         cSettings: [PackageDescription.CSetting]? = nil,
         cxxSettings: [PackageDescription.CXXSetting]? = nil,
-        swiftSettings: [PackageDescription.SwiftSetting]? = nil,
+        swiftSettings: [PackageDescription.SwiftSetting]? = sharedSwiftSettings,
         linkerSettings: [PackageDescription.LinkerSetting]? = nil,
         plugins: [PackageDescription.Target.PluginUsage]? = nil
     ) -> PackageDescription.Target {
@@ -300,7 +300,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.waterfallGrid)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -312,13 +311,11 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.casePaths)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
         module: .resources,
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -327,7 +324,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -347,7 +343,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kanna)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -357,7 +352,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -367,13 +361,11 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
         module: .appTools,
         dependencies: [],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -382,7 +374,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -392,7 +383,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -400,7 +390,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -410,7 +399,6 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -419,7 +407,6 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -430,7 +417,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -440,7 +426,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -455,7 +440,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.deprecatedAPI),
             .targetDependency(.kanna)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -467,7 +451,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -476,7 +459,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -493,7 +475,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -508,7 +489,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.waterfallGrid)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -516,7 +496,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -525,7 +504,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.casePaths),
             .targetDependency(.commonMark)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -533,7 +511,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.sfSafeSymbols)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -542,7 +519,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .targetDependency(.openCC)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -550,7 +526,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appTools)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -561,7 +536,6 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -571,7 +545,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.commonMarkExt)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -584,7 +557,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -597,7 +569,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -611,7 +582,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -622,7 +592,6 @@ let targets: [PackageDescription.Target] = [
             .module(.resources)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -636,7 +605,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -658,7 +626,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -680,7 +647,6 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -713,7 +679,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -739,7 +704,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -769,7 +733,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.uiImageColors)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -802,7 +765,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -834,7 +796,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.swiftUIPager)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -845,7 +806,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -860,7 +820,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.uiImageColors)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -872,7 +831,6 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .targetDependency(.kanna)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -881,7 +839,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -891,7 +848,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -900,7 +856,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
 
@@ -911,7 +866,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kanna)
         ],
         resources: [.process(.resources)],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
 
@@ -929,7 +883,6 @@ let targets: [PackageDescription.Target] = [
             .module(.urlClient),
             .targetDependency(.kanna)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .testTarget(
@@ -963,7 +916,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .testTarget(
@@ -972,7 +924,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.fileClient)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .testTarget(
@@ -987,7 +938,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     ),
     .testTarget(
@@ -998,7 +948,6 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .targetDependency(.composableArchitecture)
         ],
-        swiftSettings: sharedSwiftSettings,
         plugins: swiftLintPlugins
     )
 ]
