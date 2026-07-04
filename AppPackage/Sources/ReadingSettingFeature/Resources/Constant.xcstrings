@@ -1,0 +1,30 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "point_value": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldpt"
+          }
+        }
+      }
+    },
+    "scale_factor": {
+      "extractionState": "manual",
+      "shouldTranslate": false,
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@x"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

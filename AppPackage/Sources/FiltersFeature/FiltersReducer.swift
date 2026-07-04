@@ -65,8 +65,8 @@ public struct FiltersReducer: Sendable {
                 return .none
 
             case .resetFiltersButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
+                state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .reset)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmReset) {
                         TextState(localized: .reset)

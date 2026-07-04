@@ -105,7 +105,10 @@ struct ExcludedLanguagesSection: View {
     var body: some View {
         Section {
             HStack {
-                Text("")
+                // Blank corner above the language column; the hidden label names the column and
+                // supplies the row's line height (the category cells below are height-less Color.clear).
+                Text(.RLocalizable.language)
+                    .hidden()
                     .frame(width: DeviceUtil.windowW * 0.25)
 
                 ForEach(EhSetting.ExcludedLanguagesCategory.allCases) { category in

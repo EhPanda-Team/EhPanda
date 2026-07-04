@@ -82,7 +82,7 @@ struct AppearanceSettingView: View {
                         .tag(0)
 
                     ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
-                        Text("\(num)")
+                        Text(num, format: .number)
                             .tag(num)
                     }
                 }

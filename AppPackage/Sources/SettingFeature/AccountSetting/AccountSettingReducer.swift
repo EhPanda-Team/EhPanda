@@ -83,8 +83,8 @@ public struct AccountSettingReducer: Sendable {
                 return .none
 
             case .logoutButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
+                state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .logout)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmLogout) {
                         TextState(localized: .logout)

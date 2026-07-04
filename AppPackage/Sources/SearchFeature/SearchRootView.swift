@@ -79,10 +79,11 @@ public struct SearchRootView: View {
                 .toolbar(content: toolbar)
                 .navigationTitle(.RLocalizable.search)
 
-            // Workaround: Prevent the title disappearing issue.
+            // Workaround: Prevent the title disappearing issue. The blank subtitle only reserves
+            // layout; `verbatim` keeps Xcode from extracting it as a localizable " " key.
             if store.historyKeywords.isEmpty && store.historyGalleries.isEmpty {
                 content
-                    .navigationSubtitle(Text(" "))
+                    .navigationSubtitle(Text(verbatim: " "))
             } else {
                 content
             }
