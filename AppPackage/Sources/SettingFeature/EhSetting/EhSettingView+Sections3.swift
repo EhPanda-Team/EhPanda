@@ -139,7 +139,7 @@ struct ExcludedLanguagesSection: View {
 }
 
 struct ExcludeRow: View {
-    let title: String
+    let title: LocalizedStringResource
     let bindings: [Binding<Bool>]
     let isFirstRow: Bool
 

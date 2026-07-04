@@ -55,7 +55,7 @@ struct GalleryInfosView: View {
                 title: .metadataVisibility,
                 value: galleryDetail.visibility.value
             ),
-            Info(title: .metadataLanguage, value: galleryDetail.language.value),
+            Info(title: .metadataLanguage, value: String(localized: galleryDetail.language.value)),
             Info(title: .metadataPageCount, value: String(galleryDetail.pageCount)),
             Info(
                 title: .metadataFileSize,

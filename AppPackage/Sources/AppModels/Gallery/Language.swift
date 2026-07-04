@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 public enum Language: String, Codable, Sendable {
@@ -30,74 +31,74 @@ extension Language {
         // swiftlint:enable switch_case_alignment line_length
         }
     }
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
-        case .invalid: return String(localized: .languageInvalid)
-        case .other: return String(localized: .languageOther)
-        case .afrikaans: return String(localized: .languageAfrikaans)
-        case .albanian: return String(localized: .languageAlbanian)
-        case .arabic: return String(localized: .languageArabic)
-        case .bengali: return String(localized: .languageBengali)
-        case .bosnian: return String(localized: .languageBosnian)
-        case .bulgarian: return String(localized: .languageBulgarian)
-        case .burmese: return String(localized: .languageBurmese)
-        case .catalan: return String(localized: .languageCatalan)
-        case .cebuano: return String(localized: .languageCebuano)
-        case .chinese: return String(localized: .languageChinese)
-        case .croatian: return String(localized: .languageCroatian)
-        case .czech: return String(localized: .languageCzech)
-        case .danish: return String(localized: .languageDanish)
-        case .dutch: return String(localized: .languageDutch)
-        case .english: return String(localized: .languageEnglish)
-        case .esperanto: return String(localized: .languageEsperanto)
-        case .estonian: return String(localized: .languageEstonian)
-        case .finnish: return String(localized: .languageFinnish)
-        case .french: return String(localized: .languageFrench)
-        case .georgian: return String(localized: .languageGeorgian)
-        case .german: return String(localized: .languageGerman)
-        case .greek: return String(localized: .languageGreek)
-        case .hebrew: return String(localized: .languageHebrew)
-        case .hindi: return String(localized: .languageHindi)
-        case .hmong: return String(localized: .languageHmong)
-        case .hungarian: return String(localized: .languageHungarian)
-        case .indonesian: return String(localized: .languageIndonesian)
-        case .italian: return String(localized: .languageItalian)
-        case .japanese: return String(localized: .languageJapanese)
-        case .kazakh: return String(localized: .languageKazakh)
-        case .khmer: return String(localized: .languageKhmer)
-        case .korean: return String(localized: .languageKorean)
-        case .kurdish: return String(localized: .languageKurdish)
-        case .lao: return String(localized: .languageLao)
-        case .latin: return String(localized: .languageLatin)
-        case .mongolian: return String(localized: .languageMongolian)
-        case .ndebele: return String(localized: .languageNdebele)
-        case .nepali: return String(localized: .languageNepali)
-        case .norwegian: return String(localized: .languageNorwegian)
-        case .oromo: return String(localized: .languageOromo)
-        case .pashto: return String(localized: .languagePashto)
-        case .persian: return String(localized: .languagePersian)
-        case .polish: return String(localized: .languagePolish)
-        case .portuguese: return String(localized: .languagePortuguese)
-        case .punjabi: return String(localized: .languagePunjabi)
-        case .romanian: return String(localized: .languageRomanian)
-        case .russian: return String(localized: .languageRussian)
-        case .sango: return String(localized: .languageSango)
-        case .serbian: return String(localized: .languageSerbian)
-        case .shona: return String(localized: .languageShona)
-        case .slovak: return String(localized: .languageSlovak)
-        case .slovenian: return String(localized: .languageSlovenian)
-        case .somali: return String(localized: .languageSomali)
-        case .spanish: return String(localized: .languageSpanish)
-        case .swahili: return String(localized: .languageSwahili)
-        case .swedish: return String(localized: .languageSwedish)
-        case .tagalog: return String(localized: .languageTagalog)
-        case .thai: return String(localized: .languageThai)
-        case .tigrinya: return String(localized: .languageTigrinya)
-        case .turkish: return String(localized: .languageTurkish)
-        case .ukrainian: return String(localized: .languageUkrainian)
-        case .urdu: return String(localized: .languageUrdu)
-        case .vietnamese: return String(localized: .languageVietnamese)
-        case .zulu: return String(localized: .languageZulu)
+        case .invalid: return .languageInvalid
+        case .other: return .languageOther
+        case .afrikaans: return .languageAfrikaans
+        case .albanian: return .languageAlbanian
+        case .arabic: return .languageArabic
+        case .bengali: return .languageBengali
+        case .bosnian: return .languageBosnian
+        case .bulgarian: return .languageBulgarian
+        case .burmese: return .languageBurmese
+        case .catalan: return .languageCatalan
+        case .cebuano: return .languageCebuano
+        case .chinese: return .languageChinese
+        case .croatian: return .languageCroatian
+        case .czech: return .languageCzech
+        case .danish: return .languageDanish
+        case .dutch: return .languageDutch
+        case .english: return .languageEnglish
+        case .esperanto: return .languageEsperanto
+        case .estonian: return .languageEstonian
+        case .finnish: return .languageFinnish
+        case .french: return .languageFrench
+        case .georgian: return .languageGeorgian
+        case .german: return .languageGerman
+        case .greek: return .languageGreek
+        case .hebrew: return .languageHebrew
+        case .hindi: return .languageHindi
+        case .hmong: return .languageHmong
+        case .hungarian: return .languageHungarian
+        case .indonesian: return .languageIndonesian
+        case .italian: return .languageItalian
+        case .japanese: return .languageJapanese
+        case .kazakh: return .languageKazakh
+        case .khmer: return .languageKhmer
+        case .korean: return .languageKorean
+        case .kurdish: return .languageKurdish
+        case .lao: return .languageLao
+        case .latin: return .languageLatin
+        case .mongolian: return .languageMongolian
+        case .ndebele: return .languageNdebele
+        case .nepali: return .languageNepali
+        case .norwegian: return .languageNorwegian
+        case .oromo: return .languageOromo
+        case .pashto: return .languagePashto
+        case .persian: return .languagePersian
+        case .polish: return .languagePolish
+        case .portuguese: return .languagePortuguese
+        case .punjabi: return .languagePunjabi
+        case .romanian: return .languageRomanian
+        case .russian: return .languageRussian
+        case .sango: return .languageSango
+        case .serbian: return .languageSerbian
+        case .shona: return .languageShona
+        case .slovak: return .languageSlovak
+        case .slovenian: return .languageSlovenian
+        case .somali: return .languageSomali
+        case .spanish: return .languageSpanish
+        case .swahili: return .languageSwahili
+        case .swedish: return .languageSwedish
+        case .tagalog: return .languageTagalog
+        case .thai: return .languageThai
+        case .tigrinya: return .languageTigrinya
+        case .turkish: return .languageTurkish
+        case .ukrainian: return .languageUkrainian
+        case .urdu: return .languageUrdu
+        case .vietnamese: return .languageVietnamese
+        case .zulu: return .languageZulu
         }
     }
 }
