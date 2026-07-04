@@ -128,11 +128,11 @@ struct AppIconView: View {
 
 // MARK: AppIconRow
 private struct AppIconRow: View {
-    private let iconName: String
+    private let iconName: LocalizedStringResource
     private let filename: String
     private let isSelected: Bool
 
-    init(iconName: String, filename: String, isSelected: Bool) {
+    init(iconName: LocalizedStringResource, filename: String, isSelected: Bool) {
         self.iconName = iconName
         self.filename = filename
         self.isSelected = isSelected

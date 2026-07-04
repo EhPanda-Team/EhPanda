@@ -29,7 +29,7 @@ public struct AppActivityLogsReducer: Sendable {
         public var displayedLogs: [AppActivityLog] {
             let source = selectedRun == nil ? currentRunLogs : selectedRunLogs
             let filtered = keyword.isEmpty ? source : source.filter { log in
-                [log.dateDescription, log.level.title, log.category, log.message]
+                [log.dateDescription, String(localized: log.level.title), log.category, log.message]
                     .joined(separator: " ")
                     .caseInsensitiveContains(keyword)
             }
