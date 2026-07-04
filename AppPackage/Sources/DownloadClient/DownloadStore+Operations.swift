@@ -91,13 +91,13 @@ extension DownloadStore {
             }
             guard let relativePath = existingPages[index] else {
                 throw AppError.fileOperationFailed(
-                    String(localized: .RLocalizable.downloadStorePageMissing(index))
+                    String(localized: .RLocalizable.downloadStorePageMissing(page: index))
                 )
             }
             pages[index] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: relativePath,
-                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(index))
+                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(page: index))
             )
         }
 
@@ -152,7 +152,7 @@ extension DownloadStore {
             pages[index] = try hashReadableAsset(
                 folderURL: folderURL,
                 relativePath: refreshedRelativePath,
-                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(index))
+                missingMessage: String(localized: .RLocalizable.downloadStorePageMissing(page: index))
             )
             didUpdate = true
         }
@@ -290,12 +290,12 @@ extension DownloadStore {
               let pageURL = validatedChildURL(root: folderURL, relativePath: relativePath),
               sanitizeAssetFileIfNeeded(at: pageURL)
         else {
-            return .missingFiles(String(localized: .RLocalizable.downloadStorePageMissing(index)))
+            return .missingFiles(String(localized: .RLocalizable.downloadStorePageMissing(page: index)))
         }
 
         if verifiesContentHash, (try? fileHash(at: pageURL)) != expectedHash {
             return .missingFiles(
-                String(localized: .RLocalizable.downloadStorePageImageCorrupted(index))
+                String(localized: .RLocalizable.downloadStorePageImageCorrupted(page: index))
             )
         }
 

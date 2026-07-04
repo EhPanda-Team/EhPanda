@@ -128,7 +128,7 @@ public struct ToplistsReducer: Sendable {
                         }
                     },
                     message: {
-                        TextState(localized: .jumpPageDescription(maximumPage))
+                        TextState(localized: .jumpPageDescription(max: maximumPage))
                     }
                 )
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })

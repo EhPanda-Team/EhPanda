@@ -25,7 +25,7 @@ public struct TagSuggestionView: View {
     public var body: some View {
         if isEnabled {
             if DeviceUtil.isPhone {
-                Text(.matchesCount(translationHandler.suggestions.count))
+                Text(.matchesCount(count: translationHandler.suggestions.count))
                     .foregroundColor(.secondary)
                     .font(.subheadline)
             }

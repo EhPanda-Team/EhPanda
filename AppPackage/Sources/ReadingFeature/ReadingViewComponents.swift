@@ -37,7 +37,7 @@ extension AutoPlayPolicy {
         case .off:
             return String(localized: .autoPlayPolicyOff)
         default:
-            return String(localized: .RLocalizable.seconds(rawValue))
+            return String(localized: .RLocalizable.seconds(count: rawValue))
         }
     }
 }
