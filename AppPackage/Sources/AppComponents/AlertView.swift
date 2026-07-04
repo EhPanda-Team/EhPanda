@@ -54,7 +54,7 @@ public struct NotLoginView: View {
     public var body: some View {
         AlertView(
             symbol: .personCropCircleBadgeQuestionmarkFill,
-            message: String(localized: .needLogin)
+            message: .needLogin
         ) {
             AlertViewButton(title: .RLocalizable.login, action: action)
         }
@@ -95,6 +95,14 @@ public struct AlertView<Content: View>: View {
         self.symbol = symbol
         self.message = message
         self.actions = actions()
+    }
+
+    // Resource overload for static localized messages; the `String` init above remains for
+    // dynamic messages that are already resolved (e.g. `AppError.alertText`).
+    public init(
+        symbol: SFSymbol, message: LocalizedStringResource, @ViewBuilder actions: () -> Content
+    ) {
+        self.init(symbol: symbol, message: String(localized: message), actions: actions)
     }
 
     public var body: some View {
