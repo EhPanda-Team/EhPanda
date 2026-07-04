@@ -198,7 +198,7 @@ extension TagsSection {
 
         var body: some View {
             HStack(alignment: .top) {
-                Text(tag.namespace?.value ?? tag.rawNamespace).font(.subheadline.bold())
+                Text(tag.namespace.map { String(localized: $0.value) } ?? tag.rawNamespace).font(.subheadline.bold())
                     .foregroundColor(reversedPrimary).padding(padding)
                     .background(Color(.systemGray)).cornerRadius(5)
                 TagCloudView(data: tag.contents) { content in
