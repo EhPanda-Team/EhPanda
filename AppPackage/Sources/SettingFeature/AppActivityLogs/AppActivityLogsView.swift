@@ -170,7 +170,7 @@ private func runLabel(_ run: RunLogFile?) -> String {
     guard let run else {
         return String(localized: .appActivityLogsViewCurrent)
     }
-    let title = String(localized: .appActivityLogsViewRun("\(run.runCount)"))
+    let title = String(localized: .appActivityLogsViewRun(count: run.runCount))
     return "\(title) (\(runTimeFormatter.string(from: run.date)))"
 }
 
