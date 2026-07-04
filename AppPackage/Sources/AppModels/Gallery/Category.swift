@@ -45,19 +45,19 @@ extension Category {
             fatalError(message)
         }
     }
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
-        case .doujinshi: return String(localized: .categoryDoujinshi)
-        case .manga: return String(localized: .categoryManga)
-        case .artistCG: return String(localized: .categoryArtistCg)
-        case .gameCG: return String(localized: .categoryGameCg)
-        case .western: return String(localized: .categoryWestern)
-        case .nonH: return String(localized: .categoryNonH)
-        case .imageSet: return String(localized: .categoryImageSet)
-        case .cosplay: return String(localized: .categoryCosplay)
-        case .asianPorn: return String(localized: .categoryAsianPorn)
-        case .misc: return String(localized: .categoryMisc)
-        case .private: return String(localized: .categoryPrivate)
+        case .doujinshi: return .categoryDoujinshi
+        case .manga: return .categoryManga
+        case .artistCG: return .categoryArtistCg
+        case .gameCG: return .categoryGameCg
+        case .western: return .categoryWestern
+        case .nonH: return .categoryNonH
+        case .imageSet: return .categoryImageSet
+        case .cosplay: return .categoryCosplay
+        case .asianPorn: return .categoryAsianPorn
+        case .misc: return .categoryMisc
+        case .private: return .categoryPrivate
         }
     }
 }

@@ -4,7 +4,7 @@ import AppTools
 
 // MARK: CategoryLabel
 public struct CategoryLabel: View {
-    private let text: String
+    private let text: LocalizedStringResource
     private let color: Color
     private let font: Font
     private let insets: EdgeInsets
@@ -12,7 +12,7 @@ public struct CategoryLabel: View {
     private let corners: UIRectCorner
 
     public init(
-        text: String, color: Color, font: Font = .footnote,
+        text: LocalizedStringResource, color: Color, font: Font = .footnote,
         insets: EdgeInsets = .init(top: 1, leading: 3, bottom: 1, trailing: 3),
         cornerRadius: CGFloat = 2, corners: UIRectCorner = .allCorners
     ) {

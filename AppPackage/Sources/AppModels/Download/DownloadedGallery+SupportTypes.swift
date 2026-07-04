@@ -12,7 +12,7 @@ extension DownloadedGallery {
             title,
             jpnTitle,
             uploader,
-            category.value,
+            String(localized: category.value),
             tags.flatMap(\.contents).map(\.text).joined(separator: " ")
         ]
         .compactMap { $0 }
