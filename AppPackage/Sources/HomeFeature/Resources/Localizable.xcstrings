@@ -294,37 +294,133 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enter a page number between 1 and %lld to jump to."
+            "value": "Enter a page number between 1 and %#@max@ to jump to."
+          },
+          "substitutions": {
+            "max": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geben Sie eine Seitenzahl zwischen 1 und %lld ein."
+            "value": "Geben Sie eine Seitenzahl zwischen 1 und %#@max@ ein."
+          },
+          "substitutions": {
+            "max": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "1 ~ %lld のページ番号を入力してください。"
+            "value": "1 ~ %#@max@ のページ番号を入力してください。"
+          },
+          "substitutions": {
+            "max": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "1에서 %lld 사이의 페이지 번호를 입력하세요."
+            "value": "1에서 %#@max@ 사이의 페이지 번호를 입력하세요."
+          },
+          "substitutions": {
+            "max": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请输入 1 到 %lld 之间的页码。"
+            "value": "请输入 1 到 %#@max@ 之间的页码。"
+          },
+          "substitutions": {
+            "max": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請輸入 1 到 %lld 之間的頁碼。"
+            "value": "請輸入 1 到 %#@max@ 之間的頁碼。"
+          },
+          "substitutions": {
+            "max": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

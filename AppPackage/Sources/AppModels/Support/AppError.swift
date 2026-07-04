@@ -141,15 +141,15 @@ extension BanInterval {
     }
 
     private func daysWithUnit(_ days: Int) -> String {
-        String(localized: .RLocalizable.days(days))
+        String(localized: .RLocalizable.days(count: days))
     }
     private func hoursWithUnit(_ hours: Int) -> String {
-        String(localized: .RLocalizable.hours(hours))
+        String(localized: .RLocalizable.hours(count: hours))
     }
     private func minutesWithUnit(_ minutes: Int) -> String {
-        String(localized: .RLocalizable.minutes(minutes))
+        String(localized: .RLocalizable.minutes(count: minutes))
     }
     private func secondsWithUnit(_ seconds: Int) -> String {
-        String(localized: .RLocalizable.seconds(seconds))
+        String(localized: .RLocalizable.seconds(count: seconds))
     }
 }

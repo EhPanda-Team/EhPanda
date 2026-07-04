@@ -309,13 +309,13 @@ extension HeaderSection {
             return String(localized: .accessibilityQueued)
         case .active:
             let downloading = String(localized: .accessibilityDownloading(
-                progress.completedPageCount, progress.displayPageCount
+                completed: progress.completedPageCount, total: progress.displayPageCount
             ))
             return [downloading, String(localized: .accessibilityPauseAction)]
                 .joined(separator: ". ")
         case .inactive:
             return String(localized: .accessibilityPaused(
-                progress.completedPageCount, progress.displayPageCount
+                completed: progress.completedPageCount, total: progress.displayPageCount
             ))
         case .completed:
             return String(localized: .accessibilityDownloaded)
@@ -324,7 +324,7 @@ extension HeaderSection {
         case .error:
             if isPartialDownloadError {
                 return String(localized: .accessibilityPartial(
-                    progress.completedPageCount, progress.displayPageCount
+                    available: progress.completedPageCount, total: progress.displayPageCount
                 ))
             }
             return downloadNeedsRepair
