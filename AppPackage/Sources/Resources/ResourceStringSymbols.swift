@@ -212,10 +212,10 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func pages(_ arg1: String) -> LocalizedStringResource {
+        public static func pages(_ arg1: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "pages",
-                defaultValue: "\(arg1)",
+                defaultValue: "\(arg1, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
@@ -270,10 +270,10 @@ public nonisolated extension LocalizedStringResource {
             )
         }
 
-        public static func stars(_ arg1: String) -> LocalizedStringResource {
+        public static func stars(_ arg1: Int) -> LocalizedStringResource {
             LocalizedStringResource(
                 "stars",
-                defaultValue: "\(arg1)",
+                defaultValue: "\(arg1, specifier: "%lld")",
                 table: "Localizable",
                 bundle: resourceStringSymbolsBundleDescription
             )
