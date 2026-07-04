@@ -65,7 +65,7 @@ public struct DownloadsView: View {
         .searchable(
             text: $store.keyword,
             placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: String(localized: .searchDownloads)
+            prompt: .searchDownloads
         )
         .sheet(
             item: $store.scope(state: \.destination?.inspector, action: \.destination.inspector)

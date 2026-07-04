@@ -44,7 +44,7 @@ struct PopularView: View {
             FiltersView(store: store)
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: $store.keyword, prompt: String(localized: .filter))
+        .searchable(text: $store.keyword, prompt: .filter)
         .onAppear {
             if store.galleries.isEmpty {
                 DispatchQueue.main.async {
