@@ -34,13 +34,13 @@ struct LoginView: View {
                         LoginTextField(
                             focusedField: $focusedField,
                             text: $store.username,
-                            description: String(localized: .username),
+                            description: .username,
                             isPassword: false
                         )
                         LoginTextField(
                             focusedField: $focusedField,
                             text: $store.password,
-                            description: String(localized: .password),
+                            description: .password,
                             isPassword: true
                         )
                     }
@@ -107,12 +107,12 @@ private struct LoginTextField: View {
     @Environment(\.colorScheme) private var colorScheme
     private let focusedField: FocusState<LoginReducer.FocusedField?>.Binding
     @Binding private var text: String
-    private let description: String
+    private let description: LocalizedStringResource
     private let isPassword: Bool
 
     init(
         focusedField: FocusState<LoginReducer.FocusedField?>.Binding,
-        text: Binding<String>, description: String, isPassword: Bool
+        text: Binding<String>, description: LocalizedStringResource, isPassword: Bool
     ) {
         self.focusedField = focusedField
         _text = text

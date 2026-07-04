@@ -112,8 +112,8 @@ public struct QuickSearchView: View {
     @ViewBuilder private func editWordView(for kind: QuickSearchReducer.WordEditKind) -> some View {
         EditWordView(
             title: kind == .new
-                ? String(localized: .newWord)
-                : String(localized: .editWord),
+                ? .newWord
+                : .editWord,
             word: $store.editingWord,
             focusedField: $focusedField,
             submitAction: onTextFieldSubmitted,
@@ -127,14 +127,14 @@ public struct QuickSearchView: View {
 extension QuickSearchView {
     // MARK: EditWordView
     struct EditWordView: View {
-        private let title: String
+        private let title: LocalizedStringResource
         @Binding private var word: QuickSearchWord
         private let focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding
         private let submitAction: () -> Void
         private let confirmAction: () -> Void
 
         init(
-            title: String, word: Binding<QuickSearchWord>,
+            title: LocalizedStringResource, word: Binding<QuickSearchWord>,
             focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding,
             submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void
         ) {
