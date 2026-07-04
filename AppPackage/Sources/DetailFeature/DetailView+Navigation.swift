@@ -19,10 +19,10 @@ extension DetailView {
                 Button {
                     store.send(.torrentsButtonTapped)
                 } label: {
-                    let base = String(localized: .torrents)
                     let torrentCount = store.galleryDetail?.torrentCount ?? 0
-                    let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
-                    Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)
+                    let title: LocalizedStringResource = torrentCount > 0
+                        ? .torrentsCount(count: torrentCount) : .torrents
+                    Label(title, systemSymbol: .leaf)
                 }
                 .disabled((store.galleryDetail?.torrentCount ?? 0 > 0) != true)
                 Button {
