@@ -19,8 +19,8 @@ struct CoverScalingSection: View {
             )
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .coverScaling),
-                description: String(localized: .coverScaleFactor)
+                .coverScaling,
+                description: .coverScaleFactor
             )
         }
     }
@@ -38,8 +38,8 @@ struct TagFilteringThresholdSection: View {
             )
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .tagFilteringThreshold),
-                description: String(localized: .tagFilteringThresholdDescription)
+                .tagFilteringThreshold,
+                description: .tagFilteringThresholdDescription
             )
         }
     }
@@ -57,8 +57,8 @@ struct TagWatchingThresholdSection: View {
             )
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .tagWatchingThreshold),
-                description: String(localized: .tagWatchingThresholdDescription)
+                .tagWatchingThreshold,
+                description: .tagWatchingThresholdDescription
             )
         }
     }
@@ -71,13 +71,13 @@ struct FilteredRemovalCountSection: View {
     var body: some View {
         Section {
             Toggle(
-                String(localized: .showFilteredRemovalCount),
+                .showFilteredRemovalCount,
                 isOn: $ehSetting.showFilteredRemovalCount
             )
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .filteredRemovalCount),
-                description: String(localized: .filteredRemovalCountDescription)
+                .filteredRemovalCount,
+                description: .filteredRemovalCountDescription
             )
         }
     }
@@ -131,8 +131,8 @@ struct ExcludedLanguagesSection: View {
             }
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .excludedLanguages),
-                description: String(localized: .excludedLanguagesDescription)
+                .excludedLanguages,
+                description: .excludedLanguagesDescription
             )
         }
     }
@@ -191,8 +191,8 @@ struct ExcludedUploadersSection: View {
                 .focused($isFocused)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .excludedUploaders),
-                description: String(localized: .excludedUploadersDescription)
+                .excludedUploaders,
+                description: .excludedUploadersDescription
             )
         } footer: {
             Text(
@@ -219,8 +219,8 @@ struct ViewportOverrideSection: View {
             )
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .viewportOverride),
-                description: String(localized: .virtualWidthDescription)
+                .viewportOverride,
+                description: .virtualWidthDescription
             )
         }
     }
@@ -233,7 +233,7 @@ struct GalleryCommentsSection: View {
     var body: some View {
         Section {
             Picker(
-                String(localized: .commentsSortOrder),
+                .commentsSortOrder,
                 selection: $ehSetting.commentsSortOrder
             ) {
                 ForEach(EhSetting.CommentsSortOrder.allCases) { order in
@@ -244,7 +244,7 @@ struct GalleryCommentsSection: View {
             .pickerStyle(.menu)
 
             Picker(
-                String(localized: .commentsVotesShowTiming),
+                .commentsVotesShowTiming,
                 selection: $ehSetting.commentVotesShowTiming
             ) {
                 ForEach(EhSetting.CommentVotesShowTiming.allCases) { timing in
@@ -287,7 +287,7 @@ struct GalleryPageThumbnailLabelingSection: View {
     var body: some View {
         Section {
             Picker(
-                String(localized: .showLabelBelowGalleryThumbnails),
+                .showLabelBelowGalleryThumbnails,
                 selection: $ehSetting.galleryPageNumbering
             ) {
                 ForEach(EhSetting.GalleryPageNumbering.allCases) { behavior in
@@ -313,12 +313,12 @@ struct MultiplePageViewerSection: View {
            let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane) {
             Section {
                 Toggle(
-                    String(localized: .useMultiPageViewer),
+                    .useMultiPageViewer,
                     isOn: useMultiplePageViewerBinding
                 )
 
                 Picker(
-                    String(localized: .displayStyle),
+                    .displayStyle,
                     selection: multiplePageViewerStyleBinding
                 ) {
                     ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
@@ -329,7 +329,7 @@ struct MultiplePageViewerSection: View {
                 .pickerStyle(.menu)
 
                 Toggle(
-                    String(localized: .showThumbnailPane),
+                    .showThumbnailPane,
                     isOn: multiplePageViewerShowPaneBinding
                 )
             } header: {

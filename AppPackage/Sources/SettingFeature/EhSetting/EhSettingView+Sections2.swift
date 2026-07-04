@@ -13,13 +13,13 @@ struct OptionalUIElementsSection: View {
     var body: some View {
         Section {
             Toggle(
-                String(localized: .enableGalleryThumbnailSelector),
+                .enableGalleryThumbnailSelector,
                 isOn: $ehSetting.enableGalleryThumbnailSelector
             )
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .optionalUiElements),
-                description: String(localized: .optionalUiElementsDescription)
+                .optionalUiElements,
+                description: .optionalUiElementsDescription
             )
         }
     }
@@ -54,14 +54,14 @@ struct FavoritesSection: View {
             }
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .favoritesSection),
-                description: String(localized: .favoriteCategories)
+                .favoritesSection,
+                description: .favoriteCategories
             )
         }
 
         Section {
             Picker(
-                String(localized: .favoritesSortOrder),
+                .favoritesSortOrder,
                 selection: $ehSetting.favoritesSortOrder
             ) {
                 ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
@@ -95,8 +95,8 @@ struct RatingsSection: View {
             }
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .ratings),
-                description: String(localized: .ratingsColorDescription)
+                .ratings,
+                description: .ratingsColorDescription
             )
         }
     }
@@ -119,8 +119,8 @@ struct SearchResultCountSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .searchResultCount),
-                description: String(localized: .resultCountDescription)
+                .searchResultCount,
+                description: .resultCountDescription
             )
         }
     }
@@ -133,7 +133,7 @@ struct ThumbnailSettingsSection: View {
     var body: some View {
         Section {
             Picker(
-                String(localized: .thumbnailLoadTiming),
+                .thumbnailLoadTiming,
                 selection: $ehSetting.thumbnailLoadTiming
             ) {
                 ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
@@ -144,8 +144,8 @@ struct ThumbnailSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .thumbnailSettings),
-                description: String(localized: .thumbnailLoadTimingDescription)
+                .thumbnailSettings,
+                description: .thumbnailLoadTimingDescription
             )
         } footer: {
             Text(ehSetting.thumbnailLoadTiming.description)
