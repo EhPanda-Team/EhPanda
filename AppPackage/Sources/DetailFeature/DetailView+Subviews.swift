@@ -20,7 +20,7 @@ struct DescriptionSection: View {
         ),
         DescScrollInfo(
             title: .RLocalizable.language,
-            description: galleryDetail.language.value,
+            description: String(localized: galleryDetail.language.value),
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
