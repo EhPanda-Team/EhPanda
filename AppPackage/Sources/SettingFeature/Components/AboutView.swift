@@ -60,23 +60,23 @@ struct AboutView: View {
     private let contacts: [Info] = {[
         .init(
             urlString: String(localized: .Constant.contactWebsite),
-            text: String(localized: .website)
+            text: .website
         ),
         .init(
             urlString: String(localized: .Constant.contactGitHub),
-            text: String(localized: .Constant.contactGitHubLink)
+            text: .Constant.contactGitHubLink
         ),
         .init(
             urlString: String(localized: .Constant.contactDiscord),
-            text: String(localized: .Constant.contactDiscordLink)
+            text: .Constant.contactDiscordLink
         ),
         .init(
             urlString: String(localized: .Constant.contactTelegram),
-            text: String(localized: .Constant.contactTelegramLink)
+            text: .Constant.contactTelegramLink
         ),
         .init(
             urlString: String(localized: .Constant.contactAltStoreLink),
-            text: String(localized: .altStoreSource)
+            text: .altStoreSource
         )
     ]}()
 
@@ -84,19 +84,19 @@ struct AboutView: View {
     private let specialThanks: [Info] = {[
         .init(
             urlString: String(localized: .Constant.specialThanksTaylorlannisterLink),
-            text: String(localized: .Constant.specialThanksTaylorlannister)
+            text: .Constant.specialThanksTaylorlannister
         ),
         .init(
             urlString: String(localized: .Constant.specialThanksLuminescentYqLink),
-            text: String(localized: .Constant.specialThanksLuminescentYq)
+            text: .Constant.specialThanksLuminescentYq
         ),
         .init(
             urlString: String(localized: .Constant.specialThanksCaxerxLink),
-            text: String(localized: .Constant.specialThanksCaxerx)
+            text: .Constant.specialThanksCaxerx
         ),
         .init(
             urlString: String(localized: .Constant.specialThanksHonjowLink),
-            text: String(localized: .Constant.specialThanksHonjow)
+            text: .Constant.specialThanksHonjow
         )
     ]}()
 
@@ -104,23 +104,23 @@ struct AboutView: View {
     private let codeLevelContributors: [Info] = {[
         .init(
             urlString: String(localized: .Constant.codeLevelContributorVvbbnn00Link),
-            text: String(localized: .Constant.codeLevelContributorVvbbnn00)
+            text: .Constant.codeLevelContributorVvbbnn00
         ),
         .init(
             urlString: String(localized: .Constant.codeLevelContributorKaed3MiLink),
-            text: String(localized: .Constant.codeLevelContributorKaed3Mi)
+            text: .Constant.codeLevelContributorKaed3Mi
         ),
         .init(
             urlString: String(localized: .Constant.codeLevelContributorAalberrtyLink),
-            text: String(localized: .Constant.codeLevelContributorAalberrty)
+            text: .Constant.codeLevelContributorAalberrty
         ),
         .init(
             urlString: String(localized: .Constant.codeLevelContributorJimmyPrimeLink),
-            text: String(localized: .Constant.codeLevelContributorJimmyPrime)
+            text: .Constant.codeLevelContributorJimmyPrime
         ),
         .init(
             urlString: String(localized: .Constant.codeLevelContributorXioxinLink),
-            text: String(localized: .Constant.codeLevelContributorXioxin)
+            text: .Constant.codeLevelContributorXioxin
         )
     ]}()
 
@@ -128,19 +128,19 @@ struct AboutView: View {
     private let translationContributors: [Info] = {[
         .init(
             urlString: String(localized: .Constant.translationContributorNebulosaCatLink),
-            text: String(localized: .Constant.translationContributorNebulosaCat)
+            text: .Constant.translationContributorNebulosaCat
         ),
         .init(
             urlString: String(localized: .Constant.translationContributorPaulHaeusslerLink),
-            text: String(localized: .Constant.translationContributorPaulHaeussler)
+            text: .Constant.translationContributorPaulHaeussler
         ),
         .init(
             urlString: String(localized: .Constant.translationContributorCaxerxLink),
-            text: String(localized: .Constant.translationContributorCaxerx)
+            text: .Constant.translationContributorCaxerx
         ),
         .init(
             urlString: String(localized: .Constant.translationContributorNeKoOuOLink),
-            text: String(localized: .Constant.translationContributorNeKoOuO)
+            text: .Constant.translationContributorNeKoOuO
         )
     ]}()
 
@@ -148,55 +148,55 @@ struct AboutView: View {
     private let acknowledgements: [Info] = {[
         .init(
             urlString: String(localized: .Constant.acknowledgementKannaLink),
-            text: String(localized: .Constant.acknowledgementKanna)
+            text: .Constant.acknowledgementKanna
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementColorfulLink),
-            text: String(localized: .Constant.acknowledgementColorful)
+            text: .Constant.acknowledgementColorful
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSwiftGenLink),
-            text: String(localized: .Constant.acknowledgementSwiftGen)
+            text: .Constant.acknowledgementSwiftGen
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementKingfisherLink),
-            text: String(localized: .Constant.acknowledgementKingfisher)
+            text: .Constant.acknowledgementKingfisher
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSwiftUIPagerLink),
-            text: String(localized: .Constant.acknowledgementSwiftUIPager)
+            text: .Constant.acknowledgementSwiftUIPager
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementWaterfallGridLink),
-            text: String(localized: .Constant.acknowledgementWaterfallGrid)
+            text: .Constant.acknowledgementWaterfallGrid
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSwiftyOpenCCLink),
-            text: String(localized: .Constant.acknowledgementSwiftyOpenCC)
+            text: .Constant.acknowledgementSwiftyOpenCC
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementUiImageColorsLink),
-            text: String(localized: .Constant.acknowledgementUiImageColors)
+            text: .Constant.acknowledgementUiImageColors
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSfSafeSymbolsLink),
-            text: String(localized: .Constant.acknowledgementSfSafeSymbols)
+            text: .Constant.acknowledgementSfSafeSymbols
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSystemNotificationLink),
-            text: String(localized: .Constant.acknowledgementSystemNotification)
+            text: .Constant.acknowledgementSystemNotification
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSwiftCommonMarkLink),
-            text: String(localized: .Constant.acknowledgementSwiftCommonMark)
+            text: .Constant.acknowledgementSwiftCommonMark
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementEhTagTranslationDatabaseLink),
-            text: String(localized: .Constant.acknowledgementEhTagTranslationDatabase)
+            text: .Constant.acknowledgementEhTagTranslationDatabase
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementTcaLink),
-            text: String(localized: .Constant.acknowledgementTca)
+            text: .Constant.acknowledgementTca
         )
     ]}()
 }
@@ -204,9 +204,9 @@ struct AboutView: View {
 // MARK: LinkRow
 private struct LinkRow: View {
     private let urlString: String
-    private let text: String
+    private let text: LocalizedStringResource
 
-    init(urlString: String, text: String) {
+    init(urlString: String, text: LocalizedStringResource) {
         self.urlString = urlString
         self.text = text
     }
@@ -231,7 +231,7 @@ private struct Info: Identifiable {
     var id: String { urlString }
 
     let urlString: String
-    let text: String
+    let text: LocalizedStringResource
 }
 
 struct EhPandaView_Previews: PreviewProvider {
