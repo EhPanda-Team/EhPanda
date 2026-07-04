@@ -6,7 +6,7 @@ import AppTools
 
 public enum DownloadValidationState: Equatable, Sendable {
     case valid
-    case missingFiles(String)
+    case missingFiles(LocalizedStringResource)
 }
 
 public struct DownloadFolderRecord: Equatable, Sendable {
