@@ -47,8 +47,8 @@ public struct NewDawnView: View {
             }
             VStack(spacing: 50) {
                 VStack(spacing: 10) {
-                    TextView(text: String(localized: .first), font: .largeTitle)
-                    TextView(text: String(localized: .second), font: .title2)
+                    TextView(text: .first, font: .largeTitle)
+                    TextView(text: .second, font: .title2)
                 }
                 TextView(text: greeting.gainContent ?? "", font: .title3, fontWeight: .bold)
             }
@@ -74,6 +74,12 @@ private struct TextView: View {
         self.text = text
         self.font = font
         self.fontWeight = fontWeight
+    }
+
+    // Resource overload for the static greeting lines; the `String` init above remains for the
+    // dynamic gain content.
+    init(text: LocalizedStringResource, font: Font, fontWeight: Font.Weight = .bold) {
+        self.init(text: String(localized: text), font: font, fontWeight: fontWeight)
     }
 
     var body: some View {
