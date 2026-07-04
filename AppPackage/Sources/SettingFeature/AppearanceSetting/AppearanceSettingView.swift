@@ -39,7 +39,7 @@ struct AppearanceSettingView: View {
         Form {
             Section {
                 Picker(
-                    String(localized: .theme),
+                    .theme,
                     selection: $preferredColorScheme
                 ) {
                     ForEach(PreferredColorScheme.allCases) { colorScheme in
@@ -59,7 +59,7 @@ struct AppearanceSettingView: View {
             }
             Section(.list) {
                 Picker(
-                    String(localized: .appearanceDisplayMode),
+                    .appearanceDisplayMode,
                     selection: $listDisplayMode,
                     content: {
                         ForEach(ListDisplayMode.allCases) { listMode in
@@ -75,7 +75,7 @@ struct AppearanceSettingView: View {
                 }
 
                 Picker(
-                    String(localized: .maximumNumberOfTags),
+                    .maximumNumberOfTags,
                     selection: $listTagsNumberMaximum
                 ) {
                     Text(.infite)
@@ -91,7 +91,7 @@ struct AppearanceSettingView: View {
             }
             Section(.gallery) {
                 Toggle(
-                    String(localized: .displaysJapaneseTitle),
+                    .displaysJapaneseTitle,
                     isOn: $displaysJapaneseTitle
                 )
             }

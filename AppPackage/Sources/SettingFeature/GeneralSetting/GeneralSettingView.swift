@@ -88,7 +88,7 @@ struct GeneralSettingView: View {
                 if enablesTagsExtension && !tagTranslatorEmpty {
                     Toggle(.translatesTags, isOn: $translatesTags)
                     Toggle(
-                        String(localized: .showsTagsSearchSuggestion),
+                        .showsTagsSearchSuggestion,
                         isOn: $showsTagsSearchSuggestion
                     )
                     Toggle(.showsImagesInTags, isOn: $showsImagesInTags)
@@ -106,7 +106,7 @@ struct GeneralSettingView: View {
                 }
                 if tagTranslatorHasCustomTranslations {
                     Button(
-                        String(localized: .removeCustomTranslations),
+                        .removeCustomTranslations,
                         role: .destructive, action: { store.send(.removeCustomTranslationsButtonTapped) }
                     )
                     .confirmationDialog(
@@ -116,18 +116,18 @@ struct GeneralSettingView: View {
             }
             Section(.navigation) {
                 Toggle(
-                    String(localized: .redirectsLinksToTheSelectedHost),
+                    .redirectsLinksToTheSelectedHost,
                     isOn: $redirectsLinksToSelectedHost
                 )
                 Toggle(
-                    String(localized: .detectsLinksFromClipboard),
+                    .detectsLinksFromClipboard,
                     isOn: $detectsLinksFromClipboard
                 )
             }
             Section(.security) {
                 HStack {
                     Picker(
-                        String(localized: .autoLock),
+                        .autoLock,
                         selection: $autoLockPolicy
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
