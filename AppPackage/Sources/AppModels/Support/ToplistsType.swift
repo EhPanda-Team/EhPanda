@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 public enum ToplistsType: Int, Codable, CaseIterable, Identifiable, Sendable {
@@ -10,16 +11,16 @@ public enum ToplistsType: Int, Codable, CaseIterable, Identifiable, Sendable {
 }
 
 extension ToplistsType {
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
         case .yesterday:
-            return String(localized: .toplistsTypeYesterday)
+            return .toplistsTypeYesterday
         case .pastMonth:
-            return String(localized: .toplistsTypePastMonth)
+            return .toplistsTypePastMonth
         case .pastYear:
-            return String(localized: .toplistsTypePastYear)
+            return .toplistsTypePastYear
         case .allTime:
-            return String(localized: .toplistsTypeAllTime)
+            return .toplistsTypeAllTime
         }
     }
     public var categoryIndex: Int {

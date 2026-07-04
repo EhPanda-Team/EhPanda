@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 public enum AppIconType: Int, Codable, Identifiable, CaseIterable, Sendable {
@@ -11,22 +12,22 @@ public enum AppIconType: Int, Codable, Identifiable, CaseIterable, Sendable {
 }
 
 extension AppIconType {
-    public var name: String {
+    public var name: LocalizedStringResource {
         switch self {
         case .default:
-            return String(localized: .appIconTypeDefault)
+            return .appIconTypeDefault
 
         case .ukiyoe:
-            return String(localized: .appIconTypeUkiyoe)
+            return .appIconTypeUkiyoe
 
         case .developer:
-            return String(localized: .appIconTypeDeveloper)
+            return .appIconTypeDeveloper
 
         case .standWithUkraine2022:
-            return String(localized: .appIconTypeStandWithUkraine2022)
+            return .appIconTypeStandWithUkraine2022
 
         case .notMyPresidnet:
-            return String(localized: .appIconTypeNotMyPresident)
+            return .appIconTypeNotMyPresident
         }
     }
 
