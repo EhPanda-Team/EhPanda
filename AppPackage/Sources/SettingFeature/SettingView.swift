@@ -164,22 +164,22 @@ private struct SettingRow: View {
 
 // MARK: Definition
 extension SettingReducer.RootScreen {
-    var value: String {
+    var value: LocalizedStringResource {
         switch self {
         case .account:
-            return String(localized: .settingStateRouteAccount)
+            return .settingStateRouteAccount
         case .general:
-            return String(localized: .settingStateRouteGeneral)
+            return .settingStateRouteGeneral
         case .appearance:
-            return String(localized: .settingStateRouteAppearance)
+            return .settingStateRouteAppearance
         case .download:
-            return String(localized: .settingStateRouteDownload)
+            return .settingStateRouteDownload
         case .reading:
-            return String(localized: .settingStateRouteReading)
+            return .settingStateRouteReading
         case .laboratory:
-            return String(localized: .settingStateRouteLaboratory)
+            return .settingStateRouteLaboratory
         case .about:
-            return String(localized: .settingStateRouteAbout)
+            return .settingStateRouteAbout
         }
     }
     var symbol: SFSymbol {
