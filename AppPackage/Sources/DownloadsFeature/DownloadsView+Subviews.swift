@@ -241,19 +241,15 @@ private extension DownloadPageStatus {
         .failed
     ]
 
-    var title: String {
+    func summaryTitle(count: Int) -> LocalizedStringResource {
         switch self {
         case .pending:
-            return String(localized: .pending)
+            return .pending(count: count)
         case .downloaded:
-            return String(localized: .downloaded)
+            return .downloaded(count: count)
         case .failed:
-            return String(localized: .failed)
+            return .failed(count: count)
         }
-    }
-
-    func summaryTitle(count: Int) -> String {
-        "\(title) (\(count))"
     }
 
     var symbol: SFSymbol {
