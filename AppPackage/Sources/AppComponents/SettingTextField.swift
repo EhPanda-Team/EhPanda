@@ -5,7 +5,7 @@ public struct SettingTextField: View {
 
     @Binding private var text: String
     private let title: LocalizedStringResource
-    private let promptText: String?
+    private let promptText: LocalizedStringResource?
     private let width: CGFloat?
     private let alignment: TextAlignment
     private let background: Color?
@@ -21,7 +21,7 @@ public struct SettingTextField: View {
 
     public init(
         text: Binding<String>, title: LocalizedStringResource,
-        promptText: String? = nil, width: CGFloat? = 50,
+        promptText: LocalizedStringResource? = nil, width: CGFloat? = 50,
         alignment: TextAlignment = .center, background: Color? = nil
     ) {
         _text = text

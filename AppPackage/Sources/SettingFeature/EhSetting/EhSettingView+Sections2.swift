@@ -88,7 +88,7 @@ struct RatingsSection: View {
                 SettingTextField(
                     text: $ehSetting.ratingsColor,
                     title: .ratingsColor,
-                    promptText: String(localized: .ratingsColorPrompt),
+                    promptText: .ratingsColorPrompt,
                     width: 80
                 )
                 .focused($isFocused)

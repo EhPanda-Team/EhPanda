@@ -56,12 +56,12 @@ public struct ReadingSettingView: View {
                 .disabled(readingDirection != .vertical)
                 ScaleFactorRow(
                     scaleFactor: $maximumScaleFactor,
-                    labelContent: String(localized: .maximumScaleFactor),
+                    labelContent: .maximumScaleFactor,
                     minFactor: 1.5, maxFactor: 10
                 )
                 ScaleFactorRow(
                     scaleFactor: $doubleTapScaleFactor,
-                    labelContent: String(localized: .doubleTapScaleFactor),
+                    labelContent: .doubleTapScaleFactor,
                     minFactor: 1.5, maxFactor: 5
                 )
             }
@@ -72,12 +72,12 @@ public struct ReadingSettingView: View {
 
 private struct ScaleFactorRow: View {
     @Binding private var scaleFactor: Double
-    private let labelContent: String
+    private let labelContent: LocalizedStringResource
     private let minFactor: Double
     private let maxFactor: Double
 
     init(
-        scaleFactor: Binding<Double>, labelContent: String,
+        scaleFactor: Binding<Double>, labelContent: LocalizedStringResource,
         minFactor: Double, maxFactor: Double
     ) {
         _scaleFactor = scaleFactor
