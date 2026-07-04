@@ -1,3 +1,4 @@
+import Foundation
 import Resources
 
 public enum TagNamespace: String, Codable, CaseIterable, Sendable {
@@ -59,20 +60,20 @@ extension TagNamespace {
         case .temp: return nil
         }
     }
-    public var value: String {
+    public var value: LocalizedStringResource {
         switch self {
-        case .reclass: return String(localized: .tagNamespaceReclass)
-        case .language: return String(localized: .tagNamespaceLanguage)
-        case .parody: return String(localized: .tagNamespaceParody)
-        case .character: return String(localized: .tagNamespaceCharacter)
-        case .group: return String(localized: .tagNamespaceGroup)
-        case .artist: return String(localized: .tagNamespaceArtist)
-        case .male: return String(localized: .tagNamespaceMale)
-        case .female: return String(localized: .tagNamespaceFemale)
-        case .mixed: return String(localized: .tagNamespaceMixed)
-        case .cosplayer: return String(localized: .tagNamespaceCosplayer)
-        case .other: return String(localized: .tagNamespaceOther)
-        case .temp: return String(localized: .tagNamespaceTemp)
+        case .reclass: return .tagNamespaceReclass
+        case .language: return .tagNamespaceLanguage
+        case .parody: return .tagNamespaceParody
+        case .character: return .tagNamespaceCharacter
+        case .group: return .tagNamespaceGroup
+        case .artist: return .tagNamespaceArtist
+        case .male: return .tagNamespaceMale
+        case .female: return .tagNamespaceFemale
+        case .mixed: return .tagNamespaceMixed
+        case .cosplayer: return .tagNamespaceCosplayer
+        case .other: return .tagNamespaceOther
+        case .temp: return .tagNamespaceTemp
         }
     }
 }
