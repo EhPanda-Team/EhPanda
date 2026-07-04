@@ -35,7 +35,7 @@ struct EhProfileSection: View {
                 }
 
                 Button(
-                    String(localized: .deleteProfile),
+                    .deleteProfile,
                     role: .destructive,
                     action: deleteDialogAction
                 )
@@ -78,7 +78,7 @@ struct ImageLoadSettingsSection: View {
     var body: some View {
         Section {
             Picker(
-                String(localized: .loadImagesThroughTheHathNetwork),
+                .loadImagesThroughTheHathNetwork,
                 selection: $ehSetting.loadThroughHathSetting
             ) {
                 ForEach(ehSetting.capableLoadThroughHathSettings) { setting in
@@ -88,7 +88,7 @@ struct ImageLoadSettingsSection: View {
             }
             .pickerStyle(.menu)
         } header: {
-            Text.ehSettingBoldHeader(String(localized: .imageLoadSettings))
+            Text.ehSettingBoldHeader(.imageLoadSettings)
         } footer: {
             Text(ehSetting.loadThroughHathSetting.description)
         }
@@ -128,15 +128,15 @@ struct ImageSizeSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .imageSizeSettings),
-                description: String(localized: .imageResolutionDescription)
+                .imageSizeSettings,
+                description: .imageResolutionDescription
             )
         }
 
         if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
             Section {
                 Toggle(
-                    String(localized: .useOriginalImages),
+                    .useOriginalImages,
                     isOn: useOriginalImagesBinding
                 )
             } header: {
@@ -179,8 +179,8 @@ struct GalleryNameDisplaySection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .galleryNameDisplay),
-                description: String(localized: .galleryNameDescription)
+                .galleryNameDisplay,
+                description: .galleryNameDescription
             )
         }
     }
@@ -201,8 +201,8 @@ struct ArchiverSettingsSection: View {
             .pickerStyle(.menu)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .archiverSettings),
-                description: String(localized: .archiverBehaviorDescription)
+                .archiverSettings,
+                description: .archiverBehaviorDescription
             )
         }
     }
@@ -221,8 +221,8 @@ struct FrontPageSettingsSection: View {
             CategoryView(bindings: categoryBindings)
         } header: {
             Text.ehSettingBoldHeader(
-                String(localized: .frontPageSettings),
-                description: String(localized: .galleryCategory)
+                .frontPageSettings,
+                description: .galleryCategory
             )
         }
 
@@ -241,7 +241,7 @@ struct FrontPageSettingsSection: View {
 
         Section {
             Toggle(
-                String(localized: .showSearchRangeIndicatorDescription),
+                .showSearchRangeIndicatorDescription,
                 isOn: $ehSetting.showSearchRangeIndicator
             )
         } header: {
@@ -292,11 +292,13 @@ struct ValuePicker: View {
 }
 
 extension Text {
-    static func ehSettingBoldHeader(_ title: String, description: String? = nil) -> Self {
-        var result = AttributedString(title)
+    static func ehSettingBoldHeader(
+        _ title: LocalizedStringResource, description: LocalizedStringResource? = nil
+    ) -> Self {
+        var result = AttributedString(String(localized: title))
         result.font = .body.weight(.bold)
         if let description {
-            var descriptionString = AttributedString("\n\(description)")
+            var descriptionString = AttributedString("\n\(String(localized: description))")
             descriptionString.font = .subheadline.weight(.regular)
             result.append(descriptionString)
         }
