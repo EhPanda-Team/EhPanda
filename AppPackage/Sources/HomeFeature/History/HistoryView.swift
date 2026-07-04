@@ -39,7 +39,7 @@ struct HistoryView: View {
             },
             downloadBadges: store.downloadBadges
         )
-        .searchable(text: $store.keyword, prompt: String(localized: .filter))
+        .searchable(text: $store.keyword, prompt: .filter)
         .onAppear {
             store.send(.onAppear)
             if store.galleries.isEmpty {
