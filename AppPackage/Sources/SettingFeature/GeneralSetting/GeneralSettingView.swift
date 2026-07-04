@@ -80,7 +80,8 @@ struct GeneralSettingView: View {
                             .opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
                     }
 
-                    Toggle("", isOn: $enablesTagsExtension)
+                    Toggle(.enablesTagsExtension, isOn: $enablesTagsExtension)
+                        .labelsHidden()
                         .frame(width: 50)
                         .padding(.leading, 20)
                 }

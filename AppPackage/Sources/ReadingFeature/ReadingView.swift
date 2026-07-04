@@ -337,7 +337,7 @@ extension ReadingView {
 struct ReadingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            Text("")
+            Color.clear
                 .fullScreenCover(isPresented: .constant(true)) {
                     ReadingView(
                         store: .init(initialState: .init(), reducer: ReadingReducer.init),

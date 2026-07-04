@@ -117,10 +117,18 @@ private struct ArchiveFundsView: View {
 
     var body: some View {
         HStack(spacing: 20) {
-            Label("\(galleryPoints)", systemSymbol: .gCircleFill)
-            Label("\(credits)", systemSymbol: .cCircleFill)
+            Label {
+                Text(galleryPoints, format: .number)
+            } icon: {
+                Image(systemSymbol: .gCircleFill)
+            }
+            Label {
+                Text(credits, format: .number)
+            } icon: {
+                Image(systemSymbol: .cCircleFill)
+            }
         }
-        .font(.headline).lineLimit(1).padding()
+        .font(.headline.monospacedDigit()).lineLimit(1).padding()
     }
 }
 
