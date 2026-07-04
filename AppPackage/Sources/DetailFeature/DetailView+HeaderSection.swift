@@ -88,7 +88,7 @@ struct HeaderSection: View {
                     Section {
                         Button(action: manageFoldersAction) {
                             Label(
-                                String(localized: .RLocalizable.manageFolders),
+                                .RLocalizable.manageFolders,
                                 systemSymbol: .folderBadgeGearshape
                             )
                         }
@@ -98,7 +98,7 @@ struct HeaderSection: View {
                         if downloadFolders.isEmpty {
                             Button(action: createDefaultFolderAction) {
                                 Label(
-                                    String(localized: .createDefaultFolder),
+                                    .createDefaultFolder,
                                     systemSymbol: .folderBadgePlus
                                 )
                             }
