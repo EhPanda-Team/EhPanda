@@ -47,7 +47,7 @@ struct PreviewsView: View {
                         } label: {
                             PreviewImageView(originalURL: displayPreviewURLs[index])
                         }
-                        Text("\(index)")
+                        Text(index, format: .number)
                             .font(DeviceUtil.isPadWidth ? .callout : .caption)
                             .foregroundColor(.secondary)
                     }

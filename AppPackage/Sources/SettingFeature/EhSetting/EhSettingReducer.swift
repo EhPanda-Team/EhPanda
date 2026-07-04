@@ -83,8 +83,8 @@ public struct EhSettingReducer: Sendable {
                 return .none
 
             case .deleteProfileButtonTapped:
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
+                state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .RLocalizable.delete)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDeleteProfile) {
                         TextState(localized: .RLocalizable.delete)

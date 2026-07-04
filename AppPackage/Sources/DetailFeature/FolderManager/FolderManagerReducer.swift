@@ -84,8 +84,8 @@ public struct FolderManagerReducer: Sendable {
                 return .none
 
             case .deleteButtonTapped(let folder):
-                state.confirmationDialog = ConfirmationDialogState {
-                    TextState("")
+                state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .RLocalizable.delete)
                 } actions: {
                     ButtonState(role: .destructive, action: .confirmDelete(folder)) {
                         TextState(localized: .RLocalizable.delete)

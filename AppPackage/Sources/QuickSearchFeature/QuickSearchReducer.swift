@@ -89,8 +89,8 @@ public struct QuickSearchReducer: Sendable {
                     return .none
 
                 case .deleteWordButtonTapped(let word):
-                    state.confirmationDialog = ConfirmationDialogState {
-                        TextState("")
+                    state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                        TextState(localized: .RLocalizable.delete)
                     } actions: {
                         ButtonState(role: .destructive, action: .confirmDelete(word)) {
                             TextState(localized: .RLocalizable.delete)

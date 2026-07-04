@@ -62,6 +62,23 @@ private struct SuggestionCell: View {
         return showsImages ? value : value.emojisRipped
     }
 
+    // Two-line label for the search-completion suggestion, built as an `AttributedString` rather
+    // than an interpolated `Text("\(…)\n\(…)")` so Xcode does not extract a "%@\n%@" catalog key.
+    // Markdown is parsed inline (matching `Text(_ key: LocalizedStringKey)` above) since the tag
+    // strings are dynamic content, not localization keys.
+    private var searchCompletionLabel: AttributedString {
+        var label = Self.markdown(displayValue)
+        label.append(AttributedString("\n"))
+        label.append(Self.markdown(suggestion.displayKey))
+        return label
+    }
+    private static func markdown(_ string: String) -> AttributedString {
+        (try? AttributedString(
+            markdown: string,
+            options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+        )) ?? AttributedString(string)
+    }
+
     var body: some View {
         if DeviceUtil.isPhone {
             HStack(spacing: 20) {
@@ -96,7 +113,7 @@ private struct SuggestionCell: View {
             .contentShape(.rect)
             .onTapGesture(perform: action)
         } else {
-            Text("\(Text(displayValue.localizedKey))\n\(Text(suggestion.displayKey.localizedKey))")
+            Text(searchCompletionLabel)
                 .searchCompletion(suggestion.tag.searchKeyword)
         }
     }
