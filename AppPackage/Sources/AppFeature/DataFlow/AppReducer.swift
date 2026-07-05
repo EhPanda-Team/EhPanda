@@ -208,7 +208,9 @@ struct AppReducer {
                         if !state.searchRootState.path.isEmpty {
                             state.searchRootState.path.removeAll()
                         } else {
-                            effects.append(.send(.searchRoot(.fetchDatabaseInfos)))
+                            // Keywords/quick-search words are live via @Shared now; re-tapping the
+                            // Search tab at its root refreshes the recently-viewed galleries instead.
+                            effects.append(.send(.searchRoot(.fetchHistoryGalleries)))
                         }
                     case .downloads:
                         if !state.downloadsState.path.isEmpty {
