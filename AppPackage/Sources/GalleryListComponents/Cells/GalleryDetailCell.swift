@@ -98,9 +98,9 @@ private struct GalleryDetailCellContent: View {
                 if gallery.uploader != nil || gallery.language != nil {
                     HStack {
                         gallery.uploader.map(Text.init)
-                        
+
                         Spacer(minLength: 8)
-                        
+
                         (gallery.language?.value).map(Text.init)
                     }
                     .foregroundStyle(.secondary)

@@ -155,10 +155,6 @@ struct AboutView: View {
             text: .Constant.acknowledgementColorful
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementSwiftGenLink),
-            text: .Constant.acknowledgementSwiftGen
-        ),
-        .init(
             urlString: String(localized: .Constant.acknowledgementKingfisherLink),
             text: .Constant.acknowledgementKingfisher
         ),
