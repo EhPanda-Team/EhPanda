@@ -6,11 +6,9 @@ import ComposableArchitecture
 import AppTools
 import AppDelegateClient
 import LibraryClient
-import DatabaseClient
 import DownloadClient
 import BackgroundProcessingClient
 import CookieClient
-import MigrationFeature
 import OSLogExt
 
 private let logger = Logger(category: .init(describing: AppDelegateReducer.self))
@@ -18,17 +16,12 @@ private let logger = Logger(category: .init(describing: AppDelegateReducer.self)
 @Reducer
 struct AppDelegateReducer {
     @ObservableState
-    struct State: Equatable {
-        var migrationState = MigrationReducer.State()
-    }
+    struct State: Equatable {}
 
     enum Action: Equatable {
         case onLaunchFinish
-
-        case migration(MigrationReducer.Action)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
     @Dependency(\.cookieClient) private var cookieClient
 
@@ -44,16 +37,10 @@ struct AppDelegateReducer {
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),
                     .run(operation: { _ in cookieClient.ignoreOffensive() }),
-                    .run(operation: { _ in cookieClient.fulfillAnotherHostField() }),
-                    .send(.migration(.prepareDatabase))
+                    .run(operation: { _ in cookieClient.fulfillAnotherHostField() })
                 )
-
-            case .migration:
-                return .none
             }
         }
-
-        Scope(state: \.migrationState, action: \.migration, child: MigrationReducer.init)
     }
 }
 

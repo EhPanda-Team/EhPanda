@@ -89,7 +89,6 @@ enum Module: String {
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
     case logsClient = "LogsClient"
-    case migrationFeature = "MigrationFeature"
     case networkingFeature = "NetworkingFeature"
     case openCCExt = "OpenCCExt"
     case osLogExt = "OSLogExt"
@@ -272,7 +271,6 @@ let targets: [PackageDescription.Target] = [
             .module(.homeFeature),
             .module(.imageClient),
             .module(.libraryClient),
-            .module(.migrationFeature),
             .module(.networkingFeature),
             .module(.osLogExt),
             .module(.parserFeature),
@@ -546,18 +544,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.commonMarkExt)
         ],
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .migrationFeature,
-        dependencies: [
-            .module(.appComponents),
-            .module(.appModels),
-            .module(.databaseClient),
-            .module(.resources),
-            .targetDependency(.composableArchitecture)
-        ],
-        resources: [.process(.resources)],
         plugins: swiftLintPlugins
     ),
     .target(

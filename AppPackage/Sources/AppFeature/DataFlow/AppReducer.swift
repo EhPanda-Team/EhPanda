@@ -149,20 +149,22 @@ struct AppReducer {
                 }
 
             case .appDelegate(.onLaunchFinish):
-                return .send(.appLogsPump(.startPump))
-
-            case .appDelegate(.migration(.onDatabasePreparationSuccess)):
+                // No database preparation to await anymore: import any launch-automation cookies and
+                // load the persisted settings straight away.
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
-                return .run { send in
-                    if let loginCookies {
-                        cookieClient.importAutomationCookies(
-                            memberID: loginCookies.memberID,
-                            passHash: loginCookies.passHash,
-                            igneous: loginCookies.igneous
-                        )
+                return .merge(
+                    .send(.appLogsPump(.startPump)),
+                    .run { send in
+                        if let loginCookies {
+                            cookieClient.importAutomationCookies(
+                                memberID: loginCookies.memberID,
+                                passHash: loginCookies.passHash,
+                                igneous: loginCookies.igneous
+                            )
+                        }
+                        await send(.setting(.loadUserSettings))
                     }
-                    await send(.setting(.loadUserSettings))
-                }
+                )
 
             case .appDelegate:
                 return .none
