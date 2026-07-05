@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import AppModels
+import Sharing
 import AppTools
 import HapticsClient
 import DatabaseClient
@@ -72,7 +73,8 @@ public struct PopularReducer: Sendable {
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
+                @Shared(.globalFilter) var storedFilter
+                let filter = storedFilter
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
                     await send(.fetchGalleriesDone(response))

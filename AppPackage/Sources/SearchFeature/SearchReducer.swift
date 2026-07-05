@@ -1,6 +1,7 @@
 import AppTools
 import ComposableArchitecture
 import AppModels
+import Sharing
 import Foundation
 import HapticsClient
 import DatabaseClient
@@ -123,7 +124,8 @@ public struct SearchReducer: Sendable {
                 }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                let filter = databaseClient.fetchFilterSynchronously(range: .search)
+                @Shared(.searchFilter) var storedFilter
+                let filter = storedFilter
                 return .merge(
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
@@ -159,7 +161,8 @@ public struct SearchReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .search)
+                @Shared(.searchFilter) var storedFilter
+                let filter = storedFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let response = await MoreSearchGalleriesRequest(
                         keyword: lastKeyword, filter: filter, lastID: lastID

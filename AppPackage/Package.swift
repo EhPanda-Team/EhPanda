@@ -565,9 +565,9 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
-            .module(.databaseClient),
             .module(.resources),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
@@ -702,7 +702,8 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
@@ -731,7 +732,8 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUIPager),
-            .targetDependency(.uiImageColors)
+            .targetDependency(.uiImageColors),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
