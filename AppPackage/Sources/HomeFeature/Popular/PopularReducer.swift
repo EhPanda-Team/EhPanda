@@ -90,7 +90,7 @@ public struct PopularReducer: Sendable {
                         return .none
                     }
                     state.galleries = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }

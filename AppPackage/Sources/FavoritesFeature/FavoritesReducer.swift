@@ -188,7 +188,7 @@ public struct FavoritesReducer: Sendable {
                     state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
                     state.rawGalleries[targetFavIndex] = galleries
                     state.sortOrder = fetchResult.sortOrder
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }
@@ -224,9 +224,7 @@ public struct FavoritesReducer: Sendable {
                     state.insertGalleries(index: targetFavIndex, galleries: galleries)
                     state.sortOrder = fetchResult.sortOrder
 
-                    var effects: [Effect<Action>] = [
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
-                    ]
+                    var effects: [Effect<Action>] = []
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
@@ -275,7 +273,7 @@ public struct FavoritesReducer: Sendable {
                     state.rawPageNumber[targetFavIndex] = response.pageNumber
                     state.rawDateSeekNavigation[targetFavIndex] = response.dateSeekNavigation
                     state.rawGalleries[targetFavIndex] = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
                 }

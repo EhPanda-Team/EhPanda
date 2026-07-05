@@ -198,10 +198,7 @@ struct AppRouteReducer {
                 state.toast = nil
                 switch result {
                 case .success(let gallery):
-                    return .run { send in
-                        await databaseClient.cacheGalleries([gallery])
-                        await send(.handleGalleryLink(url, gallery))
-                    }
+                    return .send(.handleGalleryLink(url, gallery))
                 case .failure:
                     // Let the loading toast animate out before showing the error toast.
                     return .run { send in

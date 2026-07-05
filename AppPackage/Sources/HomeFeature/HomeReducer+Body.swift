@@ -115,7 +115,7 @@ extension HomeReducer {
                         return .none
                     }
                     state.setPopularGalleries(galleries)
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.popularLoadingState = .failed(error)
                 }
@@ -140,7 +140,7 @@ extension HomeReducer {
                         return .none
                     }
                     state.setFrontpageGalleries(galleries)
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.frontpageLoadingState = .failed(error)
                 }
@@ -163,7 +163,7 @@ extension HomeReducer {
                         return .none
                     }
                     state.toplistsGalleries[index] = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.toplistsLoadingState[index] = .failed(error)
                 }

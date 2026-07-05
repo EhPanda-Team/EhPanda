@@ -161,7 +161,7 @@ public struct ToplistsReducer: Sendable {
                     }
                     state.rawPageNumber[type] = pageNumber
                     state.rawGalleries[type] = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.rawLoadingState[type] = .failed(error)
                 }
@@ -190,9 +190,7 @@ public struct ToplistsReducer: Sendable {
                     state.rawPageNumber[type] = pageNumber
                     state.insertGalleries(type: type, galleries: galleries)
 
-                    var effects: [Effect<Action>] = [
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
-                    ]
+                    var effects: [Effect<Action>] = []
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
