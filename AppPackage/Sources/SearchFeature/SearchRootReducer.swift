@@ -3,10 +3,10 @@ import AppModels
 import Sharing
 import AppTools
 import HapticsClient
-import DatabaseClient
 import DeviceClient
 import FiltersFeature
 import QuickSearchFeature
+import NetworkingFeature
 import DetailFeature
 
 @Reducer
@@ -81,10 +81,9 @@ public struct SearchRootReducer: Sendable {
         case appendHistoryKeyword(String)
         case removeHistoryKeyword(String)
         case fetchHistoryGalleries
-        case fetchHistoryGalleriesDone([Gallery])
+        case fetchHistoryGalleriesDone(Result<[Gallery], AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -158,13 +157,23 @@ public struct SearchRootReducer: Sendable {
                 return .none
 
             case .fetchHistoryGalleries:
+                // "Recently seen" suggestions: the 10 most-recent history entries, metadata
+                // refetched on demand since no gallery snapshot is persisted.
+                @Shared(.galleryHistory) var galleryHistory
+                let pairs = galleryHistory.prefix(10).map { (gid: $0.gid, token: $0.token) }
+                guard !pairs.isEmpty else {
+                    state.historyGalleries = []
+                    return .none
+                }
                 return .run { send in
-                    let historyGalleries = await databaseClient.fetchHistoryGalleries(fetchLimit: 10)
-                    await send(.fetchHistoryGalleriesDone(historyGalleries))
+                    let response = await GalleriesMetadataRequest(gidList: pairs).response()
+                    await send(.fetchHistoryGalleriesDone(response))
                 }
 
-            case .fetchHistoryGalleriesDone(let galleries):
-                state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
+            case .fetchHistoryGalleriesDone(let result):
+                if case .success(let galleries) = result {
+                    state.historyGalleries = galleries
+                }
                 return .none
             }
         }
