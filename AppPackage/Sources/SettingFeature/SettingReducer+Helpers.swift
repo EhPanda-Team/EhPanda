@@ -9,14 +9,11 @@ import NetworkingFeature
 private let logger = Logger(category: .init(describing: SettingReducer.self))
 
 extension SettingReducer {
-    func handleLoadUserSettings(
-        _ state: inout State, appEnv: AppEnv
-    ) -> Effect<Action> {
-        // `setting` loads from persisted storage into its working copy; `user` is `@Shared` and
-        // auto-loads. `tagTranslator` still comes from the database here (reworked in a later step).
+    func handleLoadUserSettings(_ state: inout State) -> Effect<Action> {
+        // `setting` loads from persisted storage into its working copy; `user` and `tagTranslator`
+        // are `@Shared` and auto-load, so nothing to copy for them here.
         @Shared(.setting) var storedSetting
         state.setting = storedSetting
-        state.tagTranslator = appEnv.tagTranslator
         var effects: [Effect<Action>] = [
             .send(.syncAppIconType),
             .send(.loadUserSettingsDone),
@@ -88,20 +85,15 @@ extension SettingReducer {
         else { return .none }
         state.tagTranslatorLoadingState = .loading
 
-        var databaseEffect: Effect<Action>?
+        // A language switch resets the table; the write-through to `@Shared` is the assignment
+        // itself (no separate sync step). The subsequent request fetches the new language's data.
         if state.tagTranslator.language != language {
-            state.tagTranslator = TagTranslator(language: language)
-            databaseEffect = .send(.syncTagTranslator)
+            state.$tagTranslator.withLock { $0 = TagTranslator(language: language) }
         }
         let updatedDate = state.tagTranslator.updatedDate
-        let requestEffect = Effect.run { send in
+        return .run { send in
             let response = await TagTranslatorRequest(language: language, updatedDate: updatedDate).response()
             await send(Action.fetchTagTranslatorDone(response))
-        }
-        if let databaseEffect = databaseEffect {
-            return .merge(databaseEffect, requestEffect)
-        } else {
-            return requestEffect
         }
     }
 

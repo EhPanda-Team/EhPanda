@@ -95,10 +95,7 @@ extension SettingReducer {
         Reduce { state, action in
             switch action {
             case .binding:
-                return .merge(
-                    .send(.syncSetting),
-                    .send(.syncTagTranslator)
-                )
+                return .send(.syncSetting)
 
             case .settingRowTapped(let screen):
                 state.path.appendGuardingDuplicate(screen.pathElement)
@@ -148,19 +145,10 @@ extension SettingReducer {
                 @Shared(.setting) var storedSetting
                 $storedSetting.withLock { $0 = state.setting }
                 return .none
-            case .syncTagTranslator:
-                return .run { [state] _ in
-                    await databaseClient.updateTagTranslator(state.tagTranslator)
-                }
 
             case .loadUserSettings:
-                return .run { send in
-                    let appEnv = await databaseClient.fetchAppEnv()
-                    await send(.onLoadUserSettings(appEnv))
-                }
-
-            case .onLoadUserSettings(let appEnv):
-                return handleLoadUserSettings(&state, appEnv: appEnv)
+                // `setting`/`user`/`tagTranslator` are all @Shared (auto-loaded); no database read.
+                return handleLoadUserSettings(&state)
 
             case .loadUserSettingsDone:
                 state.hasLoadedInitialSetting = true
@@ -232,8 +220,7 @@ extension SettingReducer {
                 state.tagTranslatorLoadingState = .idle
                 switch result {
                 case .success(let tagTranslator):
-                    state.tagTranslator = tagTranslator
-                    return .send(.syncTagTranslator)
+                    state.$tagTranslator.withLock { $0 = tagTranslator }
                 case .failure(let error):
                     state.tagTranslatorLoadingState = .failed(error)
                 }
@@ -291,9 +278,11 @@ extension SettingReducer {
                 }
 
             case .path(.element(id: _, action: .general(.onRemoveCustomTranslations))):
-                state.tagTranslator.hasCustomTranslations = false
-                state.tagTranslator.translations = .init()
-                return .send(.syncTagTranslator)
+                state.$tagTranslator.withLock {
+                    $0.hasCustomTranslations = false
+                    $0.translations = .init()
+                }
+                return .none
 
             case .igneousRefreshed:
                 return .none
