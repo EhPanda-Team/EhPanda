@@ -85,14 +85,9 @@ extension DetailReducer {
                         state.pendingDeepLink = nil
                         switch deepLink {
                         case .reading:
-                            // The linking comment already wrote the reading progress; open the reader
-                            // after a short beat so that write has landed before ReadingView appears.
-                            effects.append(
-                                .run { send in
-                                    try await Task.sleep(for: .milliseconds(750))
-                                    await send(.presentReading)
-                                }
-                            )
+                            // The linking comment already wrote the reading progress synchronously to
+                            // `@Shared(.galleryHistory)`, so the reader can open immediately.
+                            effects.append(.send(.presentReading))
                         case .comments(let commentID):
                             if let galleryURL = state.gallery.galleryURL {
                                 effects.append(.send(.delegate(.pushComments(

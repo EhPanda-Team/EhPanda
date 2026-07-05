@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import Sharing
 import ComposableArchitecture
 import AppTools
 
@@ -9,9 +10,13 @@ extension ReadingReducer {
         Reduce { state, action in
             switch action {
             case .syncReadingProgress(let progress):
-                return .run { [state] _ in
-                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.updateReadingProgress(
+                        gid: state.gallery.id, token: state.gallery.token, progress: progress, date: date.now
+                    )
                 }
+                return .none
 
             case .syncPreviewURLs(let previewURLs):
                 guard !state.isOffline else { return .none }
@@ -70,6 +75,9 @@ extension ReadingReducer {
             state.gallery = gallery
             state.language = databaseClient.fetchGalleryDetail(gid: state.gallery.id)?.language
         }
+        // Resume position comes from the persisted browsing history, keyed by gid.
+        @Shared(.galleryHistory) var galleryHistory
+        state.readingProgress = galleryHistory.readingProgress(gid: state.gallery.id)
         return .run { [state] send in
             guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
             await send(.fetchDatabaseInfosDone(dbState))
@@ -87,7 +95,6 @@ extension ReadingReducer {
             state.thumbnailURLs = galleryState.thumbnailURLs
             state.originalImageURLs = galleryState.originalImageURLs
         }
-        state.readingProgress = galleryState.readingProgress
         state.databaseLoadingState = .idle
         return .none
     }
