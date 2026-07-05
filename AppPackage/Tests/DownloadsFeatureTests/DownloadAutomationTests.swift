@@ -172,7 +172,7 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
 
     @MainActor
     @Test
-    func testDatabasePreparationImportsAutomationCookiesBeforeLoadingSettings() async {
+    func testLaunchFinishImportsAutomationCookiesBeforeLoadingSettings() async {
         let cookieClient = CookieClient.testing()
         let automation = AppLaunchAutomation(
             initialTab: nil,
@@ -202,13 +202,22 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.fileClient = .noop
                 $0.dfClient = .noop
                 $0.urlClient = .noop
+                $0.logsClient = .noop
+                $0.continuousClock = TestClock()
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
             }
         )
         store.exhaustivity = .off
 
-        await store.send(.appDelegate(.migration(.onDatabasePreparationSuccess)))
-        #expect(cookieClient.shouldFetchIgneous)
+        // The launch effect imports the automation cookies and only then sends
+        // loadUserSettings, so receiving it proves the import already ran. Assert
+        // on `didLogin` (backed by the imported e-hentai auth cookies) rather than
+        // the transient `shouldFetchIgneous`, which loadUserSettings itself consumes
+        // by kicking off an igneous fetch. Left in flight (with the log pump) at
+        // deinit: the login cascade's network effects, which the store cancels.
+        await store.send(.appDelegate(.onLaunchFinish))
         await store.receive(\.setting.loadUserSettings)
+        #expect(cookieClient.didLogin)
     }
 
     @MainActor
