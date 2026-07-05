@@ -347,6 +347,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
+            .module(.openCCExt),
             .targetDependency(.composableArchitecture)
         ],
         plugins: swiftLintPlugins
@@ -430,7 +431,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .module(.openCCExt),
             .module(.osLogExt),
             .module(.parserFeature),
             .targetDependency(.composableArchitecture),
