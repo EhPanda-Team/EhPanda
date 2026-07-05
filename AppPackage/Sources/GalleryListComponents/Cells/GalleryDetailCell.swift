@@ -95,15 +95,18 @@ private struct GalleryDetailCellContent: View {
                     .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack {
-                    Text(gallery.uploader ?? "")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Text(gallery.language?.value ?? "")
+                if gallery.uploader != nil || gallery.language != nil {
+                    HStack {
+                        gallery.uploader.map(Text.init)
+                        
+                        Spacer(minLength: 8)
+                        
+                        (gallery.language?.value).map(Text.init)
+                    }
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .lineLimit(1)
                 }
-                .foregroundStyle(.secondary)
-                .font(.subheadline)
-                .lineLimit(1)
 
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
