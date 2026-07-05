@@ -27,6 +27,7 @@ extension SettingReducer {
                     .send(.syncSetting)
                 ]
                 if state.setting.enablesTagsExtension {
+                    effects.append(.send(.rebuildTagTranslator))
                     effects.append(.send(.fetchTagTranslator))
                 }
                 return .merge(effects)
@@ -220,10 +221,31 @@ extension SettingReducer {
                 state.tagTranslatorLoadingState = .idle
                 switch result {
                 case .success(let tagTranslator):
-                    state.$tagTranslator.withLock { $0 = tagTranslator }
+                    state.tagTranslator = tagTranslator
+                    state.$tagTranslatorInfo.withLock {
+                        $0 = TagTranslatorInfo(
+                            language: tagTranslator.language,
+                            updatedDate: tagTranslator.updatedDate,
+                            hasCustomTranslations: tagTranslator.hasCustomTranslations
+                        )
+                    }
                 case .failure(let error):
                     state.tagTranslatorLoadingState = .failed(error)
                 }
+                return .none
+
+            // Offline rebuild of the in-memory table from the cached raw JSON described by the
+            // persisted metadata (custom import → Application Support, remote → Caches).
+            case .rebuildTagTranslator:
+                let info = state.tagTranslatorInfo
+                return .run { send in
+                    if let tagTranslator = fileClient.loadCachedTagTranslator(info) {
+                        await send(.tagTranslatorRebuilt(tagTranslator))
+                    }
+                }
+
+            case .tagTranslatorRebuilt(let tagTranslator):
+                state.tagTranslator = tagTranslator
                 return .none
 
             case .fetchEhProfileIndex:
@@ -277,10 +299,9 @@ extension SettingReducer {
                 }
 
             case .path(.element(id: _, action: .general(.onRemoveCustomTranslations))):
-                state.$tagTranslator.withLock {
-                    $0.hasCustomTranslations = false
-                    $0.translations = .init()
-                }
+                // Drop the custom table from memory and metadata; the launch/remote flow refills it.
+                state.tagTranslator = TagTranslator()
+                state.$tagTranslatorInfo.withLock { $0.hasCustomTranslations = false }
                 return .none
 
             case .igneousRefreshed:

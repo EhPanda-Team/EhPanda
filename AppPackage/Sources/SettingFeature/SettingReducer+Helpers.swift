@@ -10,8 +10,8 @@ private let logger = Logger(category: .init(describing: SettingReducer.self))
 
 extension SettingReducer {
     func handleLoadUserSettings(_ state: inout State) -> Effect<Action> {
-        // `setting` loads from persisted storage into its working copy; `user` and `tagTranslator`
-        // are `@Shared` and auto-load, so nothing to copy for them here.
+        // `setting` loads from persisted storage into its working copy; `user` is `@Shared` and
+        // auto-loads. `tagTranslator` is in-memory and rebuilt from its cache below.
         @Shared(.setting) var storedSetting
         state.setting = storedSetting
         var effects: [Effect<Action>] = [
@@ -38,6 +38,8 @@ extension SettingReducer {
             ])
         }
         if state.setting.enablesTagsExtension {
+            // Rebuild the table from cache first (offline, immediate), then check for a newer remote.
+            effects.append(.send(.rebuildTagTranslator))
             effects.append(.send(.fetchTagTranslator))
         }
         return .merge(effects)
@@ -80,20 +82,32 @@ extension SettingReducer {
 
     func handleFetchTagTranslator(_ state: inout State) -> Effect<Action> {
         guard state.tagTranslatorLoadingState != .loading,
-              !state.tagTranslator.hasCustomTranslations,
+              !state.tagTranslatorInfo.hasCustomTranslations,
               let language = TranslatableLanguage.current
         else { return .none }
         state.tagTranslatorLoadingState = .loading
 
-        // A language switch resets the table; the write-through to `@Shared` is the assignment
-        // itself (no separate sync step). The subsequent request fetches the new language's data.
-        if state.tagTranslator.language != language {
-            state.$tagTranslator.withLock { $0 = TagTranslator(language: language) }
+        // A language switch resets the in-memory table and its persisted metadata; the request then
+        // downloads the new language's data from scratch.
+        if state.tagTranslatorInfo.language != language {
+            state.tagTranslator = TagTranslator(language: language)
+            state.$tagTranslatorInfo.withLock { $0 = TagTranslatorInfo(language: language) }
         }
-        let updatedDate = state.tagTranslator.updatedDate
+        let updatedDate = state.tagTranslatorInfo.updatedDate
         return .run { send in
-            let response = await TagTranslatorRequest(language: language, updatedDate: updatedDate).response()
-            await send(Action.fetchTagTranslatorDone(response))
+            // Download the raw JSON, then let `FileClient` decode/convert/cache it into a translator.
+            switch await TagTranslatorRequest(language: language, updatedDate: updatedDate).response() {
+            case .success(let payload):
+                if let tagTranslator = fileClient.cacheAndBuildRemoteTagTranslator(
+                    payload.data, language, payload.updatedDate
+                ) {
+                    await send(.fetchTagTranslatorDone(.success(tagTranslator)))
+                } else {
+                    await send(.fetchTagTranslatorDone(.failure(.parseFailed)))
+                }
+            case .failure(let error):
+                await send(.fetchTagTranslatorDone(.failure(error)))
+            }
         }
     }
 

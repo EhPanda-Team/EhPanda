@@ -43,4 +43,11 @@ extension TranslatableLanguage {
             return "db.raw.json"
         }
     }
+    /// Filesystem-safe name for this language's cached raw translation JSON. Keyed on
+    /// `languageCode` (not `repoName`, which contains `/`), so each language gets its own file —
+    /// `simplifiedChinese`/`traditionalChinese` share a repo but need distinct caches (the latter
+    /// is OpenCC-converted).
+    public var cachedTranslationsFilename: String {
+        "tagTranslations-\(languageCode).json"
+    }
 }
