@@ -90,7 +90,7 @@ public extension OSLogEntryLog.Level {
         case .notice: .appActivityLogLevelNotice
         case .error: .appActivityLogLevelError
         case .fault: .appActivityLogLevelFault
-        @unknown default: ""
+        @unknown default: .appActivityLogLevelUnknown
         }
     }
 }
