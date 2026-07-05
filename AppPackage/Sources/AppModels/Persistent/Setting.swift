@@ -57,6 +57,8 @@ public struct Setting: Codable, Equatable, Sendable {
         self.doubleTapScaleFactor = doubleTapScaleFactor
         self.bypassesSNIFiltering = bypassesSNIFiltering
     }
+    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    public var schemaVersion = 1
     // Account
     public var galleryHost: GalleryHost = .ehentai
     public var showsNewDawnGreeting = false
@@ -253,6 +255,7 @@ extension ListDisplayMode {
 extension Setting {
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
         // Account
         galleryHost = (try? container?.decodeIfPresent(GalleryHost.self, forKey: .galleryHost)) ?? .ehentai
         showsNewDawnGreeting = (try? container?.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting)) ?? false
