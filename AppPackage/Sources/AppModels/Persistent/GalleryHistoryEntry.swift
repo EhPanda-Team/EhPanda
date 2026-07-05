@@ -10,6 +10,10 @@ import Foundation
 /// The manual `init(from:)` decodes every field tolerantly (`decodeIfPresent` + default) so
 /// that future additive changes to this record never invalidate an existing persisted list.
 public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
+    /// The most entries kept across launches. Enforced only by a launch-time prune (see
+    /// `Array.pruneToHistoryCap`); in-session upserts may temporarily exceed it.
+    public static let historyCap = 1000
+
     public init(
         gid: String,
         token: String,

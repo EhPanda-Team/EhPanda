@@ -59,7 +59,7 @@ struct HistoryView: View {
             } label: {
                 Image(systemSymbol: .trashCircle)
             }
-            .disabled(store.loadingState != .idle || store.galleries.isEmpty)
+            .disabled(store.loadingState == .loading || store.galleryHistory.isEmpty)
             .confirmationDialog(
                 $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
             )
