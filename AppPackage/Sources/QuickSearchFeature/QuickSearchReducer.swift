@@ -1,12 +1,16 @@
 import SwiftUI
 import AppModels
+import Sharing
 import Resources
 import ComposableArchitecture
-import DatabaseClient
 import AppComponents
 
 @Reducer
 public struct QuickSearchReducer: Sendable {
+    // Quick-search words are deliberate user content, so they are never auto-evicted. Instead the
+    // list is bounded by a UI limit: the add button is disabled at this count (with a guard here as
+    // a backstop). Capping keeps the persisted `@Shared(.quickSearchWords)` value small.
+    public static let wordLimit = 1000
     // Which flavour of the word editor is pushed onto the stack; drives `.navigationDestination(item:)`.
     public enum WordEditKind: Hashable, Sendable {
         case new
@@ -22,10 +26,6 @@ public struct QuickSearchReducer: Sendable {
         case content
     }
 
-    private enum CancelID {
-        case fetchQuickSearchWords
-    }
-
     @ObservableState
     public struct State: Equatable, Sendable {
         public var editKind: WordEditKind?
@@ -38,10 +38,12 @@ public struct QuickSearchReducer: Sendable {
             set { listEditMode = newValue ? .active : .inactive }
         }
 
-        public var loadingState: LoadingState = .idle
-        public var quickSearchWords = [QuickSearchWord]()
+        @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
 
         public init() {}
+
+        // The add button is disabled once this is true (see `wordLimit`).
+        public var isAtWordLimit: Bool { quickSearchWords.count >= QuickSearchReducer.wordLimit }
     }
 
     public enum Action: BindableAction, Equatable {
@@ -51,8 +53,6 @@ public struct QuickSearchReducer: Sendable {
         case newWordButtonTapped
         case editWordButtonTapped(QuickSearchWord)
 
-        case syncQuickSearchWords
-
         case toggleListEditing
 
         case appendWord
@@ -60,12 +60,7 @@ public struct QuickSearchReducer: Sendable {
         case deleteWord(QuickSearchWord)
         case deleteWordWithOffsets(IndexSet)
         case moveWord(IndexSet, Int)
-
-        case fetchQuickSearchWords
-        case fetchQuickSearchWordsDone([QuickSearchWord])
     }
-
-    @Dependency(\.databaseClient) private var databaseClient
 
     public init() {}
 
@@ -109,52 +104,35 @@ public struct QuickSearchReducer: Sendable {
                 case .confirmationDialog:
                     return .none
 
-                case .syncQuickSearchWords:
-                    return .run { [state] _ in
-                        await databaseClient.updateQuickSearchWords(state.quickSearchWords)
-                    }
-
                 case .toggleListEditing:
                     state.isListEditing.toggle()
                     return .none
 
                 case .appendWord:
-                    state.quickSearchWords.append(state.editingWord)
+                    guard !state.isAtWordLimit else { return .none }
+                    let word = state.editingWord
+                    state.$quickSearchWords.withLock { $0.append(word) }
                     state.editKind = nil
-                    return .send(.syncQuickSearchWords)
+                    return .none
 
                 case .editWord:
                     if let index = state.quickSearchWords.firstIndex(where: { $0.id == state.editingWord.id }) {
-                        state.quickSearchWords[index] = state.editingWord
-                        state.editKind = nil
-                        return .send(.syncQuickSearchWords)
+                        let word = state.editingWord
+                        state.$quickSearchWords.withLock { $0[index] = word }
                     }
                     state.editKind = nil
                     return .none
 
                 case .deleteWord(let word):
-                    state.quickSearchWords = state.quickSearchWords.filter({ $0 != word })
-                    return .send(.syncQuickSearchWords)
+                    state.$quickSearchWords.withLock { $0.removeAll { $0 == word } }
+                    return .none
 
                 case .deleteWordWithOffsets(let offsets):
-                    state.quickSearchWords.remove(atOffsets: offsets)
-                    return .send(.syncQuickSearchWords)
+                    state.$quickSearchWords.withLock { $0.remove(atOffsets: offsets) }
+                    return .none
 
                 case .moveWord(let source, let destination):
-                    state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
-                    return .send(.syncQuickSearchWords)
-
-                case .fetchQuickSearchWords:
-                    state.loadingState = .loading
-                    return .run { send in
-                        let quickSearchWords = await databaseClient.fetchQuickSearchWords()
-                        await send(.fetchQuickSearchWordsDone(quickSearchWords))
-                    }
-                    .cancellable(id: CancelID.fetchQuickSearchWords)
-
-                case .fetchQuickSearchWordsDone(let words):
-                    state.loadingState = .idle
-                    state.quickSearchWords = words
+                    state.$quickSearchWords.withLock { $0.move(fromOffsets: source, toOffset: destination) }
                     return .none
                 }
             }

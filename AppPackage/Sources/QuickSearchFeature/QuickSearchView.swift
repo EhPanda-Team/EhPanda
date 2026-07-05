@@ -57,15 +57,8 @@ public struct QuickSearchView: View {
                         store.send(.moveWord(source, destination))
                     }
                 }
-                LoadingView().opacity(
-                    store.loadingState == .loading
-                        && store.quickSearchWords.isEmpty ? 1 : 0
-                )
                 ErrorView(error: .notFound)
-                    .opacity(
-                        store.loadingState != .loading
-                            && store.quickSearchWords.isEmpty ? 1 : 0
-                    )
+                    .opacity(store.quickSearchWords.isEmpty ? 1 : 0)
             }
             .confirmationDialog(
                 $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
@@ -74,11 +67,6 @@ public struct QuickSearchView: View {
             .environment(\.editMode, $store.listEditMode)
             .animation(.default, value: store.quickSearchWords)
             .animation(.default, value: store.listEditMode)
-            .onAppear {
-                if store.quickSearchWords.isEmpty {
-                    store.send(.fetchQuickSearchWords)
-                }
-            }
             .toolbar(content: toolbar)
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
             .navigationTitle(.RLocalizable.quickSearch)
@@ -101,6 +89,7 @@ public struct QuickSearchView: View {
             } label: {
                 Image(systemSymbol: .plus)
             }
+            .disabled(store.isAtWordLimit)
             Button {
                 store.send(.toggleListEditing)
             } label: {

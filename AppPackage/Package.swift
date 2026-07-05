@@ -600,10 +600,10 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
-            .module(.databaseClient),
             .module(.resources),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
