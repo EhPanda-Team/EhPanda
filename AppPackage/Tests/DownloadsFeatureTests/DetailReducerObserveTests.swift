@@ -161,6 +161,7 @@ private extension DetailReducerObserveTests {
                 $0.hapticsClient = .noop
                 $0.databaseClient = .noop
                 $0.cookieClient = .noop
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
             }
         )
     }

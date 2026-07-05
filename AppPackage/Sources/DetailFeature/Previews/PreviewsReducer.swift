@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Sharing
 import ComposableArchitecture
 import AppTools
 import HapticsClient
@@ -71,6 +72,7 @@ public struct PreviewsReducer: Sendable {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.date) private var date
 
     public init() {}
 
@@ -94,9 +96,13 @@ public struct PreviewsReducer: Sendable {
                 }
 
             case .updateReadingProgress(let progress):
-                return .run { [state] _ in
-                    await databaseClient.updateReadingProgress(gid: state.gallery.id, progress: progress)
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.updateReadingProgress(
+                        gid: state.gallery.id, token: state.gallery.token, progress: progress, date: date.now
+                    )
                 }
+                return .none
 
             case .fetchDatabaseInfos(let gid):
                 guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }

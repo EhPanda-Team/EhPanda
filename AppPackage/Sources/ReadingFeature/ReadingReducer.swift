@@ -201,6 +201,7 @@ public struct ReadingReducer: Sendable {
     @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.imageClient) var imageClient
     @Dependency(\.urlClient) var urlClient
+    @Dependency(\.date) var date
 
     public init() {}
 

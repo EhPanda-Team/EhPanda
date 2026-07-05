@@ -183,6 +183,7 @@ public struct DetailReducer: Sendable {
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
+    @Dependency(\.date) var date
 
     public init() {}
 

@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Sharing
 import ComposableArchitecture
 import URLClient
 import ApplicationClient
@@ -88,6 +89,7 @@ public struct CommentsReducer: Sendable {
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.urlClient) private var urlClient
+    @Dependency(\.date) private var date
 
     public init() {}
 
@@ -187,9 +189,13 @@ public struct CommentsReducer: Sendable {
 
             case .updateReadingProgress(let gid, let progress):
                 guard !gid.isEmpty else { return .none }
-                return .run { _ in
-                    await databaseClient.updateReadingProgress(gid: gid, progress: progress)
+                // Deep link straight to a page: the token isn't known here, so the entry is created
+                // tokenless and backfilled when the detail screen records the open.
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.updateReadingProgress(gid: gid, token: "", progress: progress, date: date.now)
                 }
+                return .none
 
             case .postComment(let galleryURL, let commentID):
                 guard !state.commentContent.isEmpty else { return .none }
