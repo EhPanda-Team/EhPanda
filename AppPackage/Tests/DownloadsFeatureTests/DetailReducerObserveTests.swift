@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
-import DatabaseClient
 import DownloadClient
 import CookieClient
 @testable import DetailFeature
@@ -89,7 +88,6 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.downloadClient = makeLocalManifestClient(download: download, manifest: manifest)
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )
@@ -117,7 +115,6 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.downloadClient = makeNoManifestClient()
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )
@@ -159,7 +156,6 @@ private extension DetailReducerObserveTests {
                 $0.downloadClient.fetchVersionMetadata = { _, _ in nil }
                 $0.downloadClient.fetchFolders = { [] }
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
             }

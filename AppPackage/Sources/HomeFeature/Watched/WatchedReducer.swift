@@ -3,7 +3,6 @@ import ComposableArchitecture
 import AppModels
 import Sharing
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import FiltersFeature
@@ -69,7 +68,6 @@ public struct WatchedReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 

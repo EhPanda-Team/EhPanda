@@ -6,7 +6,6 @@ import AppTools
 import URLClient
 import HapticsClient
 import ImageClient
-import DatabaseClient
 import DownloadClient
 import ClipboardClient
 import CookieClient
@@ -52,7 +51,6 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
                 $0.appDelegateClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = {
@@ -118,7 +116,6 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
             $0.appDelegateClient = .noop
             $0.clipboardClient = .noop
             $0.cookieClient = .noop
-            $0.databaseClient = .noop
             $0.deviceClient = .noop
             $0.hapticsClient = .noop
             $0.imageClient = .noop

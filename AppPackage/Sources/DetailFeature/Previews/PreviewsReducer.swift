@@ -4,7 +4,6 @@ import Sharing
 import ComposableArchitecture
 import AppTools
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import ReadingFeature
@@ -66,7 +65,6 @@ public struct PreviewsReducer: Sendable {
         case fetchPreviewURLsDone(Result<[Int: URL], AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.date) private var date

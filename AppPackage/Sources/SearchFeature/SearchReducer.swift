@@ -4,7 +4,6 @@ import AppModels
 import Sharing
 import Foundation
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import FiltersFeature
@@ -74,7 +73,6 @@ public struct SearchReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 

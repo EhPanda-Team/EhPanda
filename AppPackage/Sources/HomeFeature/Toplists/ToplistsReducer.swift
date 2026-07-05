@@ -4,7 +4,6 @@ import AppTools
 import AppComponents
 import Resources
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 
 @Reducer
@@ -77,7 +76,6 @@ public struct ToplistsReducer: Sendable {
         case fetchMoreGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
