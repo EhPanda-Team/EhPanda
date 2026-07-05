@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import CookieClient
@@ -152,7 +151,6 @@ private extension DetailReducerMetadataTests {
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.downloadClient.loadLocalPageURLs = { _ in [:] }
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )
@@ -193,7 +191,6 @@ private extension DetailReducerMetadataTests {
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.downloadClient.loadLocalPageURLs = { _ in [:] }
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )

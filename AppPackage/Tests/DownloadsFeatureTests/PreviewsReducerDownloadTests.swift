@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
-import DatabaseClient
 import DownloadClient
 @testable import DetailFeature
 @testable import AppFeature
@@ -107,7 +106,6 @@ private extension PreviewsReducerDownloadTests {
                     guard gid == download.gid else { throw AppError.notFound }
                     return (download, manifest)
                 }
-                $0.databaseClient = .noop
                 $0.hapticsClient = .noop
             }
         )
@@ -146,7 +144,6 @@ private extension PreviewsReducerDownloadTests {
             reducer: PreviewsReducer.init,
             withDependencies: {
                 $0.downloadClient = downloadClient
-                $0.databaseClient = .noop
                 $0.hapticsClient = .noop
             }
         )

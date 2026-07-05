@@ -4,7 +4,6 @@ import AppModels
 import IdentifiedCollections
 import ComposableArchitecture
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import DeviceClient
@@ -93,7 +92,6 @@ public struct FavoritesReducer: Sendable {
         case performDateSeekDone(Int, Result<GalleriesResult, AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.deviceClient) private var deviceClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient

@@ -2,7 +2,6 @@ import TestingSupport
 import AppTools
 import Foundation
 import AppModels
-import CoreData
 import ComposableArchitecture
 import Kingfisher
 import UIKit
@@ -53,14 +52,6 @@ protocol DownloadFeatureTestCase: TestHelper {
         download: DownloadedGallery,
         manifest: DownloadManifest
     ) throws -> URL
-    func makeInMemoryContainer() throws -> NSPersistentContainer
-    func insertPersistedGalleryState(
-        in container: NSPersistentContainer,
-        gid: String,
-        previewURLs: [Int: URL],
-        imageURLs: [Int: URL],
-        originalImageURLs: [Int: URL]
-    ) throws
 }
 
 // MARK: - Default Implementations

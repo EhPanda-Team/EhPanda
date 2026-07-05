@@ -3,7 +3,6 @@ import AppModels
 import Sharing
 import AppTools
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import FiltersFeature
 
@@ -47,7 +46,6 @@ public struct PopularReducer: Sendable {
         case fetchGalleriesDone(Result<[Gallery], AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}

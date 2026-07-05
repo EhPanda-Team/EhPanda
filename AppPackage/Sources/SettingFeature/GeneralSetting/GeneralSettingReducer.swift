@@ -5,7 +5,6 @@ import ComposableArchitecture
 import AuthorizationClient
 import ApplicationClient
 import LibraryClient
-import DatabaseClient
 import OSLogExt
 import AppComponents
 
@@ -66,7 +65,6 @@ public struct GeneralSettingReducer: Sendable {
 
     @Dependency(\.authorizationClient) private var authorizationClient
     @Dependency(\.applicationClient) private var applicationClient
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.libraryClient) private var libraryClient
 
     public init() {}

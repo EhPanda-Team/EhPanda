@@ -5,7 +5,6 @@ import Testing
 import URLClient
 import HapticsClient
 import ImageClient
-import DatabaseClient
 import DownloadClient
 import ClipboardClient
 import CookieClient
@@ -139,7 +138,6 @@ private extension ReadingReducerDownloadTests {
                 $0.appDelegateClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { $0.yield([]); $0.finish() } }
@@ -175,7 +173,6 @@ private extension ReadingReducerDownloadTests {
                 $0.appDelegateClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { AsyncStream { $0.finish() } }

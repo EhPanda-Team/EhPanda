@@ -1,7 +1,7 @@
 import Foundation
 
-/// A single browsing-history record, merging what used to be split across
-/// `GalleryMO.lastOpenDate` (recency) and `GalleryStateMO.readingProgress` (resume position).
+/// A single browsing-history record, pairing a gallery's recency (`lastOpenDate`) with its
+/// resume position (`readingProgress`) in one lightweight value.
 ///
 /// Only the minimal identity (`gid`/`token`), the recency key and the resume page are
 /// persisted — never a gallery snapshot. The History screen re-fetches display metadata

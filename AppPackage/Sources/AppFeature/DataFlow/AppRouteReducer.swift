@@ -6,7 +6,6 @@ import ComposableArchitecture
 import URLClient
 import UserDefaultsClient
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import ClipboardClient
 import AppComponents
@@ -57,7 +56,6 @@ struct AppRouteReducer {
 
     @Dependency(\.userDefaultsClient) private var userDefaultsClient
     @Dependency(\.clipboardClient) private var clipboardClient
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.urlClient) private var urlClient
     @Dependency(\.date) private var date

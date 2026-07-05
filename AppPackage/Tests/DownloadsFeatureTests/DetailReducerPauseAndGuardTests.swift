@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
-import DatabaseClient
 import DownloadClient
 import CookieClient
 import AppLaunchAutomationClient
@@ -34,7 +33,6 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
                 )
                 $0.downloadClient = .noop
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )
@@ -83,7 +81,6 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
                 $0.downloadClient.delete = { _ in }
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )
@@ -170,7 +167,6 @@ private extension DetailReducerPauseAndGuardTests {
                 $0.downloadClient.loadLocalPageURLs = { _ in [:] }
                 $0.downloadClient.fetchVersionMetadata = { _, _ in nil }
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )

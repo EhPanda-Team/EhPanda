@@ -74,7 +74,6 @@ enum Module: String {
     case commonMarkExt = "CommonMarkExt"
     case cookieClient = "CookieClient"
     case dfClient = "DFClient"
-    case databaseClient = "DatabaseClient"
     case dateSeekFeature = "DateSeekFeature"
     case detailFeature = "DetailFeature"
     case deviceClient = "DeviceClient"
@@ -257,7 +256,6 @@ let targets: [PackageDescription.Target] = [
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.cookieClient),
-            .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
             .module(.dfClient),
@@ -442,17 +440,6 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .target(
-        module: .databaseClient,
-        dependencies: [
-            .module(.appModels),
-            .module(.appTools),
-            .module(.osLogExt),
-            .targetDependency(.composableArchitecture)
-        ],
-        resources: [.process(.resources)],
-        plugins: swiftLintPlugins
-    ),
-    .target(
         module: .hapticsClient,
         dependencies: [
             .module(.appTools),
@@ -621,7 +608,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
             .module(.deviceClient),
@@ -648,7 +634,6 @@ let targets: [PackageDescription.Target] = [
             .module(.authorizationClient),
             .module(.clipboardClient),
             .module(.cookieClient),
-            .module(.databaseClient),
             .module(.deviceClient),
             .module(.dfClient),
             .module(.fileClient),
@@ -674,7 +659,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
             .module(.deviceClient),
@@ -700,7 +684,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            .module(.databaseClient),
             .module(.dateSeekFeature),
             .module(.detailFeature),
             .module(.deviceClient),
@@ -735,7 +718,6 @@ let targets: [PackageDescription.Target] = [
             .module(.applicationClient),
             .module(.clipboardClient),
             .module(.cookieClient),
-            .module(.databaseClient),
             .module(.downloadClient),
             .module(.fileClient),
             .module(.filtersFeature),
@@ -767,7 +749,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appTools),
             .module(.clipboardClient),
             .module(.cookieClient),
-            .module(.databaseClient),
             .module(.deviceClient),
             .module(.downloadClient),
             .module(.hapticsClient),
@@ -888,7 +869,6 @@ let targets: [PackageDescription.Target] = [
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.cookieClient),
-            .module(.databaseClient),
             .module(.detailFeature),
             .module(.dfClient),
             .module(.deviceClient),

@@ -1,4 +1,3 @@
-import CoreData
 import AppModels
 import Kingfisher
 import UIKit

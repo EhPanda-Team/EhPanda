@@ -3,7 +3,6 @@ import ComposableArchitecture
 import AppModels
 import Sharing
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import FiltersFeature
 import QuickSearchFeature
@@ -62,7 +61,6 @@ public struct DetailSearchReducer: Sendable {
         case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}

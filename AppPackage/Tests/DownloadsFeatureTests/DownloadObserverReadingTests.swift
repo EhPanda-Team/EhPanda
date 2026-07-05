@@ -6,7 +6,6 @@ import AppTools
 import URLClient
 import HapticsClient
 import ImageClient
-import DatabaseClient
 import DownloadClient
 import ClipboardClient
 import CookieClient
@@ -43,7 +42,6 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             $0.appDelegateClient = .noop
             $0.clipboardClient = .noop
             $0.cookieClient = .noop
-            $0.databaseClient = .noop
             $0.deviceClient = .noop
             $0.downloadClient = .noop
             $0.hapticsClient = .noop
@@ -177,7 +175,6 @@ private extension DownloadObserverReadingTests {
                 $0.appDelegateClient = .noop
                 $0.clipboardClient = .noop
                 $0.cookieClient = .noop
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.downloadClient = DownloadClient()
                 $0.downloadClient.observeDownloads = { stream }
@@ -228,7 +225,6 @@ private extension DownloadObserverReadingTests {
                     loadCount.value += 1
                     return [:]
                 }
-                $0.databaseClient = .noop
                 $0.hapticsClient = .noop
             }
         )

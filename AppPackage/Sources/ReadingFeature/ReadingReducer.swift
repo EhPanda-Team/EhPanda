@@ -5,7 +5,6 @@ import ComposableArchitecture
 import URLClient
 import HapticsClient
 import ImageClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import ClipboardClient
@@ -190,7 +189,6 @@ public struct ReadingReducer: Sendable {
 
     @Dependency(\.appDelegateClient) var appDelegateClient
     @Dependency(\.clipboardClient) var clipboardClient
-    @Dependency(\.databaseClient) var databaseClient
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
