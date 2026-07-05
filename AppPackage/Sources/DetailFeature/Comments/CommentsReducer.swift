@@ -5,7 +5,6 @@ import ComposableArchitecture
 import URLClient
 import ApplicationClient
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import CookieClient
 import AppComponents
@@ -85,7 +84,6 @@ public struct CommentsReducer: Sendable {
     }
 
     @Dependency(\.applicationClient) private var applicationClient
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.urlClient) private var urlClient

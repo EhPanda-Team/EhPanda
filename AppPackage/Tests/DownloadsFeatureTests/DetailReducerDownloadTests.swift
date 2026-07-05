@@ -4,7 +4,6 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
-import DatabaseClient
 import DownloadClient
 import CookieClient
 import AppLaunchAutomationClient
@@ -206,7 +205,6 @@ private extension DetailReducerDownloadTests {
                 $0.downloadClient.fetchFolders = { folders() }
                 $0.downloadClient.createFolder = createFolder
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
                 if let automationGID {
                     $0.appLaunchAutomationClient = appLaunchAutomationClient(

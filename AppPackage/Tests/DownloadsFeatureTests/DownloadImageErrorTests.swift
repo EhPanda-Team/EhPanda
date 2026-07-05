@@ -1,4 +1,3 @@
-import CoreData
 import AppModels
 import Foundation
 import Testing

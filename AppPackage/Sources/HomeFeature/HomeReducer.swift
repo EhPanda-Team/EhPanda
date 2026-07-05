@@ -4,7 +4,6 @@ import Kingfisher
 import ComposableArchitecture
 import AppTools
 import LibraryClient
-import DatabaseClient
 import DeviceClient
 
 @Reducer
@@ -76,7 +75,6 @@ public struct HomeReducer: Sendable {
         case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
     }
 
-    @Dependency(\.databaseClient) var databaseClient
     @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.libraryClient) var libraryClient
 

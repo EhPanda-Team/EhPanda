@@ -5,7 +5,6 @@ import Foundation
 import ComposableArchitecture
 import AppComponents
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import DownloadClient
 import CookieClient
@@ -179,7 +178,6 @@ public struct DetailReducer: Sendable {
         case anyGalleryOpsDone(Result<Void, AppError>)
     }
 
-    @Dependency(\.databaseClient) var databaseClient
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient

@@ -3,7 +3,6 @@ import AppModels
 import ComposableArchitecture
 import Testing
 import HapticsClient
-import DatabaseClient
 import DownloadClient
 import CookieClient
 @testable import DetailFeature
@@ -98,7 +97,6 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.downloadClient = makeDeleteTestClient(download: download)
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )
@@ -155,7 +153,6 @@ private extension DetailReducerMetadataUpdateTests {
                 $0.downloadClient.loadManifest = { _ in throw AppError.notFound }
                 $0.downloadClient.loadLocalPageURLs = { _ in [:] }
                 $0.hapticsClient = .noop
-                $0.databaseClient = .noop
                 $0.cookieClient = .noop
             }
         )

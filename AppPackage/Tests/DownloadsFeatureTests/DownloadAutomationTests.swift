@@ -9,7 +9,6 @@ import UserDefaultsClient
 import ApplicationClient
 import HapticsClient
 import LibraryClient
-import DatabaseClient
 import DFClient
 import DownloadClient
 import FileClient
@@ -192,7 +191,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.applicationClient = .noop
@@ -242,7 +240,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.applicationClient = .noop
@@ -301,7 +298,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
             withDependencies: {
                 $0.appLaunchAutomationClient = appLaunchAutomationClient(automation)
                 $0.cookieClient = cookieClient
-                $0.databaseClient = .noop
                 $0.deviceClient = .noop
                 $0.hapticsClient = .noop
                 $0.applicationClient = .noop

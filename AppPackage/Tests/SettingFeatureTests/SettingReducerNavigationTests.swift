@@ -124,7 +124,6 @@ struct SettingReducerNavigationTests {
         let imported = TagTranslator(hasCustomTranslations: true)
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.fileClient.importTagTranslator = { _ in .success(imported) }
-            $0.databaseClient = .noop
         }
 
         await store.send(.settingRowTapped(.general)) {

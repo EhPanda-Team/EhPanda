@@ -1,14 +1,12 @@
-import CoreData
 import AppModels
 import Foundation
 import Testing
 import AppTools
-import DatabaseClient
 import DownloadClient
 import AppLaunchAutomationClient
 @testable import AppFeature
 
-// MARK: - Sample Data Factories & CoreData Helpers
+// MARK: - Sample Data Factories
 
 enum DownloadFixtureStatus {
     case queued
@@ -257,57 +255,6 @@ extension DownloadFeatureTestCase {
             options: .atomic
         )
         return folderURL
-    }
-
-    func makeInMemoryContainer() throws -> NSPersistentContainer {
-        let container = NSPersistentContainer(
-            name: UUID().uuidString,
-            managedObjectModel: PersistenceController.shared.container.managedObjectModel
-        )
-        let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType
-        container.persistentStoreDescriptions = [description]
-        let semaphore = DispatchSemaphore(value: 0)
-        var loadError: Error?
-        container.loadPersistentStores { _, error in
-            loadError = error
-            semaphore.signal()
-        }
-        let waitResult = semaphore.wait(timeout: .now() + 5)
-        if waitResult == .timedOut {
-            Issue.record("Timed out loading in-memory persistent store.")
-        }
-        if let loadError {
-            Issue.record(
-                "Failed to load in-memory persistent store: \(loadError)"
-            )
-        }
-        return container
-    }
-
-    func insertPersistedGalleryState(
-        in container: NSPersistentContainer,
-        gid: String,
-        previewURLs: [Int: URL] = [:],
-        imageURLs: [Int: URL],
-        originalImageURLs: [Int: URL] = [:]
-    ) throws {
-        let context = container.viewContext
-        try performAndWait(in: context) {
-            let object = GalleryStateMO(context: context)
-            object.gid = gid
-            object.previewURLs = previewURLs.toData()
-            object.imageURLs = imageURLs.toData()
-            object.originalImageURLs = originalImageURLs.toData()
-            try context.save()
-        }
-    }
-
-    private func performAndWait(
-        in context: NSManagedObjectContext,
-        operation: @Sendable () throws -> Void
-    ) throws {
-        try context.performAndWait(operation)
     }
 }
 

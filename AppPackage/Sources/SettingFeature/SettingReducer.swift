@@ -6,7 +6,6 @@ import UserDefaultsClient
 import ApplicationClient
 import HapticsClient
 import LibraryClient
-import DatabaseClient
 import DFClient
 import FileClient
 import CookieClient
@@ -129,7 +128,6 @@ public struct SettingReducer: Sendable {
     @Dependency(\.applicationClient) var applicationClient
     @Dependency(\.userDefaultsClient) var userDefaultsClient
     @Dependency(\.appDelegateClient) var appDelegateClient
-    @Dependency(\.databaseClient) var databaseClient
     @Dependency(\.libraryClient) var libraryClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient

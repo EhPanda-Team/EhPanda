@@ -4,7 +4,6 @@ import Sharing
 import Foundation
 import AppTools
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import FiltersFeature
 import DateSeekFeature
@@ -65,7 +64,6 @@ public struct FrontpageReducer: Sendable {
         case performDateSeekDone(Result<GalleriesResult, AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
