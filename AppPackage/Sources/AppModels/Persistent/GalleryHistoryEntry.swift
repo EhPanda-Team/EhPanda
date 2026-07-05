@@ -26,6 +26,8 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
         self.readingProgress = readingProgress
     }
     public var id: String { gid }
+    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    public var schemaVersion = 1
     public var gid: String
     public var token: String
     public var lastOpenDate: Date
@@ -36,6 +38,7 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
 extension GalleryHistoryEntry {
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
         gid = (try? container?.decodeIfPresent(String.self, forKey: .gid)) ?? ""
         token = (try? container?.decodeIfPresent(String.self, forKey: .token)) ?? ""
         lastOpenDate = (try? container?.decodeIfPresent(Date.self, forKey: .lastOpenDate)) ?? .distantPast

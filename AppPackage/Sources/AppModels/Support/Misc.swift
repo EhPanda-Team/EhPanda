@@ -146,6 +146,8 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable {
     }
     public static var empty: Self { .init(name: "", content: "") }
 
+    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    public var schemaVersion = 1
     public var id: UUID = .init()
     public var name: String
     public var content: String
@@ -160,6 +162,7 @@ extension QuickSearchWord {
     // Tolerant decoding keeps an existing persisted list valid across future additive changes.
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
         id = (try? container?.decodeIfPresent(UUID.self, forKey: .id)) ?? .init()
         name = (try? container?.decodeIfPresent(String.self, forKey: .name)) ?? ""
         content = (try? container?.decodeIfPresent(String.self, forKey: .content)) ?? ""

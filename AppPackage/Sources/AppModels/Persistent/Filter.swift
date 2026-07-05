@@ -59,6 +59,8 @@ public struct Filter: Codable, Equatable, Sendable {
         self.disableUploader = disableUploader
         self.disableTags = disableTags
     }
+    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    public var schemaVersion = 1
     public var doujinshi = false
     public var manga = false
     public var artistCG = false
@@ -117,6 +119,7 @@ public struct Filter: Codable, Equatable, Sendable {
 extension Filter {
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
         doujinshi = (try? container?.decodeIfPresent(Bool.self, forKey: .doujinshi)) ?? false
         manga = (try? container?.decodeIfPresent(Bool.self, forKey: .manga)) ?? false
         artistCG = (try? container?.decodeIfPresent(Bool.self, forKey: .artistCG)) ?? false
