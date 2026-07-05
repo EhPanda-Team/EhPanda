@@ -2,7 +2,7 @@ import Foundation
 import AppModels
 import ComposableArchitecture
 import AppTools
-import DatabaseClient
+import Sharing
 
 @DependencyClient
 public struct DownloadClient: Sendable {
@@ -73,7 +73,8 @@ extension DownloadClient {
             backgroundTaskStore: backgroundTaskStore,
             backgroundTaskClient: .live,
             downloadOptionsProvider: {
-                await DatabaseClient.live.fetchAppEnv().setting.downloadRequestOptions
+                @Shared(.setting) var setting
+                return setting.downloadRequestOptions
             }
         )
         Task {

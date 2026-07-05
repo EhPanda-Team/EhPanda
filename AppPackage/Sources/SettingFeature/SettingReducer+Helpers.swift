@@ -1,6 +1,7 @@
 import AppTools
 import Foundation
 import AppModels
+import Sharing
 import OSLogExt
 import ComposableArchitecture
 import NetworkingFeature
@@ -11,9 +12,11 @@ extension SettingReducer {
     func handleLoadUserSettings(
         _ state: inout State, appEnv: AppEnv
     ) -> Effect<Action> {
-        state.setting = appEnv.setting
+        // `setting` loads from persisted storage into its working copy; `user` is `@Shared` and
+        // auto-loads. `tagTranslator` still comes from the database here (reworked in a later step).
+        @Shared(.setting) var storedSetting
+        state.setting = storedSetting
         state.tagTranslator = appEnv.tagTranslator
-        state.user = appEnv.user
         var effects: [Effect<Action>] = [
             .send(.syncAppIconType),
             .send(.loadUserSettingsDone),
