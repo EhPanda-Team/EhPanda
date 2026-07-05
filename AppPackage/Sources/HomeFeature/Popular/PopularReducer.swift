@@ -10,7 +10,7 @@ import FiltersFeature
 @Reducer
 public struct PopularReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
     }
 
     @Reducer

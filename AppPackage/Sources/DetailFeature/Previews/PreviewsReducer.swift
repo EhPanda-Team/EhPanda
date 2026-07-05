@@ -17,7 +17,6 @@ public struct PreviewsReducer: Sendable {
     }
 
     private enum CancelID {
-        case fetchDatabaseInfos
         case observeDownloads
         case loadLocalPreviewURLs
         case fetchPreviewURLs
@@ -57,8 +56,7 @@ public struct PreviewsReducer: Sendable {
         case syncPreviewURLs([Int: URL])
         case updateReadingProgress(Int)
 
-        case fetchDatabaseInfos(String)
-        case fetchDatabaseInfosDone(GalleryState)
+        case onAppear(String)
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])
         case loadLocalPreviewURLs(String)
@@ -104,28 +102,13 @@ public struct PreviewsReducer: Sendable {
                 }
                 return .none
 
-            case .fetchDatabaseInfos(let gid):
-                guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
-                state.gallery = gallery
+            case .onAppear(let gid):
+                // Gallery is seeded from the pushing context; preview URLs are fetched on demand.
+                state.databaseLoadingState = .idle
                 return .merge(
-                    .run { [state] send in
-                        guard let dbState = await databaseClient.fetchGalleryState(
-                            gid: state.gallery.id
-                        ) else { return }
-                        await send(.fetchDatabaseInfosDone(dbState))
-                    }
-                    .cancellable(id: CancelID.fetchDatabaseInfos),
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPreviewURLs(gid))
                 )
-
-            case .fetchDatabaseInfosDone(let galleryState):
-                if let previewConfig = galleryState.previewConfig {
-                    state.previewConfig = previewConfig
-                }
-                state.previewURLs = galleryState.previewURLs
-                state.databaseLoadingState = .idle
-                return .none
 
             case .observeDownloads(let gid):
                 guard gid.isValidGID else { return .none }

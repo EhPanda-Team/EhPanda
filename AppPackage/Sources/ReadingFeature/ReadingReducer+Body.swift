@@ -7,7 +7,6 @@ import AppTools
 // MARK: - CancelID
 enum ReadingCancelID {
     case fetchImage
-    case fetchDatabaseInfos
     case observeDownloads
     case loadLocalPageURLs
     case fetchPreviewURLs

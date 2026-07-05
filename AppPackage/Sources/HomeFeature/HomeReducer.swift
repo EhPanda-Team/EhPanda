@@ -10,7 +10,7 @@ import DeviceClient
 @Reducer
 public struct HomeReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(String)
+        case presentGalleryDetail(Gallery)
     }
 
     @ObservableState
@@ -57,8 +57,8 @@ public struct HomeReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case delegate(Delegate)
-        case galleryTapped(String)
-        case pushGalleryDetail(String)
+        case galleryTapped(Gallery)
+        case pushGalleryDetail(Gallery)
         case sectionTapped(HomeSectionType)
         case miscTapped(HomeMiscGridType)
         case path(StackActionOf<HomePath>)

@@ -13,7 +13,7 @@ import QuickSearchFeature
 @Reducer
 public struct WatchedReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
     }
 
     @Reducer

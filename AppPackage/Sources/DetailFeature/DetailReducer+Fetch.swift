@@ -7,34 +7,6 @@ extension DetailReducer {
     var fetchReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .fetchDatabaseInfos(let gid):
-                if let gallery = databaseClient.fetchGallery(gid: gid) {
-                    state.gallery = gallery
-                } else if state.gallery.id != gid {
-                    return .none
-                }
-                if let detail = databaseClient.fetchGalleryDetail(gid: gid) {
-                    state.galleryDetail = detail
-                }
-                return .merge(
-                    .send(.fetchDownloadBadge),
-                    .send(.saveGalleryHistory),
-                    .run { [galleryID = state.gallery.id] send in
-                        guard let dbState = await databaseClient.fetchGalleryState(gid: galleryID) else { return }
-                        await send(.fetchDatabaseInfosDone(dbState))
-                    }
-                    .cancellable(id: CancelID.fetchDatabaseInfos(state.cancellationGalleryID))
-                )
-
-            case .fetchDatabaseInfosDone(let galleryState):
-                state.galleryTags = galleryState.tags
-                state.galleryPreviewURLs = galleryState.previewURLs
-                state.galleryComments = galleryState.comments
-                if let previewConfig = galleryState.previewConfig {
-                    state.previewConfig = previewConfig
-                }
-                return .send(.fetchGalleryDetail)
-
             case .fetchGalleryDetail:
                 guard state.loadingState != .loading,
                       let galleryURL = state.gallery.galleryURL

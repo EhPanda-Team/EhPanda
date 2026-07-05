@@ -14,7 +14,7 @@ import QuickSearchFeature
 @Reducer
 public struct SearchReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
         case searchPerformed(String)
     }
 

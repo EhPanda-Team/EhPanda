@@ -16,7 +16,7 @@ public struct HistoryReducer: Sendable {
     }
 
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
     }
 
     public enum Dialog: Equatable, Sendable {

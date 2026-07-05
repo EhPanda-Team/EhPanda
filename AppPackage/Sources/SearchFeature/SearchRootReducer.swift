@@ -12,7 +12,7 @@ import DetailFeature
 @Reducer
 public struct SearchRootReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(String)
+        case presentGalleryDetail(Gallery)
     }
 
     @Reducer
@@ -70,8 +70,8 @@ public struct SearchRootReducer: Sendable {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case pushSearch
-        case galleryTapped(String)
-        case pushGalleryDetail(String)
+        case galleryTapped(Gallery)
+        case pushGalleryDetail(Gallery)
         case path(StackActionOf<SearchPath>)
         case setKeyword(String)
         case filtersButtonTapped
@@ -101,16 +101,16 @@ public struct SearchRootReducer: Sendable {
                 state.path.appendGuardingDuplicate(.search(.init(keyword: state.keyword)))
                 return .none
 
-            case .galleryTapped(let gid),
-                 let .path(.element(id: _, action: .search(.delegate(.pushDetail(gid))))):
+            case .galleryTapped(let gallery),
+                 let .path(.element(id: _, action: .search(.delegate(.pushDetail(gallery))))):
                 return GalleryNavigation.routeGalleryDetail(
                     isPad: deviceClient.isPad,
-                    present: { .delegate(.presentGalleryDetail(gid)) },
-                    push: { .pushGalleryDetail(gid) }
+                    present: { .delegate(.presentGalleryDetail(gallery)) },
+                    push: { .pushGalleryDetail(gallery) }
                 )
 
-            case .pushGalleryDetail(let gid):
-                state.path.appendGuardingDuplicate(.gallery(.detail(.init(gid: gid))))
+            case .pushGalleryDetail(let gallery):
+                state.path.appendGuardingDuplicate(.gallery(.detail(.init(gallery: gallery))))
                 return .none
 
             case .delegate:

@@ -84,8 +84,11 @@ extension DetailReducer {
         state.hasLoadedDownloadBadge = false
         state.didRunLaunchAutomation = false
         state.localPreviewURLs = .init()
+        // The gallery is already seeded from the pushing context, so we record the visit and fetch
+        // the (always network-sourced) detail directly — no database read.
         return .merge(
-            .send(.fetchDatabaseInfos(gid)),
+            .send(.saveGalleryHistory),
+            .send(.fetchGalleryDetail),
             .send(.fetchDownloadBadge),
             .send(.fetchDownloadFolders),
             .send(.observeDownload),

@@ -43,9 +43,6 @@ extension ReadingReducer {
             case .fetchDatabaseInfos(let gid):
                 return reduceFetchDatabaseInfos(state: &state, gid: gid)
 
-            case .fetchDatabaseInfosDone(let galleryState):
-                return reduceFetchDatabaseInfosDone(state: &state, galleryState: galleryState)
-
             case .observeDownloads(let gid):
                 return reduceObserveDownloads(gid: gid)
 
@@ -70,31 +67,12 @@ extension ReadingReducer {
     func reduceFetchDatabaseInfos(state: inout State, gid: String) -> Effect<Action> {
         if case .local(let download, let manifest) = state.contentSource {
             applyLocalSource(state: &state, download: download, manifest: manifest)
-        } else {
-            guard let gallery = databaseClient.fetchGallery(gid: gid) else { return .none }
-            state.gallery = gallery
-            state.language = databaseClient.fetchGalleryDetail(gid: state.gallery.id)?.language
         }
-        // Resume position comes from the persisted browsing history, keyed by gid.
+        // Remote galleries are seeded from the pushing context; URL maps are rebuilt per session
+        // (fetched on demand), so nothing is read from a database here. The resume position comes
+        // from the persisted browsing history.
         @Shared(.galleryHistory) var galleryHistory
-        state.readingProgress = galleryHistory.readingProgress(gid: state.gallery.id)
-        return .run { [state] send in
-            guard let dbState = await databaseClient.fetchGalleryState(gid: state.gallery.id) else { return }
-            await send(.fetchDatabaseInfosDone(dbState))
-        }
-        .cancellable(id: ReadingCancelID.fetchDatabaseInfos)
-    }
-
-    func reduceFetchDatabaseInfosDone(state: inout State, galleryState: GalleryState) -> Effect<Action> {
-        if state.contentSource == .remote {
-            if let previewConfig = galleryState.previewConfig {
-                state.previewConfig = previewConfig
-            }
-            state.previewURLs = galleryState.previewURLs
-            state.imageURLs = galleryState.imageURLs
-            state.thumbnailURLs = galleryState.thumbnailURLs
-            state.originalImageURLs = galleryState.originalImageURLs
-        }
+        state.readingProgress = galleryHistory.readingProgress(gid: gid)
         state.databaseLoadingState = .idle
         return .none
     }

@@ -17,7 +17,7 @@ public struct DetailSearchReducer: Sendable {
     }
 
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
     }
 
     private enum CancelID {

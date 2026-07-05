@@ -12,7 +12,7 @@ import DetailFeature
 @Reducer
 public struct DownloadsReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(String, DownloadedGallery?)
+        case presentGalleryDetail(Gallery, DownloadedGallery?)
     }
 
     @Reducer
@@ -115,7 +115,7 @@ public struct DownloadsReducer: Sendable {
                 let download = state.downloads.first(where: { $0.gid == gid })
                 return GalleryNavigation.routeGalleryDetail(
                     isPad: deviceClient.isPad,
-                    present: { .delegate(.presentGalleryDetail(gid, download)) },
+                    present: { .delegate(.presentGalleryDetail(download?.gallery ?? .empty, download)) },
                     push: { .pushGalleryDetail(gid) }
                 )
 

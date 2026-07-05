@@ -12,7 +12,7 @@ import DateSeekFeature
 @Reducer
 public struct FrontpageReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
     }
 
     @Reducer
