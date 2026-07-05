@@ -161,7 +161,6 @@ struct AppReducer {
                             igneous: loginCookies.igneous
                         )
                     }
-                    await send(.appDelegate(.removeExpiredImageURLs))
                     await send(.setting(.loadUserSettings))
                 }
 

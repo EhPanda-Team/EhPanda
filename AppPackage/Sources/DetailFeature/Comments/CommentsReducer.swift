@@ -261,10 +261,7 @@ public struct CommentsReducer: Sendable {
                 state.toast = nil
                 switch result {
                 case .success(let gallery):
-                    return .merge(
-                        .run(operation: { _ in await databaseClient.cacheGalleries([gallery]) }),
-                        .send(.handleGalleryLink(url, gallery))
-                    )
+                    return .send(.handleGalleryLink(url, gallery))
                 case .failure:
                     // Let the loading toast animate out before showing the error toast.
                     return .run { send in

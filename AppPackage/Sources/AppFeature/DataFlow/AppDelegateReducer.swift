@@ -24,7 +24,6 @@ struct AppDelegateReducer {
 
     enum Action: Equatable {
         case onLaunchFinish
-        case removeExpiredImageURLs
 
         case migration(MigrationReducer.Action)
     }
@@ -48,9 +47,6 @@ struct AppDelegateReducer {
                     .run(operation: { _ in cookieClient.fulfillAnotherHostField() }),
                     .send(.migration(.prepareDatabase))
                 )
-
-            case .removeExpiredImageURLs:
-                return .run(operation: { _ in await databaseClient.removeExpiredImageURLs() })
 
             case .migration:
                 return .none

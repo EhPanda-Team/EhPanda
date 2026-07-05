@@ -122,7 +122,7 @@ public struct DetailSearchReducer: Sendable {
                     }
                     state.pageNumber = pageNumber
                     state.galleries = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
@@ -153,9 +153,7 @@ public struct DetailSearchReducer: Sendable {
                     state.pageNumber = pageNumber
                     state.insertGalleries(galleries)
 
-                    var effects: [Effect<Action>] = [
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
-                    ]
+                    var effects: [Effect<Action>] = []
                     if galleries.isEmpty, pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {

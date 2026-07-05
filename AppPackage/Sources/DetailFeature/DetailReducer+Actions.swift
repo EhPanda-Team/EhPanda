@@ -139,37 +139,12 @@ extension DetailReducer {
     var syncReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .syncGalleryTags:
-                return .run { [gid = state.gallery.id, tags = state.galleryTags] _ in
-                    await databaseClient.updateGalleryTags(gid: gid, tags: tags)
-                }
-
-            case .syncGalleryDetail:
-                guard let detail = state.galleryDetail else { return .none }
-                return .run(operation: { _ in await databaseClient.cacheGalleryDetail(detail) })
-
-            case .syncGalleryPreviewURLs:
-                return .run { [gid = state.gallery.id, previewURLs = state.galleryPreviewURLs] _ in
-                    await databaseClient
-                        .updatePreviewURLs(gid: gid, previewURLs: previewURLs)
-                }
-
-            case .syncGalleryComments:
-                return .run { [gid = state.gallery.id, comments = state.galleryComments] _ in
-                    await databaseClient.updateComments(gid: gid, comments: comments)
-                }
-
             case .syncGreeting(let greeting):
                 // Greeting is session-only (not persisted with `User`); write it to the shared
                 // in-memory user so the greeting-fetch throttle stays coherent across features.
                 @Shared(.user) var user
                 $user.withLock { $0.greeting = greeting }
                 return .none
-
-            case .syncPreviewConfig(let config):
-                return .run { [gid = state.gallery.id] _ in
-                    await databaseClient.updatePreviewConfig(gid: gid, config: config)
-                }
 
             case .saveGalleryHistory:
                 @Shared(.galleryHistory) var galleryHistory

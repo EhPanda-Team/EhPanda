@@ -114,7 +114,7 @@ public struct FrontpageReducer: Sendable {
                     state.pageNumber = response.pageNumber
                     state.dateSeekNavigation = response.dateSeekNavigation
                     state.galleries = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
@@ -144,9 +144,7 @@ public struct FrontpageReducer: Sendable {
                     state.dateSeekNavigation = response.dateSeekNavigation
                     state.insertGalleries(galleries)
 
-                    var effects: [Effect<Action>] = [
-                        .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
-                    ]
+                    var effects: [Effect<Action>] = []
                     if galleries.isEmpty, response.pageNumber.hasNextPage() {
                         effects.append(.send(.fetchMoreGalleries))
                     } else if !galleries.isEmpty {
@@ -182,7 +180,7 @@ public struct FrontpageReducer: Sendable {
                     state.pageNumber = response.pageNumber
                     state.dateSeekNavigation = response.dateSeekNavigation
                     state.galleries = galleries
-                    return .run(operation: { _ in await databaseClient.cacheGalleries(galleries) })
+                    return .none
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }

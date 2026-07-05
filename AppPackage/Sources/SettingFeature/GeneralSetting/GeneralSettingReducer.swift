@@ -136,11 +136,7 @@ public struct GeneralSettingReducer: Sendable {
 
             case .clearWebImageCache:
                 return .run { send in
-                    async let removeCachedImages: Void =
-                        libraryClient.removeAllCachedImages()
-                    async let removeImageURLs: Void =
-                        databaseClient.removeImageURLs()
-                    _ = await (removeCachedImages, removeImageURLs)
+                    await libraryClient.removeAllCachedImages()
                     logger.notice("Cleared image cache.")
                     await send(.calculateWebImageDiskCache)
                 }

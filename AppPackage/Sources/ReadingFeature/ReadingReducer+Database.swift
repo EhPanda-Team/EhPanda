@@ -18,28 +18,6 @@ extension ReadingReducer {
                 }
                 return .none
 
-            case .syncPreviewURLs(let previewURLs):
-                guard !state.isOffline else { return .none }
-                return .run { [state] _ in
-                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
-                }
-
-            case .syncThumbnailURLs(let thumbnailURLs):
-                guard !state.isOffline else { return .none }
-                return .run { [state] _ in
-                    await databaseClient.updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs)
-                }
-
-            case .syncImageURLs(let imageURLs, let originalImageURLs):
-                guard !state.isOffline else { return .none }
-                return .run { [state] _ in
-                    await databaseClient.updateImageURLs(
-                        gid: state.gallery.id,
-                        imageURLs: imageURLs,
-                        originalImageURLs: originalImageURLs
-                    )
-                }
-
             case .fetchDatabaseInfos(let gid):
                 return reduceFetchDatabaseInfos(state: &state, gid: gid)
 
