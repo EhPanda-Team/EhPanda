@@ -155,6 +155,17 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+// MARK: Manually decode
+extension QuickSearchWord {
+    // Tolerant decoding keeps an existing persisted list valid across future additive changes.
+    public init(from decoder: Decoder) {
+        let container = try? decoder.container(keyedBy: CodingKeys.self)
+        id = (try? container?.decodeIfPresent(UUID.self, forKey: .id)) ?? .init()
+        name = (try? container?.decodeIfPresent(String.self, forKey: .name)) ?? ""
+        content = (try? container?.decodeIfPresent(String.self, forKey: .content)) ?? ""
+    }
+}
+
 @dynamicMemberLookup @CasePathable
 public enum LoadingState: Equatable, Hashable, Sendable {
     case idle
