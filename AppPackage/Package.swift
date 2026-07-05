@@ -332,7 +332,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .module(.databaseClient),
             .module(.libraryClient),
             .module(.networkingFeature),
             .module(.osLogExt),
@@ -341,7 +340,8 @@ let targets: [PackageDescription.Target] = [
             .module(.animatedImageFeature),
             .module(.urlClient),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.kanna)
+            .targetDependency(.kanna),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
@@ -763,7 +763,8 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins

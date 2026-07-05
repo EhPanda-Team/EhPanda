@@ -1,10 +1,10 @@
 import Foundation
 import AppModels
+import Sharing
 import Resources
 import ComposableArchitecture
 import AppTools
 import HapticsClient
-import DatabaseClient
 import NetworkingFeature
 import CookieClient
 import AppComponents
@@ -38,7 +38,6 @@ public struct ArchivesReducer: Sendable {
         case fetchDownloadResponseDone(Result<String, AppError>)
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
 
@@ -56,9 +55,12 @@ public struct ArchivesReducer: Sendable {
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
-                return .run { _ in
-                    await databaseClient.updateGalleryFunds(galleryPoints: galleryPoints, credits: credits)
+                @Shared(.user) var user
+                $user.withLock {
+                    $0.galleryPoints = galleryPoints
+                    $0.credits = credits
                 }
+                return .none
 
             case .fetchArchive(let gid, let galleryURL, let archiveURL):
                 guard state.loadingState != .loading else { return .none }
