@@ -255,13 +255,13 @@ struct AppReducer {
 
             // A gallery tapped on iPad presents modally (hosted by AppRoute) instead of pushing
             // inline; the tab hosts delegate that presentation up here.
-            case let .home(.delegate(.presentGalleryDetail(gid))),
-                 let .searchRoot(.delegate(.presentGalleryDetail(gid))),
-                 let .favorites(.delegate(.presentGalleryDetail(gid))):
-                return .send(.appRoute(.presentGalleryDetail(gid, nil)))
+            case let .home(.delegate(.presentGalleryDetail(gallery))),
+                 let .searchRoot(.delegate(.presentGalleryDetail(gallery))),
+                 let .favorites(.delegate(.presentGalleryDetail(gallery))):
+                return .send(.appRoute(.presentGalleryDetail(gallery, nil)))
 
-            case let .downloads(.delegate(.presentGalleryDetail(gid, download))):
-                return .send(.appRoute(.presentGalleryDetail(gid, download)))
+            case let .downloads(.delegate(.presentGalleryDetail(gallery, download))):
+                return .send(.appRoute(.presentGalleryDetail(gallery, download)))
 
             case .home:
                 return .none

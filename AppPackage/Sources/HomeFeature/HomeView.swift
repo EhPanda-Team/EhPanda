@@ -38,7 +38,7 @@ public struct HomeView: View {
                                 pageIndex: $store.cardPageIndex,
                                 currentID: store.currentCardID,
                                 colors: store.cardColors,
-                                navigateAction: navigateTo(gid:),
+                                navigateAction: navigateTo(gallery:),
                                 webImageSuccessAction: { gid, result in
                                     store.send(.analyzeImageColors(gid, result))
                                 }
@@ -50,7 +50,7 @@ public struct HomeView: View {
                                 CoverWallSection(
                                     galleries: store.frontpageGalleries,
                                     isLoading: store.frontpageLoadingState == .loading,
-                                    navigateAction: navigateTo(gid:),
+                                    navigateAction: navigateTo(gallery:),
                                     showAllAction: { store.send(.sectionTapped(.frontpage)) },
                                     reloadAction: { store.send(.fetchFrontpageGalleries) }
                                 )
@@ -59,7 +59,7 @@ public struct HomeView: View {
                                 galleries: store.toplistsGalleries,
                                 isLoading: !store.toplistsLoadingState
                                     .values.allSatisfy({ $0 != .loading }),
-                                navigateAction: navigateTo(gid:),
+                                navigateAction: navigateTo(gallery:),
                                 showAllAction: { store.send(.sectionTapped(.toplists)) },
                                 reloadAction: { store.send(.fetchAllToplistsGalleries) }
                             )
@@ -143,8 +143,8 @@ public struct HomeView: View {
 
 // MARK: Navigation
 private extension HomeView {
-    func navigateTo(gid: String) {
-        store.send(.galleryTapped(gid))
+    func navigateTo(gallery: Gallery) {
+        store.send(.galleryTapped(gallery))
     }
     func navigateTo(type: HomeMiscGridType) {
         store.send(.miscTapped(type))

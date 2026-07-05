@@ -74,7 +74,7 @@ struct PreviewsView: View {
             .autoBlur(radius: blurRadius)
         }
         .onAppear {
-            store.send(.fetchDatabaseInfos(gid))
+            store.send(.onAppear(gid))
         }
         .navigationTitle(.previews)
     }
