@@ -1,11 +1,12 @@
 import Foundation
 import AppModels
+import Sharing
 import Resources
 import ComposableArchitecture
 import AppTools
 import HapticsClient
-import DatabaseClient
 import DownloadClient
+import NetworkingFeature
 import AppComponents
 
 @Reducer
@@ -28,6 +29,10 @@ public struct HistoryReducer: Sendable {
         public var keyword = ""
         public var downloadBadges = [String: DownloadBadge]()
 
+        // The persisted browsing history (identity + recency + resume page, most-recent-first).
+        // No gallery snapshot is stored, so `galleries` is the display metadata refetched on demand.
+        @Shared(.galleryHistory) public var galleryHistory: [GalleryHistoryEntry]
+
         var filteredGalleries: [Gallery] {
             guard !keyword.isEmpty else { return galleries }
             return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
@@ -47,12 +52,11 @@ public struct HistoryReducer: Sendable {
         case clearHistoryGalleries
 
         case fetchGalleries
-        case fetchGalleriesDone([Gallery])
+        case fetchGalleriesDone(Result<[Gallery], AppError>)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
     }
 
-    @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.downloadClient) private var downloadClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
@@ -94,28 +98,36 @@ public struct HistoryReducer: Sendable {
                 return .none
 
             case .clearHistoryGalleries:
-                return .merge(
-                    .run(operation: { _ in await databaseClient.clearHistoryGalleries() }),
-                    .run { send in
-                        try await Task.sleep(for: .milliseconds(200))
-                        await send(.fetchGalleries)
-                    }
-                )
+                // Clearing also drops resume positions (they live on the same entries) — deliberate,
+                // browser-like. The write is synchronous, so we can refetch straight away.
+                state.$galleryHistory.withLock { $0.removeAll() }
+                return .send(.fetchGalleries)
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
+                let pairs = state.galleryHistory.map { (gid: $0.gid, token: $0.token) }
+                guard !pairs.isEmpty else {
+                    state.galleries = []
+                    state.loadingState = .failed(.notFound)
+                    return .none
+                }
                 state.loadingState = .loading
                 return .run { send in
-                    let historyGalleries = await databaseClient.fetchHistoryGalleries()
-                    await send(.fetchGalleriesDone(historyGalleries))
+                    let response = await GalleriesMetadataRequest(gidList: pairs).response()
+                    await send(.fetchGalleriesDone(response))
                 }
 
-            case .fetchGalleriesDone(let galleries):
+            case .fetchGalleriesDone(let result):
                 state.loadingState = .idle
-                if galleries.isEmpty {
-                    state.loadingState = .failed(.notFound)
-                } else {
-                    state.galleries = galleries
+                switch result {
+                case .success(let galleries):
+                    if galleries.isEmpty {
+                        state.loadingState = .failed(.notFound)
+                    } else {
+                        state.galleries = galleries
+                    }
+                case .failure(let error):
+                    state.loadingState = .failed(error)
                 }
                 return .none
 

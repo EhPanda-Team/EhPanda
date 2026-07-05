@@ -1,5 +1,6 @@
 import AppModels
 import SwiftUI
+import Sharing
 import BackgroundTasks
 import ComposableArchitecture
 import AppTools
@@ -36,6 +37,9 @@ struct AppDelegateReducer {
         Reduce { _, action in
             switch action {
             case .onLaunchFinish:
+                // Enforce the browsing-history cap once per launch; in-session upserts never trim.
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock { $0.pruneToHistoryCap() }
                 return .merge(
                     .run(operation: { _ in libraryClient.initializeWebImage() }),
                     .run(operation: { _ in cookieClient.removeYay() }),

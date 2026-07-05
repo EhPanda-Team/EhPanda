@@ -35,4 +35,13 @@ extension Array where Element == GalleryHistoryEntry {
             )
         }
     }
+
+    /// Trims the list to the `historyCap` most-recent entries by `lastOpenDate`. Called only at
+    /// launch: it also normalises the order to most-recent-first when it has to drop anything.
+    public mutating func pruneToHistoryCap() {
+        guard count > GalleryHistoryEntry.historyCap else { return }
+        self = Array(
+            sorted { $0.lastOpenDate > $1.lastOpenDate }.prefix(GalleryHistoryEntry.historyCap)
+        )
+    }
 }
