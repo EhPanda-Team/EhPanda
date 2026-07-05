@@ -376,10 +376,13 @@ private struct CookieClientTestingCookie: Sendable {
 
     public func matches(url: URL, key: String? = nil) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
+        // Host-exact: the store only ever holds concrete-host cookies (never a wildcard `.domain`
+        // one), so a subdomain query such as `s.exhentai.org` must NOT match an `exhentai.org`
+        // cookie. A suffix match let a `syncExCookies` write to one host collaterally delete a
+        // sibling host's login cookies (via `editCookie`'s remove-all-matching), nondeterministically.
         let normalizedDomain = domain.lowercased()
             .trimmingCharacters(in: CharacterSet(charactersIn: "."))
         let domainMatches = host == normalizedDomain
-            || host.hasSuffix(".\(normalizedDomain)")
         let keyMatches = key.map { name == $0 } ?? true
         return domainMatches && keyMatches
     }
