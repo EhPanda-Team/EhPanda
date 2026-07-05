@@ -41,12 +41,12 @@ struct AppRouteReducer {
         case path(StackActionOf<GalleryPath>)
         case presentSetting
         case presentNewDawn(Greeting)
-        case presentGalleryDetail(String, DownloadedGallery?)
+        case presentGalleryDetail(Gallery, DownloadedGallery?)
         case setToast(AppAlertState<Never>)
 
         case detectClipboardURL
         case handleDeepLink(URL)
-        case handleGalleryLink(URL)
+        case handleGalleryLink(URL, Gallery)
 
         case updateReadingProgress(String, Int)
 
@@ -113,11 +113,16 @@ struct AppRouteReducer {
                 state.destination = .newDawn(greeting)
                 return .none
 
-            case .presentGalleryDetail(let gid, let download):
+            case .presentGalleryDetail(let gallery, let download):
                 // A gallery opened from a tab on iPad: modal detail rooting its own gallery stack,
-                // seeded from the local download when one exists so it renders offline.
+                // seeded from the local download when one exists so it renders offline, otherwise
+                // from the tapped gallery.
                 state.path.removeAll()
-                state.detail = .init(gid: gid, seededFrom: download)
+                if let download {
+                    state.detail = .init(gid: gallery.id, seededFrom: download)
+                } else {
+                    state.detail = .init(gallery: gallery)
+                }
                 return .none
 
             case .setToast(let config):
@@ -145,34 +150,27 @@ struct AppRouteReducer {
                     state.detail = nil
                     state.path.removeAll()
                 }
+                // Always fetch the gallery so the pushed detail is seeded from it (no cache lookup).
                 let analysis = urlClient.analyzeURL(url)
-                let gid = urlClient.parseGalleryID(url)
-                guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return .run { [delay] send in
-                        try await Task.sleep(for: .milliseconds(delay + 250))
-                        await send(.handleGalleryLink(url))
-                    }
-                }
                 return .run { [delay] send in
                     try await Task.sleep(for: .milliseconds(delay))
                     await send(.fetchGallery(url, analysis.isGalleryImageURL))
                 }
 
-            case .handleGalleryLink(let url):
+            case .handleGalleryLink(let url, let gallery):
                 let analysis = urlClient.analyzeURL(url)
                 let pageIndex = analysis.pageIndex
                 let commentID = analysis.commentID
-                let gid = urlClient.parseGalleryID(url)
                 var deepLink: GalleryDeepLink?
                 var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {
-                    effects.append(.send(.updateReadingProgress(gid, pageIndex)))
+                    effects.append(.send(.updateReadingProgress(gallery.id, pageIndex)))
                     deepLink = .reading(page: pageIndex)
                 } else if let commentID = commentID {
                     deepLink = .comments(commentID: commentID)
                 }
                 state.path.removeAll()
-                state.detail = DetailReducer.State(gid: gid, pendingDeepLink: deepLink)
+                state.detail = DetailReducer.State(gallery: gallery, pendingDeepLink: deepLink)
                 effects.append(.run(operation: { _ in await hapticsClient.generateFeedback(.light) }))
                 return .merge(effects)
 
@@ -202,7 +200,7 @@ struct AppRouteReducer {
                 case .success(let gallery):
                     return .run { send in
                         await databaseClient.cacheGalleries([gallery])
-                        await send(.handleGalleryLink(url))
+                        await send(.handleGalleryLink(url, gallery))
                     }
                 case .failure:
                     // Let the loading toast animate out before showing the error toast.

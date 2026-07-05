@@ -21,8 +21,8 @@ public enum GalleryNavigation {
         switch action {
         case let .detail(.delegate(delegate)):
             switch delegate {
-            case .pushPreviews(let gid):
-                return .previews(.init(gid: gid))
+            case .pushPreviews(let gallery):
+                return .previews(.init(gid: gallery.id, gallery: gallery))
             case let .pushComments(gid, token, apiKey, galleryURL, comments, scrollCommentID):
                 return .comments(.init(
                     gid: gid, token: token, apiKey: apiKey,
@@ -36,14 +36,14 @@ public enum GalleryNavigation {
 
         case let .comments(.delegate(delegate)):
             switch delegate {
-            case let .pushDetail(gid, deepLink):
-                return .detail(.init(gid: gid, pendingDeepLink: deepLink))
+            case let .pushDetail(gallery, deepLink):
+                return .detail(.init(gallery: gallery, pendingDeepLink: deepLink))
             case .performedCommentAction:
                 return nil
             }
 
-        case let .detailSearch(.delegate(.pushDetail(gid))):
-            return .detail(.init(gid: gid))
+        case let .detailSearch(.delegate(.pushDetail(gallery))):
+            return .detail(.init(gallery: gallery))
 
         default:
             return nil

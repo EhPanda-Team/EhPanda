@@ -14,7 +14,7 @@ public struct GenericList: View {
     private let footerLoadingState: LoadingState
     private let fetchAction: (() -> Void)?
     private let fetchMoreAction: (() -> Void)?
-    private let navigateAction: ((String) -> Void)?
+    private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
     public init(
@@ -22,7 +22,7 @@ public struct GenericList: View {
         loadingState: LoadingState, footerLoadingState: LoadingState,
         fetchAction: (() -> Void)? = nil,
         fetchMoreAction: (() -> Void)? = nil,
-        navigateAction: ((String) -> Void)? = nil,
+        navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
@@ -81,14 +81,14 @@ private struct DetailList: View {
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
     private let fetchMoreAction: (() -> Void)?
-    private let navigateAction: ((String) -> Void)?
+    private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
     init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
         footerLoadingState: LoadingState,
         fetchMoreAction: (() -> Void)?,
-        navigateAction: ((String) -> Void)? = nil,
+        navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
@@ -115,7 +115,7 @@ private struct DetailList: View {
     var body: some View {
         List(galleries) { gallery in
             Button {
-                navigateAction?(gallery.id)
+                navigateAction?(gallery)
             } label: {
                 GalleryDetailCell(
                     gallery: gallery,
@@ -145,7 +145,7 @@ private struct WaterfallList: View {
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
     private let fetchMoreAction: (() -> Void)?
-    private let navigateAction: ((String) -> Void)?
+    private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
     private var columnsInPortrait: Int {
@@ -168,7 +168,7 @@ private struct WaterfallList: View {
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
         footerLoadingState: LoadingState,
         fetchMoreAction: (() -> Void)?,
-        navigateAction: ((String) -> Void)? = nil,
+        navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
@@ -186,7 +186,7 @@ private struct WaterfallList: View {
         List {
             WaterfallGrid(galleries) { gallery in
                 Button {
-                    navigateAction?(gallery.id)
+                    navigateAction?(gallery)
                 } label: {
                     GalleryThumbnailCell(
                         gallery: gallery,

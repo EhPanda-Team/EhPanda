@@ -25,20 +25,20 @@ extension HomeReducer {
             case .binding:
                 return .none
 
-            case .galleryTapped(let gid),
-                 let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gid))))),
-                 let .path(.element(id: _, action: .history(.delegate(.pushDetail(gid))))):
+            case .galleryTapped(let gallery),
+                 let .path(.element(id: _, action: .frontpage(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .popular(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .toplists(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .watched(.delegate(.pushDetail(gallery))))),
+                 let .path(.element(id: _, action: .history(.delegate(.pushDetail(gallery))))):
                 return GalleryNavigation.routeGalleryDetail(
                     isPad: deviceClient.isPad,
-                    present: { .delegate(.presentGalleryDetail(gid)) },
-                    push: { .pushGalleryDetail(gid) }
+                    present: { .delegate(.presentGalleryDetail(gallery)) },
+                    push: { .pushGalleryDetail(gallery) }
                 )
 
-            case .pushGalleryDetail(let gid):
-                state.path.appendGuardingDuplicate(.gallery(.detail(.init(gid: gid))))
+            case .pushGalleryDetail(let gallery):
+                state.path.appendGuardingDuplicate(.gallery(.detail(.init(gallery: gallery))))
                 return .none
 
             case .delegate:

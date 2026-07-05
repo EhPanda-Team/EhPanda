@@ -20,7 +20,7 @@ public struct CommentsReducer: Sendable {
 
     public enum Delegate: Equatable, Sendable {
         // Open the linked gallery (optionally deep-linking to a page or comment) as a new stack element.
-        case pushDetail(String, GalleryDeepLink?)
+        case pushDetail(Gallery, GalleryDeepLink?)
         // A comment was voted/edited; ask the host to refresh the detail with this gid so it stays in sync.
         case performedCommentAction(String)
     }
@@ -71,7 +71,7 @@ public struct CommentsReducer: Sendable {
         case setScrollRowOpacity(Double)
         case performScrollOpacityEffect
         case handleCommentLink(URL)
-        case handleGalleryLink(URL)
+        case handleGalleryLink(URL, Gallery)
         case onPostCommentAppear
         case onAppear
 
@@ -155,27 +155,23 @@ public struct CommentsReducer: Sendable {
                 guard urlClient.checkIfHandleable(url) else {
                     return .run(operation: { _ in await applicationClient.openURL(url) })
                 }
+                // Always fetch the linked gallery so the pushed detail is seeded from it (no cache).
                 let analysis = urlClient.analyzeURL(url)
-                let gid = urlClient.parseGalleryID(url)
-                guard databaseClient.fetchGallery(gid: gid) == nil else {
-                    return .send(.handleGalleryLink(url))
-                }
                 return .send(.fetchGallery(url, analysis.isGalleryImageURL))
 
-            case .handleGalleryLink(let url):
+            case .handleGalleryLink(let url, let gallery):
                 let analysis = urlClient.analyzeURL(url)
                 let pageIndex = analysis.pageIndex
                 let commentID = analysis.commentID
-                let gid = urlClient.parseGalleryID(url)
                 var deepLink: GalleryDeepLink?
                 var effects = [Effect<Action>]()
                 if let pageIndex = pageIndex {
-                    effects.append(.send(.updateReadingProgress(gid, pageIndex)))
+                    effects.append(.send(.updateReadingProgress(gallery.id, pageIndex)))
                     deepLink = .reading(page: pageIndex)
                 } else if let commentID = commentID {
                     deepLink = .comments(commentID: commentID)
                 }
-                effects.append(.send(.delegate(.pushDetail(gid, deepLink))))
+                effects.append(.send(.delegate(.pushDetail(gallery, deepLink))))
                 return .merge(effects)
 
             case .onPostCommentAppear:
@@ -267,7 +263,7 @@ public struct CommentsReducer: Sendable {
                 case .success(let gallery):
                     return .merge(
                         .run(operation: { _ in await databaseClient.cacheGalleries([gallery]) }),
-                        .send(.handleGalleryLink(url))
+                        .send(.handleGalleryLink(url, gallery))
                     )
                 case .failure:
                     // Let the loading toast animate out before showing the error toast.

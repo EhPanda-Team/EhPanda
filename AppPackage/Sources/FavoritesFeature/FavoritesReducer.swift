@@ -15,7 +15,7 @@ import DetailFeature
 @Reducer
 public struct FavoritesReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case presentGalleryDetail(String)
+        case presentGalleryDetail(Gallery)
     }
 
     private enum CancelID {
@@ -75,8 +75,8 @@ public struct FavoritesReducer: Sendable {
         case binding(BindingAction<State>)
         case onAppear
         case delegate(Delegate)
-        case galleryTapped(String)
-        case pushGalleryDetail(String)
+        case galleryTapped(Gallery)
+        case pushGalleryDetail(Gallery)
         case path(StackActionOf<GalleryPath>)
         case setFavoritesIndex(Int)
         case quickSearchButtonTapped
@@ -111,15 +111,15 @@ public struct FavoritesReducer: Sendable {
             case .onAppear:
                 return .send(.observeDownloads)
 
-            case .galleryTapped(let gid):
+            case .galleryTapped(let gallery):
                 return GalleryNavigation.routeGalleryDetail(
                     isPad: deviceClient.isPad,
-                    present: { .delegate(.presentGalleryDetail(gid)) },
-                    push: { .pushGalleryDetail(gid) }
+                    present: { .delegate(.presentGalleryDetail(gallery)) },
+                    push: { .pushGalleryDetail(gallery) }
                 )
 
-            case .pushGalleryDetail(let gid):
-                state.path.appendGuardingDuplicate(.detail(.init(gid: gid)))
+            case .pushGalleryDetail(let gallery):
+                state.path.appendGuardingDuplicate(.detail(.init(gallery: gallery)))
                 return .none
 
             case .delegate:

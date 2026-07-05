@@ -15,13 +15,13 @@ struct CardSlideSection: View, Equatable {
     private let galleries: [Gallery]
     private let currentID: String
     private let colors: [Color]
-    private let navigateAction: (String) -> Void
+    private let navigateAction: (Gallery) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
         galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
         colors: [Color],
-        navigateAction: @escaping (String) -> Void,
+        navigateAction: @escaping (Gallery) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
         self.galleries = galleries
@@ -41,7 +41,7 @@ struct CardSlideSection: View, Equatable {
     var body: some View {
         Pager(page: page, data: galleries) { gallery in
             Button {
-                navigateAction(gallery.id)
+                navigateAction(gallery)
             } label: {
                 GalleryCardCell(
                     gallery: gallery,
@@ -67,13 +67,13 @@ struct CardSlideSection: View, Equatable {
 struct CoverWallSection: View {
     private let galleries: [Gallery]
     private let isLoading: Bool
-    private let navigateAction: (String) -> Void
+    private let navigateAction: (Gallery) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
         galleries: [Gallery], isLoading: Bool,
-        navigateAction: @escaping (String) -> Void,
+        navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
@@ -117,9 +117,9 @@ struct CoverWallSection: View {
 
 struct VerticalCoverStack: View {
     private let galleries: [Gallery]
-    private let navigateAction: (String) -> Void
+    private let navigateAction: (Gallery) -> Void
 
-    init(galleries: [Gallery], navigateAction: @escaping (String) -> Void) {
+    init(galleries: [Gallery], navigateAction: @escaping (Gallery) -> Void) {
         self.galleries = galleries
         self.navigateAction = navigateAction
     }
@@ -129,7 +129,7 @@ struct VerticalCoverStack: View {
     }
     private func imageContainer(gallery: Gallery) -> some View {
         Button {
-            navigateAction(gallery.id)
+            navigateAction(gallery)
         } label: {
             KFImage(gallery.coverURL)
                 .placeholder(placeholder)
@@ -150,13 +150,13 @@ struct VerticalCoverStack: View {
 struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
-    private let navigateAction: (String) -> Void
+    private let navigateAction: (Gallery) -> Void
     private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
         galleries: [Int: [Gallery]], isLoading: Bool,
-        navigateAction: @escaping (String) -> Void,
+        navigateAction: @escaping (Gallery) -> Void,
         showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
@@ -225,12 +225,12 @@ struct ToplistsSection: View {
 struct VerticalToplistsStack: View {
     private let galleries: [Gallery]
     private let startRanking: Int
-    private let navigateAction: (String) -> Void
+    private let navigateAction: (Gallery) -> Void
 
     init(
         galleries: [Gallery],
         startRanking: Int,
-        navigateAction: @escaping (String) -> Void
+        navigateAction: @escaping (Gallery) -> Void
     ) {
         self.galleries = galleries
         self.startRanking = startRanking
@@ -242,7 +242,7 @@ struct VerticalToplistsStack: View {
             ForEach(0..<galleries.count, id: \.self) { index in
                 VStack(spacing: 10) {
                     Button {
-                        navigateAction(galleries[index].id)
+                        navigateAction(galleries[index])
                     } label: {
                         GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
                             .tint(.primary).multilineTextAlignment(.leading)

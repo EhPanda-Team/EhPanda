@@ -10,7 +10,7 @@ import NetworkingFeature
 @Reducer
 public struct ToplistsReducer: Sendable {
     public enum Delegate: Equatable, Sendable {
-        case pushDetail(String)
+        case pushDetail(Gallery)
     }
 
     public enum Alert: Equatable, Sendable {

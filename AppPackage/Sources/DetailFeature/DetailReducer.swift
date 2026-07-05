@@ -17,7 +17,7 @@ public struct DetailReducer: Sendable {
     // The gallery sub-screens are now standalone elements on the host's navigation stack. Detail asks
     // the host to push them via these delegate actions instead of owning nested child state itself.
     public enum Delegate: Equatable, Sendable {
-        case pushPreviews(String)
+        case pushPreviews(Gallery)
         case pushComments(
             gid: String, token: String, apiKey: String,
             galleryURL: URL, comments: [GalleryComment], scrollCommentID: String?
@@ -44,7 +44,6 @@ public struct DetailReducer: Sendable {
     }
 
     public enum CancelID: Hashable, Sendable {
-        case fetchDatabaseInfos(String)
         case fetchGalleryDetail(String)
         case fetchVersionMetadata(String)
         case fetchDownloadBadge(String)
@@ -106,6 +105,15 @@ public struct DetailReducer: Sendable {
             self.pendingDeepLink = pendingDeepLink
         }
 
+        // Seeded from the pushing context (a tapped list item or a freshly-fetched gallery) so the
+        // detail header renders immediately and `fetchGalleryDetail` has a `galleryURL` without any
+        // database lookup. Gallery data lives only here and dies when the screen pops.
+        public init(gallery: Gallery, pendingDeepLink: GalleryDeepLink? = nil) {
+            self.gid = gallery.id
+            self.gallery = gallery
+            self.pendingDeepLink = pendingDeepLink
+        }
+
         mutating func updateRating(value: DragGesture.Value) {
             let rating = Int(value.location.x / 31 * 2) + 1
             userRating = min(max(rating, 1), 10)
@@ -164,8 +172,6 @@ public struct DetailReducer: Sendable {
         case retryDownloadDone(Result<Void, AppError>)
         case deleteDownload
         case deleteDownloadDone(Result<Void, AppError>)
-        case fetchDatabaseInfos(String)
-        case fetchDatabaseInfosDone(GalleryState)
         case fetchGalleryDetail
         case fetchGalleryDetailDone(Result<GalleryDetailResponse, AppError>)
         case fetchVersionMetadataIfNeeded

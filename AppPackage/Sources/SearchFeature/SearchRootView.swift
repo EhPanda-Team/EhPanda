@@ -121,7 +121,7 @@ private struct SuggestionsPanel: View {
     private let historyKeywords: [String]
     private let historyGalleries: [Gallery]
     private let quickSearchWords: [QuickSearchWord]
-    private let navigateGalleryAction: (String) -> Void
+    private let navigateGalleryAction: (Gallery) -> Void
     private let navigateQuickSearchAction: () -> Void
     private let searchKeywordAction: (String) -> Void
     private let removeKeywordAction: (String) -> Void
@@ -129,7 +129,7 @@ private struct SuggestionsPanel: View {
     init(
         historyKeywords: [String], historyGalleries: [Gallery],
         quickSearchWords: [QuickSearchWord],
-        navigateGalleryAction: @escaping (String) -> Void,
+        navigateGalleryAction: @escaping (Gallery) -> Void,
         navigateQuickSearchAction: @escaping () -> Void,
         searchKeywordAction: @escaping (String) -> Void,
         removeKeywordAction: @escaping (String) -> Void
@@ -238,9 +238,9 @@ private struct HistoryKeywordsSection: View {
 // MARK: HistoryGalleriesSection
 private struct HistoryGalleriesSection: View {
     private let galleries: [Gallery]
-    private let navigationAction: (String) -> Void
+    private let navigationAction: (Gallery) -> Void
 
-    init(galleries: [Gallery], navigationAction: @escaping (String) -> Void) {
+    init(galleries: [Gallery], navigationAction: @escaping (Gallery) -> Void) {
         self.galleries = galleries
         self.navigationAction = navigationAction
     }
@@ -251,7 +251,7 @@ private struct HistoryGalleriesSection: View {
                 HStack {
                     ForEach(galleries) { gallery in
                         Button {
-                            navigationAction(gallery.id)
+                            navigationAction(gallery)
                         } label: {
                             GalleryHistoryCell(gallery: gallery)
                                 .tint(.primary).multilineTextAlignment(.leading)
