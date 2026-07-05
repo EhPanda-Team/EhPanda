@@ -17,10 +17,11 @@ import Sharing
 //     + defaults): additive changes never invalidate an existing persisted value, and a decode
 //     failure falls back to the key's default — there is no store-fails-to-open failure mode.
 //
-// The one exception is the tag-translation table (`tagTranslator`): it is multi-megabyte, far too
-// large for the UserDefaults domain, so it uses the `fileStorage` strategy (a JSON file) instead.
-// Everything else fits app storage. Web images keep their own caches. `appStorage` keys must not
-// contain `.` or `@`.
+// Nothing here uses the `fileStorage` strategy. The tag-translation table is the only large
+// artifact, and it is deliberately NOT persisted through Sharing: only its thin
+// `tagTranslatorInfo` metadata lives in app storage, while the multi-megabyte translations are a
+// plain, re-downloadable cache file rebuilt at launch (see `TagTranslatorInfo`). Web images keep
+// their own caches. `appStorage` keys must not contain `.` or `@`.
 
 // MARK: Account & preferences
 
@@ -64,14 +65,11 @@ extension SharedKey where Self == AppStorageKey<[QuickSearchWord]>.Default {
     }
 }
 
-// MARK: Tag translations (large — file-backed rather than in the defaults domain)
+// MARK: Tag translations (thin metadata only — the table itself is a rebuilt cache file)
 
-extension SharedKey where Self == FileStorageKey<TagTranslator>.Default {
-    public static var tagTranslator: Self {
-        Self[
-            .fileStorage(.applicationSupportDirectory.appending(component: "tagTranslator.json")),
-            default: TagTranslator()
-        ]
+extension SharedKey where Self == AppStorageKey<TagTranslatorInfo>.Default {
+    public static var tagTranslatorInfo: Self {
+        Self[.appStorage("tagTranslatorInfo"), default: TagTranslatorInfo()]
     }
 }
 

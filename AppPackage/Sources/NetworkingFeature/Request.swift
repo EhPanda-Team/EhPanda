@@ -3,7 +3,6 @@ import AppModels
 import Combine
 import Foundation
 import ComposableArchitecture
-import OpenCCExt
 import AppTools
 import ParserFeature
 
@@ -316,7 +315,9 @@ public struct TagTranslatorRequest: Request {
         return formatter
     }
 
-    public var publisher: AnyPublisher<TagTranslator, AppError> {
+    // Returns the untouched DB JSON bytes plus the release date; decoding, OpenCC conversion, and
+    // caching are done downstream by `FileClient` so this layer stays purely network.
+    public var publisher: AnyPublisher<TagTranslatorPayload, AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.githubAPI(repoName: language.repoName))
             .genericRetry().tryMap { data, _ -> Date in
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -332,19 +333,7 @@ public struct TagTranslatorRequest: Request {
                 URLSession.shared.dataTaskPublisher(
                     for: URLUtil.githubDownload(repoName: language.repoName, fileName: language.remoteFilename)
                 )
-                    .tryMap { data, _ in
-                        let response = try JSONDecoder().decode(
-                            EhTagTranslationDatabaseResponse.self, from: data
-                        )
-                        var translations = response.tagTranslations
-                        guard !translations.isEmpty else { throw AppError.parseFailed }
-                        if language == .traditionalChinese {
-                            translations = translations.chtConverted
-                        }
-                        return TagTranslator(
-                            language: language, updatedDate: date, translations: translations
-                        )
-                    }
+                    .tryMap { data, _ in TagTranslatorPayload(data: data, updatedDate: date) }
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()

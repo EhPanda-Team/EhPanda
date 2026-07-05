@@ -133,10 +133,11 @@ struct SettingReducerNavigationTests {
         let url = URL(filePath: "/tmp/tags.json")
         await store.send(.path(.element(id: id, action: .general(.onTranslationsFilePicked(url)))))
 
-        // The parent intercept runs `fileClient.importTagTranslator` and stores the result
-        // (write-through to `@Shared(.tagTranslator)`).
+        // The parent intercept runs `fileClient.importTagTranslator`, stores the (in-memory) table
+        // and records the custom-import flag in the persisted `tagTranslatorInfo`.
         await store.receive(\.fetchTagTranslatorDone) {
-            $0.$tagTranslator.withLock { $0 = imported }
+            $0.tagTranslator = imported
+            $0.$tagTranslatorInfo.withLock { $0 = TagTranslatorInfo(hasCustomTranslations: true) }
         }
     }
 
