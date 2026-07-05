@@ -134,6 +134,28 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         #expect(cookieClient.shouldFetchIgneous)
     }
 
+    @Test
+    func testSyncExCookiesPreservesSiblingHostLoginCookies() {
+        let cookieClient = CookieClient.testing()
+        cookieClient.clearAll()
+        defer { cookieClient.clearAll() }
+
+        cookieClient.setOrEditCookie(
+            for: Defaults.URL.exhentai, key: Defaults.Cookie.ipbMemberId, value: "4172984"
+        )
+        cookieClient.setOrEditCookie(
+            for: Defaults.URL.exhentai, key: Defaults.Cookie.ipbPassHash, value: "pass-hash"
+        )
+
+        // Syncing exhentai.org's cookies onto the sibling host s.exhentai.org must not disturb the
+        // exhentai.org cookies (regression: a suffix domain match used to delete them).
+        cookieClient.syncExCookies()
+
+        let exCookies = cookieClient.cookies(for: Defaults.URL.exhentai)
+        #expect(exCookies.first { $0.name == Defaults.Cookie.ipbMemberId }?.value == "4172984")
+        #expect(exCookies.first { $0.name == Defaults.Cookie.ipbPassHash }?.value == "pass-hash")
+    }
+
     @MainActor
     @Test
     func testRunLaunchAutomationFallsBackToInitialTabWhenGalleryURLIsUnhandleable() async {
