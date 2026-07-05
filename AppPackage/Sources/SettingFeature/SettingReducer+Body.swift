@@ -266,7 +266,6 @@ extension SettingReducer {
                 state.$user.withLock { $0 = User() }
                 return .merge(
                     .run(operation: { _ in cookieClient.clearAll() }),
-                    .run(operation: { _ in await databaseClient.removeImageURLs() }),
                     .run(operation: { _ in await libraryClient.removeAllCachedImages() }),
                     .run { _ in logger.notice("Logged out.") }
                 )

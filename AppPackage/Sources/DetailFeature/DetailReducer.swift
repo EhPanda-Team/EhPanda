@@ -143,12 +143,7 @@ public struct DetailReducer: Sendable {
         case updateRating(DragGesture.Value)
         case confirmRating(DragGesture.Value)
         case confirmRatingDone
-        case syncGalleryTags
-        case syncGalleryDetail
-        case syncGalleryPreviewURLs
-        case syncGalleryComments
         case syncGreeting(Greeting)
-        case syncPreviewConfig(PreviewConfig)
         case saveGalleryHistory
         case updateReadingProgress(Int)
         case fetchDownloadBadge

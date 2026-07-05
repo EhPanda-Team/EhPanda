@@ -33,7 +33,7 @@ extension ReadingReducer {
                     }
                     state.previewLoadingStates[index] = .idle
                     state.updatePreviewURLs(previewURLs)
-                    return .send(.syncPreviewURLs(previewURLs))
+                    return .none
                 case .failure(let error):
                     state.previewLoadingStates[index] = .failed(error)
                 }
@@ -151,10 +151,7 @@ extension ReadingReducer {
                         return .send(.fetchMPVKeys(index, url))
                     } else {
                         state.updateThumbnailURLs(thumbnailURLs)
-                        return .merge(
-                            .send(.syncThumbnailURLs(thumbnailURLs)),
-                            .send(.fetchNormalImageURLs(index, thumbnailURLs))
-                        )
+                        return .send(.fetchNormalImageURLs(index, thumbnailURLs))
                     }
                 case .failure(let error):
                     batchRange.forEach {
@@ -188,7 +185,7 @@ extension ReadingReducer {
                         state.imageURLLoadingStates[$0] = .idle
                     }
                     state.updateImageURLs(imageURLs, originalImageURLs)
-                    return .send(.syncImageURLs(imageURLs, originalImageURLs))
+                    return .none
                 case .failure(let error):
                     batchRange.forEach {
                         state.imageURLLoadingStates[$0] = .failed(error)
@@ -233,8 +230,7 @@ extension ReadingReducer {
                     }
                     state.imageURLLoadingStates[index] = .idle
                     state.updateImageURLs(imageURLs, [:])
-                    effects.append(.send(.syncImageURLs(imageURLs, [:])))
-                    return .merge(effects)
+                    return effects.isEmpty ? .none : .merge(effects)
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
                 }
@@ -314,7 +310,7 @@ extension ReadingReducer {
                     state.imageURLLoadingStates[index] = .idle
                     state.mpvSkipServerIdentifiers[index] = mpvResult.skipServerIdentifier
                     state.updateImageURLs(imageURLs, originalImageURLs)
-                    return .send(.syncImageURLs(imageURLs, originalImageURLs))
+                    return .none
                 case .failure(let error):
                     state.imageURLLoadingStates[index] = .failed(error)
                 }

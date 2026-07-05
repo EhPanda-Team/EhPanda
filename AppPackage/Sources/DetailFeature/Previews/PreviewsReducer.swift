@@ -53,7 +53,6 @@ public struct PreviewsReducer: Sendable {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
 
-        case syncPreviewURLs([Int: URL])
         case updateReadingProgress(Int)
 
         case onAppear(String)
@@ -87,11 +86,6 @@ public struct PreviewsReducer: Sendable {
 
             case .destination:
                 return .none
-
-            case .syncPreviewURLs(let previewURLs):
-                return .run { [state] _ in
-                    await databaseClient.updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs)
-                }
 
             case .updateReadingProgress(let progress):
                 @Shared(.galleryHistory) var galleryHistory
@@ -198,7 +192,7 @@ public struct PreviewsReducer: Sendable {
                         return .none
                     }
                     state.updatePreviewURLs(previewURLs)
-                    return .send(.syncPreviewURLs(previewURLs))
+                    return .none
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }

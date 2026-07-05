@@ -26,10 +26,6 @@ extension DetailReducer {
                 switch result {
                 case .success(let response):
                     var effects: [Effect<Action>] = [
-                        .send(.syncGalleryTags),
-                        .send(.syncGalleryDetail),
-                        .send(.syncGalleryPreviewURLs),
-                        .send(.syncGalleryComments),
                         .send(.fetchDownloadBadge)
                     ]
                     state.apiKey = response.apiKey
@@ -49,9 +45,6 @@ extension DetailReducer {
                         if !greeting.gainedNothing && state.showsNewDawnGreeting {
                             effects.append(.send(.presentNewDawn(greeting)))
                         }
-                    }
-                    if let config = response.galleryState.previewConfig {
-                        effects.append(.send(.syncPreviewConfig(config)))
                     }
                     if let deepLink = state.pendingDeepLink {
                         state.pendingDeepLink = nil

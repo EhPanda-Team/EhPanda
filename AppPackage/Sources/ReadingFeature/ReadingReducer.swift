@@ -160,9 +160,6 @@ public struct ReadingReducer: Sendable {
         case fetchImageDone(ImageAction, Result<ImageClient.ImageAsset, Error>)
 
         case syncReadingProgress(Int)
-        case syncPreviewURLs([Int: URL])
-        case syncThumbnailURLs([Int: URL])
-        case syncImageURLs([Int: URL], [Int: URL])
 
         case fetchDatabaseInfos(String)
         case observeDownloads(String)

@@ -207,7 +207,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
         store.exhaustivity = .off
 
         await store.send(.appDelegate(.migration(.onDatabasePreparationSuccess)))
-        await store.receive(\.appDelegate.removeExpiredImageURLs)
         #expect(cookieClient.shouldFetchIgneous)
         await store.receive(\.setting.loadUserSettings)
     }

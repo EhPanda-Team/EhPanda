@@ -139,9 +139,8 @@ extension ReadingReducer {
                 state.mpvImageKeys = .init()
                 state.mpvSkipServerIdentifiers = .init()
                 state.forceRefreshID = .init()
-                return .run { [state] _ in
-                    await databaseClient.removeImageURLs(gid: state.gallery.id)
-                }
+                // URL maps live only in reducer state now; clearing them above is the whole reset.
+                return .none
 
             case .retryAllFailedWebImages:
                 guard !state.isOffline else { return .none }
