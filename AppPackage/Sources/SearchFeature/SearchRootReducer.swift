@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import AppModels
+import Sharing
 import AppTools
 import HapticsClient
 import DatabaseClient
@@ -27,8 +28,10 @@ public struct SearchRootReducer: Sendable {
         public var keyword = ""
         public var historyGalleries = [Gallery]()
 
-        public var historyKeywords = [String]()
-        public var quickSearchWords = [QuickSearchWord]()
+        // Persisted directly in app storage; both are also read/written by pushed Search screens
+        // and the QuickSearch editor, which share the same keys, so changes stay live without reloads.
+        @Shared(.historyKeywords) public var historyKeywords: [String]
+        @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
 
         public init() {}
 
@@ -55,11 +58,11 @@ public struct SearchRootReducer: Sendable {
                     }
                 }
             }
-            self.historyKeywords = historyKeywords
+            $historyKeywords.withLock { $0 = historyKeywords }
         }
 
         mutating func removeHistoryKeyword(_ keyword: String) {
-            historyKeywords = historyKeywords.filter { $0 != keyword }
+            $historyKeywords.withLock { $0.removeAll { $0 == keyword } }
         }
     }
 
@@ -75,9 +78,6 @@ public struct SearchRootReducer: Sendable {
         case quickSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
 
-        case syncHistoryKeywords
-        case fetchDatabaseInfos
-        case fetchDatabaseInfosDone(AppEnv)
         case appendHistoryKeyword(String)
         case removeHistoryKeyword(String)
         case fetchHistoryGalleries
@@ -92,14 +92,6 @@ public struct SearchRootReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-            .onChange(of: \.path) { oldValue, state in
-                // Returning to the root refreshes history keywords / quick-search words that a
-                // pushed Search screen (or the QuickSearch editor) may have changed.
-                if !oldValue.isEmpty, state.path.isEmpty {
-                    return .send(.fetchDatabaseInfos)
-                }
-                return .none
-            }
 
         Reduce { state, action in
             switch action {
@@ -127,7 +119,7 @@ public struct SearchRootReducer: Sendable {
 
             case let .path(.element(id: _, action: .search(.delegate(.searchPerformed(keyword))))):
                 state.appendHistoryKeywords([keyword])
-                return .send(.syncHistoryKeywords)
+                return .none
 
             case let .path(.element(id: _, action: .gallery(.comments(.delegate(.performedCommentAction(gid)))))):
                 guard let id = state.path.galleryDetailID(forGID: gid) else { return .none }
@@ -157,29 +149,13 @@ public struct SearchRootReducer: Sendable {
             case .destination:
                 return .none
 
-            case .syncHistoryKeywords:
-                return .run { [historyKeywords = state.historyKeywords] _ in
-                    await databaseClient.updateHistoryKeywords(historyKeywords)
-                }
-
-            case .fetchDatabaseInfos:
-                return .run { send in
-                    let appEnv = await databaseClient.fetchAppEnv()
-                    await send(.fetchDatabaseInfosDone(appEnv))
-                }
-
-            case .fetchDatabaseInfosDone(let appEnv):
-                state.historyKeywords = appEnv.historyKeywords
-                state.quickSearchWords = appEnv.quickSearchWords
-                return .none
-
             case .appendHistoryKeyword(let keyword):
                 state.appendHistoryKeywords([keyword])
-                return .send(.syncHistoryKeywords)
+                return .none
 
             case .removeHistoryKeyword(let keyword):
                 state.removeHistoryKeyword(keyword)
-                return .send(.syncHistoryKeywords)
+                return .none
 
             case .fetchHistoryGalleries:
                 return .run { send in

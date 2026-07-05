@@ -74,7 +74,6 @@ public struct SearchRootView: View {
                 }
                 .onAppear {
                     store.send(.fetchHistoryGalleries)
-                    store.send(.fetchDatabaseInfos)
                 }
                 .toolbar(content: toolbar)
                 .navigationTitle(.RLocalizable.search)
