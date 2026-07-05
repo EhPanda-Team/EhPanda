@@ -3,6 +3,7 @@ import Kingfisher
 import ComposableArchitecture
 import NetworkingFeature
 import AppModels
+import Sharing
 import DetailFeature
 
 extension HomeReducer {
@@ -98,7 +99,8 @@ extension HomeReducer {
                 guard state.popularLoadingState != .loading else { return .none }
                 state.popularLoadingState = .loading
                 state.rawCardColors = [String: [Color]]()
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
+                @Shared(.globalFilter) var storedFilter
+                let filter = storedFilter
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
                     await send(.fetchPopularGalleriesDone(response))
@@ -122,7 +124,8 @@ extension HomeReducer {
             case .fetchFrontpageGalleries:
                 guard state.frontpageLoadingState != .loading else { return .none }
                 state.frontpageLoadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
+                @Shared(.globalFilter) var storedFilter
+                let filter = storedFilter
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
                     await send(.fetchFrontpageGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))

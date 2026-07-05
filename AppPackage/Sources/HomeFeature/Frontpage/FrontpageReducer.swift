@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import AppModels
+import Sharing
 import Foundation
 import AppTools
 import HapticsClient
@@ -92,7 +93,8 @@ public struct FrontpageReducer: Sendable {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
+                @Shared(.globalFilter) var storedFilter
+                let filter = storedFilter
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
                     await send(.fetchGalleriesDone(response))
@@ -125,7 +127,8 @@ public struct FrontpageReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .global)
+                @Shared(.globalFilter) var storedFilter
+                let filter = storedFilter
                 return .run { send in
                     let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).response()
                     await send(.fetchMoreGalleriesDone(response))

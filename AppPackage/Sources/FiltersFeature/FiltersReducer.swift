@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import AppModels
+import Sharing
 import Resources
-import DatabaseClient
 import AppComponents
 
 @Reducer
@@ -37,10 +37,7 @@ public struct FiltersReducer: Sendable {
         case syncFilter(FilterRange)
         case resetFilters
         case fetchFilters
-        case fetchFiltersDone(AppEnv)
     }
-
-    @Dependency(\.databaseClient) private var databaseClient
 
     public init() {}
 
@@ -97,16 +94,20 @@ public struct FiltersReducer: Sendable {
                 return .none
 
             case .syncFilter(let range):
-                let filter: Filter
+                // Write-through to persisted storage; the working copies stay the edit source so the
+                // `BindingReducer` `.onChange` `fixInvalidData` normalization keeps running.
                 switch range {
                 case .search:
-                    filter = state.searchFilter
+                    @Shared(.searchFilter) var storedFilter
+                    $storedFilter.withLock { $0 = state.searchFilter }
                 case .global:
-                    filter = state.globalFilter
+                    @Shared(.globalFilter) var storedFilter
+                    $storedFilter.withLock { $0 = state.globalFilter }
                 case .watched:
-                    filter = state.watchedFilter
+                    @Shared(.watchedFilter) var storedFilter
+                    $storedFilter.withLock { $0 = state.watchedFilter }
                 }
-                return .run(operation: { _ in await databaseClient.updateFilter(filter, range: range) })
+                return .none
 
             case .resetFilters:
                 switch state.filterRange {
@@ -122,15 +123,13 @@ public struct FiltersReducer: Sendable {
                 }
 
             case .fetchFilters:
-                return .run { send in
-                    let appEnv = await databaseClient.fetchAppEnv()
-                    await send(.fetchFiltersDone(appEnv))
-                }
-
-            case .fetchFiltersDone(let appEnv):
-                state.searchFilter = appEnv.searchFilter
-                state.globalFilter = appEnv.globalFilter
-                state.watchedFilter = appEnv.watchedFilter
+                // Load the persisted filters into the working copies (synchronous @Shared reads).
+                @Shared(.searchFilter) var searchFilter
+                @Shared(.globalFilter) var globalFilter
+                @Shared(.watchedFilter) var watchedFilter
+                state.searchFilter = searchFilter
+                state.globalFilter = globalFilter
+                state.watchedFilter = watchedFilter
                 return .none
             }
         }

@@ -1,6 +1,7 @@
 import AppTools
 import ComposableArchitecture
 import AppModels
+import Sharing
 import HapticsClient
 import DatabaseClient
 import NetworkingFeature
@@ -110,7 +111,8 @@ public struct WatchedReducer: Sendable {
                 }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                let filter = databaseClient.fetchFilterSynchronously(range: .watched)
+                @Shared(.watchedFilter) var storedFilter
+                let filter = storedFilter
                 return .run { [keyword = state.keyword] send in
                     let response = await WatchedGalleriesRequest(filter: filter, keyword: keyword).response()
                     await send(.fetchGalleriesDone(response))
@@ -143,7 +145,8 @@ public struct WatchedReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                let filter = databaseClient.fetchFilterSynchronously(range: .watched)
+                @Shared(.watchedFilter) var storedFilter
+                let filter = storedFilter
                 return .run { [keyword = state.keyword] send in
                     let response = await MoreWatchedGalleriesRequest(
                         filter: filter, lastID: lastID, keyword: keyword
