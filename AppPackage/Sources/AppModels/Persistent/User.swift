@@ -21,6 +21,8 @@ public struct User: Codable, Equatable, Sendable {
     }
     public static let empty = User()
 
+    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    public var schemaVersion = 1
     public var displayName: String?
     public var avatarURL: URL?
     public var apikey: String?
@@ -38,7 +40,7 @@ public struct User: Codable, Equatable, Sendable {
 
     // `greeting` is intentionally absent so Codable skips it (it keeps its `nil` default on decode).
     private enum CodingKeys: String, CodingKey {
-        case displayName, avatarURL, apikey, credits, galleryPoints, favoriteCategories
+        case schemaVersion, displayName, avatarURL, apikey, credits, galleryPoints, favoriteCategories
     }
 
     public func getFavoriteCategory(index: Int) -> String {
@@ -47,6 +49,26 @@ public struct User: Codable, Equatable, Sendable {
         let category = favoriteCategories?[index] ?? defaultCategory
         let isDefault = category == "Favorites \(index)"
         return isDefault ? defaultCategory : category
+    }
+}
+
+// MARK: Manually decode
+extension User {
+    // Tolerant decoding keeps an existing persisted value valid across future additive changes; a
+    // non-optional field like `schemaVersion` would otherwise fail synthesized decode of an older
+    // record. `greeting` is intentionally not decoded (absent from `CodingKeys`) and stays `nil`.
+    public init(from decoder: Decoder) {
+        guard let container = try? decoder.container(keyedBy: CodingKeys.self) else {
+            schemaVersion = 1
+            return
+        }
+        schemaVersion = (try? container.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
+        displayName = try? container.decodeIfPresent(String.self, forKey: .displayName)
+        avatarURL = try? container.decodeIfPresent(URL.self, forKey: .avatarURL)
+        apikey = try? container.decodeIfPresent(String.self, forKey: .apikey)
+        credits = try? container.decodeIfPresent(String.self, forKey: .credits)
+        galleryPoints = try? container.decodeIfPresent(String.self, forKey: .galleryPoints)
+        favoriteCategories = try? container.decodeIfPresent([Int: String].self, forKey: .favoriteCategories)
     }
 }
 
