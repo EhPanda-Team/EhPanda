@@ -9,17 +9,18 @@ import Sharing
 //
 // Why whole structs in app storage rather than a database or per-field keys:
 //   • Every value here is either capped (`galleryHistory`, `historyKeywords`, `quickSearchWords`)
-//     or inherently small (`setting`, `user`, the filters, `tagTranslatorInfo`), so the defaults
-//     domain comfortably holds it.
+//     or inherently small (`setting`, `user`, the filters), so the defaults domain comfortably
+//     holds it.
 //   • Keeping the structs intact preserves their invariants (e.g. `Setting`/`Filter` `didSet`
 //     cascades) and makes resets/logout a single atomic assignment.
 //   • Forward migration rides on each model's tolerant `init(from:)` decoder (`decodeIfPresent`
 //     + defaults): additive changes never invalidate an existing persisted value, and a decode
 //     failure falls back to the key's default — there is no store-fails-to-open failure mode.
 //
-// Large or derived data is intentionally *not* here: the tag-translation table is rebuilt at
-// launch from a cached raw JSON file (only `tagTranslatorInfo` metadata is persisted), and web
-// images keep their own caches. `appStorage` keys must not contain `.` or `@`.
+// The one exception is the tag-translation table (`tagTranslator`): it is multi-megabyte, far too
+// large for the UserDefaults domain, so it uses the `fileStorage` strategy (a JSON file) instead.
+// Everything else fits app storage. Web images keep their own caches. `appStorage` keys must not
+// contain `.` or `@`.
 
 // MARK: Account & preferences
 
@@ -63,11 +64,14 @@ extension SharedKey where Self == AppStorageKey<[QuickSearchWord]>.Default {
     }
 }
 
-// MARK: Tag translations (metadata only — the table is rebuilt at launch)
+// MARK: Tag translations (large — file-backed rather than in the defaults domain)
 
-extension SharedKey where Self == AppStorageKey<TagTranslatorInfo>.Default {
-    public static var tagTranslatorInfo: Self {
-        Self[.appStorage("tagTranslatorInfo"), default: TagTranslatorInfo()]
+extension SharedKey where Self == FileStorageKey<TagTranslator>.Default {
+    public static var tagTranslator: Self {
+        Self[
+            .fileStorage(.applicationSupportDirectory.appending(component: "tagTranslator.json")),
+            default: TagTranslator()
+        ]
     }
 }
 

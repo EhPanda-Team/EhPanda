@@ -52,11 +52,11 @@ public struct SettingReducer: Sendable {
     public struct State: Equatable, Sendable {
         // `setting` stays a working copy edited through `BindingReducer` (its `.onChange` handlers
         // enforce cross-field invariants and fire side effects); persistence is a write-through to
-        // `@Shared(.setting)` via `.syncSetting`. `user` is not form-bound, so it is stored directly
-        // in `@Shared(.user)` (auto-loaded, mutated via `withLock`). `tagTranslator` is rebuilt at
-        // launch from a cached file rather than persisted whole.
+        // `@Shared(.setting)` via `.syncSetting`. `user` and `tagTranslator` are not form-bound, so
+        // they are stored directly in `@Shared` (auto-loaded, mutated via `withLock`). The tag table
+        // is file-backed because it is large.
         public var setting = Setting()
-        public var tagTranslator = TagTranslator()
+        @Shared(.tagTranslator) public var tagTranslator: TagTranslator
         @Shared(.user) public var user: User
 
         public var hasLoadedInitialSetting = false
@@ -107,10 +107,8 @@ public struct SettingReducer: Sendable {
         case syncAppIconTypeDone(String?)
         case syncUserInterfaceStyle
         case syncSetting
-        case syncTagTranslator
 
         case loadUserSettings
-        case onLoadUserSettings(AppEnv)
         case loadUserSettingsDone
         case createDefaultEhProfile
         case fetchIgneous

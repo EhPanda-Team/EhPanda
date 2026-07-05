@@ -134,11 +134,11 @@ struct SettingReducerNavigationTests {
         let url = URL(filePath: "/tmp/tags.json")
         await store.send(.path(.element(id: id, action: .general(.onTranslationsFilePicked(url)))))
 
-        // The parent intercept runs `fileClient.importTagTranslator` and stores the result.
+        // The parent intercept runs `fileClient.importTagTranslator` and stores the result
+        // (write-through to `@Shared(.tagTranslator)`).
         await store.receive(\.fetchTagTranslatorDone) {
-            $0.tagTranslator = imported
+            $0.$tagTranslator.withLock { $0 = imported }
         }
-        await store.receive(\.syncTagTranslator)
     }
 
     // MARK: Post-login cascade
