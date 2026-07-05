@@ -1,5 +1,6 @@
 import Foundation
 import AppModels
+import Sharing
 import ComposableArchitecture
 import UserDefaultsClient
 import ApplicationClient
@@ -49,10 +50,14 @@ public struct SettingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        // AppEnvStorage
+        // `setting` stays a working copy edited through `BindingReducer` (its `.onChange` handlers
+        // enforce cross-field invariants and fire side effects); persistence is a write-through to
+        // `@Shared(.setting)` via `.syncSetting`. `user` is not form-bound, so it is stored directly
+        // in `@Shared(.user)` (auto-loaded, mutated via `withLock`). `tagTranslator` is rebuilt at
+        // launch from a cached file rather than persisted whole.
         public var setting = Setting()
         public var tagTranslator = TagTranslator()
-        public var user = User()
+        @Shared(.user) public var user: User
 
         public var hasLoadedInitialSetting = false
 
@@ -64,26 +69,30 @@ public struct SettingReducer: Sendable {
         mutating func setGreeting(_ greeting: Greeting) {
             guard let currDate = greeting.updateTime else { return }
 
-            if let prevGreeting = user.greeting,
-               let prevDate = prevGreeting.updateTime,
-               prevDate < currDate {
-                user.greeting = greeting
-            } else if user.greeting == nil {
-                user.greeting = greeting
+            $user.withLock { user in
+                if let prevGreeting = user.greeting,
+                   let prevDate = prevGreeting.updateTime,
+                   prevDate < currDate {
+                    user.greeting = greeting
+                } else if user.greeting == nil {
+                    user.greeting = greeting
+                }
             }
         }
 
         mutating func updateUser(_ user: User) {
-            if let displayName = user.displayName {
-                self.user.displayName = displayName
-            }
-            if let avatarURL = user.avatarURL {
-                self.user.avatarURL = avatarURL
-            }
-            if let galleryPoints = user.galleryPoints,
-               let credits = user.credits {
-                self.user.galleryPoints = galleryPoints
-                self.user.credits = credits
+            $user.withLock { current in
+                if let displayName = user.displayName {
+                    current.displayName = displayName
+                }
+                if let avatarURL = user.avatarURL {
+                    current.avatarURL = avatarURL
+                }
+                if let galleryPoints = user.galleryPoints,
+                   let credits = user.credits {
+                    current.galleryPoints = galleryPoints
+                    current.credits = credits
+                }
             }
         }
     }
@@ -99,7 +108,6 @@ public struct SettingReducer: Sendable {
         case syncUserInterfaceStyle
         case syncSetting
         case syncTagTranslator
-        case syncUser
 
         case loadUserSettings
         case onLoadUserSettings(AppEnv)

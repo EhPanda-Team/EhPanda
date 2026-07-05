@@ -96,7 +96,6 @@ extension SettingReducer {
             switch action {
             case .binding:
                 return .merge(
-                    .send(.syncUser),
                     .send(.syncSetting),
                     .send(.syncTagTranslator)
                 )
@@ -144,16 +143,14 @@ extension SettingReducer {
                 return .run(operation: { _ in await applicationClient.setUserInterfaceStyle(style) })
 
             case .syncSetting:
-                return .run { [state] _ in
-                    await databaseClient.updateSetting(state.setting)
-                }
+                // Write-through to the persisted store. `setting` stays a working copy so that its
+                // `BindingReducer` `.onChange` side effects keep firing; this mirrors it to storage.
+                @Shared(.setting) var storedSetting
+                $storedSetting.withLock { $0 = state.setting }
+                return .none
             case .syncTagTranslator:
                 return .run { [state] _ in
                     await databaseClient.updateTagTranslator(state.tagTranslator)
-                }
-            case .syncUser:
-                return .run { [state] _ in
-                    await databaseClient.updateUser(state.user)
                 }
 
             case .loadUserSettings:
@@ -209,7 +206,6 @@ extension SettingReducer {
             case .fetchUserInfoDone(let result):
                 if case .success(let user) = result {
                     state.updateUser(user)
-                    return .send(.syncUser)
                 }
                 return .none
 
@@ -220,13 +216,11 @@ extension SettingReducer {
                 switch result {
                 case .success(let greeting):
                     state.setGreeting(greeting)
-                    return .send(.syncUser)
                 case .failure(let error):
                     if case .parseFailed = error {
                         var greeting = Greeting()
                         greeting.updateTime = Date()
                         state.setGreeting(greeting)
-                        return .send(.syncUser)
                     }
                 }
                 return .none
@@ -264,7 +258,7 @@ extension SettingReducer {
 
             case .fetchFavoriteCategoriesDone(let result):
                 if case .success(let categories) = result {
-                    state.user.favoriteCategories = categories
+                    state.$user.withLock { $0.favoriteCategories = categories }
                 }
                 return .none
 
@@ -282,9 +276,8 @@ extension SettingReducer {
                 )
 
             case .path(.element(id: _, action: .account(.onLogoutConfirmButtonTapped))):
-                state.user = User()
+                state.$user.withLock { $0 = User() }
                 return .merge(
-                    .send(.syncUser),
                     .run(operation: { _ in cookieClient.clearAll() }),
                     .run(operation: { _ in await databaseClient.removeImageURLs() }),
                     .run(operation: { _ in await libraryClient.removeAllCachedImages() }),

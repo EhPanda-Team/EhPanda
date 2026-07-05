@@ -28,9 +28,18 @@ public struct User: Codable, Equatable, Sendable {
     public var credits: String?
     public var galleryPoints: String?
 
+    // Not persisted: `greeting` is the daily "New Dawn" reward — ephemeral session data rather than
+    // durable account identity. It is omitted from `CodingKeys` below so persisting `User` (via
+    // `@Shared(.user)`) never writes it; it stays live in memory for the session and resets to `nil`
+    // on the next launch. See the greeting-fetch throttle in `SettingReducer`.
     public var greeting: Greeting?
 
     public var favoriteCategories: [Int: String]?
+
+    // `greeting` is intentionally absent so Codable skips it (it keeps its `nil` default on decode).
+    private enum CodingKeys: String, CodingKey {
+        case displayName, avatarURL, apikey, credits, galleryPoints, favoriteCategories
+    }
 
     public func getFavoriteCategory(index: Int) -> String {
         guard index != -1 else { return String(localized: .favoriteCategoryAll) }

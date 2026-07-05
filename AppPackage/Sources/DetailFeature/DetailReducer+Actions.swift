@@ -1,4 +1,6 @@
 import Foundation
+import AppModels
+import Sharing
 import ComposableArchitecture
 import ReadingFeature
 
@@ -155,7 +157,11 @@ extension DetailReducer {
                 }
 
             case .syncGreeting(let greeting):
-                return .run(operation: { _ in await databaseClient.updateGreeting(greeting) })
+                // Greeting is session-only (not persisted with `User`); write it to the shared
+                // in-memory user so the greeting-fetch throttle stays coherent across features.
+                @Shared(.user) var user
+                $user.withLock { $0.greeting = greeting }
+                return .none
 
             case .syncPreviewConfig(let config):
                 return .run { [gid = state.gallery.id] _ in
