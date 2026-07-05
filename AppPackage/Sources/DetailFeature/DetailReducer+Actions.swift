@@ -169,14 +169,20 @@ extension DetailReducer {
                 }
 
             case .saveGalleryHistory:
-                return .run { [gid = state.gallery.id] _ in
-                    await databaseClient.updateLastOpenDate(gid: gid)
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.recordGalleryOpen(gid: state.gallery.id, token: state.gallery.token, date: date.now)
                 }
+                return .none
 
             case .updateReadingProgress(let progress):
-                return .run { [gid = state.gallery.id] _ in
-                    await databaseClient.updateReadingProgress(gid: gid, progress: progress)
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.updateReadingProgress(
+                        gid: state.gallery.id, token: state.gallery.token, progress: progress, date: date.now
+                    )
                 }
+                return .none
 
             default:
                 return .none

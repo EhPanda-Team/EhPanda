@@ -1,6 +1,7 @@
 import AppTools
 import SwiftUI
 import AppModels
+import Sharing
 import ComposableArchitecture
 import URLClient
 import UserDefaultsClient
@@ -59,6 +60,7 @@ struct AppRouteReducer {
     @Dependency(\.databaseClient) private var databaseClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.urlClient) private var urlClient
+    @Dependency(\.date) private var date
 
     var body: some Reducer<State, Action> {
         BindingReducer()
@@ -176,9 +178,13 @@ struct AppRouteReducer {
 
             case .updateReadingProgress(let gid, let progress):
                 guard !gid.isEmpty else { return .none }
-                return .run { _ in
-                    await databaseClient.updateReadingProgress(gid: gid, progress: progress)
+                // Deep link straight to a page: the token isn't known here, so the entry is created
+                // tokenless and backfilled when the detail screen records the open.
+                @Shared(.galleryHistory) var galleryHistory
+                $galleryHistory.withLock {
+                    $0.updateReadingProgress(gid: gid, token: "", progress: progress, date: date.now)
                 }
+                return .none
 
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.toast = .loading()
