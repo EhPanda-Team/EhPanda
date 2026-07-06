@@ -249,50 +249,45 @@ extension ListDisplayMode {
     }
 }
 
-// reason: the manual Decodable initializer has long per-key decode/default lines
-// swiftlint:disable line_length
 // MARK: Manually decode
 extension Setting {
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
+        schemaVersion = container.decode(.schemaVersion, default: 1)
         // Account
-        galleryHost = (try? container?.decodeIfPresent(GalleryHost.self, forKey: .galleryHost)) ?? .ehentai
-        showsNewDawnGreeting = (try? container?.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting)) ?? false
+        galleryHost = container.decode(.galleryHost, default: .ehentai)
+        showsNewDawnGreeting = container.decode(.showsNewDawnGreeting, default: false)
         // General
-        enablesTagsExtension = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesTagsExtension)) ?? false
-        translatesTags = (try? container?.decodeIfPresent(Bool.self, forKey: .translatesTags)) ?? false
-        showsTagsSearchSuggestion = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsSearchSuggestion)) ?? false
-        showsImagesInTags = (try? container?.decodeIfPresent(Bool.self, forKey: .showsImagesInTags)) ?? false
-        redirectsLinksToSelectedHost = (try? container?.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost)) ?? false
-        detectsLinksFromClipboard = (try? container?.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard)) ?? false
-        backgroundBlurRadius = (try? container?.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius)) ?? 10
-        autoLockPolicy = (try? container?.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy)) ?? .never
+        enablesTagsExtension = container.decode(.enablesTagsExtension, default: false)
+        translatesTags = container.decode(.translatesTags, default: false)
+        showsTagsSearchSuggestion = container.decode(.showsTagsSearchSuggestion, default: false)
+        showsImagesInTags = container.decode(.showsImagesInTags, default: false)
+        redirectsLinksToSelectedHost = container.decode(.redirectsLinksToSelectedHost, default: false)
+        detectsLinksFromClipboard = container.decode(.detectsLinksFromClipboard, default: false)
+        backgroundBlurRadius = container.decode(.backgroundBlurRadius, default: 10)
+        autoLockPolicy = container.decode(.autoLockPolicy, default: .never)
         // Appearance
-        listDisplayMode = (try? container?.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode)) ?? .detail
-        preferredColorScheme = (try? container?.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme)) ?? .automatic
-        accentColor = (try? container?.decodeIfPresent(Color.self, forKey: .accentColor)) ?? .blue
-        appIconType = (try? container?.decodeIfPresent(AppIconType.self, forKey: .appIconType)) ?? .default
-        showsTagsInList = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsInList)) ?? false
-        listTagsNumberMaximum = (try? container?.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum)) ?? 0
-        displaysJapaneseTitle = (try? container?.decodeIfPresent(Bool.self, forKey: .displaysJapaneseTitle)) ?? true
+        listDisplayMode = container.decode(.listDisplayMode, default: .detail)
+        preferredColorScheme = container.decode(.preferredColorScheme, default: .automatic)
+        accentColor = container.decode(.accentColor, default: .blue)
+        appIconType = container.decode(.appIconType, default: .default)
+        showsTagsInList = container.decode(.showsTagsInList, default: false)
+        listTagsNumberMaximum = container.decode(.listTagsNumberMaximum, default: 0)
+        displaysJapaneseTitle = container.decode(.displaysJapaneseTitle, default: true)
         // Reading
-        readingDirection = (try? container?.decodeIfPresent(ReadingDirection.self, forKey: .readingDirection)) ?? .vertical
-        prefetchLimit = (try? container?.decodeIfPresent(Int.self, forKey: .prefetchLimit)) ?? 10
-        enablesLandscape = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesLandscape)) ?? false
-        enablesDualPageMode = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesDualPageMode)) ?? false
-        exceptCover = (try? container?.decodeIfPresent(Bool.self, forKey: .exceptCover)) ?? false
-        contentDividerHeight = (try? container?.decodeIfPresent(Double.self, forKey: .contentDividerHeight)) ?? 0
-        maximumScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .maximumScaleFactor)) ?? 3
-        doubleTapScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .doubleTapScaleFactor)) ?? 2
+        readingDirection = container.decode(.readingDirection, default: .vertical)
+        prefetchLimit = container.decode(.prefetchLimit, default: 10)
+        enablesLandscape = container.decode(.enablesLandscape, default: false)
+        enablesDualPageMode = container.decode(.enablesDualPageMode, default: false)
+        exceptCover = container.decode(.exceptCover, default: false)
+        contentDividerHeight = container.decode(.contentDividerHeight, default: 0)
+        maximumScaleFactor = container.decode(.maximumScaleFactor, default: 3)
+        doubleTapScaleFactor = container.decode(.doubleTapScaleFactor, default: 2)
         // Downloads
-        downloadThreadLimit = (try? container?.decodeIfPresent(Int.self, forKey: .downloadThreadLimit)) ?? 1
-        downloadAllowCellular = (try? container?.decodeIfPresent(Bool.self, forKey: .downloadAllowCellular)) ?? true
-        downloadAutoRetryFailedPages = (
-            try? container?.decodeIfPresent(Bool.self, forKey: .downloadAutoRetryFailedPages)
-        ) ?? true
+        downloadThreadLimit = container.decode(.downloadThreadLimit, default: 1)
+        downloadAllowCellular = container.decode(.downloadAllowCellular, default: true)
+        downloadAutoRetryFailedPages = container.decode(.downloadAutoRetryFailedPages, default: true)
         // Laboratory
-        bypassesSNIFiltering = (try? container?.decodeIfPresent(Bool.self, forKey: .bypassesSNIFiltering)) ?? false
+        bypassesSNIFiltering = container.decode(.bypassesSNIFiltering, default: false)
     }
 }
-// swiftlint:enable line_length

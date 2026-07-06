@@ -72,16 +72,13 @@ extension User {
     // non-optional field like `schemaVersion` would otherwise fail synthesized decode of an older
     // record. `greeting` is intentionally not decoded (absent from `CodingKeys`) and stays `nil`.
     public init(from decoder: Decoder) {
-        guard let container = try? decoder.container(keyedBy: CodingKeys.self) else {
-            schemaVersion = 1
-            return
-        }
-        schemaVersion = (try? container.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
-        displayName = try? container.decodeIfPresent(String.self, forKey: .displayName)
-        avatarURL = try? container.decodeIfPresent(URL.self, forKey: .avatarURL)
-        credits = try? container.decodeIfPresent(String.self, forKey: .credits)
-        galleryPoints = try? container.decodeIfPresent(String.self, forKey: .galleryPoints)
-        favoriteCategories = try? container.decodeIfPresent([Int: String].self, forKey: .favoriteCategories)
+        let container = try? decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = container.decode(.schemaVersion, default: 1)
+        displayName = try? container?.decodeIfPresent(String.self, forKey: .displayName)
+        avatarURL = try? container?.decodeIfPresent(URL.self, forKey: .avatarURL)
+        credits = try? container?.decodeIfPresent(String.self, forKey: .credits)
+        galleryPoints = try? container?.decodeIfPresent(String.self, forKey: .galleryPoints)
+        favoriteCategories = try? container?.decodeIfPresent([Int: String].self, forKey: .favoriteCategories)
     }
 }
 
