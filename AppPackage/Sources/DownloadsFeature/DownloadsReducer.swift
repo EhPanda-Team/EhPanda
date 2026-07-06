@@ -112,10 +112,12 @@ public struct DownloadsReducer: Sendable {
                 return .none
 
             case .galleryTapped(let gid):
-                let download = state.downloads.first(where: { $0.gid == gid })
+                // Bail if the download vanished between the observation update and this tap; routing to
+                // detail with `.empty` would write an unresolvable (random-gid) history entry.
+                guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
                 return GalleryNavigation.routeGalleryDetail(
                     isPad: deviceClient.isPad,
-                    present: { .delegate(.presentGalleryDetail(download?.gallery ?? .empty, download)) },
+                    present: { .delegate(.presentGalleryDetail(download.gallery, download)) },
                     push: { .pushGalleryDetail(gid) }
                 )
 

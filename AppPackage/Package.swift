@@ -113,6 +113,8 @@ enum Module: String {
     case fileClientTests = "FileClientTests"
     case settingFeatureTests = "SettingFeatureTests"
     case detailFeatureTests = "DetailFeatureTests"
+    case networkingFeatureTests = "NetworkingFeatureTests"
+    case appModelsTests = "AppModelsTests"
 }
 
 extension Module {
@@ -917,6 +919,21 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.hapticsClient),
             .targetDependency(.composableArchitecture)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .networkingFeatureTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .appModelsTests,
+        dependencies: [
+            .module(.appModels)
         ],
         plugins: swiftLintPlugins
     )
