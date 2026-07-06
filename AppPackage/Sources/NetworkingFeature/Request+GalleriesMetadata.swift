@@ -114,24 +114,9 @@ public struct GalleriesMetadataRequest: Request {
         guard !gidlist.isEmpty else {
             return Just([]).setFailureType(to: AppError.self).eraseToAnyPublisher()
         }
-
-        let params: [String: Any] = [
-            "method": "gdata",
-            "gidlist": gidlist,
-            "namespace": 1
-        ]
-        var request = URLRequest(url: Defaults.URL.api)
-        request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
-
-        return urlSession.dataTaskPublisher(for: request)
-            .genericRetry()
-            .map(\.data)
-            .tryMap { data in
-                try parseResponse(data: data) { try Self.galleries(fromResponseData: $0) }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
+        return gdataPublisher(gidlist: gidlist, urlSession: urlSession) {
+            try Self.galleries(fromResponseData: $0)
+        }
     }
 
     /// Decodes a raw `gdata` payload into galleries, silently dropping every unresolvable
