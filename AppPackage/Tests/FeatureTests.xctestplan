@@ -15,6 +15,13 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
+        "identifier" : "AppModelsTests",
+        "name" : "AppModelsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
         "identifier" : "DetailFeatureTests",
         "name" : "DetailFeatureTests"
       }
@@ -31,6 +38,13 @@
         "containerPath" : "container:AppPackage",
         "identifier" : "FileClientTests",
         "name" : "FileClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "NetworkingFeatureTests",
+        "name" : "NetworkingFeatureTests"
       }
     },
     {

@@ -13,7 +13,7 @@ private struct GalleriesMetadataAPIResponse: Decodable {
 /// `gallery` yields `nil` for those so a single bad entry never fails the whole batch.
 private struct GalleryMetadata: Decodable {
     let gid: Int
-    let token: String
+    let token: String?
     let error: String?
     let title: String?
     let category: String?
@@ -26,6 +26,7 @@ private struct GalleryMetadata: Decodable {
 
     var gallery: Gallery? {
         guard error == nil,
+              let token,
               let title,
               let posted, let postedInterval = TimeInterval(posted)
         else { return nil }
@@ -123,13 +124,18 @@ public struct GalleriesMetadataRequest: Request {
             .genericRetry()
             .map(\.data)
             .tryMap { data in
-                try parseResponse(data: data) {
-                    let response = try JSONDecoder().decode(GalleriesMetadataAPIResponse.self, from: $0)
-                    return response.gmetadata.compactMap(\.gallery)
-                }
+                try parseResponse(data: data) { try Self.galleries(fromResponseData: $0) }
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    /// Decodes a raw `gdata` payload into galleries, silently dropping every unresolvable
+    /// `{ gid, error }` (or tokenless) entry. `token` is optional precisely so one such entry can't
+    /// fail `JSONDecoder` for the whole array — a single bad gid must never blank the History batch.
+    /// Exposed at `internal` access so tests can assert that per-entry tolerance directly.
+    static func galleries(fromResponseData data: Data) throws -> [Gallery] {
+        try JSONDecoder().decode(GalleriesMetadataAPIResponse.self, from: data).gmetadata.compactMap(\.gallery)
     }
 }
 
