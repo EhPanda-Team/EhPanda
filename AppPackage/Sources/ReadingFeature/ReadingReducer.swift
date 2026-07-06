@@ -49,6 +49,9 @@ public struct ReadingReducer: Sendable {
         public var language: Language?
 
         public var readingProgress: Int = .zero
+        // The latest page awaiting a debounced persist to `@Shared(.galleryHistory)`; kept separate
+        // from `readingProgress` (which seeds the slider) so tracking it never feeds back into the pager.
+        public var pendingReadingProgress: Int = .zero
         public var forceRefreshID: UUID = .init()
 
         public var webImageLoadSuccessIndices = Set<Int>()
@@ -172,6 +175,7 @@ public struct ReadingReducer: Sendable {
         case fetchImageDone(ImageAction, Result<ImageClient.ImageAsset, Error>)
 
         case syncReadingProgress(Int)
+        case flushReadingProgress
 
         case fetchDatabaseInfos(String)
         case observeDownloads(String)
@@ -209,6 +213,7 @@ public struct ReadingReducer: Sendable {
     @Dependency(\.imageClient) var imageClient
     @Dependency(\.urlClient) var urlClient
     @Dependency(\.date) var date
+    @Dependency(\.continuousClock) var clock
 
     public init() {}
 
