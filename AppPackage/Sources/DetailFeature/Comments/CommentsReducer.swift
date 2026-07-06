@@ -74,7 +74,7 @@ public struct CommentsReducer: Sendable {
         case onPostCommentAppear
         case onAppear
 
-        case updateReadingProgress(String, Int)
+        case updateReadingProgress(gid: String, token: String, progress: Int)
 
         case postComment(URL, String? = nil)
         case voteComment(String, String, String, String, Int)
@@ -159,15 +159,12 @@ public struct CommentsReducer: Sendable {
 
             case .handleGalleryLink(let url, let gallery):
                 let analysis = urlClient.analyzeURL(url)
-                let pageIndex = analysis.pageIndex
-                let commentID = analysis.commentID
-                var deepLink: GalleryDeepLink?
+                let deepLink = GalleryDeepLink(pageIndex: analysis.pageIndex, commentID: analysis.commentID)
                 var effects = [Effect<Action>]()
-                if let pageIndex = pageIndex {
-                    effects.append(.send(.updateReadingProgress(gallery.id, pageIndex)))
-                    deepLink = .reading(page: pageIndex)
-                } else if let commentID = commentID {
-                    deepLink = .comments(commentID: commentID)
+                if let pageIndex = analysis.pageIndex {
+                    effects.append(.send(.updateReadingProgress(
+                        gid: gallery.id, token: gallery.token, progress: pageIndex
+                    )))
                 }
                 effects.append(.send(.delegate(.pushDetail(gallery, deepLink))))
                 return .merge(effects)
@@ -181,13 +178,13 @@ public struct CommentsReducer: Sendable {
             case .onAppear:
                 return state.scrollCommentID != nil ? .send(.performScrollOpacityEffect) : .none
 
-            case .updateReadingProgress(let gid, let progress):
-                guard !gid.isEmpty else { return .none }
-                // Deep link straight to a page: the token isn't known here, so the entry is created
-                // tokenless and backfilled when the detail screen records the open.
+            case let .updateReadingProgress(gid, token, progress):
+                // The linked gallery is in scope, so persist the real token — the entry resolves
+                // immediately rather than waiting for the detail screen to backfill it. Invalid
+                // gid/token records are rejected inside the shared mutator.
                 @Shared(.galleryHistory) var galleryHistory
                 $galleryHistory.withLock {
-                    $0.updateReadingProgress(gid: gid, token: "", progress: progress, date: date.now)
+                    $0.updateReadingProgress(gid: gid, token: token, progress: progress, date: date.now)
                 }
                 return .none
 

@@ -7,4 +7,17 @@ import Foundation
 public enum GalleryDeepLink: Equatable, Sendable {
     case reading(page: Int)
     case comments(commentID: String)
+
+    /// The deep-link intent encoded by a parsed gallery URL: a resume page takes precedence over a
+    /// target comment. Returns `nil` when the link carries neither. Shared by every gallery-link
+    /// handler so the precedence can't drift between call sites.
+    public init?(pageIndex: Int?, commentID: String?) {
+        if let pageIndex {
+            self = .reading(page: pageIndex)
+        } else if let commentID {
+            self = .comments(commentID: commentID)
+        } else {
+            return nil
+        }
+    }
 }
