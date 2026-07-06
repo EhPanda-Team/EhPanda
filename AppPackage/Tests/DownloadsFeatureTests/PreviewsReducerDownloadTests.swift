@@ -17,8 +17,7 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
             gid: "991", title: "Preview Download", status: .completed, pageCount: 2, completedPageCount: 2
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
-        var initialState = PreviewsReducer.State()
-        initialState.gallery = download.gallery
+        var initialState = PreviewsReducer.State(gallery: download.gallery)
 
         let store = makePreviewsManifestStore(download: download, manifest: manifest)
 
@@ -42,8 +41,7 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
     func testPreviewsReducerClearsLocalPreviewURLsWhenObservedDownloadDisappears() async {
         let gallery = sampleGallery()
         let localURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
-        var initialState = PreviewsReducer.State()
-        initialState.gallery = gallery
+        var initialState = PreviewsReducer.State(gallery: gallery)
         initialState.localPreviewURLs = [1: localURL]
 
         let store = makePreviewsNoManifestStore(initialState: initialState, withLoadLocalPageURLs: true)
@@ -62,8 +60,7 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
     func testPreviewsReducerRemoteFallbackKeepsExistingLocalPreviewPages() async {
         let gallery = sampleGallery()
         let localURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
-        var initialState = PreviewsReducer.State()
-        initialState.gallery = gallery
+        var initialState = PreviewsReducer.State(gallery: gallery)
         initialState.localPreviewURLs = [1: localURL]
 
         let store = makePreviewsNoManifestStore(initialState: initialState, withLoadLocalPageURLs: false)
@@ -87,8 +84,7 @@ private extension PreviewsReducerDownloadTests {
         download: DownloadedGallery,
         manifest: DownloadManifest
     ) -> TestStoreOf<PreviewsReducer> {
-        var initialState = PreviewsReducer.State()
-        initialState.gallery = download.gallery
+        var initialState = PreviewsReducer.State(gallery: download.gallery)
         let store = TestStore(
             initialState: initialState,
             reducer: PreviewsReducer.init,
