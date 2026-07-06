@@ -153,38 +153,26 @@ private extension Array {
 }
 
 private extension String {
-    /// Decodes numeric character references (`&#123;` / `&#x1F;`) and the core XML named entities
-    /// found in `gdata` titles. `&amp;` is resolved last so an already-decoded `&` isn't re-read.
+    /// Decodes numeric character references (`&#123;` / `&#x1F;`) and the core XML named entities in
+    /// `gdata` titles in a single left-to-right pass, so a decoded substitution is never rescanned: an
+    /// escaped literal `&lt;` written as `&#38;lt;` decodes once to `&lt;`, not to `<`. (A two-stage
+    /// numeric-then-named decode broke that invariant.)
     var htmlEntitiesDecoded: String {
-        decodingCharacterReferences()
-            .replacingOccurrences(of: "&lt;", with: "<")
-            .replacingOccurrences(of: "&gt;", with: ">")
-            .replacingOccurrences(of: "&quot;", with: "\"")
-            .replacingOccurrences(of: "&apos;", with: "'")
-            .replacingOccurrences(of: "&amp;", with: "&")
-    }
-
-    private func decodingCharacterReferences() -> String {
-        var output = ""
-        var remainder = Substring(self)
-        while let start = remainder.range(of: "&#") {
-            output += remainder[remainder.startIndex..<start.lowerBound]
-            let afterAmp = start.upperBound
-            let isHex = remainder[afterAmp...].first == "x" || remainder[afterAmp...].first == "X"
-            let digitsStart = isHex ? remainder.index(after: afterAmp) : afterAmp
-            guard let semicolon = remainder[digitsStart...].firstIndex(of: ";") else {
-                output += remainder[start.lowerBound...]
-                return output
+        replacing(/&(?:#(\d+)|#[xX]([0-9a-fA-F]+)|(amp|lt|gt|quot|apos));/) { match in
+            if let decimal = match.1, let code = UInt32(decimal), let scalar = Unicode.Scalar(code) {
+                return String(scalar)
             }
-            let digits = remainder[digitsStart..<semicolon]
-            if let code = UInt32(digits, radix: isHex ? 16 : 10), let scalar = Unicode.Scalar(code) {
-                output.unicodeScalars.append(scalar)
-            } else {
-                output += remainder[start.lowerBound...semicolon]
+            if let hex = match.2, let code = UInt32(hex, radix: 16), let scalar = Unicode.Scalar(code) {
+                return String(scalar)
             }
-            remainder = remainder[remainder.index(after: semicolon)...]
+            switch match.3.map(String.init) {
+            case "amp": return "&"
+            case "lt": return "<"
+            case "gt": return ">"
+            case "quot": return "\""
+            case "apos": return "'"
+            default: return String(match.0)
+            }
         }
-        output += remainder
-        return output
     }
 }

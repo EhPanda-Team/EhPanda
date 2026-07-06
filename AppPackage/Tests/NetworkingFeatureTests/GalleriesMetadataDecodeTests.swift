@@ -38,6 +38,27 @@ struct GalleriesMetadataDecodeTests {
         #expect(galleries.first?.title == "First & Title")
     }
 
+    // REV-15: entities in the title decode in a single left-to-right pass. `&#38;lt;` is an escaped
+    // literal `&lt;`, so it must decode once to `&lt;` — not be re-read into `<`. Numeric, hex and
+    // named references all resolve in the same pass.
+    @Test
+    func titleEntitiesDecodeInASinglePass() throws {
+        let json = """
+        {
+          "gmetadata": [
+            {
+              "gid": 100, "token": "aaa",
+              "title": "&#38;lt; &#x41; &amp; &lt;tag&gt;",
+              "posted": "1600000000"
+            }
+          ]
+        }
+        """
+        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+        // &#38;lt; -> "&lt;" (not "<"), &#x41; -> "A", &amp; -> "&", &lt;tag&gt; -> "<tag>".
+        #expect(galleries.first?.title == "&lt; A & <tag>")
+    }
+
     // A tokenless (but error-free) entry is unresolvable — its gallery URL can't be built — so it is
     // dropped rather than decoded with an empty token.
     @Test
