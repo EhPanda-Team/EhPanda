@@ -27,8 +27,8 @@ extension SettingReducer {
                     .send(.syncSetting)
                 ]
                 if state.setting.enablesTagsExtension {
+                    // `.rebuildTagTranslator` sequences the remote fetch after the cache rebuild.
                     effects.append(.send(.rebuildTagTranslator))
-                    effects.append(.send(.fetchTagTranslator))
                 }
                 return .merge(effects)
             }
@@ -235,13 +235,16 @@ extension SettingReducer {
                 return .none
 
             // Offline rebuild of the in-memory table from the cached raw JSON described by the
-            // persisted metadata (custom import → Application Support, remote → Caches).
+            // persisted metadata (custom import → Application Support, remote → Caches), THEN the
+            // remote update check. Sequenced in one effect so the (slower) network fetch can't land a
+            // fresh table and metadata only to be overwritten by a rebuild that captured stale info.
             case .rebuildTagTranslator:
                 let info = state.tagTranslatorInfo
                 return .run { send in
                     if let tagTranslator = fileClient.loadCachedTagTranslator(info) {
                         await send(.tagTranslatorRebuilt(tagTranslator))
                     }
+                    await send(.fetchTagTranslator)
                 }
 
             case .tagTranslatorRebuilt(let tagTranslator):

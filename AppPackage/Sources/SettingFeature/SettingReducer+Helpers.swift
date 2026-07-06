@@ -38,9 +38,9 @@ extension SettingReducer {
             ])
         }
         if state.setting.enablesTagsExtension {
-            // Rebuild the table from cache first (offline, immediate), then check for a newer remote.
+            // Rebuild the table from cache first (offline, immediate); `.rebuildTagTranslator` then
+            // sequences the remote update check so a slow fetch can't be clobbered by a stale rebuild.
             effects.append(.send(.rebuildTagTranslator))
-            effects.append(.send(.fetchTagTranslator))
         }
         return .merge(effects)
     }
