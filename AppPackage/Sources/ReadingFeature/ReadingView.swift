@@ -102,15 +102,15 @@ public struct ReadingView: View {
             .animation(.default, value: store.showsPanel)
             .statusBar(hidden: !store.showsPanel)
             .onDisappear {
-                // The reader is tearing down; flush the debounced reading progress immediately so the
-                // last page swiped-to isn't lost.
-                store.send(.flushReadingProgress)
+                // Progress is flushed in the reducer on `.onPerformDismiss` (before the presentation is
+                // torn down); an `onDisappear` send would arrive after the destination is nil'd and be
+                // dropped. So only non-persistence teardown happens here.
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
             }
             .onChange(of: scenePhase) { _, newPhase in
-                // Backgrounding doesn't fire `onDisappear`, so flush here too — a force-quit from the
-                // background otherwise drops the last debounce window of progress.
+                // Backgrounding doesn't fire `onDisappear` or a dismiss, so flush here too — a force-quit
+                // from the background otherwise drops the last debounce window of progress.
                 if newPhase == .background { store.send(.flushReadingProgress) }
             }
             .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
