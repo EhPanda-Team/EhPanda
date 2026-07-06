@@ -91,8 +91,7 @@ public struct FrontpageReducer: Sendable {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                @Shared(.globalFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentGlobal
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
                     await send(.fetchGalleriesDone(response))
@@ -125,8 +124,7 @@ public struct FrontpageReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                @Shared(.globalFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentGlobal
                 return .run { send in
                     let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).response()
                     await send(.fetchMoreGalleriesDone(response))

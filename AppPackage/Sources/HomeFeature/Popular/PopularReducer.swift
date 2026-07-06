@@ -71,8 +71,7 @@ public struct PopularReducer: Sendable {
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                @Shared(.globalFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentGlobal
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
                     await send(.fetchGalleriesDone(response))
