@@ -11,6 +11,10 @@ import DetailFeature
 
 @Reducer
 public struct SearchRootReducer: Sendable {
+    private enum CancelID {
+        case fetchHistoryGalleries
+    }
+
     public enum Delegate: Equatable, Sendable {
         case presentGalleryDetail(Gallery)
     }
@@ -165,10 +169,15 @@ public struct SearchRootReducer: Sendable {
                     state.historyGalleries = []
                     return .none
                 }
+                // Skip when the shown suggestions already reflect the 10 most-recent gids — a plain pop
+                // back to the Search root shouldn't re-download identical metadata. `cancelInFlight`
+                // stops rapid re-entry from stacking overlapping, last-writer-wins requests.
+                guard pairs.map(\.gid) != state.historyGalleries.map(\.gid) else { return .none }
                 return .run { send in
                     let response = await GalleriesMetadataRequest(gidList: pairs).response()
                     await send(.fetchHistoryGalleriesDone(response))
                 }
+                .cancellable(id: CancelID.fetchHistoryGalleries, cancelInFlight: true)
 
             case .fetchHistoryGalleriesDone(let result):
                 if case .success(let galleries) = result {
