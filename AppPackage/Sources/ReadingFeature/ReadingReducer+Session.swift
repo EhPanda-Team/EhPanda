@@ -4,7 +4,7 @@ import Sharing
 import ComposableArchitecture
 import AppTools
 
-// MARK: - Database & Download Actions
+// MARK: - Session Restore & Download Actions
 extension ReadingReducer {
     var databaseReducer: some ReducerOf<Self> {
         Reduce { state, action in
@@ -31,8 +31,8 @@ extension ReadingReducer {
                 }
                 return .none
 
-            case .fetchDatabaseInfos(let gid):
-                return reduceFetchDatabaseInfos(state: &state, gid: gid)
+            case .restoreSession(let gid):
+                return reduceRestoreSession(state: &state, gid: gid)
 
             case .observeDownloads(let gid):
                 return reduceObserveDownloads(gid: gid)
@@ -55,7 +55,7 @@ extension ReadingReducer {
         }
     }
 
-    func reduceFetchDatabaseInfos(state: inout State, gid: String) -> Effect<Action> {
+    func reduceRestoreSession(state: inout State, gid: String) -> Effect<Action> {
         if case .local(let download, let manifest) = state.contentSource {
             applyLocalSource(state: &state, download: download, manifest: manifest)
         }
@@ -64,7 +64,7 @@ extension ReadingReducer {
         // from the persisted browsing history.
         @Shared(.galleryHistory) var galleryHistory
         state.readingProgress = galleryHistory.readingProgress(gid: gid)
-        state.databaseLoadingState = .idle
+        state.hasRestoredSession = true
         return .none
     }
 
@@ -146,6 +146,6 @@ extension ReadingReducer {
         state.mpvSkipServerIdentifiers = .init()
         state.imageURLLoadingStates = .init()
         state.previewLoadingStates = .init()
-        state.databaseLoadingState = .idle
+        state.hasRestoredSession = true
     }
 }
