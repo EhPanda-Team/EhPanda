@@ -8,7 +8,6 @@ public struct GalleryState: Codable, Sendable {
 
     public let gid: String
     public var tags = [GalleryTag]()
-    public var readingProgress = 0
     public var previewURLs = [Int: URL]()
     public var previewConfig: PreviewConfig?
     public var comments = [GalleryComment]()
@@ -19,7 +18,6 @@ public struct GalleryState: Codable, Sendable {
     public init(
         gid: String,
         tags: [GalleryTag] = [GalleryTag](),
-        readingProgress: Int = 0,
         previewURLs: [Int: URL] = [Int: URL](),
         previewConfig: PreviewConfig? = nil,
         comments: [GalleryComment] = [GalleryComment](),
@@ -29,7 +27,6 @@ public struct GalleryState: Codable, Sendable {
     ) {
         self.gid = gid
         self.tags = tags
-        self.readingProgress = readingProgress
         self.previewURLs = previewURLs
         self.previewConfig = previewConfig
         self.comments = comments
@@ -44,7 +41,6 @@ extension GalleryState: CustomStringConvertible {
             describing: [
                 "gid": gid,
                 "tagsCount": tags.count,
-                "readingProgress": readingProgress,
                 "previewURLsCount": previewURLs.count,
                 "previewConfig": String(describing: previewConfig),
                 "commentsCount": comments.count,

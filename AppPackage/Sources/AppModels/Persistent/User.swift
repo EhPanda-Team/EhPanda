@@ -5,7 +5,6 @@ public struct User: Codable, Equatable, Sendable {
     public init(
         displayName: String? = nil,
         avatarURL: URL? = nil,
-        apikey: String? = nil,
         credits: String? = nil,
         galleryPoints: String? = nil,
         greeting: Greeting? = nil,
@@ -13,7 +12,6 @@ public struct User: Codable, Equatable, Sendable {
     ) {
         self.displayName = displayName
         self.avatarURL = avatarURL
-        self.apikey = apikey
         self.credits = credits
         self.galleryPoints = galleryPoints
         self.greeting = greeting
@@ -25,7 +23,6 @@ public struct User: Codable, Equatable, Sendable {
     public var schemaVersion = 1
     public var displayName: String?
     public var avatarURL: URL?
-    public var apikey: String?
 
     public var credits: String?
     public var galleryPoints: String?
@@ -40,7 +37,7 @@ public struct User: Codable, Equatable, Sendable {
 
     // `greeting` is intentionally absent so Codable skips it (it keeps its `nil` default on decode).
     private enum CodingKeys: String, CodingKey {
-        case schemaVersion, displayName, avatarURL, apikey, credits, galleryPoints, favoriteCategories
+        case schemaVersion, displayName, avatarURL, credits, galleryPoints, favoriteCategories
     }
 
     public func getFavoriteCategory(index: Int) -> String {
@@ -65,7 +62,6 @@ extension User {
         schemaVersion = (try? container.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
         displayName = try? container.decodeIfPresent(String.self, forKey: .displayName)
         avatarURL = try? container.decodeIfPresent(URL.self, forKey: .avatarURL)
-        apikey = try? container.decodeIfPresent(String.self, forKey: .apikey)
         credits = try? container.decodeIfPresent(String.self, forKey: .credits)
         galleryPoints = try? container.decodeIfPresent(String.self, forKey: .galleryPoints)
         favoriteCategories = try? container.decodeIfPresent([Int: String].self, forKey: .favoriteCategories)
