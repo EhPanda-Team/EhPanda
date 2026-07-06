@@ -126,8 +126,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         let (stream, continuation) = makeObserverStream()
         let loadCount = UncheckedBox(0)
 
-        var initialState = PreviewsReducer.State()
-        initialState.gallery = gallery
+        var initialState = PreviewsReducer.State(gallery: gallery)
 
         let store = makePreviewsStoreWithLoadCount(
             initialState: initialState, stream: stream,
