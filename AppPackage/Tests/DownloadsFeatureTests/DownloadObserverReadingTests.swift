@@ -91,7 +91,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         let (stream, continuation) = makeObserverStream()
         let loadCount = UncheckedBox(0)
 
-        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        let initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
 
         let store = makeReadingStoreWithLoadCount(
             initialState: initialState, stream: stream,
@@ -126,7 +126,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         let (stream, continuation) = makeObserverStream()
         let loadCount = UncheckedBox(0)
 
-        var initialState = PreviewsReducer.State(gallery: gallery)
+        let initialState = PreviewsReducer.State(gallery: gallery)
 
         let store = makePreviewsStoreWithLoadCount(
             initialState: initialState, stream: stream,
