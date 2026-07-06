@@ -10,21 +10,19 @@ private let logger = Logger(category: .init(describing: SettingReducer.self))
 
 extension SettingReducer {
     func handleLoadUserSettings(_ state: inout State) -> Effect<Action> {
-        // `setting` loads from persisted storage into its working copy; `user` is `@Shared` and
-        // auto-loads. `tagTranslator` is in-memory and rebuilt from its cache below.
-        @Shared(.setting) var storedSetting
-        state.setting = storedSetting
+        // `setting` and `user` are both `@Shared` and auto-load from persisted storage — there is no
+        // working copy to prime here. `tagTranslator` is in-memory and rebuilt from its cache below.
         var effects: [Effect<Action>] = [
             .send(.syncAppIconType),
             .send(.loadUserSettingsDone),
             .send(.syncUserInterfaceStyle),
-            .run { [state] _ in
-                dfClient.setActive(state.setting.bypassesSNIFiltering)
+            .run { [bypassesSNIFiltering = state.setting.bypassesSNIFiltering] _ in
+                dfClient.setActive(bypassesSNIFiltering)
             }
         ]
         if let value: String = userDefaultsClient.getValue(.galleryHost),
            let galleryHost = GalleryHost(rawValue: value) {
-            state.setting.galleryHost = galleryHost
+            state.$setting.withLock { $0.galleryHost = galleryHost }
         }
         if cookieClient.shouldFetchIgneous {
             effects.append(.send(.fetchIgneous))
