@@ -10,84 +10,61 @@ private let logger = Logger(category: .init(describing: SettingReducer.self))
 extension SettingReducer {
     @ReducerBuilder<State, Action>
     var reducerBody: some Reducer<State, Action> {
+        // `setting` is `@Shared`, so BindingReducer writes and the fixups below persist automatically —
+        // these `.onChange` handlers now carry only their genuine side effects and cross-field
+        // invariants (no `.syncSetting` write-through remains).
         BindingReducer()
-            .onChange(of: \.setting) { _, _ in
-                .send(.syncSetting)
-            }
             .onChange(of: \.setting.galleryHost) { _, state in
-                .merge(
-                    .send(.syncSetting),
-                    .run(operation: { [value = state.setting.galleryHost.rawValue] _ in
-                        userDefaultsClient.setValue(value, .galleryHost)
-                    })
-                )
+                .run(operation: { [value = state.setting.galleryHost.rawValue] _ in
+                    userDefaultsClient.setValue(value, .galleryHost)
+                })
             }
             .onChange(of: \.setting.enablesTagsExtension) { _, state in
-                var effects: [Effect<Action>] = [
-                    .send(.syncSetting)
-                ]
-                if state.setting.enablesTagsExtension {
-                    // `.rebuildTagTranslator` sequences the remote fetch after the cache rebuild.
-                    effects.append(.send(.rebuildTagTranslator))
-                }
-                return .merge(effects)
+                // `.rebuildTagTranslator` sequences the remote fetch after the cache rebuild.
+                state.setting.enablesTagsExtension ? .send(.rebuildTagTranslator) : .none
             }
             .onChange(of: \.setting.preferredColorScheme) { _, _ in
-                .merge(
-                    .send(.syncSetting),
-                    .send(.syncUserInterfaceStyle)
-                )
+                .send(.syncUserInterfaceStyle)
             }
             .onChange(of: \.setting.appIconType) { _, state in
-                .merge(
-                    .send(.syncSetting),
-                    .run { [value = state.setting.appIconType.filename] send in
-                        _ = await applicationClient.setAlternateIconName(value)
-                        await send(.syncAppIconType)
-                    }
-                )
+                .run { [value = state.setting.appIconType.filename] send in
+                    _ = await applicationClient.setAlternateIconName(value)
+                    await send(.syncAppIconType)
+                }
             }
             .onChange(of: \.setting.autoLockPolicy) { _, state in
                 if state.setting.autoLockPolicy != .never && state.setting.backgroundBlurRadius == 0 {
-                    state.setting.backgroundBlurRadius = 10
+                    state.$setting.withLock { $0.backgroundBlurRadius = 10 }
                 }
-                return .send(.syncSetting)
+                return .none
             }
             .onChange(of: \.setting.backgroundBlurRadius) { _, state in
                 if state.setting.autoLockPolicy != .never && state.setting.backgroundBlurRadius == 0 {
-                    state.setting.autoLockPolicy = .never
+                    state.$setting.withLock { $0.autoLockPolicy = .never }
                 }
-                return .send(.syncSetting)
+                return .none
             }
             .onChange(of: \.setting.enablesLandscape) { _, state in
-                var effects: [Effect<Action>] = [
-                    .send(.syncSetting)
-                ]
-                if !state.setting.enablesLandscape {
-                    effects.append(
-                        .run { _ in
-                            guard await !deviceClient.isPad() else { return }
-                            await appDelegateClient.setPortraitOrientationMask()
-                        }
-                    )
+                guard !state.setting.enablesLandscape else { return .none }
+                return .run { _ in
+                    guard await !deviceClient.isPad() else { return }
+                    await appDelegateClient.setPortraitOrientationMask()
                 }
-                return .merge(effects)
             }
             .onChange(of: \.setting.maximumScaleFactor) { _, state in
                 if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
-                    state.setting.doubleTapScaleFactor = state.setting.maximumScaleFactor
+                    state.$setting.withLock { $0.doubleTapScaleFactor = $0.maximumScaleFactor }
                 }
-                return .send(.syncSetting)
+                return .none
             }
             .onChange(of: \.setting.doubleTapScaleFactor) { _, state in
                 if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
-                    state.setting.maximumScaleFactor = state.setting.doubleTapScaleFactor
+                    state.$setting.withLock { $0.maximumScaleFactor = $0.doubleTapScaleFactor }
                 }
-                return .send(.syncSetting)
+                return .none
             }
             .onChange(of: \.setting.bypassesSNIFiltering) { _, state in
                 .merge(
-                    .send(.syncSetting),
                     .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                     .run(operation: { [value = state.setting.bypassesSNIFiltering] _ in dfClient.setActive(value) })
                 )
@@ -96,7 +73,7 @@ extension SettingReducer {
         Reduce { state, action in
             switch action {
             case .binding:
-                return .send(.syncSetting)
+                return .none
 
             case .settingRowTapped(let screen):
                 state.path.appendGuardingDuplicate(screen.pathElement)
@@ -130,22 +107,15 @@ extension SettingReducer {
 
             case .syncAppIconTypeDone(let iconName):
                 if let iconName {
-                    state.setting.appIconType = AppIconType.allCases.filter({
-                        iconName.contains($0.filename)
-                    }).first ?? .default
+                    let iconType = AppIconType.allCases
+                        .filter({ iconName.contains($0.filename) }).first ?? .default
+                    state.$setting.withLock { $0.appIconType = iconType }
                 }
                 return .none
 
             case .syncUserInterfaceStyle:
                 let style = state.setting.preferredColorScheme.userInterfaceStyle
                 return .run(operation: { _ in await applicationClient.setUserInterfaceStyle(style) })
-
-            case .syncSetting:
-                // Write-through to the persisted store. `setting` stays a working copy so that its
-                // `BindingReducer` `.onChange` side effects keep firing; this mirrors it to storage.
-                @Shared(.setting) var storedSetting
-                $storedSetting.withLock { $0 = state.setting }
-                return .none
 
             case .loadUserSettings:
                 // `setting`/`user`/`tagTranslator` are all @Shared (auto-loaded); no database read.
