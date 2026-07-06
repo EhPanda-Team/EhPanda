@@ -272,10 +272,11 @@ extension SettingReducer {
                 }
 
             case .path(.element(id: _, action: .general(.onRemoveCustomTranslations))):
-                // Drop the custom table from memory and metadata; the launch/remote flow refills it.
+                // Drop the custom table from memory, metadata, and disk; the launch/remote flow refills
+                // it. FileClient owns the path, so the file lifecycle stays behind one module.
                 state.tagTranslator = TagTranslator()
                 state.$tagTranslatorInfo.withLock { $0.hasCustomTranslations = false }
-                return .none
+                return .run { _ in fileClient.removeCustomTranslations() }
 
             case .igneousRefreshed:
                 return .none
