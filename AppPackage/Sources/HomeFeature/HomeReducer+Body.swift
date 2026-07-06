@@ -99,8 +99,7 @@ extension HomeReducer {
                 guard state.popularLoadingState != .loading else { return .none }
                 state.popularLoadingState = .loading
                 state.rawCardColors = [String: [Color]]()
-                @Shared(.globalFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentGlobal
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
                     await send(.fetchPopularGalleriesDone(response))
@@ -124,8 +123,7 @@ extension HomeReducer {
             case .fetchFrontpageGalleries:
                 guard state.frontpageLoadingState != .loading else { return .none }
                 state.frontpageLoadingState = .loading
-                @Shared(.globalFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentGlobal
                 return .run { send in
                     let response = await FrontpageGalleriesRequest(filter: filter).response()
                     await send(.fetchFrontpageGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))

@@ -122,8 +122,7 @@ public struct SearchReducer: Sendable {
                 }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                @Shared(.searchFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentSearch
                 return .merge(
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
@@ -159,8 +158,7 @@ public struct SearchReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                @Shared(.searchFilter) var storedFilter
-                let filter = storedFilter
+                let filter = Filter.currentSearch
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let response = await MoreSearchGalleriesRequest(
                         keyword: lastKeyword, filter: filter, lastID: lastID

@@ -65,6 +65,25 @@ extension SharedKey where Self == AppStorageKey<Filter>.Default {
     }
 }
 
+// A reducer that fires a network request needs a *value* copy of the currently-persisted filter to
+// capture into its `.run` closure — never the live `@Shared` reference, which would read a later,
+// possibly mid-edit value by the time the effect actually runs. These accessors centralize that
+// read-and-copy so no call site can accidentally capture the reference.
+extension Filter {
+    public static var currentSearch: Filter {
+        @Shared(.searchFilter) var filter
+        return filter
+    }
+    public static var currentGlobal: Filter {
+        @Shared(.globalFilter) var filter
+        return filter
+    }
+    public static var currentWatched: Filter {
+        @Shared(.watchedFilter) var filter
+        return filter
+    }
+}
+
 // MARK: Search history & presets
 
 extension SharedKey where Self == AppStorageKey<[String]>.Default {
