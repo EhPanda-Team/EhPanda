@@ -46,8 +46,7 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
         let gallery = sampleGallery()
         let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
         let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
-        var initialState = ReadingReducer.State(contentSource: .remote)
-        initialState.gallery = gallery
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.imageURLs = [1: remotePageURL]
 
         let store = makeLocalPageLoadStore(
@@ -68,8 +67,7 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
     func testReadingReducerLocalPageLoadClearsStaleRemoteImageFailure() async throws {
         let gallery = sampleGallery()
         let localPageURL = URL(fileURLWithPath: "/tmp/\(UUID().uuidString).jpg")
-        var initialState = ReadingReducer.State(contentSource: .remote)
-        initialState.gallery = gallery
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.imageURLLoadingStates[1] = .failed(.webImageFailed)
         initialState.previewLoadingStates[1] = .failed(.webImageFailed)
 
@@ -93,8 +91,7 @@ struct ReadingReducerDownloadTests: DownloadFeatureTestCase {
         let capturedCalls = UncheckedBox([CapturedPageCall]())
         let gallery = sampleGallery()
         let remotePageURL = try #require(URL(string: "https://example.com/pages/0001.jpg"))
-        var initialState = ReadingReducer.State(contentSource: .remote)
-        initialState.gallery = gallery
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.imageURLs = [1: remotePageURL]
 
         let store = makeCapturePageStore(

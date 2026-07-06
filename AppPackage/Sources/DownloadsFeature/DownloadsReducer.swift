@@ -272,12 +272,14 @@ public struct DownloadsReducer: Sendable {
                 guard state.readingRequestID == requestID else { return .none }
                 var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    readingState = .init(contentSource: .local(download, manifest))
-                    readingState.gallery = download.gallery
+                    readingState = .init(gallery: download.gallery, contentSource: .local(download, manifest))
                 } else {
-                    readingState = .init(contentSource: .remote)
-                    if let download = state.downloads.first(where: { $0.gid == gid }) {
-                        readingState.applyDownloadFallback(download)
+                    let download = state.downloads.first(where: { $0.gid == gid })
+                    readingState = .init(gallery: download?.gallery ?? .empty, contentSource: .remote)
+                    // A downloaded gallery has no persisted detail, so fall back to a language-agnostic
+                    // Live Text hint rather than leaving it unset.
+                    if download != nil {
+                        readingState.language = .other
                     }
                 }
                 state.destination = .reading(readingState)
@@ -360,10 +362,3 @@ public struct DownloadsReducer: Sendable {
 }
 
 extension DownloadsReducer.Destination.State: Equatable {}
-
-private extension ReadingReducer.State {
-    mutating func applyDownloadFallback(_ download: DownloadedGallery) {
-        gallery = download.gallery
-        language = .other
-    }
-}

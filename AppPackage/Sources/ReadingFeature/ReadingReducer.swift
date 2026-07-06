@@ -75,8 +75,21 @@ public struct ReadingReducer: Sendable {
         public var showsPanel = false
         public var showsSliderPreview = false
 
-        public init(contentSource: ReadingContentSource = .remote) {
+        // `gallery` is required (no `.empty` default) so every pushing context is forced to seed it:
+        // a blank gallery has a `nil` galleryURL and a random-UUID gid, which bricks remote reading
+        // and writes junk history entries. `previewConfig`/`language` are threaded from the detail
+        // context so page math and Live Text language stay correct for remote sessions; offline
+        // sources overwrite both from the manifest on appear (see `applyLocalSource`).
+        public init(
+            gallery: Gallery,
+            contentSource: ReadingContentSource = .remote,
+            previewConfig: PreviewConfig = .normal(rows: 4),
+            language: Language? = nil
+        ) {
+            self.gallery = gallery
             self.contentSource = contentSource
+            self.previewConfig = previewConfig
+            self.language = language
         }
 
         var isOffline: Bool { contentSource != .remote }

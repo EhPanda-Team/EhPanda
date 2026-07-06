@@ -20,8 +20,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     func testContainerDataSourceHandlesZeroPageGallery() {
         var gallery = sampleGallery()
         gallery.pageCount = 0
-        var state = ReadingReducer.State()
-        state.gallery = gallery
+        var state = ReadingReducer.State(gallery: gallery)
 
         var dualPageSetting = Setting()
         dualPageSetting.enablesDualPageMode = true
@@ -40,8 +39,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         let localPageURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathComponent("0001.jpg")
-        var initialState = ReadingReducer.State(contentSource: .remote)
-        initialState.gallery = gallery
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
         initialState.localPageURLs = [1: localPageURL]
 
         let store = TestStore(
@@ -109,7 +107,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: folderURL) }
 
         let store = TestStore(
-            initialState: ReadingReducer.State(contentSource: .local(download, manifest))
+            initialState: ReadingReducer.State(gallery: .empty, contentSource: .local(download, manifest))
         ) {
             ReadingReducer()
         } withDependencies: {

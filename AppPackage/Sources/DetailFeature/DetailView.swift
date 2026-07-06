@@ -135,7 +135,11 @@ private extension DetailView {
                             PreviewsSection(
                                 pageCount: store.galleryDetail?.pageCount ?? 0,
                                 previewURLs: displayPreviewURLs,
-                                navigatePreviewsAction: { store.send(.delegate(.pushPreviews(store.gallery))) },
+                                navigatePreviewsAction: {
+                                    store.send(.delegate(.pushPreviews(
+                                        store.gallery, store.previewConfig, store.galleryDetail?.language
+                                    )))
+                                },
                                 navigateReadingAction: {
                                     store.send(.updateReadingProgress($0))
                                     store.send(.openReading)

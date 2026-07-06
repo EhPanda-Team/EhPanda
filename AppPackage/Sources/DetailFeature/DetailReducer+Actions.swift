@@ -22,7 +22,10 @@ extension DetailReducer {
                 return .none
 
             case .presentReading:
-                state.destination = .reading(ReadingReducer.State())
+                state.destination = .reading(.init(
+                    gallery: state.gallery, previewConfig: state.previewConfig,
+                    language: state.galleryDetail?.language
+                ))
                 return .none
 
             case .archivesButtonTapped:

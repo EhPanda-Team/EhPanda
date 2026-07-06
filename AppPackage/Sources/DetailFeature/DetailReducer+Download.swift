@@ -152,9 +152,15 @@ extension DetailReducer {
             case .openReadingDone(let result):
                 var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    readingState = .init(contentSource: .local(download, manifest))
+                    readingState = .init(
+                        gallery: state.gallery, contentSource: .local(download, manifest),
+                        previewConfig: state.previewConfig, language: state.galleryDetail?.language
+                    )
                 } else {
-                    readingState = .init(contentSource: .remote)
+                    readingState = .init(
+                        gallery: state.gallery, contentSource: .remote,
+                        previewConfig: state.previewConfig, language: state.galleryDetail?.language
+                    )
                     readingState.localPageURLs = state.localPreviewURLs
                 }
                 state.destination = .reading(readingState)
