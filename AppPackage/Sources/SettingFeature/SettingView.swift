@@ -41,8 +41,8 @@ public struct SettingView: View {
         case .account(let accountStore):
             AccountSettingView(
                 store: accountStore,
-                galleryHost: $store.setting.galleryHost,
-                showsNewDawnGreeting: $store.setting.showsNewDawnGreeting,
+                galleryHost: $store.settingBinding.galleryHost,
+                showsNewDawnGreeting: $store.settingBinding.showsNewDawnGreeting,
                 bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
                 blurRadius: blurRadius
             )
@@ -53,26 +53,26 @@ public struct SettingView: View {
                 tagTranslatorLoadingState: store.tagTranslatorLoadingState,
                 tagTranslatorEmpty: store.tagTranslator.translations.isEmpty,
                 tagTranslatorHasCustomTranslations: store.tagTranslator.hasCustomTranslations,
-                enablesTagsExtension: $store.setting.enablesTagsExtension,
-                translatesTags: $store.setting.translatesTags,
-                showsTagsSearchSuggestion: $store.setting.showsTagsSearchSuggestion,
-                showsImagesInTags: $store.setting.showsImagesInTags,
-                redirectsLinksToSelectedHost: $store.setting.redirectsLinksToSelectedHost,
-                detectsLinksFromClipboard: $store.setting.detectsLinksFromClipboard,
-                backgroundBlurRadius: $store.setting.backgroundBlurRadius,
-                autoLockPolicy: $store.setting.autoLockPolicy
+                enablesTagsExtension: $store.settingBinding.enablesTagsExtension,
+                translatesTags: $store.settingBinding.translatesTags,
+                showsTagsSearchSuggestion: $store.settingBinding.showsTagsSearchSuggestion,
+                showsImagesInTags: $store.settingBinding.showsImagesInTags,
+                redirectsLinksToSelectedHost: $store.settingBinding.redirectsLinksToSelectedHost,
+                detectsLinksFromClipboard: $store.settingBinding.detectsLinksFromClipboard,
+                backgroundBlurRadius: $store.settingBinding.backgroundBlurRadius,
+                autoLockPolicy: $store.settingBinding.autoLockPolicy
             )
 
         case .appearance(let appearanceStore):
             AppearanceSettingView(
                 store: appearanceStore,
-                preferredColorScheme: $store.setting.preferredColorScheme,
-                accentColor: $store.setting.accentColor,
-                appIconType: $store.setting.appIconType,
-                listDisplayMode: $store.setting.listDisplayMode,
-                showsTagsInList: $store.setting.showsTagsInList,
-                listTagsNumberMaximum: $store.setting.listTagsNumberMaximum,
-                displaysJapaneseTitle: $store.setting.displaysJapaneseTitle
+                preferredColorScheme: $store.settingBinding.preferredColorScheme,
+                accentColor: $store.settingBinding.accentColor,
+                appIconType: $store.settingBinding.appIconType,
+                listDisplayMode: $store.settingBinding.listDisplayMode,
+                showsTagsInList: $store.settingBinding.showsTagsInList,
+                listTagsNumberMaximum: $store.settingBinding.listTagsNumberMaximum,
+                displaysJapaneseTitle: $store.settingBinding.displaysJapaneseTitle
             )
 
         case .login(let loginStore):
@@ -94,31 +94,31 @@ public struct SettingView: View {
 
         case .download:
             DownloadSettingView(
-                downloadThreadLimit: $store.setting.downloadThreadLimit,
-                downloadAllowCellular: $store.setting.downloadAllowCellular,
-                downloadAutoRetryFailedPages: $store.setting.downloadAutoRetryFailedPages
+                downloadThreadLimit: $store.settingBinding.downloadThreadLimit,
+                downloadAllowCellular: $store.settingBinding.downloadAllowCellular,
+                downloadAutoRetryFailedPages: $store.settingBinding.downloadAutoRetryFailedPages
             )
 
         case .reading:
             ReadingSettingView(
-                readingDirection: $store.setting.readingDirection,
-                prefetchLimit: $store.setting.prefetchLimit,
-                enablesLandscape: $store.setting.enablesLandscape,
-                contentDividerHeight: $store.setting.contentDividerHeight,
-                maximumScaleFactor: $store.setting.maximumScaleFactor,
-                doubleTapScaleFactor: $store.setting.doubleTapScaleFactor
+                readingDirection: $store.settingBinding.readingDirection,
+                prefetchLimit: $store.settingBinding.prefetchLimit,
+                enablesLandscape: $store.settingBinding.enablesLandscape,
+                contentDividerHeight: $store.settingBinding.contentDividerHeight,
+                maximumScaleFactor: $store.settingBinding.maximumScaleFactor,
+                doubleTapScaleFactor: $store.settingBinding.doubleTapScaleFactor
             )
 
         case .laboratory:
             LaboratorySettingView(
-                bypassesSNIFiltering: $store.setting.bypassesSNIFiltering
+                bypassesSNIFiltering: $store.settingBinding.bypassesSNIFiltering
             )
 
         case .about:
             AboutView()
 
         case .appIcon:
-            AppIconView(appIconType: $store.setting.appIconType)
+            AppIconView(appIconType: $store.settingBinding.appIconType)
         }
     }
 }

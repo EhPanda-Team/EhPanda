@@ -42,7 +42,7 @@ struct TabBarView: View {
                             HomeView(
                                 store: store.scope(state: \.homeState, action: \.home),
                                 user: store.settingState.user,
-                                setting: $store.settingState.setting,
+                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius,
                                 tagTranslator: store.settingState.tagTranslator
                             )
@@ -50,7 +50,7 @@ struct TabBarView: View {
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: \.favorites),
                                 user: store.settingState.user,
-                                setting: $store.settingState.setting,
+                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius,
                                 tagTranslator: store.settingState.tagTranslator
                             )
@@ -58,7 +58,7 @@ struct TabBarView: View {
                             SearchRootView(
                                 store: store.scope(state: \.searchRootState, action: \.searchRoot),
                                 user: store.settingState.user,
-                                setting: $store.settingState.setting,
+                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius,
                                 tagTranslator: store.settingState.tagTranslator
                             )
@@ -66,7 +66,7 @@ struct TabBarView: View {
                             DownloadsView(
                                 store: store.scope(state: \.downloadsState, action: \.downloads),
                                 user: store.settingState.user,
-                                setting: $store.settingState.setting,
+                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius,
                                 tagTranslator: store.settingState.tagTranslator
                             )
@@ -109,7 +109,7 @@ struct TabBarView: View {
                     store: detailStore,
                     gid: detailStore.gid,
                     user: store.settingState.user,
-                    setting: $store.settingState.setting,
+                    setting: $store.settingState.settingBinding,
                     blurRadius: store.appLockState.blurRadius,
                     tagTranslator: store.settingState.tagTranslator
                 )
@@ -117,7 +117,7 @@ struct TabBarView: View {
                 galleryDestination(
                     elementStore,
                     user: store.settingState.user,
-                    setting: $store.settingState.setting,
+                    setting: $store.settingState.settingBinding,
                     blurRadius: store.appLockState.blurRadius,
                     tagTranslator: store.settingState.tagTranslator
                 )
