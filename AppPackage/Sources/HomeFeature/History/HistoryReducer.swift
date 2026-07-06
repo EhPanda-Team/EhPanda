@@ -13,7 +13,12 @@ import AppComponents
 public struct HistoryReducer: Sendable {
     private enum CancelID {
         case observeDownloads
+        case fetch
     }
+
+    // The gdata endpoint takes 25 gids/call; a page is two chunks, so a History visit costs at most a
+    // couple of polite requests instead of refetching every (up to 1,000) entry at once.
+    static let pageSize = 50
 
     public enum Delegate: Equatable, Sendable {
         case pushDetail(Gallery)
@@ -39,6 +44,13 @@ public struct HistoryReducer: Sendable {
         }
         public var galleries = [Gallery]()
         public var loadingState: LoadingState = .idle
+        // Paging over the local history: `fetchedCount` is how many most-recent entries have had their
+        // display metadata fetched so far; `footerLoadingState` drives the "load more" spinner.
+        public var footerLoadingState: LoadingState = .idle
+        public var fetchedCount = 0
+
+        // More history remains to page in beyond what's already been fetched.
+        var hasMoreHistory: Bool { fetchedCount < galleryHistory.count }
 
         public init() {}
     }
@@ -52,7 +64,9 @@ public struct HistoryReducer: Sendable {
         case clearHistoryGalleries
 
         case fetchGalleries
-        case fetchGalleriesDone(Result<[Gallery], AppError>)
+        case fetchGalleriesDone(Result<[Gallery], AppError>, endIndex: Int)
+        case fetchMoreGalleries
+        case fetchMoreGalleriesDone(Result<[Gallery], AppError>, endIndex: Int)
         case observeDownloads
         case observeDownloadsDone([DownloadedGallery])
     }
@@ -99,35 +113,79 @@ public struct HistoryReducer: Sendable {
 
             case .clearHistoryGalleries:
                 // Clearing also drops resume positions (they live on the same entries) — deliberate,
-                // browser-like. The write is synchronous, so we can refetch straight away.
+                // browser-like. Cancel any in-flight fetch first so its late `.success` can't
+                // repopulate the list we just emptied, then drop straight to the empty state.
                 state.$galleryHistory.withLock { $0.removeAll() }
-                return .send(.fetchGalleries)
+                state.galleries = []
+                state.fetchedCount = 0
+                state.footerLoadingState = .idle
+                state.loadingState = .failed(.notFound)
+                return .cancel(id: CancelID.fetch)
 
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
-                let pairs = state.galleryHistory.map { (gid: $0.gid, token: $0.token) }
-                guard !pairs.isEmpty else {
-                    state.galleries = []
+                state.galleries = []
+                state.fetchedCount = 0
+                state.footerLoadingState = .idle
+                let end = min(Self.pageSize, state.galleryHistory.count)
+                guard end > 0 else {
                     state.loadingState = .failed(.notFound)
                     return .none
                 }
+                let pairs = state.galleryHistory[0..<end].map { (gid: $0.gid, token: $0.token) }
                 state.loadingState = .loading
                 return .run { send in
                     let response = await GalleriesMetadataRequest(gidList: pairs).response()
-                    await send(.fetchGalleriesDone(response))
+                    await send(.fetchGalleriesDone(response, endIndex: end))
                 }
+                .cancellable(id: CancelID.fetch, cancelInFlight: true)
 
-            case .fetchGalleriesDone(let result):
+            case let .fetchGalleriesDone(result, endIndex):
                 state.loadingState = .idle
                 switch result {
                 case .success(let galleries):
+                    state.fetchedCount = endIndex
+                    state.galleries = galleries
+                    // Whole first page unresolved but more history remains: page on so the list isn't
+                    // stuck empty with no cell to trigger the footer.
                     if galleries.isEmpty {
+                        if state.hasMoreHistory {
+                            return .send(.fetchMoreGalleries)
+                        }
                         state.loadingState = .failed(.notFound)
-                    } else {
-                        state.galleries = galleries
                     }
                 case .failure(let error):
                     state.loadingState = .failed(error)
+                }
+                return .none
+
+            case .fetchMoreGalleries:
+                guard state.loadingState == .idle,
+                      state.footerLoadingState != .loading,
+                      state.hasMoreHistory
+                else { return .none }
+                let start = state.fetchedCount
+                let end = min(start + Self.pageSize, state.galleryHistory.count)
+                let pairs = state.galleryHistory[start..<end].map { (gid: $0.gid, token: $0.token) }
+                state.footerLoadingState = .loading
+                return .run { send in
+                    let response = await GalleriesMetadataRequest(gidList: pairs).response()
+                    await send(.fetchMoreGalleriesDone(response, endIndex: end))
+                }
+                .cancellable(id: CancelID.fetch, cancelInFlight: true)
+
+            case let .fetchMoreGalleriesDone(result, endIndex):
+                state.footerLoadingState = .idle
+                switch result {
+                case .success(let galleries):
+                    state.fetchedCount = endIndex
+                    state.galleries.append(contentsOf: galleries)
+                    // This page was entirely unresolved; continue so paging doesn't stall mid-list.
+                    if galleries.isEmpty && state.hasMoreHistory {
+                        return .send(.fetchMoreGalleries)
+                    }
+                case .failure(let error):
+                    state.footerLoadingState = .failed(error)
                 }
                 return .none
 

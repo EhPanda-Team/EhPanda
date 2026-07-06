@@ -90,7 +90,11 @@ public struct GalleriesMetadataRequest: Request {
         guard !chunks.isEmpty else {
             return Just([]).setFailureType(to: AppError.self).eraseToAnyPublisher()
         }
-        return Publishers.MergeMany(chunks.map(chunkPublisher))
+        // Cap in-flight POSTs at 2 so a large gid list can't fire an unbounded burst against the
+        // flood-controlled `api.php`. Result order is reconstructed from `order` below, so chunk
+        // completion order is irrelevant.
+        return Publishers.Sequence(sequence: chunks)
+            .flatMap(maxPublishers: .max(2)) { chunkPublisher($0) }
             .collect()
             .map { pages in
                 let byGID = Dictionary(
