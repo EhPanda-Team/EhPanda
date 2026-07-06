@@ -161,7 +161,7 @@ public struct ReadingView: View {
             .gesture(tapGesture, isEnabled: gestureHandler.scale == 1)
             .gesture(magnificationGesture)
             .ignoresSafeArea()
-            .id(store.databaseLoadingState)
+            .id(store.hasRestoredSession)
             .id(store.forceRefreshID)
 
             ControlPanel(
@@ -209,7 +209,7 @@ public struct ReadingView: View {
                     index: newValue, pageCount: store.gallery.pageCount, setting: setting
                 )
                 pageHandler.sliderValue = .init(newValue)
-                if store.databaseLoadingState == .idle {
+                if store.hasRestoredSession {
                     store.send(.syncReadingProgress(.init(newValue)))
                 }
             }
@@ -246,7 +246,7 @@ public struct ReadingView: View {
             index: index,
             isDualPage: isDualPage,
             isActive: index == activeStackIndex,
-            isDatabaseLoading: store.databaseLoadingState != .idle,
+            isSessionRestored: store.hasRestoredSession,
             backgroundColor: backgroundColor,
             config: imageStackConfig,
             imageURLs: displayImageURLs,

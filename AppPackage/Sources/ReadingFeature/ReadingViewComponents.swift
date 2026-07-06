@@ -47,7 +47,7 @@ struct HorizontalImageStack: View {
     private let index: Int
     private let isDualPage: Bool
     private let isActive: Bool
-    private let isDatabaseLoading: Bool
+    private let isSessionRestored: Bool
     private let backgroundColor: Color
     private let config: ImageStackConfig
     private let imageURLs: [Int: URL]
@@ -68,7 +68,7 @@ struct HorizontalImageStack: View {
     private let shareImageAction: (URL) -> Void
 
     init(
-        index: Int, isDualPage: Bool, isActive: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
+        index: Int, isDualPage: Bool, isActive: Bool, isSessionRestored: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
         loadingStates: [Int: LoadingState], enablesLiveText: Bool,
         liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
@@ -82,7 +82,7 @@ struct HorizontalImageStack: View {
         self.index = index
         self.isDualPage = isDualPage
         self.isActive = isActive
-        self.isDatabaseLoading = isDatabaseLoading
+        self.isSessionRestored = isSessionRestored
         self.backgroundColor = backgroundColor
         self.config = config
         self.imageURLs = imageURLs
@@ -132,7 +132,7 @@ struct HorizontalImageStack: View {
             loadFailedAction: loadFailedAction
         )
         .onAppear {
-            if !isDatabaseLoading {
+            if isSessionRestored {
                 if imageURLs[index] == nil {
                     fetchAction(index)
                 }

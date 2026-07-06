@@ -63,18 +63,18 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             options: .atomic
         )
 
-        await store.send(.fetchDatabaseInfos(download.gid)) {
+        await store.send(.restoreSession(download.gid)) {
             $0.gallery = download.gallery
             $0.language = manifest.language
             $0.localPageURLs = [
                 1: folderURL.appendingPathComponent("123_token_1.jpg"),
                 2: folderURL.appendingPathComponent("123_token_2.jpg")
             ]
-            $0.databaseLoadingState = .idle
+            $0.hasRestoredSession = true
         }
         await store.finish()
 
-        #expect(store.state.databaseLoadingState == .idle)
+        #expect(store.state.hasRestoredSession)
         #expect(store.state.readingProgress == 0)
     }
 

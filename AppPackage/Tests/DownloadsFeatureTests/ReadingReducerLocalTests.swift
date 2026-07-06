@@ -121,7 +121,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.fetchDatabaseInfos(download.gid))
+        await store.send(.restoreSession(download.gid))
         #expect(store.state.gallery.id == download.gid)
         #expect(store.state.localPageURLs[1] == folderURL.appendingPathComponent("123_token_1.jpg"))
         #expect(store.state.localPageURLs[2] == folderURL.appendingPathComponent("123_token_2.jpg"))
