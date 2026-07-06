@@ -57,6 +57,15 @@ public struct SettingReducer: Sendable {
         // lives in memory only and is rebuilt at launch from the cached raw JSON; only its thin
         // `tagTranslatorInfo` metadata persists (see `AppSharedKeys`).
         @Shared(.setting) public var setting: Setting
+        /// A write-through view of `setting` for SwiftUI bindings. `@Shared`'s own value setter is
+        /// deprecated (it can't take exclusive access), so binding `$store.setting.x` directly warns;
+        /// bind `$store.settingBinding.x` instead — its setter routes writes through `withLock`, while
+        /// still flowing through `BindingReducer` so the cross-field `.onChange(of: \.setting.x)`
+        /// cascades keep firing (both read the same shared storage). Reads should use `setting`.
+        public var settingBinding: Setting {
+            get { setting }
+            set { $setting.withLock { $0 = newValue } }
+        }
         public var tagTranslator = TagTranslator()
         @Shared(.tagTranslatorInfo) public var tagTranslatorInfo: TagTranslatorInfo
         @Shared(.user) public var user: User
