@@ -57,7 +57,11 @@ public struct ReadingReducer: Sendable {
         public var webImageLoadSuccessIndices = Set<Int>()
         public var imageURLLoadingStates = [Int: LoadingState]()
         public var previewLoadingStates = [Int: LoadingState]()
-        public var databaseLoadingState: LoadingState = .loading
+        // True once the reading session has been restored on the first `onAppear`: the resume page
+        // from history, plus the local source for downloads. Image fetches, progress syncs and the
+        // pager rebuild gate on this so they run against a restored session, not the initial
+        // placeholder. (Not a loading state — the restore is synchronous; there is no async fetch.)
+        public var hasRestoredSession = false
         public var previewConfig: PreviewConfig = .normal(rows: 4)
 
         public var previewURLs = [Int: URL]()
@@ -177,7 +181,7 @@ public struct ReadingReducer: Sendable {
         case syncReadingProgress(Int)
         case flushReadingProgress
 
-        case fetchDatabaseInfos(String)
+        case restoreSession(String)
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])
         case loadLocalPageURLs(String)
