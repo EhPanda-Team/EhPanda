@@ -17,7 +17,6 @@ struct PreviewsReducerDownloadTests: DownloadFeatureTestCase {
             gid: "991", title: "Preview Download", status: .completed, pageCount: 2, completedPageCount: 2
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
-        var initialState = PreviewsReducer.State(gallery: download.gallery)
 
         let store = makePreviewsManifestStore(download: download, manifest: manifest)
 
@@ -84,7 +83,7 @@ private extension PreviewsReducerDownloadTests {
         download: DownloadedGallery,
         manifest: DownloadManifest
     ) -> TestStoreOf<PreviewsReducer> {
-        var initialState = PreviewsReducer.State(gallery: download.gallery)
+        let initialState = PreviewsReducer.State(gallery: download.gallery)
         let store = TestStore(
             initialState: initialState,
             reducer: PreviewsReducer.init,
