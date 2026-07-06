@@ -69,17 +69,7 @@ public struct SettingReducer: Sendable {
         public init() {}
 
         mutating func setGreeting(_ greeting: Greeting) {
-            guard let currDate = greeting.updateTime else { return }
-
-            $user.withLock { user in
-                if let prevGreeting = user.greeting,
-                   let prevDate = prevGreeting.updateTime,
-                   prevDate < currDate {
-                    user.greeting = greeting
-                } else if user.greeting == nil {
-                    user.greeting = greeting
-                }
-            }
+            $user.withLock { $0.mergeGreeting(greeting) }
         }
 
         mutating func updateUser(_ user: User) {

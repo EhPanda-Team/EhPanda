@@ -49,6 +49,23 @@ public struct User: Codable, Equatable, Sendable {
     }
 }
 
+extension User {
+    /// Adopts `greeting` only when it is newer than the one already held (or none is held). Two
+    /// features write greetings — the Setting daily fetch and the Detail-page parse — so the
+    /// "keep the newer" rule lives here, not at either call site, and a stale detail-page greeting
+    /// can't clobber a fresher one. `greeting` is session-only and never persisted (see `CodingKeys`).
+    public mutating func mergeGreeting(_ greeting: Greeting) {
+        guard let newDate = greeting.updateTime else { return }
+        if let current = self.greeting {
+            if let currentDate = current.updateTime, currentDate < newDate {
+                self.greeting = greeting
+            }
+        } else {
+            self.greeting = greeting
+        }
+    }
+}
+
 // MARK: Manually decode
 extension User {
     // Tolerant decoding keeps an existing persisted value valid across future additive changes; a
