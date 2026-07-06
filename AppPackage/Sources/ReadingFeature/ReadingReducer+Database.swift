@@ -10,10 +10,23 @@ extension ReadingReducer {
         Reduce { state, action in
             switch action {
             case .syncReadingProgress(let progress):
+                // Debounce the persist: the page index is the hottest interaction in the app (swipe,
+                // slider scrub, auto-play) and each write re-encodes the whole history array. Keep the
+                // pending page in state and flush it at most once per second — plus immediately on
+                // teardown/background (`.flushReadingProgress`) so a force-quit loses under a second.
+                state.pendingReadingProgress = progress
+                return .run { send in
+                    try await clock.sleep(for: .seconds(1))
+                    await send(.flushReadingProgress)
+                }
+                .cancellable(id: ReadingCancelID.progressFlush, cancelInFlight: true)
+
+            case .flushReadingProgress:
                 @Shared(.galleryHistory) var galleryHistory
                 $galleryHistory.withLock {
                     $0.updateReadingProgress(
-                        gid: state.gallery.id, token: state.gallery.token, progress: progress, date: date.now
+                        gid: state.gallery.id, token: state.gallery.token,
+                        progress: state.pendingReadingProgress, date: date.now
                     )
                 }
                 return .none

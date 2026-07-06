@@ -15,6 +15,7 @@ private let logger = Logger(category: .init(describing: ReadingView.self))
 
 public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
 
     @Bindable var store: StoreOf<ReadingReducer>
     let gid: String
@@ -101,8 +102,16 @@ public struct ReadingView: View {
             .animation(.default, value: store.showsPanel)
             .statusBar(hidden: !store.showsPanel)
             .onDisappear {
+                // The reader is tearing down; flush the debounced reading progress immediately so the
+                // last page swiped-to isn't lost.
+                store.send(.flushReadingProgress)
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                // Backgrounding doesn't fire `onDisappear`, so flush here too — a force-quit from the
+                // background otherwise drops the last debounce window of progress.
+                if newPhase == .background { store.send(.flushReadingProgress) }
             }
             .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
     }
