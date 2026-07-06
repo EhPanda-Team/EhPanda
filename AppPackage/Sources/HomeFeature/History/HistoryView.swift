@@ -40,7 +40,10 @@ struct HistoryView: View {
             },
             downloadBadges: store.downloadBadges
         )
-        .safeAreaInset(edge: .top, spacing: 0) { historyLimitBanner }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            // Always-visible notice: only the most-recent records survive the launch-time prune.
+            LimitBanner(Text(.historyLimitDescription(limit: GalleryHistoryEntry.historyCap)))
+        }
         .searchable(text: $store.keyword, prompt: .filter)
         .onAppear {
             store.send(.onAppear)
@@ -52,17 +55,6 @@ struct HistoryView: View {
         }
         .toolbar(content: toolbar)
         .navigationTitle(.history)
-    }
-
-    // Always-visible notice: only the most-recent records survive the launch-time prune.
-    private var historyLimitBanner: some View {
-        Text(.historyLimitDescription(limit: GalleryHistoryEntry.historyCap))
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.bar)
     }
 
     private func toolbar() -> some ToolbarContent {

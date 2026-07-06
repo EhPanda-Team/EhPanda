@@ -60,7 +60,10 @@ public struct QuickSearchView: View {
                 ErrorView(error: .notFound)
                     .opacity(store.quickSearchWords.isEmpty ? 1 : 0)
             }
-            .safeAreaInset(edge: .top, spacing: 0) { wordLimitBanner }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                // Always-visible notice: the word list is capped and the add button disables at the limit.
+                LimitBanner(Text(.wordLimitDescription(limit: QuickSearchReducer.wordLimit)))
+            }
             .confirmationDialog(
                 $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
             )
@@ -72,17 +75,6 @@ public struct QuickSearchView: View {
             .navigationDestination(item: $store.editKind) { editWordView(for: $0) }
             .navigationTitle(.RLocalizable.quickSearch)
         }
-    }
-
-    // Always-visible notice: the word list is capped and the add button disables at the limit.
-    private var wordLimitBanner: some View {
-        Text(.wordLimitDescription(limit: QuickSearchReducer.wordLimit))
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.bar)
     }
 
     private func onTextFieldSubmitted() {
