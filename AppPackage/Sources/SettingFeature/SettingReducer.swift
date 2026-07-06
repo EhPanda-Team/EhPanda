@@ -49,13 +49,14 @@ public struct SettingReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        // `setting` stays a working copy edited through `BindingReducer` (its `.onChange` handlers
-        // enforce cross-field invariants and fire side effects); persistence is a write-through to
-        // `@Shared(.setting)` via `.syncSetting`. `user` is not form-bound, so it is stored directly
-        // in `@Shared`. `tagTranslator` is derived, re-downloadable data: it lives in memory only and
-        // is rebuilt at launch from the cached raw JSON; only its thin `tagTranslatorInfo` metadata
-        // persists (see `AppSharedKeys`).
-        public var setting = Setting()
+        // `setting` is stored directly in `@Shared(.setting)`, so every mutation — form bindings, the
+        // cross-field `.onChange` fixups, and non-binding syncs like `syncAppIconTypeDone` — persists
+        // atomically. There is no working copy to keep in step, which removes the class of bug where a
+        // non-binding write path forgot to fire the old `.syncSetting` and the persisted value silently
+        // diverged. `user` is likewise shared. `tagTranslator` is derived, re-downloadable data: it
+        // lives in memory only and is rebuilt at launch from the cached raw JSON; only its thin
+        // `tagTranslatorInfo` metadata persists (see `AppSharedKeys`).
+        @Shared(.setting) public var setting: Setting
         public var tagTranslator = TagTranslator()
         @Shared(.tagTranslatorInfo) public var tagTranslatorInfo: TagTranslatorInfo
         @Shared(.user) public var user: User
@@ -107,7 +108,6 @@ public struct SettingReducer: Sendable {
         case syncAppIconType
         case syncAppIconTypeDone(String?)
         case syncUserInterfaceStyle
-        case syncSetting
 
         case loadUserSettings
         case loadUserSettingsDone

@@ -73,9 +73,6 @@ struct AppReducer {
                 }
                 return .none
             }
-            .onChange(of: \.settingState.setting) { _, _ in
-                .send(.setting(.syncSetting))
-            }
 
         Reduce { state, action in
             switch action {
