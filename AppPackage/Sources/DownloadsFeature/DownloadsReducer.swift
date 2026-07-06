@@ -276,13 +276,14 @@ public struct DownloadsReducer: Sendable {
                 if case .success(let (download, manifest)) = result {
                     readingState = .init(gallery: download.gallery, contentSource: .local(download, manifest))
                 } else {
-                    let download = state.downloads.first(where: { $0.gid == gid })
-                    readingState = .init(gallery: download?.gallery ?? .empty, contentSource: .remote)
+                    // Local load failed; fall back to remote — but only if the download record is still
+                    // around to seed the reader. If it vanished mid-flight there's nothing to open, so
+                    // bail rather than push a blank (`.empty`) reader.
+                    guard let download = state.downloads.first(where: { $0.gid == gid }) else { return .none }
+                    readingState = .init(gallery: download.gallery, contentSource: .remote)
                     // A downloaded gallery has no persisted detail, so fall back to a language-agnostic
                     // Live Text hint rather than leaving it unset.
-                    if download != nil {
-                        readingState.language = .other
-                    }
+                    readingState.language = .other
                 }
                 state.destination = .reading(readingState)
                 return .none

@@ -43,10 +43,10 @@ public struct PreviewsReducer: Sendable {
         public var localPreviewRequestID = UUID()
 
         public init(
-            gid: String = "", gallery: Gallery = .empty,
+            gallery: Gallery,
             previewConfig: PreviewConfig = .normal(rows: 4), language: Language? = nil
         ) {
-            self.gid = gid
+            self.gid = gallery.id
             self.gallery = gallery
             self.previewConfig = previewConfig
             self.language = language
