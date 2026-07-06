@@ -35,7 +35,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         )
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
         let store = TestStore(
-            initialState: ReadingReducer.State(contentSource: .local(download, manifest))
+            initialState: ReadingReducer.State(gallery: .empty, contentSource: .local(download, manifest))
         ) {
             ReadingReducer()
         } withDependencies: {
@@ -91,8 +91,7 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
         let (stream, continuation) = makeObserverStream()
         let loadCount = UncheckedBox(0)
 
-        var initialState = ReadingReducer.State(contentSource: .remote)
-        initialState.gallery = gallery
+        var initialState = ReadingReducer.State(gallery: gallery, contentSource: .remote)
 
         let store = makeReadingStoreWithLoadCount(
             initialState: initialState, stream: stream,

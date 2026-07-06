@@ -11,7 +11,7 @@ struct DownloadsReducerReadingDismissTests {
     @Test
     func readingDismissClearsDestination() async {
         var initialState = DownloadsReducer.State()
-        initialState.destination = .reading(.init(contentSource: .remote))
+        initialState.destination = .reading(.init(gallery: .empty, contentSource: .remote))
 
         let store = TestStore(
             initialState: initialState,

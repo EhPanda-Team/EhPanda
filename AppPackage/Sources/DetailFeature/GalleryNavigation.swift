@@ -21,8 +21,11 @@ public enum GalleryNavigation {
         switch action {
         case let .detail(.delegate(delegate)):
             switch delegate {
-            case .pushPreviews(let gallery):
-                return .previews(.init(gid: gallery.id, gallery: gallery))
+            case let .pushPreviews(gallery, previewConfig, language):
+                return .previews(.init(
+                    gid: gallery.id, gallery: gallery,
+                    previewConfig: previewConfig, language: language
+                ))
             case let .pushComments(gid, token, apiKey, galleryURL, comments, scrollCommentID):
                 return .comments(.init(
                     gid: gid, token: token, apiKey: apiKey,
