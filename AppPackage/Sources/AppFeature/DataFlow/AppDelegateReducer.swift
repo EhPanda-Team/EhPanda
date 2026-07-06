@@ -29,10 +29,14 @@ struct AppDelegateReducer {
         Reduce { _, action in
             switch action {
             case .onLaunchFinish:
-                // Enforce the browsing-history cap once per launch; in-session upserts never trim.
-                @Shared(.galleryHistory) var galleryHistory
-                $galleryHistory.withLock { $0.pruneToHistoryCap() }
                 return .merge(
+                    // Enforce the browsing-history cap once per launch (in-session upserts never trim).
+                    // Runs off the launch path as a background effect — decoding + re-encoding up to
+                    // 1,000 entries shouldn't block `didFinishLaunching`; nothing reads history at start.
+                    .run { _ in
+                        @Shared(.galleryHistory) var galleryHistory
+                        $galleryHistory.withLock { $0.pruneToHistoryCap() }
+                    },
                     .run(operation: { _ in libraryClient.initializeWebImage() }),
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),
