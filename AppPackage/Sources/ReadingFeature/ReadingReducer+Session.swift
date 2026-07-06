@@ -22,13 +22,7 @@ extension ReadingReducer {
                 .cancellable(id: ReadingCancelID.progressFlush, cancelInFlight: true)
 
             case .flushReadingProgress:
-                @Shared(.galleryHistory) var galleryHistory
-                $galleryHistory.withLock {
-                    $0.updateReadingProgress(
-                        gid: state.gallery.id, token: state.gallery.token,
-                        progress: state.pendingReadingProgress, date: date.now
-                    )
-                }
+                flushReadingProgress(state)
                 return .none
 
             case .restoreSession(let gid):
@@ -64,8 +58,29 @@ extension ReadingReducer {
         // from the persisted browsing history.
         @Shared(.galleryHistory) var galleryHistory
         state.readingProgress = galleryHistory.readingProgress(gid: gid)
+        // Seed the pending page with the restored resume position so a flush that fires before the
+        // first page turn (dismiss or background right after opening) rewrites that position instead
+        // of clobbering it with a stale `.zero`.
+        state.pendingReadingProgress = state.readingProgress
         state.hasRestoredSession = true
         return .none
+    }
+
+    /// Persists the latest pending page into the shared browsing history. Called from the debounced
+    /// `.flushReadingProgress` and — crucially — synchronously on reader dismissal (`.onPerformDismiss`),
+    /// which runs in this child reducer before the parent nils the presentation and cancels the pending
+    /// debounce. A deferred `.send` at that point would be dropped once the destination is gone.
+    func flushReadingProgress(_ state: State) {
+        // Nothing to persist for a gallery that can't be keyed into history (e.g. an unseeded reader
+        // dismissed immediately); bail before touching the clock or the shared store.
+        guard state.gallery.id.isValidGID else { return }
+        @Shared(.galleryHistory) var galleryHistory
+        $galleryHistory.withLock {
+            $0.updateReadingProgress(
+                gid: state.gallery.id, token: state.gallery.token,
+                progress: state.pendingReadingProgress, date: date.now
+            )
+        }
     }
 
     func reduceObserveDownloads(gid: String) -> Effect<Action> {
