@@ -162,10 +162,10 @@ extension QuickSearchWord {
     // Tolerant decoding keeps an existing persisted list valid across future additive changes.
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
-        id = (try? container?.decodeIfPresent(UUID.self, forKey: .id)) ?? .init()
-        name = (try? container?.decodeIfPresent(String.self, forKey: .name)) ?? ""
-        content = (try? container?.decodeIfPresent(String.self, forKey: .content)) ?? ""
+        schemaVersion = container.decode(.schemaVersion, default: 1)
+        id = container.decode(.id, default: .init())
+        name = container.decode(.name, default: "")
+        content = container.decode(.content, default: "")
     }
 }
 

@@ -29,10 +29,9 @@ public struct TagTranslatorInfo: Codable, Equatable, Sendable {
 extension TagTranslatorInfo {
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
-        language = (try? container?.decodeIfPresent(TranslatableLanguage.self, forKey: .language)) ?? nil
-        updatedDate = (try? container?.decodeIfPresent(Date.self, forKey: .updatedDate)) ?? .distantPast
-        hasCustomTranslations =
-            (try? container?.decodeIfPresent(Bool.self, forKey: .hasCustomTranslations)) ?? false
+        schemaVersion = container.decode(.schemaVersion, default: 1)
+        language = try? container?.decodeIfPresent(TranslatableLanguage.self, forKey: .language)
+        updatedDate = container.decode(.updatedDate, default: .distantPast)
+        hasCustomTranslations = container.decode(.hasCustomTranslations, default: false)
     }
 }
