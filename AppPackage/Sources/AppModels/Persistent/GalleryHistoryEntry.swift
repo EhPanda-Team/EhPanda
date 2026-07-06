@@ -38,10 +38,10 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
 extension GalleryHistoryEntry {
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = (try? container?.decodeIfPresent(Int.self, forKey: .schemaVersion)) ?? 1
-        gid = (try? container?.decodeIfPresent(String.self, forKey: .gid)) ?? ""
-        token = (try? container?.decodeIfPresent(String.self, forKey: .token)) ?? ""
-        lastOpenDate = (try? container?.decodeIfPresent(Date.self, forKey: .lastOpenDate)) ?? .distantPast
-        readingProgress = (try? container?.decodeIfPresent(Int.self, forKey: .readingProgress)) ?? 0
+        schemaVersion = container.decode(.schemaVersion, default: 1)
+        gid = container.decode(.gid, default: "")
+        token = container.decode(.token, default: "")
+        lastOpenDate = container.decode(.lastOpenDate, default: .distantPast)
+        readingProgress = container.decode(.readingProgress, default: 0)
     }
 }
