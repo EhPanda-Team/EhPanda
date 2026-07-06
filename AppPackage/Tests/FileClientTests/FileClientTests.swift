@@ -93,4 +93,25 @@ struct FileClientTests {
         )
         #expect(FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(language: language)) == nil)
     }
+
+    // REV-14: removing custom translations must delete the imported file from Application Support so it
+    // doesn't linger in non-purgeable storage forever.
+    @Test
+    func removeCustomTranslationsDeletesTheImportedFile() async throws {
+        let url = try writeTemporaryFile(try sampleResponseData())
+        defer {
+            try? FileManager.default.removeItem(at: url)
+            try? FileManager.default.removeItem(at: customTranslationsURL)
+        }
+
+        _ = try await FileClient.live.importTagTranslator(url).get()
+        #expect(FileManager.default.fileExists(atPath: customTranslationsURL.path))
+
+        FileClient.live.removeCustomTranslations()
+
+        #expect(!FileManager.default.fileExists(atPath: customTranslationsURL.path))
+        #expect(
+            FileClient.live.loadCachedTagTranslator(TagTranslatorInfo(hasCustomTranslations: true)) == nil
+        )
+    }
 }

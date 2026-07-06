@@ -13,6 +13,9 @@ public struct FileClient: Sendable {
     /// Rebuilds the in-memory translator from the cached raw JSON described by `info` — Application
     /// Support for a custom import, Caches for a remote download. `nil` if the cache is missing.
     public var loadCachedTagTranslator: @Sendable (TagTranslatorInfo) -> TagTranslator?
+    /// Deletes the imported custom-translations file from Application Support. That directory is not
+    /// purgeable, so a removed import must be cleaned up explicitly rather than left on disk forever.
+    public var removeCustomTranslations: @Sendable () -> Void
 }
 
 // Fixed name for a user-imported table, kept in Application Support because it cannot be
@@ -97,6 +100,9 @@ extension FileClient {
             return TagTranslator(
                 language: language, updatedDate: info.updatedDate, translations: translations
             )
+        },
+        removeCustomTranslations: {
+            try? FileManager.default.removeItem(at: customTranslationsURL)
         }
     )
 
@@ -126,7 +132,8 @@ extension FileClient {
         createFile: { _, _ in false },
         importTagTranslator: { _ in .success(.init()) },
         cacheAndBuildRemoteTagTranslator: { _, _, _ in nil },
-        loadCachedTagTranslator: { _ in nil }
+        loadCachedTagTranslator: { _ in nil },
+        removeCustomTranslations: {}
     )
 
     public static func placeholder<Result>() -> Result { fatalError() }
@@ -135,6 +142,7 @@ extension FileClient {
         createFile: IssueReporting.unimplemented(placeholder: placeholder()),
         importTagTranslator: IssueReporting.unimplemented(placeholder: placeholder()),
         cacheAndBuildRemoteTagTranslator: IssueReporting.unimplemented(placeholder: placeholder()),
-        loadCachedTagTranslator: IssueReporting.unimplemented(placeholder: placeholder())
+        loadCachedTagTranslator: IssueReporting.unimplemented(placeholder: placeholder()),
+        removeCustomTranslations: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
