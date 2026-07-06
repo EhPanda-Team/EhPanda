@@ -28,6 +28,10 @@ public struct PreviewsReducer: Sendable {
         // The gallery id this screen fetches; captured when pushed onto the host's gallery stack.
         public var gid = ""
         public var gallery: Gallery = .empty
+        // Threaded from the detail context (via the `pushPreviews` delegate) so a reader opened from
+        // this screen keeps the correct page math (`previewConfig`) and Live Text `language` for
+        // remote sessions — Previews itself never fetches a gallery detail to re-derive them.
+        public var language: Language?
         public var loadingState: LoadingState = .idle
         public var databaseLoadingState: LoadingState = .loading
 
@@ -36,9 +40,14 @@ public struct PreviewsReducer: Sendable {
         public var previewConfig: PreviewConfig = .normal(rows: 4)
         public var localPreviewRequestID = UUID()
 
-        public init(gid: String = "", gallery: Gallery = .empty) {
+        public init(
+            gid: String = "", gallery: Gallery = .empty,
+            previewConfig: PreviewConfig = .normal(rows: 4), language: Language? = nil
+        ) {
             self.gid = gid
             self.gallery = gallery
+            self.previewConfig = previewConfig
+            self.language = language
         }
 
         mutating func updatePreviewURLs(_ previewURLs: [Int: URL]) {
@@ -159,12 +168,17 @@ public struct PreviewsReducer: Sendable {
             case .openReadingDone(let result):
                 var readingState: ReadingReducer.State
                 if case .success(let (download, manifest)) = result {
-                    readingState = .init(contentSource: .local(download, manifest))
+                    readingState = .init(
+                        gallery: state.gallery, contentSource: .local(download, manifest),
+                        previewConfig: state.previewConfig, language: state.language
+                    )
                 } else {
-                    readingState = .init(contentSource: .remote)
+                    readingState = .init(
+                        gallery: state.gallery, contentSource: .remote,
+                        previewConfig: state.previewConfig, language: state.language
+                    )
                     readingState.localPageURLs = state.localPreviewURLs
                 }
-                readingState.gallery = state.gallery
                 state.destination = .reading(readingState)
                 return .none
 
