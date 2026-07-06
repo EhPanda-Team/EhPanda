@@ -32,7 +32,7 @@ extension ReadingReducer {
     var mainReducer: some ReducerOf<Self> {
         CombineReducers {
             lifecycleReducer
-            databaseReducer
+            sessionReducer
             imageFetchReducer
         }
         .haptics(

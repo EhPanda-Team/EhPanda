@@ -6,7 +6,7 @@ import AppTools
 
 // MARK: - Session Restore & Download Actions
 extension ReadingReducer {
-    var databaseReducer: some ReducerOf<Self> {
+    var sessionReducer: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .syncReadingProgress(let progress):
