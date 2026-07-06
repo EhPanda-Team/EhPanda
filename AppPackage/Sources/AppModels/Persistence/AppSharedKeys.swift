@@ -17,6 +17,20 @@ import Sharing
 //     + defaults): additive changes never invalidate an existing persisted value, and a decode
 //     failure falls back to the key's default — there is no store-fails-to-open failure mode.
 //
+// Cap policies differ by the *kind* of data, deliberately:
+//   • `galleryHistory` (auto-recorded browsing) is capped at `GalleryHistoryEntry.historyCap` and
+//     trimmed only by a launch-time prune, so in-session upserts may briefly exceed the cap.
+//   • `historyKeywords` (auto-recorded searches) is capped at write time by evicting the oldest,
+//     keeping the most recent 20.
+//   • `quickSearchWords` (user-*authored* presets) is capped at `QuickSearchReducer.wordLimit` but is
+//     never evicted — the add control is simply disabled at the limit, because silently dropping a
+//     saved word would lose user work. Auto-recorded data is disposable; authored data is not.
+//
+// Every model also carries a `schemaVersion` (default 1): a reserved anchor for a future *breaking*
+// migration. Additive changes never touch it — they ride the tolerant `init(from:)` decoders above.
+// It exists only so a genuinely incompatible change has an explicit version to branch on, rather than
+// inferring compatibility from the shape of the decoded data.
+//
 // Nothing here uses the `fileStorage` strategy. The tag-translation table is the only large
 // artifact, and it is deliberately NOT persisted through Sharing: only its thin
 // `tagTranslatorInfo` metadata lives in app storage, while the multi-megabyte translations are a
