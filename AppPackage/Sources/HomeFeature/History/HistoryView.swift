@@ -29,10 +29,11 @@ struct HistoryView: View {
         GenericList(
             galleries: store.filteredGalleries,
             setting: setting,
-            pageNumber: nil,
+            pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
             loadingState: store.loadingState,
-            footerLoadingState: .idle,
+            footerLoadingState: store.footerLoadingState,
             fetchAction: { store.send(.fetchGalleries) },
+            fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
