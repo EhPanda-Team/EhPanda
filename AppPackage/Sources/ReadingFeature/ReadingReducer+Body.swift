@@ -81,6 +81,9 @@ extension ReadingReducer {
                 return .merge(effects)
 
             case .onPerformDismiss:
+                // Flush synchronously here — this runs before the parent nils the presentation and
+                // cancels the pending debounce, so the last page swiped-to isn't lost on a normal close.
+                flushReadingProgress(state)
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
             case .onAppear(let gid, let enablesLandscape):
