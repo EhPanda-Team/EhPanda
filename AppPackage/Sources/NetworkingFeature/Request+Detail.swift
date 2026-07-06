@@ -128,32 +128,14 @@ public struct GalleryVersionMetadataRequest: Request {
             return Fail(error: AppError.notFound)
                 .eraseToAnyPublisher()
         }
-
-        let params: [String: Any] = [
-            "method": "gdata",
-            "gidlist": [[gid, token]],
-            "namespace": 1
-        ]
-
-        var request = URLRequest(url: Defaults.URL.api)
-        request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
-
-        return urlSession.dataTaskPublisher(for: request)
-            .genericRetry()
-            .map(\.data)
-            .tryMap { data in
-                try parseResponse(data: data) {
-                    let response = try JSONDecoder()
-                        .decode(GalleryVersionMetadataAPIResponse.self, from: $0)
-                    guard let metadata = response.gmetadata.first?.versionMetadata else {
-                        throw AppError.notFound
-                    }
-                    return metadata
-                }
+        return gdataPublisher(gidlist: [[gid, token]], urlSession: urlSession) {
+            let response = try JSONDecoder()
+                .decode(GalleryVersionMetadataAPIResponse.self, from: $0)
+            guard let metadata = response.gmetadata.first?.versionMetadata else {
+                throw AppError.notFound
             }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
+            return metadata
+        }
     }
 }
 
