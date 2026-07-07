@@ -69,11 +69,15 @@ struct DownloadBackgroundAssertionTests: DownloadFeatureTestCase {
 
         context.spy.fireExpiration()
 
+        // The expiration handler releases the assertion on a detached task that nils the
+        // token *before* awaiting the MainActor `end` hop. Wait on `endCount` (the later
+        // of the two) rather than the token so the assertion below can't observe the
+        // in-between window where the token is already nil but `end` hasn't run yet.
         try await waitUntil {
-            await !context.manager.testingHasBackgroundAssertion()
+            context.spy.endCount == 1
         }
         #expect(context.spy.beginCount == 1)
-        #expect(context.spy.endCount == 1)
+        #expect(!(await context.manager.testingHasBackgroundAssertion()))
 
         _ = await context.manager.pause(gid: gid)
     }
