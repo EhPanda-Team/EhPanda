@@ -180,7 +180,7 @@ public struct ReadingReducer: Sendable {
         case toggleShowsPanel
         case setOrientationPortrait(Bool)
         case onPerformDismiss
-        case onAppear(String, Bool)
+        case onAppear(String)
 
         case onWebImageRetry(Int)
         case onWebImageSucceeded(Int)

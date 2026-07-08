@@ -65,7 +65,6 @@ public struct DetailReducer: Sendable {
         @Presents public var alert: AppAlertState<Alert>?
         public var commentContent = ""
         public var postCommentFocused = false
-        public var showsNewDawnGreeting = false
         public var showsUserRating = false
         public var showsFullTitle = false
         public var userRating = 0
@@ -134,7 +133,7 @@ public struct DetailReducer: Sendable {
         case deleteDownloadButtonTapped
         case retryDownloadButtonTapped(DownloadStartMode)
         case onPostCommentAppear
-        case onAppear(String, Bool)
+        case onAppear(String)
         case toggleShowFullTitle
         case toggleShowUserRating
         case setPostCommentFocused(Bool)

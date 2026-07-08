@@ -30,7 +30,7 @@ public struct DetailView: View {
             .animation(.default, value: store.galleryDetail)
             .onAppear {
                 DispatchQueue.main.async {
-                    store.send(.onAppear(gid, store.setting.showsNewDawnGreeting))
+                    store.send(.onAppear(gid))
                 }
             }
             .onChange(of: store.galleryDetail) { _, _ in

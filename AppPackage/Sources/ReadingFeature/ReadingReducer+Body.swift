@@ -86,12 +86,12 @@ extension ReadingReducer {
                 flushReadingProgress(state)
                 return .run(operation: { _ in await hapticsClient.generateFeedback(.light) })
 
-            case .onAppear(let gid, let enablesLandscape):
+            case .onAppear(let gid):
                 var effects: [Effect<Action>] = [
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPageURLs(gid))
                 ]
-                if enablesLandscape {
+                if state.setting.enablesLandscape {
                     effects.append(.send(.setOrientationPortrait(false)))
                 }
                 return .merge(effects)
