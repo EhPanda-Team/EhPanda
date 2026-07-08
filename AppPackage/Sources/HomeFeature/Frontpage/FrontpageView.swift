@@ -11,16 +11,14 @@ import FiltersFeature
 
 struct FrontpageView: View {
     @Bindable private var store: StoreOf<FrontpageReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<FrontpageReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -86,7 +84,6 @@ struct FrontpageView_Previews: PreviewProvider {
         NavigationStack {
             FrontpageView(
                 store: .init(initialState: .init(), reducer: FrontpageReducer.init),
-                user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

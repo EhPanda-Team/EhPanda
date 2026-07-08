@@ -9,17 +9,15 @@ import AppComponents
 struct ArchivesView: View {
     @Bindable private var store: StoreOf<ArchivesReducer>
     private let gid: String
-    private let user: User
     private let galleryURL: URL
     private let archiveURL: URL
 
     init(
         store: StoreOf<ArchivesReducer>,
-        gid: String, user: User, galleryURL: URL, archiveURL: URL
+        gid: String, galleryURL: URL, archiveURL: URL
     ) {
         self.store = store
         self.gid = gid
-        self.user = user
         self.galleryURL = galleryURL
         self.archiveURL = archiveURL
     }
@@ -33,7 +31,8 @@ struct ArchivesView: View {
 
                     Spacer()
 
-                    if let credits = Int(user.credits ?? ""), let galleryPoints = Int(user.galleryPoints ?? "") {
+                    if let credits = Int(store.user.credits ?? ""),
+                       let galleryPoints = Int(store.user.galleryPoints ?? "") {
                         ArchiveFundsView(credits: credits, galleryPoints: galleryPoints)
                     }
 
@@ -58,8 +57,8 @@ struct ArchivesView: View {
             }
             .toast($store.scope(state: \.toast, action: \.toast))
             .animation(.default, value: store.hathArchives)
-            .animation(.default, value: user.galleryPoints)
-            .animation(.default, value: user.credits)
+            .animation(.default, value: store.user.galleryPoints)
+            .animation(.default, value: store.user.credits)
             .onAppear {
                 store.send(.fetchArchive(gid, galleryURL, archiveURL))
             }
@@ -238,7 +237,6 @@ struct ArchivesView_Previews: PreviewProvider {
         ArchivesView(
             store: .init(initialState: .init(), reducer: ArchivesReducer.init),
             gid: .init(),
-            user: .init(),
             galleryURL: .mock,
             archiveURL: .mock
         )

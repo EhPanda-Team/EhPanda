@@ -11,16 +11,14 @@ import QuickSearchFeature
 
 struct SearchView: View {
     @Bindable private var store: StoreOf<SearchReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<SearchReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -111,7 +109,6 @@ struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(
             store: .init(initialState: .init(), reducer: SearchReducer.init),
-            user: .init(),
             setting: .constant(.init()),
             blurRadius: 0
         )
