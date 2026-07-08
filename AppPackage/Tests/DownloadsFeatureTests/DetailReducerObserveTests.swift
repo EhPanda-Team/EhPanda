@@ -78,8 +78,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
     func testDetailReducerOpenReadingUsesLocalManifestWhenAvailable() async throws {
         let download = sampleDownload(gid: "888", title: "Offline Archive", status: .completed, pageCount: 2)
         let manifest = try sampleManifest(gid: download.gid, title: download.title)
-        var initialState = DetailReducer.State()
-        initialState.gallery = download.gallery
+        var initialState = DetailReducer.State(gallery: download.gallery)
         initialState.galleryDetail = sampleGalleryDetail(gid: download.gid, title: download.title)
 
         let store = TestStore(
@@ -104,9 +103,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
     func testDetailReducerOpenReadingFallsBackToRemoteWhenManifestUnavailable() async {
         let gallery = sampleGallery()
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
-        var initialState = DetailReducer.State()
-        initialState.gid = gallery.gid
-        initialState.gallery = gallery
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
 
         let store = TestStore(
@@ -135,8 +132,7 @@ private extension DetailReducerObserveTests {
         gallery: Gallery, detail: GalleryDetail,
         stream: AsyncStream<[DownloadedGallery]>
     ) -> TestStoreOf<DetailReducer> {
-        var initialState = DetailReducer.State()
-        initialState.gallery = gallery
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
         return TestStore(
             initialState: initialState,
