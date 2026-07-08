@@ -146,7 +146,11 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable {
     }
     public static var empty: Self { .init(name: "", content: "") }
 
-    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    /// Highest `schemaVersion` this build can decode; a blob carrying a newer value (a downgrade)
+    /// is rejected rather than half-read. Bump and branch here when a breaking change lands.
+    public static let currentSchemaVersion = 1
+    // Version anchor for a future breaking migration; the strict decoder below rejects an
+    // out-of-range value.
     public var schemaVersion = 1
     public var id: UUID = .init()
     public var name: String
@@ -159,13 +163,24 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable {
 
 // MARK: Manually decode
 extension QuickSearchWord {
-    // Tolerant decoding keeps an existing persisted list valid across future additive changes.
-    public init(from decoder: Decoder) {
-        let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = container.decode(.schemaVersion, default: 1)
-        id = container.decode(.id, default: .init())
-        name = container.decode(.name, default: "")
-        content = container.decode(.content, default: "")
+    /// Strict, throwing decode. `id` is decoded, never fabricated — a tolerant `UUID()` fallback
+    /// would hand a corrupt entry a fresh identity on every decode. A blob missing `id`/`name`/
+    /// `content`, or carrying an unknown `schemaVersion`, throws, failing the whole
+    /// `[QuickSearchWord]` decode so Sharing resets the key to `[]` instead of surfacing an entry
+    /// with a random, unstable identity.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let version = try container.decode(Int.self, forKey: .schemaVersion)
+        guard (1...Self.currentSchemaVersion).contains(version) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: container.codingPath,
+                debugDescription: "Unsupported QuickSearchWord schemaVersion \(version)"
+            ))
+        }
+        schemaVersion = version
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        content = try container.decode(String.self, forKey: .content)
     }
 }
 

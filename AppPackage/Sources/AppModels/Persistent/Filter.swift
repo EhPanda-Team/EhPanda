@@ -59,7 +59,8 @@ public struct Filter: Codable, Equatable, Sendable {
         self.disableUploader = disableUploader
         self.disableTags = disableTags
     }
-    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    // Version anchor for a future breaking migration. All current fields decode strictly; a field
+    // added later must stay optional (or use a custom `decodeIfPresent` decoder) so old blobs decode.
     public var schemaVersion = 1
     public var doujinshi = false
     public var manga = false
@@ -112,45 +113,6 @@ public struct Filter: Codable, Equatable, Sendable {
         if !pageUpperBound.isEmpty && Int(pageUpperBound) == nil {
             pageUpperBound = ""
         }
-    }
-}
-
-// MARK: Manually decode
-extension Filter {
-    public init(from decoder: Decoder) {
-        let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = container.decode(.schemaVersion, default: 1)
-        doujinshi = container.decode(.doujinshi, default: false)
-        manga = container.decode(.manga, default: false)
-        artistCG = container.decode(.artistCG, default: false)
-        gameCG = container.decode(.gameCG, default: false)
-        western = container.decode(.western, default: false)
-        nonH = container.decode(.nonH, default: false)
-        imageSet = container.decode(.imageSet, default: false)
-        cosplay = container.decode(.cosplay, default: false)
-        asianPorn = container.decode(.asianPorn, default: false)
-        misc = container.decode(.misc, default: false)
-
-        advanced = container.decode(.advanced, default: false)
-        galleryName = container.decode(.galleryName, default: false)
-        galleryTags = container.decode(.galleryTags, default: false)
-        galleryDesc = container.decode(.galleryDesc, default: false)
-        torrentFilenames = container.decode(.torrentFilenames, default: false)
-        onlyWithTorrents = container.decode(.onlyWithTorrents, default: false)
-        lowPowerTags = container.decode(.lowPowerTags, default: false)
-        downvotedTags = container.decode(.downvotedTags, default: false)
-        expungedGalleries = container.decode(.expungedGalleries, default: false)
-
-        minRatingActivated = container.decode(.minRatingActivated, default: false)
-        minRating = container.decode(.minRating, default: 2)
-
-        pageRangeActivated = container.decode(.pageRangeActivated, default: false)
-        pageLowerBound = container.decode(.pageLowerBound, default: "")
-        pageUpperBound = container.decode(.pageUpperBound, default: "")
-
-        disableLanguage = container.decode(.disableLanguage, default: false)
-        disableUploader = container.decode(.disableUploader, default: false)
-        disableTags = container.decode(.disableTags, default: false)
     }
 }
 

@@ -7,8 +7,9 @@ import Foundation
 /// persisted — never a gallery snapshot. The History screen re-fetches display metadata
 /// from the site's `gdata` API on demand, keeping persisted website content at zero.
 ///
-/// The manual `init(from:)` decodes every field tolerantly (`decodeIfPresent` + default) so
-/// that future additive changes to this record never invalidate an existing persisted list.
+/// The manual `init(from:)` decodes strictly: a blank identity or an unknown `schemaVersion`
+/// throws, failing the whole `[GalleryHistoryEntry]` decode so Sharing resets this disposable list
+/// to `[]` rather than surfacing a `""`-id Franken-entry that would collide in an `Identifiable` list.
 public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
     /// The most entries kept across launches. Enforced only by a launch-time prune (see
     /// `Array.pruneToHistoryCap`); in-session upserts may temporarily exceed it.
@@ -26,7 +27,9 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
         self.readingProgress = readingProgress
     }
     public var id: String { gid }
-    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    /// Highest `schemaVersion` this build can decode; a blob carrying a newer value (a downgrade)
+    /// is rejected rather than half-read. Bump and branch here when a breaking change lands.
+    public static let currentSchemaVersion = 1
     public var schemaVersion = 1
     public var gid: String
     public var token: String
@@ -36,12 +39,25 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable {
 
 // MARK: Manually decode
 extension GalleryHistoryEntry {
-    public init(from decoder: Decoder) {
-        let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = container.decode(.schemaVersion, default: 1)
-        gid = container.decode(.gid, default: "")
-        token = container.decode(.token, default: "")
-        lastOpenDate = container.decode(.lastOpenDate, default: .distantPast)
-        readingProgress = container.decode(.readingProgress, default: 0)
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let version = try container.decode(Int.self, forKey: .schemaVersion)
+        guard (1...Self.currentSchemaVersion).contains(version) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: container.codingPath,
+                debugDescription: "Unsupported GalleryHistoryEntry schemaVersion \(version)"
+            ))
+        }
+        schemaVersion = version
+        gid = try container.decode(String.self, forKey: .gid)
+        token = try container.decode(String.self, forKey: .token)
+        lastOpenDate = try container.decode(Date.self, forKey: .lastOpenDate)
+        readingProgress = try container.decode(Int.self, forKey: .readingProgress)
+        guard !gid.isEmpty, !token.isEmpty else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: container.codingPath,
+                debugDescription: "GalleryHistoryEntry requires a non-empty gid and token"
+            ))
+        }
     }
 }

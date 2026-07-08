@@ -7,19 +7,20 @@ import URLClient
 
 struct SettingDownloadTests {
     @Test
-    func testLegacySettingDecodesDownloadDefaults() throws {
-        let data = Data("""
-        {
-          "galleryHost": "E-Hentai",
-          "showsNewDawnGreeting": true
-        }
-        """.utf8)
+    func testSettingRoundTripsDownloadFields() throws {
+        // Strict decode (#2): a persisted Setting is written whole, so its download fields survive an
+        // encode/decode round-trip intact. (A partial blob no longer decodes — it resets to defaults.)
+        var setting = Setting()
+        setting.downloadThreadLimit = 3
+        setting.downloadAllowCellular = false
+        setting.downloadAutoRetryFailedPages = false
 
-        let setting = try JSONDecoder().decode(Setting.self, from: data)
+        let data = try JSONEncoder().encode(setting)
+        let decoded = try JSONDecoder().decode(Setting.self, from: data)
 
-        #expect(setting.downloadThreadLimit == 1)
-        #expect(setting.downloadAllowCellular)
-        #expect(setting.downloadAutoRetryFailedPages)
+        #expect(decoded.downloadThreadLimit == 3)
+        #expect(!decoded.downloadAllowCellular)
+        #expect(!decoded.downloadAutoRetryFailedPages)
     }
 
     @Test
