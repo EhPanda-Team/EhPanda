@@ -12,16 +12,14 @@ import ReadingFeature
 public struct DetailView: View {
     @Bindable var store: StoreOf<DetailReducer>
     let gid: String
-    @Binding var setting: Setting
     let blurRadius: Double
 
     public init(
         store: StoreOf<DetailReducer>, gid: String,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
         self.gid = gid
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -32,7 +30,7 @@ public struct DetailView: View {
             .animation(.default, value: store.galleryDetail)
             .onAppear {
                 DispatchQueue.main.async {
-                    store.send(.onAppear(gid, setting.showsNewDawnGreeting))
+                    store.send(.onAppear(gid, store.setting.showsNewDawnGreeting))
                 }
             }
             .onChange(of: store.galleryDetail) { _, _ in
@@ -69,7 +67,7 @@ private extension DetailView {
                             isPreparingDownload: store.isPreparingDownload,
                             canDownload: !store.gallery.id.isEmpty
                                 && (AppUtil.galleryHost == .ehentai || CookieUtil.didLogin),
-                            displaysJapaneseTitle: setting.displaysJapaneseTitle,
+                            displaysJapaneseTitle: store.setting.displaysJapaneseTitle,
                             showFullTitle: store.showsFullTitle,
                             showFullTitleAction: { store.send(.toggleShowFullTitle) },
                             downloadAction: { handleDownloadAction() },
@@ -113,12 +111,12 @@ private extension DetailView {
                         )
                         if !store.galleryTags.isEmpty {
                             TagsSection(
-                                tags: store.galleryTags, showsImages: setting.showsImagesInTags,
+                                tags: store.galleryTags, showsImages: store.setting.showsImagesInTags,
                                 voteTagAction: { store.send(.voteTag($0, $1)) },
                                 navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
                                 navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                                 translateAction: {
-                                    store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                                    store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
                                 }
                             )
                             .padding(.horizontal)
@@ -197,7 +195,7 @@ private extension DetailView {
                     cancelAction: { store.send(.destination(.dismiss)) },
                     onAppearAction: { store.send(.onPostCommentAppear) }
                 )
-                .accentColor(setting.accentColor)
+                .accentColor(self.store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .sheet(item: $store.destination.newDawn) { greeting in
@@ -218,10 +216,9 @@ private extension DetailView {
                 ReadingView(
                     store: store,
                     gid: gid,
-                    setting: $setting,
                     blurRadius: blurRadius
                 )
-                .accentColor(setting.accentColor)
+                .accentColor(self.store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .sheet(
@@ -234,7 +231,7 @@ private extension DetailView {
                         galleryURL: galleryURL,
                         archiveURL: archiveURL
                     )
-                    .accentColor(setting.accentColor)
+                    .accentColor(self.store.setting.accentColor)
                     .autoBlur(radius: blurRadius)
                 }
             }
@@ -247,14 +244,14 @@ private extension DetailView {
                     token: self.store.gallery.token,
                     blurRadius: blurRadius
                 )
-                .accentColor(setting.accentColor)
+                .accentColor(self.store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .sheet(
                 item: $store.scope(state: \.destination?.folderManager, action: \.destination.folderManager)
             ) { store in
                 FolderManagerView(store: store)
-                    .accentColor(setting.accentColor)
+                    .accentColor(self.store.setting.accentColor)
                     .autoBlur(radius: blurRadius)
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
@@ -316,7 +313,6 @@ struct DetailView_Previews: PreviewProvider {
             DetailView(
                 store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
                 gid: .init(),
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }

@@ -7,7 +7,7 @@ extension ReadingView {
         let singleTap = TapGesture(count: 1)
             .onEnded {
                 gestureHandler.onSingleTapGestureEnded(
-                    readingDirection: setting.readingDirection,
+                    readingDirection: store.setting.readingDirection,
                     setPageIndexOffsetAction: {
                         let newValue = page.index + $0
                         page.update(.new(index: newValue))
@@ -18,8 +18,8 @@ extension ReadingView {
         let doubleTap = TapGesture(count: 2)
             .onEnded {
                 gestureHandler.onDoubleTapGestureEnded(
-                    scaleMaximum: setting.maximumScaleFactor,
-                    doubleTapScale: setting.doubleTapScaleFactor
+                    scaleMaximum: store.setting.maximumScaleFactor,
+                    doubleTapScale: store.setting.doubleTapScaleFactor
                 )
             }
         return ExclusiveGesture(doubleTap, singleTap)
@@ -28,12 +28,12 @@ extension ReadingView {
         MagnificationGesture()
             .onChanged {
                 gestureHandler.onMagnificationGestureChanged(
-                    value: $0, scaleMaximum: setting.maximumScaleFactor
+                    value: $0, scaleMaximum: store.setting.maximumScaleFactor
                 )
             }
             .onEnded {
                 gestureHandler.onMagnificationGestureEnded(
-                    value: $0, scaleMaximum: setting.maximumScaleFactor
+                    value: $0, scaleMaximum: store.setting.maximumScaleFactor
                 )
             }
     }

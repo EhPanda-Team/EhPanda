@@ -30,6 +30,7 @@ public struct CommentsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.setting) public var setting: Setting
         @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var commentContent = ""

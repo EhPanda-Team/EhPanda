@@ -9,15 +9,13 @@ import GalleryListComponents
 
 struct ToplistsView: View {
     @Bindable private var store: StoreOf<ToplistsReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<ToplistsReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -28,7 +26,7 @@ struct ToplistsView: View {
     var body: some View {
         GenericList(
             galleries: store.filteredGalleries ?? [],
-            setting: setting,
+            setting: store.setting,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState ?? .idle,
             footerLoadingState: store.footerLoadingState ?? .idle,
@@ -36,7 +34,7 @@ struct ToplistsView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
             }
         )
         .searchable(text: $store.keyword, prompt: .filter)
@@ -73,7 +71,6 @@ struct ToplistsView_Previews: PreviewProvider {
         NavigationStack {
             ToplistsView(
                 store: .init(initialState: .init(), reducer: ToplistsReducer.init),
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }

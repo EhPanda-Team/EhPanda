@@ -12,15 +12,13 @@ import DetailFeature
 
 public struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<FavoritesReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -34,14 +32,13 @@ public struct FavoritesView: View {
             store: store,
             state: \.path,
             action: \.path,
-            setting: $setting,
             blurRadius: blurRadius
         ) {
             ZStack {
                 if CookieUtil.didLogin {
                     GenericList(
                         galleries: store.galleries ?? [],
-                        setting: setting,
+                        setting: store.setting,
                         pageNumber: store.pageNumber,
                         loadingState: store.loadingState ?? .idle,
                         footerLoadingState: store.footerLoadingState ?? .idle,
@@ -49,7 +46,7 @@ public struct FavoritesView: View {
                         fetchMoreAction: { store.send(.fetchMoreGalleries) },
                         navigateAction: { store.send(.galleryTapped($0)) },
                         translateAction: {
-                            store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                            store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
                         },
                         downloadBadges: store.downloadBadges
                     )
@@ -64,7 +61,7 @@ public struct FavoritesView: View {
                     self.store.send(.destination(.dismiss))
                     self.store.send(.fetchGalleries(keyword))
                 }
-                .accentColor(setting.accentColor)
+                .accentColor(self.store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .sheet(
@@ -76,14 +73,14 @@ public struct FavoritesView: View {
                     navigation: store.navigation,
                     seekAction: { store.send(.performSeek($0)) }
                 )
-                .accentColor(setting.accentColor)
+                .accentColor(self.store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .searchable(text: $store.keyword)
             .searchSuggestions {
                 TagSuggestionView(
                     keyword: $store.keyword, translations: store.tagTranslator.translations,
-                    showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
+                    showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
                 )
             }
             .onSubmit(of: .search) {
@@ -128,7 +125,6 @@ struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
             store: .init(initialState: .init(), reducer: FavoritesReducer.init),
-            setting: .constant(.init()),
             blurRadius: 0
         )
     }

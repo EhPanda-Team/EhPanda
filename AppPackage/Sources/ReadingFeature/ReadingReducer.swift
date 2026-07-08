@@ -49,6 +49,16 @@ public struct ReadingReducer: Sendable {
         public var gallery: Gallery = .empty
         public var language: Language?
 
+        @Shared(.setting) public var setting: Setting
+        /// A write-through view of `setting` for the reading-setting editor's SwiftUI bindings. Mirrors
+        /// `SettingReducer.State.settingBinding`: `@Shared`'s own value setter is deprecated (it can't
+        /// take exclusive access), so bind `$store.settingBinding.x` — its setter routes writes through
+        /// `withLock`, flowing through `BindingReducer` — while reads use `setting`.
+        public var settingBinding: Setting {
+            get { setting }
+            set { $setting.withLock { $0 = newValue } }
+        }
+
         public var readingProgress: Int = .zero
         // The latest page awaiting a debounced persist to `@Shared(.galleryHistory)`; kept separate
         // from `readingProgress` (which seeds the slider) so tracking it never feeds back into the pager.

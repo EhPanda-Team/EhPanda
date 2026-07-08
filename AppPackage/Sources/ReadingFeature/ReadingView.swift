@@ -18,7 +18,6 @@ public struct ReadingView: View {
 
     @Bindable var store: StoreOf<ReadingReducer>
     let gid: String
-    @Binding var setting: Setting
     let blurRadius: Double
 
     @State private var liveTextHandler = LiveTextHandler()
@@ -29,11 +28,10 @@ public struct ReadingView: View {
 
     public init(
         store: StoreOf<ReadingReducer>,
-        gid: String, setting: Binding<Setting>, blurRadius: Double
+        gid: String, blurRadius: Double
     ) {
         self.store = store
         self.gid = gid
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -64,12 +62,12 @@ public struct ReadingView: View {
             .sheet(item: $store.destination.readingSetting, id: \.id) { _ in
                 NavigationStack {
                     ReadingSettingView(
-                        readingDirection: $setting.readingDirection,
-                        prefetchLimit: $setting.prefetchLimit,
-                        enablesLandscape: $setting.enablesLandscape,
-                        contentDividerHeight: $setting.contentDividerHeight,
-                        maximumScaleFactor: $setting.maximumScaleFactor,
-                        doubleTapScaleFactor: $setting.doubleTapScaleFactor
+                        readingDirection: $store.settingBinding.readingDirection,
+                        prefetchLimit: $store.settingBinding.prefetchLimit,
+                        enablesLandscape: $store.settingBinding.enablesLandscape,
+                        contentDividerHeight: $store.settingBinding.contentDividerHeight,
+                        maximumScaleFactor: $store.settingBinding.maximumScaleFactor,
+                        doubleTapScaleFactor: $store.settingBinding.doubleTapScaleFactor
                     )
                     .toolbar {
                         if !DeviceUtil.isPad && DeviceUtil.isLandscape {
@@ -83,13 +81,13 @@ public struct ReadingView: View {
                         }
                     }
                 }
-                .accentColor(setting.accentColor)
-                .tint(setting.accentColor)
+                .accentColor(store.setting.accentColor)
+                .tint(store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
             .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
                 ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
-                    .accentColor(setting.accentColor)
+                    .accentColor(store.setting.accentColor)
                     .autoBlur(radius: blurRadius)
             }
             .toast($store.scope(state: \.toast, action: \.toast))
@@ -107,7 +105,7 @@ public struct ReadingView: View {
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
             }
-            .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
+            .onAppear { store.send(.onAppear(gid, store.setting.enablesLandscape)) }
     }
 
     var content: some View {
@@ -118,15 +116,15 @@ public struct ReadingView: View {
             backgroundColor.ignoresSafeArea()
 
             ZStack {
-                if setting.readingDirection == .vertical {
+                if store.setting.readingDirection == .vertical {
                     AdvancedList(
                         page: page,
                         data: store.state.containerDataSource(
-                            setting: setting,
+                            setting: store.setting,
                             isLandscape: DeviceUtil.isLandscape
                         ),
                         id: \.self,
-                        spacing: setting.contentDividerHeight,
+                        spacing: store.setting.contentDividerHeight,
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                         content: imageStack
                     )
@@ -135,13 +133,13 @@ public struct ReadingView: View {
                     Pager(
                         page: page,
                         data: store.state.containerDataSource(
-                            setting: setting,
+                            setting: store.setting,
                             isLandscape: DeviceUtil.isLandscape
                         ),
                         id: \.self,
                         content: imageStack
                     )
-                    .horizontal(setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
+                    .horizontal(store.setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
                     .swipeInteractionArea(.allAvailable)
                     .allowsDragging(gestureHandler.scale == 1)
                 }
@@ -160,7 +158,7 @@ public struct ReadingView: View {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
-                sliderValue: $bindablePageHandler.sliderValue, setting: $setting,
+                sliderValue: $bindablePageHandler.sliderValue, setting: $store.settingBinding,
                 enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
                 range: 1...Float(store.gallery.pageCount),
@@ -188,7 +186,7 @@ public struct ReadingView: View {
                 }
             }
             // Orientation
-            .onChange(of: setting.enablesLandscape) { _, newValue in
+            .onChange(of: store.setting.enablesLandscape) { _, newValue in
                 store.send(.setOrientationPortrait(!newValue))
             }
     }
@@ -199,7 +197,7 @@ public struct ReadingView: View {
             // Page
             .onChange(of: page.index) { _, newValue in
                 let newValue = pageHandler.mapFromPager(
-                    index: newValue, pageCount: store.gallery.pageCount, setting: setting
+                    index: newValue, pageCount: store.gallery.pageCount, setting: store.setting
                 )
                 pageHandler.sliderValue = .init(newValue)
                 store.send(.syncReadingProgress(.init(newValue)))
@@ -225,12 +223,14 @@ public struct ReadingView: View {
     }
 
     @ViewBuilder private func imageStack(index: Int) -> some View {
+        let setting = store.setting
         let imageStackConfig = store.state.imageContainerConfigs(
             index: index,
             setting: setting,
             isLandscape: DeviceUtil.isLandscape
         )
-        let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
+        let isDualPage = setting.enablesDualPageMode
+            && setting.readingDirection != .vertical && DeviceUtil.isLandscape
         let dataSource = store.state.containerDataSource(setting: setting, isLandscape: DeviceUtil.isLandscape)
         let activeStackIndex = dataSource.indices.contains(page.index) ? dataSource[page.index] : nil
         HorizontalImageStack(
@@ -248,7 +248,7 @@ public struct ReadingView: View {
             liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
             fetchAction: { store.send(.fetchImageURLs($0)) },
             refetchAction: { store.send(.refetchImageURLs($0)) },
-            prefetchAction: { store.send(.prefetchImages($0, setting.prefetchLimit)) },
+            prefetchAction: { store.send(.prefetchImages($0, store.setting.prefetchLimit)) },
             loadRetryAction: { store.send(.onWebImageRetry($0)) },
             loadSucceededAction: { store.send(.onWebImageSucceeded($0)) },
             loadFailedAction: { store.send(.onWebImageFailed($0)) },
@@ -263,7 +263,7 @@ public struct ReadingView: View {
 extension ReadingView {
     func setPageIndex(sliderValue: Float) {
         let newValue = pageHandler.mapToPager(
-            index: .init(sliderValue), setting: setting
+            index: .init(sliderValue), setting: store.setting
         )
         if page.index != newValue {
             page.update(.new(index: newValue))
@@ -341,7 +341,6 @@ struct ReadingView_Previews: PreviewProvider {
                     ReadingView(
                         store: .init(initialState: .init(gallery: .empty), reducer: ReadingReducer.init),
                         gid: .init(),
-                        setting: .constant(.init()),
                         blurRadius: 0
                     )
                 }

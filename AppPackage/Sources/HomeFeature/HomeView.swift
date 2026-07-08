@@ -10,15 +10,13 @@ import DetailFeature
 
 public struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<HomeReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -92,27 +90,27 @@ public struct HomeView: View {
             switch store.case {
             case .frontpage(let store):
                 FrontpageView(
-                    store: store, setting: $setting, blurRadius: blurRadius
+                    store: store, blurRadius: blurRadius
                 )
             case .popular(let store):
                 PopularView(
-                    store: store, setting: $setting, blurRadius: blurRadius
+                    store: store, blurRadius: blurRadius
                 )
             case .toplists(let store):
                 ToplistsView(
-                    store: store, setting: $setting, blurRadius: blurRadius
+                    store: store, blurRadius: blurRadius
                 )
             case .watched(let store):
                 WatchedView(
-                    store: store, setting: $setting, blurRadius: blurRadius
+                    store: store, blurRadius: blurRadius
                 )
             case .history(let store):
                 HistoryView(
-                    store: store, setting: $setting, blurRadius: blurRadius
+                    store: store, blurRadius: blurRadius
                 )
             case .gallery(let store):
                 galleryDestination(
-                    store, setting: $setting, blurRadius: blurRadius
+                    store, blurRadius: blurRadius
                 )
             }
         }
@@ -184,7 +182,6 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(
             store: .init(initialState: .init(), reducer: HomeReducer.init),
-            setting: .constant(.init()),
             blurRadius: 0
         )
     }

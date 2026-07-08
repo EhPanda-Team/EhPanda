@@ -9,22 +9,20 @@ import GalleryListComponents
 
 struct HistoryView: View {
     @Bindable private var store: StoreOf<HistoryReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<HistoryReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
     var body: some View {
         GenericList(
             galleries: store.filteredGalleries,
-            setting: setting,
+            setting: store.setting,
             pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,
@@ -35,7 +33,7 @@ struct HistoryView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
             },
             downloadBadges: store.downloadBadges
         )
@@ -72,7 +70,6 @@ struct HistoryView_Previews: PreviewProvider {
         NavigationStack {
             HistoryView(
                 store: .init(initialState: .init(), reducer: HistoryReducer.init),
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }

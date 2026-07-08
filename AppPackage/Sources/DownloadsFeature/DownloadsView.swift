@@ -11,16 +11,13 @@ import SFSafeSymbolsExt
 
 public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<DownloadsReducer>,
-        setting: Binding<Setting>,
         blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -29,7 +26,6 @@ public struct DownloadsView: View {
             store: store,
             state: \.path,
             action: \.path,
-            setting: $setting,
             blurRadius: blurRadius
         ) {
             contentView
@@ -65,7 +61,6 @@ public struct DownloadsView: View {
             NavigationStack {
                 DownloadInspectorView(
                     store: store,
-                    setting: setting,
                     blurRadius: blurRadius
                 )
             }
@@ -73,9 +68,9 @@ public struct DownloadsView: View {
         }
         .sheet(
             item: $store.scope(state: \.destination?.folderManager, action: \.destination.folderManager)
-        ) { store in
-            FolderManagerView(store: store)
-                .accentColor(setting.accentColor)
+        ) { folderStore in
+            FolderManagerView(store: folderStore)
+                .accentColor(store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
         }
         .fullScreenCover(
@@ -84,10 +79,9 @@ public struct DownloadsView: View {
             ReadingView(
                 store: store,
                 gid: store.gallery.id,
-                setting: $setting,
                 blurRadius: blurRadius
             )
-            .accentColor(setting.accentColor)
+            .accentColor(store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .onAppear {
@@ -118,8 +112,7 @@ private extension DownloadsView {
             List {
                 ForEach(store.filteredDownloads) { download in
                     DownloadListRow(
-                        download: download,
-                        setting: setting
+                        download: download
                     ) {
                         store.send(.openReading(download.gid))
                     }
@@ -135,7 +128,7 @@ private extension DownloadsView {
                                 systemSymbol: .listBulletRectanglePortrait
                             )
                         }
-                        .tint(setting.accentColor)
+                        .tint(store.setting.accentColor)
 
                         if canMove(download) {
                             Button {
@@ -328,7 +321,6 @@ struct DownloadsView_Previews: PreviewProvider {
     static var previews: some View {
         DownloadsView(
             store: .init(initialState: .init(), reducer: DownloadsReducer.init),
-            setting: .constant(.init()),
             blurRadius: 0
         )
     }

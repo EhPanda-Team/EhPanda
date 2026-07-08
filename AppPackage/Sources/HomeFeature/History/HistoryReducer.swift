@@ -31,6 +31,7 @@ public struct HistoryReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
         public var downloadBadges = [String: DownloadBadge]()

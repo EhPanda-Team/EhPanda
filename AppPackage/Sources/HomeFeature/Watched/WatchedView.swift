@@ -12,15 +12,13 @@ import QuickSearchFeature
 
 struct WatchedView: View {
     @Bindable private var store: StoreOf<WatchedReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<WatchedReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -29,7 +27,7 @@ struct WatchedView: View {
             if CookieUtil.didLogin {
                 GenericList(
                     galleries: store.galleries,
-                    setting: setting,
+                    setting: store.setting,
                     pageNumber: store.pageNumber,
                     loadingState: store.loadingState,
                     footerLoadingState: store.footerLoadingState,
@@ -37,7 +35,7 @@ struct WatchedView: View {
                     fetchMoreAction: { store.send(.fetchMoreGalleries) },
                     navigateAction: { store.send(.delegate(.pushDetail($0))) },
                     translateAction: {
-                        store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                        store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
                     },
                     downloadBadges: store.downloadBadges
                 )
@@ -52,7 +50,7 @@ struct WatchedView: View {
                 self.store.send(.destination(.dismiss))
                 self.store.send(.fetchGalleries(keyword))
             }
-            .accentColor(setting.accentColor)
+            .accentColor(self.store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .sheet(
@@ -70,14 +68,14 @@ struct WatchedView: View {
                 navigation: store.navigation,
                 seekAction: { store.send(.performSeek($0)) }
             )
-            .accentColor(setting.accentColor)
+            .accentColor(self.store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .searchable(text: $store.keyword)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
-                showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
+                showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {
@@ -117,7 +115,6 @@ struct WatchedView_Previews: PreviewProvider {
         NavigationStack {
             WatchedView(
                 store: .init(initialState: .init(), reducer: WatchedReducer.init),
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }

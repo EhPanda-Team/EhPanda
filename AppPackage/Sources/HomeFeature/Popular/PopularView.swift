@@ -10,28 +10,26 @@ import FiltersFeature
 
 struct PopularView: View {
     @Bindable private var store: StoreOf<PopularReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<PopularReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
     var body: some View {
         GenericList(
             galleries: store.filteredGalleries,
-            setting: setting, pageNumber: nil,
+            setting: store.setting, pageNumber: nil,
             loadingState: store.loadingState,
             footerLoadingState: .idle,
             fetchAction: { store.send(.fetchGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
             }
         )
         .sheet(
@@ -66,7 +64,6 @@ struct PopularView_Previews: PreviewProvider {
         NavigationStack {
             PopularView(
                 store: .init(initialState: .init(), reducer: PopularReducer.init),
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }

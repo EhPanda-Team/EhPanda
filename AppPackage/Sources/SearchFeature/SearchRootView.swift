@@ -10,15 +10,13 @@ import DetailFeature
 
 public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<SearchRootReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -55,14 +53,14 @@ public struct SearchRootView: View {
                             self.store.send(.pushSearch)
                         }
                     }
-                    .accentColor(setting.accentColor)
+                    .accentColor(self.store.setting.accentColor)
                     .autoBlur(radius: blurRadius)
                 }
                 .searchable(text: $store.keyword)
                 .searchSuggestions {
                     TagSuggestionView(
                         keyword: $store.keyword, translations: store.tagTranslator.translations,
-                        showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
+                        showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
                     )
                 }
                 .onSubmit(of: .search) {
@@ -86,11 +84,11 @@ public struct SearchRootView: View {
             switch store.case {
             case .search(let store):
                 SearchView(
-                    store: store, setting: $setting, blurRadius: blurRadius
+                    store: store, blurRadius: blurRadius
                 )
             case .gallery(let store):
                 galleryDestination(
-                    store, setting: $setting, blurRadius: blurRadius
+                    store, blurRadius: blurRadius
                 )
             }
         }
@@ -262,7 +260,6 @@ struct SearchRootView_Previews: PreviewProvider {
     static var previews: some View {
         SearchRootView(
             store: .init(initialState: .init(), reducer: SearchRootReducer.init),
-            setting: .constant(.init()),
             blurRadius: 0
         )
     }
