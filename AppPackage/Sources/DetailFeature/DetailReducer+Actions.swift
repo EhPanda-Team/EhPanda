@@ -67,8 +67,8 @@ extension DetailReducer {
                     await send(.setPostCommentFocused(true))
                 }
 
-            case .onAppear(let gid, let showsNewDawnGreeting):
-                return handleOnAppear(gid: gid, showsNewDawnGreeting: showsNewDawnGreeting, state: &state)
+            case .onAppear(let gid):
+                return handleOnAppear(gid: gid, state: &state)
 
             default:
                 return .none
@@ -78,11 +78,9 @@ extension DetailReducer {
 
     private func handleOnAppear(
         gid: String,
-        showsNewDawnGreeting: Bool,
         state: inout State
     ) -> Effect<Action> {
         state.gid = gid
-        state.showsNewDawnGreeting = showsNewDawnGreeting
         state.isPreparingDownload = false
         state.hasLoadedDownloadBadge = false
         state.didRunLaunchAutomation = false
