@@ -13,16 +13,13 @@ struct DownloadInspectorView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Bindable private var store: StoreOf<DownloadInspectorReducer>
-    private let setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<DownloadInspectorReducer>,
-        setting: Setting,
         blurRadius: Double
     ) {
         self.store = store
-        self.setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -42,11 +39,11 @@ struct DownloadInspectorView: View {
                             GalleryDetailCell(
                                 gallery: inspection.download.gallery,
                                 coverSource: .static(inspection.coverURL),
-                                setting: setting,
+                                setting: store.setting,
                                 translateAction: {
                                     store.tagTranslator.lookup(
                                         word: $0,
-                                        returnOriginal: !setting.translatesTags
+                                        returnOriginal: !store.setting.translatesTags
                                     )
                                 },
                                 downloadBadge: inspection.download.badge
@@ -291,8 +288,8 @@ private extension View {
 
 struct DownloadListRow: View {
     @SharedReader(.tagTranslator) private var tagTranslator: TagTranslator
+    @SharedReader(.setting) private var setting: Setting
     let download: DownloadedGallery
-    let setting: Setting
     let openAction: () -> Void
 
     var body: some View {

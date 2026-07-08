@@ -9,16 +9,14 @@ import ReadingFeature
 struct PreviewsView: View {
     @Bindable private var store: StoreOf<PreviewsReducer>
     private let gid: String
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<PreviewsReducer>,
-        gid: String, setting: Binding<Setting>, blurRadius: Double
+        gid: String, blurRadius: Double
     ) {
         self.store = store
         self.gid = gid
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -66,9 +64,9 @@ struct PreviewsView: View {
         ) { store in
             ReadingView(
                 store: store,
-                gid: store.gallery.id, setting: $setting, blurRadius: blurRadius
+                gid: store.gallery.id, blurRadius: blurRadius
             )
-            .accentColor(setting.accentColor)
+            .accentColor(store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .onAppear {
@@ -84,7 +82,6 @@ struct PreviewsView_Previews: PreviewProvider {
             PreviewsView(
                 store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init),
                 gid: .init(),
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }

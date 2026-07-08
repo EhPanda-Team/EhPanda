@@ -11,22 +11,20 @@ import QuickSearchFeature
 
 struct SearchView: View {
     @Bindable private var store: StoreOf<SearchReducer>
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<SearchReducer>,
-        setting: Binding<Setting>, blurRadius: Double
+        blurRadius: Double
     ) {
         self.store = store
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
     var body: some View {
         GenericList(
             galleries: store.galleries,
-            setting: setting,
+            setting: store.setting,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,
@@ -34,7 +32,7 @@ struct SearchView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translatesTags)
             },
             downloadBadges: store.downloadBadges
         )
@@ -45,14 +43,14 @@ struct SearchView: View {
                 self.store.send(.destination(.dismiss))
                 self.store.send(.fetchGalleries(keyword))
             }
-            .accentColor(setting.accentColor)
+            .accentColor(self.store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .sheet(
             item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
         ) { store in
             FiltersView(store: store)
-                .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
+                .accentColor(self.store.setting.accentColor).autoBlur(radius: blurRadius)
         }
         .sheet(
             item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
@@ -63,14 +61,14 @@ struct SearchView: View {
                 navigation: store.navigation,
                 seekAction: { store.send(.performSeek($0)) }
             )
-            .accentColor(setting.accentColor)
+            .accentColor(self.store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .searchable(text: $store.keyword)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
-                showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
+                showsImages: store.setting.showsImagesInTags, isEnabled: store.setting.showsTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {
@@ -109,7 +107,6 @@ struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(
             store: .init(initialState: .init(), reducer: SearchReducer.init),
-            setting: .constant(.init()),
             blurRadius: 0
         )
     }

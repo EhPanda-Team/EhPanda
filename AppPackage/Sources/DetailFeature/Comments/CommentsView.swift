@@ -14,13 +14,12 @@ struct CommentsView: View {
     private let apiKey: String
     private let galleryURL: URL
     private let comments: [GalleryComment]
-    @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<CommentsReducer>,
         gid: String, token: String, apiKey: String, galleryURL: URL,
-        comments: [GalleryComment], setting: Binding<Setting>,
+        comments: [GalleryComment],
         blurRadius: Double
     ) {
         self.store = store
@@ -29,7 +28,6 @@ struct CommentsView: View {
         self.apiKey = apiKey
         self.galleryURL = galleryURL
         self.comments = comments
-        _setting = setting
         self.blurRadius = blurRadius
     }
 
@@ -102,7 +100,7 @@ struct CommentsView: View {
                 cancelAction: { store.send(.destination(.dismiss)) },
                 onAppearAction: { store.send(.onPostCommentAppear) }
             )
-            .accentColor(setting.accentColor)
+            .accentColor(store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .toast($store.scope(state: \.toast, action: \.toast))
@@ -252,7 +250,6 @@ struct CommentsView_Previews: PreviewProvider {
                 apiKey: .init(),
                 galleryURL: .mock,
                 comments: [],
-                setting: .constant(.init()),
                 blurRadius: 0
             )
         }
