@@ -33,9 +33,6 @@ public struct PreviewsReducer: Sendable {
         // remote sessions — Previews itself never fetches a gallery detail to re-derive them.
         public var language: Language?
         public var loadingState: LoadingState = .idle
-        // True once the session has been restored on first `onAppear` (synchronous — not a load). The
-        // grid gates preview fetches and its rebuild on this so they run against the restored session.
-        public var hasRestoredSession = false
 
         public var previewURLs = [Int: URL]()
         public var localPreviewURLs = [Int: URL]()
@@ -107,7 +104,6 @@ public struct PreviewsReducer: Sendable {
 
             case .onAppear(let gid):
                 // Gallery is seeded from the pushing context; preview URLs are fetched on demand.
-                state.hasRestoredSession = true
                 return .merge(
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPreviewURLs(gid))

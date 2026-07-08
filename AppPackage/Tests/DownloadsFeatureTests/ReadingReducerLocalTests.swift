@@ -121,7 +121,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.restoreSession(download.gid))
+        // State.init applies the local source at construction, so no separate restore step is needed.
         #expect(store.state.gallery.id == download.gid)
         #expect(store.state.localPageURLs[1] == folderURL.appendingPathComponent("123_token_1.jpg"))
         #expect(store.state.localPageURLs[2] == folderURL.appendingPathComponent("123_token_2.jpg"))

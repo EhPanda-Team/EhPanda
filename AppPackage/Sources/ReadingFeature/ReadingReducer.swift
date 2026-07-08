@@ -1,6 +1,7 @@
 import AppTools
 import SwiftUI
 import AppModels
+import Sharing
 import ComposableArchitecture
 import URLClient
 import HapticsClient
@@ -57,11 +58,6 @@ public struct ReadingReducer: Sendable {
         public var webImageLoadSuccessIndices = Set<Int>()
         public var imageURLLoadingStates = [Int: LoadingState]()
         public var previewLoadingStates = [Int: LoadingState]()
-        // True once the reading session has been restored on the first `onAppear`: the resume page
-        // from history, plus the local source for downloads. Image fetches, progress syncs and the
-        // pager rebuild gate on this so they run against a restored session, not the initial
-        // placeholder. (Not a loading state — the restore is synchronous; there is no async fetch.)
-        public var hasRestoredSession = false
         public var previewConfig: PreviewConfig = .normal(rows: 4)
 
         public var previewURLs = [Int: URL]()
@@ -97,6 +93,17 @@ public struct ReadingReducer: Sendable {
             self.contentSource = contentSource
             self.previewConfig = previewConfig
             self.language = language
+            // Offline sources overwrite the gallery/language/page source from the manifest, so resolve
+            // them before keying the resume lookup on the final gallery id.
+            if case .local(let download, let manifest) = contentSource {
+                ReadingReducer().applyLocalSource(state: &self, download: download, manifest: manifest)
+            }
+            // Seed the resume page synchronously from the persisted browsing history so the pager is
+            // built at the right page from the start (no post-render jump). `pendingReadingProgress`
+            // mirrors it so a flush before the first page turn rewrites that position, not a stale zero.
+            @Shared(.galleryHistory) var galleryHistory
+            readingProgress = galleryHistory.readingProgress(gid: self.gallery.id)
+            pendingReadingProgress = readingProgress
         }
 
         var isOffline: Bool { contentSource != .remote }
@@ -181,7 +188,6 @@ public struct ReadingReducer: Sendable {
         case syncReadingProgress(Int)
         case flushReadingProgress
 
-        case restoreSession(String)
         case observeDownloads(String)
         case observeDownloadsDone([DownloadedGallery])
         case loadLocalPageURLs(String)

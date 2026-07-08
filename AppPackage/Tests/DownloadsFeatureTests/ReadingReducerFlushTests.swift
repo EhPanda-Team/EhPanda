@@ -75,8 +75,15 @@ struct ReadingReducerFlushTests: DownloadFeatureTestCase {
             }
         }
 
+        // State.init reads the saved resume position (5) from history, so build it inside the
+        // `defaults` scope that holds the pre-seeded history.
+        let initialState = withDependencies {
+            $0.defaultAppStorage = defaults
+        } operation: {
+            ReadingReducer.State(gallery: gallery, contentSource: .remote)
+        }
         let store = TestStore(
-            initialState: ReadingReducer.State(gallery: gallery, contentSource: .remote),
+            initialState: initialState,
             reducer: ReadingReducer.init,
             withDependencies: {
                 $0.defaultAppStorage = defaults
@@ -87,8 +94,7 @@ struct ReadingReducerFlushTests: DownloadFeatureTestCase {
         )
         store.exhaustivity = .off
 
-        await store.send(.restoreSession(gallery.id)) // seeds pendingReadingProgress from the stored 5
-        await store.send(.onPerformDismiss)            // flushes 5, must not overwrite with 0
+        await store.send(.onPerformDismiss) // flushes the restored 5, must not overwrite with 0
 
         #expect(persistedProgress(defaults, gid: gallery.id) == 5)
         await store.finish()

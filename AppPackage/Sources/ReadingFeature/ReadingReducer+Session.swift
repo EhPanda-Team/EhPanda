@@ -25,9 +25,6 @@ extension ReadingReducer {
                 flushReadingProgress(state)
                 return .none
 
-            case .restoreSession(let gid):
-                return reduceRestoreSession(state: &state, gid: gid)
-
             case .observeDownloads(let gid):
                 return reduceObserveDownloads(gid: gid)
 
@@ -47,22 +44,6 @@ extension ReadingReducer {
                 return .none
             }
         }
-    }
-
-    func reduceRestoreSession(state: inout State, gid: String) -> Effect<Action> {
-        if case .local(let download, let manifest) = state.contentSource {
-            applyLocalSource(state: &state, download: download, manifest: manifest)
-        }
-        // Remote galleries are seeded from the pushing context; URL maps are rebuilt per session
-        // (fetched on demand). The resume position comes from the persisted browsing history.
-        @Shared(.galleryHistory) var galleryHistory
-        state.readingProgress = galleryHistory.readingProgress(gid: gid)
-        // Seed the pending page with the restored resume position so a flush that fires before the
-        // first page turn (dismiss or background right after opening) rewrites that position instead
-        // of clobbering it with a stale `.zero`.
-        state.pendingReadingProgress = state.readingProgress
-        state.hasRestoredSession = true
-        return .none
     }
 
     /// Persists the latest pending page into the shared browsing history. Called from the debounced
@@ -160,6 +141,5 @@ extension ReadingReducer {
         state.mpvSkipServerIdentifiers = .init()
         state.imageURLLoadingStates = .init()
         state.previewLoadingStates = .init()
-        state.hasRestoredSession = true
     }
 }
