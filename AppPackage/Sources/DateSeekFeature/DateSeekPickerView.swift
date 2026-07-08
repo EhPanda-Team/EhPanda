@@ -4,7 +4,7 @@ import AppModels
 import Resources
 import SwiftUI
 
-/// The "Seek to date" sheet content: a graphical date picker plus newer/older direction buttons.
+/// The "Date seek" sheet content: a graphical date picker plus newer/older direction buttons.
 ///
 /// This is a store-agnostic, reusable component — it is driven entirely by the values passed in,
 /// not by a dedicated reducer. Hosts typically wire it to a presented `DateSeekReducer`, but it
