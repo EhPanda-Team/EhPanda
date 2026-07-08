@@ -25,6 +25,7 @@ public struct DetailSearchReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.searchFilter) public var searchFilter: Filter
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var lastKeyword = ""
@@ -101,7 +102,7 @@ public struct DetailSearchReducer: Sendable {
                 }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                let filter = Filter.currentSearch
+                let filter = state.searchFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).response()
                     await send(.fetchGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
@@ -132,7 +133,7 @@ public struct DetailSearchReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                let filter = Filter.currentSearch
+                let filter = state.searchFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let response = await MoreSearchGalleriesRequest(
                         keyword: lastKeyword, filter: filter, lastID: lastID

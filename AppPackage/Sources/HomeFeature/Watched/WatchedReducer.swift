@@ -28,6 +28,7 @@ public struct WatchedReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.watchedFilter) public var watchedFilter: Filter
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -109,7 +110,7 @@ public struct WatchedReducer: Sendable {
                 }
                 state.loadingState = .loading
                 state.pageNumber.resetPages()
-                let filter = Filter.currentWatched
+                let filter = state.watchedFilter
                 return .run { [keyword = state.keyword] send in
                     let response = await WatchedGalleriesRequest(filter: filter, keyword: keyword).response()
                     await send(.fetchGalleriesDone(response))
@@ -142,7 +143,7 @@ public struct WatchedReducer: Sendable {
                       let lastID = state.galleries.last?.id
                 else { return .none }
                 state.footerLoadingState = .loading
-                let filter = Filter.currentWatched
+                let filter = state.watchedFilter
                 return .run { [keyword = state.keyword] send in
                     let response = await MoreWatchedGalleriesRequest(
                         filter: filter, lastID: lastID, keyword: keyword
