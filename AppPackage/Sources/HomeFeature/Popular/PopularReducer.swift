@@ -23,6 +23,7 @@ public struct PopularReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.globalFilter) public var globalFilter: Filter
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -71,7 +72,7 @@ public struct PopularReducer: Sendable {
             case .fetchGalleries:
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
-                let filter = Filter.currentGlobal
+                let filter = state.globalFilter
                 return .run { send in
                     let response = await PopularGalleriesRequest(filter: filter).response()
                     await send(.fetchGalleriesDone(response))
