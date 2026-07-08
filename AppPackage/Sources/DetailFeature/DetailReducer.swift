@@ -105,8 +105,8 @@ public struct DetailReducer: Sendable {
         }
 
         // Seeded from the pushing context (a tapped list item or a freshly-fetched gallery) so the
-        // detail header renders immediately and `fetchGalleryDetail` has a `galleryURL` without any
-        // database lookup. Gallery data lives only here and dies when the screen pops.
+        // detail header renders immediately and `fetchGalleryDetail` has a `galleryURL`. Gallery data
+        // lives only here and dies when the screen pops.
         public init(gallery: Gallery, pendingDeepLink: GalleryDeepLink? = nil) {
             self.gid = gallery.id
             self.gallery = gallery

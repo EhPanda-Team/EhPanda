@@ -8,7 +8,6 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
         self = error as? AppError ?? .unknown
     }
 
-    case databaseCorrupted(String?)
     case copyrightClaim(String)
     case ipBanned(BanInterval)
     case expunged(String)
@@ -26,7 +25,7 @@ public enum AppError: Error, Identifiable, Equatable, Hashable, Sendable {
 extension AppError {
     public var isRetryable: Bool {
         switch self {
-        case .databaseCorrupted, .networkingFailed, .parseFailed,
+        case .networkingFailed, .parseFailed,
              .fileOperationFailed, .noUpdates, .unknown, .webImageFailed:
             return true
         case .copyrightClaim, .expunged, .quotaExceeded, .authenticationRequired, .notFound,
@@ -36,8 +35,6 @@ extension AppError {
     }
     public var localizedDescription: String {
         switch self {
-        case .databaseCorrupted:
-            return String(localized: .appErrorDatabaseCorrupted)
         case .copyrightClaim:
             return String(localized: .appErrorCopyrightClaim)
         case .ipBanned:
@@ -67,12 +64,6 @@ extension AppError {
     public var alertText: String {
         let tryLater = String(localized: .tryLater)
         switch self {
-        case .databaseCorrupted(let reason):
-            var lines = [String(localized: .databaseCorrupted)]
-            if let reason = reason {
-                lines.append("(\(reason))")
-            }
-            return lines.joined(separator: "\n")
         case .copyrightClaim(let owner):
             return String(localized: .copyrightClaim(owner))
         case .ipBanned(let interval):

@@ -4,8 +4,6 @@ import SFSafeSymbols
 extension AppError {
     public var symbol: SFSymbol {
         switch self {
-        case .databaseCorrupted:
-            return .exclamationmarkTriangleFill
         case .ipBanned:
             return .networkBadgeShieldHalfFilled
         case .copyrightClaim, .expunged:

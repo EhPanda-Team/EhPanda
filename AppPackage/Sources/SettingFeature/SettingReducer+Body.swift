@@ -11,8 +11,7 @@ extension SettingReducer {
     @ReducerBuilder<State, Action>
     var reducerBody: some Reducer<State, Action> {
         // `setting` is `@Shared`, so BindingReducer writes and the fixups below persist automatically —
-        // these `.onChange` handlers now carry only their genuine side effects and cross-field
-        // invariants (no `.syncSetting` write-through remains).
+        // these `.onChange` handlers carry only their genuine side effects and cross-field invariants.
         BindingReducer()
             .onChange(of: \.setting.galleryHost) { _, state in
                 .run(operation: { [value = state.setting.galleryHost.rawValue] _ in
@@ -118,7 +117,7 @@ extension SettingReducer {
                 return .run(operation: { _ in await applicationClient.setUserInterfaceStyle(style) })
 
             case .loadUserSettings:
-                // `setting`/`user`/`tagTranslator` are all @Shared (auto-loaded); no database read.
+                // `setting`/`user`/`tagTranslator` are all @Shared (auto-loaded).
                 return handleLoadUserSettings(&state)
 
             case .loadUserSettingsDone:

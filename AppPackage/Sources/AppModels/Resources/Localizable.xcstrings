@@ -411,47 +411,6 @@
         }
       }
     },
-    "app_error.database_corrupted": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Database Corrupted"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Datenbank beschädigt"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "データベース破損"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "데이터베이스 손상"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "数据库损坏"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "資料庫損壞"
-          }
-        }
-      }
-    },
     "app_error.file_operation_failed": {
       "extractionState": "manual",
       "localizations": {
@@ -12338,47 +12297,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "非常抱歉，這個畫廊已因為 %@ 提出的版權聲索而不再提供存取"
-          }
-        }
-      }
-    },
-    "database_corrupted": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The database is corrupted.\nPlease submit an issue on GitHub."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Datenbank ist beschädigt.\nBitte erstelle ein Issue auf GitHub."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "データベースが破損しています。\nGitHub で Issue を作成していただくようお願いいたします。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "데이터베이스가 손상되었어요.\nGitHub에 이슈를 남겨주세요."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "数据库已损毁。\n请到 GitHub 提起 Issue 反馈。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "資料庫已經損壞\n請提交 issue 至 GitHub."
           }
         }
       }

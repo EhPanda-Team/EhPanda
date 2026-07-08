@@ -313,7 +313,7 @@ extension DownloadCoordinator {
         switch error {
         case .quotaExceeded, .authenticationRequired, .ipBanned:
             return true
-        case .databaseCorrupted, .copyrightClaim, .expunged, .networkingFailed,
+        case .copyrightClaim, .expunged, .networkingFailed,
              .webImageFailed, .parseFailed, .fileOperationFailed, .noUpdates,
              .notFound, .unknown:
             return false
