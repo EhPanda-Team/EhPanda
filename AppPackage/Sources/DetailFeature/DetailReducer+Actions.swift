@@ -88,7 +88,7 @@ extension DetailReducer {
         state.didRunLaunchAutomation = false
         state.localPreviewURLs = .init()
         // The gallery is already seeded from the pushing context, so we record the visit and fetch
-        // the (always network-sourced) detail directly — no database read.
+        // the (always network-sourced) detail directly.
         return .merge(
             .send(.saveGalleryHistory),
             .send(.fetchGalleryDetail),

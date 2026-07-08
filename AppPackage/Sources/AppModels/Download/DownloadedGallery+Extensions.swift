@@ -58,8 +58,8 @@ public struct DownloadRequestPayload: Equatable, Sendable {
 /// file per page when present, so a single missing entry would otherwise trigger a live,
 /// quota-burning H@H fetch; the offline gate prevents that for offline reads) and it carries
 /// manifest metadata provenance (gallery + language seeded from the manifest, so a downloaded
-/// gallery is readable with no database record). When the local files turn up empty it
-/// auto-promotes to `.remote`.
+/// gallery reads entirely from its local files and manifest). When the local files turn up empty
+/// it auto-promotes to `.remote`.
 public enum ReadingContentSource: Equatable, Sendable {
     case remote
     case local(DownloadedGallery, DownloadManifest)

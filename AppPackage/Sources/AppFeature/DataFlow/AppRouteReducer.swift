@@ -148,7 +148,7 @@ struct AppRouteReducer {
                     state.detail = nil
                     state.path.removeAll()
                 }
-                // Always fetch the gallery so the pushed detail is seeded from it (no cache lookup).
+                // Always fetch the gallery so the pushed detail is seeded from it.
                 let analysis = urlClient.analyzeURL(url)
                 return .run { [delay] send in
                     try await Task.sleep(for: .milliseconds(delay))
