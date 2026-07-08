@@ -37,6 +37,7 @@ public struct DownloadsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.setting) public var setting: Setting
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Alert>?

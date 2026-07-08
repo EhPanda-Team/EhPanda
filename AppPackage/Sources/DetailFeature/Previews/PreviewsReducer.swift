@@ -23,6 +23,7 @@ public struct PreviewsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
+        @SharedReader(.setting) public var setting: Setting
         @Presents public var destination: Destination.State?
 
         // The gallery id this screen fetches; captured when pushed onto the host's gallery stack.

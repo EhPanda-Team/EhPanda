@@ -41,25 +41,21 @@ struct TabBarView: View {
                         case .home:
                             HomeView(
                                 store: store.scope(state: \.homeState, action: \.home),
-                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .favorites:
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: \.favorites),
-                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .search:
                             SearchRootView(
                                 store: store.scope(state: \.searchRootState, action: \.searchRoot),
-                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .downloads:
                             DownloadsView(
                                 store: store.scope(state: \.downloadsState, action: \.downloads),
-                                setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .setting:
@@ -100,13 +96,11 @@ struct TabBarView: View {
                 DetailView(
                     store: detailStore,
                     gid: detailStore.gid,
-                    setting: $store.settingState.settingBinding,
                     blurRadius: store.appLockState.blurRadius
                 )
             } destination: { elementStore in
                 galleryDestination(
                     elementStore,
-                    setting: $store.settingState.settingBinding,
                     blurRadius: store.appLockState.blurRadius
                 )
             }

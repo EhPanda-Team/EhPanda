@@ -30,6 +30,7 @@ public struct WatchedReducer: Sendable {
     public struct State: Equatable {
         @SharedReader(.watchedFilter) public var watchedFilter: Filter
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
         @Presents public var destination: Destination.State?
         public var keyword = ""
 

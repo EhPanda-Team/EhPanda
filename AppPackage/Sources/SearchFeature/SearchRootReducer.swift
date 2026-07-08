@@ -37,6 +37,7 @@ public struct SearchRootReducer: Sendable {
         @Shared(.historyKeywords) public var historyKeywords: [String]
         @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
 
         public init() {}
 
