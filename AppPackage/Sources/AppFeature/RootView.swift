@@ -12,7 +12,6 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        // No database to prepare anymore: the tab bar is the root view from launch.
         TabBarView(store: appDelegate.store).onAppear(perform: addTouchHandler).accentColor(.primary)
     }
 
