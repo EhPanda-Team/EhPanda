@@ -67,7 +67,7 @@ public struct DownloadsReducer: Sendable {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case galleryTapped(String)
-        case pushGalleryDetail(String)
+        case pushGalleryDetail(DownloadedGallery)
         case path(StackActionOf<GalleryPath>)
         case destination(PresentationAction<Destination.Action>)
         case inspectorButtonTapped(String)
@@ -118,15 +118,13 @@ public struct DownloadsReducer: Sendable {
                 return GalleryNavigation.routeGalleryDetail(
                     isPad: deviceClient.isPad,
                     present: { .delegate(.presentGalleryDetail(download.gallery, download)) },
-                    push: { .pushGalleryDetail(gid) }
+                    push: { .pushGalleryDetail(download) }
                 )
 
-            case .pushGalleryDetail(let gid):
+            case .pushGalleryDetail(let download):
                 // Seed the detail with the locally downloaded gallery/badge so it renders offline.
-                state.path.appendGuardingDuplicate(.detail(.init(
-                    gid: gid,
-                    seededFrom: state.downloads.first(where: { $0.gid == gid })
-                )))
+                // The download is carried through the action, so there is no re-lookup by gid.
+                state.path.appendGuardingDuplicate(.detail(.init(seededFrom: download)))
                 return .none
 
             case .delegate:

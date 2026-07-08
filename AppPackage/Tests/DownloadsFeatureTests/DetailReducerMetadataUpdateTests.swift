@@ -83,8 +83,7 @@ struct DetailReducerMetadataUpdateTests: DownloadFeatureTestCase {
     @Test
     func testDetailReducerDeleteDownloadResetsMetadataState() async {
         let download = sampleDownload(gid: "7733", title: "Reset Context", status: .completed)
-        var initialState = DetailReducer.State()
-        initialState.gallery = download.gallery
+        var initialState = DetailReducer.State(gallery: download.gallery)
         initialState.galleryVersionMetadata = sampleVersionMetadata(
             gid: download.gid, token: download.token
         )
@@ -124,9 +123,8 @@ private extension DetailReducerMetadataUpdateTests {
         updatedDownload: DownloadedGallery,
         updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
-        var initialState = DetailReducer.State()
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.gid = gid
-        initialState.gallery = gallery
         initialState.galleryDetail = detail
         return TestStore(
             initialState: initialState,
@@ -164,7 +162,9 @@ private extension DetailReducerMetadataUpdateTests {
             AsyncStream { continuation in continuation.finish() }
         }
         client.fetchDownloads = { [download] }
-        client.fetchDownload = { gid in gid == download.gid ? download : nil }
+        // After the delete the download no longer exists, so the follow-up badge re-fetch finds
+        // nothing and `shouldCheckForRemoteUpdates` stays reset.
+        client.fetchDownload = { _ in nil }
         client.refreshDownloads = {}
         client.enqueue = { _ in }
         client.togglePause = { _ in }

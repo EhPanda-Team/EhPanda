@@ -117,7 +117,7 @@ struct AppRouteReducer {
                 // from the tapped gallery.
                 state.path.removeAll()
                 if let download {
-                    state.detail = .init(gid: gallery.id, seededFrom: download)
+                    state.detail = .init(seededFrom: download)
                 } else {
                     state.detail = .init(gallery: gallery)
                 }

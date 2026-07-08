@@ -123,9 +123,8 @@ private extension DetailReducerMetadataTests {
         gid: String, gallery: Gallery,
         downloadValue: DownloadedGallery?, updateCheckCount: UncheckedBox<Int>
     ) -> TestStoreOf<DetailReducer> {
-        var initialState = DetailReducer.State()
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.gid = gid
-        initialState.gallery = gallery
         return TestStore(
             initialState: initialState,
             reducer: DetailReducer.init,
@@ -163,9 +162,8 @@ private extension DetailReducerMetadataTests {
         let updatedDownload = sampleDownload(
             gid: gallery.gid, title: gallery.title, status: .completed
         )
-        var initialState = DetailReducer.State()
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.gid = gid
-        initialState.gallery = gallery
         return TestStore(
             initialState: initialState,
             reducer: DetailReducer.init,

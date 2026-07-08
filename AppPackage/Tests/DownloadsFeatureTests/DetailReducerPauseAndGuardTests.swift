@@ -20,8 +20,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         let completedDownload = sampleDownload(
             gid: gallery.gid, title: gallery.title, status: .completed
         )
-        var initialState = DetailReducer.State()
-        initialState.gallery = gallery
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
 
         let store = TestStore(
@@ -54,9 +53,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         let detail = sampleGalleryDetail(gid: gallery.gid, title: gallery.title)
         let enqueueCount = UncheckedBox(0)
 
-        var initialState = DetailReducer.State()
-        initialState.gid = gallery.gid
-        initialState.gallery = gallery
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
         initialState.isPreparingDownload = true
 
@@ -103,9 +100,7 @@ struct DetailReducerPauseAndGuardTests: DownloadFeatureTestCase {
         )
         let togglePauseCount = UncheckedBox(0)
 
-        var initialState = DetailReducer.State()
-        initialState.gid = gallery.gid
-        initialState.gallery = gallery
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
         initialState.downloadBadge = DownloadBadge(
             status: .active,

@@ -69,7 +69,7 @@ public struct DetailReducer: Sendable {
         public var apiKey = ""
         public var gid = ""
         public var loadingState: LoadingState = .idle
-        public var gallery: Gallery = .empty
+        public var gallery: Gallery
         public var galleryDetail: GalleryDetail?
         public var galleryVersionMetadata: DownloadVersionMetadata?
         public var galleryTags = [GalleryTag]()
@@ -99,14 +99,10 @@ public struct DetailReducer: Sendable {
         // A deep-link intent to act on once this detail finishes loading (see GalleryDeepLink).
         public var pendingDeepLink: GalleryDeepLink?
 
-        public init(gid: String = "", pendingDeepLink: GalleryDeepLink? = nil) {
-            self.gid = gid
-            self.pendingDeepLink = pendingDeepLink
-        }
-
         // Seeded from the pushing context (a tapped list item or a freshly-fetched gallery) so the
         // detail header renders immediately and `fetchGalleryDetail` has a `galleryURL`. Gallery data
-        // lives only here and dies when the screen pops.
+        // lives only here and dies when the screen pops. This is the only initializer, so a Detail
+        // always holds a real `Gallery` — there is no empty-gallery construction path.
         public init(gallery: Gallery, pendingDeepLink: GalleryDeepLink? = nil) {
             self.gid = gallery.id
             self.gallery = gallery
@@ -233,12 +229,9 @@ extension DetailReducer.State {
     // Pre-populated from a local download so a downloaded gallery renders instantly and offline;
     // the live download observation keeps the state in sync afterwards. Shared by the Downloads
     // tab's inline push and the app-level modal presentation (iPad / deep link).
-    public init(gid: String, seededFrom download: DownloadedGallery?) {
-        self.init(gid: gid)
-        if let download {
-            gallery = download.gallery
-            _ = DetailReducer().applyDownload(download, state: &self)
-        }
+    public init(seededFrom download: DownloadedGallery) {
+        self.init(gallery: download.gallery)
+        _ = DetailReducer().applyDownload(download, state: &self)
     }
 }
 
