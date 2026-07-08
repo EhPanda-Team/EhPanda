@@ -1,5 +1,4 @@
 import SwiftUI
-import AppModels
 import ComposableArchitecture
 
 // Builds the view for a single gallery stack element. Shared by every gallery host (and reused by the
