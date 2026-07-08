@@ -17,7 +17,8 @@ public struct User: Codable, Equatable, Sendable {
     }
     public static let empty = User()
 
-    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    // Version anchor for a future breaking migration. All current fields decode strictly; a field
+    // added later must stay optional (or use a custom `decodeIfPresent` decoder) so old blobs decode.
     public var schemaVersion = 1
     public var displayName: String?
     public var avatarURL: URL?
@@ -33,22 +34,6 @@ public struct User: Codable, Equatable, Sendable {
         let category = favoriteCategories?[index] ?? defaultCategory
         let isDefault = category == "Favorites \(index)"
         return isDefault ? defaultCategory : category
-    }
-}
-
-// MARK: Manually decode
-extension User {
-    // Tolerant decoding keeps an existing persisted value valid across future additive changes; a
-    // non-optional field like `schemaVersion` would otherwise fail synthesized decode of an older
-    // record.
-    public init(from decoder: Decoder) {
-        let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = container.decode(.schemaVersion, default: 1)
-        displayName = try? container?.decodeIfPresent(String.self, forKey: .displayName)
-        avatarURL = try? container?.decodeIfPresent(URL.self, forKey: .avatarURL)
-        credits = try? container?.decodeIfPresent(String.self, forKey: .credits)
-        galleryPoints = try? container?.decodeIfPresent(String.self, forKey: .galleryPoints)
-        favoriteCategories = try? container?.decodeIfPresent([Int: String].self, forKey: .favoriteCategories)
     }
 }
 

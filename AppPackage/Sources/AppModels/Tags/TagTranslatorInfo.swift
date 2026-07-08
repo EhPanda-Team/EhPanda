@@ -19,19 +19,10 @@ public struct TagTranslatorInfo: Codable, Equatable, Sendable {
         self.updatedDate = updatedDate
         self.hasCustomTranslations = hasCustomTranslations
     }
+    // Version anchor for a future breaking migration. All current fields decode strictly (synthesized
+    // Codable); a field added later must stay optional so an old blob still decodes.
     public var schemaVersion: Int
     public var language: TranslatableLanguage?
     public var updatedDate: Date
     public var hasCustomTranslations: Bool
-}
-
-// MARK: Manually decode
-extension TagTranslatorInfo {
-    public init(from decoder: Decoder) {
-        let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = container.decode(.schemaVersion, default: 1)
-        language = try? container?.decodeIfPresent(TranslatableLanguage.self, forKey: .language)
-        updatedDate = container.decode(.updatedDate, default: .distantPast)
-        hasCustomTranslations = container.decode(.hasCustomTranslations, default: false)
-    }
 }
