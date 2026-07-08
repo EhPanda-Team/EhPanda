@@ -12,6 +12,7 @@ public struct GenericList: View {
     private let pageNumber: PageNumber?
     private let loadingState: LoadingState
     private let footerLoadingState: LoadingState
+    private let notice: LocalizedStringResource?
     private let fetchAction: (() -> Void)?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
@@ -20,6 +21,7 @@ public struct GenericList: View {
     public init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
         loadingState: LoadingState, footerLoadingState: LoadingState,
+        notice: LocalizedStringResource? = nil,
         fetchAction: (() -> Void)? = nil,
         fetchMoreAction: (() -> Void)? = nil,
         navigateAction: ((Gallery) -> Void)? = nil,
@@ -32,6 +34,7 @@ public struct GenericList: View {
         self.pageNumber = pageNumber
         self.loadingState = loadingState
         self.footerLoadingState = footerLoadingState
+        self.notice = notice
         self.fetchAction = fetchAction
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
@@ -45,14 +48,16 @@ public struct GenericList: View {
                 case .detail:
                     DetailList(
                         galleries: galleries, setting: setting, pageNumber: pageNumber,
-                        footerLoadingState: footerLoadingState, fetchMoreAction: fetchMoreAction,
+                        footerLoadingState: footerLoadingState, notice: notice,
+                        fetchMoreAction: fetchMoreAction,
                         navigateAction: navigateAction, translateAction: translateAction,
                         downloadBadges: downloadBadges
                     )
                 case .thumbnail:
                     WaterfallList(
                         galleries: galleries, setting: setting, pageNumber: pageNumber,
-                        footerLoadingState: footerLoadingState, fetchMoreAction: fetchMoreAction,
+                        footerLoadingState: footerLoadingState, notice: notice,
+                        fetchMoreAction: fetchMoreAction,
                         navigateAction: navigateAction, translateAction: translateAction,
                         downloadBadges: downloadBadges
                     )
@@ -80,13 +85,14 @@ private struct DetailList: View {
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
+    private let notice: LocalizedStringResource?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
     init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
-        footerLoadingState: LoadingState,
+        footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
@@ -97,6 +103,7 @@ private struct DetailList: View {
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
+        self.notice = notice
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.translateAction = translateAction
@@ -113,25 +120,29 @@ private struct DetailList: View {
     }
 
     var body: some View {
-        List(galleries) { gallery in
-            Button {
-                navigateAction?(gallery)
-            } label: {
-                GalleryDetailCell(
-                    gallery: gallery,
-                    setting: setting,
-                    translateAction: translateAction,
-                    downloadBadge: downloadBadges[gallery.gid]
-                )
-            }
-            .foregroundColor(.primary)
-            .onAppear {
-                if gallery == galleries.last {
-                    fetchMoreAction?()
+        List {
+            notice.map(ListNoticeView.init)
+
+            ForEach(galleries) { gallery in
+                Button {
+                    navigateAction?(gallery)
+                } label: {
+                    GalleryDetailCell(
+                        gallery: gallery,
+                        setting: setting,
+                        translateAction: translateAction,
+                        downloadBadge: downloadBadges[gallery.gid]
+                    )
                 }
-            }
-            if shouldShowFooter(gallery: gallery) {
-                FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                .foregroundColor(.primary)
+                .onAppear {
+                    if gallery == galleries.last {
+                        fetchMoreAction?()
+                    }
+                }
+                if shouldShowFooter(gallery: gallery) {
+                    FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                }
             }
         }
     }
@@ -144,6 +155,7 @@ private struct WaterfallList: View {
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
+    private let notice: LocalizedStringResource?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
@@ -166,7 +178,7 @@ private struct WaterfallList: View {
 
     init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
-        footerLoadingState: LoadingState,
+        footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
@@ -177,6 +189,7 @@ private struct WaterfallList: View {
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
+        self.notice = notice
         self.fetchMoreAction = fetchMoreAction
         self.navigateAction = navigateAction
         self.translateAction = translateAction
@@ -184,6 +197,11 @@ private struct WaterfallList: View {
 
     var body: some View {
         List {
+            if let notice {
+                Section {
+                    ListNoticeView(notice: notice)
+                }
+            }
             WaterfallGrid(galleries) { gallery in
                 Button {
                     navigateAction?(gallery)

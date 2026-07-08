@@ -20,6 +20,10 @@ public struct QuickSearchView: View {
         NavigationStack {
             ZStack {
                 List {
+                    // A leading list section, rather than a pinned top banner, keeps the navigation
+                    // title intact: the word list is capped and the add button disables at the limit.
+                    ListNoticeView(notice: .wordLimitDescription(limit: QuickSearchReducer.wordLimit))
+
                     ForEach(store.quickSearchWords) { word in
                         Button {
                             searchAction(word.effectiveSearchText)
@@ -59,10 +63,6 @@ public struct QuickSearchView: View {
                 }
                 ErrorView(error: .notFound)
                     .opacity(store.quickSearchWords.isEmpty ? 1 : 0)
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                // Always-visible notice: the word list is capped and the add button disables at the limit.
-                LimitBanner(Text(.wordLimitDescription(limit: QuickSearchReducer.wordLimit)))
             }
             .confirmationDialog(
                 $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)

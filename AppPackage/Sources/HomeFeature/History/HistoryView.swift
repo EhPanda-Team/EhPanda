@@ -32,6 +32,9 @@ struct HistoryView: View {
             pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,
+            // A leading list section, rather than a pinned top banner, keeps the navigation title
+            // intact: only the most-recent records survive the launch-time prune.
+            notice: .historyLimitDescription(limit: GalleryHistoryEntry.historyCap),
             fetchAction: { store.send(.fetchGalleries) },
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
@@ -40,10 +43,6 @@ struct HistoryView: View {
             },
             downloadBadges: store.downloadBadges
         )
-        .safeAreaInset(edge: .top, spacing: 0) {
-            // Always-visible notice: only the most-recent records survive the launch-time prune.
-            LimitBanner(Text(.historyLimitDescription(limit: GalleryHistoryEntry.historyCap)))
-        }
         .searchable(text: $store.keyword, prompt: .filter)
         .onAppear {
             store.send(.onAppear)
