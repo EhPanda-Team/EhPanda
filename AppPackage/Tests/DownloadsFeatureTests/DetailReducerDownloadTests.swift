@@ -179,9 +179,7 @@ private extension DetailReducerDownloadTests {
         configure: (inout DetailReducer.State) -> Void = { _ in },
         enqueue: @escaping @Sendable (DownloadRequestPayload) async throws -> Void
     ) -> TestStoreOf<DetailReducer> {
-        var initialState = DetailReducer.State()
-        initialState.gid = gallery.gid
-        initialState.gallery = gallery
+        var initialState = DetailReducer.State(gallery: gallery)
         initialState.galleryDetail = detail
         configure(&initialState)
         return TestStore(

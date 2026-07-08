@@ -319,7 +319,7 @@ struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             DetailView(
-                store: .init(initialState: .init(), reducer: DetailReducer.init),
+                store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
                 gid: .init(),
                 user: .init(),
                 setting: .constant(.init()),
