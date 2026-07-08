@@ -13,9 +13,11 @@ import Sharing
 //     holds it.
 //   • Keeping the structs intact preserves their invariants (e.g. `Setting`/`Filter` `didSet`
 //     cascades) and makes resets/logout a single atomic assignment.
-//   • Forward migration rides on each model's tolerant `init(from:)` decoder (`decodeIfPresent`
-//     + defaults): additive changes never invalidate an existing persisted value, and a decode
-//     failure falls back to the key's default — there is no store-fails-to-open failure mode.
+//   • Models decode *strictly* (synthesized Codable, or a hand-written throwing decoder where an
+//     identity invariant must hold). A corrupt or shape-incompatible blob fails to decode and
+//     Sharing falls back to the key's default — a clean, coherent reset, never a partially-filled
+//     Franken-value. Additive evolution stays cheap: a new *optional* field is absent-tolerant
+//     automatically under synthesized decode, so old blobs stay valid.
 //
 // Cap policies differ by the *kind* of data, deliberately:
 //   • `galleryHistory` (auto-recorded browsing) is capped at `GalleryHistoryEntry.historyCap` and
@@ -27,9 +29,12 @@ import Sharing
 //     saved word would lose user work. Auto-recorded data is disposable; authored data is not.
 //
 // Every model also carries a `schemaVersion` (default 1): a reserved anchor for a future *breaking*
-// migration. Additive changes never touch it — they ride the tolerant `init(from:)` decoders above.
-// It exists only so a genuinely incompatible change has an explicit version to branch on, rather than
-// inferring compatibility from the shape of the decoded data.
+// migration, so a genuinely incompatible change has an explicit version to branch on rather than
+// inferring compatibility from the decoded shape. The two array-element models with an identity
+// invariant (`GalleryHistoryEntry`, `QuickSearchWord`) decode through hand-written throwing decoders
+// that reject an out-of-range `schemaVersion`; the whole-struct models rely on synthesized strict
+// decode (a shape mismatch already resets to the key default) and reintroduce a branching decoder
+// if and when a breaking change lands.
 //
 // Nothing here uses the `fileStorage` strategy. The tag-translation table is the only large
 // artifact, and it is deliberately NOT persisted through Sharing: only its thin

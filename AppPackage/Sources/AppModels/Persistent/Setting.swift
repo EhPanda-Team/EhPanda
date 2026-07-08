@@ -57,7 +57,8 @@ public struct Setting: Codable, Equatable, Sendable {
         self.doubleTapScaleFactor = doubleTapScaleFactor
         self.bypassesSNIFiltering = bypassesSNIFiltering
     }
-    // Version anchor for future breaking migrations; additive changes ride the tolerant decoder.
+    // Version anchor for a future breaking migration. All current fields decode strictly; a field
+    // added later must stay optional (or use a custom `decodeIfPresent` decoder) so old blobs decode.
     public var schemaVersion = 1
     // Account
     public var galleryHost: GalleryHost = .ehentai
@@ -246,48 +247,5 @@ extension ListDisplayMode {
         case .thumbnail:
             return .listDisplayModeThumbnail
         }
-    }
-}
-
-// MARK: Manually decode
-extension Setting {
-    public init(from decoder: Decoder) {
-        let container = try? decoder.container(keyedBy: CodingKeys.self)
-        schemaVersion = container.decode(.schemaVersion, default: 1)
-        // Account
-        galleryHost = container.decode(.galleryHost, default: .ehentai)
-        showsNewDawnGreeting = container.decode(.showsNewDawnGreeting, default: false)
-        // General
-        enablesTagsExtension = container.decode(.enablesTagsExtension, default: false)
-        translatesTags = container.decode(.translatesTags, default: false)
-        showsTagsSearchSuggestion = container.decode(.showsTagsSearchSuggestion, default: false)
-        showsImagesInTags = container.decode(.showsImagesInTags, default: false)
-        redirectsLinksToSelectedHost = container.decode(.redirectsLinksToSelectedHost, default: false)
-        detectsLinksFromClipboard = container.decode(.detectsLinksFromClipboard, default: false)
-        backgroundBlurRadius = container.decode(.backgroundBlurRadius, default: 10)
-        autoLockPolicy = container.decode(.autoLockPolicy, default: .never)
-        // Appearance
-        listDisplayMode = container.decode(.listDisplayMode, default: .detail)
-        preferredColorScheme = container.decode(.preferredColorScheme, default: .automatic)
-        accentColor = container.decode(.accentColor, default: .blue)
-        appIconType = container.decode(.appIconType, default: .default)
-        showsTagsInList = container.decode(.showsTagsInList, default: false)
-        listTagsNumberMaximum = container.decode(.listTagsNumberMaximum, default: 0)
-        displaysJapaneseTitle = container.decode(.displaysJapaneseTitle, default: true)
-        // Reading
-        readingDirection = container.decode(.readingDirection, default: .vertical)
-        prefetchLimit = container.decode(.prefetchLimit, default: 10)
-        enablesLandscape = container.decode(.enablesLandscape, default: false)
-        enablesDualPageMode = container.decode(.enablesDualPageMode, default: false)
-        exceptCover = container.decode(.exceptCover, default: false)
-        contentDividerHeight = container.decode(.contentDividerHeight, default: 0)
-        maximumScaleFactor = container.decode(.maximumScaleFactor, default: 3)
-        doubleTapScaleFactor = container.decode(.doubleTapScaleFactor, default: 2)
-        // Downloads
-        downloadThreadLimit = container.decode(.downloadThreadLimit, default: 1)
-        downloadAllowCellular = container.decode(.downloadAllowCellular, default: true)
-        downloadAutoRetryFailedPages = container.decode(.downloadAutoRetryFailedPages, default: true)
-        // Laboratory
-        bypassesSNIFiltering = container.decode(.bypassesSNIFiltering, default: false)
     }
 }
