@@ -12,17 +12,15 @@ import ReadingFeature
 public struct DetailView: View {
     @Bindable var store: StoreOf<DetailReducer>
     let gid: String
-    let user: User
     @Binding var setting: Setting
     let blurRadius: Double
 
     public init(
         store: StoreOf<DetailReducer>, gid: String,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.gid = gid
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -64,7 +62,7 @@ private extension DetailView {
                         HeaderSection(
                             gallery: store.gallery,
                             galleryDetail: store.galleryDetail ?? .empty,
-                            user: user,
+                            user: store.user,
                             downloadBadge: store.downloadBadge,
                             downloadNeedsRepair: store.downloadNeedsRepair,
                             downloadFolders: store.downloadFolders,
@@ -233,7 +231,6 @@ private extension DetailView {
                     ArchivesView(
                         store: archivesStore,
                         gid: gid,
-                        user: user,
                         galleryURL: galleryURL,
                         archiveURL: archiveURL
                     )
@@ -319,7 +316,6 @@ struct DetailView_Previews: PreviewProvider {
             DetailView(
                 store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
                 gid: .init(),
-                user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

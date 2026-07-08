@@ -9,16 +9,14 @@ import GalleryListComponents
 
 struct HistoryView: View {
     @Bindable private var store: StoreOf<HistoryReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<HistoryReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -74,7 +72,6 @@ struct HistoryView_Previews: PreviewProvider {
         NavigationStack {
             HistoryView(
                 store: .init(initialState: .init(), reducer: HistoryReducer.init),
-                user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

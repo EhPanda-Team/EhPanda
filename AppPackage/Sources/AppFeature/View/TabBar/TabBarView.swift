@@ -41,28 +41,24 @@ struct TabBarView: View {
                         case .home:
                             HomeView(
                                 store: store.scope(state: \.homeState, action: \.home),
-                                user: store.settingState.user,
                                 setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .favorites:
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: \.favorites),
-                                user: store.settingState.user,
                                 setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .search:
                             SearchRootView(
                                 store: store.scope(state: \.searchRootState, action: \.searchRoot),
-                                user: store.settingState.user,
                                 setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .downloads:
                             DownloadsView(
                                 store: store.scope(state: \.downloadsState, action: \.downloads),
-                                user: store.settingState.user,
                                 setting: $store.settingState.settingBinding,
                                 blurRadius: store.appLockState.blurRadius
                             )
@@ -104,14 +100,12 @@ struct TabBarView: View {
                 DetailView(
                     store: detailStore,
                     gid: detailStore.gid,
-                    user: store.settingState.user,
                     setting: $store.settingState.settingBinding,
                     blurRadius: store.appLockState.blurRadius
                 )
             } destination: { elementStore in
                 galleryDestination(
                     elementStore,
-                    user: store.settingState.user,
                     setting: $store.settingState.settingBinding,
                     blurRadius: store.appLockState.blurRadius
                 )

@@ -10,16 +10,14 @@ import DetailFeature
 
 public struct SearchRootView: View {
     @Bindable private var store: StoreOf<SearchRootReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<SearchRootReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -88,11 +86,11 @@ public struct SearchRootView: View {
             switch store.case {
             case .search(let store):
                 SearchView(
-                    store: store, user: user, setting: $setting, blurRadius: blurRadius
+                    store: store, setting: $setting, blurRadius: blurRadius
                 )
             case .gallery(let store):
                 galleryDestination(
-                    store, user: user, setting: $setting, blurRadius: blurRadius
+                    store, setting: $setting, blurRadius: blurRadius
                 )
             }
         }
@@ -264,7 +262,6 @@ struct SearchRootView_Previews: PreviewProvider {
     static var previews: some View {
         SearchRootView(
             store: .init(initialState: .init(), reducer: SearchRootReducer.init),
-            user: .init(),
             setting: .constant(.init()),
             blurRadius: 0
         )

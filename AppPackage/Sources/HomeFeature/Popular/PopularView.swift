@@ -10,16 +10,14 @@ import FiltersFeature
 
 struct PopularView: View {
     @Bindable private var store: StoreOf<PopularReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<PopularReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -68,7 +66,6 @@ struct PopularView_Previews: PreviewProvider {
         NavigationStack {
             PopularView(
                 store: .init(initialState: .init(), reducer: PopularReducer.init),
-                user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

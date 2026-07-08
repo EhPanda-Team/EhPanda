@@ -12,17 +12,14 @@ import SFSafeSymbolsExt
 public struct DownloadsView: View {
     @Bindable private var store: StoreOf<DownloadsReducer>
     @Binding private var setting: Setting
-    private let user: User
     private let blurRadius: Double
 
     public init(
         store: StoreOf<DownloadsReducer>,
-        user: User,
         setting: Binding<Setting>,
         blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -32,7 +29,6 @@ public struct DownloadsView: View {
             store: store,
             state: \.path,
             action: \.path,
-            user: user,
             setting: $setting,
             blurRadius: blurRadius
         ) {
@@ -332,7 +328,6 @@ struct DownloadsView_Previews: PreviewProvider {
     static var previews: some View {
         DownloadsView(
             store: .init(initialState: .init(), reducer: DownloadsReducer.init),
-            user: .init(),
             setting: .constant(.init()),
             blurRadius: 0
         )

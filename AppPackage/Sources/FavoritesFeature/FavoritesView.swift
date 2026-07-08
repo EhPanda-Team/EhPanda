@@ -12,22 +12,20 @@ import DetailFeature
 
 public struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<FavoritesReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
 
     private var navigationTitle: String {
-        let favoriteCategory = user.getFavoriteCategory(index: store.index)
+        let favoriteCategory = store.user.getFavoriteCategory(index: store.index)
         return (store.index == -1 ? String(localized: .RLocalizable.favorites) : favoriteCategory)
     }
 
@@ -36,7 +34,6 @@ public struct FavoritesView: View {
             store: store,
             state: \.path,
             action: \.path,
-            user: user,
             setting: $setting,
             blurRadius: blurRadius
         ) {
@@ -107,7 +104,7 @@ public struct FavoritesView: View {
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary) {
-            FavoritesIndexMenu(user: user, index: store.index) { index in
+            FavoritesIndexMenu(user: store.user, index: store.index) { index in
                 if index != store.index {
                     store.send(.setFavoritesIndex(index))
                 }
@@ -131,7 +128,6 @@ struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
             store: .init(initialState: .init(), reducer: FavoritesReducer.init),
-            user: .init(),
             setting: .constant(.init()),
             blurRadius: 0
         )
