@@ -42,7 +42,7 @@ extension DetailReducer {
                     }
                     if let greeting = response.greeting {
                         effects.append(.send(.syncGreeting(greeting)))
-                        if !greeting.gainedNothing && state.showsNewDawnGreeting {
+                        if !greeting.gainedNothing && state.setting.showsNewDawnGreeting {
                             effects.append(.send(.presentNewDawn(greeting)))
                         }
                     }

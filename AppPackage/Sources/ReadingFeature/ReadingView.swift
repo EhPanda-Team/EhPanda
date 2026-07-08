@@ -105,7 +105,7 @@ public struct ReadingView: View {
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
             }
-            .onAppear { store.send(.onAppear(gid, store.setting.enablesLandscape)) }
+            .onAppear { store.send(.onAppear(gid)) }
     }
 
     var content: some View {
