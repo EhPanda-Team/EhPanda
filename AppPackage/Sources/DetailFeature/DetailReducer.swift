@@ -58,6 +58,7 @@ public struct DetailReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Alert>?
         public var commentContent = ""

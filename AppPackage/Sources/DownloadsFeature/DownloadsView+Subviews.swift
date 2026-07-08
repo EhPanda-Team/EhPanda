@@ -15,18 +15,15 @@ struct DownloadInspectorView: View {
     @Bindable private var store: StoreOf<DownloadInspectorReducer>
     private let setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     init(
         store: StoreOf<DownloadInspectorReducer>,
         setting: Setting,
-        blurRadius: Double,
-        tagTranslator: TagTranslator
+        blurRadius: Double
     ) {
         self.store = store
         self.setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     var body: some View {
@@ -47,7 +44,7 @@ struct DownloadInspectorView: View {
                                 coverSource: .static(inspection.coverURL),
                                 setting: setting,
                                 translateAction: {
-                                    tagTranslator.lookup(
+                                    store.tagTranslator.lookup(
                                         word: $0,
                                         returnOriginal: !setting.translatesTags
                                     )
@@ -293,9 +290,9 @@ private extension View {
 }
 
 struct DownloadListRow: View {
+    @SharedReader(.tagTranslator) private var tagTranslator: TagTranslator
     let download: DownloadedGallery
     let setting: Setting
-    let tagTranslator: TagTranslator
     let openAction: () -> Void
 
     var body: some View {

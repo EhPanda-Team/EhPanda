@@ -36,6 +36,7 @@ public struct SearchRootReducer: Sendable {
         // and the QuickSearch editor, which share the same keys, so changes stay live without reloads.
         @Shared(.historyKeywords) public var historyKeywords: [String]
         @Shared(.quickSearchWords) public var quickSearchWords: [QuickSearchWord]
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
 
         public init() {}
 

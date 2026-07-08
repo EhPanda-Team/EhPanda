@@ -14,17 +14,15 @@ struct FrontpageView: View {
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     init(
         store: StoreOf<FrontpageReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     var body: some View {
@@ -38,7 +36,7 @@ struct FrontpageView: View {
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .sheet(
@@ -90,8 +88,7 @@ struct FrontpageView_Previews: PreviewProvider {
                 store: .init(initialState: .init(), reducer: FrontpageReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
-                blurRadius: 0,
-                tagTranslator: .init()
+                blurRadius: 0
             )
         }
     }

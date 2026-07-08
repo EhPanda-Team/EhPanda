@@ -13,17 +13,15 @@ public struct HomeView: View {
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     public init(
         store: StoreOf<HomeReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     // MARK: HomeView
@@ -96,33 +94,27 @@ public struct HomeView: View {
             switch store.case {
             case .frontpage(let store):
                 FrontpageView(
-                    store: store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store: store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             case .popular(let store):
                 PopularView(
-                    store: store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store: store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             case .toplists(let store):
                 ToplistsView(
-                    store: store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store: store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             case .watched(let store):
                 WatchedView(
-                    store: store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store: store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             case .history(let store):
                 HistoryView(
-                    store: store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store: store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             case .gallery(let store):
                 galleryDestination(
-                    store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             }
         }
@@ -196,8 +188,7 @@ struct HomeView_Previews: PreviewProvider {
             store: .init(initialState: .init(), reducer: HomeReducer.init),
             user: .init(),
             setting: .constant(.init()),
-            blurRadius: 0,
-            tagTranslator: .init()
+            blurRadius: 0
         )
     }
 }

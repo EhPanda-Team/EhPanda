@@ -29,6 +29,7 @@ public struct FavoritesReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
         public var keyword = ""

@@ -14,20 +14,17 @@ public struct DownloadsView: View {
     @Binding private var setting: Setting
     private let user: User
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     public init(
         store: StoreOf<DownloadsReducer>,
         user: User,
         setting: Binding<Setting>,
-        blurRadius: Double,
-        tagTranslator: TagTranslator
+        blurRadius: Double
     ) {
         self.store = store
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     public var body: some View {
@@ -37,8 +34,7 @@ public struct DownloadsView: View {
             action: \.path,
             user: user,
             setting: $setting,
-            blurRadius: blurRadius,
-            tagTranslator: tagTranslator
+            blurRadius: blurRadius
         ) {
             contentView
         }
@@ -74,8 +70,7 @@ public struct DownloadsView: View {
                 DownloadInspectorView(
                     store: store,
                     setting: setting,
-                    blurRadius: blurRadius,
-                    tagTranslator: tagTranslator
+                    blurRadius: blurRadius
                 )
             }
             .autoBlur(radius: blurRadius)
@@ -128,8 +123,7 @@ private extension DownloadsView {
                 ForEach(store.filteredDownloads) { download in
                     DownloadListRow(
                         download: download,
-                        setting: setting,
-                        tagTranslator: tagTranslator
+                        setting: setting
                     ) {
                         store.send(.openReading(download.gid))
                     }
@@ -340,8 +334,7 @@ struct DownloadsView_Previews: PreviewProvider {
             store: .init(initialState: .init(), reducer: DownloadsReducer.init),
             user: .init(),
             setting: .constant(.init()),
-            blurRadius: 0,
-            tagTranslator: .init()
+            blurRadius: 0
         )
     }
 }
