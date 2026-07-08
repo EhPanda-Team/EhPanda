@@ -15,7 +15,6 @@ private let logger = Logger(category: .init(describing: ReadingView.self))
 
 public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.scenePhase) private var scenePhase
 
     @Bindable var store: StoreOf<ReadingReducer>
     let gid: String
@@ -107,11 +106,6 @@ public struct ReadingView: View {
                 // dropped. So only non-persistence teardown happens here.
                 liveTextHandler.cancelRequests()
                 setAutoPlayPolocy(.off)
-            }
-            .onChange(of: scenePhase) { _, newPhase in
-                // Backgrounding doesn't fire `onDisappear` or a dismiss, so flush here too — a force-quit
-                // from the background otherwise drops the last debounce window of progress.
-                if newPhase == .background { store.send(.flushReadingProgress) }
             }
             .onAppear { store.send(.onAppear(gid, setting.enablesLandscape)) }
     }

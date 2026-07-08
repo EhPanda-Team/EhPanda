@@ -116,7 +116,7 @@ struct AppReducer {
                     // Ask iOS for a later background window to finish the queue; the
                     // beginBackgroundTask assertion only covers the brief grace
                     // period right after backgrounding.
-                    return .merge(
+                    var effects: [Effect<Action>] = [
                         .send(.appLogsPump(.pausePump)),
                         .run { _ in
                             logger.notice("App entered background.")
@@ -124,7 +124,12 @@ struct AppReducer {
                                 backgroundProcessingClient.schedule()
                             }
                         }
-                    )
+                    ]
+                    // Backgrounding fires no reader `onDisappear`/dismiss, so flush the active reading
+                    // session's last debounced page here — otherwise a force-quit from the background
+                    // drops it. The reader is located from navigation state (see `readingFlushEffects`).
+                    effects.append(contentsOf: readingFlushEffects(state))
+                    return .merge(effects)
 
                 default:
                     return .none
@@ -323,6 +328,50 @@ struct AppReducer {
 }
 
 private extension AppReducer {
+    /// Flush actions for every reading session currently on top of a navigation host, so a background
+    /// force-quit persists each reader's last debounced page. A reader is presented as a `.reading`
+    /// destination of `.detail`/`.previews` (elements of the gallery stacks) or, for the Downloads tab
+    /// and the iPad/deep-link modal, directly as a host destination. Any new host that can present a
+    /// `.reading` destination must be registered here.
+    func readingFlushEffects(_ state: State) -> [Effect<Action>] {
+        var effects: [Effect<Action>] = []
+
+        // GalleryPath stacks whose top element presents a reader.
+        if let (id, action) = state.appRouteState.path.topReadingFlush {
+            effects.append(.send(.appRoute(.path(.element(id: id, action: action)))))
+        }
+        if let (id, action) = state.favoritesState.path.topReadingFlush {
+            effects.append(.send(.favorites(.path(.element(id: id, action: action)))))
+        }
+        if let (id, action) = state.downloadsState.path.topReadingFlush {
+            effects.append(.send(.downloads(.path(.element(id: id, action: action)))))
+        }
+
+        // Home / SearchRoot nest the gallery stack under a `.gallery` element.
+        if let id = state.homeState.path.ids.last,
+           case .gallery(let gallery)? = state.homeState.path[id: id],
+           let action = gallery.readingFlushAction {
+            effects.append(.send(.home(.path(.element(id: id, action: .gallery(action))))))
+        }
+        if let id = state.searchRootState.path.ids.last,
+           case .gallery(let gallery)? = state.searchRootState.path[id: id],
+           let action = gallery.readingFlushAction {
+            effects.append(.send(.searchRoot(.path(.element(id: id, action: .gallery(action))))))
+        }
+
+        // The iPad/deep-link modal detail and the Downloads tab present a reader directly.
+        if state.appRouteState.detail?.destination?.reading != nil {
+            effects.append(.send(.appRoute(.detail(.presented(
+                .destination(.presented(.reading(.flushReadingProgress)))
+            )))))
+        }
+        if state.downloadsState.destination?.reading != nil {
+            effects.append(.send(.downloads(.destination(.presented(.reading(.flushReadingProgress))))))
+        }
+
+        return effects
+    }
+
     func shouldDelayLaunchAutomationUntilIgneous(state: State) -> Bool {
         guard !state.didRunLaunchAutomation,
               cookieClient.shouldFetchIgneous,
