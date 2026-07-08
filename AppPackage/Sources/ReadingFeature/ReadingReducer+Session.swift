@@ -54,8 +54,7 @@ extension ReadingReducer {
             applyLocalSource(state: &state, download: download, manifest: manifest)
         }
         // Remote galleries are seeded from the pushing context; URL maps are rebuilt per session
-        // (fetched on demand), so nothing is read from a database here. The resume position comes
-        // from the persisted browsing history.
+        // (fetched on demand). The resume position comes from the persisted browsing history.
         @Shared(.galleryHistory) var galleryHistory
         state.readingProgress = galleryHistory.readingProgress(gid: gid)
         // Seed the pending page with the restored resume position so a flush that fires before the
@@ -142,8 +141,8 @@ extension ReadingReducer {
     }
 
     /// Enters offline mode: seeds the gallery and language from the manifest (so a downloaded
-    /// gallery reads with no database record) and makes `localPageURLs` the only page source,
-    /// clearing the remote URL maps that don't apply offline.
+    /// gallery reads entirely from its local files and manifest) and makes `localPageURLs` the only
+    /// page source, clearing the remote URL maps that don't apply offline.
     func applyLocalSource(
         state: inout State,
         download: DownloadedGallery,
