@@ -15,18 +15,16 @@ public struct DetailView: View {
     let user: User
     @Binding var setting: Setting
     let blurRadius: Double
-    let tagTranslator: TagTranslator
 
     public init(
         store: StoreOf<DetailReducer>, gid: String,
-        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.gid = gid
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     public var body: some View {
@@ -122,7 +120,7 @@ private extension DetailView {
                                 navigateSearchAction: { store.send(.delegate(.pushDetailSearch($0))) },
                                 navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                                 translateAction: {
-                                    tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                                    store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                                 }
                             )
                             .padding(.horizontal)
@@ -323,8 +321,7 @@ struct DetailView_Previews: PreviewProvider {
                 gid: .init(),
                 user: .init(),
                 setting: .constant(.init()),
-                blurRadius: 0,
-                tagTranslator: .init()
+                blurRadius: 0
             )
         }
     }

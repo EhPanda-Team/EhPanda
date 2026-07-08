@@ -22,6 +22,7 @@ public struct ToplistsReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         public var keyword = ""
         public var jumpPageIndex = ""
         @Presents public var alert: AppAlertState<Alert>?

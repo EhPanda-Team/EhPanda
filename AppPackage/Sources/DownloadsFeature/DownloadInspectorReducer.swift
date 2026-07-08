@@ -14,6 +14,7 @@ public struct DownloadInspectorReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable, Sendable {
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @Presents public var toast: AppAlertState<Never>?
         public var gid = ""
         public var inspection: DownloadInspection?

@@ -101,6 +101,16 @@ extension SharedKey where Self == AppStorageKey<TagTranslatorInfo>.Default {
     }
 }
 
+// The full translation table (multi-megabyte `translations` dictionary) is rebuilt at launch from the
+// cache file, so it lives in memory only — never in app storage. `SettingFeature` owns the writes (the
+// launch rebuild and language switches); every other feature reads it through `@SharedReader`, so tag
+// lookups no longer thread a `TagTranslator` copy down through each view.
+extension SharedKey where Self == InMemoryKey<TagTranslator>.Default {
+    public static var tagTranslator: Self {
+        Self[.inMemory("tagTranslator"), default: TagTranslator()]
+    }
+}
+
 // MARK: Browsing history (merged recency + reading progress; capped, pruned at launch)
 
 extension SharedKey where Self == AppStorageKey<[GalleryHistoryEntry]>.Default {

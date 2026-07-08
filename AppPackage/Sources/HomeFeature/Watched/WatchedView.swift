@@ -15,17 +15,15 @@ struct WatchedView: View {
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     init(
         store: StoreOf<WatchedReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     var body: some View {
@@ -41,7 +39,7 @@ struct WatchedView: View {
                     fetchMoreAction: { store.send(.fetchMoreGalleries) },
                     navigateAction: { store.send(.delegate(.pushDetail($0))) },
                     translateAction: {
-                        tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                        store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                     },
                     downloadBadges: store.downloadBadges
                 )
@@ -80,7 +78,7 @@ struct WatchedView: View {
         .searchable(text: $store.keyword)
         .searchSuggestions {
             TagSuggestionView(
-                keyword: $store.keyword, translations: tagTranslator.translations,
+                keyword: $store.keyword, translations: store.tagTranslator.translations,
                 showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
             )
         }
@@ -123,8 +121,7 @@ struct WatchedView_Previews: PreviewProvider {
                 store: .init(initialState: .init(), reducer: WatchedReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
-                blurRadius: 0,
-                tagTranslator: .init()
+                blurRadius: 0
             )
         }
     }

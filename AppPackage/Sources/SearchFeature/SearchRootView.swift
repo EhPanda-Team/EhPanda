@@ -13,17 +13,15 @@ public struct SearchRootView: View {
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     public init(
         store: StoreOf<SearchRootReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     public var body: some View {
@@ -65,7 +63,7 @@ public struct SearchRootView: View {
                 .searchable(text: $store.keyword)
                 .searchSuggestions {
                     TagSuggestionView(
-                        keyword: $store.keyword, translations: tagTranslator.translations,
+                        keyword: $store.keyword, translations: store.tagTranslator.translations,
                         showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
                     )
                 }
@@ -90,13 +88,11 @@ public struct SearchRootView: View {
             switch store.case {
             case .search(let store):
                 SearchView(
-                    store: store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store: store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             case .gallery(let store):
                 galleryDestination(
-                    store, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                    store, user: user, setting: $setting, blurRadius: blurRadius
                 )
             }
         }
@@ -270,8 +266,7 @@ struct SearchRootView_Previews: PreviewProvider {
             store: .init(initialState: .init(), reducer: SearchRootReducer.init),
             user: .init(),
             setting: .constant(.init()),
-            blurRadius: 0,
-            tagTranslator: .init()
+            blurRadius: 0
         )
     }
 }

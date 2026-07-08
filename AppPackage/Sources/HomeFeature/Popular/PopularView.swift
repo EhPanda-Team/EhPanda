@@ -13,17 +13,15 @@ struct PopularView: View {
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     init(
         store: StoreOf<PopularReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     var body: some View {
@@ -35,7 +33,7 @@ struct PopularView: View {
             fetchAction: { store.send(.fetchGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
             translateAction: {
-                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
+                store.tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .sheet(
@@ -72,8 +70,7 @@ struct PopularView_Previews: PreviewProvider {
                 store: .init(initialState: .init(), reducer: PopularReducer.init),
                 user: .init(),
                 setting: .constant(.init()),
-                blurRadius: 0,
-                tagTranslator: .init()
+                blurRadius: 0
             )
         }
     }
