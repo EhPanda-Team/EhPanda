@@ -39,8 +39,8 @@ public struct DownloadTaskRunner: Sendable {
 
 /// The brain of the download subsystem: the in-memory read model (`downloadIndex`,
 /// `userFolders`) fused with scheduling (`activeGalleryID`, `activeTask`, queued
-/// modes / selections). It is one of three types the old monolith was split into by
-/// invariant ownership, alongside `DownloadStore` (pure disk I/O) and
+/// modes / selections). It is one of three types split by invariant ownership,
+/// alongside `DownloadStore` (pure disk I/O) and
 /// `DownloadObserverHub` (observer fan-out), all behind the unchanged `DownloadClient`
 /// facade. Read model and scheduling stay fused on purpose: only one gallery downloads at
 /// a time (E-Hentai rate-limits gallery downloads, so concurrency is unwanted), and

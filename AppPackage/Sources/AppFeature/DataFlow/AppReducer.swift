@@ -146,8 +146,7 @@ struct AppReducer {
                 }
 
             case .appDelegate(.onLaunchFinish):
-                // No database preparation to await anymore: import any launch-automation cookies and
-                // load the persisted settings straight away.
+                // Import any launch-automation cookies and load the persisted settings straight away.
                 let loginCookies = appLaunchAutomationClient.current()?.loginCookies
                 return .merge(
                     .send(.appLogsPump(.startPump)),
