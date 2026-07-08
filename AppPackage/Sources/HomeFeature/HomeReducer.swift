@@ -1,6 +1,7 @@
 import SwiftUI
 import AppModels
 import Kingfisher
+import Sharing
 import ComposableArchitecture
 import AppTools
 import LibraryClient
@@ -14,6 +15,7 @@ public struct HomeReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @SharedReader(.globalFilter) public var globalFilter: AppModels.Filter
         public var path = StackState<HomePath.State>()
         public var cardPageIndex = 1
         public var currentCardID = ""
