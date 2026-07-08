@@ -10,16 +10,14 @@ import DetailFeature
 
 public struct HomeView: View {
     @Bindable private var store: StoreOf<HomeReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     public init(
         store: StoreOf<HomeReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -94,27 +92,27 @@ public struct HomeView: View {
             switch store.case {
             case .frontpage(let store):
                 FrontpageView(
-                    store: store, user: user, setting: $setting, blurRadius: blurRadius
+                    store: store, setting: $setting, blurRadius: blurRadius
                 )
             case .popular(let store):
                 PopularView(
-                    store: store, user: user, setting: $setting, blurRadius: blurRadius
+                    store: store, setting: $setting, blurRadius: blurRadius
                 )
             case .toplists(let store):
                 ToplistsView(
-                    store: store, user: user, setting: $setting, blurRadius: blurRadius
+                    store: store, setting: $setting, blurRadius: blurRadius
                 )
             case .watched(let store):
                 WatchedView(
-                    store: store, user: user, setting: $setting, blurRadius: blurRadius
+                    store: store, setting: $setting, blurRadius: blurRadius
                 )
             case .history(let store):
                 HistoryView(
-                    store: store, user: user, setting: $setting, blurRadius: blurRadius
+                    store: store, setting: $setting, blurRadius: blurRadius
                 )
             case .gallery(let store):
                 galleryDestination(
-                    store, user: user, setting: $setting, blurRadius: blurRadius
+                    store, setting: $setting, blurRadius: blurRadius
                 )
             }
         }
@@ -186,7 +184,6 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(
             store: .init(initialState: .init(), reducer: HomeReducer.init),
-            user: .init(),
             setting: .constant(.init()),
             blurRadius: 0
         )

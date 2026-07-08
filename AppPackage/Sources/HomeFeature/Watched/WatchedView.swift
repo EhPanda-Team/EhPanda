@@ -12,16 +12,14 @@ import QuickSearchFeature
 
 struct WatchedView: View {
     @Bindable private var store: StoreOf<WatchedReducer>
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<WatchedReducer>,
-        user: User, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -119,7 +117,6 @@ struct WatchedView_Previews: PreviewProvider {
         NavigationStack {
             WatchedView(
                 store: .init(initialState: .init(), reducer: WatchedReducer.init),
-                user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

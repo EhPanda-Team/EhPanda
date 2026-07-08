@@ -14,14 +14,13 @@ struct CommentsView: View {
     private let apiKey: String
     private let galleryURL: URL
     private let comments: [GalleryComment]
-    private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: StoreOf<CommentsReducer>,
         gid: String, token: String, apiKey: String, galleryURL: URL,
-        comments: [GalleryComment], user: User, setting: Binding<Setting>,
+        comments: [GalleryComment], setting: Binding<Setting>,
         blurRadius: Double
     ) {
         self.store = store
@@ -30,7 +29,6 @@ struct CommentsView: View {
         self.apiKey = apiKey
         self.galleryURL = galleryURL
         self.comments = comments
-        self.user = user
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -254,7 +252,6 @@ struct CommentsView_Previews: PreviewProvider {
                 apiKey: .init(),
                 galleryURL: .mock,
                 comments: [],
-                user: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

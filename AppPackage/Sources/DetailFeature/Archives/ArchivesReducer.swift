@@ -17,6 +17,7 @@ public struct ArchivesReducer: Sendable {
 
     @ObservableState
     public struct State: Equatable {
+        @Shared(.user) public var user: User
         @Presents public var toast: AppAlertState<Never>?
         public var selectedArchive: GalleryArchive.HathArchive?
 
@@ -55,8 +56,7 @@ public struct ArchivesReducer: Sendable {
                 return .none
 
             case .syncGalleryFunds(let galleryPoints, let credits):
-                @Shared(.user) var user
-                $user.withLock {
+                state.$user.withLock {
                     $0.galleryPoints = galleryPoints
                     $0.credits = credits
                 }
