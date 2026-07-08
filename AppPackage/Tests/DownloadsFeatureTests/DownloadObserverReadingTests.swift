@@ -63,19 +63,16 @@ struct DownloadObserverReadingTests: DownloadFeatureTestCase {
             options: .atomic
         )
 
-        await store.send(.restoreSession(download.gid)) {
-            $0.gallery = download.gallery
-            $0.language = manifest.language
-            $0.localPageURLs = [
-                1: folderURL.appendingPathComponent("123_token_1.jpg"),
-                2: folderURL.appendingPathComponent("123_token_2.jpg")
-            ]
-            $0.hasRestoredSession = true
-        }
-        await store.finish()
-
-        #expect(store.state.hasRestoredSession)
+        // State.init applies the local source and seeds the resume page at construction, so the reader
+        // is already offline-seeded — there is no separate restore step.
+        #expect(store.state.gallery == download.gallery)
+        #expect(store.state.language == manifest.language)
+        #expect(store.state.localPageURLs == [
+            1: folderURL.appendingPathComponent("123_token_1.jpg"),
+            2: folderURL.appendingPathComponent("123_token_2.jpg")
+        ])
         #expect(store.state.readingProgress == 0)
+        await store.finish()
     }
 
     @MainActor

@@ -88,7 +88,6 @@ extension ReadingReducer {
 
             case .onAppear(let gid, let enablesLandscape):
                 var effects: [Effect<Action>] = [
-                    .send(.restoreSession(gid)),
                     .send(.observeDownloads(gid)),
                     .send(.loadLocalPageURLs(gid))
                 ]
