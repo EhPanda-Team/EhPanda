@@ -5,7 +5,8 @@ import AppModels
 
 // REV-2: the `gdata` API returns bare `{ gid, error }` objects for expunged/removed gids (and can omit
 // `token`). Decoding the whole `[GalleryMetadata]` array must tolerate those per-entry — one bad gid
-// must never fail the batch and blank the entire History screen.
+// must never fail the batch and blank the entire History screen. A *resolved* entry missing a required
+// display field is dropped rather than defaulted, matching the HTML list parser's row policy.
 @Suite
 struct GalleriesMetadataDecodeTests {
     @Test
@@ -49,7 +50,8 @@ struct GalleriesMetadataDecodeTests {
             {
               "gid": 100, "token": "aaa",
               "title": "&#38;lt; &#x41; &amp; &lt;tag&gt;",
-              "posted": "1600000000"
+              "category": "Doujinshi", "thumb": "https://example.com/1.jpg",
+              "posted": "1600000000", "filecount": "20", "rating": "4.5"
             }
           ]
         }
@@ -65,6 +67,42 @@ struct GalleriesMetadataDecodeTests {
     func tokenlessEntryIsDropped() throws {
         let json = """
         { "gmetadata": [ { "gid": 300, "title": "No Token", "posted": "1600000000" } ] }
+        """
+        let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
+        #expect(galleries.isEmpty)
+    }
+
+    // A *resolved* entry (error-free, has token) that is nonetheless missing a required display field
+    // is dropped rather than defaulted — matching the HTML list parser, which drops an incomplete row
+    // instead of rendering it with `.misc`/`0`/no cover. Here `category`, `rating`, `thumb` and
+    // `filecount` are each absent in turn.
+    @Test
+    func resolvedEntryMissingRequiredFieldIsDropped() throws {
+        let json = """
+        {
+          "gmetadata": [
+            {
+              "gid": 400, "token": "ddd", "title": "No Category",
+              "thumb": "https://example.com/4.jpg", "posted": "1600000000",
+              "filecount": "10", "rating": "4.0"
+            },
+            {
+              "gid": 500, "token": "eee", "title": "No Rating",
+              "category": "Manga", "thumb": "https://example.com/5.jpg",
+              "posted": "1600000000", "filecount": "10"
+            },
+            {
+              "gid": 600, "token": "fff", "title": "No Cover",
+              "category": "Manga", "posted": "1600000000",
+              "filecount": "10", "rating": "4.0"
+            },
+            {
+              "gid": 700, "token": "ggg", "title": "No Pagecount",
+              "category": "Manga", "thumb": "https://example.com/7.jpg",
+              "posted": "1600000000", "rating": "4.0"
+            }
+          ]
+        }
         """
         let galleries = try GalleriesMetadataRequest.galleries(fromResponseData: Data(json.utf8))
         #expect(galleries.isEmpty)

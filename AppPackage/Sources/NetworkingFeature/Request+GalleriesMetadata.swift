@@ -10,7 +10,10 @@ private struct GalleriesMetadataAPIResponse: Decodable {
 
 /// One `gmetadata` entry from the `gdata` API. Every display field is optional because the API
 /// returns a bare `{ gid, error }` object for gids it can't resolve (expunged/removed galleries);
-/// `gallery` yields `nil` for those so a single bad entry never fails the whole batch.
+/// `gallery` yields `nil` for those so a single bad entry never fails the whole batch. A *resolved*
+/// entry still missing any field the display needs (token, title, posted, category, rating, cover,
+/// pageCount) is likewise dropped rather than defaulted, mirroring the HTML list parser's
+/// all-or-nothing row policy.
 private struct GalleryMetadata: Decodable {
     let gid: Int
     let token: String?
@@ -25,22 +28,28 @@ private struct GalleryMetadata: Decodable {
     let tags: [String]?
 
     var gallery: Gallery? {
+        // Match the HTML list parser: a resolved row needs its full display set, or it is dropped.
+        // Only `tags` and `uploader` stay tolerant.
         guard error == nil,
               let token,
               let title,
-              let posted, let postedInterval = TimeInterval(posted)
+              let posted, let postedInterval = TimeInterval(posted),
+              let category = category.flatMap(AppModels.Category.init(rawValue:)),
+              let rating = rating.flatMap(Float.init),
+              let coverURL = thumb.flatMap({ URL(string: $0) }),
+              let pageCount = filecount.flatMap(Int.init)
         else { return nil }
         return Gallery(
             gid: String(gid),
             token: token,
             title: title.htmlEntitiesDecoded,
-            rating: rating.flatMap(Float.init) ?? 0,
+            rating: rating,
             tags: Self.parseTags(tags ?? []),
-            category: category.flatMap(AppModels.Category.init(rawValue:)) ?? .misc,
+            category: category,
             uploader: uploader,
-            pageCount: filecount.flatMap(Int.init) ?? 0,
+            pageCount: pageCount,
             postedDate: Date(timeIntervalSince1970: postedInterval),
-            coverURL: thumb.flatMap { URL(string: $0) },
+            coverURL: coverURL,
             galleryURL: Defaults.URL.host
                 .appendingPathComponent("g")
                 .appendingPathComponent(String(gid))
