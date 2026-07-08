@@ -143,10 +143,11 @@ extension DetailReducer {
         Reduce { state, action in
             switch action {
             case .syncGreeting(let greeting):
-                // Greeting is session-only (not persisted with `User`). Merge through the shared user's
-                // newer-only rule so a stale detail-page greeting can't clobber a fresher Setting fetch.
-                @Shared(.user) var user
-                $user.withLock { $0.mergeGreeting(greeting) }
+                // Greeting is a session-only in-memory shared slot (resets each launch). Merge through
+                // the newer-only rule so a stale detail-page greeting can't clobber a fresher Setting
+                // fetch.
+                @Shared(.greeting) var sharedGreeting
+                $sharedGreeting.withLock { $0.mergeNewer(greeting) }
                 return .none
 
             case .saveGalleryHistory:

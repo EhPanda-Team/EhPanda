@@ -83,3 +83,20 @@ public struct Greeting: Codable, Equatable, Hashable, Identifiable, Sendable {
             .compactMap({ $0 }).isEmpty
     }
 }
+
+extension Optional where Wrapped == Greeting {
+    /// Adopts `greeting` only when it is newer than the one already held (or none is held). Two
+    /// features write the session greeting — the Setting daily fetch and the Detail-page parse — so the
+    /// "keep the newer" rule lives here, next to the model, rather than at either call site, and a stale
+    /// detail-page greeting can't clobber a fresher one.
+    public mutating func mergeNewer(_ greeting: Greeting) {
+        guard let newDate = greeting.updateTime else { return }
+        if let current = self {
+            if let currentDate = current.updateTime, currentDate < newDate {
+                self = greeting
+            }
+        } else {
+            self = greeting
+        }
+    }
+}

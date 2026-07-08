@@ -51,6 +51,15 @@ extension SharedKey where Self == AppStorageKey<User>.Default {
     }
 }
 
+// The daily "New Dawn" greeting is an ephemeral reward, not durable account identity, so it lives in
+// memory only and resets to `nil` on the next launch. Two features write it — the Setting daily fetch
+// and the Detail-page parse — through the newer-only `mergeNewer(_:)` rule (see `Greeting`).
+extension SharedKey where Self == InMemoryKey<Greeting?>.Default {
+    public static var greeting: Self {
+        Self[.inMemory("greeting"), default: nil]
+    }
+}
+
 // MARK: Filters
 
 extension SharedKey where Self == AppStorageKey<Filter>.Default {

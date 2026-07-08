@@ -68,7 +68,7 @@ extension SettingReducer {
             let response = await GreetingRequest().response()
             await send(Action.fetchGreetingDone(response))
         }
-        if let greeting = state.user.greeting {
+        if let greeting = state.greeting {
             if verifyDate(with: greeting.updateTime) {
                 return requestEffect
             }
