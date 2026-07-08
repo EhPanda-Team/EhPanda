@@ -17,13 +17,12 @@ struct CommentsView: View {
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
 
     init(
         store: StoreOf<CommentsReducer>,
         gid: String, token: String, apiKey: String, galleryURL: URL,
         comments: [GalleryComment], user: User, setting: Binding<Setting>,
-        blurRadius: Double, tagTranslator: TagTranslator
+        blurRadius: Double
     ) {
         self.store = store
         self.gid = gid
@@ -34,7 +33,6 @@ struct CommentsView: View {
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
     }
 
     // MARK: CommentView
@@ -258,8 +256,7 @@ struct CommentsView_Previews: PreviewProvider {
                 comments: [],
                 user: .init(),
                 setting: .constant(.init()),
-                blurRadius: 0,
-                tagTranslator: .init()
+                blurRadius: 0
             )
         }
     }

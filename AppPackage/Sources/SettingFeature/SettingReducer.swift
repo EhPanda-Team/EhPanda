@@ -65,7 +65,7 @@ public struct SettingReducer: Sendable {
             get { setting }
             set { $setting.withLock { $0 = newValue } }
         }
-        public var tagTranslator = TagTranslator()
+        @Shared(.tagTranslator) public var tagTranslator: TagTranslator
         @Shared(.tagTranslatorInfo) public var tagTranslatorInfo: TagTranslatorInfo
         @Shared(.user) public var user: User
         @Shared(.greeting) public var greeting: Greeting?

@@ -27,6 +27,7 @@ public struct FrontpageReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         @SharedReader(.globalFilter) public var globalFilter: Filter
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @Presents public var destination: Destination.State?
         public var keyword = ""
 

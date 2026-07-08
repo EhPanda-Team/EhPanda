@@ -1,6 +1,5 @@
 import SwiftUI
 import AppModels
-import TagTranslationFeature
 import ComposableArchitecture
 
 // Builds the view for a single gallery stack element. Shared by every gallery host (and reused by the
@@ -11,14 +10,13 @@ public func galleryDestination(
     _ store: StoreOf<GalleryPath>,
     user: User,
     setting: Binding<Setting>,
-    blurRadius: Double,
-    tagTranslator: TagTranslator
+    blurRadius: Double
 ) -> some View {
     switch store.case {
     case .detail(let detailStore):
         DetailView(
             store: detailStore, gid: detailStore.gid, user: user,
-            setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+            setting: setting, blurRadius: blurRadius
         )
     case .previews(let previewsStore):
         PreviewsView(
@@ -30,12 +28,12 @@ public func galleryDestination(
             store: commentsStore, gid: commentsStore.gid, token: commentsStore.token,
             apiKey: commentsStore.apiKey, galleryURL: commentsStore.galleryURL,
             comments: commentsStore.comments, user: user, setting: setting,
-            blurRadius: blurRadius, tagTranslator: tagTranslator
+            blurRadius: blurRadius
         )
     case .detailSearch(let searchStore):
         DetailSearchView(
             store: searchStore, keyword: searchStore.keyword, user: user,
-            setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+            setting: setting, blurRadius: blurRadius
         )
     case .galleryInfos(let infosStore):
         GalleryInfosView(
@@ -54,7 +52,6 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let tagTranslator: TagTranslator
     private let root: Root
 
     public init(
@@ -64,7 +61,6 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
         user: User,
         setting: Binding<Setting>,
         blurRadius: Double,
-        tagTranslator: TagTranslator,
         @ViewBuilder root: () -> Root
     ) {
         self.store = store
@@ -73,7 +69,6 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
         self.user = user
         _setting = setting
         self.blurRadius = blurRadius
-        self.tagTranslator = tagTranslator
         self.root = root()
     }
 
@@ -82,8 +77,7 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
             root
         } destination: { elementStore in
             galleryDestination(
-                elementStore, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
+                elementStore, user: user, setting: $setting, blurRadius: blurRadius
             )
         }
     }

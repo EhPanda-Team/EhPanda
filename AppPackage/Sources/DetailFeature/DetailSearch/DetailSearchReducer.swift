@@ -26,6 +26,7 @@ public struct DetailSearchReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         @SharedReader(.searchFilter) public var searchFilter: Filter
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var lastKeyword = ""

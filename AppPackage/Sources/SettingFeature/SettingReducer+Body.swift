@@ -190,7 +190,7 @@ extension SettingReducer {
                 state.tagTranslatorLoadingState = .idle
                 switch result {
                 case .success(let tagTranslator):
-                    state.tagTranslator = tagTranslator
+                    state.$tagTranslator.withLock { $0 = tagTranslator }
                     state.$tagTranslatorInfo.withLock {
                         $0 = TagTranslatorInfo(
                             language: tagTranslator.language,
@@ -217,7 +217,7 @@ extension SettingReducer {
                 }
 
             case .tagTranslatorRebuilt(let tagTranslator):
-                state.tagTranslator = tagTranslator
+                state.$tagTranslator.withLock { $0 = tagTranslator }
                 return .none
 
             case .fetchEhProfileIndex:
@@ -273,7 +273,7 @@ extension SettingReducer {
             case .path(.element(id: _, action: .general(.onRemoveCustomTranslations))):
                 // Drop the custom table from memory, metadata, and disk; the launch/remote flow refills
                 // it. FileClient owns the path, so the file lifecycle stays behind one module.
-                state.tagTranslator = TagTranslator()
+                state.$tagTranslator.withLock { $0 = TagTranslator() }
                 state.$tagTranslatorInfo.withLock { $0.hasCustomTranslations = false }
                 return .run { _ in fileClient.removeCustomTranslations() }
 
