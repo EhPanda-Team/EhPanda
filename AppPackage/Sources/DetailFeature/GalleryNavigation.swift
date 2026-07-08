@@ -100,4 +100,29 @@ extension StackState where Element == GalleryPath.State {
         }
         return nil
     }
+
+    /// The `(id, action)` that flushes the reading session presented by the top element, if the top
+    /// element presents one. Used by the app-level scene-phase router so a background force-quit
+    /// persists the active reader's last debounced page from navigation state.
+    public var topReadingFlush: (id: StackElementID, action: GalleryPath.Action)? {
+        guard let id = ids.last, let action = self[id: id]?.readingFlushAction else { return nil }
+        return (id, action)
+    }
+}
+
+extension GalleryPath.State {
+    /// The scoped action that flushes the reading session this gallery screen presents, if any. A
+    /// reader is a `.reading` destination of `.detail`/`.previews`. A new gallery screen that can host
+    /// a reader must be handled here (and any new *host* of a reader registered in `AppReducer`'s
+    /// scene-phase router).
+    public var readingFlushAction: GalleryPath.Action? {
+        switch self {
+        case .detail(let detail) where detail.destination?.reading != nil:
+            return .detail(.destination(.presented(.reading(.flushReadingProgress))))
+        case .previews(let previews) where previews.destination?.reading != nil:
+            return .previews(.destination(.presented(.reading(.flushReadingProgress))))
+        default:
+            return nil
+        }
+    }
 }
