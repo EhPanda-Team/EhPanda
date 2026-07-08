@@ -52,8 +52,7 @@ struct PreviewsView: View {
                             .foregroundColor(.secondary)
                     }
                     .onAppear {
-                        if store.hasRestoredSession
-                            && displayPreviewURLs[index] == nil && (index - 1) % 10 == 0 {
+                        if displayPreviewURLs[index] == nil && (index - 1) % 10 == 0 {
                             store.send(.fetchPreviewURLs(index))
                         }
                     }
@@ -61,7 +60,6 @@ struct PreviewsView: View {
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .id(store.hasRestoredSession)
         }
         .fullScreenCover(
             item: $store.scope(state: \.destination?.reading, action: \.destination.reading)

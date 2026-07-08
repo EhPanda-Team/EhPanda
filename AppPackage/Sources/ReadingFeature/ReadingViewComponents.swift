@@ -47,7 +47,6 @@ struct HorizontalImageStack: View {
     private let index: Int
     private let isDualPage: Bool
     private let isActive: Bool
-    private let isSessionRestored: Bool
     private let backgroundColor: Color
     private let config: ImageStackConfig
     private let imageURLs: [Int: URL]
@@ -68,7 +67,7 @@ struct HorizontalImageStack: View {
     private let shareImageAction: (URL) -> Void
 
     init(
-        index: Int, isDualPage: Bool, isActive: Bool, isSessionRestored: Bool, backgroundColor: Color,
+        index: Int, isDualPage: Bool, isActive: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
         loadingStates: [Int: LoadingState], enablesLiveText: Bool,
         liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
@@ -82,7 +81,6 @@ struct HorizontalImageStack: View {
         self.index = index
         self.isDualPage = isDualPage
         self.isActive = isActive
-        self.isSessionRestored = isSessionRestored
         self.backgroundColor = backgroundColor
         self.config = config
         self.imageURLs = imageURLs
@@ -132,12 +130,10 @@ struct HorizontalImageStack: View {
             loadFailedAction: loadFailedAction
         )
         .onAppear {
-            if isSessionRestored {
-                if imageURLs[index] == nil {
-                    fetchAction(index)
-                }
-                prefetchAction(index)
+            if imageURLs[index] == nil {
+                fetchAction(index)
             }
+            prefetchAction(index)
         }
         .contextMenu { contextMenuItems(index: index) }
     }
