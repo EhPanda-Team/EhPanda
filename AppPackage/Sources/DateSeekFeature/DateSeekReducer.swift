@@ -3,7 +3,7 @@ import AppModels
 import Foundation
 import HapticsClient
 
-/// A headless, reusable feature for the "Seek to date" control.
+/// A headless, reusable feature for the "Date seek" control.
 ///
 /// Despite the matching name, this reducer is **not** the companion of `DateSeekPickerView`: it
 /// owns no view, and the picker owns no reducer. `DateSeekPickerView` is a store-agnostic
