@@ -68,6 +68,7 @@ public struct SettingReducer: Sendable {
         public var tagTranslator = TagTranslator()
         @Shared(.tagTranslatorInfo) public var tagTranslatorInfo: TagTranslatorInfo
         @Shared(.user) public var user: User
+        @Shared(.greeting) public var greeting: Greeting?
 
         public var hasLoadedInitialSetting = false
 
@@ -76,8 +77,8 @@ public struct SettingReducer: Sendable {
 
         public init() {}
 
-        mutating func setGreeting(_ greeting: Greeting) {
-            $user.withLock { $0.mergeGreeting(greeting) }
+        mutating func setGreeting(_ newGreeting: Greeting) {
+            $greeting.withLock { $0.mergeNewer(newGreeting) }
         }
 
         mutating func updateUser(_ user: User) {

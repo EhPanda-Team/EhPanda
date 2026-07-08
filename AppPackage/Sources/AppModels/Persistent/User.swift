@@ -7,14 +7,12 @@ public struct User: Codable, Equatable, Sendable {
         avatarURL: URL? = nil,
         credits: String? = nil,
         galleryPoints: String? = nil,
-        greeting: Greeting? = nil,
         favoriteCategories: [Int: String]? = nil
     ) {
         self.displayName = displayName
         self.avatarURL = avatarURL
         self.credits = credits
         self.galleryPoints = galleryPoints
-        self.greeting = greeting
         self.favoriteCategories = favoriteCategories
     }
     public static let empty = User()
@@ -27,18 +25,7 @@ public struct User: Codable, Equatable, Sendable {
     public var credits: String?
     public var galleryPoints: String?
 
-    // Not persisted: `greeting` is the daily "New Dawn" reward — ephemeral session data rather than
-    // durable account identity. It is omitted from `CodingKeys` below so persisting `User` (via
-    // `@Shared(.user)`) never writes it; it stays live in memory for the session and resets to `nil`
-    // on the next launch. See the greeting-fetch throttle in `SettingReducer`.
-    public var greeting: Greeting?
-
     public var favoriteCategories: [Int: String]?
-
-    // `greeting` is intentionally absent so Codable skips it (it keeps its `nil` default on decode).
-    private enum CodingKeys: String, CodingKey {
-        case schemaVersion, displayName, avatarURL, credits, galleryPoints, favoriteCategories
-    }
 
     public func getFavoriteCategory(index: Int) -> String {
         guard index != -1 else { return String(localized: .favoriteCategoryAll) }
@@ -49,28 +36,11 @@ public struct User: Codable, Equatable, Sendable {
     }
 }
 
-extension User {
-    /// Adopts `greeting` only when it is newer than the one already held (or none is held). Two
-    /// features write greetings — the Setting daily fetch and the Detail-page parse — so the
-    /// "keep the newer" rule lives here, not at either call site, and a stale detail-page greeting
-    /// can't clobber a fresher one. `greeting` is session-only and never persisted (see `CodingKeys`).
-    public mutating func mergeGreeting(_ greeting: Greeting) {
-        guard let newDate = greeting.updateTime else { return }
-        if let current = self.greeting {
-            if let currentDate = current.updateTime, currentDate < newDate {
-                self.greeting = greeting
-            }
-        } else {
-            self.greeting = greeting
-        }
-    }
-}
-
 // MARK: Manually decode
 extension User {
     // Tolerant decoding keeps an existing persisted value valid across future additive changes; a
     // non-optional field like `schemaVersion` would otherwise fail synthesized decode of an older
-    // record. `greeting` is intentionally not decoded (absent from `CodingKeys`) and stays `nil`.
+    // record.
     public init(from decoder: Decoder) {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = container.decode(.schemaVersion, default: 1)
