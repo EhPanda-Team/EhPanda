@@ -2,9 +2,10 @@ import ComposableArchitecture
 
 // The single flat navigation stack for the Setting tab, owned by `SettingReducer`. Every drill-down
 // screen is a path element; child screens never push directly — they emit `delegate` actions that
-// `SettingReducer` observes and appends to `path`. State-free screens (driven purely by bindings into
-// `SettingReducer.State.setting`) are backed by `StaticSettingScreenReducer` and built from those
-// root bindings in `SettingView`'s destination switch.
+// `SettingReducer` observes and appends to `path`. Each screen's view reads and writes `setting`
+// through its own `@Shared(.setting)`/`@SharedReader(.setting)`. Screens whose edits trigger a side
+// effect own a dedicated reducer for it; the remaining state-free screens (download, about) share
+// `StaticSettingScreenReducer`.
 @Reducer
 public enum SettingPath {
     case account(AccountSettingReducer)
@@ -15,7 +16,7 @@ public enum SettingPath {
     case appActivityLogs(AppActivityLogsReducer)
     case download(StaticSettingScreenReducer)
     case reading(StaticSettingScreenReducer)
-    case laboratory(StaticSettingScreenReducer)
+    case laboratory(LaboratorySettingReducer)
     case about(StaticSettingScreenReducer)
     case appIcon(StaticSettingScreenReducer)
 }

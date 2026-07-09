@@ -132,7 +132,6 @@ public struct SettingReducer: Sendable {
     @Dependency(\.userDefaultsClient) var userDefaultsClient
     @Dependency(\.appDelegateClient) var appDelegateClient
     @Dependency(\.libraryClient) var libraryClient
-    @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.fileClient) var fileClient
