@@ -126,7 +126,10 @@ struct GalleryInfosView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             GalleryInfosView(
-                store: .init(initialState: .init(), reducer: GalleryInfosReducer.init),
+                store: .init(
+                    initialState: .init(gallery: .preview, galleryDetail: .preview),
+                    reducer: GalleryInfosReducer.init
+                ),
                 gallery: .preview,
                 galleryDetail: .preview
             )

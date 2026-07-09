@@ -46,7 +46,7 @@ public struct ReadingReducer: Sendable {
         @Presents public var toast: AppAlertState<Never>?
         @Presents public var destination: Destination.State?
         public var contentSource: ReadingContentSource = .remote
-        public var gallery: Gallery = .empty
+        public var gallery: Gallery
         public var language: Language?
 
         // Read-only here: the reducer only reads `setting` (page math, orientation). The reading-setting

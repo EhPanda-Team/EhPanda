@@ -69,7 +69,7 @@ public struct DetailReducer: Sendable {
         public var showsFullTitle = false
         public var userRating = 0
         public var apiKey = ""
-        public var gid = ""
+        public var gid: String
         public var loadingState: LoadingState = .idle
         public var gallery: Gallery
         public var galleryDetail: GalleryDetail?

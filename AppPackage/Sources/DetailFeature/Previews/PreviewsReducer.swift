@@ -27,8 +27,8 @@ public struct PreviewsReducer: Sendable {
         @Presents public var destination: Destination.State?
 
         // The gallery id this screen fetches; captured when pushed onto the host's gallery stack.
-        public var gid = ""
-        public var gallery: Gallery = .empty
+        public var gid: String
+        public var gallery: Gallery
         // Threaded from the detail context (via the `pushPreviews` delegate) so a reader opened from
         // this screen keeps the correct page math (`previewConfig`) and Live Text `language` for
         // remote sessions — Previews itself never fetches a gallery detail to re-derive them.
