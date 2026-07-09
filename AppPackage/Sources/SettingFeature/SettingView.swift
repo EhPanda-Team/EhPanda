@@ -1,4 +1,6 @@
 import SwiftUI
+import AppModels
+import Sharing
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
@@ -7,6 +9,9 @@ import ReadingSettingFeature
 
 public struct SettingView: View {
     @Bindable private var store: StoreOf<SettingReducer>
+    // Write handle for the drill-down screens whose editors bind `setting` directly; each screen also
+    // reads it through its own `@Shared`/`@SharedReader`. Same underlying storage as `store.setting`.
+    @Shared(.setting) private var setting: Setting
     private let blurRadius: Double
 
     public init(store: StoreOf<SettingReducer>, blurRadius: Double) {
@@ -99,15 +104,18 @@ public struct SettingView: View {
                 downloadAutoRetryFailedPages: $store.settingBinding.downloadAutoRetryFailedPages
             )
 
-        case .reading:
+        case .reading(let readingStore):
             ReadingSettingView(
-                readingDirection: $store.settingBinding.readingDirection,
-                prefetchLimit: $store.settingBinding.prefetchLimit,
-                enablesLandscape: $store.settingBinding.enablesLandscape,
-                contentDividerHeight: $store.settingBinding.contentDividerHeight,
-                maximumScaleFactor: $store.settingBinding.maximumScaleFactor,
-                doubleTapScaleFactor: $store.settingBinding.doubleTapScaleFactor
+                readingDirection: Binding($setting.readingDirection),
+                prefetchLimit: Binding($setting.prefetchLimit),
+                enablesLandscape: Binding($setting.enablesLandscape),
+                contentDividerHeight: Binding($setting.contentDividerHeight),
+                maximumScaleFactor: Binding($setting.maximumScaleFactor),
+                doubleTapScaleFactor: Binding($setting.doubleTapScaleFactor)
             )
+            .onChange(of: setting.enablesLandscape) { _, newValue in
+                readingStore.send(.enablesLandscapeChanged(newValue))
+            }
 
         case .laboratory(let laboratoryStore):
             LaboratorySettingView(store: laboratoryStore)

@@ -15,7 +15,7 @@ public enum SettingPath {
     case ehSetting(EhSettingReducer)
     case appActivityLogs(AppActivityLogsReducer)
     case download(StaticSettingScreenReducer)
-    case reading(StaticSettingScreenReducer)
+    case reading(ReadingSettingReducer)
     case laboratory(LaboratorySettingReducer)
     case about(StaticSettingScreenReducer)
     case appIcon(AppIconReducer)

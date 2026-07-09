@@ -130,10 +130,8 @@ public struct SettingReducer: Sendable {
 
     @Dependency(\.applicationClient) var applicationClient
     @Dependency(\.userDefaultsClient) var userDefaultsClient
-    @Dependency(\.appDelegateClient) var appDelegateClient
     @Dependency(\.libraryClient) var libraryClient
     @Dependency(\.cookieClient) var cookieClient
-    @Dependency(\.deviceClient) var deviceClient
     @Dependency(\.fileClient) var fileClient
     @Dependency(\.dfClient) var dfClient
 
