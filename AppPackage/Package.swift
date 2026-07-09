@@ -568,6 +568,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.resources),
+            .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
@@ -632,14 +633,12 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.sfSafeSymbolsExt),
             .module(.appComponents),
-            .module(.appDelegateClient),
             .module(.appModels),
             .module(.appTools),
             .module(.applicationClient),
             .module(.authorizationClient),
             .module(.clipboardClient),
             .module(.cookieClient),
-            .module(.deviceClient),
             .module(.dfClient),
             .module(.fileClient),
             .module(.hapticsClient),

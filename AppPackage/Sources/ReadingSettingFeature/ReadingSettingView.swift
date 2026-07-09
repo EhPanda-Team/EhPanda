@@ -3,52 +3,56 @@ import AppModels
 import Sharing
 import Resources
 import AppTools
+import ComposableArchitecture
 
 public struct ReadingSettingView: View {
-    // The reading-setting editor is shared by the Setting tab and the reader sheet; it owns its own
-    // `@Shared(.setting)` in both, and the model clamps keep every write safe. The enclosing host
-    // observes the fields that carry side effects (e.g. `enablesLandscape` → orientation).
-    @Shared(.setting) private var setting: Setting
+    // The reading-setting editor is shared by the Setting tab and the reader sheet. Rather than hold
+    // its own `@Shared`, it binds through its store, whose state vends the shared `Setting`; the model
+    // clamps keep every write safe. Any orientation side effect stays with the host (the reader drives
+    // it from `ReadingReducer`; the Setting tab has none), so this view carries no such logic.
+    private let store: StoreOf<ReadingSettingReducer>
 
-    public init() {}
+    public init(store: StoreOf<ReadingSettingReducer>) {
+        self.store = store
+    }
 
     public var body: some View {
         Form {
             Section {
-                Picker(.direction, selection: Binding($setting.readingDirection)) {
+                Picker(.direction, selection: Binding(store.sharedSetting.readingDirection)) {
                     ForEach(ReadingDirection.allCases) {
                         Text($0.value).tag($0)
                     }
                 }
                 .pickerStyle(.menu)
-                Picker(.preloadLimit, selection: Binding($setting.prefetchLimit)) {
+                Picker(.preloadLimit, selection: Binding(store.sharedSetting.prefetchLimit)) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
                         Text(.RLocalizable.pages(count: value)).tag(value)
                     }
                 }
                 .pickerStyle(.menu)
                 if !DeviceUtil.isPad {
-                    Toggle(.enablesLandscape, isOn: Binding($setting.enablesLandscape))
+                    Toggle(.enablesLandscape, isOn: Binding(store.sharedSetting.enablesLandscape))
                 }
             }
             Section(.readingAppearance) {
                 Picker(
                     .separatorHeight,
-                    selection: Binding($setting.contentDividerHeight)
+                    selection: Binding(store.sharedSetting.contentDividerHeight)
                 ) {
                     ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
                         Text(.Constant.pointValue(value)).tag(Double(value))
                     }
                 }
                 .pickerStyle(.menu)
-                .disabled(setting.readingDirection != .vertical)
+                .disabled(store.setting.readingDirection != .vertical)
                 ScaleFactorRow(
-                    scaleFactor: Binding($setting.maximumScaleFactor),
+                    scaleFactor: Binding(store.sharedSetting.maximumScaleFactor),
                     labelContent: .maximumScaleFactor,
                     minFactor: 1.5, maxFactor: 10
                 )
                 ScaleFactorRow(
-                    scaleFactor: Binding($setting.doubleTapScaleFactor),
+                    scaleFactor: Binding(store.sharedSetting.doubleTapScaleFactor),
                     labelContent: .doubleTapScaleFactor,
                     minFactor: 1.5, maxFactor: 5
                 )
@@ -107,7 +111,9 @@ private extension Double {
 struct ReadingSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            ReadingSettingView()
+            ReadingSettingView(
+                store: .init(initialState: .init(), reducer: ReadingSettingReducer.init)
+            )
         }
     }
 }
