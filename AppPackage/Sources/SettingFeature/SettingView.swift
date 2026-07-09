@@ -1,6 +1,4 @@
 import SwiftUI
-import AppModels
-import Sharing
 import Resources
 import SFSafeSymbols
 import ComposableArchitecture
@@ -9,9 +7,6 @@ import ReadingSettingFeature
 
 public struct SettingView: View {
     @Bindable private var store: StoreOf<SettingReducer>
-    // Write handle for the drill-down screens whose editors bind `setting` directly; each screen also
-    // reads it through its own `@Shared`/`@SharedReader`. Same underlying storage as `store.setting`.
-    @Shared(.setting) private var setting: Setting
     private let blurRadius: Double
 
     public init(store: StoreOf<SettingReducer>, blurRadius: Double) {
@@ -78,17 +73,10 @@ public struct SettingView: View {
             DownloadSettingView()
 
         case .reading(let readingStore):
-            ReadingSettingView(
-                readingDirection: Binding($setting.readingDirection),
-                prefetchLimit: Binding($setting.prefetchLimit),
-                enablesLandscape: Binding($setting.enablesLandscape),
-                contentDividerHeight: Binding($setting.contentDividerHeight),
-                maximumScaleFactor: Binding($setting.maximumScaleFactor),
-                doubleTapScaleFactor: Binding($setting.doubleTapScaleFactor)
-            )
-            .onChange(of: setting.enablesLandscape) { _, newValue in
-                readingStore.send(.enablesLandscapeChanged(newValue))
-            }
+            ReadingSettingView()
+                .onChange(of: store.setting.enablesLandscape) { _, newValue in
+                    readingStore.send(.enablesLandscapeChanged(newValue))
+                }
 
         case .laboratory(let laboratoryStore):
             LaboratorySettingView(store: laboratoryStore)

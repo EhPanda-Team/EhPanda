@@ -18,9 +18,9 @@ public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var store: StoreOf<ReadingReducer>
-    // The write handle for the reading-setting editor's bindings. Reads still go through
-    // `store.setting` (the reducer's `@SharedReader`); this is the same underlying storage, exposed
-    // here so the sheet's controls can write it directly — the model clamps keep every write safe.
+    // Write handle backing the reader's own controls (e.g. the ControlPanel slider). The reading-setting
+    // sheet owns its own `@Shared(.setting)`; other reads go through `store.setting`. Same underlying
+    // storage — the model clamps keep every write safe.
     @Shared(.setting) private var setting: Setting
     let gid: String
     let blurRadius: Double
@@ -76,14 +76,7 @@ public struct ReadingView: View {
         return changeTriggers(content: { content })
             .sheet(item: $store.destination.readingSetting, id: \.id) { _ in
                 NavigationStack {
-                    ReadingSettingView(
-                        readingDirection: Binding($setting.readingDirection),
-                        prefetchLimit: Binding($setting.prefetchLimit),
-                        enablesLandscape: Binding($setting.enablesLandscape),
-                        contentDividerHeight: Binding($setting.contentDividerHeight),
-                        maximumScaleFactor: Binding($setting.maximumScaleFactor),
-                        doubleTapScaleFactor: Binding($setting.doubleTapScaleFactor)
-                    )
+                    ReadingSettingView()
                     .toolbar {
                         if !DeviceUtil.isPad && DeviceUtil.isLandscape {
                             CustomToolbarItem(placement: .cancellationAction) {
