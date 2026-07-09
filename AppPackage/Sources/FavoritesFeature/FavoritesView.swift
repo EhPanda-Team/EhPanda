@@ -100,7 +100,7 @@ public struct FavoritesView: View {
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary) {
-            FavoritesIndexMenu(user: store.user, index: store.index) { index in
+            FavoritesIndexMenu(index: store.index) { index in
                 if index != store.index {
                     store.send(.setFavoritesIndex(index))
                 }
