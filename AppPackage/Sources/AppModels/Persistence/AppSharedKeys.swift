@@ -28,13 +28,15 @@ import Sharing
 //     never evicted — the add control is simply disabled at the limit, because silently dropping a
 //     saved word would lose user work. Auto-recorded data is disposable; authored data is not.
 //
-// Every model also carries a `schemaVersion` (default 1): a reserved anchor for a future *breaking*
-// migration, so a genuinely incompatible change has an explicit version to branch on rather than
-// inferring compatibility from the decoded shape. The two array-element models with an identity
-// invariant (`GalleryHistoryEntry`, `QuickSearchWord`) decode through hand-written throwing decoders
-// that reject an out-of-range `schemaVersion`; the whole-struct models rely on synthesized strict
-// decode (a shape mismatch already resets to the key default) and reintroduce a branching decoder
-// if and when a breaking change lands.
+// Every model carries a self-validating `SchemaVersion` field (default 1) that rejects a
+// newer/downgrade value on decode (see `SchemaVersion`), failing the decode so Sharing resets to the
+// key default rather than half-reading an unknown shape. The four whole-struct models (`Setting`,
+// `User`, the filters, `TagTranslatorInfo`) keep synthesized strict Codable — the typed field gates
+// the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
+// tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `QuickSearchWord`)
+// still hand-write `init(from:)` for their identity invariants, decoding that same `SchemaVersion`
+// field for the version check. When a real breaking change lands, the affected model gains or extends
+// a custom `init(from:)` that switches on the version to map the older shape forward.
 //
 // Nothing here uses the `fileStorage` strategy. The tag-translation table is the only large
 // artifact, and it is deliberately NOT persisted through Sharing: only its thin
