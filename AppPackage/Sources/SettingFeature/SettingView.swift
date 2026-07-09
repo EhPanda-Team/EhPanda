@@ -75,11 +75,7 @@ public struct SettingView: View {
             AppActivityLogsView(store: logsStore)
 
         case .download:
-            DownloadSettingView(
-                downloadThreadLimit: $store.settingBinding.downloadThreadLimit,
-                downloadAllowCellular: $store.settingBinding.downloadAllowCellular,
-                downloadAutoRetryFailedPages: $store.settingBinding.downloadAutoRetryFailedPages
-            )
+            DownloadSettingView()
 
         case .reading(let readingStore):
             ReadingSettingView(
