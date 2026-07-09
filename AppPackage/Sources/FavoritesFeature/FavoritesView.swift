@@ -38,7 +38,6 @@ public struct FavoritesView: View {
                 if CookieUtil.didLogin {
                     GenericList(
                         galleries: store.galleries ?? [],
-                        setting: store.setting,
                         pageNumber: store.pageNumber,
                         loadingState: store.loadingState ?? .idle,
                         footerLoadingState: store.footerLoadingState ?? .idle,
