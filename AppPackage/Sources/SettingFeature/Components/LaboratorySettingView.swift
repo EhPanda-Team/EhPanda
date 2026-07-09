@@ -1,20 +1,24 @@
 import SwiftUI
+import AppModels
+import Sharing
 import Resources
 import SFSafeSymbols
+import ComposableArchitecture
 import AppComponents
 
 struct LaboratorySettingView: View {
-    @Binding private var bypassesSNIFiltering: Bool
+    private let store: StoreOf<LaboratorySettingReducer>
+    @Shared(.setting) private var setting: Setting
 
-    init(bypassesSNIFiltering: Binding<Bool>) {
-        _bypassesSNIFiltering = bypassesSNIFiltering
+    init(store: StoreOf<LaboratorySettingReducer>) {
+        self.store = store
     }
 
     var body: some View {
         ScrollView {
             VStack {
                 LaboratoryCell(
-                    isOn: $bypassesSNIFiltering,
+                    isOn: Binding($setting.bypassesSNIFiltering),
                     title: .bypassesSniFiltering,
                     symbol: .theatermasksFill, tintColor: .purple
                 )
@@ -22,6 +26,9 @@ struct LaboratorySettingView: View {
             .padding()
         }
         .navigationTitle(.laboratory)
+        .onChange(of: setting.bypassesSNIFiltering) { _, newValue in
+            store.send(.bypassesSNIFilteringChanged(newValue))
+        }
     }
 }
 
@@ -74,7 +81,7 @@ struct LaboratorySettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             LaboratorySettingView(
-                bypassesSNIFiltering: .constant(false)
+                store: .init(initialState: .init(), reducer: LaboratorySettingReducer.init)
             )
         }
     }
