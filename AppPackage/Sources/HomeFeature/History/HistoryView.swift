@@ -22,7 +22,6 @@ struct HistoryView: View {
     var body: some View {
         GenericList(
             galleries: store.filteredGalleries,
-            setting: store.setting,
             pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,

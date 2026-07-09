@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import SFSafeSymbols
 import AppModels
 import TagTranslationFeature
@@ -16,20 +17,17 @@ public struct GalleryDetailCell: View {
 
     private let gallery: Gallery
     private let coverSource: CoverSource
-    private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
     private let downloadBadge: DownloadBadge?
 
     public init(
         gallery: Gallery,
         coverSource: CoverSource = .dynamic,
-        setting: Setting,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
         downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
         self.coverSource = coverSource
-        self.setting = setting
         self.translateAction = translateAction
         self.downloadBadge = downloadBadge
     }
@@ -47,7 +45,6 @@ public struct GalleryDetailCell: View {
         GalleryDetailCellContent(
             gallery: gallery,
             resolvedCoverURL: resolvedCoverURL,
-            setting: setting,
             colorScheme: colorScheme,
             translateAction: translateAction,
             downloadBadge: downloadBadge
@@ -56,9 +53,10 @@ public struct GalleryDetailCell: View {
 }
 
 private struct GalleryDetailCellContent: View {
+    @SharedReader(.setting) private var setting: Setting
+
     private let gallery: Gallery
     private let resolvedCoverURL: URL?
-    private let setting: Setting
     private let colorScheme: ColorScheme
     private let translateAction: ((String) -> (String, TagTranslation?))?
     private let downloadBadge: DownloadBadge?
@@ -66,14 +64,12 @@ private struct GalleryDetailCellContent: View {
     init(
         gallery: Gallery,
         resolvedCoverURL: URL?,
-        setting: Setting,
         colorScheme: ColorScheme,
         translateAction: ((String) -> (String, TagTranslation?))?,
         downloadBadge: DownloadBadge?
     ) {
         self.gallery = gallery
         self.resolvedCoverURL = resolvedCoverURL
-        self.setting = setting
         self.colorScheme = colorScheme
         self.translateAction = translateAction
         self.downloadBadge = downloadBadge
@@ -153,6 +149,6 @@ private struct GalleryDetailCellContent: View {
 
 struct GalleryDetailCell_Previews: PreviewProvider {
     static var previews: some View {
-        GalleryDetailCell(gallery: .preview, setting: Setting())
+        GalleryDetailCell(gallery: .preview)
     }
 }

@@ -25,7 +25,6 @@ struct DetailSearchView: View {
     var body: some View {
         GenericList(
             galleries: store.galleries,
-            setting: store.setting,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,
