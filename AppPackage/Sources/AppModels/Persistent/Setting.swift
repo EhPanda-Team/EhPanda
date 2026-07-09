@@ -98,8 +98,24 @@ public struct Setting: Codable, Equatable, Sendable {
     public var enablesDualPageMode = false
     public var exceptCover = false
     public var contentDividerHeight: Double = 0
-    public var maximumScaleFactor: Double = 3
-    public var doubleTapScaleFactor: Double = 2
+    // The two scale factors are mutually clamped so `doubleTapScaleFactor <= maximumScaleFactor`
+    // always holds, regardless of the write path — SettingReducer's editor or the reader sheet's
+    // direct `@Shared(.setting)` binding. Keeping the invariant on the model (not in a reducer's
+    // `BindingReducer`) is what lets a write skip the reducer and still stay consistent.
+    public var maximumScaleFactor: Double = 3 {
+        didSet {
+            if doubleTapScaleFactor > maximumScaleFactor {
+                doubleTapScaleFactor = maximumScaleFactor
+            }
+        }
+    }
+    public var doubleTapScaleFactor: Double = 2 {
+        didSet {
+            if maximumScaleFactor < doubleTapScaleFactor {
+                maximumScaleFactor = doubleTapScaleFactor
+            }
+        }
+    }
 
     // Downloads
     public static let downloadThreadLimitDefaultValue = 1

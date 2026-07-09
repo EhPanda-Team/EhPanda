@@ -50,18 +50,6 @@ extension SettingReducer {
                     await appDelegateClient.setPortraitOrientationMask()
                 }
             }
-            .onChange(of: \.setting.maximumScaleFactor) { _, state in
-                if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
-                    state.$setting.withLock { $0.doubleTapScaleFactor = $0.maximumScaleFactor }
-                }
-                return .none
-            }
-            .onChange(of: \.setting.doubleTapScaleFactor) { _, state in
-                if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
-                    state.$setting.withLock { $0.maximumScaleFactor = $0.doubleTapScaleFactor }
-                }
-                return .none
-            }
             .onChange(of: \.setting.bypassesSNIFiltering) { _, state in
                 .merge(
                     .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
