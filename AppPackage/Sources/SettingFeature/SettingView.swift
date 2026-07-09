@@ -63,10 +63,7 @@ public struct SettingView: View {
             DownloadSettingView()
 
         case .reading(let readingStore):
-            ReadingSettingView()
-                .onChange(of: store.setting.enablesLandscape) { _, newValue in
-                    readingStore.send(.enablesLandscapeChanged(newValue))
-                }
+            ReadingSettingView(store: readingStore)
 
         case .laboratory(let laboratoryStore):
             LaboratorySettingView(store: laboratoryStore)

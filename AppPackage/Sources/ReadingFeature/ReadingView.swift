@@ -74,9 +74,11 @@ public struct ReadingView: View {
         @Bindable var bindablePageHandler = pageHandler
 
         return changeTriggers(content: { content })
-            .sheet(item: $store.destination.readingSetting, id: \.id) { _ in
+            .sheet(
+                item: $store.scope(state: \.destination?.readingSetting, action: \.destination.readingSetting)
+            ) { readingSettingStore in
                 NavigationStack {
-                    ReadingSettingView()
+                    ReadingSettingView(store: readingSettingStore)
                     .toolbar {
                         if !DeviceUtil.isPad && DeviceUtil.isLandscape {
                             CustomToolbarItem(placement: .cancellationAction) {

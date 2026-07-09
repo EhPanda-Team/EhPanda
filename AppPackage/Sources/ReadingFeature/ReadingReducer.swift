@@ -13,6 +13,7 @@ import CookieClient
 import DeviceClient
 import AppDelegateClient
 import AppComponents
+import ReadingSettingFeature
 
 @Reducer
 public struct ReadingReducer: Sendable {
@@ -20,8 +21,7 @@ public struct ReadingReducer: Sendable {
     public enum Destination {
         @ReducerCaseIgnored
         case share(IdentifiableBox<ShareItem>)
-        @ReducerCaseIgnored
-        case readingSetting(EquatableVoid)
+        case readingSetting(ReadingSettingReducer)
     }
 
     public enum ShareItem: Equatable, Sendable {
