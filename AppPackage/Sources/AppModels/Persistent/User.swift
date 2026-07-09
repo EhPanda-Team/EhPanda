@@ -1,7 +1,7 @@
 import Foundation
 import Resources
 
-public struct User: Codable, Equatable, Sendable {
+public struct User: Codable, Equatable, Sendable, SchemaVersioned {
     public init(
         displayName: String? = nil,
         avatarURL: URL? = nil,
@@ -17,12 +17,14 @@ public struct User: Codable, Equatable, Sendable {
     }
     public static let empty = User()
 
-    // Version anchor for a future breaking migration. Unlike the identity array-element models
-    // (GalleryHistoryEntry/QuickSearchWord), this single top-level blob keeps synthesized strict
-    // Codable with no version gate: a breaking change alters the shape, so a mismatched blob fails to
-    // decode on its own and gating would mean a hand-written decoder. A field added later must stay
-    // optional (or a custom `decodeIfPresent` decoder) so old blobs still decode.
-    public var schemaVersion = 1
+    /// Highest `schemaVersion` this build can decode. Bump when a breaking change lands and add a
+    /// custom `init(from:)` that maps the older shape forward.
+    public static let currentSchemaVersion = 1
+    // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
+    // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
+    // untouched, so optional-field tolerance still holds; a field added later must stay optional so old
+    // blobs keep decoding.
+    public var schemaVersion: SchemaVersion<User> = 1
     public var displayName: String?
     public var avatarURL: URL?
 
