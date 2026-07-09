@@ -7,9 +7,22 @@ private let logger = Logger(category: "SchemaVersion")
 /// decode. Adopt it together with a `SchemaVersion<Self>` field so the version validates itself on
 /// decode.
 public protocol SchemaVersioned {
-    /// The newest `schemaVersion` this build understands. A stored blob carrying a larger value is a
-    /// downgrade and is rejected on decode.
-    static var currentSchemaVersion: Int { get }
+    /// Ordered migration maps, one slot per schema version: index 0 is v1 (must be `.passthrough`),
+    /// index 1 the v1→v2 map, index 2 the v2→v3 map, and so on. See `SchemaMigration` / `MigratableModel`.
+    static var migrations: [SchemaMigration<Self>] { get }
+}
+
+extension SchemaVersioned {
+    /// The newest `schemaVersion` this build understands — the number of declared migration slots. A
+    /// stored blob carrying a larger value is a downgrade and is rejected on decode.
+    public static var currentSchemaVersion: Int { migrations.count }
+
+    /// `true` iff `migrations` is well-formed: non-empty, its v1 slot (index 0) is `.passthrough`, and no
+    /// later slot is. `.passthrough` only makes sense at v1, which has no earlier version to migrate from.
+    public static var hasWellFormedMigrations: Bool {
+        guard let first = migrations.first, first.isPassthrough else { return false }
+        return migrations.dropFirst().allSatisfy { !$0.isPassthrough }
+    }
 }
 
 /// A self-validating `schemaVersion` field.

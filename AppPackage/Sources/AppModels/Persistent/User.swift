@@ -17,9 +17,9 @@ public struct User: Codable, Equatable, Sendable, SchemaVersioned {
     }
     public static let empty = User()
 
-    /// Highest `schemaVersion` this build can decode. Bump when a breaking change lands and add a
-    /// custom `init(from:)` that maps the older shape forward.
-    public static let currentSchemaVersion = 1
+    /// Migration maps, one slot per schema version (index 0 = v1 = `.passthrough`). `currentSchemaVersion`
+    /// is derived from the count; append a map and adopt `MigratableModel` when a breaking v2 lands.
+    public static let migrations: [SchemaMigration<User>] = [.passthrough]
     // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
     // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
     // untouched, so optional-field tolerance still holds; a field added later must stay optional so old

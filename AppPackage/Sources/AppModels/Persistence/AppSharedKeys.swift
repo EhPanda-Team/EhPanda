@@ -36,8 +36,10 @@ import Sharing
 // the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
 // tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `QuickSearchWord`)
 // still hand-write `init(from:)` for their identity invariants, decoding that same `SchemaVersion`
-// field for the version check. When a real breaking change lands, the affected model gains or extends
-// a custom `init(from:)` that switches on the version to map the older shape forward.
+// field for the version check. Every model also declares an ordered `migrations` list (v1 =
+// `.passthrough`), from which `currentSchemaVersion` is derived. When a real breaking change lands,
+// the model adopts `MigratableModel` and appends its v(N-1)→vN map; the `SchemaMigrator` engine then
+// applies the chain in order (v1→v2→v3…) during decode. See `SchemaMigration`.
 //
 // Nothing here uses the `fileStorage` strategy. The tag-translation table is the only large
 // artifact, and it is deliberately NOT persisted through Sharing: only its thin
