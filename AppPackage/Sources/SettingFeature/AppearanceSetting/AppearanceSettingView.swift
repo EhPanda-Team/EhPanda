@@ -7,33 +7,10 @@ import AppComponents
 
 struct AppearanceSettingView: View {
     private let store: StoreOf<AppearanceSettingReducer>
+    @Shared(.setting) private var setting: Setting
 
-    @Binding private var preferredColorScheme: PreferredColorScheme
-    @Binding private var accentColor: Color
-    @Binding private var appIconType: AppIconType
-    @Binding private var listDisplayMode: ListDisplayMode
-    @Binding private var showsTagsInList: Bool
-    @Binding private var listTagsNumberMaximum: Int
-    @Binding private var displaysJapaneseTitle: Bool
-
-    init(
-        store: StoreOf<AppearanceSettingReducer>,
-        preferredColorScheme: Binding<PreferredColorScheme>,
-        accentColor: Binding<Color>,
-        appIconType: Binding<AppIconType>,
-        listDisplayMode: Binding<ListDisplayMode>,
-        showsTagsInList: Binding<Bool>,
-        listTagsNumberMaximum: Binding<Int>,
-        displaysJapaneseTitle: Binding<Bool>
-    ) {
+    init(store: StoreOf<AppearanceSettingReducer>) {
         self.store = store
-        _preferredColorScheme = preferredColorScheme
-        _accentColor = accentColor
-        _appIconType = appIconType
-        _listDisplayMode = listDisplayMode
-        _showsTagsInList = showsTagsInList
-        _listTagsNumberMaximum = listTagsNumberMaximum
-        _displaysJapaneseTitle = displaysJapaneseTitle
     }
 
     var body: some View {
@@ -41,7 +18,7 @@ struct AppearanceSettingView: View {
             Section {
                 Picker(
                     .theme,
-                    selection: $preferredColorScheme
+                    selection: Binding($setting.preferredColorScheme)
                 ) {
                     ForEach(PreferredColorScheme.allCases) { colorScheme in
                         Text(colorScheme.value)
@@ -50,7 +27,7 @@ struct AppearanceSettingView: View {
                 }
                 .pickerStyle(.menu)
 
-                ColorPicker(.tintColor, selection: $accentColor)
+                ColorPicker(.tintColor, selection: Binding($setting.accentColor))
 
                 Button(.appIcon) {
                     store.send(.delegate(.pushAppIcon))
@@ -61,7 +38,7 @@ struct AppearanceSettingView: View {
             Section(.list) {
                 Picker(
                     .appearanceDisplayMode,
-                    selection: $listDisplayMode,
+                    selection: Binding($setting.listDisplayMode),
                     content: {
                         ForEach(ListDisplayMode.allCases) { listMode in
                             Text(listMode.value)
@@ -71,13 +48,13 @@ struct AppearanceSettingView: View {
                 )
                 .pickerStyle(.menu)
 
-                Toggle(isOn: $showsTagsInList) {
+                Toggle(isOn: Binding($setting.showsTagsInList)) {
                     Text(.showsTagsInList)
                 }
 
                 Picker(
                     .maximumNumberOfTags,
-                    selection: $listTagsNumberMaximum
+                    selection: Binding($setting.listTagsNumberMaximum)
                 ) {
                     Text(.infite)
                         .tag(0)
@@ -88,16 +65,19 @@ struct AppearanceSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .disabled(!showsTagsInList)
+                .disabled(!setting.showsTagsInList)
             }
             Section(.gallery) {
                 Toggle(
                     .displaysJapaneseTitle,
-                    isOn: $displaysJapaneseTitle
+                    isOn: Binding($setting.displaysJapaneseTitle)
                 )
             }
         }
         .navigationTitle(.appearance)
+        .onChange(of: setting.preferredColorScheme) { _, newValue in
+            store.send(.preferredColorSchemeChanged(newValue))
+        }
     }
 }
 
@@ -169,14 +149,7 @@ struct AppearanceSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             AppearanceSettingView(
-                store: .init(initialState: .init(), reducer: AppearanceSettingReducer.init),
-                preferredColorScheme: .constant(.automatic),
-                accentColor: .constant(.blue),
-                appIconType: .constant(.default),
-                listDisplayMode: .constant(.detail),
-                showsTagsInList: .constant(false),
-                listTagsNumberMaximum: .constant(0),
-                displaysJapaneseTitle: .constant(true)
+                store: .init(initialState: .init(), reducer: AppearanceSettingReducer.init)
             )
         }
     }
