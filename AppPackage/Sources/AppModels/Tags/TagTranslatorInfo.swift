@@ -19,8 +19,11 @@ public struct TagTranslatorInfo: Codable, Equatable, Sendable {
         self.updatedDate = updatedDate
         self.hasCustomTranslations = hasCustomTranslations
     }
-    // Version anchor for a future breaking migration. All current fields decode strictly (synthesized
-    // Codable); a field added later must stay optional so an old blob still decodes.
+    // Version anchor for a future breaking migration. Unlike the identity array-element models
+    // (GalleryHistoryEntry/QuickSearchWord), this single top-level blob keeps synthesized strict
+    // Codable with no version gate: a breaking change alters the shape, so a mismatched blob fails to
+    // decode on its own and gating would mean a hand-written decoder. A field added later must stay
+    // optional (or a custom `decodeIfPresent` decoder) so old blobs still decode.
     public var schemaVersion: Int
     public var language: TranslatableLanguage?
     public var updatedDate: Date

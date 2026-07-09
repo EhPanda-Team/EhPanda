@@ -57,8 +57,11 @@ public struct Setting: Codable, Equatable, Sendable {
         self.doubleTapScaleFactor = doubleTapScaleFactor
         self.bypassesSNIFiltering = bypassesSNIFiltering
     }
-    // Version anchor for a future breaking migration. All current fields decode strictly; a field
-    // added later must stay optional (or use a custom `decodeIfPresent` decoder) so old blobs decode.
+    // Version anchor for a future breaking migration. Unlike the identity array-element models
+    // (GalleryHistoryEntry/QuickSearchWord), this single top-level blob keeps synthesized strict
+    // Codable with no version gate: a breaking change alters the shape, so a mismatched blob fails to
+    // decode on its own and gating would mean a hand-written decoder. A field added later must stay
+    // optional (or a custom `decodeIfPresent` decoder) so old blobs still decode.
     public var schemaVersion = 1
     // Account
     public var galleryHost: GalleryHost = .ehentai
