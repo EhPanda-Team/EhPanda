@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import AppModels
 import Resources
 import Kingfisher
@@ -8,9 +9,10 @@ import AppComponents
 
 // MARK: HeaderSection
 struct HeaderSection: View {
+    @SharedReader(.user) var user: User
+
     let gallery: Gallery
     let galleryDetail: GalleryDetail
-    let user: User
     let downloadBadge: DownloadBadge?
     let downloadNeedsRepair: Bool
     let downloadFolders: [String]

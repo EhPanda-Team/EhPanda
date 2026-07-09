@@ -60,7 +60,6 @@ private extension DetailView {
                         HeaderSection(
                             gallery: store.gallery,
                             galleryDetail: store.galleryDetail ?? .empty,
-                            user: store.user,
                             downloadBadge: store.downloadBadge,
                             downloadNeedsRepair: store.downloadNeedsRepair,
                             downloadFolders: store.downloadFolders,
