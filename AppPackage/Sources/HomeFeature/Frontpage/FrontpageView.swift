@@ -24,7 +24,6 @@ struct FrontpageView: View {
     var body: some View {
         GenericList(
             galleries: store.filteredGalleries,
-            setting: store.setting,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,

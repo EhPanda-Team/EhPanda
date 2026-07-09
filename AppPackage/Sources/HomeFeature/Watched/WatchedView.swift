@@ -27,7 +27,6 @@ struct WatchedView: View {
             if CookieUtil.didLogin {
                 GenericList(
                     galleries: store.galleries,
-                    setting: store.setting,
                     pageNumber: store.pageNumber,
                     loadingState: store.loadingState,
                     footerLoadingState: store.footerLoadingState,

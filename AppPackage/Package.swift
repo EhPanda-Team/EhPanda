@@ -474,6 +474,7 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing),
             .targetDependency(.waterfallGrid)
         ],
         resources: [.process(.resources)],

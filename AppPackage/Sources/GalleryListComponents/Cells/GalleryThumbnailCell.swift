@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import SFSafeSymbols
 import AppModels
 import TagTranslationFeature
@@ -8,20 +9,18 @@ import AppTools
 
 public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
+    @SharedReader(.setting) private var setting: Setting
 
     private let gallery: Gallery
-    private let setting: Setting
     private let translateAction: ((String) -> (String, TagTranslation?))?
     private let downloadBadge: DownloadBadge?
 
     public init(
         gallery: Gallery,
-        setting: Setting,
         translateAction: ((String) -> (String, TagTranslation?))? = nil,
         downloadBadge: DownloadBadge? = nil
     ) {
         self.gallery = gallery
-        self.setting = setting
         self.translateAction = translateAction
         self.downloadBadge = downloadBadge
     }
@@ -98,7 +97,7 @@ public struct GalleryThumbnailCell: View {
 
 struct GalleryThumbnailCell_Previews: PreviewProvider {
     static var previews: some View {
-        GalleryThumbnailCell(gallery: .preview, setting: Setting())
+        GalleryThumbnailCell(gallery: .preview)
             .preferredColorScheme(.dark)
     }
 }

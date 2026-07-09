@@ -23,7 +23,7 @@ struct PopularView: View {
     var body: some View {
         GenericList(
             galleries: store.filteredGalleries,
-            setting: store.setting, pageNumber: nil,
+            pageNumber: nil,
             loadingState: store.loadingState,
             footerLoadingState: .idle,
             fetchAction: { store.send(.fetchGalleries) },

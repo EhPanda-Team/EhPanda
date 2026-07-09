@@ -39,7 +39,6 @@ struct DownloadInspectorView: View {
                             GalleryDetailCell(
                                 gallery: inspection.download.gallery,
                                 coverSource: .static(inspection.coverURL),
-                                setting: store.setting,
                                 translateAction: {
                                     store.tagTranslator.lookup(
                                         word: $0,
@@ -297,7 +296,6 @@ struct DownloadListRow: View {
             GalleryDetailCell(
                 gallery: download.gallery,
                 coverSource: .static(download.coverURL),
-                setting: setting,
                 translateAction: {
                     tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                 },

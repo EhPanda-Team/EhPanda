@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import SFSafeSymbols
 import AppModels
 import AppComponents
@@ -6,8 +7,9 @@ import WaterfallGrid
 import AppTools
 
 public struct GenericList: View {
+    @SharedReader(.setting) private var setting: Setting
+
     private let galleries: [Gallery]
-    private let setting: Setting
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let loadingState: LoadingState
@@ -19,7 +21,7 @@ public struct GenericList: View {
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
     public init(
-        galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        galleries: [Gallery], pageNumber: PageNumber?,
         loadingState: LoadingState, footerLoadingState: LoadingState,
         notice: LocalizedStringResource? = nil,
         fetchAction: (() -> Void)? = nil,
@@ -29,7 +31,6 @@ public struct GenericList: View {
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
-        self.setting = setting
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.loadingState = loadingState
@@ -47,7 +48,7 @@ public struct GenericList: View {
                 switch setting.listDisplayMode {
                 case .detail:
                     DetailList(
-                        galleries: galleries, setting: setting, pageNumber: pageNumber,
+                        galleries: galleries, pageNumber: pageNumber,
                         footerLoadingState: footerLoadingState, notice: notice,
                         fetchMoreAction: fetchMoreAction,
                         navigateAction: navigateAction, translateAction: translateAction,
@@ -55,7 +56,7 @@ public struct GenericList: View {
                     )
                 case .thumbnail:
                     WaterfallList(
-                        galleries: galleries, setting: setting, pageNumber: pageNumber,
+                        galleries: galleries, pageNumber: pageNumber,
                         footerLoadingState: footerLoadingState, notice: notice,
                         fetchMoreAction: fetchMoreAction,
                         navigateAction: navigateAction, translateAction: translateAction,
@@ -81,7 +82,6 @@ public struct GenericList: View {
 // MARK: DetailList
 private struct DetailList: View {
     private let galleries: [Gallery]
-    private let setting: Setting
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
@@ -91,7 +91,7 @@ private struct DetailList: View {
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
     init(
-        galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
@@ -99,7 +99,6 @@ private struct DetailList: View {
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
-        self.setting = setting
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
@@ -129,7 +128,6 @@ private struct DetailList: View {
                 } label: {
                     GalleryDetailCell(
                         gallery: gallery,
-                        setting: setting,
                         translateAction: translateAction,
                         downloadBadge: downloadBadges[gallery.gid]
                     )
@@ -151,7 +149,6 @@ private struct DetailList: View {
 // MARK: WaterfallList
 private struct WaterfallList: View {
     private let galleries: [Gallery]
-    private let setting: Setting
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?
     private let footerLoadingState: LoadingState
@@ -177,7 +174,7 @@ private struct WaterfallList: View {
     }
 
     init(
-        galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        galleries: [Gallery], pageNumber: PageNumber?,
         footerLoadingState: LoadingState, notice: LocalizedStringResource? = nil,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((Gallery) -> Void)? = nil,
@@ -185,7 +182,6 @@ private struct WaterfallList: View {
         downloadBadges: [String: DownloadBadge] = [:]
     ) {
         self.galleries = galleries
-        self.setting = setting
         self.downloadBadges = downloadBadges
         self.pageNumber = pageNumber
         self.footerLoadingState = footerLoadingState
@@ -208,7 +204,6 @@ private struct WaterfallList: View {
                 } label: {
                     GalleryThumbnailCell(
                         gallery: gallery,
-                        setting: setting,
                         translateAction: translateAction,
                         downloadBadge: downloadBadges[gallery.gid]
                     )
