@@ -115,8 +115,8 @@ public struct SettingView: View {
         case .about:
             AboutView()
 
-        case .appIcon:
-            AppIconView(appIconType: $store.settingBinding.appIconType)
+        case .appIcon(let appIconStore):
+            AppIconView(store: appIconStore)
         }
     }
 }

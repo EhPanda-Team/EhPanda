@@ -18,7 +18,7 @@ public enum SettingPath {
     case reading(StaticSettingScreenReducer)
     case laboratory(LaboratorySettingReducer)
     case about(StaticSettingScreenReducer)
-    case appIcon(StaticSettingScreenReducer)
+    case appIcon(AppIconReducer)
 }
 
 extension SettingPath.State: Equatable, Sendable {}

@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import Sharing
 import Resources
 import ComposableArchitecture
 import AppComponents
@@ -102,10 +103,11 @@ struct AppearanceSettingView: View {
 
 // MARK: SelectAppIconView
 struct AppIconView: View {
-    @Binding private var appIconType: AppIconType
+    private let store: StoreOf<AppIconReducer>
+    @Shared(.setting) private var setting: Setting
 
-    init(appIconType: Binding<AppIconType>) {
-        _appIconType = appIconType
+    init(store: StoreOf<AppIconReducer>) {
+        self.store = store
     }
 
     var body: some View {
@@ -115,14 +117,17 @@ struct AppIconView: View {
                     AppIconRow(
                         iconName: icon.name,
                         filename: icon.filename,
-                        isSelected: icon == appIconType
+                        isSelected: icon == setting.appIconType
                     )
                     .contentShape(.rect)
-                    .onTapGesture { appIconType = icon }
+                    .onTapGesture { $setting.withLock { $0.appIconType = icon } }
                 }
             }
         }
         .navigationTitle(.appIcon)
+        .onChange(of: setting.appIconType) { _, newValue in
+            store.send(.appIconTypeChanged(newValue))
+        }
     }
 }
 

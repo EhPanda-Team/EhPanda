@@ -26,12 +26,6 @@ extension SettingReducer {
             .onChange(of: \.setting.preferredColorScheme) { _, _ in
                 .send(.syncUserInterfaceStyle)
             }
-            .onChange(of: \.setting.appIconType) { _, state in
-                .run { [value = state.setting.appIconType.filename] send in
-                    _ = await applicationClient.setAlternateIconName(value)
-                    await send(.syncAppIconType)
-                }
-            }
             .onChange(of: \.setting.enablesLandscape) { _, state in
                 guard !state.setting.enablesLandscape else { return .none }
                 return .run { _ in
@@ -77,9 +71,7 @@ extension SettingReducer {
 
             case .syncAppIconTypeDone(let iconName):
                 if let iconName {
-                    let iconType = AppIconType.allCases
-                        .filter({ iconName.contains($0.filename) }).first ?? .default
-                    state.$setting.withLock { $0.appIconType = iconType }
+                    state.$setting.withLock { $0.appIconType = .matching(alternateIconName: iconName) }
                 }
                 return .none
 
