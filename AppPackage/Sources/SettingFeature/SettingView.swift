@@ -44,9 +44,7 @@ public struct SettingView: View {
         case .general(let generalStore):
             GeneralSettingView(
                 store: generalStore,
-                tagTranslatorLoadingState: store.tagTranslatorLoadingState,
-                tagTranslatorEmpty: store.tagTranslator.translations.isEmpty,
-                tagTranslatorHasCustomTranslations: store.tagTranslator.hasCustomTranslations
+                tagTranslatorLoadingState: store.tagTranslatorLoadingState
             )
 
         case .appearance(let appearanceStore):

@@ -9,20 +9,18 @@ import AppComponents
 struct GeneralSettingView: View {
     @Bindable private var store: StoreOf<GeneralSettingReducer>
     @Shared(.setting) private var setting: Setting
+    // `tagTranslator` is the in-memory shared table, so its derived flags are read here directly rather
+    // than threaded from the parent; only the parent-owned fetch `loadingState` is passed in.
+    @SharedReader(.tagTranslator) private var tagTranslator: TagTranslator
     private let tagTranslatorLoadingState: LoadingState
-    private let tagTranslatorEmpty: Bool
-    private let tagTranslatorHasCustomTranslations: Bool
 
-    init(
-        store: StoreOf<GeneralSettingReducer>,
-        tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
-        tagTranslatorHasCustomTranslations: Bool
-    ) {
+    init(store: StoreOf<GeneralSettingReducer>, tagTranslatorLoadingState: LoadingState) {
         self.store = store
         self.tagTranslatorLoadingState = tagTranslatorLoadingState
-        self.tagTranslatorEmpty = tagTranslatorEmpty
-        self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
     }
+
+    private var tagTranslatorEmpty: Bool { tagTranslator.translations.isEmpty }
+    private var tagTranslatorHasCustomTranslations: Bool { tagTranslator.hasCustomTranslations }
 
     private var language: String {
         Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
@@ -166,9 +164,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
         NavigationStack {
             GeneralSettingView(
                 store: .init(initialState: .init(), reducer: GeneralSettingReducer.init),
-                tagTranslatorLoadingState: .idle,
-                tagTranslatorEmpty: false,
-                tagTranslatorHasCustomTranslations: false
+                tagTranslatorLoadingState: .idle
             )
         }
     }
