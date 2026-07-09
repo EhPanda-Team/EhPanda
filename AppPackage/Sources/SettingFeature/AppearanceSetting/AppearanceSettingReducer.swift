@@ -1,9 +1,10 @@
+import AppModels
 import ComposableArchitecture
+import ApplicationClient
 
 @Reducer
 public struct AppearanceSettingReducer: Sendable {
-    // Pushes handled by SettingReducer, which owns the Setting navigation stack. The screen itself is
-    // stateless — its controls bind directly into `SettingReducer.State.setting` from the root.
+    // Pushes handled by SettingReducer, which owns the Setting navigation stack.
     public enum Delegate: Equatable, Sendable {
         case pushAppIcon
     }
@@ -15,7 +16,12 @@ public struct AppearanceSettingReducer: Sendable {
 
     public enum Action: Equatable, Sendable {
         case delegate(Delegate)
+        // The theme picker writes `preferredColorScheme` into `@Shared(.setting)`, which dispatches no
+        // action, so the view bridges the change here for this reducer to apply the interface style.
+        case preferredColorSchemeChanged(PreferredColorScheme)
     }
+
+    @Dependency(\.applicationClient) private var applicationClient
 
     public init() {}
 
@@ -24,6 +30,9 @@ public struct AppearanceSettingReducer: Sendable {
             switch action {
             case .delegate:
                 return .none
+
+            case .preferredColorSchemeChanged(let colorScheme):
+                return .run { _ in await applicationClient.setUserInterfaceStyle(colorScheme.userInterfaceStyle) }
             }
         }
     }

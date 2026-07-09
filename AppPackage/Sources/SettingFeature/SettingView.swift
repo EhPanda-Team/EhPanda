@@ -55,16 +55,7 @@ public struct SettingView: View {
             )
 
         case .appearance(let appearanceStore):
-            AppearanceSettingView(
-                store: appearanceStore,
-                preferredColorScheme: $store.settingBinding.preferredColorScheme,
-                accentColor: $store.settingBinding.accentColor,
-                appIconType: $store.settingBinding.appIconType,
-                listDisplayMode: $store.settingBinding.listDisplayMode,
-                showsTagsInList: $store.settingBinding.showsTagsInList,
-                listTagsNumberMaximum: $store.settingBinding.listTagsNumberMaximum,
-                displaysJapaneseTitle: $store.settingBinding.displaysJapaneseTitle
-            )
+            AppearanceSettingView(store: appearanceStore)
 
         case .login(let loginStore):
             LoginView(

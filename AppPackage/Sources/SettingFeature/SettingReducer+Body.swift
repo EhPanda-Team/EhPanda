@@ -14,9 +14,6 @@ extension SettingReducer {
         // handlers carry only genuine side effects. Cross-field invariants (the scale factors and
         // auto-lock↔blur) live on the `Setting` model instead, so every write path preserves them.
         BindingReducer()
-            .onChange(of: \.setting.preferredColorScheme) { _, _ in
-                .send(.syncUserInterfaceStyle)
-            }
 
         Reduce { state, action in
             switch action {
