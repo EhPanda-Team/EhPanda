@@ -7,25 +7,28 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     }
 
     public static func mockGalleries(count: Int, randomID: Bool = true) -> [Gallery] {
-        guard randomID, count > 0 else {
-            return Array(repeating: .empty, count: count)
+        // A blank, fresh-id gallery used only to fill the loading skeleton. `.preview` can't stand in
+        // because its `gid` is a fixed constant and the skeleton's `ForEach` is keyed by gallery id,
+        // so every row needs a distinct id.
+        func blank() -> Gallery {
+            .init(
+                gid: UUID().uuidString,
+                token: "",
+                title: "",
+                rating: 0.0,
+                tags: [],
+                category: .doujinshi,
+                uploader: "",
+                pageCount: 1,
+                postedDate: .now,
+                coverURL: nil,
+                galleryURL: nil
+            )
         }
-        return (0...count).map { _ in .empty }
-    }
-    public static var empty: Gallery {
-        .init(
-            gid: UUID().uuidString,
-            token: "",
-            title: "",
-            rating: 0.0,
-            tags: [],
-            category: .doujinshi,
-            uploader: "",
-            pageCount: 1,
-            postedDate: .now,
-            coverURL: nil,
-            galleryURL: nil
-        )
+        guard randomID, count > 0 else {
+            return Array(repeating: blank(), count: count)
+        }
+        return (0...count).map { _ in blank() }
     }
     public static let preview = Gallery(
         gid: UUID().uuidString,

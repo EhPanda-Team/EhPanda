@@ -118,7 +118,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         defer { try? FileManager.default.removeItem(at: folderURL) }
 
         let store = TestStore(
-            initialState: ReadingReducer.State(gallery: .empty, contentSource: .local(download, manifest))
+            initialState: ReadingReducer.State(gallery: .preview, contentSource: .local(download, manifest))
         ) {
             ReadingReducer()
         } withDependencies: {
