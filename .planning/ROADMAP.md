@@ -44,7 +44,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Markdown parsing (`MarkdownUtil.parseTexts/parseLinks/parseImages`) yields identical `TagTranslation` output on swift-markdown fixtures, `DetailView` markdown is preserved, and SwiftCommonMark is removed from `Package.swift`.
   4. DeprecatedAPI is gone — the `getCFReadStream` path is inlined warning-free or replaced by a non-deprecated API, with DF networking behavior unchanged.
   5. `GalleryCardCell`'s animated gradient renders as before on the latest Colorful, with the version pin updated.
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 01-01-PLAN.md — Wave 0 fixture lock and simulator validation
+- [ ] 01-02-PLAN.md — Local SwiftyOpenCC module and FileClient adoption
+- [ ] 01-03-PLAN.md — Local UIImageColors module and LibraryClient adoption
+- [ ] 01-04-PLAN.md — SwiftCommonMark to swift-markdown via MarkdownExt
+- [ ] 01-05-PLAN.md — DEP-06 domain-fronting evidence checkpoint and conditional DeprecatedAPI handling
+- [ ] 01-06-PLAN.md — Colorful update and GalleryCardCell gradient parity
 
 ### Phase 2: Native Masonry Grid Swap (spike-gated)
 **Goal**: Replace WaterfallGrid with a custom SwiftUI `Layout` — validated by a feasibility spike first — with column-balancing and scrolling parity.
