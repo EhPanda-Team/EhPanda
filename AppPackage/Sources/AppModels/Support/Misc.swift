@@ -134,7 +134,7 @@ public struct PageNumber: Equatable, Sendable {
     }
 }
 
-public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable {
+public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable, SchemaVersioned {
     public init(
         id: UUID = .init(),
         name: String,
@@ -146,12 +146,12 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable {
     }
     public static var empty: Self { .init(name: "", content: "") }
 
-    /// Highest `schemaVersion` this build can decode; a blob carrying a newer value (a downgrade)
-    /// is rejected rather than half-read. Bump and branch here when a breaking change lands.
+    /// Highest `schemaVersion` this build can decode. Bump and add a version switch in `init(from:)`
+    /// when a breaking change lands.
     public static let currentSchemaVersion = 1
-    // Version anchor for a future breaking migration; the strict decoder below rejects an
-    // out-of-range value.
-    public var schemaVersion = 1
+    // Self-validating (see `SchemaVersion`): a newer/downgrade value is rejected on decode; the
+    // identity guards in `init(from:)` below stay hand-written.
+    public var schemaVersion: SchemaVersion<QuickSearchWord> = 1
     public var id: UUID = .init()
     public var name: String
     public var content: String
@@ -170,14 +170,7 @@ extension QuickSearchWord {
     /// with a random, unstable identity.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let version = try container.decode(Int.self, forKey: .schemaVersion)
-        guard (1...Self.currentSchemaVersion).contains(version) else {
-            throw DecodingError.dataCorrupted(.init(
-                codingPath: container.codingPath,
-                debugDescription: "Unsupported QuickSearchWord schemaVersion \(version)"
-            ))
-        }
-        schemaVersion = version
+        schemaVersion = try container.decode(SchemaVersion<QuickSearchWord>.self, forKey: .schemaVersion)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
         content = try container.decode(String.self, forKey: .content)

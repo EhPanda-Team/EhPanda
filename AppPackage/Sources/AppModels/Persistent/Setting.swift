@@ -3,7 +3,7 @@ import SwiftUI
 import Resources
 import Foundation
 
-public struct Setting: Codable, Equatable, Sendable {
+public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     public init(
         galleryHost: GalleryHost = .ehentai,
         showsNewDawnGreeting: Bool = false,
@@ -57,12 +57,14 @@ public struct Setting: Codable, Equatable, Sendable {
         self.doubleTapScaleFactor = doubleTapScaleFactor
         self.bypassesSNIFiltering = bypassesSNIFiltering
     }
-    // Version anchor for a future breaking migration. Unlike the identity array-element models
-    // (GalleryHistoryEntry/QuickSearchWord), this single top-level blob keeps synthesized strict
-    // Codable with no version gate: a breaking change alters the shape, so a mismatched blob fails to
-    // decode on its own and gating would mean a hand-written decoder. A field added later must stay
-    // optional (or a custom `decodeIfPresent` decoder) so old blobs still decode.
-    public var schemaVersion = 1
+    /// Highest `schemaVersion` this build can decode. Bump when a breaking change lands and add a
+    /// custom `init(from:)` that maps the older shape forward.
+    public static let currentSchemaVersion = 1
+    // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
+    // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
+    // untouched, so the `didSet` couplings below and optional-field tolerance still hold; a field added
+    // later must stay optional so old blobs keep decoding.
+    public var schemaVersion: SchemaVersion<Setting> = 1
     // Account
     public var galleryHost: GalleryHost = .ehentai
     public var showsNewDawnGreeting = false

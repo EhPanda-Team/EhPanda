@@ -7,9 +7,9 @@ import Foundation
 /// (Caches for a remote download, Application Support for a user import). This record remembers just
 /// enough to rebuild the right file and to let the update check know what it already has: which
 /// language/version is cached and whether a custom import is active.
-public struct TagTranslatorInfo: Codable, Equatable, Sendable {
+public struct TagTranslatorInfo: Codable, Equatable, Sendable, SchemaVersioned {
     public init(
-        schemaVersion: Int = 1,
+        schemaVersion: SchemaVersion<TagTranslatorInfo> = 1,
         language: TranslatableLanguage? = nil,
         updatedDate: Date = .distantPast,
         hasCustomTranslations: Bool = false
@@ -19,12 +19,14 @@ public struct TagTranslatorInfo: Codable, Equatable, Sendable {
         self.updatedDate = updatedDate
         self.hasCustomTranslations = hasCustomTranslations
     }
-    // Version anchor for a future breaking migration. Unlike the identity array-element models
-    // (GalleryHistoryEntry/QuickSearchWord), this single top-level blob keeps synthesized strict
-    // Codable with no version gate: a breaking change alters the shape, so a mismatched blob fails to
-    // decode on its own and gating would mean a hand-written decoder. A field added later must stay
-    // optional (or a custom `decodeIfPresent` decoder) so old blobs still decode.
-    public var schemaVersion: Int
+    /// Highest `schemaVersion` this build can decode. Bump when a breaking change lands and add a
+    /// custom `init(from:)` that maps the older shape forward.
+    public static let currentSchemaVersion = 1
+    // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
+    // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
+    // untouched, so optional-field tolerance still holds; a field added later must stay optional so old
+    // blobs keep decoding.
+    public var schemaVersion: SchemaVersion<TagTranslatorInfo>
     public var language: TranslatableLanguage?
     public var updatedDate: Date
     public var hasCustomTranslations: Bool
