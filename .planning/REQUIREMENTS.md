@@ -91,33 +91,33 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEP-01 | — | Pending |
-| DEP-02 | — | Pending |
-| DEP-03 | — | Pending |
-| DEP-04 | — | Pending |
-| DEP-05 | — | Pending |
-| DEP-06 | — | Pending |
-| DEP-07 | — | Pending |
-| CONC-01 | — | Pending |
-| CONC-02 | — | Pending |
-| UIARCH-01 | — | Pending |
-| UIARCH-02 | — | Pending |
-| UIARCH-03 | — | Pending |
-| UIARCH-04 | — | Pending |
-| UIARCH-05 | — | Pending |
-| HYG-01 | — | Pending |
-| QUAL-01 | — | Pending |
-| QUAL-02 | — | Pending |
-| QUAL-03 | — | Pending |
-| QUAL-04 | — | Pending |
-| POLISH-01 | — | Pending |
-| LINT-01 | — | Pending |
+| DEP-01 | Phase 1 | Pending |
+| DEP-02 | Phase 1 | Pending |
+| DEP-03 | Phase 1 | Pending |
+| DEP-04 | Phase 2 | Pending |
+| DEP-05 | Phase 3 | Pending |
+| DEP-06 | Phase 1 | Pending |
+| DEP-07 | Phase 1 | Pending |
+| CONC-01 | Phase 4 | Pending |
+| CONC-02 | Phase 4 | Pending |
+| UIARCH-01 | Phase 5 | Pending |
+| UIARCH-02 | Phase 6 | Pending |
+| UIARCH-03 | Phase 5 | Pending |
+| UIARCH-04 | Phase 7 | Pending |
+| UIARCH-05 | Phase 7 | Pending |
+| HYG-01 | Phase 8 | Pending |
+| QUAL-01 | Phase 8 | Pending |
+| QUAL-02 | Phase 8 | Pending |
+| QUAL-03 | Phase 9 | Pending |
+| QUAL-04 | Phase 9 | Pending |
+| POLISH-01 | Phase 10 | Pending |
+| LINT-01 | Phase 11 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-09 after initial definition*
+*Last updated: 2026-07-09 after roadmap creation (traceability filled, 21/21 mapped)*
