@@ -351,7 +351,7 @@ struct ReadingView_Previews: PreviewProvider {
             Color.clear
                 .fullScreenCover(isPresented: .constant(true)) {
                     ReadingView(
-                        store: .init(initialState: .init(gallery: .empty), reducer: ReadingReducer.init),
+                        store: .init(initialState: .init(gallery: .preview), reducer: ReadingReducer.init),
                         gid: .init(),
                         blurRadius: 0
                     )

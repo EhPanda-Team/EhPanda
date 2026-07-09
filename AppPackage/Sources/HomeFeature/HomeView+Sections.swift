@@ -170,7 +170,7 @@ struct ToplistsSection: View {
     private var dataSource: [Int: [Gallery]] {
         guard !galleries.isEmpty else {
             var dictionary = [Int: [Gallery]]()
-            var gallery: Gallery = .empty
+            var gallery: Gallery = .preview
             gallery.title = "......"
             gallery.uploader = "......"
             let galleries = Array(repeating: gallery, count: 6)
