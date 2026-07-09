@@ -146,9 +146,9 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable, Schem
     }
     public static var empty: Self { .init(name: "", content: "") }
 
-    /// Highest `schemaVersion` this build can decode. Bump and add a version switch in `init(from:)`
-    /// when a breaking change lands.
-    public static let currentSchemaVersion = 1
+    /// Migration maps, one slot per schema version (index 0 = v1 = `.passthrough`). `currentSchemaVersion`
+    /// is derived from the count; append a map and adopt `MigratableModel` when a breaking v2 lands.
+    public static let migrations: [SchemaMigration<QuickSearchWord>] = [.passthrough]
     // Self-validating (see `SchemaVersion`): a newer/downgrade value is rejected on decode; the
     // identity guards in `init(from:)` below stay hand-written.
     public var schemaVersion: SchemaVersion<QuickSearchWord> = 1
