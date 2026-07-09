@@ -31,6 +31,17 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
         #expect(state.containerDataSource(setting: dualPageSetting, isLandscape: true) == [])
     }
 
+    // V2-A / #5: `ReadingView.init` seeds the pager from the resume page (`max(readingProgress, 1)`
+    // mapped through `mapToPager`), because no post-subscribe change event repositions it anymore.
+    // This pins that mapping so a saved page opens at its index and no history opens at the first page.
+    @MainActor
+    @Test
+    func testResumePageMapsToPagerIndex() {
+        let handler = PageHandler()
+        #expect(handler.mapToPager(index: 5, setting: Setting(), isLandscape: false) == 4)
+        #expect(handler.mapToPager(index: max(0, 1), setting: Setting(), isLandscape: false) == 0)
+    }
+
     @MainActor
     @Test
     func testReadingReducerOnWebImageSucceededDoesNotCaptureAlreadyLocalPage() async {

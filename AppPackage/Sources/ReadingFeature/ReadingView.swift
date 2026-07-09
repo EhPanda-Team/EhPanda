@@ -38,6 +38,16 @@ public struct ReadingView: View {
         self.store = store
         self.gid = gid
         self.blurRadius = blurRadius
+        // Seed the pager and slider from the resume page the reducer computed in `State.init`, so the
+        // reader opens on the saved page. Seeding replaced a `.restoreSession` action that mutated
+        // `readingProgress` after the view had subscribed; with no post-subscribe change event, the
+        // pager must be positioned at construction or every session would open at page 1.
+        let resumePage = max(store.state.readingProgress, 1)
+        let handler = PageHandler()
+        handler.sliderValue = Float(resumePage)
+        let pagerIndex = handler.mapToPager(index: resumePage, setting: store.state.setting)
+        _pageHandler = State(wrappedValue: handler)
+        _page = StateObject(wrappedValue: .withIndex(pagerIndex))
     }
 
     private var backgroundColor: Color {
