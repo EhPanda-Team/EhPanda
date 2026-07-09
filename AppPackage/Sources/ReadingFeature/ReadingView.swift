@@ -28,8 +28,8 @@ public struct ReadingView: View {
     @State private var liveTextHandler = LiveTextHandler()
     @State private var autoPlayHandler = AutoPlayHandler()
     @State var gestureHandler = GestureHandler()
-    @State private var pageHandler = PageHandler()
-    @StateObject var page: Page = .first()
+    @State private var pageHandler: PageHandler
+    @StateObject var page: Page
 
     public init(
         store: StoreOf<ReadingReducer>,
@@ -225,9 +225,6 @@ public struct ReadingView: View {
             .onChange(of: store.showsSliderPreview) { _, newValue in
                 if !newValue { setPageIndex(sliderValue: pageHandler.sliderValue) }
                 setAutoPlayPolocy(.off)
-            }
-            .onChange(of: store.readingProgress) { _, newValue in
-                pageHandler.sliderValue = .init(newValue)
             }
             // AutoPlay
             .onChange(of: store.destination != nil) { _, isPresented in
