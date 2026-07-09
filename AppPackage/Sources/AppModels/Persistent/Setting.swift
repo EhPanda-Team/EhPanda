@@ -82,8 +82,25 @@ public struct Setting: Codable, Equatable, Sendable {
     public var showsImagesInTags = false
     public var redirectsLinksToSelectedHost = false
     public var detectsLinksFromClipboard = false
-    public var backgroundBlurRadius: Double = 10
-    public var autoLockPolicy: AutoLockPolicy = .never
+    // `autoLockPolicy` and `backgroundBlurRadius` are coupled: auto-lock relies on a non-zero blur to
+    // obscure content, so enabling auto-lock while blur is 0 restores a default blur, and dropping blur
+    // to 0 disables auto-lock. Kept on the model (not a reducer `BindingReducer`) so every write path —
+    // the Setting editor or any direct `@Shared(.setting)` binding — preserves it without a reducer
+    // round-trip, mirroring the scale-factor clamp below.
+    public var backgroundBlurRadius: Double = 10 {
+        didSet {
+            if autoLockPolicy != .never && backgroundBlurRadius == 0 {
+                autoLockPolicy = .never
+            }
+        }
+    }
+    public var autoLockPolicy: AutoLockPolicy = .never {
+        didSet {
+            if autoLockPolicy != .never && backgroundBlurRadius == 0 {
+                backgroundBlurRadius = 10
+            }
+        }
+    }
 
     // Appearance
     public var listDisplayMode: ListDisplayMode = .detail
