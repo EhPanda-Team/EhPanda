@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import SFSafeSymbols
 import AppModels
 import Resources
@@ -130,12 +131,11 @@ public struct DateSeekButton: View {
 }
 
 public struct FavoritesIndexMenu: View {
-    private let user: User
+    @SharedReader(.user) private var user: User
     private let index: Int
     private let action: (Int) -> Void
 
-    public init(user: User, index: Int, action: @escaping (Int) -> Void) {
-        self.user = user
+    public init(index: Int, action: @escaping (Int) -> Void) {
         self.index = index
         self.action = action
     }

@@ -460,7 +460,8 @@ let targets: [PackageDescription.Target] = [
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
-            .targetDependency(.sfSafeSymbols)
+            .targetDependency(.sfSafeSymbols),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
