@@ -10,10 +10,10 @@ public struct GalleryInfosReducer: Sendable {
     public struct State: Equatable {
         @Presents public var toast: AppAlertState<Never>?
         // Display data captured when this screen is pushed onto the host's gallery stack.
-        public var gallery: Gallery = .empty
-        public var galleryDetail: GalleryDetail = .empty
+        public var gallery: Gallery
+        public var galleryDetail: GalleryDetail
 
-        public init(gallery: Gallery = .empty, galleryDetail: GalleryDetail = .empty) {
+        public init(gallery: Gallery, galleryDetail: GalleryDetail) {
             self.gallery = gallery
             self.galleryDetail = galleryDetail
         }
