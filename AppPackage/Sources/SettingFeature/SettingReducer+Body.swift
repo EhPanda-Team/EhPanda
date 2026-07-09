@@ -39,12 +39,6 @@ extension SettingReducer {
                     await appDelegateClient.setPortraitOrientationMask()
                 }
             }
-            .onChange(of: \.setting.bypassesSNIFiltering) { _, state in
-                .merge(
-                    .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
-                    .run(operation: { [value = state.setting.bypassesSNIFiltering] _ in dfClient.setActive(value) })
-                )
-            }
 
         Reduce { state, action in
             switch action {

@@ -109,10 +109,8 @@ public struct SettingView: View {
                 doubleTapScaleFactor: $store.settingBinding.doubleTapScaleFactor
             )
 
-        case .laboratory:
-            LaboratorySettingView(
-                bypassesSNIFiltering: $store.settingBinding.bypassesSNIFiltering
-            )
+        case .laboratory(let laboratoryStore):
+            LaboratorySettingView(store: laboratoryStore)
 
         case .about:
             AboutView()
