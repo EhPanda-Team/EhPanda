@@ -26,13 +26,6 @@ extension SettingReducer {
             .onChange(of: \.setting.preferredColorScheme) { _, _ in
                 .send(.syncUserInterfaceStyle)
             }
-            .onChange(of: \.setting.enablesLandscape) { _, state in
-                guard !state.setting.enablesLandscape else { return .none }
-                return .run { _ in
-                    guard await !deviceClient.isPad() else { return }
-                    await appDelegateClient.setPortraitOrientationMask()
-                }
-            }
 
         Reduce { state, action in
             switch action {
