@@ -57,9 +57,16 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         self.doubleTapScaleFactor = doubleTapScaleFactor
         self.bypassesSNIFiltering = bypassesSNIFiltering
     }
-    /// Migration maps, one slot per schema version (index 0 = v1 = `.passthrough`). `currentSchemaVersion`
-    /// is derived from the count; append a map and adopt `MigratableModel` when a breaking v2 lands.
-    public static let migrations: [SchemaMigration<Setting>] = [.passthrough]
+    /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
+    /// `currentSchemaVersion` derives from the head. Append a `VersionedSchema` and adopt
+    /// `MigratableModel` when a breaking change lands.
+    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self] }
+    /// The v1 base schema. Its `migrate` is empty — nothing precedes v1, and the engine only runs
+    /// schemas newer than the stored version, so it exists solely to anchor version 1.
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
     // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
     // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
     // untouched, so the `didSet` couplings below and optional-field tolerance still hold; a field added
