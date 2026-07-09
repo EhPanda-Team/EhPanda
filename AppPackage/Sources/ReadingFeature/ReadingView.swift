@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import AppModels
 import OSLogExt
 import Observation
@@ -17,6 +18,10 @@ public struct ReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var store: StoreOf<ReadingReducer>
+    // The write handle for the reading-setting editor's bindings. Reads still go through
+    // `store.setting` (the reducer's `@SharedReader`); this is the same underlying storage, exposed
+    // here so the sheet's controls can write it directly — the model clamps keep every write safe.
+    @Shared(.setting) private var setting: Setting
     let gid: String
     let blurRadius: Double
 
@@ -62,12 +67,12 @@ public struct ReadingView: View {
             .sheet(item: $store.destination.readingSetting, id: \.id) { _ in
                 NavigationStack {
                     ReadingSettingView(
-                        readingDirection: $store.settingBinding.readingDirection,
-                        prefetchLimit: $store.settingBinding.prefetchLimit,
-                        enablesLandscape: $store.settingBinding.enablesLandscape,
-                        contentDividerHeight: $store.settingBinding.contentDividerHeight,
-                        maximumScaleFactor: $store.settingBinding.maximumScaleFactor,
-                        doubleTapScaleFactor: $store.settingBinding.doubleTapScaleFactor
+                        readingDirection: Binding($setting.readingDirection),
+                        prefetchLimit: Binding($setting.prefetchLimit),
+                        enablesLandscape: Binding($setting.enablesLandscape),
+                        contentDividerHeight: Binding($setting.contentDividerHeight),
+                        maximumScaleFactor: Binding($setting.maximumScaleFactor),
+                        doubleTapScaleFactor: Binding($setting.doubleTapScaleFactor)
                     )
                     .toolbar {
                         if !DeviceUtil.isPad && DeviceUtil.isLandscape {
@@ -158,7 +163,7 @@ public struct ReadingView: View {
             ControlPanel(
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
-                sliderValue: $bindablePageHandler.sliderValue, setting: $store.settingBinding,
+                sliderValue: $bindablePageHandler.sliderValue, setting: Binding($setting),
                 enablesLiveText: $bindableLiveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: { setAutoPlayPolocy($0) }),
                 range: 1...Float(store.gallery.pageCount),
