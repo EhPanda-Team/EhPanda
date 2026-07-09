@@ -10,8 +10,9 @@ private let logger = Logger(category: .init(describing: SettingReducer.self))
 extension SettingReducer {
     @ReducerBuilder<State, Action>
     var reducerBody: some Reducer<State, Action> {
-        // `setting` is `@Shared`, so BindingReducer writes and the fixups below persist automatically —
-        // these `.onChange` handlers carry only their genuine side effects and cross-field invariants.
+        // `setting` is `@Shared`, so BindingReducer writes persist automatically; these `.onChange`
+        // handlers carry only genuine side effects. Cross-field invariants (the scale factors and
+        // auto-lock↔blur) live on the `Setting` model instead, so every write path preserves them.
         BindingReducer()
             .onChange(of: \.setting.galleryHost) { _, state in
                 .run(operation: { [value = state.setting.galleryHost.rawValue] _ in
@@ -30,18 +31,6 @@ extension SettingReducer {
                     _ = await applicationClient.setAlternateIconName(value)
                     await send(.syncAppIconType)
                 }
-            }
-            .onChange(of: \.setting.autoLockPolicy) { _, state in
-                if state.setting.autoLockPolicy != .never && state.setting.backgroundBlurRadius == 0 {
-                    state.$setting.withLock { $0.backgroundBlurRadius = 10 }
-                }
-                return .none
-            }
-            .onChange(of: \.setting.backgroundBlurRadius) { _, state in
-                if state.setting.autoLockPolicy != .never && state.setting.backgroundBlurRadius == 0 {
-                    state.$setting.withLock { $0.autoLockPolicy = .never }
-                }
-                return .none
             }
             .onChange(of: \.setting.enablesLandscape) { _, state in
                 guard !state.setting.enablesLandscape else { return .none }
