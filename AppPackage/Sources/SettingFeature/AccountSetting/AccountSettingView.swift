@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import Sharing
 import AppComponents
 import Resources
 import ComposableArchitecture
@@ -8,20 +9,11 @@ import SystemNotificationExt
 
 struct AccountSettingView: View {
     @Bindable private var store: StoreOf<AccountSettingReducer>
-    @Binding private var galleryHost: GalleryHost
-    @Binding private var showsNewDawnGreeting: Bool
-    private let bypassesSNIFiltering: Bool
+    @Shared(.setting) private var setting: Setting
     private let blurRadius: Double
 
-    init(
-        store: StoreOf<AccountSettingReducer>,
-        galleryHost: Binding<GalleryHost>, showsNewDawnGreeting: Binding<Bool>,
-        bypassesSNIFiltering: Bool, blurRadius: Double
-    ) {
+    init(store: StoreOf<AccountSettingReducer>, blurRadius: Double) {
         self.store = store
-        _galleryHost = galleryHost
-        _showsNewDawnGreeting = showsNewDawnGreeting
-        self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
 
@@ -29,7 +21,7 @@ struct AccountSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker(.website, selection: $galleryHost) {
+                Picker(.website, selection: Binding($setting.galleryHost)) {
                     ForEach(GalleryHost.allCases) {
                         Text($0.rawValue).tag($0)
                     }
@@ -37,8 +29,8 @@ struct AccountSettingView: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 AccountSection(
-                    showsNewDawnGreeting: $showsNewDawnGreeting,
-                    bypassesSNIFiltering: bypassesSNIFiltering,
+                    showsNewDawnGreeting: Binding($setting.showsNewDawnGreeting),
+                    bypassesSNIFiltering: setting.bypassesSNIFiltering,
                     loginAction: { store.send(.delegate(.pushLogin)) },
                     logoutDialogAction: { store.send(.logoutButtonTapped) },
                     logoutConfirmationDialog: $store.scope(
@@ -61,6 +53,9 @@ struct AccountSettingView: View {
                 .autoBlur(radius: blurRadius)
         }
         .onAppear { store.send(.loadCookies) }
+        .onChange(of: setting.galleryHost) { _, newValue in
+            store.send(.galleryHostChanged(newValue))
+        }
         .navigationTitle(.account)
     }
 }
@@ -187,9 +182,6 @@ struct AccountSettingView_Previews: PreviewProvider {
         NavigationStack {
             AccountSettingView(
                 store: .init(initialState: .init(), reducer: AccountSettingReducer.init),
-                galleryHost: .constant(.ehentai),
-                showsNewDawnGreeting: .constant(false),
-                bypassesSNIFiltering: false,
                 blurRadius: 0
             )
         }

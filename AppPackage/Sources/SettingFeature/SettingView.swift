@@ -44,13 +44,7 @@ public struct SettingView: View {
     private func destination(_ pathStore: StoreOf<SettingPath>) -> some View {
         switch pathStore.case {
         case .account(let accountStore):
-            AccountSettingView(
-                store: accountStore,
-                galleryHost: $store.settingBinding.galleryHost,
-                showsNewDawnGreeting: $store.settingBinding.showsNewDawnGreeting,
-                bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
-                blurRadius: blurRadius
-            )
+            AccountSettingView(store: accountStore, blurRadius: blurRadius)
 
         case .general(let generalStore):
             GeneralSettingView(
