@@ -51,18 +51,10 @@ public struct SettingView: View {
             AppearanceSettingView(store: appearanceStore)
 
         case .login(let loginStore):
-            LoginView(
-                store: loginStore,
-                bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
-                blurRadius: blurRadius
-            )
+            LoginView(store: loginStore, blurRadius: blurRadius)
 
         case .ehSetting(let ehSettingStore):
-            EhSettingView(
-                store: ehSettingStore,
-                bypassesSNIFiltering: store.setting.bypassesSNIFiltering,
-                blurRadius: blurRadius
-            )
+            EhSettingView(store: ehSettingStore, blurRadius: blurRadius)
 
         case .appActivityLogs(let logsStore):
             AppActivityLogsView(store: logsStore)
