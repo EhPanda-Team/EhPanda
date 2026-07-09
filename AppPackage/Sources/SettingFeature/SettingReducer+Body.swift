@@ -14,11 +14,6 @@ extension SettingReducer {
         // handlers carry only genuine side effects. Cross-field invariants (the scale factors and
         // auto-lock↔blur) live on the `Setting` model instead, so every write path preserves them.
         BindingReducer()
-            .onChange(of: \.setting.galleryHost) { _, state in
-                .run(operation: { [value = state.setting.galleryHost.rawValue] _ in
-                    userDefaultsClient.setValue(value, .galleryHost)
-                })
-            }
             .onChange(of: \.setting.enablesTagsExtension) { _, state in
                 // `.rebuildTagTranslator` sequences the remote fetch after the cache rebuild.
                 state.setting.enablesTagsExtension ? .send(.rebuildTagTranslator) : .none

@@ -5,6 +5,8 @@ import ComposableArchitecture
 import HapticsClient
 import ClipboardClient
 import CookieClient
+import UserDefaultsClient
+import AppTools
 import AppComponents
 
 @Reducer
@@ -47,11 +49,13 @@ public struct AccountSettingReducer: Sendable {
         case onLogoutConfirmButtonTapped
         case loadCookies
         case copyCookies(GalleryHost)
+        case galleryHostChanged(GalleryHost)
     }
 
     @Dependency(\.clipboardClient) private var clipboardClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.userDefaultsClient) private var userDefaultsClient
 
     public init() {}
 
@@ -118,6 +122,11 @@ public struct AccountSettingReducer: Sendable {
                     .run(operation: { _ in clipboardClient.saveText(cookiesDescription) }),
                     .run(operation: { _ in await hapticsClient.generateNotificationFeedback(.success) })
                 )
+
+            // The picker writes `galleryHost` straight into `@Shared(.setting)`; mirror it into
+            // UserDefaults so the selected host survives independently of the persisted setting blob.
+            case .galleryHostChanged(let host):
+                return .run(operation: { _ in userDefaultsClient.setValue(host.rawValue, .galleryHost) })
             }
         }
         .haptics(
