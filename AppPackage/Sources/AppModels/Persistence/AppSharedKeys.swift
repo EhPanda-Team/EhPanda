@@ -29,8 +29,9 @@ import Sharing
 //     saved word would lose user work. Auto-recorded data is disposable; authored data is not.
 //
 // Every model carries a self-validating `SchemaVersion` field (default 1) that rejects a
-// newer/downgrade value on decode (see `SchemaVersion`), failing the decode so Sharing resets to the
-// key default rather than half-reading an unknown shape. The four whole-struct models (`Setting`,
+// newer/downgrade value on decode and logs the anomaly via OSLog (see `SchemaVersion`), then fails
+// the decode so Sharing resets to the key default rather than half-reading an unknown shape. The
+// four whole-struct models (`Setting`,
 // `User`, the filters, `TagTranslatorInfo`) keep synthesized strict Codable — the typed field gates
 // the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
 // tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `QuickSearchWord`)
