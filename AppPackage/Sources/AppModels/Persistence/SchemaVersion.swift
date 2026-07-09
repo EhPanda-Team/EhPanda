@@ -1,4 +1,7 @@
 import Foundation
+import OSLogExt
+
+private let logger = Logger(category: "SchemaVersion")
 
 /// A model whose persisted blob carries a `schemaVersion` and knows the newest version this build can
 /// decode. Adopt it together with a `SchemaVersion<Self>` field so the version validates itself on
@@ -12,9 +15,10 @@ public protocol SchemaVersioned {
 /// A self-validating `schemaVersion` field.
 ///
 /// On decode it accepts `1...Model.currentSchemaVersion` and throws on anything else — a newer
-/// (downgrade) value, or a corrupt `0`/negative. The throw fails the whole model decode, so `Sharing`
-/// falls back to the key's default rather than half-reading an unknown shape. It encodes as a bare
-/// integer, so the persisted JSON is unchanged (`"schemaVersion": 1`).
+/// (downgrade) value, or a corrupt `0`/negative — logging the rejected version via OSLog first. The
+/// throw fails the whole model decode, so `Sharing` falls back to the key's default rather than
+/// half-reading an unknown shape. It encodes as a bare integer, so the persisted JSON is unchanged
+/// (`"schemaVersion": 1`).
 ///
 /// This is the lightweight, in-decode migration seam. It gives every persisted model uniform
 /// downgrade rejection *without* a hand-written `init(from:)`, so synthesized `Codable` — and with it
@@ -40,10 +44,12 @@ extension SchemaVersion: Codable {
         let container = try decoder.singleValueContainer()
         let decoded = try container.decode(Int.self)
         guard (1...Model.currentSchemaVersion).contains(decoded) else {
+            let message = "\(Model.self) schemaVersion \(decoded) is outside the "
+                + "supported range 1...\(Model.currentSchemaVersion)"
+            logger.error("\(message, privacy: .public)")
             throw DecodingError.dataCorrupted(.init(
                 codingPath: decoder.codingPath,
-                debugDescription: "\(Model.self) schemaVersion \(decoded) is outside "
-                    + "the supported range 1...\(Model.currentSchemaVersion)"
+                debugDescription: message
             ))
         }
         value = decoded
