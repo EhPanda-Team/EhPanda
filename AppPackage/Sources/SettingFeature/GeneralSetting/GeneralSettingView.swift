@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import Sharing
 import Resources
 import UniformTypeIdentifiers
 import ComposableArchitecture
@@ -7,39 +8,20 @@ import AppComponents
 
 struct GeneralSettingView: View {
     @Bindable private var store: StoreOf<GeneralSettingReducer>
+    @Shared(.setting) private var setting: Setting
     private let tagTranslatorLoadingState: LoadingState
     private let tagTranslatorEmpty: Bool
     private let tagTranslatorHasCustomTranslations: Bool
-    @Binding private var enablesTagsExtension: Bool
-    @Binding private var translatesTags: Bool
-    @Binding private var showsTagsSearchSuggestion: Bool
-    @Binding private var showsImagesInTags: Bool
-    @Binding private var redirectsLinksToSelectedHost: Bool
-    @Binding private var detectsLinksFromClipboard: Bool
-    @Binding private var backgroundBlurRadius: Double
-    @Binding private var autoLockPolicy: AutoLockPolicy
 
     init(
         store: StoreOf<GeneralSettingReducer>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
-        tagTranslatorHasCustomTranslations: Bool, enablesTagsExtension: Binding<Bool>,
-        translatesTags: Binding<Bool>, showsTagsSearchSuggestion: Binding<Bool>,
-        showsImagesInTags: Binding<Bool>, redirectsLinksToSelectedHost: Binding<Bool>,
-        detectsLinksFromClipboard: Binding<Bool>, backgroundBlurRadius: Binding<Double>,
-        autoLockPolicy: Binding<AutoLockPolicy>
+        tagTranslatorHasCustomTranslations: Bool
     ) {
         self.store = store
         self.tagTranslatorLoadingState = tagTranslatorLoadingState
         self.tagTranslatorEmpty = tagTranslatorEmpty
         self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
-        _enablesTagsExtension = enablesTagsExtension
-        _translatesTags = translatesTags
-        _showsTagsSearchSuggestion = showsTagsSearchSuggestion
-        _showsImagesInTags = showsImagesInTags
-        _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
-        _detectsLinksFromClipboard = detectsLinksFromClipboard
-        _backgroundBlurRadius = backgroundBlurRadius
-        _autoLockPolicy = autoLockPolicy
     }
 
     private var language: String {
@@ -72,7 +54,7 @@ struct GeneralSettingView: View {
                         Image(systemSymbol: .exclamationmarkTriangleFill)
                             .foregroundStyle(.yellow)
                             .opacity(
-                                translatesTags && tagTranslatorEmpty
+                                setting.translatesTags && tagTranslatorEmpty
                                     && tagTranslatorLoadingState != .loading ? 1 : 0
                             )
                         ProgressView()
@@ -80,18 +62,18 @@ struct GeneralSettingView: View {
                             .opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
                     }
 
-                    Toggle(.enablesTagsExtension, isOn: $enablesTagsExtension)
+                    Toggle(.enablesTagsExtension, isOn: Binding($setting.enablesTagsExtension))
                         .labelsHidden()
                         .frame(width: 50)
                         .padding(.leading, 20)
                 }
-                if enablesTagsExtension && !tagTranslatorEmpty {
-                    Toggle(.translatesTags, isOn: $translatesTags)
+                if setting.enablesTagsExtension && !tagTranslatorEmpty {
+                    Toggle(.translatesTags, isOn: Binding($setting.translatesTags))
                     Toggle(
                         .showsTagsSearchSuggestion,
-                        isOn: $showsTagsSearchSuggestion
+                        isOn: Binding($setting.showsTagsSearchSuggestion)
                     )
-                    Toggle(.showsImagesInTags, isOn: $showsImagesInTags)
+                    Toggle(.showsImagesInTags, isOn: Binding($setting.showsImagesInTags))
                 }
                 Button(.importCustomTranslations) {
                     store.send(.importCustomTranslationsButtonTapped)
@@ -117,25 +99,25 @@ struct GeneralSettingView: View {
             Section(.navigation) {
                 Toggle(
                     .redirectsLinksToTheSelectedHost,
-                    isOn: $redirectsLinksToSelectedHost
+                    isOn: Binding($setting.redirectsLinksToSelectedHost)
                 )
                 Toggle(
                     .detectsLinksFromClipboard,
-                    isOn: $detectsLinksFromClipboard
+                    isOn: Binding($setting.detectsLinksFromClipboard)
                 )
             }
             Section(.security) {
                 HStack {
                     Picker(
                         .autoLock,
-                        selection: $autoLockPolicy
+                        selection: Binding($setting.autoLockPolicy)
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
                             Text(policy.value).tag(policy)
                         }
                     }
                     .pickerStyle(.menu)
-                    if store.passcodeNotSet && autoLockPolicy != .never {
+                    if store.passcodeNotSet && setting.autoLockPolicy != .never {
                         Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
                     }
                 }
@@ -143,7 +125,7 @@ struct GeneralSettingView: View {
                     Text(.backgroundBlurRadius)
                     HStack {
                         Image(systemSymbol: .eye)
-                        Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
+                        Slider(value: Binding($setting.backgroundBlurRadius), in: 0...100, step: 10)
                         Image(systemSymbol: .eyeSlash)
                     }
                 }
@@ -166,8 +148,11 @@ struct GeneralSettingView: View {
         }
         .animation(.default, value: tagTranslatorHasCustomTranslations)
         .animation(.default, value: tagTranslatorLoadingState)
-        .animation(.default, value: enablesTagsExtension)
+        .animation(.default, value: setting.enablesTagsExtension)
         .animation(.default, value: tagTranslatorEmpty)
+        .onChange(of: setting.enablesTagsExtension) { _, _ in
+            store.send(.delegate(.enablesTagsExtensionChanged))
+        }
         .onAppear {
             store.send(.checkPasscodeSetting)
             store.send(.calculateWebImageDiskCache)
@@ -183,15 +168,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 store: .init(initialState: .init(), reducer: GeneralSettingReducer.init),
                 tagTranslatorLoadingState: .idle,
                 tagTranslatorEmpty: false,
-                tagTranslatorHasCustomTranslations: false,
-                enablesTagsExtension: .constant(false),
-                translatesTags: .constant(false),
-                showsTagsSearchSuggestion: .constant(false),
-                showsImagesInTags: .constant(false),
-                redirectsLinksToSelectedHost: .constant(false),
-                detectsLinksFromClipboard: .constant(false),
-                backgroundBlurRadius: .constant(10),
-                autoLockPolicy: .constant(.never)
+                tagTranslatorHasCustomTranslations: false
             )
         }
     }

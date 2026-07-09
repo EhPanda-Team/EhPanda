@@ -117,6 +117,50 @@ struct SettingReducerNavigationTests {
         }
     }
 
+    // MARK: Child delegate → parent effect
+
+    @Test
+    func generalEnablesTagsExtensionDelegateRebuildsWhenEnabled() async throws {
+        let defaults = UserDefaults.inMemory
+        try await withDependencies {
+            $0.defaultAppStorage = defaults
+        } operation: {
+            @Shared(.setting) var setting
+            $setting.withLock { $0.enablesTagsExtension = true }
+
+            // A loading table makes the rebuild's follow-on `fetchTagTranslator` guard-return (no network).
+            var initialState = SettingReducer.State()
+            initialState.tagTranslatorLoadingState = .loading
+
+            let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
+                $0.defaultAppStorage = defaults
+                $0.fileClient.loadCachedTagTranslator = { _ in nil }
+            }
+            store.exhaustivity = .off
+
+            await store.send(.settingRowTapped(.general))
+            let id = try #require(store.state.path.ids.last)
+            await store.send(.path(.element(id: id, action: .general(.delegate(.enablesTagsExtensionChanged)))))
+            await store.receive(\.rebuildTagTranslator)
+            await store.finish()
+        }
+    }
+
+    @Test
+    func generalEnablesTagsExtensionDelegateSkipsRebuildWhenDisabled() async throws {
+        // `enablesTagsExtension` defaults to false, so the delegate must emit no rebuild — the exhaustive
+        // store fails if any effect is left unhandled.
+        let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        }
+
+        await store.send(.settingRowTapped(.general)) {
+            $0.path.append(SettingReducer.RootScreen.general.pathElement)
+        }
+        let id = try #require(store.state.path.ids.last)
+        await store.send(.path(.element(id: id, action: .general(.delegate(.enablesTagsExtensionChanged)))))
+    }
+
     // MARK: Child intercepts
 
     @Test

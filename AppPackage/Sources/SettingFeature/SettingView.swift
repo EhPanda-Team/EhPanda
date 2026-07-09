@@ -51,15 +51,7 @@ public struct SettingView: View {
                 store: generalStore,
                 tagTranslatorLoadingState: store.tagTranslatorLoadingState,
                 tagTranslatorEmpty: store.tagTranslator.translations.isEmpty,
-                tagTranslatorHasCustomTranslations: store.tagTranslator.hasCustomTranslations,
-                enablesTagsExtension: $store.settingBinding.enablesTagsExtension,
-                translatesTags: $store.settingBinding.translatesTags,
-                showsTagsSearchSuggestion: $store.settingBinding.showsTagsSearchSuggestion,
-                showsImagesInTags: $store.settingBinding.showsImagesInTags,
-                redirectsLinksToSelectedHost: $store.settingBinding.redirectsLinksToSelectedHost,
-                detectsLinksFromClipboard: $store.settingBinding.detectsLinksFromClipboard,
-                backgroundBlurRadius: $store.settingBinding.backgroundBlurRadius,
-                autoLockPolicy: $store.settingBinding.autoLockPolicy
+                tagTranslatorHasCustomTranslations: store.tagTranslator.hasCustomTranslations
             )
 
         case .appearance(let appearanceStore):
