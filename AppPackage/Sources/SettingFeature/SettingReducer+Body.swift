@@ -10,16 +10,11 @@ private let logger = Logger(category: .init(describing: SettingReducer.self))
 extension SettingReducer {
     @ReducerBuilder<State, Action>
     var reducerBody: some Reducer<State, Action> {
-        // `setting` is `@Shared`, so BindingReducer writes persist automatically; these `.onChange`
-        // handlers carry only genuine side effects. Cross-field invariants (the scale factors and
-        // auto-lock↔blur) live on the `Setting` model instead, so every write path preserves them.
-        BindingReducer()
-
+        // No `BindingReducer`: every Setting screen writes `setting` through its own `@Shared`, so the
+        // parent never sees a `.binding` action. Per-edit side effects live in each screen's reducer,
+        // and cross-field invariants live on the `Setting` model, so every write path stays consistent.
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
             case .settingRowTapped(let screen):
                 state.path.appendGuardingDuplicate(screen.pathElement)
                 return .none
