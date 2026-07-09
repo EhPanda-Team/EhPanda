@@ -1,4 +1,5 @@
 import SwiftUI
+import Sharing
 import AppModels
 import Resources
 import ComposableArchitecture
@@ -7,15 +8,14 @@ import AppComponents
 
 struct EhSettingView: View {
     @Bindable private var store: StoreOf<EhSettingReducer>
-    private let bypassesSNIFiltering: Bool
+    @SharedReader(.setting) private var setting: Setting
     private let blurRadius: Double
 
     // Should make it an Environment value.
     private var galleryHost: GalleryHost { AppUtil.galleryHost }
 
-    init(store: StoreOf<EhSettingReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
+    init(store: StoreOf<EhSettingReducer>, blurRadius: Double) {
         self.store = store
-        self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
 
@@ -107,7 +107,7 @@ struct EhSettingView: View {
                 } label: {
                     Image(systemSymbol: .globe)
                 }
-                .disabled(bypassesSNIFiltering)
+                .disabled(setting.bypassesSNIFiltering)
             }
 
             ToolbarItem(placement: .confirmationAction) {
@@ -137,7 +137,6 @@ struct EhSettingView_Previews: PreviewProvider {
                     initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
                     reducer: EhSettingReducer.init
                 ),
-                bypassesSNIFiltering: false,
                 blurRadius: 0
             )
         }

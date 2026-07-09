@@ -1,5 +1,6 @@
 import AppTools
 import SwiftUI
+import Sharing
 import AppModels
 import Resources
 import ComposableArchitecture
@@ -7,14 +8,13 @@ import AppComponents
 
 struct LoginView: View {
     @Bindable private var store: StoreOf<LoginReducer>
-    private let bypassesSNIFiltering: Bool
+    @SharedReader(.setting) private var setting: Setting
     private let blurRadius: Double
 
     @FocusState private var focusedField: LoginReducer.FocusedField?
 
-    init(store: StoreOf<LoginReducer>, bypassesSNIFiltering: Bool, blurRadius: Double) {
+    init(store: StoreOf<LoginReducer>, blurRadius: Double) {
         self.store = store
-        self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
 
@@ -97,7 +97,7 @@ struct LoginView: View {
             } label: {
                 Image(systemSymbol: .globe)
             }
-            .disabled(bypassesSNIFiltering)
+            .disabled(setting.bypassesSNIFiltering)
         }
     }
 }
@@ -151,7 +151,6 @@ struct LoginView_Previews: PreviewProvider {
         NavigationStack {
             LoginView(
                 store: .init(initialState: .init(), reducer: LoginReducer.init),
-                bypassesSNIFiltering: false,
                 blurRadius: 0
             )
         }
