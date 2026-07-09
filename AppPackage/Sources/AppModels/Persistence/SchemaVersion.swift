@@ -7,21 +7,21 @@ private let logger = Logger(category: "SchemaVersion")
 /// decode. Adopt it together with a `SchemaVersion<Self>` field so the version validates itself on
 /// decode.
 public protocol SchemaVersioned {
-    /// Ordered migration maps, one slot per schema version: index 0 is v1 (must be `.passthrough`),
-    /// index 1 the v1→v2 map, index 2 the v2→v3 map, and so on. See `SchemaMigration` / `MigratableModel`.
-    static var migrations: [SchemaMigration<Self>] { get }
+    /// This model's schema history, oldest → newest (index 0 is version 1). The raw-JSON analog of
+    /// `SchemaMigrationPlan.schemas`. Never empty: a model that has never changed still declares its v1
+    /// base schema. When a breaking change lands, append the next `VersionedSchema`; see `VersionedSchema`.
+    static var schemas: [any VersionedSchema.Type] { get }
 }
 
 extension SchemaVersioned {
-    /// The newest `schemaVersion` this build understands — the number of declared migration slots. A
-    /// stored blob carrying a larger value is a downgrade and is rejected on decode.
-    public static var currentSchemaVersion: Int { migrations.count }
+    /// The newest `schemaVersion` this build understands — the head of `schemas`. A stored blob carrying
+    /// a larger value is a downgrade and is rejected on decode.
+    public static var currentSchemaVersion: Int { schemas.last?.version ?? 1 }
 
-    /// `true` iff `migrations` is well-formed: non-empty, its v1 slot (index 0) is `.passthrough`, and no
-    /// later slot is. `.passthrough` only makes sense at v1, which has no earlier version to migrate from.
-    public static var hasWellFormedMigrations: Bool {
-        guard let first = migrations.first, first.isPassthrough else { return false }
-        return migrations.dropFirst().allSatisfy { !$0.isPassthrough }
+    /// `true` iff `schemas` is non-empty and its versions are `1, 2, … n` — ascending, contiguous, and
+    /// starting at 1. The engine's ordered walk relies on this; an invariant test enforces it.
+    public static var hasWellFormedSchemas: Bool {
+        !schemas.isEmpty && schemas.enumerated().allSatisfy { $0.offset + 1 == $0.element.version }
     }
 }
 
@@ -36,8 +36,8 @@ extension SchemaVersioned {
 /// This is the lightweight, in-decode migration seam. It gives every persisted model uniform
 /// downgrade rejection *without* a hand-written `init(from:)`, so synthesized `Codable` — and with it
 /// each model's `didSet` invariants and optional-field tolerance — stays untouched. When a real
-/// breaking change lands for a model, that model gains a custom `init(from:)` that switches on this
-/// version to map the older shape forward.
+/// breaking change lands for a model, it appends a `VersionedSchema` to its `schemas` and routes
+/// `init(from:)` through `SchemaMigrator`, which walks the chain to map the older shape forward.
 public struct SchemaVersion<Model: SchemaVersioned>: Hashable, Sendable {
     public let value: Int
 

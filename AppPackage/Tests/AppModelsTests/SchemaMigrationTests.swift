@@ -5,28 +5,33 @@ import AppModels
 // MARK: - MOCK migratable models — REMOVE when real v2 models land
 //
 // No real model has a breaking change yet, so these mocks exercise the migration engine
-// (`SchemaMigrator` + `SchemaMigration` maps + progressive chaining). Each conforms to `MigratableModel`,
-// declares an ordered `migrations` list (index 0 = v1 = `.passthrough`), and provides `init(currentFrom:)`
-// for its current shape. A v1→v2 map is a raw-JSON transform; the engine reads a stored blob's version
-// and applies every map from there up to `currentSchemaVersion`, in order.
+// (`SchemaMigrator` walking a `VersionedSchema` history). Each conforms to `MigratableModel`, declares
+// an ordered `schemas` list (its v1 base schema plus a v2 that carries the map), and provides
+// `init(currentFrom:)` for its current shape. A schema's `migrate` is a raw-JSON transform; the engine
+// reads a stored blob's version and runs every schema newer than it, in order, up to `currentSchemaVersion`.
 //
 // Shapes covered, one per model: RENAME, ADD, REMOVE, TYPE, DERIVE, MERGE. `ProgressiveMock` covers a
 // multi-step chain (v1 → v2 → v3).
 //
-// FUTURE AGENT: when a model gains a REAL v2 (it adopts `MigratableModel` and appends a real map to its
-// `migrations`), DELETE that model's mock + its tests here and replace them with tests over the real
-// migration. Delete this whole file once every model has real migration coverage.
+// FUTURE AGENT: when a model gains a REAL v2 (it adopts `MigratableModel` and appends a real
+// `VersionedSchema` to its `schemas`), DELETE that model's mock + its tests here and replace them with
+// tests over the real migration. Delete this whole file once every model has real migration coverage.
 
 // MOCK — remove with real Setting v2. RENAME: v1 `galleryHost` → v2 `host`.
 private struct SettingMock: MigratableModel {
     var host: GalleryHost
-    static let migrations: [SchemaMigration<SettingMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             object["host"] = object["galleryHost"]
             object["galleryHost"] = nil
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -38,12 +43,17 @@ private struct SettingMock: MigratableModel {
 private struct UserMock: MigratableModel {
     var displayName: String?
     var region: String
-    static let migrations: [SchemaMigration<UserMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             object["region"] = .string("")
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -55,12 +65,17 @@ private struct UserMock: MigratableModel {
 // MOCK — remove with real Filter v2. REMOVE: v2 drops `minRating`; a v1 blob still carrying it decodes.
 private struct FilterMock: MigratableModel {
     var doujinshi: Bool
-    static let migrations: [SchemaMigration<FilterMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             object["minRating"] = nil
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -71,14 +86,19 @@ private struct FilterMock: MigratableModel {
 // MOCK — remove with real TagTranslatorInfo v2. TYPE: v1 `hasCustomTranslations: Bool` → v2 Int.
 private struct TagTranslatorInfoMock: MigratableModel {
     var customTranslations: Int
-    static let migrations: [SchemaMigration<TagTranslatorInfoMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             let flag = object["hasCustomTranslations"]?.boolValue ?? false
             object["customTranslations"] = .int(flag ? 1 : 0)
             object["hasCustomTranslations"] = nil
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -89,13 +109,18 @@ private struct TagTranslatorInfoMock: MigratableModel {
 // MOCK — remove with real GalleryHistoryEntry v2. DERIVE: v2 `started` computed from v1 `readingProgress`.
 private struct GalleryHistoryEntryMock: MigratableModel {
     var started: Bool
-    static let migrations: [SchemaMigration<GalleryHistoryEntryMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             let progress = object["readingProgress"]?.intValue ?? 0
             object["started"] = .bool(progress > 0)
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -106,14 +131,19 @@ private struct GalleryHistoryEntryMock: MigratableModel {
 // MOCK — remove with real QuickSearchWord v2. MERGE: v1 `name` + `content` → v2 `combined`.
 private struct QuickSearchWordMock: MigratableModel {
     var combined: String
-    static let migrations: [SchemaMigration<QuickSearchWordMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             let name = object["name"]?.stringValue ?? ""
             let content = object["content"]?.stringValue ?? ""
             object["combined"] = .string("\(name): \(content)")
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -124,19 +154,27 @@ private struct QuickSearchWordMock: MigratableModel {
 // MOCK — progressive chain across three versions. v1 field `a` → v2 `b` (doubled) → v3 `value` (plus one).
 private struct ProgressiveMock: MigratableModel {
     var value: Int
-    static let migrations: [SchemaMigration<ProgressiveMock>] = [
-        .passthrough,
-        SchemaMigration { object in
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self, SchemaV3.self] }
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
+    enum SchemaV2: VersionedSchema {
+        static let version = 2
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             let old = object["a"]?.intValue ?? 0
             object["b"] = .int(old * 2)
             object["a"] = nil
-        },
-        SchemaMigration { object in
+        }
+    }
+    enum SchemaV3: VersionedSchema {
+        static let version = 3
+        static func migrate(_ object: inout [String: JSONValue]) throws {
             let old = object["b"]?.intValue ?? 0
             object["value"] = .int(old + 1)
             object["b"] = nil
         }
-    ]
+    }
     init(from decoder: Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
     init(currentFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -171,7 +209,7 @@ struct SchemaMigrationTests {
     }
     @Test
     func aNewerVersionBlobIsRejected() {
-        // currentSchemaVersion is 3 (migrations.count); a v4 blob is a downgrade and throws.
+        // currentSchemaVersion is 3 (the schemas head); a v4 blob is a downgrade and throws.
         #expect(throws: (any Error).self) {
             try decode(ProgressiveMock.self, #"{"schemaVersion": 4, "value": 11}"#)
         }
@@ -263,15 +301,15 @@ struct SchemaMigrationTests {
         #expect(decoded.combined == "x")
     }
 
-    // MARK: Invariant — passthrough only at v1
+    // MARK: Invariant — well-formed schema history
     @Test
-    func everyModelDeclaresWellFormedMigrations() {
-        #expect(Setting.hasWellFormedMigrations)
-        #expect(User.hasWellFormedMigrations)
-        #expect(Filter.hasWellFormedMigrations)
-        #expect(TagTranslatorInfo.hasWellFormedMigrations)
-        #expect(GalleryHistoryEntry.hasWellFormedMigrations)
-        #expect(QuickSearchWord.hasWellFormedMigrations)
-        #expect(ProgressiveMock.hasWellFormedMigrations)   // 3 slots, passthrough only at index 0
+    func everyModelDeclaresWellFormedSchemas() {
+        #expect(Setting.hasWellFormedSchemas)
+        #expect(User.hasWellFormedSchemas)
+        #expect(Filter.hasWellFormedSchemas)
+        #expect(TagTranslatorInfo.hasWellFormedSchemas)
+        #expect(GalleryHistoryEntry.hasWellFormedSchemas)
+        #expect(QuickSearchWord.hasWellFormedSchemas)
+        #expect(ProgressiveMock.hasWellFormedSchemas)   // versions 1, 2, 3 — contiguous from 1
     }
 }

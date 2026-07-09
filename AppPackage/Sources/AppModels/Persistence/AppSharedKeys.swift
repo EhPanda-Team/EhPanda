@@ -36,10 +36,11 @@ import Sharing
 // the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
 // tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `QuickSearchWord`)
 // still hand-write `init(from:)` for their identity invariants, decoding that same `SchemaVersion`
-// field for the version check. Every model also declares an ordered `migrations` list (v1 =
-// `.passthrough`), from which `currentSchemaVersion` is derived. When a real breaking change lands,
-// the model adopts `MigratableModel` and appends its v(N-1)→vN map; the `SchemaMigrator` engine then
-// applies the chain in order (v1→v2→v3…) during decode. See `SchemaMigration`.
+// field for the version check. Every model also declares an ordered `schemas` history (à la SwiftData's
+// `SchemaMigrationPlan.schemas`), starting at its v1 base schema, from which `currentSchemaVersion` is
+// derived. When a real breaking change lands, the model appends a `VersionedSchema` whose `migrate` maps
+// the previous shape forward and adopts `MigratableModel`; the `SchemaMigrator` engine then walks the
+// chain in order (v1→v2→v3…) during decode. See `VersionedSchema` / `SchemaMigrator`.
 //
 // Nothing here uses the `fileStorage` strategy. The tag-translation table is the only large
 // artifact, and it is deliberately NOT persisted through Sharing: only its thin
