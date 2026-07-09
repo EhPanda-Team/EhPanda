@@ -146,9 +146,16 @@ public struct QuickSearchWord: Codable, Equatable, Identifiable, Sendable, Schem
     }
     public static var empty: Self { .init(name: "", content: "") }
 
-    /// Migration maps, one slot per schema version (index 0 = v1 = `.passthrough`). `currentSchemaVersion`
-    /// is derived from the count; append a map and adopt `MigratableModel` when a breaking v2 lands.
-    public static let migrations: [SchemaMigration<QuickSearchWord>] = [.passthrough]
+    /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
+    /// `currentSchemaVersion` derives from the head. Append a `VersionedSchema` and adopt
+    /// `MigratableModel` when a breaking change lands.
+    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self] }
+    /// The v1 base schema. Its `migrate` is empty — nothing precedes v1, and the engine only runs
+    /// schemas newer than the stored version, so it exists solely to anchor version 1.
+    enum SchemaV1: VersionedSchema {
+        static let version = 1
+        static func migrate(_ object: inout [String: JSONValue]) throws {}
+    }
     // Self-validating (see `SchemaVersion`): a newer/downgrade value is rejected on decode; the
     // identity guards in `init(from:)` below stay hand-written.
     public var schemaVersion: SchemaVersion<QuickSearchWord> = 1
