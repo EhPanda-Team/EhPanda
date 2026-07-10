@@ -4,11 +4,11 @@ import PackageDescription
 
 // MARK: Dependency
 var dependencies: [PackageDescription.Package.Dependency] = [
-    // Latest official Colorful (Lakr233) pinned exactly for DEP-07 modernization.
-    // Upstream deprecates `ColorfulView` on non-watchOS in 1.1.x with no in-package
-    // replacement (it recommends the separate ColorfulX Metal package); the resulting
-    // deprecation notice is documented in 01-COLORFUL-UAT.md rather than suppressed.
-    .package(url: "https://github.com/Lakr233/Colorful.git", exact: "1.1.1"),
+    // ColorfulX (Lakr233) — Metal-backed animated multicolor gradient, pinned exactly for
+    // supply-chain hardening. Replaces the deprecated Colorful package (DEP-07b): Colorful
+    // 1.1.x marked `ColorfulView` deprecated on non-watchOS ("This library hurts CPU alot")
+    // and pointed here, so the Home gallery-card gradient now renders through ColorfulX.
+    .package(url: "https://github.com/Lakr233/ColorfulX", exact: "6.1.0"),
     .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
     // App-owned fork of ddddxxx/SwiftyOpenCC, pinned exactly for DEP-01. It de-vendors the
     // OpenCC/marisa C++ engine (as a submodule) and carries the copencc shim fixes; its
@@ -33,7 +33,7 @@ var dependencies: [PackageDescription.Package.Dependency] = [
 
 extension PackageDescription.Target.Dependency {
     static let casePaths: Self = .product(name: "CasePaths", package: "swift-case-paths")
-    static let colorful: Self = .product(name: "Colorful", package: "Colorful")
+    static let colorfulX: Self = .product(name: "ColorfulX", package: "ColorfulX")
     static let composableArchitecture: Self = .product(
         name: "ComposableArchitecture",
         package: "swift-composable-architecture"
@@ -291,7 +291,7 @@ let targets: [PackageDescription.Target] = [
             .module(.systemNotificationExt),
             .module(.urlClient),
             .module(.userDefaultsClient),
-            .targetDependency(.colorful),
+            .targetDependency(.colorfulX),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
             .targetDependency(.kanna),
@@ -706,7 +706,7 @@ let targets: [PackageDescription.Target] = [
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
-            .targetDependency(.colorful),
+            .targetDependency(.colorfulX),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
