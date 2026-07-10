@@ -1,5 +1,5 @@
 {
-  "originHash" : "d01bea843377e994f3a1327068ddf296df73fd4f4ef8e52424b8208e87592afb",
+  "originHash" : "13278f96813e98f68574ee1bae6c2eb88547fb9d51ee03c0f29ef0f564a3214d",
   "pins" : [
     {
       "identity" : "colorfulx",
@@ -26,15 +26,6 @@
       "state" : {
         "revision" : "dcccb979a2183b8df3334237e3dc1ae2b4116a86",
         "version" : "1.2.0"
-      }
-    },
-    {
-      "identity" : "deprecatedapi",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/EhPanda-Team/DeprecatedAPI",
-      "state" : {
-        "branch" : "main",
-        "revision" : "021e29675457a9b4b7859a46afbb5d0e37574e84"
       }
     },
     {
