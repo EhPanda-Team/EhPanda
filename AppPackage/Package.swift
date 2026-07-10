@@ -4,8 +4,11 @@ import PackageDescription
 
 // MARK: Dependency
 var dependencies: [PackageDescription.Package.Dependency] = [
-    // Pinned to match the app's resolved version; 1.1.x deprecates ColorfulView.
-    .package(url: "https://github.com/Co2333/Colorful", .upToNextMinor(from: "1.0.1")),
+    // Latest official Colorful (Lakr233) pinned exactly for DEP-07 modernization.
+    // Upstream deprecates `ColorfulView` on non-watchOS in 1.1.x with no in-package
+    // replacement (it recommends the separate ColorfulX Metal package); the resulting
+    // deprecation notice is documented in 01-COLORFUL-UAT.md rather than suppressed.
+    .package(url: "https://github.com/Lakr233/Colorful.git", exact: "1.1.1"),
     .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.0"),
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
