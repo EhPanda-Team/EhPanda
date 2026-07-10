@@ -5,7 +5,7 @@ import Foundation
 import Kingfisher
 import SDWebImage
 import SDWebImageWebPCoder
-import UIImageColors
+import ImageColors
 import ComposableArchitecture
 import AppTools
 import AnimatedImageFeature
@@ -105,17 +105,9 @@ extension LibraryClient {
                 || SDImageCache.shared.diskImageDataExists(withKey: key)
         },
         analyzeImageColors: { image in
-            await withCheckedContinuation { continuation in
-                image.getColors(quality: .lowest) { colors in
-                    continuation.resume(
-                        returning: colors.map {
-                            [
-                                $0.primary, $0.secondary,
-                                $0.detail, $0.background
-                            ]
-                            .map(Color.init)
-                        }
-                    )
+            image.cgImage.flatMap { cgImage in
+                ImageColors.colors(from: cgImage, quality: .lowest).map { colors in
+                    [colors.primary, colors.secondary, colors.detail, colors.background]
                 }
             }
         },
