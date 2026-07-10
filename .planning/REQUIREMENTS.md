@@ -9,9 +9,9 @@
 
 ### DEP — Dependency reduction
 
-- [ ] **DEP-01**: Fork SwiftyOpenCC and modernize it — update its OpenCC dependency, package requirement, and Swift version to the latest, rebuilt on the current stack.
+- [x] **DEP-01**: Fork SwiftyOpenCC and modernize it — update its OpenCC dependency, package requirement, and Swift version to the latest, rebuilt on the current stack.
   - App depends on the fork; Simplified/Traditional tag conversion (`ChineseConverter`) is unchanged in behavior; builds clean on the pinned toolchain.
-- [ ] **DEP-02**: Fork UIImageColors and modernize it the same way.
+- [x] **DEP-02**: Fork UIImageColors and modernize it the same way.
   - App depends on the fork; dominant-color extraction (`getColors` → primary/secondary/detail/background) unchanged; builds clean.
 - [ ] **DEP-03**: Migrate Markdown from SwiftCommonMark to Apple swift-markdown.
   - `MarkdownUtil.parseTexts/parseLinks/parseImages` reproduced on swift-markdown's `Document`/walker; `TagTranslation` output identical on fixtures; `DetailView` markdown confirmed (render vs parse) and preserved; SwiftCommonMark removed from `Package.swift`.
@@ -91,8 +91,8 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEP-01 | Phase 1 | Pending |
-| DEP-02 | Phase 1 | Pending |
+| DEP-01 | Phase 1 | Complete |
+| DEP-02 | Phase 1 | Complete |
 | DEP-03 | Phase 1 | Pending |
 | DEP-04 | Phase 2 | Pending |
 | DEP-05 | Phase 3 | Pending |
@@ -114,6 +114,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | LINT-01 | Phase 11 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 21 total
 - Mapped to phases: 21 ✓
 - Unmapped: 0
