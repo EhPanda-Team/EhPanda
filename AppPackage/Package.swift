@@ -9,7 +9,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     // 1.1.x marked `ColorfulView` deprecated on non-watchOS ("This library hurts CPU alot")
     // and pointed here, so the Home gallery-card gradient now renders through ColorfulX.
     .package(url: "https://github.com/Lakr233/ColorfulX", exact: "6.1.0"),
-    .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
     // App-owned fork of ddddxxx/SwiftyOpenCC, pinned exactly for DEP-01. It de-vendors the
     // OpenCC/marisa C++ engine (as a submodule) and carries the copencc shim fixes; its
     // `OpenCC` product replaces EhPanda's former app-owned SwiftyOpenCC + copencc modules.
@@ -38,7 +37,6 @@ extension PackageDescription.Target.Dependency {
         name: "ComposableArchitecture",
         package: "swift-composable-architecture"
     )
-    static let deprecatedAPI: Self = .product(name: "DeprecatedAPI", package: "DeprecatedAPI")
     static let kanna: Self = .product(name: "Kanna", package: "Kanna")
     static let kingfisher: Self = .product(name: "Kingfisher", package: "Kingfisher")
     static let markdown: Self = .product(name: "Markdown", package: "swift-markdown")
@@ -90,6 +88,7 @@ enum Module: String {
     case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
     case imageColors = "ImageColors"
+    case legacyCFReadStream = "LegacyCFReadStream"
     case libraryClient = "LibraryClient"
     case logsClient = "LogsClient"
     case markdownExt = "MarkdownExt"
@@ -293,7 +292,6 @@ let targets: [PackageDescription.Target] = [
             .module(.userDefaultsClient),
             .targetDependency(.colorfulX),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.deprecatedAPI),
             .targetDependency(.kanna),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
@@ -441,7 +439,7 @@ let targets: [PackageDescription.Target] = [
             .module(.osLogExt),
             .module(.parserFeature),
             .targetDependency(.composableArchitecture),
-            .targetDependency(.deprecatedAPI),
+            .module(.legacyCFReadStream),
             .targetDependency(.kanna)
         ],
         plugins: swiftLintPlugins
@@ -515,6 +513,16 @@ let targets: [PackageDescription.Target] = [
     // Modernized I/O: a CGImage goes in and non-optional SwiftUI Colors come out.
     .target(
         module: .imageColors,
+        plugins: swiftLintPlugins
+    ),
+    // Internal isolation module for the one deprecated CFNetwork call the app relies on
+    // (`CFReadStreamCreateForHTTPRequest`, for domain fronting — DEP-06 / D-12/D-14). Compiled
+    // with `-suppress-warnings` so the unavoidable deprecation notice is silenced at this single
+    // documented boundary. Replaces the former external `DeprecatedAPI` package (inlined 01-09).
+    // Kept out of `products` (below): it is an internal implementation detail, not a public library.
+    .target(
+        module: .legacyCFReadStream,
+        swiftSettings: sharedSwiftSettings + [.unsafeFlags(["-suppress-warnings"])],
         plugins: swiftLintPlugins
     ),
     .target(
@@ -982,7 +990,11 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [.iOS(.v26)],
     products: targets
-        .filter({ !$0.isTest && $0.name != Module.testingSupport.rawValue })
+        .filter({
+            !$0.isTest
+                && $0.name != Module.testingSupport.rawValue
+                && $0.name != Module.legacyCFReadStream.rawValue
+        })
         .map(\.name)
         .map({ .library(name: $0, targets: [$0]) }),
     dependencies: dependencies,
