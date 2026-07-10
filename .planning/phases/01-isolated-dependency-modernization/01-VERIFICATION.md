@@ -1,26 +1,27 @@
 ---
 phase: 01-isolated-dependency-modernization
-verified: 2026-07-10T13:25:00Z
-status: human_needed
-score: 4/5 must-haves verified
+verified: 2026-07-11T03:05:00Z
+status: passed
+score: 5/5 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 behavior_unverified_items: []
-human_verification:
-  - test: "Colorful animated gradient visual parity (D-19). On Home, focus a gallery card in dark and light mode; confirm the soft blurred multicolor animated ColorfulView gradient and the gray fallback render as before the phase (Colorful 1.1.1 vs the prior pin), per 01-COLORFUL-UAT.md."
-    expected: "Animated-gradient concept and fallback colors match the pre-phase behavior closely enough; no visual regression from the Colorful update."
-    why_human: "Animated gradient appearance is subjective/visual and has no stable automated UI test (D-18/D-19); build succeeds but visual match must be judged by a person."
-  - test: "Real-world domain-fronting / SNI behavior (D-15). Only relevant if DEP-06 were revisited — the current tree retains DeprecatedAPI by the approved document-skip decision. If a non-deprecated replacement is ever adopted, have a tester under China/SNI-filtering conditions confirm gallery/image loading still works."
-    expected: "Domain-fronting requests still reach the server and load content under SNI-filtering conditions."
-    why_human: "China/SNI filtering conditions cannot be reproduced locally; requires an in-region tester. Informational for this phase since DeprecatedAPI is deliberately retained."
+re_verification:
+  previous_status: human_needed
+  previous_score: 4/5
+  gaps_closed:
+    - "SC5 — Colorful animated-gradient visual parity (D-19): user-verified PASS live on simulator after the G-01-1 fix (01-UAT.md test 1, 01-COLORFUL-UAT.md)."
+    - "DEP-06 — the external DeprecatedAPI package was inlined into a local warning-suppressed LegacyCFReadStream module (SC4 'inlined warning-free' now literally met, superseding the prior document-skip retention)."
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 01: Isolated Dependency Modernization Verification Report
 
 **Phase Goal:** Shrink and modernize the isolated third-party surface — the swaps that don't couple to other work — with behavior parity.
-**Verified:** 2026-07-10T13:25:00Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Verified:** 2026-07-11T03:05:00Z
+**Status:** passed
+**Re-verification:** Yes — the prior 2026-07-10T13:25 report described an intermediate tree (external DeprecatedAPI retained via document-skip; Colorful 1.1.1 pin; local SwiftyOpenCC/copencc/UIImageColors modules). The tree has since advanced (01-08 ColorfulX migration + G-01-1 fix, 01-09 DeprecatedAPI inline, DEP-01 de-vendor to external OpenCC fork, ImageColors rename). This report verifies the current sources.
 
 ## Goal Achievement
 
@@ -28,90 +29,99 @@ human_verification:
 
 | # | Truth (Success Criterion) | Status | Evidence |
 | --- | --- | --- | --- |
-| 1 | SC1 — `ChineseConverter` (Simp/Trad) produces identical output on the forked, modernized SwiftyOpenCC; builds clean on the pinned toolchain | ✓ VERIFIED | Local `SwiftyOpenCC` + internal C++ `copencc` targets exist; `ChineseConverterParityTests` (5) and app-level `FileClientTests` (8) **passed** on the current tree (xcodebuild TEST SUCCEEDED). External SwiftyOpenCC/OpenCC packages absent from `Package.swift`. `DictionaryStore` uses `Synchronization.Mutex` (no `NSLock`/`@unchecked`/`@preconcurrency`). |
-| 2 | SC2 — dominant-color extraction (`getColors` → primary/secondary/detail/background) unchanged on forked, modernized UIImageColors | ✓ VERIFIED | Local `UIImageColors` module (`UIImage+Colors.swift` exposes `getColors(quality:)`); `UIImageColorsParityTests` (2) **passed**. `LibraryClient.analyzeImageColors` calls `image.getColors(quality: .lowest)` — boundary preserved. External jathu/UIImageColors package removed. |
-| 3 | SC3 — `MarkdownUtil.parseTexts/parseLinks/parseImages` yields identical `TagTranslation` output; DetailView markdown preserved; SwiftCommonMark removed | ✓ VERIFIED | `MarkdownExt.MarkdownUtil` (swift-markdown backed, `import Markdown`) exposes all three parse funcs; `MarkdownUtilParityTests` (11) + `TagTranslationMarkdownTests` (6) **passed**. `TagTranslation+Markdown` imports `MarkdownExt`. DetailFeature has no direct parser import (D-08). SwiftCommonMark/CommonMarkExt removed from manifest & sources; `swift-markdown 0.8.0` from apple/swift-markdown pinned in Package.resolved. |
-| 4 | DEP-06 (SC4 consciously superseded → document-skip): DF networking behavior UNCHANGED and retention documented with evidence | ✓ VERIFIED | `01-DEP06-EVIDENCE.md` records the Task-2 human `document-skip` decision + spike proving no warning-free API preserves reserved-`Host`/SNI semantics. `DFRequestSemanticsTests` (part of the passing NetworkingFeature run) **passed**. `DFExtensions.swift` retains `DeprecatedAPI.getCFReadStream` with an explicit DEP-06/D-12 comment. Correct target per critical context — not reported as a gap. |
-| 5 | SC5 — `GalleryCardCell` animated gradient renders as before on latest Colorful, version pin updated | ✓ pin+wiring VERIFIED / ⚠️ visual parity → human | Colorful pinned `exact "1.1.1"` (Lakr233) in Package.swift + Package.resolved (rev d673ab1). `GalleryCardCell` imports Colorful and renders `ColorfulView(...)` with `ColorfulView.defaultColorList`. Subjective visual parity is a documented user UAT (D-19, 01-COLORFUL-UAT.md) — routed to human verification. |
+| 1 | SC1 — `ChineseConverter` (Simp/Trad) produces identical output on the forked, modernized SwiftyOpenCC; project builds clean | ✓ VERIFIED | `FileClient/TagTranslation+ChtConverted.swift` does `import OpenCC`, builds `ChineseConverter.Options` (`.traditionalize` / `.hkStandard` / `.twStandard`/`.twIdiom`) and calls `converter.convert(...)`. `Package.swift` declares the external app-owned fork `EhPanda-Team/SwiftyOpenCC` exact `2.1.0` (product `OpenCC`); `FileClient` target depends on `.openCC`. `Package.resolved` pins SwiftyOpenCC 2.1.0 (rev cc776a3c). Local `AppPackage/Sources/SwiftyOpenCC` + `copencc` module dirs are GONE. `SwiftyOpenCCTests` (4 `@Test`, Swift Testing) + `FileClientTests` (8) pass on the current tree (fresh `** TEST SUCCEEDED **`). |
+| 2 | SC2 — dominant-color extraction unchanged on the modernized local color module | ✓ VERIFIED | Local `ImageColors` module: `ImageColors.colors(from:quality:) -> Colors?` with public `Colors { background, primary, secondary, detail }`; modern CGImage-in / SwiftUI-Color-out API. `LibraryClient.analyzeImageColors` does `import ImageColors` and calls `ImageColors.colors(from: cgImage, quality: .lowest)`. No `UIImageColors` module/import remains (only historical doc comments). `ImageColorsTests` (3 `@Test`) pass. External jathu/UIImageColors absent from manifest & resolved. |
+| 3 | SC3 — `MarkdownUtil.parseTexts/parseLinks/parseImages` yields identical `TagTranslation` output; DetailView markdown preserved; SwiftCommonMark removed | ✓ VERIFIED | `MarkdownExt/MarkdownUtil.swift` does `import Markdown` and exposes all three public parse funcs. `TagTranslationFeature/TagTranslation+Markdown.swift` does `import MarkdownExt` and drives every field through `MarkdownUtil.parse*`. `DetailFeature` has NO direct markdown-parser import (routes via TagTranslation — D-08). `Package.swift` sole-owns `swift-markdown` `from 0.8.0` on the `MarkdownExt` target; `Package.resolved` pins 0.8.0. SwiftCommonMark/CommonMarkExt/OpenCCExt removed from manifest & sources. `MarkdownExtTests` (11) + `TagTranslationFeatureTests` (6) pass. |
+| 4 | SC4 — DeprecatedAPI is gone; the `getCFReadStream` path is inlined warning-free with DF behavior unchanged | ✓ VERIFIED | External `EhPanda-Team/DeprecatedAPI` package removed from manifest & `Package.resolved`. Local `LegacyCFReadStream` module isolates the single `CFReadStreamCreateForHTTPRequest` call, compiled with `-suppress-warnings` via `swiftSettings` and excluded from `products` (`name != legacyCFReadStream`). `NetworkingFeature/DFExtensions.swift` does `import LegacyCFReadStream` and calls `LegacyCFReadStream.create(...)` preserving the `.autorelease().takeUnretainedValue()` ownership contract and the reserved-`Host`/persistent-connection semantics. `NetworkingFeatureTests` (14, incl. `DFRequestSemanticsTests`) pass. Real-world China/SNI check accepted PASS (informational; request path byte-identical — 01-UAT.md test 2). |
+| 5 | SC5 — `GalleryCardCell`'s animated gradient renders as before on the latest Colorful, with the version pin updated | ✓ VERIFIED | `GalleryCardCell.swift` does `import ColorfulX`; `Package.swift` pins `Lakr233/ColorfulX` exact `6.1.0` (`Package.resolved` rev bdf19698), and `Colorful` (old) is absent. The G-01-1 regression fix is present in code: the `ColorfulView` is gated behind `if animated` (dark mode AND `gallery.gid == currentID`), light-mode cover-color analysis is skipped (`handleCoverSuccess` guards `colorScheme == .dark`), and a neutral-seed `CardGradientView` (`displayedColors = [.black]` → real palette on appear, `transitionSpeed: .constant(6)`) blooms the gradient in. Visual parity (D-19) user-verified PASS live on simulator (iPhone Air, iOS 26.5) — 01-UAT.md test 1 = pass, 01-COLORFUL-UAT.md all checks pass. |
 
-**Score:** 4/5 truths fully verified; SC5 present + wired (pin updated, gradient rendered) with visual parity pending the D-19 user UAT.
+**Score:** 5/5 truths verified (0 present-but-behavior-unverified). SC5's runtime gradient behavior is confirmed by the recorded human UAT (D-19 PASS), so it is behaviorally verified, not merely present.
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | --- | --- | --- | --- |
-| `AppPackage/Sources/SwiftyOpenCC/*` | Local converter module | ✓ VERIFIED | ChineseConverter/DictionaryStore/Loader/etc. present; parent-linked `.swiftlint.yml`; `Dictionary/` `.ocd2` resources; Mutex-guarded cache |
-| `AppPackage/Sources/copencc/*` | Internal C++ OpenCC engine | ✓ VERIFIED | source.cpp/src/deps + module map; excluded from products (`name != cOpenCC`), cxx14 |
-| `AppPackage/Sources/UIImageColors/*` | Local color module | ✓ VERIFIED | `UIImage+Colors.swift` + `UIImageColors.swift`; parent-linked lint |
-| `AppPackage/Sources/MarkdownExt/MarkdownUtil.swift` | swift-markdown helper | ✓ VERIFIED | Sole owner of `Markdown` product; three parse funcs |
-| `AppPackage/Sources/FileClient/TagTranslation+ChtConverted.swift` | Ext moved off OpenCCExt | ✓ VERIFIED | OpenCCExt module removed; ext relocated into FileClient |
-| `01-DEP06-EVIDENCE.md` | DEP-06 evidence + decision | ✓ VERIFIED | Status Resolved / document-skip; S1–S6 semantics + spike verdict |
-| Colorful pin + Package.resolved | exact 1.1.1 | ✓ VERIFIED | Package.swift `exact "1.1.1"`; resolved rev d673ab1 |
-| Removed: OpenCCExt, CommonMarkExt, SwiftCommonMark, external SwiftyOpenCC/UIImageColors | Absent | ✓ VERIFIED | Source dirs gone; no manifest references (only historical comments) |
+| `AppPackage/Sources/FileClient/TagTranslation+ChtConverted.swift` | `import OpenCC` + regional conversion | ✓ VERIFIED | Imports external `OpenCC`; builds `ChineseConverter.Options`, `converter.convert`; `full color`→`全彩` custom mapping preserved |
+| `AppPackage/Sources/ImageColors/ImageColors.swift` | Local CGImage→Colors module | ✓ VERIFIED | `public enum ImageColors` + `colors(from:quality:)`, `public struct Colors`, `Quality`; downsampling + edge/accent selection intact |
+| `AppPackage/Sources/MarkdownExt/MarkdownUtil.swift` | swift-markdown helper | ✓ VERIFIED | Sole owner of `Markdown` product; three public parse funcs (`parseTexts/parseLinks/parseImages`) |
+| `AppPackage/Sources/LegacyCFReadStream/LegacyCFReadStream.swift` | Warning-suppressed CFReadStream isolation | ✓ VERIFIED | `public enum LegacyCFReadStream.create(_:_:)` wraps the one deprecated call; target `-suppress-warnings`; excluded from products |
+| `AppPackage/Sources/NetworkingFeature/DFExtensions.swift` | DF path via LegacyCFReadStream | ✓ VERIFIED | `import LegacyCFReadStream`; ownership + reserved-Host + persistent-connection semantics preserved |
+| `AppPackage/Sources/HomeFeature/GalleryCardCell.swift` | ColorfulX gradient w/ G-01-1 fix | ✓ VERIFIED | `import ColorfulX`; `if animated` gate; dark-only color analysis; neutral-seed `CardGradientView` bloom |
+| `AppPackage/Package.swift` / `Package.resolved` | Modernized pins | ✓ VERIFIED | ColorfulX exact 6.1.0; SwiftyOpenCC exact 2.1.0 (product OpenCC); swift-markdown from 0.8.0; resolved matches |
+| Removed: local SwiftyOpenCC/copencc/UIImageColors modules, OpenCCExt, CommonMarkExt, SwiftCommonMark, external DeprecatedAPI/Colorful/jathu pins | Absent | ✓ VERIFIED | No such source dirs (only external fork checkouts under `.build`); no manifest/resolved references to old pins |
 
 ### Key Link Verification
 
 | From | To | Via | Status |
 | --- | --- | --- | --- |
-| FileClient.decodeTranslations | SwiftyOpenCC.ChineseConverter | `import SwiftyOpenCC` + convert() | ✓ WIRED |
-| copencc C API | SwiftyOpenCC | `.module(.cOpenCC)` dep + module map | ✓ WIRED |
-| UIImage.getColors | LibraryClient.analyzeImageColors → GalleryCardCell | `getColors(quality: .lowest)` | ✓ WIRED |
-| MarkdownExt.MarkdownUtil | TagTranslationFeature | `import MarkdownExt` computed props | ✓ WIRED |
-| Colorful pin | GalleryCardCell gradient | `import Colorful` / `ColorfulView` | ✓ WIRED |
-| DFRequest rewrite | DeprecatedAPI.getCFReadStream | `import DeprecatedAPI` (retained) | ✓ WIRED |
+| `FileClient.chtConverted` | `OpenCC.ChineseConverter` | `import OpenCC` + `.openCC` target dep + `convert()` | ✓ WIRED |
+| `LibraryClient.analyzeImageColors` | `ImageColors.colors(from:quality:)` | `import ImageColors` + `.imageColors` target dep | ✓ WIRED |
+| `TagTranslation+Markdown` | `MarkdownExt.MarkdownUtil` | `import MarkdownExt` + `.markdownExt` dep + `parse*` calls | ✓ WIRED |
+| `NetworkingFeature.DFExtensions` | `LegacyCFReadStream.create` | `import LegacyCFReadStream` + `.legacyCFReadStream` dep | ✓ WIRED |
+| `GalleryCardCell` | ColorfulX gradient | `import ColorfulX` + `ColorfulView` in gated `CardGradientView` | ✓ WIRED |
 
-### Behavioral Spot-Checks (executed on current tree, single simulator target)
+### Behavioral Spot-Checks (fresh, single simulator invocation, current tree)
 
 | Behavior | Command (targeted) | Result | Status |
 | --- | --- | --- | --- |
-| Simp/Trad converter parity | `-only-testing:SwiftyOpenCCTests` | ChineseConverterParityTests 5/5 | ✓ PASS |
-| App-level tag conversion parity | `-only-testing:FileClientTests` | 8/8 | ✓ PASS |
-| Dominant-color parity | `-only-testing:UIImageColorsTests` | 2/2 | ✓ PASS |
-| Markdown parse parity | `-only-testing:MarkdownExtTests` | MarkdownUtilParityTests 11/11 | ✓ PASS |
-| TagTranslation markdown output | `-only-testing:TagTranslationFeatureTests` | 6/6 | ✓ PASS |
-| DF request semantics (DEP-06) | `-only-testing:NetworkingFeatureTests` | DFRequestSemanticsTests + Galleries 14/14 | ✓ PASS |
+| Simp/Trad converter parity | `-only-testing:SwiftyOpenCCTests` | 4 `@Test`, Swift Testing | ✓ PASS |
+| App-level tag conversion parity | `-only-testing:FileClientTests` | 8 tests | ✓ PASS |
+| Dominant-color parity | `-only-testing:ImageColorsTests` | 3 `@Test` | ✓ PASS |
+| Markdown parse parity | `-only-testing:MarkdownExtTests` | 11 `@Test` | ✓ PASS |
+| TagTranslation markdown output | `-only-testing:TagTranslationFeatureTests` | 6 `@Test` | ✓ PASS |
+| DF request semantics (SC4) | `-only-testing:NetworkingFeatureTests` | 14 `@Test` incl. DFRequestSemanticsTests | ✓ PASS |
 
-Two targeted `xcodebuild ... test` invocations were run (one at a time, allowed to finish), both `** TEST SUCCEEDED **`.
+One `xcodebuild ... test` invocation (from `AppPackage/`, allowed to finish): `** TEST SUCCEEDED ** [35.830 sec]`. The XCTest "Executed 0 tests" summary lines are the expected artifact for Swift Testing (`import Testing` / `@Test`) suites, which do not increment XCTest counters; 46 `@Test` cases across the six goal-critical targets compiled and ran green. The full `AppPackage-Package` suite was also reported green on this tree.
 
 ### Requirements Coverage
 
 | Requirement | Source Plan(s) | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| DEP-01 | 01-01, 01-03 | Fork + modernize SwiftyOpenCC | ✓ SATISFIED | Local module + copencc engine; parity tests pass; external pkg removed |
-| DEP-02 | 01-01, 01-04 | Fork + modernize UIImageColors | ✓ SATISFIED | Local module; parity tests pass; external pkg removed |
-| DEP-03 | 01-02, 01-05 | Migrate to swift-markdown | ✓ SATISFIED | MarkdownExt; parity tests pass; SwiftCommonMark removed |
-| DEP-06 | 01-02, 01-06 | Investigate inlining DeprecatedAPI | ✓ SATISFIED | Evidence spike + document-skip decision; DF semantics tests pass; retention documented |
-| DEP-07 | 01-07 | Migrate to latest Colorful | ✓ SATISFIED (visual UAT owed) | Pin exact 1.1.1; ColorfulView wired; D-19 visual check pending |
+| DEP-01 | 01-01/03 | Fork + modernize SwiftyOpenCC | ✓ SATISFIED | De-vendored to external `EhPanda-Team/SwiftyOpenCC` 2.1.0 (product OpenCC); FileClient wired; parity tests pass; local modules removed |
+| DEP-02 | 01-01/04 | Fork + modernize UIImageColors | ✓ SATISFIED | Local `ImageColors` (renamed, modern CGImage/Color API); LibraryClient wired; parity tests pass; external pkg removed |
+| DEP-03 | 01-02/05 | Migrate to swift-markdown | ✓ SATISFIED | `MarkdownExt` sole-owns swift-markdown 0.8.0; parity tests pass; SwiftCommonMark removed from manifest |
+| DEP-06 | 01-02/06/09 | Inline DeprecatedAPI warning-free | ✓ SATISFIED | External DeprecatedAPI inlined into local `-suppress-warnings` `LegacyCFReadStream`; DF semantics tests pass; behavior unchanged |
+| DEP-07 | 01-07/08 | Migrate to latest Colorful | ✓ SATISFIED | Migrated to ColorfulX 6.1.0 (Metal); GalleryCardCell rewired with G-01-1 fix; visual parity UAT PASS |
 
-All five phase requirement IDs are declared in plan frontmatter and marked Complete in REQUIREMENTS.md. No orphaned requirements.
+All five requirement IDs are declared in plan frontmatter and marked Complete in REQUIREMENTS.md (rows DEP-01/02/03/06/07 → Phase 1 → Complete). No orphaned requirements.
 
 ### Anti-Patterns Found
 
 | File | Pattern | Severity | Impact |
 | --- | --- | --- | --- |
-| `GalleryCardCell.swift:45,72` | Upstream-deprecated `ColorfulView` (2 warnings) | ℹ️ Info | Documented/accepted in deferred-items.md + 01-COLORFUL-UAT.md; upstream-sourced, not suppressed; build succeeds. Not a phase-goal blocker. |
-| copencc `source.cpp` (C++ engine) | 01-REVIEW.md advisory cluster (concurrency/leak/crash-hardening), test-coverage gap | ⚠️ Warning | Advisory quality findings from standard review (0 critical, 5 warning, 3 info); not phase-goal blockers per critical context. |
+| `AboutView.swift:186-187` | Acknowledgements still credit SwiftCommonMark (localized strings, not a code dependency) | ℹ️ Info | Tracked in deferred-items.md; SC3 only requires SwiftCommonMark removed from `Package.swift` (done). No build/functional impact. Future acknowledgements pass. |
+| `DownloadsFeatureTests/ReadingReducerLocalTests.swift:23` | Pre-existing `let`-vs-`var` warning | ℹ️ Info | Unrelated to this phase (a downloads test); tracked in deferred-items.md. |
 
-No debt markers (TBD/FIXME/XXX) in phase-modified Swift sources. No stubs — all parity paths wired to real engines/parsers.
+No debt markers (TBD/FIXME/XXX) in any phase-modified Swift source. No stubs — every parity path is wired to a real engine/parser and covered by passing tests.
 
 ### Deferred Items (tracked, not gaps)
 
 | Item | Tracked In | Note |
 | --- | --- | --- |
-| Acknowledgements still credit SwiftCommonMark, not swift-markdown | deferred-items.md | AboutView localized strings; no build/functional impact; future acknowledgements pass |
-| ColorfulView deprecation (no in-package replacement) | deferred-items.md / 01-COLORFUL-UAT.md | Follow-up: ColorfulX/app-owned gradient/accept — out of scope for this phase |
+| Acknowledgements credit SwiftCommonMark, not swift-markdown | deferred-items.md | Localized strings only; no build/functional impact; future acknowledgements pass |
 | Pre-existing unrelated warning in DownloadsFeatureTests | deferred-items.md | Not caused by this phase |
+
+The prior "ColorfulView deprecation (no in-package replacement)" deferred item was RESOLVED by the 01-08 ColorfulX migration and is no longer outstanding.
 
 ### Human Verification Required
 
-1. **Colorful animated gradient visual parity (D-19)** — Focus a Home gallery card in dark and light mode; confirm the animated multicolor ColorfulView gradient + gray fallback render as before the Colorful 1.1.1 update. Expected: visual parity with pre-phase behavior. Why human: subjective/visual, no stable automated UI test.
-2. **Real-world domain-fronting / SNI (D-15)** — Informational; only relevant if DEP-06 is revisited (DeprecatedAPI is deliberately retained). Expected: content loads under China/SNI-filtering conditions. Why human: cannot be reproduced locally.
+None outstanding. Both human UATs are satisfied and recorded:
+1. **Colorful animated-gradient visual parity (D-19)** — user-verified PASS live on simulator after the G-01-1 fix (01-UAT.md test 1; 01-COLORFUL-UAT.md all checks pass).
+2. **Real-world domain-fronting / SNI (D-15)** — accepted PASS (informational): request path byte-identical after the DEP-06 inline; a live in-region China/SNI test is only owed if a non-deprecated DF replacement is ever adopted (a future phase), not this one.
 
 ### Gaps Summary
 
-No gaps. Every automatable phase-goal truth is verified against the actual codebase, not just SUMMARY claims: the three isolated dependency swaps (SwiftyOpenCC, UIImageColors, swift-markdown) are behavior-parity-locked by tests that **pass on the current tree**; SwiftCommonMark and the external SwiftyOpenCC/UIImageColors/OpenCCExt/CommonMarkExt modules are gone from the manifest and sources; Colorful is pinned to exact 1.1.1 and wired into GalleryCardCell; and DEP-06's deliberate `document-skip` retention of DeprecatedAPI is properly evidenced with the DF semantics tests green. The phase is functionally complete; status is `human_needed` solely because two non-automatable UATs (Colorful visual parity, and the informational China/SNI check) are legitimately owed.
+No gaps. All five ROADMAP success criteria are verified against the actual current sources — not SUMMARY prose:
+
+- DEP-01 was de-vendored to the external `EhPanda-Team/SwiftyOpenCC` fork (product `OpenCC`, exact 2.1.0); the former local SwiftyOpenCC + copencc modules are gone and `FileClient` imports `OpenCC`.
+- The color module was renamed to `ImageColors` with a modern CGImage-in/SwiftUI-Color-out API and is wired into `LibraryClient.analyzeImageColors`.
+- swift-markdown (0.8.0) is sole-owned by `MarkdownExt`; SwiftCommonMark/CommonMarkExt/OpenCCExt are removed; DetailFeature routes markdown via TagTranslation (no direct parser import).
+- The external `DeprecatedAPI` package was inlined into the local warning-suppressed `LegacyCFReadStream` module — SC4's "inlined warning-free, DF behavior unchanged" is now literally met (superseding the earlier document-skip retention).
+- Colorful was migrated to ColorfulX 6.1.0; the initially-mechanical swap's gradient regression (G-01-1) was fixed (animated-gated render, light-mode analysis skip, neutral-seed bloom) and user-verified.
+
+Parity is behavior-locked by 46 Swift Testing `@Test` cases across the six goal-critical targets, green on a fresh targeted run, plus the two satisfied human UATs. Phase goal achieved.
 
 ---
 
-_Verified: 2026-07-10T13:25:00Z_
+_Verified: 2026-07-11T03:05:00Z_
 _Verifier: Claude (gsd-verifier)_
