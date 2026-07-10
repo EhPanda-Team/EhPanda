@@ -21,7 +21,7 @@
   - Reading paging parity: horizontal/RTL/dual-page, page-index mapping, gesture coexistence; SwiftUIPager removed; if native can't reach parity, spike surfaces it before commit.
 - [x] **DEP-06**: Investigate inlining DeprecatedAPI (`getCFReadStream`) into the project without deprecation warnings; adopt a non-deprecated API if actionable.
   - Either the shim is inlined warning-free or a non-deprecated replacement is used; DeprecatedAPI dependency removed; DF networking behavior unchanged.
-- [ ] **DEP-07**: Migrate to the latest Colorful.
+- [x] **DEP-07**: Migrate to the latest Colorful.
   - `GalleryCardCell` animated gradient renders as before on the current API; version pin updated.
 
 ### CONC — Concurrency & framework modernization
@@ -97,7 +97,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | DEP-04 | Phase 2 | Pending |
 | DEP-05 | Phase 3 | Pending |
 | DEP-06 | Phase 1 | Complete |
-| DEP-07 | Phase 1 | Pending |
+| DEP-07 | Phase 1 | Complete |
 | CONC-01 | Phase 4 | Pending |
 | CONC-02 | Phase 4 | Pending |
 | UIARCH-01 | Phase 5 | Pending |
