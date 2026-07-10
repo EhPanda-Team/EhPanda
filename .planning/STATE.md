@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 01
-current_phase_name: Isolated Dependency Modernization
-status: verifying
+current_phase: 2
+current_phase_name: spike-gated
+status: planning
 stopped_at: Completed 01-09 (DeprecatedAPI inlined as LegacyCFReadStream; DEP-06 override)
-last_updated: "2026-07-10T15:29:42.000Z"
-last_activity: 2026-07-11
-last_activity_desc: 01-09 inlined DeprecatedAPI as LegacyCFReadStream (DEP-06 override)
+last_updated: "2026-07-10T18:01:23.346Z"
+last_activity: 2026-07-10
+last_activity_desc: Phase 01 complete, transitioned to Phase 2
 progress:
   total_phases: 11
   completed_phases: 1
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 01 (Isolated Dependency Modernization) — EXECUTING
-Plan: 9 of 9
-Status: Phase complete — ready for verification
-Last activity: 2026-07-11 — 01-09 inlined DeprecatedAPI as LegacyCFReadStream (DEP-06 override)
+Phase: 2 — Native Masonry Grid Swap (spike-gated)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-10 — Phase 01 complete, transitioned to Phase 2
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -39,7 +39,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 9
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -47,7 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01 | 9 | - | - |
 
 **Recent Trend:**
 
@@ -86,6 +86,7 @@ Recent decisions affecting current work:
 - [Phase ?]: DEP-07: Colorful updated to official Lakr233/Colorful.git exact 1.1.1; ColorfulView deprecation documented as user-decision blocker (not suppressed).
 - [Phase 01]: 01-08: Migrated gallery gradient Colorful → ColorfulX 6.1.0 (Metal), closing the DEP-07 ColorfulView deprecation blocker via option (a); animated→speed mapping, warning-free build, full suite green (431 tests).
 - [Phase 01]: 01-09: Inlined the external DeprecatedAPI package into a local internal LegacyCFReadStream module (isolates deprecated CFReadStreamCreateForHTTPRequest), silenced via -suppress-warnings scoped to that one target; overrides DEP-06 D-12 (document-skip) per explicit user request; DF behavior byte-identical (S1–S7 green), warning-free build, full suite green.
+- [Phase 01]: verify-work found & fixed a ColorfulX behavior regression (gap G-01-1): the Colorful→ColorfulX swap was API-faithful but NOT behavior-faithful (ColorfulX always paints a full-bleed opaque gradient; speed:0 ≠ Colorful's near-invisible animated:false). Fix in GalleryCardCell: gate `ColorfulView` on `animated` (focused dark card only), skip light-mode color calc, and seed-then-bloom the gradient via ColorfulX `transitionSpeed`. User-verified live; 01-VERIFICATION.md re-verified status **passed 5/5**. Lesson: a library swap needs behavior parity, not just API parity.
 
 ### Pending Todos
 
@@ -110,6 +111,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T15:29:42.000Z
-Stopped at: Completed 01-09 (DeprecatedAPI inlined as LegacyCFReadStream; DEP-06 override)
+Last session: 2026-07-11
+Stopped at: Phase 01 complete — verify-work fixed gradient regression G-01-1, 4 UAT items pass, verification passed 5/5; ready to plan Phase 2
 Resume file: None

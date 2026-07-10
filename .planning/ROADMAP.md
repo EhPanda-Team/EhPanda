@@ -21,7 +21,7 @@ enable them; the mechanical rules sweep last.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Isolated Dependency Modernization** - Fork/modernize/replace the third-party deps that don't couple to other work, at parity
+- [x] **Phase 1: Isolated Dependency Modernization** - Fork/modernize/replace the third-party deps that don't couple to other work, at parity (completed 2026-07-10)
 - [ ] **Phase 2: Native Masonry Grid Swap (spike-gated)** - Validate then replace WaterfallGrid with a custom SwiftUI Layout
 - [ ] **Phase 3: Native Reader Paging Swap (spike-gated)** - Validate then replace SwiftUIPager with a page-style TabView
 - [ ] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits
@@ -225,7 +225,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Isolated Dependency Modernization | 7/7 | In Progress|  |
+| 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
 | 2. Native Masonry Grid Swap | 0/TBD | Not started | - |
 | 3. Native Reader Paging Swap | 0/TBD | Not started | - |
 | 4. Concurrency & Framework Migration | 0/TBD | Not started | - |

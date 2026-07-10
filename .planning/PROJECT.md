@@ -22,19 +22,19 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ Tag translation — EhTagTranslation database + OpenCC Simplified/Traditional conversion — existing
 - ✓ Persistence — swift-sharing `@Shared` (no Core Data) + progressive schema-migration engine (all models at v1) — existing
 - ✓ Modular architecture — App-shell + `AppPackage` local package; deps centralized in `Package.swift` — existing
+- ✓ Fork/modernize SwiftyOpenCC (DEP-01) — de-vendored to the EhPanda-Team fork (`OpenCC`), Simp/Trad parity — Phase 1
+- ✓ Fork/modernize UIImageColors (DEP-02) — local `ImageColors` module (renamed; CGImage-in / SwiftUI-Color-out), extraction parity — Phase 1
+- ✓ SwiftCommonMark → Apple swift-markdown (DEP-03) — local `MarkdownExt`; parse-only parity — Phase 1
+- ✓ Investigate inlining DeprecatedAPI (DEP-06) — inlined as local warning-suppressed `LegacyCFReadStream`; DF request path byte-identical — Phase 1
+- ✓ Migrate to latest Colorful (DEP-07) — migrated to ColorfulX 6.1.0 (Metal); gradient behavior parity restored after regression gap G-01-1 — Phase 1
 
 ### Active
 
 <!-- This milestone's scope: 21 locked tasks. Hypotheses until shipped. Grouped by theme; the roadmap phases them. -->
 
-**A · Dependency reduction**
-- [ ] 1. Fork **SwiftyOpenCC** — modernize its OpenCC dependency, package requirement & Swift version; rebuild on the latest stack
-- [ ] 2. Fork **UIImageColors** — same modernization treatment
-- [ ] 3. Migrate **SwiftCommonMark → Apple swift-markdown** (usage is parse-only via `MarkdownUtil`; confirm `DetailView`)
+**A · Dependency reduction** <!-- items 1, 2, 3, 6, 7 shipped at parity in Phase 1 → Validated -->
 - [ ] 4. Replace **WaterfallGrid** with a custom SwiftUI `Layout` · *feasibility spike first*
 - [ ] 5. Replace **SwiftUIPager** with a built-in page-style `TabView` · *feasibility spike first*
-- [ ] 6. Investigate inlining **DeprecatedAPI** (`getCFReadStream`) without deprecation warnings; adopt a non-deprecated API if actionable
-- [ ] 7. Migrate to the latest **Colorful** (modernization, not reduction)
 
 **B · Concurrency & framework modernization**
 - [ ] 8. Migrate **Combine-based requests → async/await** (`NetworkingFeature` request layer + `ApplicationClient`/`AuthorizationClient`/`ImageClient`/`LibraryClient` + consuming reducer effects)
@@ -120,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-09 after initialization*
+*Last updated: 2026-07-11 after Phase 1*
