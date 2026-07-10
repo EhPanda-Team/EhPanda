@@ -1,9 +1,13 @@
 import AppModels
 import Foundation
-import OpenCC
+import SwiftyOpenCC
 
+// The Traditional-Chinese conversion of a tag-translation table is an app-specific concern:
+// it depends on the user's preferred regional language and on EhPanda's custom `full color`
+// tag mapping. It therefore lives at the FileClient boundary rather than inside the
+// general-purpose `SwiftyOpenCC` converter module (which stays focused on string conversion).
 extension Dictionary where Value == TagTranslation {
-    public var chtConverted: Self {
+    var chtConverted: Self {
         func customConversion(text: String) -> String {
             switch text {
             case "full color":
@@ -24,7 +28,7 @@ extension Dictionary where Value == TagTranslation {
 
         guard let converter = try? ChineseConverter(options: options) else { return self }
         var dictionary = self
-        dictionary.forEach { (key, value) in
+        dictionary.forEach { key, value in
             dictionary[key] = TagTranslation(
                 namespace: value.namespace, key: value.key,
                 value: customConversion(text: converter.convert(value.value)),

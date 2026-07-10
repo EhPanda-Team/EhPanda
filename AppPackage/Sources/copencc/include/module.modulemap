@@ -1,0 +1,4 @@
+module copencc {
+    header "header.h"
+    export *
+}
