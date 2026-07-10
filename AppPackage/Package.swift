@@ -13,7 +13,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.63.0"),
     .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     .package(url: "https://github.com/gonzalezreal/SwiftCommonMark", from: "1.0.0"),
-    .package(url: "https://github.com/jathu/UIImageColors", from: "2.2.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/paololeonardi/WaterfallGrid", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
@@ -41,7 +40,6 @@ extension PackageDescription.Target.Dependency {
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
     static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
-    static let uiImageColors: Self = .product(name: "UIImageColors", package: "UIImageColors")
     static let waterfallGrid: Self = .product(name: "WaterfallGrid", package: "WaterfallGrid")
 }
 
@@ -100,6 +98,7 @@ enum Module: String {
     case swiftyOpenCC = "SwiftyOpenCC"
     case systemNotificationExt = "SystemNotificationExt"
     case tagTranslationFeature = "TagTranslationFeature"
+    case uiImageColors = "UIImageColors"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
 
@@ -297,7 +296,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUIPager),
-            .targetDependency(.uiImageColors),
             .targetDependency(.waterfallGrid)
         ],
         resources: [.process(.resources)],
@@ -575,6 +573,13 @@ let targets: [PackageDescription.Target] = [
         resources: [.copy(.dictionary)],
         plugins: swiftLintPlugins
     ),
+    // App-owned local dominant-color module. Clean-room reimplementation of the
+    // app-needed `UIImage.getColors` surface, replacing the external jathu/UIImageColors
+    // package while preserving color-selection output (DEP-02, D-01/D-04/D-05/D-16).
+    .target(
+        module: .uiImageColors,
+        plugins: swiftLintPlugins
+    ),
     .target(
         module: .osLogExt,
         dependencies: [
@@ -769,7 +774,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
             .targetDependency(.swiftUIPager),
-            .targetDependency(.uiImageColors),
             .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
@@ -857,7 +861,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
-            .targetDependency(.uiImageColors)
+            .module(.uiImageColors)
         ],
         plugins: swiftLintPlugins
     ),
@@ -1013,7 +1017,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .uiImageColorsTests,
         dependencies: [
-            .targetDependency(.uiImageColors)
+            .module(.uiImageColors)
         ],
         plugins: swiftLintPlugins
     ),
