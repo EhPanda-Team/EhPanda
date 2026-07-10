@@ -23,6 +23,23 @@ struct FileClientTests {
         return try JSONEncoder().encode(response)
     }
 
+    // Simplified-Chinese source values plus the custom `full color` case, used to prove OpenCC
+    // conversion is applied only for `.traditionalChinese`. `简体` traditionalizes to `簡體` under
+    // every regional standard, so the expectation is machine-locale-invariant.
+    private func chineseResponseData() throws -> Data {
+        let response = EhTagTranslationDatabaseResponse(
+            data: [.init(namespace: "female", data: [
+                "simp": .init(name: "简体"),
+                "fc": .init(name: "full color")
+            ])]
+        )
+        return try JSONEncoder().encode(response)
+    }
+
+    private func value(forKey key: String, in translator: TagTranslator) -> String? {
+        translator.translations.values.first(where: { $0.key == key })?.value
+    }
+
     private var customTranslationsURL: URL {
         .applicationSupportDirectory.appending(component: "tagTranslations-custom.json")
     }
@@ -83,6 +100,36 @@ struct FileClientTests {
         )
         #expect(rebuilt.hasCustomTranslations)
         #expect(rebuilt.translations.count == 1)
+    }
+
+    // DEP-01 parity: a remote table built for Traditional Chinese must apply OpenCC conversion
+    // (`简体` → `簡體`) and the custom `full color` → `全彩` mapping.
+    @Test
+    func traditionalChineseAppliesOpenCCConversionAndCustomFullColor() throws {
+        let language = TranslatableLanguage.traditionalChinese
+        let cacheURL = URL.cachesDirectory.appending(component: language.cachedTranslationsFilename)
+        defer { try? FileManager.default.removeItem(at: cacheURL) }
+
+        let built = try #require(
+            FileClient.live.cacheAndBuildRemoteTagTranslator(try chineseResponseData(), language, .distantPast)
+        )
+        #expect(value(forKey: "simp", in: built) == "簡體")
+        #expect(value(forKey: "fc", in: built) == "全彩")
+    }
+
+    // DEP-01 parity: any non-Traditional-Chinese table keeps its raw values untouched — no OpenCC
+    // conversion and no custom `full color` remap.
+    @Test
+    func nonTraditionalChineseLeavesTagValuesUnconverted() throws {
+        let language = TranslatableLanguage.simplifiedChinese
+        let cacheURL = URL.cachesDirectory.appending(component: language.cachedTranslationsFilename)
+        defer { try? FileManager.default.removeItem(at: cacheURL) }
+
+        let built = try #require(
+            FileClient.live.cacheAndBuildRemoteTagTranslator(try chineseResponseData(), language, .distantPast)
+        )
+        #expect(value(forKey: "simp", in: built) == "简体")
+        #expect(value(forKey: "fc", in: built) == "full color")
     }
 
     @Test

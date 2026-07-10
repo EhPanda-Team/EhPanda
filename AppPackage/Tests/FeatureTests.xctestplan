@@ -60,6 +60,20 @@
         "identifier" : "SettingFeatureTests",
         "name" : "SettingFeatureTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "SwiftyOpenCCTests",
+        "name" : "SwiftyOpenCCTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "UIImageColorsTests",
+        "name" : "UIImageColorsTests"
+      }
     }
   ],
   "version" : 1
