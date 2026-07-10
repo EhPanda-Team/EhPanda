@@ -19,13 +19,15 @@ created: 2026-07-10
 |----------|-------|
 | **Framework** | Swift Testing on Swift 6.3.3 |
 | **Config file** | `AppPackage/Tests/FeatureTests.xctestplan` |
-| **Quick run command** | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` |
-| **Full suite command** | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` |
+| **Quick run command** | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` |
+| **Full suite command** | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` |
 | **Confirmed simulator** | iPhone Air, iOS 26.5, id `ADE09605-A44E-4F00-BE12-235970217355` |
 | **Destination syntax** | `-destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355'` |
-| **Estimated runtime** | TBD after first clean run on the confirmed simulator |
+| **Estimated runtime** | Wave 0 targeted run (SwiftyOpenCC + UIImageColors + FileClient): ~1s of test execution after a clean build |
 
 > Re-confirmed 2026-07-10 via `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -showdestinations`: the list includes `{ platform:iOS Simulator, arch:arm64, id:ADE09605-A44E-4F00-BE12-235970217355, OS:26.5, name:iPhone Air }`. All later plans use the id-based destination syntax above.
+>
+> **Command correction (2026-07-10, plan 01-01):** The `FeatureTests` test plan is associated with the app's `EhPanda` shared scheme (`EhPanda.xcodeproj/xcshareddata/xcschemes/EhPanda.xcscheme`), not the auto-generated SwiftPM `AppPackage-Package` scheme. Passing `-testPlan FeatureTests` to `-scheme AppPackage-Package` fails with "Scheme does not have an associated test plan named FeatureTests". The `AppPackage-Package` scheme already includes every package test target by default, so the `-testPlan FeatureTests` flag was removed from all commands here; `-only-testing:` filters select the specific targets. The `FeatureTests.xctestplan` file still drives the `EhPanda` scheme and is kept in sync with the new test targets.
 
 ---
 
@@ -42,19 +44,19 @@ created: 2026-07-10
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 01-W0-01 | 01-01 | 0 | DEP-01 | - | N/A | unit/integration | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:SwiftyOpenCCTests -only-testing:FileClientTests` | No - 01-01 creates `AppPackage/Tests/SwiftyOpenCCTests` and a focused FileClient fixture | pending |
-| 01-W0-02 | 01-01 | 0 | DEP-02 | - | N/A | unit | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:UIImageColorsTests` | No - 01-01 creates `AppPackage/Tests/UIImageColorsTests` | pending |
-| 01-W0-03 | 01-02 | 1 | DEP-03 | T-01-02-01 | Markdown image URL handling stays structured and fixture-locked | unit/integration | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:MarkdownExtTests -only-testing:TagTranslationFeatureTests` | No - 01-02 creates `MarkdownExtTests` and `TagTranslationFeatureTests` with real source files before registration | pending |
-| 01-W0-04 | 01-02 | 1 | DEP-06 | T-01-02-02 | Host header, cookies, body, redirects, and original-domain trust semantics are preserved | unit plus manual technical verification | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:NetworkingFeatureTests` | Partial - existing target lacks `DFRequestSemanticsTests.swift` until 01-02 | pending |
-| 01-W0-05 | 01-07 | 6 | DEP-07 | T-01-07-03 | N/A | build plus manual visual UAT | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` | No stable automated UI visual test; manual verification required | pending |
+| 01-W0-01 | 01-01 | 0 | DEP-01 | - | N/A | unit/integration | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:SwiftyOpenCCTests -only-testing:FileClientTests` | Yes | passed 2026-07-10 |
+| 01-W0-02 | 01-01 | 0 | DEP-02 | - | N/A | unit | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:UIImageColorsTests` | Yes | passed 2026-07-10 |
+| 01-W0-03 | 01-02 | 1 | DEP-03 | T-01-02-01 | Markdown image URL handling stays structured and fixture-locked | unit/integration | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:MarkdownExtTests -only-testing:TagTranslationFeatureTests` | No - 01-02 creates `MarkdownExtTests` and `TagTranslationFeatureTests` with real source files before registration | pending |
+| 01-W0-04 | 01-02 | 1 | DEP-06 | T-01-02-02 | Host header, cookies, body, redirects, and original-domain trust semantics are preserved | unit plus manual technical verification | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:NetworkingFeatureTests` | Partial - existing target lacks `DFRequestSemanticsTests.swift` until 01-02 | pending |
+| 01-W0-05 | 01-07 | 6 | DEP-07 | T-01-07-03 | N/A | build plus manual visual UAT | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` | No stable automated UI visual test; manual verification required | pending |
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `AppPackage/Tests/SwiftyOpenCCTests` - fixture-lock DEP-01 converter parity for default, HK/TW, and custom conversion cases.
-- [ ] Focused `FileClientTests` fixture - verify app-level `TagTranslation` conversion behavior remains unchanged.
-- [ ] `AppPackage/Tests/UIImageColorsTests` - deterministic image fixtures for DEP-02 background/primary/secondary/detail parity.
+- [x] `AppPackage/Tests/SwiftyOpenCCTests` - fixture-lock DEP-01 converter parity for default, HK/TW, and custom conversion cases.
+- [x] Focused `FileClientTests` fixture - verify app-level `TagTranslation` conversion behavior remains unchanged.
+- [x] `AppPackage/Tests/UIImageColorsTests` - deterministic image fixtures for DEP-02 background/primary/secondary/detail parity.
 - [ ] `AppPackage/Tests/MarkdownExtTests` - swift-markdown adapter parity for `parseTexts`, `parseLinks`, and `parseImages`.
 - [ ] `AppPackage/Tests/TagTranslationFeatureTests` - app-level markdown-derived `TagTranslation` coverage if `MarkdownExtTests` alone does not prove the feature boundary.
 - [ ] `AppPackage/Tests/NetworkingFeatureTests/DFRequestSemanticsTests.swift` - DEP-06 technical semantics for host replacement, headers/cookies/body preservation, redirects, and trust-host selection.

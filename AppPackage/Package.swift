@@ -115,6 +115,8 @@ enum Module: String {
     case detailFeatureTests = "DetailFeatureTests"
     case networkingFeatureTests = "NetworkingFeatureTests"
     case appModelsTests = "AppModelsTests"
+    case swiftyOpenCCTests = "SwiftyOpenCCTests"
+    case uiImageColorsTests = "UIImageColorsTests"
 }
 
 extension Module {
@@ -936,6 +938,22 @@ let targets: [PackageDescription.Target] = [
         module: .appModelsTests,
         dependencies: [
             .module(.appModels)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .swiftyOpenCCTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.openCCExt),
+            .targetDependency(.openCC)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .uiImageColorsTests,
+        dependencies: [
+            .targetDependency(.uiImageColors)
         ],
         plugins: swiftLintPlugins
     )
