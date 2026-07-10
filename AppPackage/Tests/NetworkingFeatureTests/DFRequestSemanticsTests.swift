@@ -142,4 +142,65 @@ struct DFRequestSemanticsTests {
         let cookieHeader = try #require(dfRequest.request.value(forHTTPHeaderField: "Cookie"))
         #expect(cookieHeader.contains("igneous=abc123"))
     }
+
+    // MARK: D-14 expansion for the DEP-06 removal spike
+    //
+    // These lock the remaining D-14 facets that a warning-free replacement candidate must preserve:
+    // arbitrary-header pass-through, the trust-policy host binding, and the original-domain source the
+    // redirect handler rebuilds against. They stay pure request transforms — the live SecTrust
+    // evaluation and CFHTTPMessage response propagation are exercised only through a scheduled stream,
+    // so their end-to-end proof remains the manual China/SNI verification (D-13/D-15).
+
+    /// Arbitrary (non-Host) request headers survive the domain-to-IP rewrite verbatim. Domain fronting
+    /// only rewrites the URL host and injects `Host`; every other header a caller set — user agent,
+    /// accept, custom auth — must reach the fronted origin unchanged.
+    @Test
+    func arbitraryRequestHeadersArePreservedThroughIPReplacement() throws {
+        var request = URLRequest(url: try #require(URL(string: "https://e-hentai.org/g/1/")))
+        request.setValue("EhPanda/Test", forHTTPHeaderField: "User-Agent")
+        request.setValue("text/html", forHTTPHeaderField: "Accept")
+
+        let replaced = request.domainIPReplaced()
+
+        #expect(replaced.value(forHTTPHeaderField: "User-Agent") == "EhPanda/Test")
+        #expect(replaced.value(forHTTPHeaderField: "Accept") == "text/html")
+        #expect(replaced.value(forHTTPHeaderField: "Host") == "e-hentai.org")
+    }
+
+    /// The value the stream handler feeds to `SecPolicyCreateSSL(true, domain)` is the *original*
+    /// domain, never the raw IP now sitting in the URL host. This is the trust-host binding D-14
+    /// depends on: custom trust is evaluated against the intended domain even though the socket
+    /// connects to an IP. The live `SecTrust` evaluation itself needs a real handshake (manual, D-13).
+    @Test
+    func trustPolicyHostResolvesToOriginalDomainNotIP() throws {
+        let request = URLRequest(url: try #require(URL(string: "https://e-hentai.org/g/1/")))
+
+        let replaced = request.domainIPReplaced()
+
+        let urlHost = try #require(replaced.url?.host)
+        #expect(isIPv4(urlHost))
+        // `.domain` is exactly what DFStreamEventHandler.evaluate passes to SecPolicyCreateSSL.
+        #expect(replaced.domain == "e-hentai.org")
+        #expect(replaced.domain != urlHost)
+    }
+
+    /// The redirect handler rebuilds site-root `Location` targets against `domainWithScheme`, which
+    /// must recover the original domain after IP replacement. This locks that recovery source and the
+    /// rebuilt target's host, mirroring `DFStreamEventHandler.endEncountered` without opening a socket.
+    @Test
+    func siteRootRedirectRebuildsAgainstOriginalDomain() throws {
+        let request = URLRequest(url: try #require(URL(string: "https://e-hentai.org/g/1/")))
+
+        let replaced = request.domainIPReplaced()
+
+        let scheme = try #require(replaced.domainWithScheme)
+        #expect(scheme == "https://e-hentai.org")
+
+        // Reproduce the handler's reconstruction for a site-root redirect (e.g. Location: /popular).
+        let originalURL = try #require(URL(string: scheme))
+        let rebuilt = originalURL.appendingPathComponent("/popular")
+        #expect(rebuilt.host == "e-hentai.org")
+        #expect(rebuilt.scheme == "https")
+        #expect(rebuilt.path == "/popular")
+    }
 }
