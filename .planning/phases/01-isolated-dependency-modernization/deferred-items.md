@@ -11,7 +11,8 @@ Out-of-scope discoveries logged during execution. Not fixed in the current plan;
 
 ## From 01-07 (DEP-07 Colorful update)
 
-- **`ColorfulView` is deprecated upstream in Colorful 1.1.x with no in-package replacement.**
+- **`ColorfulView` is deprecated upstream in Colorful 1.1.x with no in-package replacement. — RESOLVED (01-08).**
+  - **Resolution (01-08):** the user chose option (a) below. Colorful was removed and the gallery gradient migrated to ColorfulX `6.1.0` (Metal); `HomeFeature` now builds warning-free. See `01-08-SUMMARY.md` and `01-COLORFUL-UAT.md`. Original context retained below.
   - Files: `AppPackage/Sources/HomeFeature/GalleryCardCell.swift` (lines 45 and 72 reference `ColorfulView` / `ColorfulView.defaultColorList`).
   - What happens: building `HomeFeature` on the research-approved latest Colorful (`1.1.1`) emits `'ColorfulView' is deprecated: This library hurts CPU alot, use Metal program from https://github.com/Lakr233/ColorfulX instead.` The build still succeeds (no `-warnings-as-errors`), and the animated gradient renders as before.
   - Why deferred: plan 01-07 explicitly forbids satisfying DEP-07 through another gradient path or deleting Colorful, and the whole `ColorfulView` struct is deprecated (there is no non-deprecated Colorful view API to migrate to), so a fully warning-free adoption is not achievable inside this plan's scope. The residual warning is upstream-sourced, not a project code defect, and it is not suppressed.
