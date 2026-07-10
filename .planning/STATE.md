@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Isolated Dependency Modernization
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-07-10T02:20:46.164Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-07-10T02:35:23.914Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 01 (Isolated Dependency Modernization) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-07-10 — Phase 01 execution started
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 8min | 2 tasks | 8 files |
+| Phase 01 P02 | 8min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,9 @@ Recent decisions affecting current work:
 - Roadmap: LINT-01 split — mechanical rules sweep last (Phase 11); refactor-gated rules land with their refactors (`optional_try`→Phase 9; binding/lifecycle/unchecked-subscript→Phases 5–7).
 - [Phase ?]: 01-01: Dropped invalid -testPlan FeatureTests from AppPackage-Package commands (plan bound to EhPanda scheme; package scheme runs all test targets)
 - [Phase ?]: 01-01: Wave 0 parity fixtures lock current SwiftyOpenCC (default/HK/TW + full color) and UIImageColors RGBA output before DEP-01/DEP-02 swaps
+- [Phase ?]: 01-02: Wave 0 markdown fixtures target current CommonMarkExt.MarkdownUtil; MarkdownExtTests name reserves MarkdownExt (D-09) with no app-owned Markdown module
+- [Phase ?]: 01-02: DF semantics locked via pure request transforms + DFRequest header assembly, resume() never called (no live networking, D-13); real-world DF stays manual
+- [Phase ?]: 01-02: Wave 0 complete (DEP-01/02/03/06 baselines locked); nyquist_compliant true
 
 ### Pending Todos
 
@@ -94,6 +98,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T02:20:35.797Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-07-10T02:35:13.899Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
