@@ -1,5 +1,5 @@
 {
-  "originHash" : "86b9834c05a1ecde157ecb896174607efc23fc4c1ae4c5b4769999bd9e7c311a",
+  "originHash" : "7740e94add618f2cdaebe1d06f8854a5a075a93a29fcd33d65fa02193feecb47",
   "pins" : [
     {
       "identity" : "colorful",
@@ -224,15 +224,6 @@
       "state" : {
         "revision" : "4ddc04c801aac143090bb14cf26603a3bf9c74cb",
         "version" : "2.5.0"
-      }
-    },
-    {
-      "identity" : "uiimagecolors",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jathu/UIImageColors",
-      "state" : {
-        "revision" : "e49e6c32ea556e9fa0109dc79686bea4a10d41a2",
-        "version" : "2.2.0"
       }
     },
     {

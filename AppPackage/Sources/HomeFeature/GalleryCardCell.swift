@@ -3,7 +3,6 @@ import AppModels
 import AppComponents
 import Colorful
 import Kingfisher
-import UIImageColors
 import AppTools
 
 public struct GalleryCardCell: View {
