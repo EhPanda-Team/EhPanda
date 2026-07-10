@@ -180,7 +180,8 @@ The highest-risk item is DEP-06. The installed Xcode 26.6 iPhoneOS 26.5 SDK stil
 .package(url: "https://github.com/Lakr233/Colorful.git", exact: "1.1.1"),
 
 // Local targets under AppPackage/Sources
-.target(name: "SwiftyOpenCC", resources: [.copy("Dictionary")], plugins: [.swiftLint]),
+.target(module: .cOpenCC, publicHeadersPath: "include", sources: ["source.cpp", "src", "deps/marisa-0.2.6"], swiftSettings: nil),
+.target(module: .swiftyOpenCC, dependencies: [.module(.cOpenCC)], resources: [.copy(.dictionary)], plugins: swiftLintPlugins),
 .target(name: "UIImageColors", plugins: [.swiftLint]),
 .target(name: "MarkdownExt", dependencies: [.markdown], plugins: [.swiftLint]),
 ```
@@ -474,22 +475,13 @@ Source: current `getColors(quality:)` API and DEP-02 parity requirement. [VERIFI
 |---|-------|---------|---------------|
 | A1 | A URLSession-based HTTPS replacement may not preserve current domain-fronting behavior because TLS/SNI/trust behavior is not a documented drop-in match for the current IP-host plus original-domain trust model. [ASSUMED] | Open Questions / DEP-06 | Planner might overestimate replacement viability; mitigate by making DEP-06 a spike with D-12 skip path. |
 
-## Open Questions
+## Open Questions - RESOLVED
 
-1. **Can DEP-06 be completed warning-free without weakening domain fronting?**
-   - What we know: The current dependency wraps one deprecated CFHTTP stream creation call, and related response/persistent connection stream properties are also deprecated in the SDK. [VERIFIED: Xcode 26.6 SDK headers]
-   - What's unclear: Whether a non-deprecated URLSession/URLProtocol path can preserve IP replacement, original `Host`, cookies, redirect propagation, and original-domain trust under real China/SNI conditions. [ASSUMED]
-   - Recommendation: Plan DEP-06 as a first-class spike/checkpoint. Remove `DeprecatedAPI` only after local semantic tests and technical request verification pass; otherwise document D-12/D-13 skip evidence. [VERIFIED: 01-CONTEXT.md]
+1. **DEP-06 viability resolution path:** `01-06-PLAN.md` Task 1 runs the evidence spike and records D-12 through D-15 semantics evidence in `01-DEP06-EVIDENCE.md`; Task 2 is the blocking `Approve the DEP-06 branch` checkpoint; Task 3 implements only the selected removal or documented-retention branch. This resolves the planning question without claiming that a warning-free replacement is already viable: the implementation outcome remains intentionally evidence-dependent until the checkpoint. [RESOLVED BY PLAN: 01-06 Task 1, Task 2 checkpoint, Task 3]
 
-2. **Will latest OpenCC dictionaries preserve exact app output?**
-   - What we know: Latest OpenCC release notes include dictionary and data-format changes, while DEP-01 requires identical conversion output. [VERIFIED: official git] [VERIFIED: .planning/ROADMAP.md]
-   - What's unclear: Whether the app's actual tag fixture corpus changes under OpenCC `ver.1.4.0`.
-   - Recommendation: Freeze fixture outputs before updating dictionaries. If latest dictionaries change outputs, keep the older dictionary data or require an explicit user decision before accepting changed conversions. [VERIFIED: 01-CONTEXT.md]
+2. **OpenCC engine and dictionary parity resolution path:** `01-01-PLAN.md` Task 2 first locks default, HK, TW, and custom conversion outputs. `01-03-PLAN.md` Task 1 then vendors the internal `copencc` C++ bridge and required licenses, makes `SwiftyOpenCC` depend on `.module(.cOpenCC)`, adds typed `Path.dictionary`, copies resources with `.copy(.dictionary)`, and loads `.ocd2` files through `Bundle.module`. Task 2 proves the bridge opens and applies the bundled default/HK/TW dictionaries by comparing distinct regional conversions with the Wave 0 fixtures. Dictionary data that changes locked output is not adopted for DEP-01. [RESOLVED BY PLAN: 01-01 Task 2; 01-03 Task 1 and Task 2]
 
-3. **Is Colorful 1.1.1 acceptable under the clean-build standard?**
-   - What we know: The initializer remains compatible, but `ColorfulView` is deprecated on non-watchOS in 1.1.1. [VERIFIED: official git]
-   - What's unclear: Whether the app's current build settings treat this as a blocking warning.
-   - Recommendation: Upgrade Colorful in isolation and run the pinned Xcode build. If warnings block, preserve the animated-gradient concept with an app-owned SwiftUI/Metal-free view and remove the direct `ColorfulView` call. [VERIFIED: .planning/ROADMAP.md]
+3. **Colorful clean-build acceptability resolution path:** `01-07-PLAN.md` Task 1 adopts the research-approved latest Colorful package; Task 2 requires the current Colorful API and a warning-free package build, and records a blocker rather than deleting or replacing Colorful if that cannot be achieved; Task 3 runs the full test plan and records visual UAT. This resolves how acceptability is decided while leaving the actual clean-build result to execution evidence. [RESOLVED BY PLAN: 01-07 Task 1, Task 2, Task 3]
 
 ## Environment Availability
 
@@ -498,13 +490,13 @@ Source: current `getColors(quality:)` API and DEP-02 parity requirement. [VERIFI
 | Xcode / `xcodebuild` | Build, package resolution, tests | yes | Xcode 26.6 build 17F113 | None; project is Xcode-build constrained. [VERIFIED: environment probe] |
 | Swift toolchain | SwiftPM manifest and tests | yes | Apple Swift 6.3.3 | None. [VERIFIED: environment probe] |
 | iPhoneOS SDK | iOS build and SDK deprecation checks | yes | iPhoneOS 26.5 SDK | None. [VERIFIED: environment probe] |
-| iPhoneSimulator SDK | Test execution | yes | iPhoneSimulator 26.5 SDK | Use `xcodebuild -showdestinations` if a named simulator is unavailable. [VERIFIED: environment probe] |
+| iPhoneSimulator SDK | Test execution | yes | iPhoneSimulator 26.5 SDK; iPhone Air id `ADE09605-A44E-4F00-BE12-235970217355` | None; verified with `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -showdestinations`. [VERIFIED: package workspace destinations] |
 | Git | SwiftPM tag verification and commits | yes | 2.53.0 | None. [VERIFIED: environment probe] |
 | Network access | Fetch new SwiftPM versions | restricted in sandbox | Available through approved escalations during research | Use existing pins if network is unavailable; planner should include package resolution verification. [VERIFIED: environment probe] |
 
-**Missing dependencies with no fallback:** none found locally, assuming an iOS simulator destination is available. [VERIFIED: environment probe]
+**Missing dependencies with no fallback:** none; the package workspace exposes the confirmed iPhone Air simulator on iOS 26.5 with id `ADE09605-A44E-4F00-BE12-235970217355`. [VERIFIED: package workspace destinations]
 
-**Missing dependencies with fallback:** specific simulator name is not locked; use `xcodebuild -showdestinations` before writing final test commands. [VERIFIED: environment probe]
+**Missing dependencies with fallback:** none. The destination was locked with `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -showdestinations`. [VERIFIED: package workspace destinations]
 
 ## Validation Architecture
 
@@ -514,26 +506,26 @@ Source: current `getColors(quality:)` API and DEP-02 parity requirement. [VERIFI
 |----------|-------|
 | Framework | Swift Testing on Swift 6.3.3 [VERIFIED: codebase grep] [VERIFIED: environment probe] |
 | Config file | `AppPackage/Tests/FeatureTests.xctestplan` [VERIFIED: codebase grep] |
-| Quick run command | `xcodebuild -project EhPanda.xcodeproj -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,name=iPhone Air,OS=26.5' test` [VERIFIED: .planning/codebase/STACK.md] |
-| Full suite command | `xcodebuild -project EhPanda.xcodeproj -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,name=iPhone Air,OS=26.5' test` [VERIFIED: .planning/codebase/STACK.md] |
+| Quick run command | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` [VERIFIED: package workspace destinations] |
+| Full suite command | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` [VERIFIED: package workspace destinations] |
 
-The simulator name/version should be confirmed in Wave 0 with `xcodebuild -showdestinations` because only SDK availability was probed during research. [VERIFIED: environment probe]
+The package workspace/scheme was verified to expose iPhone Air on iOS 26.5 with destination id `ADE09605-A44E-4F00-BE12-235970217355` by `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -showdestinations`. [VERIFIED: package workspace destinations]
 
 ### Phase Requirements -> Test Map
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|--------------|
-| DEP-01 | `ChineseConverter` and tag CHT conversion produce locked outputs for default/HK/TW options and custom `"full color"` case | unit/integration | `xcodebuild ... -only-testing:SwiftyOpenCCTests test` and `-only-testing:FileClientTests test` | No, Wave 0 add `AppPackage/Tests/SwiftyOpenCCTests` and targeted FileClient fixture. [VERIFIED: codebase grep] |
-| DEP-02 | `getColors(quality: .lowest)` returns identical background/primary/secondary/detail for deterministic image fixtures | unit | `xcodebuild ... -only-testing:UIImageColorsTests test` | No, Wave 0 add `AppPackage/Tests/UIImageColorsTests`. [VERIFIED: codebase grep] |
-| DEP-03 | `MarkdownUtil.parseTexts/parseLinks/parseImages`, `TagTranslation` markdown output, and `DetailView` dependency boundary stay correct | unit/integration | `xcodebuild ... -only-testing:MarkdownExtTests test -only-testing:TagTranslationFeatureTests test` | No, Wave 0 add `MarkdownExtTests`; TagTranslation tests may need a new target. [VERIFIED: codebase grep] |
-| DEP-06 | Domain-fronting request rewriting, headers/cookies/body handling, redirects, and trust-host selection stay semantically unchanged | unit plus manual technical verification | `xcodebuild ... -only-testing:NetworkingFeatureTests test` | Partial; `NetworkingFeatureTests` exists but lacks DF-specific tests. [VERIFIED: codebase grep] |
-| DEP-07 | `GalleryCardCell` builds on latest Colorful and visual animated-gradient concept is preserved | build plus manual visual UAT | Full suite build/test command plus user verification | No stable automated UI visual test; acceptable per D-18/D-19. [VERIFIED: 01-CONTEXT.md] |
+| DEP-01 | `ChineseConverter` and tag CHT conversion produce locked outputs for default/HK/TW options and custom `"full color"` case | unit/integration | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:SwiftyOpenCCTests -only-testing:FileClientTests` | No, Wave 0 adds `AppPackage/Tests/SwiftyOpenCCTests` and targeted FileClient fixture. [VERIFIED: codebase grep] |
+| DEP-02 | `getColors(quality: .lowest)` returns identical background/primary/secondary/detail for deterministic image fixtures | unit | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:UIImageColorsTests` | No, Wave 0 adds `AppPackage/Tests/UIImageColorsTests`. [VERIFIED: codebase grep] |
+| DEP-03 | `MarkdownUtil.parseTexts/parseLinks/parseImages`, `TagTranslation` markdown output, and `DetailView` dependency boundary stay correct | unit/integration | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:MarkdownExtTests -only-testing:TagTranslationFeatureTests` | No, Wave 0 adds `MarkdownExtTests`; TagTranslation tests may need a new target. [VERIFIED: codebase grep] |
+| DEP-06 | Domain-fronting request rewriting, headers/cookies/body handling, redirects, and trust-host selection stay semantically unchanged | unit plus manual technical verification | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test -only-testing:NetworkingFeatureTests` | Partial; `NetworkingFeatureTests` exists but lacks DF-specific tests. [VERIFIED: codebase grep] |
+| DEP-07 | `GalleryCardCell` builds on latest Colorful and visual animated-gradient concept is preserved | build plus manual visual UAT | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` plus user visual verification | No stable automated UI visual test; acceptable per D-18/D-19. [VERIFIED: 01-CONTEXT.md] |
 
 ### Sampling Rate
 
-- **Per task commit:** targeted `xcodebuild ... -only-testing:<new test target> test` for the touched seam. [VERIFIED: pfw-testing skill]
-- **Per wave merge:** full `FeatureTests` plan. [VERIFIED: .planning/config.json]
-- **Phase gate:** full suite green before `$gsd-verify-work`, plus user visual verification for DEP-02/DEP-07 and tester evidence for DEP-06 if replacement is implemented. [VERIFIED: 01-CONTEXT.md]
+- **Per task commit:** run the complete command in the touched requirement's `Phase Requirements -> Test Map` row. [VERIFIED: pfw-testing skill]
+- **Per wave merge:** run the `Full suite command` in `Test Framework`. [VERIFIED: .planning/config.json]
+- **Phase gate:** run the `Full suite command` in `Test Framework` before `$gsd-verify-work`; it must be green, followed by user visual verification for DEP-02/DEP-07 and tester evidence for DEP-06 if replacement is implemented. [VERIFIED: 01-CONTEXT.md]
 
 ### Wave 0 Gaps
 
@@ -542,7 +534,7 @@ The simulator name/version should be confirmed in Wave 0 with `xcodebuild -showd
 - [ ] `AppPackage/Tests/MarkdownExtTests` - covers DEP-03 parser adapter parity. [VERIFIED: codebase grep]
 - [ ] `AppPackage/Tests/TagTranslationFeatureTests` - covers DEP-03 app-level markdown-derived properties if not already covered by `MarkdownExtTests`. [VERIFIED: codebase grep]
 - [ ] `AppPackage/Tests/NetworkingFeatureTests/DFRequestSemanticsTests.swift` - covers DEP-06 technical semantics. [VERIFIED: codebase grep]
-- [ ] Confirm simulator destination with `xcodebuild -showdestinations`. [VERIFIED: environment probe]
+- [x] Confirmed iPhone Air on iOS 26.5 with id `ADE09605-A44E-4F00-BE12-235970217355` using `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -showdestinations`. [VERIFIED: package workspace destinations]
 
 ## Security Domain
 
