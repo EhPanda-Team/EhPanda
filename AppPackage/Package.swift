@@ -290,7 +290,6 @@ let targets: [PackageDescription.Target] = [
             .module(.urlClient),
             .module(.userDefaultsClient),
             .targetDependency(.colorful),
-            .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
             .targetDependency(.deprecatedAPI),
             .targetDependency(.kanna),
@@ -614,7 +613,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .module(.commonMarkExt)
+            .module(.markdownExt)
         ],
         plugins: swiftLintPlugins
     ),
@@ -814,7 +813,6 @@ let targets: [PackageDescription.Target] = [
             .module(.systemNotificationExt),
             .module(.tagTranslationFeature),
             .module(.urlClient),
-            .targetDependency(.commonMark),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),

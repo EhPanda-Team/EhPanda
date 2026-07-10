@@ -1,6 +1,6 @@
 import AppModels
-import CommonMarkExt
 import Foundation
+import MarkdownExt
 
 extension TagTranslation {
     public var displayValue: String {
