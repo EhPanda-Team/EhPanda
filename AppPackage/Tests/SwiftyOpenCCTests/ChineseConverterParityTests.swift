@@ -1,10 +1,10 @@
 import Testing
 import Foundation
-@testable import SwiftyOpenCC
+import OpenCC
 
-// DEP-01 parity for the app-owned local `SwiftyOpenCC` module. These cases prove the internal
-// `copencc` bridge actually opens the bundled `.ocd2` dictionaries from `Bundle.module` and applies
-// each regional conversion chain — a real converter call, not a resource-existence check. The three
+// DEP-01 parity for the de-vendored `OpenCC` package (EhPanda-Team/SwiftyOpenCC fork). These cases
+// prove the fork's converter actually opens its bundled `.ocd2` dictionaries and applies each
+// regional conversion chain — a real converter call, not a resource-existence check. The three
 // regional standards produce distinct output for the same input (`网络`), which locks the default
 // (`s2t`), Hong Kong (`s2hk`), and Taiwan-idiom (`s2twp`) pipelines against the Wave 0 baseline.
 @Suite
@@ -43,15 +43,5 @@ struct ChineseConverterParityTests {
         #expect(hongKong == "網絡")
         #expect(taiwan == "網路")
         #expect(taiwan != general)
-    }
-
-    /// A bundle without the `Dictionary/` resources must surface a `.fileNotFound` bridge error
-    /// rather than silently degrading, keeping loader failures observable.
-    @Test
-    func missingDictionaryBundleThrowsFileNotFound() {
-        let loader = ChineseConverter.DictionaryLoader(bundle: .main)
-        #expect(throws: ConversionError.fileNotFound) {
-            _ = try ChineseConverter(loader: loader, options: [.traditionalize])
-        }
     }
 }

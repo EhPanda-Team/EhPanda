@@ -10,6 +10,10 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     // deprecation notice is documented in 01-COLORFUL-UAT.md rather than suppressed.
     .package(url: "https://github.com/Lakr233/Colorful.git", exact: "1.1.1"),
     .package(url: "https://github.com/EhPanda-Team/DeprecatedAPI", branch: "main"),
+    // App-owned fork of ddddxxx/SwiftyOpenCC, pinned exactly for DEP-01. It de-vendors the
+    // OpenCC/marisa C++ engine (as a submodule) and carries the copencc shim fixes; its
+    // `OpenCC` product replaces EhPanda's former app-owned SwiftyOpenCC + copencc modules.
+    .package(url: "https://github.com/EhPanda-Team/SwiftyOpenCC", exact: "2.1.0"),
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.0"),
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
@@ -38,6 +42,7 @@ extension PackageDescription.Target.Dependency {
     static let kanna: Self = .product(name: "Kanna", package: "Kanna")
     static let kingfisher: Self = .product(name: "Kingfisher", package: "Kingfisher")
     static let markdown: Self = .product(name: "Markdown", package: "swift-markdown")
+    static let openCC: Self = .product(name: "OpenCC", package: "SwiftyOpenCC")
     static let sdWebImageSwiftUI: Self = .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
@@ -71,7 +76,6 @@ enum Module: String {
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
     case cookieClient = "CookieClient"
-    case cOpenCC = "copencc"
     case dfClient = "DFClient"
     case dateSeekFeature = "DateSeekFeature"
     case detailFeature = "DetailFeature"
@@ -99,7 +103,6 @@ enum Module: String {
     case searchFeature = "SearchFeature"
     case settingFeature = "SettingFeature"
     case sfSafeSymbolsExt = "SFSafeSymbolsExt"
-    case swiftyOpenCC = "SwiftyOpenCC"
     case systemNotificationExt = "SystemNotificationExt"
     case tagTranslationFeature = "TagTranslationFeature"
     case urlClient = "URLClient"
@@ -146,7 +149,6 @@ extension Module {
 // MARK: Exclude
 enum Path: String {
     case resources = "Resources"
-    case dictionary = "Dictionary"
 }
 
 enum Exclude {
@@ -352,8 +354,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .module(.swiftyOpenCC),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.openCC)
         ],
         plugins: swiftLintPlugins
     ),
@@ -505,75 +507,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.sfSafeSymbols)
         ],
-        plugins: swiftLintPlugins
-    ),
-    // Internal C++ target compiling the vendored OpenCC/marisa/darts engine as C++14 and
-    // exporting only its C module-map API to `SwiftyOpenCC`. It is filtered out of the
-    // package's generated library products (see `products:` below), so it stays internal.
-    .target(
-        module: .cOpenCC,
-        exclude: [
-            .literal("LICENSE"),
-            .literal("src/benchmark"),
-            .literal("src/tools"),
-            .literal("src/BinaryDictTest.cpp"),
-            .literal("src/Config.cpp"),
-            .literal("src/ConfigTest.cpp"),
-            .literal("src/ConversionChainTest.cpp"),
-            .literal("src/ConversionTest.cpp"),
-            .literal("src/DartsDictTest.cpp"),
-            .literal("src/DictGroupTest.cpp"),
-            .literal("src/MarisaDictTest.cpp"),
-            .literal("src/MaxMatchSegmentationTest.cpp"),
-            .literal("src/PhraseExtractTest.cpp"),
-            .literal("src/SerializedValuesTest.cpp"),
-            .literal("src/SimpleConverter.cpp"),
-            .literal("src/SimpleConverterTest.cpp"),
-            .literal("src/TextDictTest.cpp"),
-            .literal("src/UTF8StringSliceTest.cpp"),
-            .literal("src/UTF8UtilTest.cpp"),
-            .literal("src/CmdLineOutput.hpp"),
-            .literal("src/Config.hpp"),
-            .literal("src/ConfigTestBase.hpp"),
-            .literal("src/DictGroupTestBase.hpp"),
-            .literal("src/SimpleConverter.hpp"),
-            .literal("src/TestUtils.hpp"),
-            .literal("src/TestUtilsUTF8.hpp"),
-            .literal("src/TextDictTestBase.hpp"),
-            .literal("src/py_opencc.cpp"),
-            .literal("src/README.md"),
-            .literal("src/CMakeLists.txt"),
-            .literal("deps/marisa-0.2.6/AUTHORS"),
-            .literal("deps/marisa-0.2.6/CMakeLists.txt"),
-            .literal("deps/marisa-0.2.6/COPYING.md"),
-            .literal("deps/marisa-0.2.6/README.md")
-        ],
-        sources: [
-            "source.cpp",
-            "src",
-            "deps/marisa-0.2.6"
-        ],
-        publicHeadersPath: "include",
-        cxxSettings: [
-            .headerSearchPath("src"),
-            .headerSearchPath("deps/darts-clone"),
-            .headerSearchPath("deps/marisa-0.2.6/include"),
-            .headerSearchPath("deps/marisa-0.2.6/lib"),
-            .define("ENABLE_DARTS")
-        ],
-        swiftSettings: nil
-    ),
-    // App-owned local converter module: imports the internal `copencc` C API and applies
-    // the bundled `.ocd2` dictionaries. Replaces the external SwiftyOpenCC/OpenCC package.
-    .target(
-        module: .swiftyOpenCC,
-        dependencies: [
-            .module(.cOpenCC)
-        ],
-        exclude: [
-            .literal("LICENSE")
-        ],
-        resources: [.copy(.dictionary)],
         plugins: swiftLintPlugins
     ),
     // App-owned local dominant-color module. Clean-room reimplementation of the
@@ -1013,7 +946,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .swiftyOpenCCTests,
         dependencies: [
-            .module(.swiftyOpenCC)
+            .targetDependency(.openCC)
         ],
         plugins: swiftLintPlugins
     ),
@@ -1049,7 +982,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [.iOS(.v26)],
     products: targets
-        .filter({ !$0.isTest && $0.name != Module.testingSupport.rawValue && $0.name != Module.cOpenCC.rawValue })
+        .filter({ !$0.isTest && $0.name != Module.testingSupport.rawValue })
         .map(\.name)
         .map({ .library(name: $0, targets: [$0]) }),
     dependencies: dependencies,
