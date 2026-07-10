@@ -27,14 +27,12 @@ extension Dictionary where Value == TagTranslation {
         }
 
         guard let converter = try? ChineseConverter(options: options) else { return self }
-        var dictionary = self
-        dictionary.forEach { key, value in
-            dictionary[key] = TagTranslation(
+        return mapValues { value in
+            TagTranslation(
                 namespace: value.namespace, key: value.key,
                 value: customConversion(text: converter.convert(value.value)),
                 description: value.description, linksString: value.linksString
             )
         }
-        return dictionary
     }
 }
