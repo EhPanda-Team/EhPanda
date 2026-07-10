@@ -13,13 +13,13 @@
   - App depends on the fork; Simplified/Traditional tag conversion (`ChineseConverter`) is unchanged in behavior; builds clean on the pinned toolchain.
 - [x] **DEP-02**: Fork UIImageColors and modernize it the same way.
   - App depends on the fork; dominant-color extraction (`getColors` → primary/secondary/detail/background) unchanged; builds clean.
-- [ ] **DEP-03**: Migrate Markdown from SwiftCommonMark to Apple swift-markdown.
+- [x] **DEP-03**: Migrate Markdown from SwiftCommonMark to Apple swift-markdown.
   - `MarkdownUtil.parseTexts/parseLinks/parseImages` reproduced on swift-markdown's `Document`/walker; `TagTranslation` output identical on fixtures; `DetailView` markdown confirmed (render vs parse) and preserved; SwiftCommonMark removed from `Package.swift`.
 - [ ] **DEP-04**: Replace WaterfallGrid with a custom SwiftUI `Layout`. *(Spike-gated: validate feasibility before committing tasks.)*
   - Masonry column balancing matches current output (portrait/landscape, iPad/phone counts); WaterfallGrid removed; scrolling performance not regressed.
 - [ ] **DEP-05**: Replace SwiftUIPager with a built-in page-style `TabView`. *(Spike-gated.)*
   - Reading paging parity: horizontal/RTL/dual-page, page-index mapping, gesture coexistence; SwiftUIPager removed; if native can't reach parity, spike surfaces it before commit.
-- [ ] **DEP-06**: Investigate inlining DeprecatedAPI (`getCFReadStream`) into the project without deprecation warnings; adopt a non-deprecated API if actionable.
+- [x] **DEP-06**: Investigate inlining DeprecatedAPI (`getCFReadStream`) into the project without deprecation warnings; adopt a non-deprecated API if actionable.
   - Either the shim is inlined warning-free or a non-deprecated replacement is used; DeprecatedAPI dependency removed; DF networking behavior unchanged.
 - [ ] **DEP-07**: Migrate to the latest Colorful.
   - `GalleryCardCell` animated gradient renders as before on the current API; version pin updated.
@@ -93,10 +93,10 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 |-------------|-------|--------|
 | DEP-01 | Phase 1 | Complete |
 | DEP-02 | Phase 1 | Complete |
-| DEP-03 | Phase 1 | Pending |
+| DEP-03 | Phase 1 | Complete |
 | DEP-04 | Phase 2 | Pending |
 | DEP-05 | Phase 3 | Pending |
-| DEP-06 | Phase 1 | Pending |
+| DEP-06 | Phase 1 | Complete |
 | DEP-07 | Phase 1 | Pending |
 | CONC-01 | Phase 4 | Pending |
 | CONC-02 | Phase 4 | Pending |
