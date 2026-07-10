@@ -48,7 +48,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. DeprecatedAPI is gone — the `getCFReadStream` path is inlined warning-free or replaced by a non-deprecated API, with DF networking behavior unchanged.
   5. `GalleryCardCell`'s animated gradient renders as before on the latest Colorful, with the version pin updated.
 
-**Plans**: 2/7 plans executed
+**Plans**: 3/7 plans executed
 Plans:
 **Wave 1**
 
@@ -57,7 +57,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-03-PLAN.md — Local SwiftyOpenCC module and FileClient adoption
+- [x] 01-03-PLAN.md — Local SwiftyOpenCC module and FileClient adoption
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -225,7 +225,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Isolated Dependency Modernization | 2/7 | In Progress|  |
+| 1. Isolated Dependency Modernization | 3/7 | In Progress|  |
 | 2. Native Masonry Grid Swap | 0/TBD | Not started | - |
 | 3. Native Reader Paging Swap | 0/TBD | Not started | - |
 | 4. Concurrency & Framework Migration | 0/TBD | Not started | - |
