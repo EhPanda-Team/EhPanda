@@ -13,7 +13,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.63.0"),
     .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
     .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
-    .package(url: "https://github.com/gonzalezreal/SwiftCommonMark", from: "1.0.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/paololeonardi/WaterfallGrid", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
@@ -28,7 +27,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
 extension PackageDescription.Target.Dependency {
     static let casePaths: Self = .product(name: "CasePaths", package: "swift-case-paths")
     static let colorful: Self = .product(name: "Colorful", package: "Colorful")
-    static let commonMark: Self = .product(name: "CommonMark", package: "SwiftCommonMark")
     static let composableArchitecture: Self = .product(
         name: "ComposableArchitecture",
         package: "swift-composable-architecture"
@@ -69,7 +67,6 @@ enum Module: String {
     case authorizationClient = "AuthorizationClient"
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
-    case commonMarkExt = "CommonMarkExt"
     case cookieClient = "CookieClient"
     case cOpenCC = "copencc"
     case dfClient = "DFClient"
@@ -488,14 +485,6 @@ let targets: [PackageDescription.Target] = [
         module: .animatedImageFeature,
         dependencies: [
             .targetDependency(.sdWebImageSwiftUI)
-        ],
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .commonMarkExt,
-        dependencies: [
-            .targetDependency(.casePaths),
-            .targetDependency(.commonMark)
         ],
         plugins: swiftLintPlugins
     ),

@@ -1,5 +1,5 @@
 {
-  "originHash" : "887f9a4cbc0bba404a17cd118ea3a42f80b1e344285ca0f66efcb7fe5042282a",
+  "originHash" : "20db5e105fb920092505b51d1d432df419280e3ad8d5581b71da92b25a075800",
   "pins" : [
     {
       "identity" : "colorful",
@@ -215,15 +215,6 @@
       "state" : {
         "revision" : "79e4b74a295b6eb74a8b585e3a39d29e70c1dbd1",
         "version" : "603.0.2"
-      }
-    },
-    {
-      "identity" : "swiftcommonmark",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/SwiftCommonMark",
-      "state" : {
-        "revision" : "ed252beaddecce28ea6363f800c773d6169011b8",
-        "version" : "1.0.0"
       }
     },
     {
