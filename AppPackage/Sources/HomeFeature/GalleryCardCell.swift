@@ -14,11 +14,18 @@ public struct GalleryCardCell: View {
 
     private let gallery: Gallery
 
-    // ColorfulX renders the gradient with Metal and animates continuously; `speed`
-    // scales that motion and `0` freezes it. Driving `speed` off `animated` keeps only
-    // the focused dark-mode card moving — preserving Colorful's former `animated` flag.
-    // The value is a subjective, user-tunable choice (see 01-COLORFUL-UAT.md, D-19).
+    // ColorfulX renders a full-bleed, opaque Metal gradient that always paints — unlike the
+    // former Colorful view (translucent circles that only laid out when `animated`). To keep
+    // the pre-migration behavior, the whole `ColorfulView` is gated on `animated`: it is inserted
+    // only for the focused card in dark mode. Unselected cards and light mode show just the gray
+    // fallback, and the cover-color analysis is skipped until dark (see `handleCoverSuccess`).
+    // `animationSpeed` is the subjective, user-tunable motion knob (01-COLORFUL-UAT.md, D-19).
     private let animationSpeed: Double = 0.5
+
+    // Retains the last cover-image result so color analysis can be deferred: light mode never
+    // shows the gradient, so analysis is skipped there; switching to dark replays this result to
+    // compute the focused card's colors on demand, without reloading the cover.
+    @State private var lastImageResult: RetrieveImageResult?
 
     public init(
         gallery: Gallery, currentID: String, colors: [Color],
@@ -45,12 +52,13 @@ public struct GalleryCardCell: View {
     public var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
-            ColorfulView(color: colors, speed: .constant(animated ? animationSpeed : 0))
-                .id(currentID + animated.description)
+            if animated {
+                CardGradientView(colors: colors, speed: animationSpeed)
+            }
             HStack {
                 KFImage(gallery.coverURL)
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                    .onSuccess(webImageSuccessAction).defaultModifier().scaledToFill()
+                    .onSuccess(handleCoverSuccess).defaultModifier().scaledToFill()
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
@@ -64,6 +72,41 @@ public struct GalleryCardCell: View {
             .padding(.vertical, 20)
         }
         .frame(width: Defaults.FrameSize.cardCellWidth).cornerRadius(15)
+        .onChange(of: colorScheme) { _, newScheme in
+            guard newScheme == .dark, let lastImageResult else { return }
+            webImageSuccessAction(lastImageResult)
+        }
+    }
+
+    // Color analysis is only meaningful when the gradient is visible (dark mode). The result is
+    // always retained so a later light → dark switch can trigger analysis without reloading.
+    private func handleCoverSuccess(_ result: RetrieveImageResult) {
+        lastImageResult = result
+        guard colorScheme == .dark else { return }
+        webImageSuccessAction(result)
+    }
+}
+
+// Wraps `ColorfulView` so the gradient blooms in gradually instead of popping to full intensity.
+// ColorfulX snaps the FIRST color set it receives (`initialSetup`) and only lerps SUBSEQUENT
+// changes over `transitionSpeed`. Seeding the layer with a neutral dark color and then applying
+// the real palette on appear turns the initial paint into an animated transition — reproducing
+// the former Colorful view's gradual appearance. Fresh `@State` (the parent re-inserts this view
+// per focus via `if animated`) guarantees the bloom each time a card becomes current.
+private struct CardGradientView: View {
+    let colors: [Color]
+    let speed: Double
+
+    @State private var displayedColors: [Color] = [.black]
+
+    var body: some View {
+        ColorfulView(
+            color: displayedColors,
+            speed: .constant(speed),
+            transitionSpeed: .constant(6)
+        )
+        .onAppear { displayedColors = colors }
+        .onChange(of: colors) { _, newColors in displayedColors = newColors }
     }
 }
 
