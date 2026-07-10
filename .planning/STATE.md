@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Isolated Dependency Modernization
 status: executing
-stopped_at: Completed 01-05-PLAN.md
-last_updated: "2026-07-10T03:27:35.559Z"
+stopped_at: 01-06 Task 1 complete (evidence spike, commit 966b7d71); PAUSED at Task 2 blocking-human decision checkpoint (remove-deprecatedapi vs document-skip)
+last_updated: "2026-07-10T03:36:20.556Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 01 execution started
 progress:
@@ -104,6 +104,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T03:27:23.822Z
-Stopped at: Completed 01-05-PLAN.md
-Resume file: None
+Last session: 2026-07-10T03:36:20.552Z
+Stopped at: 01-06 Task 1 complete (evidence spike, commit 966b7d71); PAUSED at Task 2 blocking-human decision checkpoint (remove-deprecatedapi vs document-skip)
+Resume file: .planning/phases/01-isolated-dependency-modernization/01-06-PLAN.md
