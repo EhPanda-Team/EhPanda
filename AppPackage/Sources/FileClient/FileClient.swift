@@ -1,6 +1,6 @@
 import AppModels
 import Foundation
-import OpenCCExt
+import SwiftyOpenCC
 import ComposableArchitecture
 
 public struct FileClient: Sendable {

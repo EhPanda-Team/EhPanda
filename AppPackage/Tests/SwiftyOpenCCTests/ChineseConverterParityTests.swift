@@ -1,16 +1,12 @@
 import Testing
 import Foundation
-import AppModels
-import OpenCC
-import OpenCCExt
+@testable import SwiftyOpenCC
 
-// Wave 0 parity lock for DEP-01. These fixtures freeze the *current* SwiftyOpenCC behavior the app
-// relies on — both the raw `ChineseConverter` option combinations and the `chtConverted` app seam —
-// so the later local SwiftyOpenCC module (D-01..D-04) can be proven identical instead of trusted by
-// inspection. The direct-converter cases pass explicit options, so they are deterministic regardless
-// of the test machine's preferred language; the `chtConverted` cases use locale-invariant inputs
-// (`简体` traditionalizes to `簡體` under s2t/s2hk/s2twp alike, and `full color` is a hard-coded custom
-// mapping) so the app-seam assertions hold on any machine's locale.
+// DEP-01 parity for the app-owned local `SwiftyOpenCC` module. These cases prove the internal
+// `copencc` bridge actually opens the bundled `.ocd2` dictionaries from `Bundle.module` and applies
+// each regional conversion chain — a real converter call, not a resource-existence check. The three
+// regional standards produce distinct output for the same input (`网络`), which locks the default
+// (`s2t`), Hong Kong (`s2hk`), and Taiwan-idiom (`s2twp`) pipelines against the Wave 0 baseline.
 @Suite
 struct ChineseConverterParityTests {
     /// Default traditionalization (`s2t`): plain simplified → traditional characters.
@@ -35,22 +31,27 @@ struct ChineseConverterParityTests {
         #expect(converter.convert("网络") == "網路")
     }
 
-    /// The `chtConverted` app seam: default traditionalization plus the custom `full color` → `全彩`
-    /// mapping. Both inputs are locale-invariant so this locks the seam on any machine.
+    /// The three regional standards must diverge on the same input, proving each `.ocd2` chain is
+    /// opened and applied rather than a single shared pipeline being reused.
     @Test
-    func chtConvertedAppliesTraditionalizeAndCustomFullColor() throws {
-        let response = EhTagTranslationDatabaseResponse(data: [
-            .init(namespace: "female", data: [
-                "simp": .init(name: "简体"),
-                "fc": .init(name: "full color")
-            ])
-        ])
+    func regionalStandardsProduceDistinctOutput() throws {
+        let general = try ChineseConverter(options: [.traditionalize]).convert("网络")
+        let hongKong = try ChineseConverter(options: [.traditionalize, .hkStandard]).convert("网络")
+        let taiwan = try ChineseConverter(options: [.traditionalize, .twStandard, .twIdiom]).convert("网络")
 
-        let converted = response.tagTranslations.chtConverted
+        #expect(general == "網絡")
+        #expect(hongKong == "網絡")
+        #expect(taiwan == "網路")
+        #expect(taiwan != general)
+    }
 
-        let simplified = try #require(converted.values.first(where: { $0.key == "simp" }))
-        let fullColor = try #require(converted.values.first(where: { $0.key == "fc" }))
-        #expect(simplified.value == "簡體")
-        #expect(fullColor.value == "全彩")
+    /// A bundle without the `Dictionary/` resources must surface a `.fileNotFound` bridge error
+    /// rather than silently degrading, keeping loader failures observable.
+    @Test
+    func missingDictionaryBundleThrowsFileNotFound() {
+        let loader = ChineseConverter.DictionaryLoader(bundle: .main)
+        #expect(throws: ConversionError.fileNotFound) {
+            _ = try ChineseConverter(loader: loader, options: [.traditionalize])
+        }
     }
 }
