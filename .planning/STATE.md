@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Isolated Dependency Modernization
 status: verifying
-stopped_at: Completed 01-08 (Colorful → ColorfulX migration; DEP-07 blocker closed)
-last_updated: "2026-07-10T14:38:43.000Z"
-last_activity: 2026-07-10
-last_activity_desc: 01-08 ColorfulX migration (DEP-07 blocker closed)
+stopped_at: Completed 01-09 (DeprecatedAPI inlined as LegacyCFReadStream; DEP-06 override)
+last_updated: "2026-07-10T15:29:42.000Z"
+last_activity: 2026-07-11
+last_activity_desc: 01-09 inlined DeprecatedAPI as LegacyCFReadStream (DEP-06 override)
 progress:
   total_phases: 11
   completed_phases: 1
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 9
+  completed_plans: 9
   percent: 9
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 01 (Isolated Dependency Modernization) — EXECUTING
-Plan: 8 of 8
+Plan: 9 of 9
 Status: Phase complete — ready for verification
-Last activity: 2026-07-10 — 01-08 Colorful → ColorfulX migration (DEP-07 blocker closed)
+Last activity: 2026-07-11 — 01-09 inlined DeprecatedAPI as LegacyCFReadStream (DEP-06 override)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -85,6 +85,7 @@ Recent decisions affecting current work:
 - [Phase ?]: DEP-06 resolved as document-skip: DeprecatedAPI deliberately retained (D-12); no warning-free replacement preserves host-control + arbitrary-Host + original-domain-trust, so removal would weaken D-14.
 - [Phase ?]: DEP-07: Colorful updated to official Lakr233/Colorful.git exact 1.1.1; ColorfulView deprecation documented as user-decision blocker (not suppressed).
 - [Phase 01]: 01-08: Migrated gallery gradient Colorful → ColorfulX 6.1.0 (Metal), closing the DEP-07 ColorfulView deprecation blocker via option (a); animated→speed mapping, warning-free build, full suite green (431 tests).
+- [Phase 01]: 01-09: Inlined the external DeprecatedAPI package into a local internal LegacyCFReadStream module (isolates deprecated CFReadStreamCreateForHTTPRequest), silenced via -suppress-warnings scoped to that one target; overrides DEP-06 D-12 (document-skip) per explicit user request; DF behavior byte-identical (S1–S7 green), warning-free build, full suite green.
 
 ### Pending Todos
 
@@ -109,6 +110,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T14:38:43.000Z
-Stopped at: Completed 01-08 (Colorful → ColorfulX migration; DEP-07 blocker closed)
+Last session: 2026-07-10T15:29:42.000Z
+Stopped at: Completed 01-09 (DeprecatedAPI inlined as LegacyCFReadStream; DEP-06 override)
 Resume file: None

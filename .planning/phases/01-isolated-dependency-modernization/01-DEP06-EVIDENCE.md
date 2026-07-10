@@ -10,6 +10,16 @@ D-12/D-13 skip path without weakening domain fronting.
 **Scope of this document:** technical viability evidence plus the recorded branch decision. No
 package was removed and no production DF source behavior was changed at any point.
 
+> **Update (2026-07-11, plan 01-09) — `document-skip` (D-12) overridden by the user.**
+> `DeprecatedAPI` was inlined into a local, internal `LegacyCFReadStream` module
+> (`AppPackage/Sources/LegacyCFReadStream`), and its single deprecated call is silenced with
+> `-suppress-warnings` scoped to that one target in `Package.swift`. This is the "Candidate C" path
+> (Section 4): the user accepted an explicit, documented, single-boundary suppression as more
+> transparent than relying on SPM hiding external-dependency warnings, and to shed the package
+> (milestone goal 6). **No domain-fronting behavior changed** — the wrapper semantics, the call site,
+> and the CF ownership handling are byte-identical, and the S1–S7 semantics tests stay green. The
+> evidence below is retained as the historical DEP-06 record.
+
 ---
 
 ## 1. What `DeprecatedAPI` actually is
