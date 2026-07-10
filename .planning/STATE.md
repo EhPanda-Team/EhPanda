@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Isolated Dependency Modernization
 status: verifying
-stopped_at: Completed 01-07-PLAN.md (final plan of phase 01)
-last_updated: "2026-07-10T03:59:57.969Z"
+stopped_at: Completed 01-08 (Colorful → ColorfulX migration; DEP-07 blocker closed)
+last_updated: "2026-07-10T14:38:43.000Z"
 last_activity: 2026-07-10
-last_activity_desc: Phase 01 execution started
+last_activity_desc: 01-08 ColorfulX migration (DEP-07 blocker closed)
 progress:
   total_phases: 11
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
   percent: 9
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 01 (Isolated Dependency Modernization) — EXECUTING
-Plan: 7 of 7
+Plan: 8 of 8
 Status: Phase complete — ready for verification
-Last activity: 2026-07-10 — Phase 01 execution started
+Last activity: 2026-07-10 — 01-08 Colorful → ColorfulX migration (DEP-07 blocker closed)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -84,6 +84,7 @@ Recent decisions affecting current work:
 - [Phase ?]: DEP-03: markdown parsing migrated to Apple swift-markdown 0.8.0 behind MarkdownExt; SwiftCommonMark/CommonMarkExt removed; parity fixtures unchanged (D-07/D-08/D-09)
 - [Phase ?]: DEP-06 resolved as document-skip: DeprecatedAPI deliberately retained (D-12); no warning-free replacement preserves host-control + arbitrary-Host + original-domain-trust, so removal would weaken D-14.
 - [Phase ?]: DEP-07: Colorful updated to official Lakr233/Colorful.git exact 1.1.1; ColorfulView deprecation documented as user-decision blocker (not suppressed).
+- [Phase 01]: 01-08: Migrated gallery gradient Colorful → ColorfulX 6.1.0 (Metal), closing the DEP-07 ColorfulView deprecation blocker via option (a); animated→speed mapping, warning-free build, full suite green (431 tests).
 
 ### Pending Todos
 
@@ -108,6 +109,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T03:59:57.965Z
-Stopped at: Completed 01-07-PLAN.md (final plan of phase 01)
+Last session: 2026-07-10T14:38:43.000Z
+Stopped at: Completed 01-08 (Colorful → ColorfulX migration; DEP-07 blocker closed)
 Resume file: None
