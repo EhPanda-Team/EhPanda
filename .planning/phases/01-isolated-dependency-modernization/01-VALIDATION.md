@@ -22,7 +22,10 @@ created: 2026-07-10
 | **Quick run command** | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` |
 | **Full suite command** | `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -testPlan FeatureTests -destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355' test` |
 | **Confirmed simulator** | iPhone Air, iOS 26.5, id `ADE09605-A44E-4F00-BE12-235970217355` |
+| **Destination syntax** | `-destination 'platform=iOS Simulator,id=ADE09605-A44E-4F00-BE12-235970217355'` |
 | **Estimated runtime** | TBD after first clean run on the confirmed simulator |
+
+> Re-confirmed 2026-07-10 via `xcodebuild -workspace AppPackage/.swiftpm/xcode/package.xcworkspace -scheme AppPackage-Package -showdestinations`: the list includes `{ platform:iOS Simulator, arch:arm64, id:ADE09605-A44E-4F00-BE12-235970217355, OS:26.5, name:iPhone Air }`. All later plans use the id-based destination syntax above.
 
 ---
 
