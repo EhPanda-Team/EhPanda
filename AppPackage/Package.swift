@@ -11,6 +11,7 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
     .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.63.0"),
+    .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
     .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     .package(url: "https://github.com/gonzalezreal/SwiftCommonMark", from: "1.0.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
@@ -35,6 +36,7 @@ extension PackageDescription.Target.Dependency {
     static let deprecatedAPI: Self = .product(name: "DeprecatedAPI", package: "DeprecatedAPI")
     static let kanna: Self = .product(name: "Kanna", package: "Kanna")
     static let kingfisher: Self = .product(name: "Kingfisher", package: "Kingfisher")
+    static let markdown: Self = .product(name: "Markdown", package: "swift-markdown")
     static let sdWebImageSwiftUI: Self = .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
@@ -85,6 +87,7 @@ enum Module: String {
     case imageClient = "ImageClient"
     case libraryClient = "LibraryClient"
     case logsClient = "LogsClient"
+    case markdownExt = "MarkdownExt"
     case networkingFeature = "NetworkingFeature"
     case osLogExt = "OSLogExt"
     case parserFeature = "ParserFeature"
@@ -494,6 +497,15 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.casePaths),
             .targetDependency(.commonMark)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    // App-owned markdown helper: the sole owner of the swift-markdown (`Markdown`) dependency,
+    // keeping parser node types out of feature modules (D-08, D-09).
+    .target(
+        module: .markdownExt,
+        dependencies: [
+            .targetDependency(.markdown)
         ],
         plugins: swiftLintPlugins
     ),
@@ -1021,12 +1033,12 @@ let targets: [PackageDescription.Target] = [
         ],
         plugins: swiftLintPlugins
     ),
-    // Wave 0 DEP-03 parity: exercises the current CommonMarkExt.MarkdownUtil; the later
-    // swift-markdown migration retargets these fixtures to the MarkdownExt module (D-09).
+    // DEP-03 parity: exercises MarkdownExt.MarkdownUtil (swift-markdown-backed) against the
+    // Wave 0 expected outputs originally locked on CommonMarkExt (D-09).
     .testTarget(
         module: .markdownExtTests,
         dependencies: [
-            .module(.commonMarkExt)
+            .module(.markdownExt)
         ],
         plugins: swiftLintPlugins
     ),

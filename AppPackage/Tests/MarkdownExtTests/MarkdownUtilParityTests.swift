@@ -1,19 +1,18 @@
 import Testing
 import Foundation
-import CommonMarkExt
+import MarkdownExt
 
-// Wave 0 parity lock for DEP-03 (D-07, D-08, D-09, D-10). These fixtures freeze the *current*
-// `MarkdownUtil` behavior — implemented today on top of SwiftCommonMark inside `CommonMarkExt` —
-// so the later swift-markdown migration into a `MarkdownExt` module can be proven identical.
+// DEP-03 parity lock (D-07, D-08, D-09, D-10). These fixtures freeze the intended `MarkdownUtil`
+// behavior. They were originally locked on the SwiftCommonMark-backed `CommonMarkExt.MarkdownUtil`
+// (Wave 0) and now assert the same expected outputs against the swift-markdown-backed
+// `MarkdownExt.MarkdownUtil` — proving the migration preserves behavior exactly.
 //
-// The target is named `MarkdownExtTests` up front (D-09: the external swift-markdown product/target
-// is `Markdown`, and the app helper module must be `MarkdownExt`, never a conflicting app-owned
-// `Markdown`). For Wave 0 it exercises the current `CommonMarkExt.MarkdownUtil`; the migration
-// retargets these same fixtures to `MarkdownExt` without changing the expected values below.
+// D-09: the external swift-markdown product/target is `Markdown`, and the app helper module is
+// `MarkdownExt`, never a conflicting app-owned `Markdown`.
 //
-// Two current limitations are locked *on purpose* (D-07 keeps them until a fixture documents an
-// intended fix): traversal only visits top-level `paragraph` blocks, and within a paragraph only
-// top-level `.text` inlines are collected — text nested inside emphasis/strong/code/links is not.
+// Two limitations are locked *on purpose* (D-07 keeps them until a fixture documents an intended
+// fix): traversal only visits top-level `paragraph` blocks, and within a paragraph only top-level
+// `.text` inlines are collected — text nested inside emphasis/strong/code/links is not.
 @Suite
 struct MarkdownUtilParityTests {
     // MARK: parseTexts
