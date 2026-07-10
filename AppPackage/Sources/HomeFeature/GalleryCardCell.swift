@@ -1,7 +1,7 @@
 import SwiftUI
 import AppModels
 import AppComponents
-import Colorful
+import ColorfulX
 import Kingfisher
 import AppTools
 
@@ -14,8 +14,11 @@ public struct GalleryCardCell: View {
 
     private let gallery: Gallery
 
-    private let animation: Animation =
-        .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
+    // ColorfulX renders the gradient with Metal and animates continuously; `speed`
+    // scales that motion and `0` freezes it. Driving `speed` off `animated` keeps only
+    // the focused dark-mode card moving — preserving Colorful's former `animated` flag.
+    // The value is a subjective, user-tunable choice (see 01-COLORFUL-UAT.md, D-19).
+    private let animationSpeed: Double = 0.5
 
     public init(
         gallery: Gallery, currentID: String, colors: [Color],
@@ -42,7 +45,7 @@ public struct GalleryCardCell: View {
     public var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
-            ColorfulView(animated: animated, animation: animation, colors: colors)
+            ColorfulView(color: colors, speed: .constant(animated ? animationSpeed : 0))
                 .id(currentID + animated.description)
             HStack {
                 KFImage(gallery.coverURL)
@@ -69,7 +72,7 @@ struct GalleryCardCell_Previews: PreviewProvider {
         let gallery = Gallery.preview
         GalleryCardCell(
             gallery: gallery, currentID: gallery.gid,
-            colors: ColorfulView.defaultColorList,
+            colors: ColorfulPreset.aurora.colors.map { Color($0) },
             webImageSuccessAction: { _ in }
         )
         .previewLayout(.fixed(width: 300, height: 206)).padding()
