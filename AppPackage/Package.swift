@@ -117,6 +117,8 @@ enum Module: String {
     case appModelsTests = "AppModelsTests"
     case swiftyOpenCCTests = "SwiftyOpenCCTests"
     case uiImageColorsTests = "UIImageColorsTests"
+    case markdownExtTests = "MarkdownExtTests"
+    case tagTranslationFeatureTests = "TagTranslationFeatureTests"
 }
 
 extension Module {
@@ -954,6 +956,23 @@ let targets: [PackageDescription.Target] = [
         module: .uiImageColorsTests,
         dependencies: [
             .targetDependency(.uiImageColors)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    // Wave 0 DEP-03 parity: exercises the current CommonMarkExt.MarkdownUtil; the later
+    // swift-markdown migration retargets these fixtures to the MarkdownExt module (D-09).
+    .testTarget(
+        module: .markdownExtTests,
+        dependencies: [
+            .module(.commonMarkExt)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .tagTranslationFeatureTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.tagTranslationFeature)
         ],
         plugins: swiftLintPlugins
     )

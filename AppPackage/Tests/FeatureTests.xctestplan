@@ -43,6 +43,13 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
+        "identifier" : "MarkdownExtTests",
+        "name" : "MarkdownExtTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
         "identifier" : "NetworkingFeatureTests",
         "name" : "NetworkingFeatureTests"
       }
@@ -66,6 +73,13 @@
         "containerPath" : "container:AppPackage",
         "identifier" : "SwiftyOpenCCTests",
         "name" : "SwiftyOpenCCTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "TagTranslationFeatureTests",
+        "name" : "TagTranslationFeatureTests"
       }
     },
     {
