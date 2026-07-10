@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Isolated Dependency Modernization
 status: executing
-stopped_at: 01-06 Task 1 complete (evidence spike, commit 966b7d71); PAUSED at Task 2 blocking-human decision checkpoint (remove-deprecatedapi vs document-skip)
-last_updated: "2026-07-10T03:36:20.556Z"
+stopped_at: Completed 01-06-PLAN.md (document-skip); ready for plan 01-07
+last_updated: "2026-07-10T03:46:10.771Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 01 (Isolated Dependency Modernization) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-07-10 — Phase 01 execution started
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P03 | 14min | 3 tasks | 150 files |
 | Phase 01 P04 | 5min | 3 tasks | 7 files |
 | Phase 01 P05 | 7min | 3 tasks | 10 files |
+| Phase 01 P06 | 12min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,7 @@ Recent decisions affecting current work:
 - [Phase ?]: 01-03: Replaced external ddddxxx/SwiftyOpenCC with an app-owned local SwiftyOpenCC module backed by an internal copencc C++14 target; Wave 0 parity fixtures pass verbatim.
 - [Phase ?]: DEP-02: vendored a clean-room local UIImageColors module (getColors preserved verbatim); external jathu/UIImageColors removed.
 - [Phase ?]: DEP-03: markdown parsing migrated to Apple swift-markdown 0.8.0 behind MarkdownExt; SwiftCommonMark/CommonMarkExt removed; parity fixtures unchanged (D-07/D-08/D-09)
+- [Phase ?]: DEP-06 resolved as document-skip: DeprecatedAPI deliberately retained (D-12); no warning-free replacement preserves host-control + arbitrary-Host + original-domain-trust, so removal would weaken D-14.
 
 ### Pending Todos
 
@@ -104,6 +106,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T03:36:20.552Z
-Stopped at: 01-06 Task 1 complete (evidence spike, commit 966b7d71); PAUSED at Task 2 blocking-human decision checkpoint (remove-deprecatedapi vs document-skip)
-Resume file: .planning/phases/01-isolated-dependency-modernization/01-06-PLAN.md
+Last session: 2026-07-10T03:46:10.767Z
+Stopped at: Completed 01-06-PLAN.md (document-skip); ready for plan 01-07
+Resume file: None
