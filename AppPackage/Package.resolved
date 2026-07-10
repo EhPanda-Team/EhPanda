@@ -1,13 +1,13 @@
 {
-  "originHash" : "20db5e105fb920092505b51d1d432df419280e3ad8d5581b71da92b25a075800",
+  "originHash" : "3cdcf27df667316000ef3d6748ad54171d42e946d21464b85b3a98739bd39c35",
   "pins" : [
     {
       "identity" : "colorful",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Co2333/Colorful",
+      "location" : "https://github.com/Lakr233/Colorful.git",
       "state" : {
-        "revision" : "eb5a350aec759bd413615273cb6d64553aead4d5",
-        "version" : "1.0.1"
+        "revision" : "d673ab1b5aaaf2f968fdd73830e318fd4c6910f3",
+        "version" : "1.1.1"
       }
     },
     {
