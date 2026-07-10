@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Isolated Dependency Modernization
 status: executing
-stopped_at: Phase 1 planned — ready to execute
-last_updated: "2026-07-10T02:06:20.731Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-07-10T02:20:46.164Z"
 last_activity: 2026-07-10
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 11
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 01 (Isolated Dependency Modernization) — EXECUTING
-Plan: 1 of 7
-Status: Executing Phase 01
+Plan: 2 of 7
+Status: Ready to execute
 Last activity: 2026-07-10 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01 P01 | 8min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Recent decisions affecting current work:
 - Roadmap: WaterfallGrid→Layout (Phase 2) and SwiftUIPager→TabView (Phase 3) are spike-first — validate feasibility before committing.
 - Roadmap: Fold cookies→Keychain + networking/cookie/image tests + `.private.filterValue` fix into their open seams (Phases 8–9); defer Parser/Download refactors.
 - Roadmap: LINT-01 split — mechanical rules sweep last (Phase 11); refactor-gated rules land with their refactors (`optional_try`→Phase 9; binding/lifecycle/unchecked-subscript→Phases 5–7).
+- [Phase ?]: 01-01: Dropped invalid -testPlan FeatureTests from AppPackage-Package commands (plan bound to EhPanda scheme; package scheme runs all test targets)
+- [Phase ?]: 01-01: Wave 0 parity fixtures lock current SwiftyOpenCC (default/HK/TW + full color) and UIImageColors RGBA output before DEP-01/DEP-02 swaps
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-10T15:51:44.245Z
-Stopped at: Phase 1 planned — ready to execute
-Resume file: .planning/phases/01-isolated-dependency-modernization/01-01-PLAN.md
+Last session: 2026-07-10T02:20:35.797Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None
