@@ -32,6 +32,33 @@ struct UIImageColorsParityTests {
         }
     }
 
+    private func stripedImage(
+        background: UIColor,
+        stripes: [(color: UIColor, height: CGFloat)],
+        size: CGSize = .init(width: 60, height: 60)
+    ) -> UIImage {
+        let format = UIGraphicsImageRendererFormat.preferred()
+        format.opaque = true
+        format.preferredRange = .standard
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            background.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            var originY: CGFloat = 0
+            for stripe in stripes {
+                stripe.color.setFill()
+                context.fill(CGRect(x: 0, y: originY, width: size.width, height: stripe.height))
+                originY += stripe.height
+            }
+        }
+    }
+
+    private func srgb(_ red: Int, _ green: Int, _ blue: Int) -> UIColor {
+        UIColor(
+            red: CGFloat(red) / 255, green: CGFloat(green) / 255,
+            blue: CGFloat(blue) / 255, alpha: 1
+        )
+    }
+
     private func components(_ color: UIColor) -> RGBA {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
@@ -81,5 +108,46 @@ struct UIImageColorsParityTests {
         #expect(components(try #require(colors.primary)) == white)
         #expect(components(try #require(colors.secondary)) == white)
         #expect(components(try #require(colors.detail)) == white)
+    }
+
+    /// Unlike the solid-gray fixtures above (which collapse to a single color and force the
+    /// black/white text fallback), this fixture is a light non-gray background overlaid with three
+    /// full-width, decreasing-height stripes of saturated red/green/blue. The stripes survive the
+    /// `with(minSaturation:)` filter, contrast with the background, and are mutually distinct, so
+    /// `getColors` fills primary/secondary/detail with *real* accent colors instead of falling back.
+    /// The decreasing heights fix the counted order, so the accent slots land deterministically:
+    /// primary → red, secondary → green, detail → blue. This locks the reimplemented accent path
+    /// (`with(minSaturation:)`, `isDistinct`, `isContrasting`, `accentColors`); the tuples are
+    /// characterized from the current correct implementation and asserted verbatim (D-16), so a
+    /// later engine/refactor change cannot silently drift them.
+    @Test
+    func saturatedMultiRegionImageLocksAccentColors() throws {
+        let image = stripedImage(
+            background: srgb(210, 180, 150),
+            stripes: [
+                (srgb(150, 20, 20), 15),
+                (srgb(20, 120, 40), 12),
+                (srgb(30, 40, 150), 9)
+            ]
+        )
+        let colors = try #require(image.getColors(quality: .lowest))
+
+        let background = components(try #require(colors.background))
+        let primary = components(try #require(colors.primary))
+        let secondary = components(try #require(colors.secondary))
+        let detail = components(try #require(colors.detail))
+
+        #expect(isClose(background, RGBA(red: 210, green: 180, blue: 150, alpha: 255)))
+        #expect(isClose(primary, RGBA(red: 150, green: 20, blue: 20, alpha: 255)))
+        #expect(isClose(secondary, RGBA(red: 20, green: 120, blue: 40, alpha: 255)))
+        #expect(isClose(detail, RGBA(red: 30, green: 40, blue: 150, alpha: 255)))
+
+        // Guard the finding's intent: none of the accent slots collapsed to the black/white fallback.
+        let black = RGBA(red: 0, green: 0, blue: 0, alpha: 255)
+        let white = RGBA(red: 255, green: 255, blue: 255, alpha: 255)
+        for accent in [primary, secondary, detail] {
+            #expect(accent != black)
+            #expect(accent != white)
+        }
     }
 }
