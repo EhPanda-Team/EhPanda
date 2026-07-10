@@ -85,8 +85,8 @@
     {
       "target" : {
         "containerPath" : "container:AppPackage",
-        "identifier" : "UIImageColorsTests",
-        "name" : "UIImageColorsTests"
+        "identifier" : "ImageColorsTests",
+        "name" : "ImageColorsTests"
       }
     }
   ],

@@ -85,6 +85,7 @@ enum Module: String {
     case hapticsClient = "HapticsClient"
     case homeFeature = "HomeFeature"
     case imageClient = "ImageClient"
+    case imageColors = "ImageColors"
     case libraryClient = "LibraryClient"
     case logsClient = "LogsClient"
     case markdownExt = "MarkdownExt"
@@ -101,7 +102,6 @@ enum Module: String {
     case swiftyOpenCC = "SwiftyOpenCC"
     case systemNotificationExt = "SystemNotificationExt"
     case tagTranslationFeature = "TagTranslationFeature"
-    case uiImageColors = "UIImageColors"
     case urlClient = "URLClient"
     case userDefaultsClient = "UserDefaultsClient"
 
@@ -117,7 +117,7 @@ enum Module: String {
     case networkingFeatureTests = "NetworkingFeatureTests"
     case appModelsTests = "AppModelsTests"
     case swiftyOpenCCTests = "SwiftyOpenCCTests"
-    case uiImageColorsTests = "UIImageColorsTests"
+    case imageColorsTests = "ImageColorsTests"
     case markdownExtTests = "MarkdownExtTests"
     case tagTranslationFeatureTests = "TagTranslationFeatureTests"
 }
@@ -577,10 +577,11 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     // App-owned local dominant-color module. Clean-room reimplementation of the
-    // app-needed `UIImage.getColors` surface, replacing the external jathu/UIImageColors
-    // package while preserving color-selection output (DEP-02, D-01/D-04/D-05/D-16).
+    // app-needed dominant-color surface, replacing the external jathu/UIImageColors
+    // package while preserving color-selection output (DEP-02, D-01/D-04/D-16).
+    // Modernized I/O: a CGImage goes in and non-optional SwiftUI Colors come out.
     .target(
-        module: .uiImageColors,
+        module: .imageColors,
         plugins: swiftLintPlugins
     ),
     .target(
@@ -863,7 +864,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
-            .module(.uiImageColors)
+            .module(.imageColors)
         ],
         plugins: swiftLintPlugins
     ),
@@ -1017,9 +1018,9 @@ let targets: [PackageDescription.Target] = [
         plugins: swiftLintPlugins
     ),
     .testTarget(
-        module: .uiImageColorsTests,
+        module: .imageColorsTests,
         dependencies: [
-            .module(.uiImageColors)
+            .module(.imageColors)
         ],
         plugins: swiftLintPlugins
     ),
