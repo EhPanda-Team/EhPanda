@@ -5,9 +5,10 @@ replacement preserves every domain-fronting (DF) request semantic (D-14); otherw
 D-12/D-13 skip path without weakening domain fronting.
 
 **Spike date:** 2026-07-10
-**Status:** Evidence complete — awaiting the Task 2 human decision checkpoint.
-**Scope of this document:** technical viability evidence only. No package was removed and no
-production DF source was changed while producing it.
+**Status:** Resolved — the Task 2 human decision checkpoint selected `document-skip`.
+**Selected Branch:** `document-skip` — `DeprecatedAPI` is deliberately retained (see Section 5).
+**Scope of this document:** technical viability evidence plus the recorded branch decision. No
+package was removed and no production DF source behavior was changed at any point.
 
 ---
 
@@ -127,7 +128,15 @@ by the research (Pitfall 4) and the plan.
 
 ## 5. Decision
 
-**Evidence-based recommendation: `document-skip` (retain `DeprecatedAPI`).**
+**Selected Branch (Task 2 human checkpoint, 2026-07-10): `document-skip` — retain `DeprecatedAPI`.**
+The user reviewed this evidence and selected `document-skip`: `DeprecatedAPI` and its
+`.deprecatedAPI` target dependency stay in place, and no domain-fronting source behavior
+(`DFExtensions` / `DFRequest` / `DFStreamHandler` / `DFURLProtocol`) is removed or weakened. The
+justification below (D-12 through D-15) is the recorded basis for that decision — removing the
+package would weaken D-14 because the S1 (host control) + S2 (arbitrary `Host`) + S5
+(original-domain trust) triad cannot be preserved warning-free by any available replacement.
+
+**Evidence-based recommendation (matches the selected branch): `document-skip` (retain `DeprecatedAPI`).**
 
 - **D-12:** Research + this spike show the deprecated CFStream path is currently the only *viable*
   way to keep domain fronting working without weakening it. No warning-free drop-in replacement
@@ -158,10 +167,10 @@ or preserve the IP-connect-with-original-domain-trust model (Candidate A).
 | Option | Meaning | Consequence |
 |--------|---------|-------------|
 | `remove-deprecatedapi` | Adopt a warning-free Network.framework replacement (Candidate B) and remove the package. | DEP-06 fully met, but requires implementing + trusting a bespoke HTTP/TLS client and passing D-15 China/SNI tester confirmation. |
-| `document-skip` (**recommended**) | Retain `DeprecatedAPI`; record this D-12/D-13 evidence as the justification. | Domain fronting preserved unchanged; the package stays because it is the only proven viable path. |
+| `document-skip` (**SELECTED**) | Retain `DeprecatedAPI`; record this D-12/D-13 evidence as the justification. | Domain fronting preserved unchanged; the package stays because it is the only proven viable path. |
 
-The user may instead request **specific additional evidence** (e.g. a Network.framework
-proof-of-concept for S1/S2/S5, or a URLSession `Host`-override probe) before deciding.
+**Outcome:** the user selected `document-skip` at the Task 2 checkpoint. The `remove-deprecatedapi`
+branch and any request for additional evidence were not chosen.
 
 ---
 

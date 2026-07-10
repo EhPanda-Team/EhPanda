@@ -214,6 +214,12 @@ extension InputStream {
             CFHTTPMessageSetBody(message, body)
         }
 
+        // `DeprecatedAPI` deliberately retained (DEP-06, decision D-12). This deprecated
+        // `CFReadStreamCreateForHTTPRequest` path is the only proven way to preserve domain
+        // fronting: it accepts an arbitrary `Host` on a hand-built `CFHTTPMessage` while the URL
+        // connects to a resolved IP (no censored SNI). No warning-free replacement (URLSession,
+        // Network.framework) preserves the host-control + arbitrary-Host + original-domain-trust
+        // triad. See .planning/phases/01-isolated-dependency-modernization/01-DEP06-EVIDENCE.md.
         guard let stream = DeprecatedAPI.getCFReadStream(
             kCFAllocatorDefault, message
         )
