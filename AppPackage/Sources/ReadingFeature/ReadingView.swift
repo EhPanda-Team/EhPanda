@@ -31,6 +31,9 @@ public struct ReadingView: View {
     @State var pageModel: PageModel
     @State private var scrollPositionID: Int?
     @State private var performingChanges = false
+    // THROWAWAY (removed after go/no-go sign-off): the last programmatic jump target, logged
+    // against the settled id as the D-11 landed-id evidence (Pitfall 1 off-by-one check).
+    @State private var pendingJumpTarget: Int?
 
     public init(
         store: StoreOf<ReadingReducer>,
@@ -207,6 +210,14 @@ public struct ReadingView: View {
         )
         .onScrollPhaseChange { _, newValue in
             if newValue == .idle, let position = scrollPositionID {
+                if let requested = pendingJumpTarget {
+                    // THROWAWAY (removed after go/no-go sign-off): landed-id evidence — a
+                    // settled id differing from the requested one is the Pitfall-1 off-by-one.
+                    logger.debug(
+                        "jump requested: \(requested, privacy: .public), landed: \(position, privacy: .public)"
+                    )
+                    pendingJumpTarget = nil
+                }
                 performingChanges = true
                 pageModel.update(.new(index: position))
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -305,17 +316,38 @@ public struct ReadingView: View {
 
 // MARK: Handler methods
 extension ReadingView {
+    // The single programmatic write path (D-07): autoplay, the slider seek, and tap-to-turn all
+    // land here, so every write is clamped to the data source's bounds and guarded against the
+    // scroll-read feedback loop before it reaches the shared index. Clamping also covers vertical
+    // autoplay, which was effectively unclamped under SwiftUIPager (`totalPages` was only set by
+    // a rendered `Pager`) — a deliberate small improvement, not drift.
+    func jump(toPagerIndex target: Int) {
+        let dataSource = store.state.containerDataSource(
+            setting: store.setting,
+            isLandscape: DeviceUtil.isLandscape
+        )
+        guard !dataSource.isEmpty else { return }
+        let clampedIndex = min(max(target, 0), dataSource.count - 1)
+        guard pageModel.index != clampedIndex else { return }
+        performingChanges = true
+        pageModel.update(.new(index: clampedIndex))
+        pendingJumpTarget = clampedIndex
+        withAnimation {
+            scrollPositionID = clampedIndex
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            performingChanges = false
+        }
+    }
     func setPageIndex(sliderValue: Float) {
         let newValue = pageHandler.mapToPager(
             index: .init(sliderValue), setting: store.setting
         )
-        if pageModel.index != newValue {
-            pageModel.update(.new(index: newValue))
-        }
+        jump(toPagerIndex: newValue)
     }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
-            pageModel.update(.next)
+            jump(toPagerIndex: pageModel.index + 1)
         })
     }
     private func tryScrollTo(id: Int) {
