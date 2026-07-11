@@ -88,6 +88,13 @@
         "identifier" : "ImageColorsTests",
         "name" : "ImageColorsTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:AppPackage",
+        "identifier" : "GalleryListComponentsTests",
+        "name" : "GalleryListComponentsTests"
+      }
     }
   ],
   "version" : 1
