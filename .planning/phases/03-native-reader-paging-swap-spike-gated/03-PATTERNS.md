@@ -133,7 +133,7 @@ Pager(page: page, data: galleries) { gallery in
 .synchronize($pageIndex, $page.index)
 .frame(height: Defaults.FrameSize.cardCellHeight)
 ```
-Mapping to stock (D-06/D-08): `.preferredItemSize`+`.itemSpacing(20)` → item `.containerRelativeFrame` sizing + `LazyHStack(spacing: 20)`; `.interactive(opacity: 0.2)` → `.scrollTransition { c, p in c.opacity(p.isIdentity ? 1 : 0.2) }`; peek → `.scrollClipDisabled()`; `.loopPages()` → tripled buffer + idle-phase suppressed re-center; `.synchronize($pageIndex, $page.index)` → map buffer id → logical index → the outward `$pageIndex` binding (MANDATORY sync).
+Mapping to stock (D-06/D-08, amended per 03-REVIEWS): `.preferredItemSize`+`.itemSpacing(20)` → fixed item `.frame(width: cardCellSize.width, height: cardCellSize.height)` + `LazyHStack(spacing: 20)`; centered snap → horizontal `.contentMargins((DeviceUtil.windowW - cardCellSize.width)/2, for: .scrollContent)` (bare `.viewAligned` left-aligns the snapped card — SwiftUIPager centers it; the margins produce the symmetric peek); `.interactive(opacity: 0.2)` → `.scrollTransition { c, p in c.opacity(p.isIdentity ? 1 : 0.2) }`; `.scrollClipDisabled()` kept per D-06 but NOT the peek mechanism; `.loopPages()` → tripled buffer + idle-phase suppressed re-center; `.synchronize($pageIndex, $page.index)` → map buffer id → logical index → the outward `$pageIndex` binding (MANDATORY sync), initial position seeded from the inbound `pageIndex`.
 
 ---
 
