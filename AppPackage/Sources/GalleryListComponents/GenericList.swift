@@ -1,15 +1,7 @@
 import SwiftUI
 import Sharing
-import SFSafeSymbols
 import AppModels
 import AppComponents
-import WaterfallGrid
-import AppTools
-import OSLogExt
-
-// TEMPORARY (SR-1 spike, Plan 02): throwaway auto-load trigger diagnostics for the sign-off.
-// Removed in Plan 03 together with MasonryLayout's width instrumentation.
-private let logger = Logger(moduleName: "GalleryListComponents", category: "GenericList")
 
 public struct GenericList: View {
     @SharedReader(.setting) private var setting: Setting
@@ -171,13 +163,6 @@ private struct WaterfallList: View {
     @State private var isUserScrolling = false
     @State private var lastAutoFetchCount: Int?
 
-    private var columnsInPortrait: Int {
-        DeviceUtil.isPadWidth ? 4 : 2
-    }
-    private var columnsInLandscape: Int {
-        DeviceUtil.isPadWidth ? 5 : 2
-    }
-
     // Distance from the bottom edge at which the next page is auto-loaded (points).
     private static let fetchMoreThreshold: CGFloat = 300
 
@@ -206,17 +191,15 @@ private struct WaterfallList: View {
                     ListNoticeView(notice: notice)
                 }
             }
-            // SR-1 spike (Plan 02): candidate MasonryLayout wired into the live .thumbnail call site
-            // for runtime observation. WaterfallGrid dependency, the columnsInPortrait/Landscape vars,
-            // and the Package.swift entry are left in place for a single-commit rollback; the production
-            // swap and dead-code removal land in Plans 03/04. `.animation(nil, value: galleries)`
-            // suppresses placement animation on fetch-more append (D-31, RESEARCH Pattern 3).
+            // The thumbnail grid renders through the app-owned MasonryLayout (DEP-04), one eager row
+            // inside this List. `.animation(nil, value: galleries)` suppresses placement animation on
+            // fetch-more append (D-31, RESEARCH Pattern 3).
             // The footer (spinner while loading, retry on failure) lives INSIDE the masonry's row,
             // not as a sibling row: during an append the List keeps visible rows anchored, so a
             // visible standalone footer row pinned the viewport to the bottom while the masonry
             // row above it grew (measured as a negative distance-to-bottom) — chaining auto-loads
-            // page after page. As part of this single row, nothing below the grid gets anchored;
-            // appended content extends below the viewport and the scroll offset stays put.
+            // page after page (D-36). As part of this single row, nothing below the grid gets
+            // anchored; appended content extends below the viewport and the scroll offset stays put.
             VStack(spacing: 0) {
                 MasonryLayout {
                     ForEach(galleries) { gallery in
@@ -259,8 +242,6 @@ private struct WaterfallList: View {
                   lastAutoFetchCount != galleries.count
             else { return }
             lastAutoFetchCount = galleries.count
-            // TEMPORARY (SR-1 spike): trigger diagnostics, removed in Plan 03 with the width log.
-            logger.debug("fetchMore auto-trigger: distance=\(Int(distanceToBottom)) count=\(galleries.count)")
             fetchMoreAction?()
         }
     }
