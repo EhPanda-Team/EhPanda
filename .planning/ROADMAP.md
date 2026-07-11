@@ -83,7 +83,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
 
   1. A feasibility spike confirms a custom `Layout` can reproduce masonry column balancing before implementation is committed, or surfaces the blocker.
-  2. Masonry output matches current WaterfallGrid across portrait/landscape and iPad/phone column counts.
+  2. All cells share one identical flexible width and tile any container width with fixed 15pt spacing; the column count is a pure function of container width (adaptive rule, min cell width 185pt, min 2 columns) — stable against cell-content changes, image loading, and type size. *(Exact 2/4/5 count parity with WaterfallGrid intentionally dropped — owner decision 2026-07-11.)*
   3. Scrolling performance is not regressed.
   4. WaterfallGrid is removed from the dependency set.
 
