@@ -1,7 +1,7 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "acknowledgement.colorful": {
+    "acknowledgement.colorfulX": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -43,7 +43,7 @@
         }
       }
     },
-    "acknowledgement.colorful_link": {
+    "acknowledgement.colorfulX_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
@@ -421,86 +421,86 @@
         }
       }
     },
-    "acknowledgement.swiftCommonMark": {
+    "acknowledgement.swiftMarkdown": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "SwiftCommonMark"
+            "value": "swift-markdown"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "SwiftCommonMark"
+            "value": "swift-markdown"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "SwiftCommonMark"
+            "value": "swift-markdown"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "SwiftCommonMark"
+            "value": "swift-markdown"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "SwiftCommonMark"
+            "value": "swift-markdown"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "SwiftCommonMark"
+            "value": "swift-markdown"
           }
         }
       }
     },
-    "acknowledgement.swiftCommonMark_link": {
+    "acknowledgement.swiftMarkdown_link": {
       "extractionState": "manual",
       "shouldTranslate": false,
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+            "value": "https://github.com/apple/swift-markdown"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+            "value": "https://github.com/apple/swift-markdown"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+            "value": "https://github.com/apple/swift-markdown"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+            "value": "https://github.com/apple/swift-markdown"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+            "value": "https://github.com/apple/swift-markdown"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://github.com/gonzalezreal/SwiftCommonMark"
+            "value": "https://github.com/apple/swift-markdown"
           }
         }
       }
@@ -921,90 +921,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "https://github.com/jathu/UIImageColors"
-          }
-        }
-      }
-    },
-    "acknowledgement.waterfallGrid": {
-      "extractionState": "manual",
-      "shouldTranslate": false,
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WaterfallGrid"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WaterfallGrid"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WaterfallGrid"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WaterfallGrid"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WaterfallGrid"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "WaterfallGrid"
-          }
-        }
-      }
-    },
-    "acknowledgement.waterfallGrid_link": {
-      "extractionState": "manual",
-      "shouldTranslate": false,
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/paololeonardi/WaterfallGrid"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/paololeonardi/WaterfallGrid"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/paololeonardi/WaterfallGrid"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/paololeonardi/WaterfallGrid"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/paololeonardi/WaterfallGrid"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "https://github.com/paololeonardi/WaterfallGrid"
           }
         }
       }
