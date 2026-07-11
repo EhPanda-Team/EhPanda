@@ -119,7 +119,7 @@ Plans:
   3. Reader gestures (zoom/pan/tap) continue to coexist with paging.
   4. SwiftUIPager is removed from the dependency set.
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 Plans:
 **Wave 1**
 
@@ -132,7 +132,7 @@ Plans:
 
 **Wave 3** *(blocked on 03-03)*
 
-- [ ] 03-04-PLAN.md — Reader writers: guarded/clamped autoplay + slider + tap-to-turn jumps + zoom/pan/tap coexistence (D-09)
+- [x] 03-04-PLAN.md — Reader writers: guarded/clamped autoplay + slider + tap-to-turn jumps + zoom/pan/tap coexistence (D-09)
 
 **Wave 4** *(blocked on 03-02 + 03-04)*
 
@@ -262,7 +262,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
-| 3. Native Reader Paging Swap | 3/5 | In Progress|  |
+| 3. Native Reader Paging Swap | 4/5 | In Progress|  |
 | 4. Concurrency & Framework Migration | 0/TBD | Not started | - |
 | 5. Adaptive Layout & Universal Orientation | 0/TBD | Not started | - |
 | 6. GenericList Decomposition | 0/TBD | Not started | - |
