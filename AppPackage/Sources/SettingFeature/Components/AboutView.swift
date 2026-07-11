@@ -151,8 +151,8 @@ struct AboutView: View {
             text: .Constant.acknowledgementKanna
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementColorfulLink),
-            text: .Constant.acknowledgementColorful
+            urlString: String(localized: .Constant.acknowledgementColorfulXLink),
+            text: .Constant.acknowledgementColorfulX
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementKingfisherLink),
@@ -161,10 +161,6 @@ struct AboutView: View {
         .init(
             urlString: String(localized: .Constant.acknowledgementSwiftUIPagerLink),
             text: .Constant.acknowledgementSwiftUIPager
-        ),
-        .init(
-            urlString: String(localized: .Constant.acknowledgementWaterfallGridLink),
-            text: .Constant.acknowledgementWaterfallGrid
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementSwiftyOpenCCLink),
@@ -183,8 +179,8 @@ struct AboutView: View {
             text: .Constant.acknowledgementSystemNotification
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementSwiftCommonMarkLink),
-            text: .Constant.acknowledgementSwiftCommonMark
+            urlString: String(localized: .Constant.acknowledgementSwiftMarkdownLink),
+            text: .Constant.acknowledgementSwiftMarkdown
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementEhTagTranslationDatabaseLink),
