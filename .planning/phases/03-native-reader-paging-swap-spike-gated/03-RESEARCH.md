@@ -349,19 +349,22 @@ let h = PageHandler()
 
 **All A1–A6 are spike-resolvable** — the full-surface spike (D-10) is precisely the mechanism to convert these from ASSUMED to VERIFIED before the go/no-go.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does a programmatic `.scrollPosition(id:)` write land exactly on the target page under `.paging`?** (THE central proof, D-10/§Specifics.)
+   - **RESOLVED (spike-deferred):** proven at the D-11 go/no-go gate in Plan 03-05 (landed-id fidelity).
    - What we know: the binding is two-way; iOS 18 `ScrollPosition` adds `scrollTo(id:)`; pages sized to viewport should make id≡snap.
    - What's unclear: exact landed-id fidelity for autoplay/slider/tap, especially RTL + dual-page landscape.
    - Recommendation: spike logs the landed id after every programmatic write before wiring autoplay/slider/tap; choose id-binding vs `ScrollPosition` accordingly.
 
 2. **Can the tripled-buffer carousel loop re-center invisibly with stock components?** (D-08 MANDATORY.)
+   - **RESOLVED (spike-deferred):** proven at the D-11 go/no-go gate in Plan 03-05 (loop re-center invisibility).
    - What we know: idle-phase + suppressed-transaction re-center is the standard idiom (Phase 2 D-31 for suppression).
    - What's unclear: whether stock `.viewAligned` re-centering is truly flash-free at rest.
    - Recommendation: this is the single most likely D-02 gap — prove it early in the spike; if it stutters, exhaust D-03 options before declaring the gap.
 
 3. **Should the shared index be a bare `Int?` binding or a thin `@Observable` wrapper?** (Claude's discretion, D-07.)
+   - **RESOLVED:** @Observable `PageModel` wrapper (Plan 03-03 rationale — mirrors the used `Page` surface to minimize call-site churn, app-owned per D-01).
    - What we know: five writers/readers touch it; the wrapper could mirror `.update(.next)`/`.update(.new(index:))` to reduce churn.
    - Recommendation: planner decides on measured call-site churn; default to the bare index unless the wrapper demonstrably shrinks the diff.
 
