@@ -16,7 +16,7 @@
 - [x] **DEP-03**: Migrate Markdown from SwiftCommonMark to Apple swift-markdown.
   - `MarkdownUtil.parseTexts/parseLinks/parseImages` reproduced on swift-markdown's `Document`/walker; `TagTranslation` output identical on fixtures; `DetailView` markdown confirmed (render vs parse) and preserved; SwiftCommonMark removed from `Package.swift`.
 - [ ] **DEP-04**: Replace WaterfallGrid with a custom SwiftUI `Layout`. *(Spike-gated: validate feasibility before committing tasks.)*
-  - Masonry column balancing matches current output (portrait/landscape, iPad/phone counts); WaterfallGrid removed; scrolling performance not regressed.
+  - Grid tiles any container width: all cells share one identical flexible width with fixed 15pt spacing; column count is a pure function of the layout's own container width (adaptive rule `max(2, floor((w + 15) / (185 + 15)))`) and never varies with cell content, image loading, or type size; masonry shortest-column balancing preserved; no `UIScreen`/`DeviceUtil` reads; WaterfallGrid removed; scrolling performance not regressed. *(Exact 2/4/5 count parity with WaterfallGrid intentionally dropped — owner decision 2026-07-11.)*
 - [ ] **DEP-05**: Replace SwiftUIPager with a built-in page-style `TabView`. *(Spike-gated.)*
   - Reading paging parity: horizontal/RTL/dual-page, page-index mapping, gesture coexistence; SwiftUIPager removed; if native can't reach parity, spike surfaces it before commit.
 - [x] **DEP-06**: Investigate inlining DeprecatedAPI (`getCFReadStream`) into the project without deprecation warnings; adopt a non-deprecated API if actionable.
