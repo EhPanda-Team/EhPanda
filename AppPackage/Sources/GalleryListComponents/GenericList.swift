@@ -5,6 +5,11 @@ import AppModels
 import AppComponents
 import WaterfallGrid
 import AppTools
+import OSLogExt
+
+// TEMPORARY (SR-1 spike, Plan 02): throwaway auto-load trigger diagnostics for the sign-off.
+// Removed in Plan 03 together with MasonryLayout's width instrumentation.
+private let logger = Logger(moduleName: "GalleryListComponents", category: "GenericList")
 
 public struct GenericList: View {
     @SharedReader(.setting) private var setting: Setting
@@ -157,6 +162,15 @@ private struct WaterfallList: View {
     private let navigateAction: ((Gallery) -> Void)?
     private let translateAction: ((String) -> (String, TagTranslation?))?
 
+    // Guards for the scroll-driven auto-load below. The load's own append perturbs the scroll
+    // geometry (contentSize grows, then the List shifts contentOffset to keep the visible footer
+    // row anchored), so any geometry-keyed re-arm is re-triggered by the load itself — that fed
+    // an endless fetch loop pinned at the bottom. Instead: fire at most once per galleries.count
+    // (data, which layout can't perturb) and only during user-driven scroll phases (finger drag
+    // or momentum — layout-driven offset jumps happen in the idle/animating phases).
+    @State private var isUserScrolling = false
+    @State private var lastAutoFetchCount: Int?
+
     private var columnsInPortrait: Int {
         DeviceUtil.isPadWidth ? 4 : 2
     }
@@ -164,14 +178,8 @@ private struct WaterfallList: View {
         DeviceUtil.isPadWidth ? 5 : 2
     }
 
-    private var shouldShowFooter: Bool {
-        guard let pageNumber = pageNumber else { return false }
-
-        let isPageNumberValid = pageNumber.hasNextPage()
-        let isLoadingStateIdle = footerLoadingState == .idle
-
-        return !isLoadingStateIdle && isPageNumberValid
-    }
+    // Distance from the bottom edge at which the next page is auto-loaded (points).
+    private static let fetchMoreThreshold: CGFloat = 300
 
     init(
         galleries: [Gallery], pageNumber: PageNumber?,
@@ -203,40 +211,57 @@ private struct WaterfallList: View {
             // and the Package.swift entry are left in place for a single-commit rollback; the production
             // swap and dead-code removal land in Plans 03/04. `.animation(nil, value: galleries)`
             // suppresses placement animation on fetch-more append (D-31, RESEARCH Pattern 3).
-            MasonryLayout {
-                ForEach(galleries) { gallery in
-                    Button {
-                        navigateAction?(gallery)
-                    } label: {
-                        GalleryThumbnailCell(
-                            gallery: gallery,
-                            translateAction: translateAction,
-                            downloadBadge: downloadBadges[gallery.gid]
-                        )
-                        .tint(.primary).multilineTextAlignment(.leading)
-                    }
-                    .buttonStyle(.borderless)
-                }
-            }
-            .animation(nil, value: galleries)
-            if !shouldShowFooter {
-                Button {
-                    fetchMoreAction?()
-                } label: {
-                    HStack {
-                        Spacer()
-                        Image(systemSymbol: .chevronDown)
-                        Spacer()
+            // The footer (spinner while loading, retry on failure) lives INSIDE the masonry's row,
+            // not as a sibling row: during an append the List keeps visible rows anchored, so a
+            // visible standalone footer row pinned the viewport to the bottom while the masonry
+            // row above it grew (measured as a negative distance-to-bottom) — chaining auto-loads
+            // page after page. As part of this single row, nothing below the grid gets anchored;
+            // appended content extends below the viewport and the scroll offset stays put.
+            VStack(spacing: 0) {
+                MasonryLayout {
+                    ForEach(galleries) { gallery in
+                        Button {
+                            navigateAction?(gallery)
+                        } label: {
+                            GalleryThumbnailCell(
+                                gallery: gallery,
+                                translateAction: translateAction,
+                                downloadBadge: downloadBadges[gallery.gid]
+                            )
+                            .tint(.primary).multilineTextAlignment(.leading)
+                        }
+                        .buttonStyle(.borderless)
                     }
                 }
-                .foregroundStyle(.tint)
-            } else {
-                FetchMoreFooter(
-                    loadingState: footerLoadingState,
-                    retryAction: fetchMoreAction
-                )
+                .animation(nil, value: galleries)
+                if let pageNumber, pageNumber.hasNextPage() {
+                    FetchMoreFooter(
+                        loadingState: footerLoadingState,
+                        retryAction: fetchMoreAction
+                    )
+                }
             }
         }
         .listStyle(.plain)
+        // Auto-load the next page as the bottom edge nears, mirroring DetailList's paginate-on-
+        // scroll behavior. Reading scroll geometry (not view identity) keeps the scroll position
+        // stable across appends. The guards (see the @State declarations above) break the
+        // load→geometry→load feedback loop: user-driven scroll phase + once per page.
+        .onScrollPhaseChange { _, newPhase in
+            isUserScrolling = newPhase == .tracking || newPhase == .interacting || newPhase == .decelerating
+        }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+            geometry.contentSize.height - geometry.contentOffset.y - geometry.containerSize.height
+        } action: { _, distanceToBottom in
+            guard distanceToBottom < Self.fetchMoreThreshold,
+                  isUserScrolling,
+                  footerLoadingState == .idle,
+                  lastAutoFetchCount != galleries.count
+            else { return }
+            lastAutoFetchCount = galleries.count
+            // TEMPORARY (SR-1 spike): trigger diagnostics, removed in Plan 03 with the width log.
+            logger.debug("fetchMore auto-trigger: distance=\(Int(distanceToBottom)) count=\(galleries.count)")
+            fetchMoreAction?()
+        }
     }
 }
