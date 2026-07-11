@@ -9,6 +9,7 @@ import AppComponents
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
     @State private var scrollPositionID: Int?
+    @State private var performingChanges = false
     @Binding private var pageIndex: Int
 
     private let galleries: [Gallery]
@@ -29,10 +30,11 @@ struct CardSlideSection: View, Equatable {
         self.colors = colors
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
-        // Seed the initial position from the inbound page index (`Page.withIndex` parity):
-        // `cardPageIndex` defaults to 1, so the carousel must not open on the first card.
+        // Seed the initial position to the MIDDLE copy's entry for the inbound page index
+        // (`Page.withIndex` parity: `cardPageIndex` defaults to 1, so the carousel must not open
+        // on the first card), giving the loop headroom on both sides from the first frame.
         let seedIndex = galleries.isEmpty ? nil : min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
-        _scrollPositionID = State(initialValue: seedIndex)
+        _scrollPositionID = State(initialValue: seedIndex.map { galleries.count + $0 })
     }
 
     static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {
@@ -41,11 +43,27 @@ struct CardSlideSection: View, Equatable {
             && lhs.colors == rhs.colors
     }
 
+    // Three concatenated copies of `galleries` with block-distinct ids replace `.loopPages()`:
+    // the carousel rests in the middle copy, so wrap-around always has cards on both sides,
+    // and a silent re-center restores that headroom whenever a scroll settles in an edge copy.
+    private struct BufferedCard: Identifiable, Equatable {
+        let id: Int
+        let gallery: Gallery
+    }
+
+    private var bufferedCards: [BufferedCard] {
+        let count = galleries.count
+        guard count > 0 else { return [] }
+        return (0..<count * 3).map { bufferIndex in
+            BufferedCard(id: bufferIndex, gallery: galleries[bufferIndex % count])
+        }
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 20) {
-                ForEach(galleries.indices, id: \.self) { index in
-                    card(for: galleries[index])
+                ForEach(bufferedCards) { item in
+                    card(for: item.gallery)
                 }
             }
             .scrollTargetLayout()
@@ -55,6 +73,33 @@ struct CardSlideSection: View, Equatable {
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
         .frame(height: Defaults.FrameSize.cardCellHeight)
+        .onScrollPhaseChange { _, newPhase in
+            guard newPhase == .idle, !performingChanges,
+                  let settledID = scrollPositionID, !galleries.isEmpty
+            else { return }
+            let count = galleries.count
+            let clampedID = min(max(settledID, 0), count * 3 - 1)
+            let logicalIndex = clampedID % count
+            // Outward-only `.synchronize` parity: the reducer only observes `cardPageIndex`,
+            // it never writes it back, so no inward re-seam exists by design.
+            if pageIndex != logicalIndex {
+                pageIndex = logicalIndex
+            }
+            let middleBlockID = count + logicalIndex
+            guard clampedID != middleBlockID else { return }
+            // Silent re-center onto the middle copy's equivalent card. The transaction
+            // suppresses the animation so the swap is invisible at rest, and the flag keeps
+            // the programmatic write from re-firing this mapping while it settles.
+            performingChanges = true
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                scrollPositionID = middleBlockID
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                performingChanges = false
+            }
+        }
     }
 
     // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
