@@ -2,14 +2,13 @@ import SwiftUI
 import AppModels
 import Resources
 import Kingfisher
-import SwiftUIPager
 import SFSafeSymbols
 import AppTools
 import AppComponents
 
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
-    @StateObject private var page: Page = .withIndex(1)
+    @State private var scrollPositionID: Int?
     @Binding private var pageIndex: Int
 
     private let galleries: [Gallery]
@@ -30,6 +29,10 @@ struct CardSlideSection: View, Equatable {
         self.colors = colors
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
+        // Seed the initial position from the inbound page index (`Page.withIndex` parity):
+        // `cardPageIndex` defaults to 1, so the carousel must not open on the first card.
+        let seedIndex = galleries.isEmpty ? nil : min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
+        _scrollPositionID = State(initialValue: seedIndex)
     }
 
     static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {
@@ -39,27 +42,47 @@ struct CardSlideSection: View, Equatable {
     }
 
     var body: some View {
-        Pager(page: page, data: galleries) { gallery in
-            Button {
-                navigateAction(gallery)
-            } label: {
-                GalleryCardCell(
-                    gallery: gallery,
-                    currentID: currentID,
-                    colors: colors,
-                    webImageSuccessAction: {
-                        webImageSuccessAction(gallery.gid, $0)
-                    }
-                )
-                .tint(.primary)
-                .multilineTextAlignment(.leading)
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 20) {
+                ForEach(galleries.indices, id: \.self) { index in
+                    card(for: galleries[index])
+                }
             }
+            .scrollTargetLayout()
         }
-        .preferredItemSize(Defaults.FrameSize.cardCellSize)
-        .interactive(opacity: 0.2).itemSpacing(20)
-        .loopPages().pagingPriority(.high)
-        .synchronize($pageIndex, $page.index)
+        .scrollTargetBehavior(.viewAligned)
+        .scrollPosition(id: $scrollPositionID)
+        .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
+        .scrollClipDisabled()
         .frame(height: Defaults.FrameSize.cardCellHeight)
+    }
+
+    // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
+    // content edge, dumping all the peek on the trailing side, while SwiftUIPager centered
+    // the focused card. Symmetric margins of the leftover width restore the centered peek.
+    private var centeringMargin: CGFloat {
+        (DeviceUtil.windowW - Defaults.FrameSize.cardCellSize.width) / 2
+    }
+
+    private func card(for gallery: Gallery) -> some View {
+        Button {
+            navigateAction(gallery)
+        } label: {
+            GalleryCardCell(
+                gallery: gallery,
+                currentID: currentID,
+                colors: colors,
+                webImageSuccessAction: {
+                    webImageSuccessAction(gallery.gid, $0)
+                }
+            )
+            .tint(.primary)
+            .multilineTextAlignment(.leading)
+        }
+        .frame(width: Defaults.FrameSize.cardCellSize.width, height: Defaults.FrameSize.cardCellSize.height)
+        .scrollTransition { content, phase in
+            content.opacity(phase.isIdentity ? 1 : 0.2)
+        }
     }
 }
 
