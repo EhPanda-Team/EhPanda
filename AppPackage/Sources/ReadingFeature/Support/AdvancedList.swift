@@ -1,12 +1,11 @@
 import SwiftUI
-import SwiftUIPager
 
 struct AdvancedList<Element, ID, PageView, G>: View
 where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     @State var performingChanges = false
     @State var scrollPositionID: Int?
 
-    private let pagerModel: Page
+    private let pagerModel: PageModel
     private let data: [Element]
     private let id: KeyPath<Element, ID>
     private let spacing: CGFloat
@@ -14,7 +13,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     private let content: (Element) -> PageView
 
     init<Data: RandomAccessCollection>(
-        page: Page, data: Data,
+        page: PageModel, data: Data,
         id: KeyPath<Element, ID>, spacing: CGFloat, gesture: G,
         @ViewBuilder content: @escaping (Element) -> PageView
     ) where Data.Index == Int, Data.Element == Element {

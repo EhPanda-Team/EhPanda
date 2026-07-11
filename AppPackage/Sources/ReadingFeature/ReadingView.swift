@@ -4,7 +4,6 @@ import AppModels
 import OSLogExt
 import Observation
 import SFSafeSymbols
-import SwiftUIPager
 import ComposableArchitecture
 import AppTools
 import AnimatedImageFeature
@@ -29,7 +28,9 @@ public struct ReadingView: View {
     @State private var autoPlayHandler = AutoPlayHandler()
     @State var gestureHandler = GestureHandler()
     @State private var pageHandler: PageHandler
-    @StateObject var page: Page
+    @State var pageModel: PageModel
+    @State private var scrollPositionID: Int?
+    @State private var performingChanges = false
 
     public init(
         store: StoreOf<ReadingReducer>,
@@ -47,7 +48,8 @@ public struct ReadingView: View {
         handler.sliderValue = Float(resumePage)
         let pagerIndex = handler.mapToPager(index: resumePage, setting: store.state.setting)
         _pageHandler = State(wrappedValue: handler)
-        _page = StateObject(wrappedValue: .withIndex(pagerIndex))
+        _pageModel = State(wrappedValue: .withIndex(pagerIndex))
+        _scrollPositionID = State(initialValue: pagerIndex)
     }
 
     private var backgroundColor: Color {
@@ -128,7 +130,7 @@ public struct ReadingView: View {
             ZStack {
                 if store.setting.readingDirection == .vertical {
                     AdvancedList(
-                        page: page,
+                        page: pageModel,
                         data: store.state.containerDataSource(
                             setting: store.setting,
                             isLandscape: DeviceUtil.isLandscape
@@ -140,18 +142,7 @@ public struct ReadingView: View {
                     )
                     .scrollDisabled(gestureHandler.scale != 1)
                 } else {
-                    Pager(
-                        page: page,
-                        data: store.state.containerDataSource(
-                            setting: store.setting,
-                            isLandscape: DeviceUtil.isLandscape
-                        ),
-                        id: \.self,
-                        content: imageStack
-                    )
-                    .horizontal(store.setting.readingDirection == .rightToLeft ? .endToStart : .startToEnd)
-                    .swipeInteractionArea(.allAvailable)
-                    .allowsDragging(gestureHandler.scale == 1)
+                    horizontalPagingList
                 }
             }
             .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
@@ -183,6 +174,52 @@ public struct ReadingView: View {
         }
     }
 
+    // D-04/D-05: the non-vertical reader pages through a stock horizontal paging ScrollView.
+    // The `.scrollPosition(id:)` ids are the 0-based POSITIONS in `containerDataSource` — the
+    // same index space as `pageModel.index` and `PageHandler.mapToPager` (in dual-page mode the
+    // element values are non-uniform reading pages, so positions, not elements, are the ids).
+    private var horizontalPagingList: some View {
+        let dataSource = store.state.containerDataSource(
+            setting: store.setting,
+            isLandscape: DeviceUtil.isLandscape
+        )
+        return ScrollView(.horizontal) {
+            LazyHStack(spacing: 0) {
+                ForEach(dataSource.indices, id: \.self) { position in
+                    imageStack(index: dataSource[position])
+                        .containerRelativeFrame(.horizontal)
+                        // Pages re-normalize to LTR: `imageContainerConfigs` already swaps the
+                        // spread order for RTL, so the environment flip on the ScrollView may
+                        // only reverse the paging axis, never the in-page order (no double-flip).
+                        .environment(\.layoutDirection, .leftToRight)
+                }
+            }
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.paging)
+        .scrollPosition(id: $scrollPositionID)
+        .scrollDisabled(gestureHandler.scale != 1)
+        // RTL flips only the paging axis; the data source stays forward so every index keeps
+        // its logical meaning (PageHandler stays direction-agnostic).
+        .environment(
+            \.layoutDirection,
+            store.setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight
+        )
+        .onScrollPhaseChange { _, newValue in
+            if newValue == .idle, let position = scrollPositionID {
+                performingChanges = true
+                pageModel.update(.new(index: position))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    performingChanges = false
+                }
+            }
+        }
+        .onChange(of: pageModel.index) { _, newValue in
+            tryScrollTo(id: newValue)
+        }
+        .onAppear { tryScrollTo(id: pageModel.index) }
+    }
+
     @ViewBuilder
     private func changeTriggers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         pageAndAutoPlayTriggers(content: content)
@@ -205,7 +242,7 @@ public struct ReadingView: View {
     private func pageAndAutoPlayTriggers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
             // Page
-            .onChange(of: page.index) { _, newValue in
+            .onChange(of: pageModel.index) { _, newValue in
                 let newValue = pageHandler.mapFromPager(
                     index: newValue, pageCount: store.gallery.pageCount, setting: store.setting
                 )
@@ -239,7 +276,7 @@ public struct ReadingView: View {
         let isDualPage = setting.enablesDualPageMode
             && setting.readingDirection != .vertical && DeviceUtil.isLandscape
         let dataSource = store.state.containerDataSource(setting: setting, isLandscape: DeviceUtil.isLandscape)
-        let activeStackIndex = dataSource.indices.contains(page.index) ? dataSource[page.index] : nil
+        let activeStackIndex = dataSource.indices.contains(pageModel.index) ? dataSource[pageModel.index] : nil
         HorizontalImageStack(
             index: index,
             isDualPage: isDualPage,
@@ -272,14 +309,19 @@ extension ReadingView {
         let newValue = pageHandler.mapToPager(
             index: .init(sliderValue), setting: store.setting
         )
-        if page.index != newValue {
-            page.update(.new(index: newValue))
+        if pageModel.index != newValue {
+            pageModel.update(.new(index: newValue))
         }
     }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
-            page.update(.next)
+            pageModel.update(.next)
         })
+    }
+    private func tryScrollTo(id: Int) {
+        if !performingChanges {
+            scrollPositionID = id
+        }
     }
     func analyzeImageForLiveText(index: Int) {
         guard liveTextHandler.liveTextGroups[index] == nil else {
