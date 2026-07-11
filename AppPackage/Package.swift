@@ -476,6 +476,9 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
+            // TEMPORARY (SR-1 spike, Plan 02): backs MasonryLayout's throwaway width logging.
+            // Removed in Plan 03 with the log line.
+            .module(.osLogExt),
             .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
