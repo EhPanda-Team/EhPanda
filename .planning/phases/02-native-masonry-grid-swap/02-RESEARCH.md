@@ -400,7 +400,9 @@ import Testing
 
 **All A1–A5 are exactly what the SR-1 spike de-risks before implementation is committed.** None is a locked-decision infeasibility — no BLOCKER surfaced.
 
-## Open Questions
+## Open Questions (RESOLVED in planning)
+
+> Both resolved in executable plan content: **Q1** → Plan 02-04 Task 2 (`checkpoint:decision` — explicit owner keep/remove; default keep per Phase 1 precedent). **Q2** → Plan 02-01 Task 2 (adds `GalleryListComponentsTests` to both `Package.swift` and `FeatureTests.xctestplan`).
 
 1. **WaterfallGrid acknowledgement row in `AboutView`.**
    - What we know: `AboutView.swift:165–168` shows a WaterfallGrid acknowledgement; Phase 1 *kept* acknowledgement rows for removed deps (SwiftCommonMark/UIImageColors still listed).
