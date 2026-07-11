@@ -9,8 +9,8 @@ extension ReadingView {
                 gestureHandler.onSingleTapGestureEnded(
                     readingDirection: store.setting.readingDirection,
                     setPageIndexOffsetAction: {
-                        let newValue = page.index + $0
-                        page.update(.new(index: newValue))
+                        let newValue = pageModel.index + $0
+                        pageModel.update(.new(index: newValue))
                     },
                     toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
                 )
