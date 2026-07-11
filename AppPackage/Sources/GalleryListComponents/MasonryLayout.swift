@@ -1,4 +1,9 @@
 import SwiftUI
+import OSLogExt
+
+// TEMPORARY (SR-1 spike, Plan 02): throwaway width instrumentation for the column-count sign-off
+// table. Removed in Plan 03 before the production swap lands (along with the OSLogExt dependency).
+private let logger = Logger(moduleName: "GalleryListComponents", category: "MasonryLayout")
 
 /// A module-internal masonry `Layout` that replaces the third-party `WaterfallGrid` (DEP-04).
 ///
@@ -42,6 +47,9 @@ struct MasonryLayout: Layout {
             return CGSize(width: proposal.width ?? 0, height: 0)
         }
         let columns = Self.columnCount(for: width)
+        // TEMPORARY (SR-1 spike, Plan 02): log the layout-engine-supplied width + resulting column
+        // count for the sign-off table. Removed in Plan 03. Emits only layout widths (T-02-02).
+        logger.debug("proposal.width=\(width, privacy: .public) columns=\(columns, privacy: .public)")
         let cellW = Self.cellWidth(containerWidth: width, columns: columns)
         // D-29: measure AFTER N and cellWidth are fixed; measurement never feeds back into N.
         let heights = subviews.map { $0.sizeThatFits(.init(width: cellW, height: nil)).height }

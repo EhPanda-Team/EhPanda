@@ -198,23 +198,27 @@ private struct WaterfallList: View {
                     ListNoticeView(notice: notice)
                 }
             }
-            WaterfallGrid(galleries) { gallery in
-                Button {
-                    navigateAction?(gallery)
-                } label: {
-                    GalleryThumbnailCell(
-                        gallery: gallery,
-                        translateAction: translateAction,
-                        downloadBadge: downloadBadges[gallery.gid]
-                    )
-                    .tint(.primary).multilineTextAlignment(.leading)
+            // SR-1 spike (Plan 02): candidate MasonryLayout wired into the live .thumbnail call site
+            // for runtime observation. WaterfallGrid dependency, the columnsInPortrait/Landscape vars,
+            // and the Package.swift entry are left in place for a single-commit rollback; the production
+            // swap and dead-code removal land in Plans 03/04. `.animation(nil, value: galleries)`
+            // suppresses placement animation on fetch-more append (D-31, RESEARCH Pattern 3).
+            MasonryLayout {
+                ForEach(galleries) { gallery in
+                    Button {
+                        navigateAction?(gallery)
+                    } label: {
+                        GalleryThumbnailCell(
+                            gallery: gallery,
+                            translateAction: translateAction,
+                            downloadBadge: downloadBadges[gallery.gid]
+                        )
+                        .tint(.primary).multilineTextAlignment(.leading)
+                    }
+                    .buttonStyle(.borderless)
                 }
-                .buttonStyle(.borderless)
             }
-            .gridStyle(
-                columnsInPortrait: columnsInPortrait, columnsInLandscape: columnsInLandscape,
-                spacing: 15, animation: nil
-            )
+            .animation(nil, value: galleries)
             if !shouldShowFooter {
                 Button {
                     fetchMoreAction?()
