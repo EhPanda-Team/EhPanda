@@ -121,6 +121,7 @@ enum Module: String {
     case markdownExtTests = "MarkdownExtTests"
     case tagTranslationFeatureTests = "TagTranslationFeatureTests"
     case galleryListComponentsTests = "GalleryListComponentsTests"
+    case readingFeatureTests = "ReadingFeatureTests"
 }
 
 extension Module {
@@ -983,6 +984,16 @@ let targets: [PackageDescription.Target] = [
         module: .galleryListComponentsTests,
         dependencies: [
             .module(.galleryListComponents)
+        ],
+        plugins: swiftLintPlugins
+    ),
+    .testTarget(
+        module: .readingFeatureTests,
+        dependencies: [
+            .module(.testingSupport),
+            .module(.appModels),
+            .module(.appTools),
+            .module(.readingFeature)
         ],
         plugins: swiftLintPlugins
     )
