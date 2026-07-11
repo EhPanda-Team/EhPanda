@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: native-reader-paging-swap-spike-gated
-status: draft
-nyquist_compliant: false
+status: ready
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-11
+updated: 2026-07-12
 ---
 
 # Phase 3 — Validation Strategy
@@ -71,18 +72,19 @@ created: 2026-07-11
 |----------|-------------|------------|-------------------|
 | Programmatic-jump smoothness / `.scrollPosition(id:)` landed-id fidelity (autoplay, slider seek, tap-to-turn, resume-seed) | DEP-05 | Requires observing real scroll landing; spike must **log** the landed id (evidence, not vibes) | Trigger each programmatic jump; confirm the landed leading-item id equals the target with no glitch/off-by-one |
 | Reader gesture coexistence under zoom (paging frozen at `scale != 1`, pan works while zoomed, RTL edge single-tap page-turn) | DEP-05 (SC #3) | Multi-gesture composition — headless test cannot exercise touch | Zoom in → swipe (no page change); pan (moves); single-tap RTL edges (turns correct direction) |
-| Horizontal + RTL + dual-page-landscape paging & snapping | DEP-05 | `.paging` landscape misalignment (FB16486510) is a device-observable risk | Page in each mode/orientation; confirm exact snap and correct index |
-| Home carousel: peek + 0.2 opacity fade + 20pt spacing + snap + `pageIndex` sync + **infinite loop invisibility** (D-08) | DEP-05 | Loop re-center invisibility (tripled buffer) cannot be asserted headlessly | Scroll the carousel through the wrap boundary repeatedly; confirm no visible jump and `pageIndex` stays in sync |
+| Horizontal + RTL + dual-page-landscape paging & snapping, **including the combined RTL × dual-page spread order** (03-REVIEWS HIGH: the layoutDirection flip must not double-reverse the `imageContainerConfigs` swap) | DEP-05 | `.paging` landscape misalignment (FB16486510) is a device-observable risk; spread order is visual | Page in each mode/orientation — including RTL + dual-page landscape combined; confirm exact snap, correct index, and the earlier page on the RIGHT under `.rightToLeft` |
+| Home carousel: **centered snap + symmetric peek** (contentMargins centering) + 0.2 opacity fade + 20pt spacing + `pageIndex` sync + **infinite loop invisibility** (D-08) | DEP-05 | Loop re-center invisibility (tripled buffer) and snap centering cannot be asserted headlessly | Confirm the snapped card is centered with symmetric peek; scroll through the wrap boundary repeatedly; confirm no visible jump and `pageIndex` stays in sync |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All automatable tasks have an `<automated>` verify or a Wave 0 dependency
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers the missing `PageHandlerTests` target + go/no-go checklist
-- [ ] No watch-mode flags
-- [ ] D-11 go/no-go checklist signed off before dependency removal
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All automatable tasks have an `<automated>` verify or a Wave 0 dependency
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers the missing `PageHandlerTests` target + go/no-go checklist
+- [x] No watch-mode flags
+- [ ] D-11 go/no-go checklist signed off before dependency removal *(execution-time gate — Plan 05 Task 2)*
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** plan-time boxes approved 2026-07-12 (review-incorporation replan, 03-REVIEWS.md); the D-11
+sign-off box remains open until the Plan 05 owner checkpoint, and `wave_0_complete` flips when 03-01 lands.
