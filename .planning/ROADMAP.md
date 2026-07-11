@@ -87,7 +87,7 @@ Plans:
   3. Scrolling performance is not regressed.
   4. WaterfallGrid is removed from the dependency set.
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans executed
 Plans:
 **Wave 1**
 
@@ -103,7 +103,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 02-04-PLAN.md — Remove WaterfallGrid dependency, regenerate Package.resolved, AboutView acknowledgement decision
+- [x] 02-04-PLAN.md — Remove WaterfallGrid dependency, regenerate Package.resolved, AboutView acknowledgement decision
 
 **UI hint**: yes
 
@@ -243,7 +243,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
-| 2. Native Masonry Grid Swap | 3/4 | In Progress|  |
+| 2. Native Masonry Grid Swap | 4/4 | In Progress|  |
 | 3. Native Reader Paging Swap | 0/TBD | Not started | - |
 | 4. Concurrency & Framework Migration | 0/TBD | Not started | - |
 | 5. Adaptive Layout & Universal Orientation | 0/TBD | Not started | - |
