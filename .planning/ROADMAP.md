@@ -87,11 +87,11 @@ Plans:
   3. Scrolling performance is not regressed.
   4. WaterfallGrid is removed from the dependency set.
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Test target + pure masonry core (columnCount/cellWidth/masonryPlan) with Swift Testing suite
+- [x] 02-01-PLAN.md — Test target + pure masonry core (columnCount/cellWidth/masonryPlan) with Swift Testing suite
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -243,7 +243,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
-| 2. Native Masonry Grid Swap | 0/4 | Not started | - |
+| 2. Native Masonry Grid Swap | 1/4 | In Progress|  |
 | 3. Native Reader Paging Swap | 0/TBD | Not started | - |
 | 4. Concurrency & Framework Migration | 0/TBD | Not started | - |
 | 5. Adaptive Layout & Universal Orientation | 0/TBD | Not started | - |
