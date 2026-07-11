@@ -20,7 +20,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
     .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
-    .package(url: "https://github.com/paololeonardi/WaterfallGrid", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
     .package(
         url: "https://github.com/pointfreeco/swift-composable-architecture",
@@ -46,7 +45,6 @@ extension PackageDescription.Target.Dependency {
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
     static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
-    static let waterfallGrid: Self = .product(name: "WaterfallGrid", package: "WaterfallGrid")
 }
 
 let swiftLintPlugins: [PackageDescription.Target.PluginUsage] = [
@@ -298,8 +296,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUIPager),
-            .targetDependency(.waterfallGrid)
+            .targetDependency(.swiftUIPager)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
@@ -476,14 +473,10 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
-            // TEMPORARY (SR-1 spike, Plan 02): backs MasonryLayout's throwaway width logging.
-            // Removed in Plan 03 with the log line.
-            .module(.osLogExt),
             .module(.tagTranslationFeature),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.sharing),
-            .targetDependency(.waterfallGrid)
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
