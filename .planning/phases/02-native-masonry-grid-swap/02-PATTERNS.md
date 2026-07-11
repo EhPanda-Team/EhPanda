@@ -123,7 +123,7 @@ import WaterfallGrid
 
 **Analog:** `AppPackage/Tests/ImageColorsTests/ImageColorsParityTests.swift` (lines 1-23) — Swift Testing suite that parity-locks a pure module function.
 
-**Import + suite header** (`ImageColorsParityTests.swift:1-23`) — match the `import Testing` + `@testable`/plain module import + `@Suite struct` idiom. `MasonryLayout` is `private` in its file, so tests need `@testable import GalleryListComponents` (unlike this analog's plain `import ImageColors`, which tests a `public` API):
+**Import + suite header** (`ImageColorsParityTests.swift:1-23`) — match the `import Testing` + `@testable`/plain module import + `@Suite struct` idiom. `MasonryLayout` and its pure functions are module-internal (never `public`; D-35's "private policy" means not an app-wide public breakpoint system, NOT file-scope `private` — a file-`private` type is unreachable by `@testable`), so tests need `@testable import GalleryListComponents` (which exposes `internal` symbols), unlike this analog's plain `import ImageColors`, which tests a `public` API:
 ```swift
 import Testing
 import Foundation

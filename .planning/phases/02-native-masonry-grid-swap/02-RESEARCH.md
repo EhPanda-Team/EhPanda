@@ -349,7 +349,7 @@ import Testing
     @Test(arguments: [
         (335.0, 2), (408.0, 2),          // phones portrait
         (710.0, 3),                       // iPad mini portrait (today 4 — accepted)
-        (790.0, 4), (990.0, 4),           // 11" / 13" iPad portrait
+        (790.0, 4), (990.0, 5),           // 11" portrait → 4; ~990pt content width → 5 per formula (13" portrait band confirmed at spike, D-23)
         (1040.0, 5), (1140.0, 5),         // iPad landscape
         (1336.0, 6),                      // 13" landscape (today 5 — accepted)
         (320.0, 2)                        // Slide Over clamp (D-25)
