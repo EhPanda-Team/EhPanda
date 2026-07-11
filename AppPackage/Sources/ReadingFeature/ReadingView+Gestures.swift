@@ -9,8 +9,9 @@ extension ReadingView {
                 gestureHandler.onSingleTapGestureEnded(
                     readingDirection: store.setting.readingDirection,
                     setPageIndexOffsetAction: {
-                        let newValue = pageModel.index + $0
-                        pageModel.update(.new(index: newValue))
+                        // The offset sign arrives RTL-corrected from GestureHandler
+                        // (`onSingleTapGestureEnded`) — no re-inversion here.
+                        jump(toPagerIndex: pageModel.index + $0)
                     },
                     toggleShowsPanelAction: { store.send(.toggleShowsPanel) }
                 )
