@@ -1,30 +1,31 @@
 import SwiftUI
-import OSLogExt
-
-// TEMPORARY (SR-1 spike, Plan 02): throwaway width instrumentation for the column-count sign-off
-// table. Removed in Plan 03 before the production swap lands (along with the OSLogExt dependency).
-private let logger = Logger(moduleName: "GalleryListComponents", category: "MasonryLayout")
 
 /// A module-internal masonry `Layout` that replaces the third-party `WaterfallGrid` (DEP-04).
 ///
-/// The column count is derived **solely** from the proposed container width (D-20): there is no
-/// `UIScreen` / `DeviceUtil` / size-class / idiom read anywhere in this type. All cells share one
+/// The column count is derived **solely** from the proposed container width (D-20): no screen
+/// metrics, device-class, size-class, or idiom read anywhere in this type. All cells share one
 /// identical flexible width and a fixed 15pt inter-item/inter-column spacing (D-21); leftover space
 /// always flows into the cell width, never into the spacing (D-28). Items are placed in data order
 /// into the leftmost shortest column, preserving `WaterfallGrid`'s masonry balancing (D-26/D-27).
 ///
-/// The `spacing` / `minCellWidth` / `minColumns` constants are design knobs (D-23): the `m = 185`
-/// value is provisional and is frozen only after the SR-1 spike sign-off measures real
-/// `proposal.width` at the live call site. Any adjustment is a one-constant change to `minCellWidth`.
+/// The `spacing` / `minCellWidth` / `minColumns` constants are design knobs (D-23): `m = 185` was
+/// frozen by the SR-1 spike sign-off after measuring real `proposal.width` at the live call site
+/// (iPhone Air 380 → 2, iPad 11" portrait 794 → 4, landscape 1170 → 5 — all on the expected bands).
+/// Any future adjustment is a one-constant change to `minCellWidth`.
+///
+/// Being a synchronous `Layout`, placement is computed in the same pass the `List` row is laid out,
+/// so it sheds `WaterfallGrid`'s first-layout opacity flash and async placement hop (D-33) — a
+/// strictly-beneficial deviation, not a behavior regression.
 ///
 /// This type is intentionally **not** `public` (D-35): it is a private, documented masonry-layout
 /// policy owned by `GalleryListComponents`, not an app-wide breakpoint system. Phase 5 may ratify or
-/// replace the policy. The pure arithmetic lives in `internal static` functions so the test target's
-/// `@testable import` can exercise them value-in / value-out, without a live view tree.
+/// replace the policy, and Phase 6's grid-atom extraction can lift it unchanged. The pure arithmetic
+/// lives in `internal static` functions so the test target's `@testable import` can exercise them
+/// value-in / value-out, without a live view tree.
 struct MasonryLayout: Layout {
     /// Fixed inter-item / inter-column spacing (D-21). Never absorbs leftover width (D-28).
     static let spacing: CGFloat = 15
-    /// The adaptive minimum cell width `m` (D-20). A design knob, frozen only after SR-1 sign-off (D-23).
+    /// The adaptive minimum cell width `m` (D-20), frozen at 185 by the SR-1 spike sign-off (D-23).
     static let minCellWidth: CGFloat = 185
     /// Lower clamp on the column count (D-25). There is deliberately no upper clamp.
     static let minColumns = 2
@@ -47,9 +48,6 @@ struct MasonryLayout: Layout {
             return CGSize(width: proposal.width ?? 0, height: 0)
         }
         let columns = Self.columnCount(for: width)
-        // TEMPORARY (SR-1 spike, Plan 02): log the layout-engine-supplied width + resulting column
-        // count for the sign-off table. Removed in Plan 03. Emits only layout widths (T-02-02).
-        logger.debug("proposal.width=\(width, privacy: .public) columns=\(columns, privacy: .public)")
         let cellW = Self.cellWidth(containerWidth: width, columns: columns)
         // D-29: measure AFTER N and cellWidth are fixed; measurement never feeds back into N.
         let heights = subviews.map { $0.sizeThatFits(.init(width: cellW, height: nil)).height }
