@@ -24,7 +24,10 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let greeting = try await GreetingRequest(urlSession: session).legacyResponse().get()
+        let greeting = try await capture { () async throws(AppError) -> Greeting in
+            try await GreetingRequest(urlSession: session).response()
+        }
+        .get()
         let received = try #require(handle.receivedRequests.first)
 
         #expect(received.url == url)
@@ -50,7 +53,10 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let user = try await UserInfoRequest(uid: uid, urlSession: session).legacyResponse().get()
+        let user = try await capture { () async throws(AppError) -> User in
+            try await UserInfoRequest(uid: uid, urlSession: session).response()
+        }
+        .get()
         let received = try #require(handle.receivedRequests.first)
 
         #expect(received.url == url)
@@ -72,7 +78,10 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let categories = try await FavoriteCategoriesRequest(urlSession: session).legacyResponse().get()
+        let categories = try await capture { () async throws(AppError) -> [Int: String] in
+            try await FavoriteCategoriesRequest(urlSession: session).response()
+        }
+        .get()
         let received = try #require(handle.receivedRequests.first)
 
         #expect(received.url == url)
@@ -95,7 +104,9 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let result = await GreetingRequest(urlSession: session).legacyResponse()
+        let result = await capture { () async throws(AppError) -> Greeting in
+            try await GreetingRequest(urlSession: session).response()
+        }
 
         #expect(result == .failure(.networkingFailed))
         #expect(handle.attempts(for: url) == 4)
@@ -126,12 +137,14 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let result = try await TagTranslatorRequest(
-            language: language,
-            updatedDate: updatedDate,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture { () async throws(AppError) -> TagTranslatorPayload in
+            try await TagTranslatorRequest(
+                language: language,
+                updatedDate: updatedDate,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
 
         #expect(result == TagTranslatorPayload(data: payload, updatedDate: postedDate))
@@ -157,12 +170,14 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let result = await TagTranslatorRequest(
-            language: language,
-            updatedDate: updatedDate,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
+            try await TagTranslatorRequest(
+                language: language,
+                updatedDate: updatedDate,
+                urlSession: session
+            )
+            .response()
+        }
 
         #expect(result == .failure(.noUpdates))
         #expect(handle.attempts(for: apiURL) == 1)
@@ -187,12 +202,14 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let result = await TagTranslatorRequest(
-            language: language,
-            updatedDate: updatedDate,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
+            try await TagTranslatorRequest(
+                language: language,
+                updatedDate: updatedDate,
+                urlSession: session
+            )
+            .response()
+        }
 
         #expect(result == .failure(.parseFailed))
         #expect(handle.attempts(for: apiURL) == 1)
@@ -220,12 +237,14 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let result = await TagTranslatorRequest(
-            language: language,
-            updatedDate: updatedDate,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> TagTranslatorPayload in
+            try await TagTranslatorRequest(
+                language: language,
+                updatedDate: updatedDate,
+                urlSession: session
+            )
+            .response()
+        }
 
         #expect(result == .failure(.networkingFailed))
         #expect(handle.attempts(for: apiURL) == 1)
@@ -262,7 +281,9 @@ struct RoutineRequestBaselineTests {
             handle.tearDown()
         }
 
-        let result = await FavoriteCategoriesRequest(urlSession: session).legacyResponse()
+        let result = await capture { () async throws(AppError) -> [Int: String] in
+            try await FavoriteCategoriesRequest(urlSession: session).response()
+        }
 
         #expect(result == .failure(.ipBanned(.minutes(59, seconds: 48))))
         #expect(handle.attempts(for: url) == 1)
