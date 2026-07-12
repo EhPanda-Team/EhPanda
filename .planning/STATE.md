@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
 status: executing
-stopped_at: Completed 04-05-PLAN.md
-last_updated: "2026-07-12T16:34:27.502Z"
+stopped_at: Completed 04-06-PLAN.md
+last_updated: "2026-07-12T21:56:08.746Z"
 last_activity: 2026-07-12
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 32
-  completed_plans: 22
+  completed_plans: 23
   percent: 18
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 04 (concurrency-framework-migration) — EXECUTING
-Plan: 6 of 14
+Plan: 7 of 14
 Status: Ready to execute
 Last activity: 2026-07-12 — Phase 04 execution started
 Next: execute Phase 04 (/gsd-execute-phase 4)
@@ -78,6 +78,7 @@ Progress: [██████░░░░] 59% (19/32 plans across Phases 01–0
 | Phase 04 P03 | 25min | 2 tasks | 2 files |
 | Phase 04 P04 | 18min | 2 tasks | 2 files |
 | Phase 04 P05 | 22min | 2 tasks | 2 files |
+| Phase 04 P06 | 7min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-01: Every Request conformer stores an injected URLSession, including DataRequest, with .shared as the behavior-preserving default.
 - [Phase 04]: 04-02: Unknown URLs and invalid harness tokens fail inside CountingStubProtocol, preventing live-network fallthrough.
 - [Phase 04]: 04-02: Parity capture accepts a closure formed on each concrete request type to avoid protocol-extension static dispatch.
+- [Phase 04]: Fetch errors map inside fetch; parse errors map after fetch returns, so parse failures never retry. — Preserves Combine retry placement and one AppError mapping per thrown boundary.
+- [Phase 04]: TagTranslator retries metadata but performs its payload download once. — Preserves the frozen two-step Combine chain asymmetry.
+- [Phase 04]: Native URLSession structured cancellation remains attached to the caller task. — Stops cancelled HTTP work while TCA preserves identical user-visible behavior.
 
 ### Pending Todos
 
@@ -133,6 +137,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T16:34:27.497Z
-Stopped at: Completed 04-05-PLAN.md
+Last session: 2026-07-12T21:56:08.741Z
+Stopped at: Completed 04-06-PLAN.md
 Resume file: None
