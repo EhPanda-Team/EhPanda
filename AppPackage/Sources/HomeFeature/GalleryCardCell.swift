@@ -6,6 +6,7 @@ import Kingfisher
 import AppTools
 
 public struct GalleryCardCell: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 
     private let currentID: String
@@ -19,7 +20,9 @@ public struct GalleryCardCell: View {
     // the pre-migration behavior, the whole `ColorfulView` is gated on `animated`: it is inserted
     // only for the focused card in dark mode. Unselected cards and light mode show just the gray
     // fallback, and the cover-color analysis is skipped until dark (see `handleCoverSuccess`).
-    // `animationSpeed` is the subjective, user-tunable motion knob (01-COLORFUL-UAT.md, D-19).
+    // With Reduce Motion enabled, the gradient is seeded directly from the palette and its Metal
+    // field is frozen; the focus handoff remains an opacity cross-fade. `animationSpeed` is the
+    // subjective, user-tunable motion knob (01-COLORFUL-UAT.md, D-19).
     private let animationSpeed: Double = 0.5
 
     // Retains the last cover-image result so color analysis can be deferred: light mode never
@@ -53,7 +56,7 @@ public struct GalleryCardCell: View {
         ZStack {
             Color.gray.opacity(0.2)
             if animated {
-                CardGradientView(colors: colors, speed: animationSpeed)
+                CardGradientView(colors: colors, reduceMotion: reduceMotion, speed: animationSpeed)
                     // Cross-fade the focus handoff: the gradient is inserted/removed per focus
                     // change, and a bare conditional pops — the outgoing card's gradient would
                     // vanish in a single frame. A short opacity fade softens both edges without
@@ -101,14 +104,22 @@ public struct GalleryCardCell: View {
 // per focus via `if animated`) guarantees the bloom each time a card becomes current.
 private struct CardGradientView: View {
     let colors: [Color]
+    let reduceMotion: Bool
     let speed: Double
 
-    @State private var displayedColors: [Color] = [.black]
+    @State private var displayedColors: [Color]
+
+    init(colors: [Color], reduceMotion: Bool, speed: Double) {
+        self.colors = colors
+        self.reduceMotion = reduceMotion
+        self.speed = speed
+        _displayedColors = State(initialValue: reduceMotion ? colors : [.black])
+    }
 
     var body: some View {
         ColorfulView(
             color: displayedColors,
-            speed: .constant(speed),
+            speed: .constant(reduceMotion ? 0 : speed),
             transitionSpeed: .constant(6)
         )
         .onAppear { displayedColors = colors }
