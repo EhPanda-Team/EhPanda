@@ -177,8 +177,7 @@ extension DownloadCoordinator {
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular
             )
-            .legacyResponse()
-            .get()
+            .response()
             thumbnailURLs
                 .merge(pageURLs, uniquingKeysWith: { _, new in new })
         }
@@ -194,8 +193,7 @@ extension DownloadCoordinator {
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular
             )
-            .legacyResponse()
-            .get()
+            .response()
             return .mpv(mpvKey, imageKeys)
         } else {
             return .normal(thumbnailURLs)
@@ -336,8 +334,7 @@ extension DownloadCoordinator {
                     urlSession: urlSession,
                     allowsCellular: options.allowCellular
                 )
-                .legacyResponse()
-                .get()
+                .response()
                 guard let imageURL = imageURLs[index] else {
                     throw AppError.notFound
                 }
@@ -348,8 +345,7 @@ extension DownloadCoordinator {
                 urlSession: urlSession,
                 allowsCellular: options.allowCellular
             )
-            .legacyResponse()
-            .get()
+            .response()
             guard let imageURL = imageURLs[index] else {
                 throw AppError.notFound
             }
@@ -373,8 +369,7 @@ extension DownloadCoordinator {
                 allowsCellular: options.allowCellular,
                 requiresSkipServerIdentifier: failover != nil
             )
-            .legacyResponse()
-            .get()
+            .response()
             return .init(
                 imageURL: response.imageURL,
                 mpvSkipServerIdentifier: response.skipServerIdentifier
