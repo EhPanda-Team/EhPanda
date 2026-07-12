@@ -242,6 +242,14 @@ public struct ReadingView: View {
     private func pageAndAutoPlayTriggers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
             // Page
+            .onChange(
+                of: store.state.containerDataSource(
+                    setting: store.setting,
+                    isLandscape: DeviceUtil.isLandscape
+                )
+            ) { _, _ in
+                setPageIndex(sliderValue: pageHandler.sliderValue)
+            }
             .onChange(of: pageModel.index) { _, newValue in
                 let newValue = pageHandler.mapFromPager(
                     index: newValue, pageCount: store.gallery.pageCount, setting: store.setting
