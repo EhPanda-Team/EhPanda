@@ -9,10 +9,26 @@ import OSLogExt
 
 private let logger = Logger(category: .init(describing: CardSlideSection.self))
 
+// Sliding-window sizing for the carousel's infinite loop: `bufferedCards` exposes
+// `windowBlocks` concatenated copies of the gallery list, and every settle rebases the
+// window so the settled card sits back in `middleBlock`. Rebasing is only safe at
+// `.idle` — while a scroll is in flight the content offset is pinned, so any mid-flight
+// window shift makes `scrollPosition(id:)` re-derive its id by the same shift and the
+// rebase re-triggers itself, endlessly (sim-measured). The width therefore carries the
+// whole burst budget: chained flicks that never let the scroll settle consume headroom
+// that only an `.idle` can restore. With `limitBehavior: .always` capping each gesture
+// at one card, seven blocks of headroom per side means only a 40+-flick chain with zero
+// pauses could ever reach the window edge — and a single natural pause resets it all.
+private let windowBlocks = 15
+private let middleBlock = windowBlocks / 2
+
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
     @State private var scrollPositionID: Int?
-    @State private var performingChanges = false
+    // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
+    // blocks (multiples of `galleries.count`), so a card's logical index is invariant
+    // under rebase whether derived from its id or from its layout slot.
+    @State private var windowBase = 0
     @Binding private var pageIndex: Int
 
     private let galleries: [Gallery]
@@ -33,11 +49,11 @@ struct CardSlideSection: View, Equatable {
         self.colors = colors
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
-        // Seed the initial position to the MIDDLE copy's entry for the inbound page index
+        // Seed the initial position to the MIDDLE block's entry for the inbound page index
         // (`Page.withIndex` parity: `cardPageIndex` defaults to 1, so the carousel must not open
         // on the first card), giving the loop headroom on both sides from the first frame.
         let seedIndex = galleries.isEmpty ? nil : min(max(pageIndex.wrappedValue, 0), galleries.count - 1)
-        _scrollPositionID = State(initialValue: seedIndex.map { galleries.count + $0 })
+        _scrollPositionID = State(initialValue: seedIndex.map { galleries.count * middleBlock + $0 })
     }
 
     static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {
@@ -46,9 +62,13 @@ struct CardSlideSection: View, Equatable {
             && lhs.colors == rhs.colors
     }
 
-    // Three concatenated copies of `galleries` with block-distinct ids replace `.loopPages()`:
-    // the carousel rests in the middle copy, so wrap-around always has cards on both sides,
-    // and a silent re-center restores that headroom whenever a scroll settles in an edge copy.
+    // A sliding window over an unbounded integer id space replaces `.loopPages()`: the window
+    // shows `windowBlocks` concatenated copies of `galleries`, with `id % count` picking the
+    // gallery. When a scroll settles outside the middle block, the window REBASES: `windowBase`
+    // shifts by whole blocks so the settled id is back in the middle. Only the ForEach data
+    // changes — `scrollPosition(id:)` keeps the settled view pinned across the content diff and
+    // `scrollPositionID` is never written — so the focused card's view identity (and its gradient
+    // playback) survives every wrap, and no programmatic scroll can cancel an in-flight gesture.
     private struct BufferedCard: Identifiable, Equatable {
         let id: Int
         let gallery: Gallery
@@ -57,9 +77,15 @@ struct CardSlideSection: View, Equatable {
     private var bufferedCards: [BufferedCard] {
         let count = galleries.count
         guard count > 0 else { return [] }
-        return (0..<count * 3).map { bufferIndex in
-            BufferedCard(id: bufferIndex, gallery: galleries[bufferIndex % count])
+        return (windowBase..<windowBase + count * windowBlocks).map { id in
+            BufferedCard(id: id, gallery: galleries[logicalIndex(of: id)])
         }
+    }
+
+    // Positive modulo: window ids run below zero after enough backward loops.
+    private func logicalIndex(of id: Int) -> Int {
+        let count = galleries.count
+        return ((id % count) + count) % count
     }
 
     var body: some View {
@@ -71,7 +97,12 @@ struct CardSlideSection: View, Equatable {
             }
             .scrollTargetLayout()
         }
-        .scrollTargetBehavior(.viewAligned)
+        // `limitBehavior: .always` caps a gesture at one card — SwiftUIPager parity (the old
+        // `Pager` had no `.multiplePagination()`, so it paged one card per swipe) AND the cap
+        // that makes the sliding window's edge unreachable: without it, a violent flick's
+        // deceleration alone traverses several cards and chained flicks ran 40+ cards past
+        // every settle (sim-measured), clamping at the window edge before any `.idle` rebase.
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
         .scrollPosition(id: $scrollPositionID)
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
@@ -81,16 +112,16 @@ struct CardSlideSection: View, Equatable {
         // `pageIndex` (→ `currentCardID` → the focused-card gradient) at the crossing hands the
         // gradient over while the card is still sliding in, instead of ~0.5s later when the
         // scroll reaches `.idle`. The `.idle` write below stays as the settle-time reconciliation.
-        // The transform returns the LOGICAL index, so the tripled-buffer re-center (buffer id
-        // jumps by ±count, logical value unchanged) never fires this action.
+        // The transform returns the LOGICAL index, so the window rebase (slots and offset shift
+        // together by whole blocks, logical value unchanged) never fires this action.
         .onScrollGeometryChange(for: Int.self) { geometry in
             let count = galleries.count
             guard count > 0 else { return 0 }
             // `visibleRect.midX` is inset-convention-proof here: the `.scrollContent` margins are
             // symmetric, so the visible midpoint is identical whether or not they are included.
-            let rawIndex = ((geometry.visibleRect.midX - cardWidth / 2) / cardPitch).rounded()
-            let bufferIndex = min(max(Int(rawIndex), 0), count * 3 - 1)
-            return bufferIndex % count
+            let rawSlot = ((geometry.visibleRect.midX - cardWidth / 2) / cardPitch).rounded()
+            let slot = min(max(Int(rawSlot), 0), count * windowBlocks - 1)
+            return logicalIndex(of: windowBase + slot)
         } action: { oldValue, newValue in
             guard !galleries.isEmpty, pageIndex != newValue else { return }
             // THROWAWAY (removed after go/no-go sign-off): crossing-time evidence — compare
@@ -108,36 +139,31 @@ struct CardSlideSection: View, Equatable {
             logger.debug("carousel scrollPositionID: \(newValue ?? -1, privacy: .public)")
         }
         .onScrollPhaseChange { _, newPhase in
-            guard newPhase == .idle, !performingChanges,
-                  let settledID = scrollPositionID, !galleries.isEmpty
-            else { return }
+            guard newPhase == .idle, let settledID = scrollPositionID, !galleries.isEmpty else { return }
             let count = galleries.count
-            let clampedID = min(max(settledID, 0), count * 3 - 1)
-            let logicalIndex = clampedID % count
+            let logical = logicalIndex(of: settledID)
             // THROWAWAY (removed after go/no-go sign-off): settle-time self-validation for the
             // geometry math above (`settled logical` must match the last `crossing:` value).
             logger.debug(
-                "carousel settled: buffer \(clampedID, privacy: .public), logical \(logicalIndex, privacy: .public)"
+                "carousel settled: buffer \(settledID, privacy: .public), logical \(logical, privacy: .public)"
             )
             // Outward-only `.synchronize` parity: the reducer only observes `cardPageIndex`,
             // it never writes it back, so no inward re-seam exists by design.
-            if pageIndex != logicalIndex {
-                pageIndex = logicalIndex
+            if pageIndex != logical {
+                pageIndex = logical
             }
-            let middleBlockID = count + logicalIndex
-            guard clampedID != middleBlockID else { return }
-            // Silent re-center onto the middle copy's equivalent card. The transaction
-            // suppresses the animation so the swap is invisible at rest, and the flag keeps
-            // the programmatic write from re-firing this mapping while it settles.
-            performingChanges = true
-            var transaction = Transaction()
-            transaction.disablesAnimations = true
-            withTransaction(transaction) {
-                scrollPositionID = middleBlockID
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                performingChanges = false
-            }
+            // Window rebase: shift `windowBase` so the settled card sits in the middle block.
+            // This is a pure data change — the settled id keeps existing, `scrollPosition(id:)`
+            // holds that view's offset across the diff, and `scrollPositionID` is untouched, so
+            // the rebase is invisible, resets no view identity, and can't cancel a gesture.
+            let slot = min(max(settledID - windowBase, 0), count * windowBlocks - 1)
+            let block = slot / count
+            guard block != middleBlock else { return }
+            windowBase += (block - middleBlock) * count
+            // THROWAWAY (removed after go/no-go sign-off): rebase evidence — `scrollPositionID:`
+            // must NOT log after this line (the binding survives the diff), and the next settle's
+            // buffer id must sit in the new middle block.
+            logger.debug("carousel rebase: windowBase \(windowBase, privacy: .public)")
         }
     }
 
