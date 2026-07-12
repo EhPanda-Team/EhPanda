@@ -72,10 +72,7 @@ public struct ReadingView: View {
     }
 
     public var body: some View {
-        @Bindable var bindableLiveTextHandler = liveTextHandler
-        @Bindable var bindablePageHandler = pageHandler
-
-        return changeTriggers(content: { content })
+        changeTriggers(content: { content })
             .sheet(
                 item: $store.scope(state: \.destination?.readingSetting, action: \.destination.readingSetting)
             ) { readingSettingStore in
@@ -209,7 +206,7 @@ public struct ReadingView: View {
             if newValue == .idle, let position = scrollPositionID {
                 performingChanges = true
                 pageModel.update(.new(index: position))
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
                     performingChanges = false
                 }
             }
@@ -331,7 +328,7 @@ extension ReadingView {
         withAnimation {
             scrollPositionID = clampedIndex
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
             performingChanges = false
         }
     }

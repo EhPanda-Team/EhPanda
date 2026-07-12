@@ -10,6 +10,8 @@ import Observation
 @Observable
 @MainActor
 final class PageModel {
+    static let echoGuardDuration = 0.2
+
     var index: Int
 
     enum Update {
