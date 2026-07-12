@@ -186,7 +186,7 @@ public struct ReadingView: View {
             setting: store.setting,
             isLandscape: DeviceUtil.isLandscape
         )
-        return ScrollView(.horizontal) {
+        return ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 0) {
                 ForEach(dataSource.indices, id: \.self) { position in
                     imageStack(index: dataSource[position])
@@ -347,7 +347,16 @@ extension ReadingView {
     }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
-            jump(toPagerIndex: pageModel.index + 1)
+            let dataSource = store.state.containerDataSource(
+                setting: store.setting, isLandscape: DeviceUtil.isLandscape
+            )
+            let target = pageModel.index + 1
+            jump(toPagerIndex: target)
+            // The tick that reaches the final page stops autoplay, rather than ticking uselessly
+            // against the clamp for the rest of the interval.
+            if target >= dataSource.count - 1 {
+                setAutoPlayPolocy(.off)
+            }
         })
     }
     private func tryScrollTo(id: Int) {

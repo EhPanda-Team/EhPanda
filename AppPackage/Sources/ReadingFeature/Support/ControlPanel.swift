@@ -53,6 +53,12 @@ struct ControlPanel<G: Gesture>: View {
         ["\(max(Int(sliderValue), 1))", "\(Int(range.upperBound))"].joined(separator: " / ")
     }
 
+    // iPhone in landscape has almost no top safe-area inset, so the upper toolbar hugs the very
+    // top edge; a small top padding gives it breathing room. iPad and portrait already inset it.
+    private var upperPanelTopPadding: CGFloat {
+        !DeviceUtil.isPad && DeviceUtil.isLandscape ? 8 : 0
+    }
+
     var body: some View {
         VStack {
             UpperPanel(
@@ -65,6 +71,7 @@ struct ControlPanel<G: Gesture>: View {
                 reloadAllImagesAction: reloadAllImagesAction,
                 retryAllFailedImagesAction: retryAllFailedImagesAction
             )
+            .padding(.top, upperPanelTopPadding)
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
             if range.upperBound > range.lowerBound {
