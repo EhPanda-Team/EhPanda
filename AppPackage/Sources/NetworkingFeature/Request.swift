@@ -291,6 +291,16 @@ public struct GreetingRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> Greeting {
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.news), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseGreeting)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct UserInfoRequest: Request {
@@ -312,6 +322,17 @@ public struct UserInfoRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> User {
+        let request = URLRequest(url: URLUtil.userInfo(uid: uid))
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseUserInfo)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct FavoriteCategoriesRequest: Request {
@@ -329,6 +350,16 @@ public struct FavoriteCategoriesRequest: Request {
             .tryMap { try parseResponse(doc: $0, Parser.parseFavoriteCategories) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> [Int: String] {
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseFavoriteCategories)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -376,5 +407,37 @@ public struct TagTranslatorRequest: Request {
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> TagTranslatorPayload {
+        let metadataRequest = urlRequest(
+            url: URLUtil.githubAPI(repoName: language.repoName),
+            allowsCellular: true
+        )
+        let (metadata, _) = try await fetch(metadataRequest, in: urlSession)
+        guard
+            let dictionary = try? JSONSerialization.jsonObject(with: metadata) as? [String: Any],
+            let postedDateString = dictionary["published_at"] as? String,
+            let postedDate = dateFormatter.date(from: postedDateString)
+        else {
+            throw AppError.parseFailed
+        }
+        guard postedDate > updatedDate else {
+            throw AppError.noUpdates
+        }
+
+        do {
+            let downloadRequest = urlRequest(
+                url: URLUtil.githubDownload(
+                    repoName: language.repoName,
+                    fileName: language.remoteFilename
+                ),
+                allowsCellular: true
+            )
+            let (data, _) = try await urlSession.data(for: downloadRequest)
+            return TagTranslatorPayload(data: data, updatedDate: postedDate)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
