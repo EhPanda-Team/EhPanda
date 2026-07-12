@@ -160,7 +160,9 @@ R6 penultimate slider target (single-page); R8 LTR edge taps at scale 1. Fast to
   Measured datum: the `scrollPosition(id:)` binding updated ~15ms after the crossing (at target
   determination, not at rest) — option A would have been near-timely for flicks, but geometry wins
   for slow finger-down drags and carries a guaranteed, documented timing.
-  Device follow-ups for the owner: handoff feel, fast-fling hop-through, slow-drag-past-midline.
+  **Owner-confirmed on device ("效果很讚"): handoff feel + fast-fling hop-through accepted.**
+  Follow-on polish: 0.5s ease-in-out opacity cross-fade on the gradient insert/remove
+  (`feat(home): cross-fade card gradient on focus`, owner-tuned duration) — also confirmed.
 - **F-2 — reader slider preview tray is blank (PRE-EXISTING, OUT OF SCOPE, not a phase-3 regression).**
   Git-confirmed: phase-3 paging commits never touched ControlPanel.swift / ReadingReducer+ImageFetch.swift
   / +Body.swift. Root cause is a fetch-bootstrap deadlock: `SliderPreivew.previewsIndices` returns `[]`
