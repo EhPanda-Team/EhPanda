@@ -16,11 +16,13 @@ struct GalleriesMetadataBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let galleries = try await GalleriesMetadataRequest(
-            gidList: [(gid: "100", token: "aaa"), (gid: "200", token: "bbb")],
-            urlSession: session
-        )
-        .legacyResponse()
+        let galleries = try await capture { () async throws(AppError) -> [Gallery] in
+            try await GalleriesMetadataRequest(
+                gidList: [(gid: "100", token: "aaa"), (gid: "200", token: "bbb")],
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
         let body = try #require(request.httpBody)
@@ -50,11 +52,13 @@ struct GalleriesMetadataBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await GalleriesMetadataRequest(
-            gidList: [(gid: "100", token: "aaa")],
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> [Gallery] in
+            try await GalleriesMetadataRequest(
+                gidList: [(gid: "100", token: "aaa")],
+                urlSession: session
+            )
+            .response()
+        }
 
         guard case .failure(let error) = result else {
             Issue.record("Expected malformed gdata JSON to fail.")
@@ -72,11 +76,13 @@ struct GalleriesMetadataBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await GalleriesMetadataRequest(
-            gidList: [(gid: "100", token: "aaa")],
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> [Gallery] in
+            try await GalleriesMetadataRequest(
+                gidList: [(gid: "100", token: "aaa")],
+                urlSession: session
+            )
+            .response()
+        }
 
         guard case .failure(let error) = result else {
             Issue.record("Expected persistent transport failure.")
