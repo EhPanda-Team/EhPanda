@@ -357,7 +357,9 @@ private extension SliderPreivew {
         DeviceUtil.isPadWidth ? DeviceUtil.isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
-        guard !previewURLs.isEmpty else { return [] }
+        // Do NOT gate this on `previewURLs` being non-empty: the slots' `.onAppear` is what fires
+        // the first `fetchPreviewURLsAction`, so returning [] while empty deadlocks the tray (no
+        // slots → no onAppear → no fetch → stays blank forever). `checkIndex` handles the bounds.
         let currentIndex = Int(sliderValue)
         let distance = (previewsCount - 1) / 2
         let lowerBound = currentIndex - distance
