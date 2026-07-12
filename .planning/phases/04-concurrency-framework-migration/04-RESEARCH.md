@@ -671,7 +671,10 @@ let stubbedSession = URLSession(configuration: {
 | A4 | Xcode 26.6 honors `traits:` declared in a *local* package's manifest for a remote dependency (AppPackage → TCA) | Pitfall 2 | Medium — mitigated by the mandatory positive-control check at recon; fallback documented (DerivedData clean, workspace resolve) [ASSUMED, corroborated by Xcode 26.4+ trait support reports] |
 | A5 | The recon build surfaces ≈24 warnings (only the scope pattern), no overload-trait surprises | Deprecation Surface | Low-Medium — grep pre-sizing is thorough, but overload-based deprecations can surface in non-grep-able forms; D-10/D-11 exist precisely to absorb this |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+*All three questions were closed during planning (2026-07-13); the adopting plans are cited
+inline below.*
 
 1. **Does `ComposableArchitecture2DeprecationOverloads` stay enabled after reaching zero warnings?**
    - What we know: CONC-02 acceptance pins both traits in `Package.swift`; TCA's guide calls the
@@ -679,13 +682,21 @@ let stubbedSession = URLSession(configuration: {
    - What's unclear: whether the owner wants it dropped post-migration (a later, trivial edit).
    - Recommendation: keep both (requirement wins); measure build time at recon; surface at D-11
      checkpoint only if type-checking regresses.
+   - **RESOLVED → plan 04-14 Task 1:** both traits stay pinned (requirement wins over the guide's
+     "temporary" advice); before/after build times are recorded in the SUMMARY and any
+     type-check-time regression is surfaced to the owner instead of dropping a trait.
 2. **`response()` as protocol requirement vs. per-struct bodies** (Claude's-discretion area).
    - Recommendation: protocol requirement (Pattern 1) — verified to compile; makes the compiler
      drive the 44-struct checklist. Planner may confirm at plan time; no owner input needed.
+   - **RESOLVED → plan 04-13 Task 1:** protocol requirement adopted — the requirement is flipped
+     to the typed-throws `response()` (plan 04-01 frees the name first so the compiler drives the
+     44-struct checklist, exactly as recommended).
 3. **Do the 7 DownloadClient sites' enclosing functions adopt `throws(AppError)` signatures?**
    - What we know: they currently `.get()` or switch on the Result inside plain async functions.
    - Recommendation: convert minimally (local `do throws(AppError)`/`try await`), keep their public
      signatures unchanged — DownloadClient decomposition is explicitly out of milestone scope.
+   - **RESOLVED → plan 04-12 Task 2:** minimal local conversion adopted; the 7 sites' enclosing
+     public signatures stay unchanged (04-12's objective cites this Open Question 3 resolution).
 
 ## Environment Availability
 
