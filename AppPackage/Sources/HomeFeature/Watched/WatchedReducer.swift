@@ -114,8 +114,16 @@ public struct WatchedReducer: Sendable {
                 state.pageNumber.resetPages()
                 let filter = state.watchedFilter
                 return .run { [keyword = state.keyword] send in
-                    let response = await WatchedGalleriesRequest(filter: filter, keyword: keyword).legacyResponse()
-                    await send(.fetchGalleriesDone(response))
+                    do throws(AppError) {
+                        let response = try await WatchedGalleriesRequest(
+                            filter: filter,
+                            keyword: keyword
+                        )
+                        .response()
+                        await send(.fetchGalleriesDone(.success(response)))
+                    } catch {
+                        await send(.fetchGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -147,11 +155,17 @@ public struct WatchedReducer: Sendable {
                 state.footerLoadingState = .loading
                 let filter = state.watchedFilter
                 return .run { [keyword = state.keyword] send in
-                    let response = await MoreWatchedGalleriesRequest(
-                        filter: filter, lastID: lastID, keyword: keyword
-                    )
-                    .legacyResponse()
-                    await send(.fetchMoreGalleriesDone(response))
+                    do throws(AppError) {
+                        let response = try await MoreWatchedGalleriesRequest(
+                            filter: filter,
+                            lastID: lastID,
+                            keyword: keyword
+                        )
+                        .response()
+                        await send(.fetchMoreGalleriesDone(.success(response)))
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
@@ -197,8 +211,12 @@ public struct WatchedReducer: Sendable {
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
                 return .run { send in
-                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
-                    await send(.performDateSeekDone(response))
+                    do throws(AppError) {
+                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        await send(.performDateSeekDone(.success(response)))
+                    } catch {
+                        await send(.performDateSeekDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
 

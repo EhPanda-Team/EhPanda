@@ -96,8 +96,12 @@ public struct FrontpageReducer: Sendable {
                 state.pageNumber.resetPages()
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await FrontpageGalleriesRequest(filter: filter).legacyResponse()
-                    await send(.fetchGalleriesDone(response))
+                    do throws(AppError) {
+                        let response = try await FrontpageGalleriesRequest(filter: filter).response()
+                        await send(.fetchGalleriesDone(.success(response)))
+                    } catch {
+                        await send(.fetchGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -129,8 +133,16 @@ public struct FrontpageReducer: Sendable {
                 state.footerLoadingState = .loading
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).legacyResponse()
-                    await send(.fetchMoreGalleriesDone(response))
+                    do throws(AppError) {
+                        let response = try await MoreFrontpageGalleriesRequest(
+                            filter: filter,
+                            lastID: lastID
+                        )
+                        .response()
+                        await send(.fetchMoreGalleriesDone(.success(response)))
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
@@ -162,8 +174,12 @@ public struct FrontpageReducer: Sendable {
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
                 return .run { send in
-                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
-                    await send(.performDateSeekDone(response))
+                    do throws(AppError) {
+                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        await send(.performDateSeekDone(.success(response)))
+                    } catch {
+                        await send(.performDateSeekDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
 

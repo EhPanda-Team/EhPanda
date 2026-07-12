@@ -142,11 +142,16 @@ public struct ToplistsReducer: Sendable {
                     state.rawPageNumber[state.type]?.resetPages()
                 }
                 return .run { [type = state.type] send in
-                    let response = await ToplistsGalleriesRequest(
-                        catIndex: type.categoryIndex, pageNum: pageNum
-                    )
-                    .legacyResponse()
-                    await send(.fetchGalleriesDone(type, response))
+                    do throws(AppError) {
+                        let galleries = try await ToplistsGalleriesRequest(
+                            catIndex: type.categoryIndex,
+                            pageNum: pageNum
+                        )
+                        .response()
+                        await send(.fetchGalleriesDone(type, .success(galleries)))
+                    } catch {
+                        await send(.fetchGalleriesDone(type, .failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -175,11 +180,16 @@ public struct ToplistsReducer: Sendable {
                 state.rawFooterLoadingState[state.type] = .loading
                 let pageNum = pageNumber.current + 1
                 return .run { [type = state.type] send in
-                    let response = await MoreToplistsGalleriesRequest(
-                        catIndex: type.categoryIndex, pageNum: pageNum
-                    )
-                    .legacyResponse()
-                    await send(.fetchMoreGalleriesDone(type, response))
+                    do throws(AppError) {
+                        let galleries = try await MoreToplistsGalleriesRequest(
+                            catIndex: type.categoryIndex,
+                            pageNum: pageNum
+                        )
+                        .response()
+                        await send(.fetchMoreGalleriesDone(type, .success(galleries)))
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(type, .failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
