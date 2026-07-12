@@ -375,7 +375,7 @@ private func expectGETRequest(
     url: URL,
     sourceLocation: SourceLocation = #_sourceLocation
 ) {
-    #expect(request.url == url, sourceLocation: sourceLocation)
+    expectEquivalentURL(request.url, url, sourceLocation: sourceLocation)
     #expect(request.httpMethod == "GET", sourceLocation: sourceLocation)
     #expect(request.httpBody == nil, sourceLocation: sourceLocation)
 }
@@ -386,7 +386,7 @@ private func expectFormRequest(
     fields: [String: String],
     sourceLocation: SourceLocation = #_sourceLocation
 ) {
-    #expect(request.url == url, sourceLocation: sourceLocation)
+    expectEquivalentURL(request.url, url, sourceLocation: sourceLocation)
     #expect(request.httpMethod == "POST", sourceLocation: sourceLocation)
     #expect(
         request.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded",
@@ -401,7 +401,7 @@ private func expectJSONRequest(
     fields: [String: String],
     sourceLocation: SourceLocation = #_sourceLocation
 ) {
-    #expect(request.url == url, sourceLocation: sourceLocation)
+    expectEquivalentURL(request.url, url, sourceLocation: sourceLocation)
     #expect(request.httpMethod == "POST", sourceLocation: sourceLocation)
     #expect(jsonFields(from: request) == fields, sourceLocation: sourceLocation)
 }
