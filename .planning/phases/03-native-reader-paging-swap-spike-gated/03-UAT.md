@@ -146,6 +146,21 @@ R6 penultimate slider target (single-page); R8 LTR edge taps at scale 1. Fast to
   committed, then **WITHDRAWN per owner decision (2026-07-12)** — the carousel keeps the original
   `phase.isIdentity ? 1 : 0.2` binary step. C2 stays OPEN; revisit the fade approach later if wanted.
   Blast radius: C2 only (C1/C3/C5 are opacity-independent).
+- **F-3 — focused-card gradient handoff lagged ~0.5-0.8s behind the visual snap (IN SCOPE, FIXED).**
+  Owner-reported: the outgoing card's gradient persisted ~0.5s after the new card centered. Root cause:
+  `currentCardID` was only written at scroll `.idle`, but `.viewAligned`'s deceleration tail runs
+  ~0.8s past the visual centering (SwiftUIPager updated its index at drag end, so the native swap
+  changed the handoff timing — a parity regression). Fix (`ccf29af9`): `onScrollGeometryChange`
+  flips `pageIndex` when the nearest-center logical card crosses the container midline — which is
+  also `.viewAligned`'s own settle target, so snap-backs never mis-claim; the `.idle` write stays as
+  reconciliation and the logical-index dedup keeps the tripled-buffer re-center event-silent.
+  **Sim-verified with THROWAWAY logs** (kept until D-11 sign-off; they double as C4's pageIndex
+  observability): crossing preceded settle by ~780ms on all 8 swipes incl. the 5→0 wrap;
+  settled buffer%count matched every crossing; the re-center emitted no crossing event.
+  Measured datum: the `scrollPosition(id:)` binding updated ~15ms after the crossing (at target
+  determination, not at rest) — option A would have been near-timely for flicks, but geometry wins
+  for slow finger-down drags and carries a guaranteed, documented timing.
+  Device follow-ups for the owner: handoff feel, fast-fling hop-through, slow-drag-past-midline.
 - **F-2 — reader slider preview tray is blank (PRE-EXISTING, OUT OF SCOPE, not a phase-3 regression).**
   Git-confirmed: phase-3 paging commits never touched ControlPanel.swift / ReadingReducer+ImageFetch.swift
   / +Body.swift. Root cause is a fetch-bootstrap deadlock: `SliderPreivew.previewsIndices` returns `[]`
