@@ -159,12 +159,19 @@ private struct WaterfallList: View {
     // row anchored), so any geometry-keyed re-arm is re-triggered by the load itself — that fed
     // an endless fetch loop pinned at the bottom. Instead: fire at most once per galleries.count
     // (data, which layout can't perturb) and only during user-driven scroll phases (finger drag
-    // or momentum — layout-driven offset jumps happen in the idle/animating phases).
+    // or momentum — layout-driven offset jumps happen in the idle/animating phases). An
+    // underfilled viewport cannot scroll, so it bypasses the user-scroll requirement and chains
+    // one fetch per appended gallery count until the content fills the viewport.
     @State private var isUserScrolling = false
     @State private var lastAutoFetchCount: Int?
 
     // Distance from the bottom edge at which the next page is auto-loaded (points).
     private static let fetchMoreThreshold: CGFloat = 300
+
+    private struct FetchTrigger: Equatable {
+        var distanceToBottom: CGFloat
+        var contentFillsViewport: Bool
+    }
 
     init(
         galleries: [Gallery], pageNumber: PageNumber?,
@@ -229,15 +236,22 @@ private struct WaterfallList: View {
         // Auto-load the next page as the bottom edge nears, mirroring DetailList's paginate-on-
         // scroll behavior. Reading scroll geometry (not view identity) keeps the scroll position
         // stable across appends. The guards (see the @State declarations above) break the
-        // load→geometry→load feedback loop: user-driven scroll phase + once per page.
+        // load→geometry→load feedback loop: user-driven scroll phase (unless the viewport is
+        // underfilled) + once per appended gallery count.
         .onScrollPhaseChange { _, newPhase in
             isUserScrolling = newPhase == .tracking || newPhase == .interacting || newPhase == .decelerating
         }
-        .onScrollGeometryChange(for: CGFloat.self) { geometry in
-            geometry.contentSize.height - geometry.contentOffset.y - geometry.containerSize.height
-        } action: { _, distanceToBottom in
-            guard distanceToBottom < Self.fetchMoreThreshold,
-                  isUserScrolling,
+        .onScrollGeometryChange(for: FetchTrigger.self) { geometry in
+            FetchTrigger(
+                distanceToBottom: geometry.contentSize.height - geometry.contentOffset.y
+                    - geometry.containerSize.height,
+                contentFillsViewport: geometry.contentSize.height
+                    > geometry.containerSize.height - geometry.contentInsets.top - geometry.contentInsets.bottom
+            )
+        } action: { _, trigger in
+            guard pageNumber?.hasNextPage() == true,
+                  trigger.distanceToBottom < Self.fetchMoreThreshold,
+                  isUserScrolling || !trigger.contentFillsViewport,
                   footerLoadingState == .idle,
                   lastAutoFetchCount != galleries.count
             else { return }

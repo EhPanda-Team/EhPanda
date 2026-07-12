@@ -29,15 +29,18 @@ public struct FetchMoreFooter: View {
         HStack(alignment: .center) {
             Spacer()
             ZStack {
-                ProgressView().opacity(loadingState == .loading ? 1 : 0)
-                Button {
-                    retryAction?()
-                } label: {
-                    Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
-                        .foregroundStyle(.red).imageScale(.large)
+                if loadingState == .loading {
+                    ProgressView()
+                } else if loadingState != .idle {
+                    Button {
+                        retryAction?()
+                    } label: {
+                        Image(systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
+                            .foregroundStyle(.red).imageScale(.large)
+                    }
                 }
-                .opacity(![.idle, .loading].contains(loadingState) ? 1 : 0)
             }
+            .animation(.default, value: loadingState)
             Spacer()
         }
         .frame(height: 50)
