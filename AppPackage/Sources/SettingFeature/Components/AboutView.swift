@@ -159,10 +159,6 @@ struct AboutView: View {
             text: .Constant.acknowledgementKingfisher
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementSwiftUIPagerLink),
-            text: .Constant.acknowledgementSwiftUIPager
-        ),
-        .init(
             urlString: String(localized: .Constant.acknowledgementSwiftyOpenCCLink),
             text: .Constant.acknowledgementSwiftyOpenCC
         ),

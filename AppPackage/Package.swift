@@ -18,7 +18,6 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
     .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.63.0"),
     .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
-    .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
     .package(
@@ -44,7 +43,6 @@ extension PackageDescription.Target.Dependency {
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
-    static let swiftUIPager: Self = .product(name: "SwiftUIPager", package: "SwiftUIPager")
 }
 
 let swiftLintPlugins: [PackageDescription.Target.PluginUsage] = [
@@ -296,8 +294,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sdWebImageWebPCoder),
-            .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUIPager)
+            .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
@@ -709,7 +706,6 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.networkingFeature),
-            .module(.osLogExt),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
@@ -717,7 +713,6 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUIPager),
             .targetDependency(.sharing)
         ],
         resources: [.process(.resources)],
@@ -778,8 +773,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
             .targetDependency(.sdWebImageSwiftUI),
-            .targetDependency(.sfSafeSymbols),
-            .targetDependency(.swiftUIPager)
+            .targetDependency(.sfSafeSymbols)
         ],
         resources: [.process(.resources)],
         plugins: swiftLintPlugins
