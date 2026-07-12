@@ -27,7 +27,7 @@ struct DetailRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        #expect(request.url == requestURL)
+        expectEquivalentURL(request.url, requestURL)
         #expect(request.httpMethod == "GET")
         #expect(request.allowsCellularAccess == false)
         #expect(response.galleryDetail.gid == "2725078")
@@ -64,7 +64,7 @@ struct DetailRequestBaselineTests {
         let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
         let gidList = try #require(json["gidlist"] as? [[Any]])
 
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "POST")
         #expect(json["method"] as? String == "gdata")
         #expect(json["namespace"] as? Int == 1)
@@ -146,7 +146,7 @@ struct DetailRequestBaselineTests {
             .get()
         let request = try #require(handle.receivedRequests.first)
 
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(response.archive.hathArchives.count == 1)
         #expect(response.archive.hathArchives.first?.resolution == .original)
@@ -226,18 +226,7 @@ struct DetailRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        let components = request.url.flatMap {
-            URLComponents(url: $0, resolvingAgainstBaseURL: false)
-        }
-        let query = Dictionary(
-            uniqueKeysWithValues: (components?.queryItems ?? []).map {
-                ($0.name, $0.value ?? "")
-            }
-        )
-        #expect(components?.scheme == url.scheme)
-        #expect(components?.host == url.host)
-        #expect(components?.path == url.path)
-        #expect(query == ["gid": "123", "t": "token"])
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(torrents.count == 1)
         #expect(torrents.first?.fileName == "baseline.torrent")
@@ -263,7 +252,7 @@ struct DetailRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(previews[1] == URL(string: "https://example.com/preview.jpg"))
     }

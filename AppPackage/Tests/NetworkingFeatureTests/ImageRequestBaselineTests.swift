@@ -25,7 +25,7 @@ struct ImageRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(request.allowsCellularAccess == false)
         #expect(result.0 == "baseline-mpv-key")
@@ -51,7 +51,7 @@ struct ImageRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(request.allowsCellularAccess == false)
         #expect(thumbnails[1] == URL(string: "https://e-hentai.org/s/first/123-1"))
@@ -209,7 +209,7 @@ struct ImageRequestBaselineTests {
         let body = try #require(request.httpBody)
         let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
 
-        #expect(request.url == apiURL)
+        expectEquivalentURL(request.url, apiURL)
         #expect(request.httpMethod == "POST")
         #expect(request.allowsCellularAccess == false)
         #expect(json["method"] as? String == "imagedispatch")
@@ -236,7 +236,7 @@ struct ImageRequestBaselineTests {
         let request = try #require(handle.receivedRequests.first)
 
         #expect(result == payload)
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "GET")
         #expect(handle.attempts(for: url) == 1)
     }

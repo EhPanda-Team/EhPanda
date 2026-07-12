@@ -27,7 +27,7 @@ struct GalleriesMetadataBaselineTests {
         let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
         let gidList = try #require(json["gidlist"] as? [[Any]])
 
-        #expect(request.url == url)
+        expectEquivalentURL(request.url, url)
         #expect(request.httpMethod == "POST")
         #expect(json["method"] as? String == "gdata")
         #expect(json["namespace"] as? Int == 1)
