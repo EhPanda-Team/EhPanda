@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: native-reader-paging-swap-spike-gated
-status: phase-complete
-stopped_at: Phase 4 context gathered
-last_updated: "2026-07-12T14:06:30.817Z"
-last_activity: 2026-07-12
-last_activity_desc: "Phase 03 complete: 4-round UAT GO, C5 sliding-window fix, spike closeout"
+current_phase: 04
+current_phase_name: concurrency-framework-migration
+status: ready-to-execute
+stopped_at: Phase 4 planned (14 plans)
+last_updated: "2026-07-13T00:20:00.000Z"
+last_activity: 2026-07-13
+last_activity_desc: "Phase 04 planned: 14 plans in 14 waves, checker PASS, ready to execute"
 progress:
   total_phases: 11
-  completed_phases: 2
-  total_plans: 18
-  completed_plans: 17
-  percent: 18
+  completed_phases: 3
+  total_plans: 32
+  completed_plans: 18
+  percent: 27
 ---
 
 # Project State
@@ -24,17 +24,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-09)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 03 — native-reader-paging-swap-spike-gated
+**Current focus:** Phase 04 — concurrency-framework-migration
 
 ## Current Position
 
-Phase: 03 (native-reader-paging-swap-spike-gated) — COMPLETE
-Plan: 5 of 5
-Status: D-11 GO/NO-GO signed off (16/16 parity rows) — spike KEEP, SwiftUIPager removed, DEP-05 complete
-Last activity: 2026-07-12 — Phase 03 complete: 4-round UAT GO, C5 sliding-window fix, spike closeout
-Next: plan Phase 04 (Concurrency & Framework Migration)
+Phase: 04 (concurrency-framework-migration) — READY TO EXECUTE
+Plan: 0 of 14
+Status: Ready to execute — 14 plans in 14 sequential waves, plan-checker VERIFICATION PASSED (0 blockers after 1 revision)
+Last activity: 2026-07-13 — Phase 04 planned: research (d6779914) + patterns + validation + 14 plans (55d00a6c, 70d13d37)
+Next: execute Phase 04 (/gsd-execute-phase 4)
 
-Progress: [██████████] 100% (18/18 planned plans across Phases 01–03)
+Progress: [██████░░░░] 56% (18/32 plans across Phases 01–04)
 
 ## Performance Metrics
 
@@ -124,6 +124,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T14:06:30.812Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-concurrency-framework-migration/04-CONTEXT.md
+Last session: 2026-07-13T00:20:00.000Z
+Stopped at: Phase 4 planned (14 plans, ready to execute)
+Resume file: .planning/phases/04-concurrency-framework-migration/ (04-01…04-14-PLAN.md)
