@@ -10,6 +10,12 @@ import Observation
 @Observable
 @MainActor
 final class PageModel {
+    // Window for the `performingChanges` echo guards around a programmatic index write. The
+    // index and each surface's scroll position mirror one another through onChange observers,
+    // so a one-sided write echoes back through the opposite observer and would re-write the
+    // side that just changed — canceling an in-flight scroll. Writers raise their flag, then
+    // lower it after this delay: long enough for the observer round-trip to settle, short
+    // enough not to swallow the user's next gesture (timing verified by device UAT).
     static let echoGuardDuration = 0.2
 
     var index: Int

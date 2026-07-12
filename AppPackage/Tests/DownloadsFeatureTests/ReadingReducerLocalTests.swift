@@ -20,7 +20,7 @@ struct ReadingReducerLocalTests: DownloadFeatureTestCase {
     func testContainerDataSourceHandlesZeroPageGallery() {
         var gallery = sampleGallery()
         gallery.pageCount = 0
-        var state = ReadingReducer.State(gallery: gallery)
+        let state = ReadingReducer.State(gallery: gallery)
 
         var dualPageSetting = Setting()
         dualPageSetting.enablesDualPageMode = true

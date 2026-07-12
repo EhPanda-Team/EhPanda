@@ -102,6 +102,9 @@ public struct GalleryCardCell: View {
 // the real palette on appear turns the initial paint into an animated transition — reproducing
 // the former Colorful view's gradual appearance. Fresh `@State` (the parent re-inserts this view
 // per focus via `if animated`) guarantees the bloom each time a card becomes current.
+// Under Reduce Motion the same first-set snap is used the other way around: init seeds the real
+// palette directly (no bloom — the first paint is already final) and `speed` 0 freezes the Metal
+// field, leaving a static gradient whose focus handoff remains the parent's opacity cross-fade.
 private struct CardGradientView: View {
     let colors: [Color]
     let reduceMotion: Bool
