@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
 status: executing
-stopped_at: Completed 04-09-PLAN.md
-last_updated: "2026-07-12T22:24:11.615Z"
+stopped_at: Completed 04-10-PLAN.md
+last_updated: "2026-07-12T22:30:59.722Z"
 last_activity: 2026-07-12
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 32
-  completed_plans: 26
+  completed_plans: 27
   percent: 18
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 04 (concurrency-framework-migration) — EXECUTING
-Plan: 10 of 14
+Plan: 11 of 14
 Status: Ready to execute
 Last activity: 2026-07-12 — Phase 04 execution started
 Next: execute Phase 04 (/gsd-execute-phase 4)
@@ -82,6 +82,7 @@ Progress: [██████░░░░] 59% (19/32 plans across Phases 01–0
 | Phase 04 P07 | 8min | 2 tasks | 2 files |
 | Phase 04 P08 | 10min | 2 tasks | 5 files |
 | Phase 04 P09 | 9min | 2 tasks | 4 files |
+| Phase 04 P10 | 7min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Detail chains retry their first fetch and leave their second fetch un-retried. — Preserves the frozen publisher retry placement for reverse lookup and archive funds.
 - [Phase 04]: Image refetch retries its complete three-step chain four times. — Matches the publisher-level genericRetry placement and frozen per-URL attempt counts.
 - [Phase 04]: Image fan-out uses a Sendable result record in its throwing task group. — The compiler crashes on the equivalent labeled-tuple expression; the record preserves identical semantics.
+- [Phase 04]: Reducer Done actions and handlers remain Result-based during the async consumer switch. — Limits the migration to request acquisition and preserves literal state-machine parity.
+- [Phase 04]: TCA request effects use explicit do throws AppError with no casts or unknown fallback. — Keeps typed catch binding load-bearing and makes every failure send explicit.
 
 ### Pending Todos
 
@@ -132,6 +135,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T22:24:11.611Z
-Stopped at: Completed 04-09-PLAN.md
+Last session: 2026-07-12T22:30:59.718Z
+Stopped at: Completed 04-10-PLAN.md
 Resume file: None
