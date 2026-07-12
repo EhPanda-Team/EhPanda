@@ -39,8 +39,10 @@ coverage:
       - kind: other
         ref: "iOS-target swiftc typecheck, SwiftLint, and source-name coverage"
         status: pass
-    human_judgment: true
-    rationale: "Exact simulator execution is queued for the elevated phase gate."
+      - kind: unit
+        ref: "NetworkingFeatureTests iOS Simulator runtime gate"
+        status: pass
+    human_judgment: false
   - id: D2
     description: "Every image request freezes fan-out, refetch, MPV, and raw-data behavior"
     requirement: CONC-01
@@ -48,8 +50,10 @@ coverage:
       - kind: other
         ref: "iOS-target swiftc typecheck, SwiftLint, and source-name coverage"
         status: pass
-    human_judgment: true
-    rationale: "Exact simulator execution is queued for the elevated phase gate."
+      - kind: unit
+        ref: "NetworkingFeatureTests iOS Simulator runtime gate"
+        status: pass
+    human_judgment: false
 
 duration: 22min
 completed: 2026-07-13
@@ -98,14 +102,14 @@ status: complete
 
 ## Issues Encountered
 
-- CoreSimulator execution remains pending until elevated capacity is available; no runtime pass is claimed here.
+- The deferred runtime gate passed after elevated capacity reset: 76 tests in 9 suites, 0 issues.
 
 ## Next Phase Readiness
 
 - The full 44-request Wave 0 baseline is statically complete and ready for the async engine/migration plans.
 
-## Self-Check: PENDING RUNTIME GATE
+## Self-Check: PASSED
 
 - All created files and both task commits exist.
 - Static acceptance, SwiftLint, and iOS-target typechecking pass.
-- Exact simulator tests remain part of the final elevated phase gate.
+- Full `NetworkingFeatureTests` simulator execution passed.

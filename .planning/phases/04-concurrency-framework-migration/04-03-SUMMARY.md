@@ -39,8 +39,10 @@ coverage:
       - kind: other
         ref: "manual swiftc typecheck and SwiftLint for RoutineRequestBaselineTests.swift"
         status: pass
-    human_judgment: true
-    rationale: "The exact simulator runtime suite remains pending until CoreSimulator elevation is available."
+      - kind: unit
+        ref: "NetworkingFeatureTests iOS Simulator runtime gate"
+        status: pass
+    human_judgment: false
   - id: D2
     description: "All 14 account requests freeze structural body assembly and response mapping"
     requirement: CONC-01
@@ -48,8 +50,10 @@ coverage:
       - kind: other
         ref: "manual swiftc typecheck, 15 @Test declarations, all 14 request names, and SwiftLint"
         status: pass
-    human_judgment: true
-    rationale: "The exact simulator runtime suite remains pending until CoreSimulator elevation is available."
+      - kind: unit
+        ref: "NetworkingFeatureTests iOS Simulator runtime gate"
+        status: pass
+    human_judgment: false
 
 duration: 25min
 completed: 2026-07-13
@@ -93,14 +97,14 @@ status: complete
 
 ## Issues Encountered
 
-- CoreSimulator execution is pending because sandbox elevation is temporarily unavailable. The phase-wide elevated test gate must run the exact NetworkingFeatureTests suite before verification.
+- CoreSimulator elevation was temporarily unavailable; after capacity reset, the full suite passed with 76 tests across 9 suites and no issues.
 
 ## Next Phase Readiness
 
-- Ready for plans 04-04 and 04-05; the runtime gate remains queued for the phase-wide test pass.
+- Ready for the async engine and migration plans with a green executable baseline.
 
-## Self-Check: PENDING RUNTIME GATE
+## Self-Check: PASSED
 
 - Created files exist and both task commits are present.
 - Static acceptance criteria, SwiftLint, parse, and iOS-target typecheck pass.
-- Exact simulator execution is intentionally not claimed until the elevated phase gate runs.
+- Full `NetworkingFeatureTests` simulator execution passed.
