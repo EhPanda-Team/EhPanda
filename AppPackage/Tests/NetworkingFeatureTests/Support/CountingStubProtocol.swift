@@ -10,14 +10,19 @@ struct StubScript: Sendable {
     let stepsByURL: [String: [StubStep]]
 
     init(_ stepsByURL: [String: [StubStep]]) {
-        self.stepsByURL = stepsByURL
+        self.stepsByURL = Dictionary(
+            uniqueKeysWithValues: stepsByURL.map { urlString, steps in
+                let key = URL(string: urlString).map(stubKey) ?? urlString
+                return (key, steps)
+            }
+        )
     }
 
     init(_ stepsByURL: [URL: [StubStep]]) {
         self.init(
             Dictionary(
                 uniqueKeysWithValues: stepsByURL.map { url, steps in
-                    (url.absoluteString, steps)
+                    (stubKey(for: url), steps)
                 }
             )
         )
@@ -186,13 +191,14 @@ private final class StubState: Sendable {
     }
 
     func attempts(for url: URL) -> Int {
-        state.withLock { $0.attemptsByURL[url.absoluteString, default: 0] }
+        state.withLock { $0.attemptsByURL[stubKey(for: url), default: 0] }
     }
 
     func recordAndTakeStep(for request: URLRequest) -> StubStep? {
-        guard let urlKey = request.url?.absoluteString else {
+        guard let url = request.url else {
             return nil
         }
+        let urlKey = stubKey(for: url)
         return state.withLock { state in
             state.receivedRequests.append(request)
             let attempt = state.attemptsByURL[urlKey, default: 0]
@@ -204,6 +210,16 @@ private final class StubState: Sendable {
             return steps[min(attempt, steps.count - 1)]
         }
     }
+}
+
+private func stubKey(for url: URL) -> String {
+    guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+        return url.absoluteString
+    }
+    components.queryItems = components.queryItems?.sorted {
+        ($0.name, $0.value ?? "") < ($1.name, $1.value ?? "")
+    }
+    return components.url?.absoluteString ?? url.absoluteString
 }
 
 private enum StubFailure: Error {

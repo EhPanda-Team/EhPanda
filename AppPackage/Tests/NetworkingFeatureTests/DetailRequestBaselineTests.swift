@@ -226,7 +226,18 @@ struct DetailRequestBaselineTests {
         .get()
         let request = try #require(handle.receivedRequests.first)
 
-        #expect(request.url == url)
+        let components = request.url.flatMap {
+            URLComponents(url: $0, resolvingAgainstBaseURL: false)
+        }
+        let query = Dictionary(
+            uniqueKeysWithValues: (components?.queryItems ?? []).map {
+                ($0.name, $0.value ?? "")
+            }
+        )
+        #expect(components?.scheme == url.scheme)
+        #expect(components?.host == url.host)
+        #expect(components?.path == url.path)
+        #expect(query == ["gid": "123", "t": "token"])
         #expect(request.httpMethod == "GET")
         #expect(torrents.count == 1)
         #expect(torrents.first?.fileName == "baseline.torrent")
