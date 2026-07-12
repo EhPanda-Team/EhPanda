@@ -5,9 +5,6 @@ import Kingfisher
 import SFSafeSymbols
 import AppTools
 import AppComponents
-import OSLogExt
-
-private let logger = Logger(category: .init(describing: CardSlideSection.self))
 
 // Sliding-window sizing for the carousel's infinite loop: `bufferedCards` exposes
 // `windowBlocks` concatenated copies of the gallery list, and every settle rebases the
@@ -122,31 +119,14 @@ struct CardSlideSection: View, Equatable {
             let rawSlot = ((geometry.visibleRect.midX - cardWidth / 2) / cardPitch).rounded()
             let slot = min(max(Int(rawSlot), 0), count * windowBlocks - 1)
             return logicalIndex(of: windowBase + slot)
-        } action: { oldValue, newValue in
+        } action: { _, newValue in
             guard !galleries.isEmpty, pageIndex != newValue else { return }
-            // THROWAWAY (removed after go/no-go sign-off): crossing-time evidence — compare
-            // timestamps with the `settled:` line to measure how early the handoff fires, and
-            // the settled buffer id modulo count must equal the last crossing's logical index.
-            logger.debug(
-                "carousel crossing: \(oldValue, privacy: .public) -> \(newValue, privacy: .public)"
-            )
             pageIndex = newValue
-        }
-        .onChange(of: scrollPositionID) { _, newValue in
-            // THROWAWAY (removed after go/no-go sign-off): records when the scrollPosition
-            // binding itself updates relative to the geometry crossing — the timing evidence
-            // for whether the binding could have driven the handoff instead.
-            logger.debug("carousel scrollPositionID: \(newValue ?? -1, privacy: .public)")
         }
         .onScrollPhaseChange { _, newPhase in
             guard newPhase == .idle, let settledID = scrollPositionID, !galleries.isEmpty else { return }
             let count = galleries.count
             let logical = logicalIndex(of: settledID)
-            // THROWAWAY (removed after go/no-go sign-off): settle-time self-validation for the
-            // geometry math above (`settled logical` must match the last `crossing:` value).
-            logger.debug(
-                "carousel settled: buffer \(settledID, privacy: .public), logical \(logical, privacy: .public)"
-            )
             // Outward-only `.synchronize` parity: the reducer only observes `cardPageIndex`,
             // it never writes it back, so no inward re-seam exists by design.
             if pageIndex != logical {
@@ -160,10 +140,6 @@ struct CardSlideSection: View, Equatable {
             let block = slot / count
             guard block != middleBlock else { return }
             windowBase += (block - middleBlock) * count
-            // THROWAWAY (removed after go/no-go sign-off): rebase evidence — `scrollPositionID:`
-            // must NOT log after this line (the binding survives the diff), and the next settle's
-            // buffer id must sit in the new middle block.
-            logger.debug("carousel rebase: windowBase \(windowBase, privacy: .public)")
         }
     }
 
