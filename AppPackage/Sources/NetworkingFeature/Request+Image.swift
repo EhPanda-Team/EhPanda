@@ -1,6 +1,5 @@
 import Kanna
 import AppModels
-import Combine
 import Foundation
 import AppTools
 import ParserFeature
@@ -36,17 +35,6 @@ public struct MPVKeysRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public var publisher: AnyPublisher<(String, [Int: String]), AppError> {
-        urlSession.dataTaskPublisher(
-            for: urlRequest(url: mpvURL, allowsCellular: allowsCellular)
-        )
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseMPVKeys) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> (String, [Int: String]) {
         let request = urlRequest(url: mpvURL, allowsCellular: allowsCellular)
         let (data, _) = try await fetch(request, in: urlSession)
@@ -76,20 +64,6 @@ public struct ThumbnailURLsRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public var publisher: AnyPublisher<[Int: URL], AppError> {
-        urlSession.dataTaskPublisher(
-            for: urlRequest(
-                url: URLUtil.detailPage(url: galleryURL, pageNum: pageNum),
-                allowsCellular: allowsCellular
-            )
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap { try parseResponse(doc: $0, Parser.parseThumbnailURLs) }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> [Int: URL] {
         let request = urlRequest(
             url: URLUtil.detailPage(url: galleryURL, pageNum: pageNum),
@@ -118,40 +92,6 @@ public struct GalleryNormalImageURLsRequest: Request, Sendable {
     public let thumbnailURLs: [Int: URL]
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
-
-    public var publisher: AnyPublisher<([Int: URL], [Int: URL]), AppError> {
-        thumbnailURLs.publisher
-            .flatMap { index, url in
-                urlSession.dataTaskPublisher(
-                    for: urlRequest(
-                        url: url,
-                        allowsCellular: allowsCellular
-                    )
-                )
-                    .genericRetry()
-                    .tryMap { try htmlDocument(data: $0.data) }
-                    .tryMap { doc in
-                        try parseResponse(doc: doc) {
-                            try Parser.parseGalleryNormalImageURL(
-                                doc: $0,
-                                index: index
-                            )
-                        }
-                    }
-            }
-            .collect()
-            .map { infos in
-                var imageURLs = [Int: URL]()
-                var originalImageURLs = [Int: URL]()
-                for info in infos {
-                    imageURLs[info.index] = info.imageURL
-                    originalImageURLs[info.index] = info.originalImageURL
-                }
-                return (imageURLs, originalImageURLs)
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> ([Int: URL], [Int: URL]) {
         do {
@@ -241,21 +181,6 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
 
-    public var publisher: AnyPublisher<([Int: URL], HTTPURLResponse?), AppError> {
-        storedThumbnailURL()
-            .flatMap(renewThumbnailURL)
-            .flatMap(imageURL)
-            .genericRetry()
-            .map { result in
-                (
-                    [index: result.imageURL != storedImageURL
-                        ? result.imageURL : result.anotherImageURL],
-                    result.response
-                )
-            }
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> ([Int: URL], HTTPURLResponse?) {
         var lastError: any Error = URLError(.unknown)
         for _ in 1...4 {
@@ -322,82 +247,6 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
         )
     }
 
-    public func storedThumbnailURL() -> AnyPublisher<URL, AppError> {
-        if let thumbnailURL = thumbnailURL {
-            return Just(thumbnailURL)
-                .setFailureType(to: AppError.self)
-                .eraseToAnyPublisher()
-        } else {
-            return urlSession.dataTaskPublisher(
-                for: urlRequest(
-                    url: URLUtil.detailPage(url: galleryURL, pageNum: pageNum),
-                    allowsCellular: allowsCellular
-                )
-            )
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseThumbnailURLs) }
-            .compactMap({ thumbnailURLs in thumbnailURLs[index] })
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-        }
-    }
-
-    public func renewThumbnailURL(stored: URL)
-    -> AnyPublisher<(URL, URL), AppError> {
-        urlSession.dataTaskPublisher(
-            for: urlRequest(url: stored, allowsCellular: allowsCellular)
-        )
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { doc in
-                try parseResponse(doc: doc) {
-                    let identifier = try Parser.parseSkipServerIdentifier(doc: $0)
-                    let imageURL = try Parser.parseGalleryNormalImageURL(
-                        doc: $0, index: index
-                    ).imageURL
-                    return (
-                        stored.appending(
-                            queryItems: [.skipServerIdentifier: identifier]
-                        ),
-                        imageURL
-                    )
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
-    public func imageURL(thumbnailURL: URL, anotherImageURL: URL)
-    -> AnyPublisher<ImageURLRefetchResult, AppError> {
-        urlSession.dataTaskPublisher(
-            for: urlRequest(url: thumbnailURL, allowsCellular: allowsCellular)
-        )
-            .tryMap {
-                (
-                    try htmlDocument(data: $0.data),
-                    $0.response as? HTTPURLResponse
-                )
-            }
-            .tryMap { html, response in
-                try parseResponse(doc: html) {
-                    (
-                        try Parser.parseGalleryNormalImageURL(
-                            doc: $0,
-                            index: index
-                        ),
-                        response
-                    )
-                }
-            }
-            .map { info, response in
-                ImageURLRefetchResult(
-                    imageURL: anotherImageURL,
-                    anotherImageURL: info.imageURL,
-                    response: response
-                )
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 }
 
 public struct GalleryMPVImageURLRequest: Request {
@@ -431,72 +280,6 @@ public struct GalleryMPVImageURLRequest: Request {
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
     public var requiresSkipServerIdentifier = true
-
-    public var publisher: AnyPublisher<GalleryMPVImageURLResponse, AppError> {
-        var params: [String: Any] = [
-            "method": "imagedispatch",
-            "gid": gid,
-            "page": index,
-            "imgkey": mpvImageKey,
-            "mpvkey": mpvKey
-        ]
-        if let skipServerIdentifier = skipServerIdentifier {
-            params["nl"] = skipServerIdentifier
-        }
-
-        var request = urlRequest(
-            url: apiURL,
-            allowsCellular: allowsCellular
-        )
-        request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(
-            withJSONObject: params, options: []
-        )
-
-        return urlSession.dataTaskPublisher(for: request)
-            .genericRetry()
-            .map(\.data)
-            .tryMap { data in
-                try parseResponse(data: data) {
-                    guard let dict = try JSONSerialization
-                            .jsonObject(with: $0) as? [String: Any],
-                          let imageURLString = dict["i"] as? String,
-                          let imageURL = URL(string: imageURLString)
-                    else { throw AppError.parseFailed }
-
-                    var skipServerIdentifier: String?
-
-                    if let integerIdentifier = dict["s"] as? Int {
-                        skipServerIdentifier = integerIdentifier.description
-                    } else if let stringIdentifier = dict["s"] as? String {
-                        skipServerIdentifier = stringIdentifier
-                    }
-
-                    if skipServerIdentifier == nil,
-                       requiresSkipServerIdentifier {
-                        throw AppError.parseFailed
-                    }
-
-                    if let originalSlice = dict["lf"] as? String {
-                        let originalImageURL = Defaults.URL.host
-                            .appendingPathComponent(originalSlice)
-                        return GalleryMPVImageURLResponse(
-                            imageURL: imageURL,
-                            originalImageURL: originalImageURL,
-                            skipServerIdentifier: skipServerIdentifier ?? ""
-                        )
-                    } else {
-                        return GalleryMPVImageURLResponse(
-                            imageURL: imageURL,
-                            originalImageURL: nil,
-                            skipServerIdentifier: skipServerIdentifier ?? ""
-                        )
-                    }
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleryMPVImageURLResponse {
         var params: [String: Any] = [
@@ -562,14 +345,6 @@ public struct DataRequest: Request {
     }
     public let url: URL
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<Data, AppError> {
-        urlSession.dataTaskPublisher(for: url)
-            .genericRetry()
-            .map(\.data)
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> Data {
         try await fetch(URLRequest(url: url), in: urlSession).data

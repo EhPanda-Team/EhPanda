@@ -1,6 +1,5 @@
 import Kanna
 import AppModels
-import Combine
 import Foundation
 import AppTools
 import ParserFeature
@@ -41,36 +40,6 @@ public struct GalleryDetailRequest: Request {
     public let galleryURL: URL
     public var urlSession: URLSession = .shared
     public var allowsCellular = true
-
-    public var publisher: AnyPublisher<GalleryDetailResponse, AppError> {
-        urlSession.dataTaskPublisher(
-            for: urlRequest(
-                url: URLUtil.galleryDetail(url: galleryURL),
-                allowsCellular: allowsCellular
-            )
-        )
-            .genericRetry()
-            .tryMap { try htmlDocumentWithUTF8Fallback(data: $0.data) }
-            .tryMap { doc in
-                try parseResponse(doc: doc) {
-                    let (detail, state) = try Parser.parseGalleryDetail(
-                        doc: $0,
-                        gid: gid
-                    )
-                    return (doc, detail, state, try Parser.parseAPIKey(doc: $0))
-                }
-            }
-            .mapError(mapAppError)
-            .map { doc, detail, state, apiKey in
-                GalleryDetailResponse(
-                    galleryDetail: detail,
-                    galleryState: state,
-                    apiKey: apiKey,
-                    greeting: try? Parser.parseGreeting(doc: doc)
-                )
-            }
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleryDetailResponse {
         let request = urlRequest(
@@ -146,21 +115,6 @@ public struct GalleryVersionMetadataRequest: Request {
         self.urlSession = urlSession
     }
 
-    public var publisher: AnyPublisher<DownloadVersionMetadata, AppError> {
-        guard let gid = Int(gid) else {
-            return Fail(error: AppError.notFound)
-                .eraseToAnyPublisher()
-        }
-        return gdataPublisher(gidlist: [[gid, token]], urlSession: urlSession) {
-            let response = try JSONDecoder()
-                .decode(GalleryVersionMetadataAPIResponse.self, from: $0)
-            guard let metadata = response.gmetadata.first?.versionMetadata else {
-                throw AppError.notFound
-            }
-            return metadata
-        }
-    }
-
     public func response() async throws(AppError) -> DownloadVersionMetadata {
         guard let gid = Int(gid) else {
             throw AppError.notFound
@@ -210,13 +164,6 @@ public struct GalleryReverseRequest: Request {
         }
     }
 
-    public var publisher: AnyPublisher<Gallery, AppError> {
-        galleryURL(url: url)
-            .genericRetry()
-            .flatMap(gallery)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> Gallery {
         let resolvedGalleryURL: URL
         if isGalleryImageURL {
@@ -249,39 +196,6 @@ public struct GalleryReverseRequest: Request {
         }
     }
 
-    public func galleryURL(url: URL) -> AnyPublisher<URL, AppError> {
-        switch isGalleryImageURL {
-        case true:
-            return urlSession.dataTaskPublisher(for: url)
-                .tryMap { try htmlDocument(data: $0.data) }
-                .tryMap { try parseResponse(doc: $0, Parser.parseGalleryURL) }
-                .mapError(mapAppError)
-                .eraseToAnyPublisher()
-
-        case false:
-            return Just(url)
-                .setFailureType(to: AppError.self)
-                .eraseToAnyPublisher()
-        }
-    }
-
-    public func gallery(url: URL) -> AnyPublisher<Gallery, AppError> {
-        urlSession.dataTaskPublisher(for: url)
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { doc in
-                try parseResponse(doc: doc) {
-                    let (detail, _) = try Parser.parseGalleryDetail(
-                        doc: $0,
-                        gid: url.pathComponents[2]
-                    )
-                    guard let gallery = getGallery(from: detail, and: url)
-                    else { throw AppError.parseFailed }
-                    return gallery
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 }
 
 public struct GalleryArchiveRequest: Request {
@@ -294,25 +208,6 @@ public struct GalleryArchiveRequest: Request {
     }
     public let archiveURL: URL
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<GalleryArchiveResponse, AppError> {
-        urlSession.dataTaskPublisher(for: archiveURL)
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { (html: HTMLDocument) -> (HTMLDocument, GalleryArchive) in
-                try parseResponse(doc: html) {
-                    let archive = try Parser.parseGalleryArchive(doc: $0)
-                    return (html, archive)
-                }
-            }
-            .map { html, archive in
-                guard let (currentGP, currentCredits) = try? Parser.parseCurrentFunds(doc: html)
-                else { return GalleryArchiveResponse(archive: archive, galleryPoints: nil, credits: nil) }
-                return GalleryArchiveResponse(archive: archive, galleryPoints: currentGP, credits: currentCredits)
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleryArchiveResponse {
         let (data, _) = try await fetch(URLRequest(url: archiveURL), in: urlSession)
@@ -347,13 +242,6 @@ public struct GalleryArchiveFundsRequest: Request {
     public let galleryURL: URL
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<(String, String), AppError> {
-        archiveURL(url: galleryURL)
-            .genericRetry()
-            .flatMap(funds)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> (String, String) {
         let (detailData, _) = try await fetch(URLRequest(url: galleryURL), in: urlSession)
         let archiveURL: URL
@@ -382,30 +270,6 @@ public struct GalleryArchiveFundsRequest: Request {
         }
     }
 
-    public func archiveURL(url: URL) -> AnyPublisher<URL, AppError> {
-        urlSession.dataTaskPublisher(for: url)
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { doc in
-                try parseResponse(doc: doc) {
-                    guard let archiveURL = try Parser
-                        .parseGalleryDetail(doc: $0, gid: gid)
-                        .0
-                        .archiveURL
-                    else { throw AppError.parseFailed }
-                    return archiveURL
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
-    public func funds(url: URL) -> AnyPublisher<(String, String), AppError> {
-        urlSession.dataTaskPublisher(for: url)
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseCurrentFunds) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 }
 
 public struct GalleryTorrentsRequest: Request {
@@ -421,15 +285,6 @@ public struct GalleryTorrentsRequest: Request {
     public let gid: String
     public let token: String
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<[GalleryTorrent], AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.galleryTorrents(gid: gid, token: token))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .map(Parser.parseGalleryTorrents)
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> [GalleryTorrent] {
         let url = URLUtil.galleryTorrents(gid: gid, token: token)
@@ -455,15 +310,6 @@ public struct GalleryPreviewURLsRequest: Request {
     public let galleryURL: URL
     public let pageNum: Int
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<[Int: URL], AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parsePreviewURLs) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> [Int: URL] {
         let url = URLUtil.detailPage(url: galleryURL, pageNum: pageNum)

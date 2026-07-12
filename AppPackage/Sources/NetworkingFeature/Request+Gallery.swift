@@ -1,6 +1,5 @@
 import Kanna
 import AppModels
-import Combine
 import Foundation
 import AppTools
 import ParserFeature
@@ -19,25 +18,6 @@ public struct SearchGalleriesRequest: Request {
     public let keyword: String
     public let filter: Filter
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.searchList(keyword: keyword, filter: filter)
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap {
-            try parseResponse(doc: $0) {
-                GalleriesResult(
-                    pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
-                )
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleriesResult {
         let request = URLRequest(url: URLUtil.searchList(keyword: keyword, filter: filter))
@@ -74,25 +54,6 @@ public struct MoreSearchGalleriesRequest: Request {
     public let lastID: String
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.moreSearchList(keyword: keyword, filter: filter, lastID: lastID)
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap {
-            try parseResponse(doc: $0) {
-                GalleriesResult(
-                    pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
-                )
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> GalleriesResult {
         let url = URLUtil.moreSearchList(keyword: keyword, filter: filter, lastID: lastID)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
@@ -122,23 +83,6 @@ public struct DateSeekGalleriesRequest: Request {
     public let url: URL
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(for: url)
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap {
-                try parseResponse(doc: $0) {
-                    GalleriesResult(
-                        pageNumber: Parser.parsePageNum(doc: $0),
-                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                        galleries: try Parser.parseGalleries(doc: $0)
-                    )
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> GalleriesResult {
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
@@ -166,23 +110,6 @@ public struct FrontpageGalleriesRequest: Request {
     }
     public let filter: Filter
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.frontpageList(filter: filter))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap {
-                try parseResponse(doc: $0) {
-                    GalleriesResult(
-                        pageNumber: Parser.parsePageNum(doc: $0),
-                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                        galleries: try Parser.parseGalleries(doc: $0)
-                    )
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleriesResult {
         let request = URLRequest(url: URLUtil.frontpageList(filter: filter))
@@ -216,23 +143,6 @@ public struct MoreFrontpageGalleriesRequest: Request {
     public let lastID: String
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.moreFrontpageList(filter: filter, lastID: lastID))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap {
-                try parseResponse(doc: $0) {
-                    GalleriesResult(
-                        pageNumber: Parser.parsePageNum(doc: $0),
-                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                        galleries: try Parser.parseGalleries(doc: $0)
-                    )
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> GalleriesResult {
         let url = URLUtil.moreFrontpageList(filter: filter, lastID: lastID)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
@@ -262,15 +172,6 @@ public struct PopularGalleriesRequest: Request {
     public let filter: Filter
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<[Gallery], AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.popularList(filter: filter))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseGalleries) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> [Gallery] {
         let request = URLRequest(url: URLUtil.popularList(filter: filter))
         let (data, _) = try await fetch(request, in: urlSession)
@@ -296,23 +197,6 @@ public struct WatchedGalleriesRequest: Request {
     public let filter: Filter
     public let keyword: String
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.watchedList(filter: filter, keyword: keyword))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap {
-                try parseResponse(doc: $0) {
-                    GalleriesResult(
-                        pageNumber: Parser.parsePageNum(doc: $0),
-                        dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                        galleries: try Parser.parseGalleries(doc: $0)
-                    )
-                }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleriesResult {
         let request = URLRequest(url: URLUtil.watchedList(filter: filter, keyword: keyword))
@@ -348,25 +232,6 @@ public struct MoreWatchedGalleriesRequest: Request {
     public let lastID: String
     public let keyword: String
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<GalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.moreWatchedList(filter: filter, lastID: lastID, keyword: keyword)
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap {
-            try parseResponse(doc: $0) {
-                GalleriesResult(
-                    pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
-                )
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> GalleriesResult {
         let url = URLUtil.moreWatchedList(
@@ -406,26 +271,6 @@ public struct FavoritesGalleriesRequest: Request {
     public let keyword: String
     public var sortOrder: FavoritesSortOrder?
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<FavoritesGalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.favoritesList(favIndex: favIndex, keyword: keyword, sortOrder: sortOrder)
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap { doc in
-            try parseResponse(doc: doc) {
-                FavoritesGalleriesResult(
-                    pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                    sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
-                )
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> FavoritesGalleriesResult {
         let url = URLUtil.favoritesList(
@@ -470,28 +315,6 @@ public struct MoreFavoritesGalleriesRequest: Request {
     public let keyword: String
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<FavoritesGalleriesResult, AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.moreFavoritesList(
-                favIndex: favIndex, lastID: lastID, lastTimestamp: lastTimestamp, keyword: keyword
-            )
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap { doc in
-            try parseResponse(doc: doc) {
-                FavoritesGalleriesResult(
-                    pageNumber: Parser.parsePageNum(doc: $0),
-                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
-                    sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
-                    galleries: try Parser.parseGalleries(doc: $0)
-                )
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> FavoritesGalleriesResult {
         let url = URLUtil.moreFavoritesList(
             favIndex: favIndex,
@@ -530,21 +353,6 @@ public struct ToplistsGalleriesRequest: Request {
     public var pageNum: Int?
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.toplistsList(catIndex: catIndex, pageNum: pageNum)
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap {
-            try parseResponse(doc: $0) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> (PageNumber, [Gallery]) {
         let url = URLUtil.toplistsList(catIndex: catIndex, pageNum: pageNum)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
@@ -572,23 +380,6 @@ public struct MoreToplistsGalleriesRequest: Request {
     public let catIndex: Int
     public let pageNum: Int
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        urlSession.dataTaskPublisher(
-            for: URLUtil.moreToplistsList(
-                catIndex: catIndex, pageNum: pageNum
-            )
-        )
-        .genericRetry()
-        .tryMap { try htmlDocument(data: $0.data) }
-        .tryMap {
-            try parseResponse(doc: $0) {
-                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
-            }
-        }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> (PageNumber, [Gallery]) {
         let url = URLUtil.moreToplistsList(catIndex: catIndex, pageNum: pageNum)
