@@ -14,12 +14,14 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await SearchGalleriesRequest(
-            keyword: "baseline",
-            filter: Filter(),
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await SearchGalleriesRequest(
+                keyword: "baseline",
+                filter: Filter(),
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -37,13 +39,15 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await MoreSearchGalleriesRequest(
-            keyword: "baseline",
-            filter: Filter(),
-            lastID: "123",
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await MoreSearchGalleriesRequest(
+                keyword: "baseline",
+                filter: Filter(),
+                lastID: "123",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -57,9 +61,10 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: url)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await DateSeekGalleriesRequest(url: url, urlSession: session)
-            .legacyResponse()
-            .get()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await DateSeekGalleriesRequest(url: url, urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         expectList(result.pageNumber, galleries: result.galleries)
@@ -72,9 +77,10 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await FrontpageGalleriesRequest(filter: Filter(), urlSession: session)
-            .legacyResponse()
-            .get()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await FrontpageGalleriesRequest(filter: Filter(), urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         expectList(result.pageNumber, galleries: result.galleries)
@@ -87,12 +93,14 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await MoreFrontpageGalleriesRequest(
-            filter: Filter(),
-            lastID: "456",
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await MoreFrontpageGalleriesRequest(
+                filter: Filter(),
+                lastID: "456",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -106,9 +114,10 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let galleries = try await PopularGalleriesRequest(filter: Filter(), urlSession: session)
-            .legacyResponse()
-            .get()
+        let galleries = try await capture { () async throws(AppError) -> [Gallery] in
+            try await PopularGalleriesRequest(filter: Filter(), urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         expectGalleries(galleries)
@@ -121,12 +130,14 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await WatchedGalleriesRequest(
-            filter: Filter(),
-            keyword: "watched",
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await WatchedGalleriesRequest(
+                filter: Filter(),
+                keyword: "watched",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -144,13 +155,15 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await MoreWatchedGalleriesRequest(
-            filter: Filter(),
-            lastID: "789",
-            keyword: "watched",
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture { () async throws(AppError) -> GalleriesResult in
+            try await MoreWatchedGalleriesRequest(
+                filter: Filter(),
+                lastID: "789",
+                keyword: "watched",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -172,13 +185,16 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await FavoritesGalleriesRequest(
-            favIndex: 2,
-            keyword: "favorite",
-            sortOrder: .favoritedTime,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> FavoritesGalleriesResult in
+            try await FavoritesGalleriesRequest(
+                favIndex: 2,
+                keyword: "favorite",
+                sortOrder: .favoritedTime,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -205,14 +221,17 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await MoreFavoritesGalleriesRequest(
-            favIndex: 2,
-            lastID: "100",
-            lastTimestamp: "200",
-            keyword: "favorite",
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> FavoritesGalleriesResult in
+            try await MoreFavoritesGalleriesRequest(
+                favIndex: 2,
+                lastID: "100",
+                lastTimestamp: "200",
+                keyword: "favorite",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -234,12 +253,15 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await ToplistsGalleriesRequest(
-            catIndex: 1,
-            pageNum: 2,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> (PageNumber, [Gallery]) in
+            try await ToplistsGalleriesRequest(
+                catIndex: 1,
+                pageNum: 2,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -253,12 +275,15 @@ struct GalleryRequestBaselineTests {
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await MoreToplistsGalleriesRequest(
-            catIndex: 1,
-            pageNum: 3,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> (PageNumber, [Gallery]) in
+            try await MoreToplistsGalleriesRequest(
+                catIndex: 1,
+                pageNum: 3,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -274,12 +299,14 @@ struct GalleryRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await SearchGalleriesRequest(
-            keyword: "retry",
-            filter: Filter(),
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> GalleriesResult in
+            try await SearchGalleriesRequest(
+                keyword: "retry",
+                filter: Filter(),
+                urlSession: session
+            )
+            .response()
+        }
 
         guard case .failure(let error) = result else {
             Issue.record("Expected a networking failure.")
