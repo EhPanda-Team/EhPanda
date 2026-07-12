@@ -117,11 +117,12 @@ out_of_scope_bugs: 1   # F-2: pre-existing blank slider-preview tray (not a phas
 
 ## Outstanding (grouped)
 
-**None — D-11 GO/NO-GO gate is GO.** All 16 parity rows passed with owner device sign-off
-(2026-07-12). G-03-C5 fixed + verified; G-03-C2 closed as accepted-behavior. The spike is KEEP.
-Post-gate closeout remaining (not parity items): remove THROWAWAY spike logs (carousel
-crossing/settled/scrollPositionID/rebase + reader jump requested/landed), mark DEP-05 done, and
-drop the now-unused SwiftUIPager dependency.
+**None — D-11 GO/NO-GO gate is GO, phase closed out.** All 16 parity rows passed with owner
+device sign-off (2026-07-12). G-03-C5 fixed + verified; G-03-C2 closed as accepted-behavior. The
+spike is KEEP. Post-gate closeout DONE (2026-07-12): THROWAWAY spike logs removed (carousel
+crossing/settled/scrollPositionID/rebase + reader jump requested/landed + dead HomeFeature Logger
+helper + dead OSLogExt dep, `65dc1677`); SwiftUIPager dropped from Package.swift/both
+Package.resolved/AboutView/xcstrings (`89d85539`); DEP-05 marked complete in ROADMAP/REQUIREMENTS/STATE.
 
 ## Re-review findings (2026-07-12, pre-gate code read)
 

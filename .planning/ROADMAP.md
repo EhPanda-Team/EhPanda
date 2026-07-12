@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Isolated Dependency Modernization** - Fork/modernize/replace the third-party deps that don't couple to other work, at parity (completed 2026-07-10)
 - [x] **Phase 2: Native Masonry Grid Swap (spike-gated)** - Validate then replace WaterfallGrid with a custom SwiftUI Layout (completed 2026-07-11)
-- [ ] **Phase 3: Native Reader Paging Swap (spike-gated)** - Validate then replace SwiftUIPager with a page-style TabView
+- [x] **Phase 3: Native Reader Paging Swap (spike-gated)** - Validate then replace SwiftUIPager with a native horizontal paging ScrollView (completed 2026-07-12)
 - [ ] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits
 - [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
 - [ ] **Phase 6: GenericList Decomposition** - Replace the super-list with per-page lists built from shared atoms
@@ -109,17 +109,17 @@ Plans:
 
 ### Phase 3: Native Reader Paging Swap (spike-gated)
 
-**Goal**: Replace SwiftUIPager with a built-in page-style `TabView` for reading — validated by a spike first — preserving all paging UX.
+**Goal**: Replace SwiftUIPager with a native horizontal paging `ScrollView` for reading — validated by a spike first — preserving all paging UX. *(Construct decided by D-04: a paging `ScrollView`, not a page-style `TabView`, because only `ScrollView` can freeze its own swipe while an image is zoomed.)*
 **Depends on**: Nothing (independent; may run alongside Phases 1–2)
 **Requirements**: DEP-05
 **Success Criteria** (what must be TRUE):
 
-  1. A feasibility spike confirms a native page-style `TabView` reaches reading-paging parity (horizontal/RTL/dual-page, page-index mapping, gesture coexistence) before commit, or surfaces the gap.
+  1. A feasibility spike confirms a native horizontal paging `ScrollView` reaches reading-paging parity (horizontal/RTL/dual-page, page-index mapping, gesture coexistence) before commit, or surfaces the gap.
   2. Reading paging behaves identically: horizontal and RTL direction, dual-page mode, and correct page-index mapping.
   3. Reader gestures (zoom/pan/tap) continue to coexist with paging.
   4. SwiftUIPager is removed from the dependency set.
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans executed
 Plans:
 **Wave 1**
 
@@ -136,7 +136,7 @@ Plans:
 
 **Wave 4** *(blocked on 03-02 + 03-04)*
 
-- [ ] 03-05-PLAN.md — Go/No-Go parity checklist + owner sign-off (D-02 gate) + SwiftUIPager removal & acknowledgement cleanup (D-13)
+- [x] 03-05-PLAN.md — Go/No-Go parity checklist + owner sign-off (D-02 gate) + SwiftUIPager removal & acknowledgement cleanup (D-13)
 
 **UI hint**: yes
 
@@ -262,7 +262,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
-| 3. Native Reader Paging Swap | 4/5 | In Progress|  |
+| 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
 | 4. Concurrency & Framework Migration | 0/TBD | Not started | - |
 | 5. Adaptive Layout & Universal Orientation | 0/TBD | Not started | - |
 | 6. GenericList Decomposition | 0/TBD | Not started | - |

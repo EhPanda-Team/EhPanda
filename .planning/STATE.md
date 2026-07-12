@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 03
 current_phase_name: native-reader-paging-swap-spike-gated
-status: executing
-stopped_at: Plans 01-04 done; Plan 05 = owner D-11 GO/NO-GO gate pending; UAT (3 rounds + sim) done, F-2 fixed
-last_updated: "2026-07-12T09:13:15.000Z"
+status: phase-complete
+stopped_at: Phase 03 COMPLETE — D-11 GO/NO-GO signed off (16/16), SwiftUIPager dropped, DEP-05 done; next = plan Phase 04
+last_updated: "2026-07-12T11:25:40.000Z"
 last_activity: 2026-07-12
-last_activity_desc: Phase 03 UAT (3 rounds + sim) + F-2 fix; owner GO/NO-GO pending
+last_activity_desc: Phase 03 COMPLETE — D-11 GO (4 rounds UAT), C5 fix + spike closeout, SwiftUIPager removed
 progress:
   total_phases: 11
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 18
-  completed_plans: 17
-  percent: 18
+  completed_plans: 18
+  percent: 27
 ---
 
 # Project State
@@ -28,18 +28,19 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 03 (native-reader-paging-swap-spike-gated) — EXECUTING
+Phase: 03 (native-reader-paging-swap-spike-gated) — COMPLETE
 Plan: 5 of 5
-Status: Plan 05 — owner D-11 GO/NO-GO gate + UAT (pending owner decision)
-Last activity: 2026-07-12 — UAT (3 rounds + sim), F-2 fixed, owner GO/NO-GO pending
+Status: D-11 GO/NO-GO signed off (16/16 parity rows) — spike KEEP, SwiftUIPager removed, DEP-05 complete
+Last activity: 2026-07-12 — Phase 03 complete: 4-round UAT GO, C5 sliding-window fix, spike closeout
+Next: plan Phase 04 (Concurrency & Framework Migration)
 
-Progress: [█████████░] 94% (17/18 plans; Plan 05 = owner gate)
+Progress: [██████████] 100% (18/18 planned plans across Phases 01–03)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -49,6 +50,7 @@ Progress: [█████████░] 94% (17/18 plans; Plan 05 = owner gat
 |-------|-------|-------|----------|
 | 01 | 9 | - | - |
 | 02 | 4 | - | - |
+| 03 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -80,7 +82,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - Roadmap: Combine→async/await (Phase 4) stays in this milestone, sequenced after the isolated dep removals.
-- Roadmap: WaterfallGrid→Layout (Phase 2) and SwiftUIPager→TabView (Phase 3) are spike-first — validate feasibility before committing.
+- Roadmap: WaterfallGrid→Layout (Phase 2) and SwiftUIPager→native paging ScrollView (Phase 3, construct per D-04 not a TabView) are spike-first — validate feasibility before committing.
 - Roadmap: Fold cookies→Keychain + networking/cookie/image tests + `.private.filterValue` fix into their open seams (Phases 8–9); defer Parser/Download refactors.
 - Roadmap: LINT-01 split — mechanical rules sweep last (Phase 11); refactor-gated rules land with their refactors (`optional_try`→Phase 9; binding/lifecycle/unchecked-subscript→Phases 5–7).
 - [Phase ?]: 01-01: Dropped invalid -testPlan FeatureTests from AppPackage-Package commands (plan bound to EhPanda scheme; package scheme runs all test targets)
@@ -97,6 +99,7 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-09: Inlined the external DeprecatedAPI package into a local internal LegacyCFReadStream module (isolates deprecated CFReadStreamCreateForHTTPRequest), silenced via -suppress-warnings scoped to that one target; overrides DEP-06 D-12 (document-skip) per explicit user request; DF behavior byte-identical (S1–S7 green), warning-free build, full suite green.
 - [Phase 02]: DEP-04 column derivation decided: the masonry `Layout` computes `N = max(2, floor((w + 15) / (185 + 15)))` from its own proposed width; all cells share one identical flexible width (`cellWidth = (w − 15·(N−1)) / N`, spacing fixed 15). Exact 2/4/5 count parity dropped by owner — the bar is a stable, content-independent count that tiles any width. Known deviations at m=185: iPad mini portrait 4→3, 13" landscape 5→6, Split View bands become container-coherent. Details in 02-CONTEXT.md.
 - [Phase 01]: verify-work found & fixed a ColorfulX behavior regression (gap G-01-1): the Colorful→ColorfulX swap was API-faithful but NOT behavior-faithful (ColorfulX always paints a full-bleed opaque gradient; speed:0 ≠ Colorful's near-invisible animated:false). Fix in GalleryCardCell: gate `ColorfulView` on `animated` (focused dark card only), skip light-mode color calc, and seed-then-bloom the gradient via ColorfulX `transitionSpeed`. User-verified live; 01-VERIFICATION.md re-verified status **passed 5/5**. Lesson: a library swap needs behavior parity, not just API parity.
+- [Phase 03]: DEP-05 native paging spike passed its D-11 GO/NO-GO gate (16/16 parity rows, 4-round owner device UAT) → spike KEEP, SwiftUIPager removed. The one real defect, C5 carousel loop (blank edge peek + ColorfulX reset + gesture interruption at the wrap), was root-caused to the tripled-buffer `.idle` re-center WRITING `scrollPositionID`; fixed with a sliding-window rebase (shift `windowBase`, never write the binding — `scrollPosition(id:)` pins the anchored view across the pure-data diff) + `.viewAligned(limitBehavior: .always)` (one card per swipe = SwiftUIPager parity + bounds the window edge unreachable). Lesson: to loop a native paging ScrollView invisibly, move the data window, don't move the scroll.
 
 ### Pending Todos
 
@@ -121,6 +124,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T09:13:15.000Z
-Stopped at: Plans 01-04 done; UAT (3 rounds + sim) done, F-2 fixed; Plan 05 = owner D-11 GO/NO-GO gate pending
-Resume file: .planning/phases/03-native-reader-paging-swap-spike-gated/03-05-PLAN.md
+Last session: 2026-07-12T11:25:40.000Z
+Stopped at: Phase 03 COMPLETE — D-11 GO (16/16), C5 sliding-window fix + spike closeout (SwiftUIPager removed, throwaway logs cleaned, DEP-05 done)
+Resume file: run /gsd-plan-phase 4 (Concurrency & Framework Migration)
