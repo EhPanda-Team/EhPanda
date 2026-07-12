@@ -60,7 +60,7 @@ func makeStubbedSession(script: StubScript) -> (session: URLSession, handle: Stu
 }
 
 final class CountingStubProtocol: URLProtocol {
-    fileprivate static let tokenHeader = "X-EhPanda-Stub-Token"
+    static let tokenHeader = "X-EhPanda-Stub-Token"
 
     private static let registry = Mutex<[UUID: StubState]>([:])
 
