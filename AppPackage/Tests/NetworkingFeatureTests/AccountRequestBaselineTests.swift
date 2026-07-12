@@ -15,12 +15,14 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let response = try await LoginRequest(
-            username: "baseline-user",
-            password: "dummy-password",
-            urlSession: session
-        )
-        .legacyResponse()
+        let response = try await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "baseline-user",
+                password: "dummy-password",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -47,7 +49,9 @@ struct AccountRequestBaselineTests {
         let session = URLSession(configuration: configuration)
         defer { session.invalidateAndCancel() }
 
-        let result = await IgneousRequest(urlSession: session).legacyResponse()
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse in
+            try await IgneousRequest(urlSession: session).response()
+        }
 
         #expect(result == .failure(.unknown))
     }
@@ -62,7 +66,11 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let response = try await VerifyEhProfileRequest(urlSession: session).legacyResponse().get()
+        let response = try await capture {
+            () async throws(AppError) -> VerifyEhProfileResponse in
+            try await VerifyEhProfileRequest(urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         #expect(response == VerifyEhProfileResponse(profileValue: 2, isProfileNotFound: false))
@@ -77,13 +85,15 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let setting = try await EhProfileRequest(
-            action: .rename,
-            name: "Baseline Profile",
-            set: 2,
-            urlSession: session
-        )
-        .legacyResponse()
+        let setting = try await capture { () async throws(AppError) -> EhSetting in
+            try await EhProfileRequest(
+                action: .rename,
+                name: "Baseline Profile",
+                set: 2,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -108,7 +118,10 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let setting = try await EhSettingRequest(urlSession: session).legacyResponse().get()
+        let setting = try await capture { () async throws(AppError) -> EhSetting in
+            try await EhSettingRequest(urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         #expect(setting.ehProfiles.first?.value == 1)
@@ -125,11 +138,13 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let setting = try await SubmitEhSettingChangesRequest(
-            ehSetting: .empty,
-            urlSession: session
-        )
-        .legacyResponse()
+        let setting = try await capture { () async throws(AppError) -> EhSetting in
+            try await SubmitEhSettingChangesRequest(
+                ehSetting: .empty,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
         var expectedFields = [
@@ -158,13 +173,15 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await FavorGalleryRequest(
-            gid: "101",
-            token: "token",
-            favIndex: 4,
-            urlSession: session
-        )
-        .legacyResponse()
+        _ = try await capture { () async throws(AppError) in
+            try await FavorGalleryRequest(
+                gid: "101",
+                token: "token",
+                favIndex: 4,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -182,7 +199,10 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await UnfavorGalleryRequest(gid: "202", urlSession: session).legacyResponse().get()
+        _ = try await capture { () async throws(AppError) in
+            try await UnfavorGalleryRequest(gid: "202", urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         expectFormRequest(
@@ -207,12 +227,14 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let response = try await SendDownloadCommandRequest(
-            archiveURL: url,
-            resolution: "org",
-            urlSession: session
-        )
-        .legacyResponse()
+        let response = try await capture { () async throws(AppError) -> String in
+            try await SendDownloadCommandRequest(
+                archiveURL: url,
+                resolution: "org",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -231,15 +253,17 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await RateGalleryRequest(
-            apiuid: 11,
-            apikey: "dummy-key",
-            gid: 404,
-            token: "token",
-            rating: 9,
-            urlSession: session
-        )
-        .legacyResponse()
+        _ = try await capture { () async throws(AppError) in
+            try await RateGalleryRequest(
+                apiuid: 11,
+                apikey: "dummy-key",
+                gid: 404,
+                token: "token",
+                rating: 9,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -254,12 +278,14 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await CommentGalleryRequest(
-            content: "first\nsecond",
-            galleryURL: url,
-            urlSession: session
-        )
-        .legacyResponse()
+        _ = try await capture { () async throws(AppError) in
+            try await CommentGalleryRequest(
+                content: "first\nsecond",
+                galleryURL: url,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -274,13 +300,15 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await EditGalleryCommentRequest(
-            commentID: "707",
-            content: "edited\ntext",
-            galleryURL: url,
-            urlSession: session
-        )
-        .legacyResponse()
+        _ = try await capture { () async throws(AppError) in
+            try await EditGalleryCommentRequest(
+                commentID: "707",
+                content: "edited\ntext",
+                galleryURL: url,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -302,16 +330,18 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await VoteGalleryCommentRequest(
-            apiuid: 12,
-            apikey: "dummy-key",
-            gid: 808,
-            token: "token",
-            commentID: 909,
-            commentVote: -1,
-            urlSession: session
-        )
-        .legacyResponse()
+        _ = try await capture { () async throws(AppError) in
+            try await VoteGalleryCommentRequest(
+                apiuid: 12,
+                apikey: "dummy-key",
+                gid: 808,
+                token: "token",
+                commentID: 909,
+                commentVote: -1,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -329,16 +359,18 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        _ = try await VoteGalleryTagRequest(
-            apiuid: 13,
-            apikey: "dummy-key",
-            gid: 1001,
-            token: "token",
-            tag: "artist:baseline",
-            vote: 1,
-            urlSession: session
-        )
-        .legacyResponse()
+        _ = try await capture { () async throws(AppError) in
+            try await VoteGalleryTagRequest(
+                apiuid: 13,
+                apikey: "dummy-key",
+                gid: 1001,
+                token: "token",
+                tag: "artist:baseline",
+                vote: 1,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -353,12 +385,14 @@ struct AccountRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await LoginRequest(
-            username: "baseline-user",
-            password: "dummy-password",
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> HTTPURLResponse? in
+            try await LoginRequest(
+                username: "baseline-user",
+                password: "dummy-password",
+                urlSession: session
+            )
+            .response()
+        }
 
         #expect(result == .failure(.networkingFailed))
         #expect(handle.attempts(for: url) == 4)

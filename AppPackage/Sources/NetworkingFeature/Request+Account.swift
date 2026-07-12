@@ -473,6 +473,21 @@ public struct UnfavorGalleryRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) {
+        let params: [String: String] = [
+            "ddact": "delete",
+            "modifygids[]": gid,
+            "apply": "Apply"
+        ]
+
+        var request = URLRequest(url: Defaults.URL.favorites)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        _ = try await fetch(request, in: urlSession)
+    }
 }
 
 public struct SendDownloadCommandRequest: Request {
@@ -507,6 +522,25 @@ public struct SendDownloadCommandRequest: Request {
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> String {
+        let params: [String: String] = [
+            "hathdl_xres": resolution
+        ]
+
+        var request = URLRequest(url: archiveURL)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseDownloadCommandResponse)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -553,6 +587,23 @@ public struct RateGalleryRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) {
+        let params: [String: Any] = [
+            "method": "rategallery",
+            "apiuid": apiuid,
+            "apikey": apikey,
+            "gid": gid,
+            "token": token,
+            "rating": rating
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+
+        _ = try await fetch(request, in: urlSession)
+    }
 }
 
 public struct CommentGalleryRequest: Request {
@@ -585,6 +636,20 @@ public struct CommentGalleryRequest: Request {
             .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) {
+        let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
+        let params: [String: String] = [
+            "commenttext_new": fixedContent
+        ]
+
+        var request = URLRequest(url: galleryURL)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        _ = try await fetch(request, in: urlSession)
     }
 }
 
@@ -622,6 +687,21 @@ public struct EditGalleryCommentRequest: Request {
             .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) {
+        let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
+        let params: [String: String] = [
+            "edit_comment": commentID,
+            "commenttext_edit": fixedContent
+        ]
+
+        var request = URLRequest(url: galleryURL)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        _ = try await fetch(request, in: urlSession)
     }
 }
 
@@ -672,6 +752,24 @@ public struct VoteGalleryCommentRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) {
+        let params: [String: Any] = [
+            "method": "votecomment",
+            "apiuid": apiuid,
+            "apikey": apikey,
+            "gid": gid,
+            "token": token,
+            "comment_id": commentID,
+            "comment_vote": commentVote
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+
+        _ = try await fetch(request, in: urlSession)
+    }
 }
 
 public struct VoteGalleryTagRequest: Request {
@@ -720,5 +818,23 @@ public struct VoteGalleryTagRequest: Request {
             .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) {
+        let params: [String: Any] = [
+            "method": "taggallery",
+            "apiuid": apiuid,
+            "apikey": apikey,
+            "gid": gid,
+            "token": token,
+            "tags": tag,
+            "vote": vote
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+
+        _ = try await fetch(request, in: urlSession)
     }
 }
