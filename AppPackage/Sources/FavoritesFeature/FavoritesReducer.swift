@@ -170,7 +170,7 @@ public struct FavoritesReducer: Sendable {
                     let response = await FavoritesGalleriesRequest(
                         favIndex: index, keyword: keyword, sortOrder: sortOrder
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchGalleriesDone(index, response))
                 }
 
@@ -210,7 +210,7 @@ public struct FavoritesReducer: Sendable {
                         lastTimestamp: lastItemTimestamp,
                         keyword: keyword
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchMoreGalleriesDone(index, response))
                 }
 
@@ -258,7 +258,7 @@ public struct FavoritesReducer: Sendable {
                 state.rawFooterLoadingState[state.index] = .idle
                 state.rawPageNumber[state.index]?.resetPages()
                 return .run { [index = state.index] send in
-                    let response = await DateSeekGalleriesRequest(url: url).response()
+                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
                     await send(.performDateSeekDone(index, response))
                 }
 

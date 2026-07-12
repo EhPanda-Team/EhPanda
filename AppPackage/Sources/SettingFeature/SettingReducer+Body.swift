@@ -72,13 +72,13 @@ extension SettingReducer {
 
             case .createDefaultEhProfile:
                 return .run { _ in
-                    _ = await EhProfileRequest(action: .create, name: "EhPanda").response()
+                    _ = await EhProfileRequest(action: .create, name: "EhPanda").legacyResponse()
                 }
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    let response = await IgneousRequest().response()
+                    let response = await IgneousRequest().legacyResponse()
                     await send(.fetchIgneousDone(response))
                 }
 
@@ -101,7 +101,7 @@ extension SettingReducer {
                     .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
                 if !uid.isEmpty {
                     return .run { send in
-                        let response = await UserInfoRequest(uid: uid).response()
+                        let response = await UserInfoRequest(uid: uid).legacyResponse()
                         await send(.fetchUserInfoDone(response))
                     }
                 }
@@ -169,7 +169,7 @@ extension SettingReducer {
             case .fetchEhProfileIndex:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    let response = await VerifyEhProfileRequest().response()
+                    let response = await VerifyEhProfileRequest().legacyResponse()
                     await send(.fetchEhProfileIndexDone(response))
                 }
 
@@ -179,7 +179,7 @@ extension SettingReducer {
             case .fetchFavoriteCategories:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    let response = await FavoriteCategoriesRequest().response()
+                    let response = await FavoriteCategoriesRequest().legacyResponse()
                     await send(.fetchFavoriteCategoriesDone(response))
                 }
 

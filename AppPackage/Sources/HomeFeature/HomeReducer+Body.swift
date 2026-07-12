@@ -101,7 +101,7 @@ extension HomeReducer {
                 state.rawCardColors = [String: [Color]]()
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await PopularGalleriesRequest(filter: filter).response()
+                    let response = await PopularGalleriesRequest(filter: filter).legacyResponse()
                     await send(.fetchPopularGalleriesDone(response))
                 }
 
@@ -125,7 +125,7 @@ extension HomeReducer {
                 state.frontpageLoadingState = .loading
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await FrontpageGalleriesRequest(filter: filter).response()
+                    let response = await FrontpageGalleriesRequest(filter: filter).legacyResponse()
                     await send(.fetchFrontpageGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
                 }
 
@@ -148,7 +148,7 @@ extension HomeReducer {
                 guard state.toplistsLoadingState[index] != .loading else { return .none }
                 state.toplistsLoadingState[index] = .loading
                 return .run { send in
-                    let response = await ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum).response()
+                    let response = await ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum).legacyResponse()
                     await send(.fetchToplistsGalleriesDone(index, response))
                 }
 

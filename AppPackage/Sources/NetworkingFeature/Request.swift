@@ -18,7 +18,7 @@ private struct ResponseParsingError: Error {
 }
 
 extension Request {
-    public func response() async -> Result<Response, AppError> {
+    public func legacyResponse() async -> Result<Response, AppError> {
         await publisher.receive(on: DispatchQueue.main).async()
     }
 

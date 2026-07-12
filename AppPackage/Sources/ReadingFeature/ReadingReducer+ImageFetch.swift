@@ -19,7 +19,10 @@ extension ReadingReducer {
                 state.previewLoadingStates[index] = .loading
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return .run { send in
-                    let response = await GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    let response = await GalleryPreviewURLsRequest(
+                        galleryURL: galleryURL,
+                        pageNum: pageNum
+                    ).legacyResponse()
                     await send(.fetchPreviewURLsDone(index, response))
                 }
                 .cancellable(id: ReadingCancelID.fetchPreviewURLs)
@@ -132,7 +135,7 @@ extension ReadingReducer {
                 }
                 let pageNum = state.previewConfig.pageNumber(index: index)
                 return .run { send in
-                    let response = await ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum).response()
+                    let response = await ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum).legacyResponse()
                     await send(.fetchThumbnailURLsDone(index, response))
                 }
                 .cancellable(id: ReadingCancelID.fetchThumbnailURLs)
@@ -166,7 +169,7 @@ extension ReadingReducer {
                     return .none
                 }
                 return .run { send in
-                    let response = await GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs).response()
+                    let response = await GalleryNormalImageURLsRequest(thumbnailURLs: thumbnailURLs).legacyResponse()
                     await send(.fetchNormalImageURLsDone(index, response))
                 }
                 .cancellable(id: ReadingCancelID.fetchNormalImageURLs)
@@ -212,7 +215,7 @@ extension ReadingReducer {
                         thumbnailURL: thumbnailURL,
                         storedImageURL: imageURL
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.refetchNormalImageURLsDone(index, response))
                 }
                 .cancellable(id: ReadingCancelID.refetchNormalImageURLs)
@@ -242,7 +245,7 @@ extension ReadingReducer {
                     return .none
                 }
                 return .run { send in
-                    let response = await MPVKeysRequest(mpvURL: mpvURL).response()
+                    let response = await MPVKeysRequest(mpvURL: mpvURL).legacyResponse()
                     await send(.fetchMPVKeysDone(index, response))
                 }
                 .cancellable(id: ReadingCancelID.fetchMPVKeys)
@@ -294,7 +297,7 @@ extension ReadingReducer {
                         mpvImageKey: mpvImageKey,
                         skipServerIdentifier: skipServerIdentifier
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchMPVImageURLDone(index, response))
                 }
                 .cancellable(id: ReadingCancelID.fetchMPVImageURL)

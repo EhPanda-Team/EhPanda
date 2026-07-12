@@ -145,7 +145,7 @@ public struct ToplistsReducer: Sendable {
                     let response = await ToplistsGalleriesRequest(
                         catIndex: type.categoryIndex, pageNum: pageNum
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchGalleriesDone(type, response))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
@@ -178,7 +178,7 @@ public struct ToplistsReducer: Sendable {
                     let response = await MoreToplistsGalleriesRequest(
                         catIndex: type.categoryIndex, pageNum: pageNum
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchMoreGalleriesDone(type, response))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)

@@ -84,7 +84,7 @@ struct DownloadPageErrorParserTests: TestHelper {
     @Test
     func testMapAppErrorUsesResponseErrorFromParserFailure() async throws {
         let document = try htmlDocument(filename: .ipBanned)
-        let result = await FailingHTMLRequest(document: document).response()
+        let result = await FailingHTMLRequest(document: document).legacyResponse()
 
         switch result {
         case .success:

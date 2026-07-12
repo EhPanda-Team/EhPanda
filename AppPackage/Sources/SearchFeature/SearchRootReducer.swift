@@ -176,7 +176,7 @@ public struct SearchRootReducer: Sendable {
                 // stops rapid re-entry from stacking overlapping, last-writer-wins requests.
                 guard pairs.map(\.gid) != state.historyGalleries.map(\.gid) else { return .none }
                 return .run { send in
-                    let response = await GalleriesMetadataRequest(gidList: pairs).response()
+                    let response = await GalleriesMetadataRequest(gidList: pairs).legacyResponse()
                     await send(.fetchHistoryGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchHistoryGalleries, cancelInFlight: true)

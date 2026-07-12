@@ -129,7 +129,10 @@ public struct SearchReducer: Sendable {
                 return .merge(
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
-                        let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).response()
+                        let response = await SearchGalleriesRequest(
+                            keyword: lastKeyword,
+                            filter: filter
+                        ).legacyResponse()
                         await send(.fetchGalleriesDone(response))
                     }
                     .cancellable(id: CancelID.fetchGalleries)
@@ -166,7 +169,7 @@ public struct SearchReducer: Sendable {
                     let response = await MoreSearchGalleriesRequest(
                         keyword: lastKeyword, filter: filter, lastID: lastID
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchMoreGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
@@ -213,7 +216,7 @@ public struct SearchReducer: Sendable {
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
                 return .run { send in
-                    let response = await DateSeekGalleriesRequest(url: url).response()
+                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
                     await send(.performDateSeekDone(response))
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)

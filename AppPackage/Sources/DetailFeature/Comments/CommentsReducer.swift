@@ -198,7 +198,7 @@ public struct CommentsReducer: Sendable {
                             content: commentContent,
                             galleryURL: galleryURL
                         )
-                        .response()
+                        .legacyResponse()
                         await send(.performCommentActionDone(response))
                     }
                     .cancellable(id: CancelID.postComment)
@@ -207,7 +207,7 @@ public struct CommentsReducer: Sendable {
                         let response = await CommentGalleryRequest(
                             content: commentContent, galleryURL: galleryURL
                         )
-                        .response()
+                        .legacyResponse()
                         await send(.performCommentActionDone(response))
                     }
                     .cancellable(id: CancelID.postComment)
@@ -226,7 +226,7 @@ public struct CommentsReducer: Sendable {
                         commentID: commentID,
                         commentVote: vote
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.performCommentActionDone(response))
                 }
                 .cancellable(id: CancelID.voteComment)
@@ -248,7 +248,7 @@ public struct CommentsReducer: Sendable {
                     let response = await GalleryReverseRequest(
                         url: url, isGalleryImageURL: isGalleryImageURL
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchGalleryDone(url, response))
                 }
                 .cancellable(id: CancelID.fetchGallery)
