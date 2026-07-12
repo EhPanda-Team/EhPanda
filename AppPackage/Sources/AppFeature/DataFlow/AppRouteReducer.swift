@@ -182,11 +182,16 @@ struct AppRouteReducer {
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.toast = .loading()
                 return .run { send in
-                    let response = await GalleryReverseRequest(
-                        url: url, isGalleryImageURL: isGalleryImageURL
-                    )
-                    .legacyResponse()
-                    await send(.fetchGalleryDone(url, response))
+                    do throws(AppError) {
+                        let gallery = try await GalleryReverseRequest(
+                            url: url,
+                            isGalleryImageURL: isGalleryImageURL
+                        )
+                        .response()
+                        await send(.fetchGalleryDone(url, .success(gallery)))
+                    } catch {
+                        await send(.fetchGalleryDone(url, .failure(error)))
+                    }
                 }
 
             case .fetchGalleryDone(let url, let result):
