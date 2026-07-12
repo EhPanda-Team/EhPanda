@@ -16,7 +16,7 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.0"),
     .package(url: "https://github.com/SDWebImage/SDWebImageWebPCoder", from: "0.14.0"),
     .package(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", from: "7.0.0"),
-    .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.63.0"),
+    .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.64.1"),
     .package(url: "https://github.com/apple/swift-markdown", from: "0.8.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
