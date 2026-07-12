@@ -17,8 +17,8 @@
   - `MarkdownUtil.parseTexts/parseLinks/parseImages` reproduced on swift-markdown's `Document`/walker; `TagTranslation` output identical on fixtures; `DetailView` markdown confirmed (render vs parse) and preserved; SwiftCommonMark removed from `Package.swift`.
 - [x] **DEP-04**: Replace WaterfallGrid with a custom SwiftUI `Layout`. *(Spike-gated: validate feasibility before committing tasks.)*
   - Grid tiles any container width: all cells share one identical flexible width with fixed 15pt spacing; column count is a pure function of the layout's own container width (adaptive rule `max(2, floor((w + 15) / (185 + 15)))`) and never varies with cell content, image loading, or type size; masonry shortest-column balancing preserved; no `UIScreen`/`DeviceUtil` reads; WaterfallGrid removed; scrolling performance not regressed. *(Exact 2/4/5 count parity with WaterfallGrid intentionally dropped — owner decision 2026-07-11.)*
-- [ ] **DEP-05**: Replace SwiftUIPager with a built-in page-style `TabView`. *(Spike-gated.)*
-  - Reading paging parity: horizontal/RTL/dual-page, page-index mapping, gesture coexistence; SwiftUIPager removed; if native can't reach parity, spike surfaces it before commit.
+- [x] **DEP-05**: Replace SwiftUIPager with a native horizontal paging `ScrollView`. *(Spike-gated. Construct decided by D-04: a paging `ScrollView`, not a page-style `TabView`, so it can freeze its own swipe while zoomed.)*
+  - Reading paging parity: horizontal/RTL/dual-page, page-index mapping, gesture coexistence; SwiftUIPager removed; if native can't reach parity, spike surfaces it before commit. *(Spike reached parity across all 16 D-11 rows, owner-signed-off 2026-07-12 → spike KEEP, SwiftUIPager removed.)*
 - [x] **DEP-06**: Investigate inlining DeprecatedAPI (`getCFReadStream`) into the project without deprecation warnings; adopt a non-deprecated API if actionable.
   - Either the shim is inlined warning-free or a non-deprecated replacement is used; DeprecatedAPI dependency removed; DF networking behavior unchanged.
 - [x] **DEP-07**: Migrate to the latest Colorful.
@@ -95,7 +95,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | DEP-02 | Phase 1 | Complete |
 | DEP-03 | Phase 1 | Complete |
 | DEP-04 | Phase 2 | Complete |
-| DEP-05 | Phase 3 | Pending |
+| DEP-05 | Phase 3 | Complete |
 | DEP-06 | Phase 1 | Complete |
 | DEP-07 | Phase 1 | Complete |
 | CONC-01 | Phase 4 | Pending |
