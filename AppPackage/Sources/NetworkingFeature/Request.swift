@@ -1,15 +1,13 @@
 import Kanna
 import AppModels
-import Combine
 import Foundation
-import ComposableArchitecture
 import AppTools
 import ParserFeature
 
 public protocol Request {
     associatedtype Response: Sendable
 
-    var publisher: AnyPublisher<Response, AppError> { get }
+    func response() async throws(AppError) -> Response
 }
 
 private struct ResponseParsingError: Error {
@@ -18,9 +16,6 @@ private struct ResponseParsingError: Error {
 }
 
 extension Request {
-    public func legacyResponse() async -> Result<Response, AppError> {
-        await publisher.receive(on: DispatchQueue.main).async()
-    }
 
     /// Fetches a request with the four-attempt policy formerly supplied by `retry(3)`.
     ///
@@ -165,42 +160,6 @@ extension Request {
     }
 }
 
-extension Publisher {
-    public func genericRetry() -> Publishers.Retry<Self> {
-        retry(3)
-    }
-
-    public func async() async -> Result<Output, AppError> where Output: Sendable, Failure == AppError {
-        do {
-            let output = try await asyncOutput()
-            return .success(output)
-        } catch {
-            return .failure(error as? AppError ?? .unknown)
-        }
-    }
-
-    private func asyncOutput() async throws -> Output where Output: Sendable, Failure == AppError {
-        try await withCheckedThrowingContinuation { continuation in
-            var cancellable: AnyCancellable?
-            var finishedWithoutValue = true
-            cancellable = first()
-                .sink { result in
-                    switch result {
-                    case .finished:
-                        if finishedWithoutValue {
-                            continuation.resume(throwing: AppError.unknown)
-                        }
-                    case let .failure(error):
-                        continuation.resume(throwing: error)
-                    }
-                    cancellable?.cancel()
-                } receiveValue: { value in
-                    finishedWithoutValue = false
-                    continuation.resume(returning: value)
-                }
-        }
-    }
-}
 extension URLRequest {
     public mutating func setURLEncodedContentType() {
         setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -283,15 +242,6 @@ public struct GreetingRequest: Request {
     }
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<Greeting, AppError> {
-        urlSession.dataTaskPublisher(for: Defaults.URL.news)
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseGreeting) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> Greeting {
         let (data, _) = try await fetch(URLRequest(url: Defaults.URL.news), in: urlSession)
         do {
@@ -314,15 +264,6 @@ public struct UserInfoRequest: Request {
     public let uid: String
     public let urlSession: URLSession
 
-    public var publisher: AnyPublisher<User, AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.userInfo(uid: uid))
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseUserInfo) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> User {
         let request = URLRequest(url: URLUtil.userInfo(uid: uid))
         let (data, _) = try await fetch(request, in: urlSession)
@@ -342,15 +283,6 @@ public struct FavoriteCategoriesRequest: Request {
         self.urlSession = urlSession
     }
     public let urlSession: URLSession
-
-    public var publisher: AnyPublisher<[Int: String], AppError> {
-        urlSession.dataTaskPublisher(for: Defaults.URL.uConfig)
-            .genericRetry()
-            .tryMap { try htmlDocument(data: $0.data) }
-            .tryMap { try parseResponse(doc: $0, Parser.parseFavoriteCategories) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> [Int: String] {
         let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
@@ -387,27 +319,6 @@ public struct TagTranslatorRequest: Request {
 
     // Returns the untouched DB JSON bytes plus the release date; decoding, OpenCC conversion, and
     // caching are done downstream by `FileClient` so this layer stays purely network.
-    public var publisher: AnyPublisher<TagTranslatorPayload, AppError> {
-        urlSession.dataTaskPublisher(for: URLUtil.githubAPI(repoName: language.repoName))
-            .genericRetry().tryMap { data, _ -> Date in
-                guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let postedDateString = dict["published_at"] as? String,
-                      let postedDate = dateFormatter.date(from: postedDateString)
-                else { throw AppError.parseFailed }
-
-                guard postedDate > updatedDate
-                else { throw AppError.noUpdates }
-                return postedDate
-            }
-            .flatMap { date in
-                urlSession.dataTaskPublisher(
-                    for: URLUtil.githubDownload(repoName: language.repoName, fileName: language.remoteFilename)
-                )
-                    .tryMap { data, _ in TagTranslatorPayload(data: data, updatedDate: date) }
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
 
     public func response() async throws(AppError) -> TagTranslatorPayload {
         let metadataRequest = urlRequest(

@@ -1,7 +1,6 @@
 import TestingSupport
 import Kanna
 import AppModels
-import Combine
 import Testing
 import ParserFeature
 import NetworkingFeature
@@ -84,12 +83,10 @@ struct DownloadPageErrorParserTests: TestHelper {
     @Test
     func testMapAppErrorUsesResponseErrorFromParserFailure() async throws {
         let document = try htmlDocument(filename: .ipBanned)
-        let result = await FailingHTMLRequest(document: document).legacyResponse()
-
-        switch result {
-        case .success:
+        do {
+            try await FailingHTMLRequest(document: document).response()
             Issue.record("Expected response parser to map the IP ban failure.")
-        case .failure(let error):
+        } catch {
             #expect(error == .ipBanned(.minutes(59, seconds: 48)))
         }
     }
@@ -98,15 +95,13 @@ struct DownloadPageErrorParserTests: TestHelper {
 private struct FailingHTMLRequest: Request {
     let document: HTMLDocument
 
-    var publisher: AnyPublisher<Void, AppError> {
-        Just(document)
-            .setFailureType(to: AppError.self)
-            .tryMap { document in
-                try parseResponse(doc: document) { _ in
-                    throw AppError.parseFailed
-                }
+    func response() async throws(AppError) {
+        do {
+            try parseResponse(doc: document) { _ in
+                throw AppError.parseFailed
             }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }

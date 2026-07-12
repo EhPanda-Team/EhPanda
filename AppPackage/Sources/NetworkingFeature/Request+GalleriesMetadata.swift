@@ -1,5 +1,4 @@
 import AppModels
-import Combine
 import Foundation
 import AppTools
 
@@ -93,28 +92,6 @@ public struct GalleriesMetadataRequest: Request {
         self.urlSession = urlSession
     }
 
-    public var publisher: AnyPublisher<[Gallery], AppError> {
-        let order = gidList.map(\.gid)
-        let chunks = gidList.chunked(into: 25)
-        guard !chunks.isEmpty else {
-            return Just([]).setFailureType(to: AppError.self).eraseToAnyPublisher()
-        }
-        // Cap in-flight POSTs at 2 so a large gid list can't fire an unbounded burst against the
-        // flood-controlled `api.php`. Result order is reconstructed from `order` below, so chunk
-        // completion order is irrelevant.
-        return Publishers.Sequence(sequence: chunks)
-            .flatMap(maxPublishers: .max(2)) { chunkPublisher($0) }
-            .collect()
-            .map { pages in
-                let byGID = Dictionary(
-                    pages.flatMap { $0 }.map { ($0.gid, $0) },
-                    uniquingKeysWith: { first, _ in first }
-                )
-                return order.compactMap { byGID[$0] }
-            }
-            .eraseToAnyPublisher()
-    }
-
     public func response() async throws(AppError) -> [Gallery] {
         let order = gidList.map(\.gid)
         let chunks = gidList.chunked(into: 25)
@@ -128,19 +105,6 @@ public struct GalleriesMetadataRequest: Request {
             uniquingKeysWith: { first, _ in first }
         )
         return order.compactMap { byGID[$0] }
-    }
-
-    private func chunkPublisher(_ chunk: [(gid: String, token: String)]) -> AnyPublisher<[Gallery], AppError> {
-        let gidlist = chunk.compactMap { pair -> [Any]? in
-            guard let gid = Int(pair.gid) else { return nil }
-            return [gid, pair.token]
-        }
-        guard !gidlist.isEmpty else {
-            return Just([]).setFailureType(to: AppError.self).eraseToAnyPublisher()
-        }
-        return gdataPublisher(gidlist: gidlist, urlSession: urlSession) {
-            try Self.galleries(fromResponseData: $0)
-        }
     }
 
     private func fetchChunks(
