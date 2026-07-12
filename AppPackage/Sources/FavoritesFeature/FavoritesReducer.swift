@@ -167,11 +167,17 @@ public struct FavoritesReducer: Sendable {
                     state.rawPageNumber[state.index]?.resetPages()
                 }
                 return .run { [index = state.index, keyword = state.keyword] send in
-                    let response = await FavoritesGalleriesRequest(
-                        favIndex: index, keyword: keyword, sortOrder: sortOrder
-                    )
-                    .legacyResponse()
-                    await send(.fetchGalleriesDone(index, response))
+                    do throws(AppError) {
+                        let response = try await FavoritesGalleriesRequest(
+                            favIndex: index,
+                            keyword: keyword,
+                            sortOrder: sortOrder
+                        )
+                        .response()
+                        await send(.fetchGalleriesDone(index, .success(response)))
+                    } catch {
+                        await send(.fetchGalleriesDone(index, .failure(error)))
+                    }
                 }
 
             case .fetchGalleriesDone(let targetFavIndex, let result):
@@ -204,14 +210,18 @@ public struct FavoritesReducer: Sendable {
                 else { return .none }
                 state.rawFooterLoadingState[state.index] = .loading
                 return .run { [index = state.index, keyword = state.keyword] send in
-                    let response = await MoreFavoritesGalleriesRequest(
-                        favIndex: index,
-                        lastID: lastID,
-                        lastTimestamp: lastItemTimestamp,
-                        keyword: keyword
-                    )
-                    .legacyResponse()
-                    await send(.fetchMoreGalleriesDone(index, response))
+                    do throws(AppError) {
+                        let response = try await MoreFavoritesGalleriesRequest(
+                            favIndex: index,
+                            lastID: lastID,
+                            lastTimestamp: lastItemTimestamp,
+                            keyword: keyword
+                        )
+                        .response()
+                        await send(.fetchMoreGalleriesDone(index, .success(response)))
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(index, .failure(error)))
+                    }
                 }
 
             case .fetchMoreGalleriesDone(let targetFavIndex, let result):
@@ -258,8 +268,12 @@ public struct FavoritesReducer: Sendable {
                 state.rawFooterLoadingState[state.index] = .idle
                 state.rawPageNumber[state.index]?.resetPages()
                 return .run { [index = state.index] send in
-                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
-                    await send(.performDateSeekDone(index, response))
+                    do throws(AppError) {
+                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        await send(.performDateSeekDone(index, .success(response)))
+                    } catch {
+                        await send(.performDateSeekDone(index, .failure(error)))
+                    }
                 }
 
             case .performDateSeekDone(let targetFavIndex, let result):

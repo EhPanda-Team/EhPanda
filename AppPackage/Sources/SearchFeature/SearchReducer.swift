@@ -129,11 +129,16 @@ public struct SearchReducer: Sendable {
                 return .merge(
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
-                        let response = await SearchGalleriesRequest(
-                            keyword: lastKeyword,
-                            filter: filter
-                        ).legacyResponse()
-                        await send(.fetchGalleriesDone(response))
+                        do throws(AppError) {
+                            let response = try await SearchGalleriesRequest(
+                                keyword: lastKeyword,
+                                filter: filter
+                            )
+                            .response()
+                            await send(.fetchGalleriesDone(.success(response)))
+                        } catch {
+                            await send(.fetchGalleriesDone(.failure(error)))
+                        }
                     }
                     .cancellable(id: CancelID.fetchGalleries)
                 )
@@ -166,11 +171,17 @@ public struct SearchReducer: Sendable {
                 state.footerLoadingState = .loading
                 let filter = state.searchFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
-                    let response = await MoreSearchGalleriesRequest(
-                        keyword: lastKeyword, filter: filter, lastID: lastID
-                    )
-                    .legacyResponse()
-                    await send(.fetchMoreGalleriesDone(response))
+                    do throws(AppError) {
+                        let response = try await MoreSearchGalleriesRequest(
+                            keyword: lastKeyword,
+                            filter: filter,
+                            lastID: lastID
+                        )
+                        .response()
+                        await send(.fetchMoreGalleriesDone(.success(response)))
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
@@ -216,8 +227,12 @@ public struct SearchReducer: Sendable {
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
                 return .run { send in
-                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
-                    await send(.performDateSeekDone(response))
+                    do throws(AppError) {
+                        let response = try await DateSeekGalleriesRequest(url: url).response()
+                        await send(.performDateSeekDone(.success(response)))
+                    } catch {
+                        await send(.performDateSeekDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
 
