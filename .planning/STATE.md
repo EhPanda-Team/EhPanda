@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
 status: executing
-stopped_at: Completed 04-13-PLAN.md
-last_updated: "2026-07-12T22:52:58.394Z"
-last_activity: 2026-07-12
-last_activity_desc: Phase 04 execution started
+stopped_at: "04-14 D-11 checkpoint: 66 TCA deprecations require owner scope decision"
+last_updated: "2026-07-12T23:00:52.335Z"
+last_activity: 2026-07-13
+last_activity_desc: Completed Phase 04 Plan 13
 progress:
   total_phases: 11
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 32
-  completed_plans: 30
-  percent: 94
+  completed_plans: 31
+  percent: 27
 ---
 
 # Project State
@@ -30,9 +30,9 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 Phase: 04 (concurrency-framework-migration) — EXECUTING
 Plan: 14 of 14
-Status: Ready to execute
-Last activity: 2026-07-13 — Completed Phase 04 Plan 13
-Next: execute Phase 04 (/gsd-execute-phase 4)
+Status: D-11 checkpoint — owner scope decision required
+Last activity: 2026-07-13 — TCA trait reconnaissance found 66 unique deprecations
+Next: decide whether Plan 04-14 expands to all 66 warning sites
 
 Progress: [█████████░] 94% (30/32 plans across Phases 01–04)
 
@@ -132,6 +132,7 @@ None yet.
 
 - Phase 8 (QUAL-02): NetworkingFeature tests couple to Phase 4's async migration but land in the hygiene phase (where CookieClient/ImageClient are reworked) — verify NetworkingFeature parity tests are written against the migrated async layer, not deferred silently.
 - Phases 2 & 3 carry genuine parity risk (spike-gated); a failed spike must surface before committing implementation.
+- Phase 4 Plan 14 hit its D-11 stop condition: the clean TCA trait recon found 66 unique sites across three patterns and 29 files, including 10 reducer-composition warnings outside the planned view-only surface.
 
 ## Deferred Items
 
@@ -143,6 +144,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T22:52:58.388Z
-Stopped at: Completed 04-13-PLAN.md
-Resume file: None
+Last session: 2026-07-12T23:00:52.329Z
+Stopped at: 04-14 D-11 checkpoint: 66 TCA deprecations require owner scope decision
+Resume file: .planning/phases/04-concurrency-framework-migration/04-14-SUMMARY.md
