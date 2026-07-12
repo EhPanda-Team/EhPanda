@@ -38,6 +38,23 @@ public struct SearchGalleriesRequest: Request {
         .mapError(mapAppError)
         .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let request = URLRequest(url: URLUtil.searchList(keyword: keyword, filter: filter))
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct MoreSearchGalleriesRequest: Request {
@@ -75,6 +92,23 @@ public struct MoreSearchGalleriesRequest: Request {
         .mapError(mapAppError)
         .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let url = URLUtil.moreSearchList(keyword: keyword, filter: filter, lastID: lastID)
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct DateSeekGalleriesRequest: Request {
@@ -104,6 +138,22 @@ public struct DateSeekGalleriesRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct FrontpageGalleriesRequest: Request {
@@ -132,6 +182,23 @@ public struct FrontpageGalleriesRequest: Request {
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let request = URLRequest(url: URLUtil.frontpageList(filter: filter))
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -165,6 +232,23 @@ public struct MoreFrontpageGalleriesRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let url = URLUtil.moreFrontpageList(filter: filter, lastID: lastID)
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct PopularGalleriesRequest: Request {
@@ -185,6 +269,17 @@ public struct PopularGalleriesRequest: Request {
             .tryMap { try parseResponse(doc: $0, Parser.parseGalleries) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> [Gallery] {
+        let request = URLRequest(url: URLUtil.popularList(filter: filter))
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseGalleries)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -217,6 +312,23 @@ public struct WatchedGalleriesRequest: Request {
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let request = URLRequest(url: URLUtil.watchedList(filter: filter, keyword: keyword))
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -255,6 +367,27 @@ public struct MoreWatchedGalleriesRequest: Request {
         .mapError(mapAppError)
         .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleriesResult {
+        let url = URLUtil.moreWatchedList(
+            filter: filter,
+            lastID: lastID,
+            keyword: keyword
+        )
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                GalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct FavoritesGalleriesRequest: Request {
@@ -292,6 +425,28 @@ public struct FavoritesGalleriesRequest: Request {
         }
         .mapError(mapAppError)
         .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> FavoritesGalleriesResult {
+        let url = URLUtil.favoritesList(
+            favIndex: favIndex,
+            keyword: keyword,
+            sortOrder: sortOrder
+        )
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                FavoritesGalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -336,6 +491,29 @@ public struct MoreFavoritesGalleriesRequest: Request {
         .mapError(mapAppError)
         .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> FavoritesGalleriesResult {
+        let url = URLUtil.moreFavoritesList(
+            favIndex: favIndex,
+            lastID: lastID,
+            lastTimestamp: lastTimestamp,
+            keyword: keyword
+        )
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                FavoritesGalleriesResult(
+                    pageNumber: Parser.parsePageNum(doc: $0),
+                    dateSeekNavigation: Parser.parseDateSeekNavigation(doc: $0),
+                    sortOrder: Parser.parseFavoritesSortOrder(doc: $0),
+                    galleries: try Parser.parseGalleries(doc: $0)
+                )
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct ToplistsGalleriesRequest: Request {
@@ -365,6 +543,19 @@ public struct ToplistsGalleriesRequest: Request {
         }
         .mapError(mapAppError)
         .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> (PageNumber, [Gallery]) {
+        let url = URLUtil.toplistsList(catIndex: catIndex, pageNum: pageNum)
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -397,5 +588,18 @@ public struct MoreToplistsGalleriesRequest: Request {
         }
         .mapError(mapAppError)
         .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> (PageNumber, [Gallery]) {
+        let url = URLUtil.moreToplistsList(catIndex: catIndex, pageNum: pageNum)
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                (Parser.parsePageNum(doc: $0), try Parser.parseGalleries(doc: $0))
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
