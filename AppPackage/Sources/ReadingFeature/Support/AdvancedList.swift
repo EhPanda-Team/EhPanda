@@ -23,37 +23,35 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
         self.spacing = spacing
         self.gesture = gesture
         self.content = content
+        _scrollPositionID = State(initialValue: page.index + 1)
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: spacing) {
-                    ForEach(data, id: id) { index in
-                        content(index)
-                            .gesture(gesture)
-                    }
-                }
-                .scrollTargetLayout()
-                .onAppear(perform: { tryScrollTo(id: pagerModel.index + 1, proxy: proxy) })
-            }
-            .scrollPosition(id: $scrollPositionID, anchor: .center)
-            .onScrollPhaseChange { _, newValue in
-                if newValue == .idle, let index = scrollPositionID {
-                    performingChanges = true
-                    pagerModel.update(.new(index: index - 1))
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        performingChanges = false
-                    }
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: spacing) {
+                ForEach(data, id: id) { index in
+                    content(index)
+                        .gesture(gesture)
                 }
             }
-            .onChange(of: pagerModel.index) { _, newValue in
-                tryScrollTo(id: newValue + 1, proxy: proxy)
+            .scrollTargetLayout()
+        }
+        .scrollPosition(id: $scrollPositionID, anchor: .center)
+        .onScrollPhaseChange { _, newValue in
+            if newValue == .idle, let index = scrollPositionID {
+                performingChanges = true
+                pagerModel.update(.new(index: index - 1))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    performingChanges = false
+                }
             }
+        }
+        .onChange(of: pagerModel.index) { _, newValue in
+            tryScrollTo(id: newValue + 1)
         }
     }
 
-    private func tryScrollTo(id: Int, proxy: ScrollViewProxy) {
+    private func tryScrollTo(id: Int) {
         if !performingChanges {
             scrollPositionID = id
         }
