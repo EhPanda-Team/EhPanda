@@ -17,13 +17,15 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let response = try await GalleryDetailRequest(
-            gid: "2725078",
-            galleryURL: galleryURL,
-            urlSession: session,
-            allowsCellular: false
-        )
-        .legacyResponse()
+        let response = try await capture { () async throws(AppError) -> GalleryDetailResponse in
+            try await GalleryDetailRequest(
+                gid: "2725078",
+                galleryURL: galleryURL,
+                urlSession: session,
+                allowsCellular: false
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -52,12 +54,15 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let metadata = try await GalleryVersionMetadataRequest(
-            gid: "123",
-            token: "token",
-            urlSession: session
-        )
-        .legacyResponse()
+        let metadata = try await capture {
+            () async throws(AppError) -> DownloadVersionMetadata in
+            try await GalleryVersionMetadataRequest(
+                gid: "123",
+                token: "token",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
         let body = try #require(request.httpBody)
@@ -92,12 +97,14 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let gallery = try await GalleryReverseRequest(
-            url: imagePageURL,
-            isGalleryImageURL: true,
-            urlSession: session
-        )
-        .legacyResponse()
+        let gallery = try await capture { () async throws(AppError) -> Gallery in
+            try await GalleryReverseRequest(
+                url: imagePageURL,
+                isGalleryImageURL: true,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
 
         #expect(gallery.gid == "2725078")
@@ -121,12 +128,14 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await GalleryReverseRequest(
-            url: imagePageURL,
-            isGalleryImageURL: true,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> Gallery in
+            try await GalleryReverseRequest(
+                url: imagePageURL,
+                isGalleryImageURL: true,
+                urlSession: session
+            )
+            .response()
+        }
 
         expectFailure(result, error: .networkingFailed)
         #expect(handle.attempts(for: imagePageURL) == 1)
@@ -141,9 +150,11 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let response = try await GalleryArchiveRequest(archiveURL: url, urlSession: session)
-            .legacyResponse()
-            .get()
+        let response = try await capture {
+            () async throws(AppError) -> GalleryArchiveResponse in
+            try await GalleryArchiveRequest(archiveURL: url, urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         expectEquivalentURL(request.url, url)
@@ -169,12 +180,14 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let funds = try await GalleryArchiveFundsRequest(
-            gid: "2725078",
-            galleryURL: galleryURL,
-            urlSession: session
-        )
-        .legacyResponse()
+        let funds = try await capture { () async throws(AppError) -> (String, String) in
+            try await GalleryArchiveFundsRequest(
+                gid: "2725078",
+                galleryURL: galleryURL,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
 
         #expect(funds.0 == "1234")
@@ -197,12 +210,14 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await GalleryArchiveFundsRequest(
-            gid: "2725078",
-            galleryURL: galleryURL,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture { () async throws(AppError) -> (String, String) in
+            try await GalleryArchiveFundsRequest(
+                gid: "2725078",
+                galleryURL: galleryURL,
+                urlSession: session
+            )
+            .response()
+        }
 
         expectFailure(result, error: .networkingFailed)
         #expect(handle.attempts(for: galleryURL) == 1)
@@ -217,12 +232,14 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let torrents = try await GalleryTorrentsRequest(
-            gid: "123",
-            token: "token",
-            urlSession: session
-        )
-        .legacyResponse()
+        let torrents = try await capture { () async throws(AppError) -> [GalleryTorrent] in
+            try await GalleryTorrentsRequest(
+                gid: "123",
+                token: "token",
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -243,12 +260,14 @@ struct DetailRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let previews = try await GalleryPreviewURLsRequest(
-            galleryURL: galleryURL,
-            pageNum: 1,
-            urlSession: session
-        )
-        .legacyResponse()
+        let previews = try await capture { () async throws(AppError) -> [Int: URL] in
+            try await GalleryPreviewURLsRequest(
+                galleryURL: galleryURL,
+                pageNum: 1,
+                urlSession: session
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 

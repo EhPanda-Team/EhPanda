@@ -71,6 +71,29 @@ public struct GalleryDetailRequest: Request {
             }
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleryDetailResponse {
+        let request = urlRequest(
+            url: URLUtil.galleryDetail(url: galleryURL),
+            allowsCellular: allowsCellular
+        )
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocumentWithUTF8Fallback(data: data)
+            let (detail, state, apiKey) = try parseResponse(doc: document) {
+                let (detail, state) = try Parser.parseGalleryDetail(doc: $0, gid: gid)
+                return (detail, state, try Parser.parseAPIKey(doc: $0))
+            }
+            return GalleryDetailResponse(
+                galleryDetail: detail,
+                galleryState: state,
+                apiKey: apiKey,
+                greeting: try? Parser.parseGreeting(doc: document)
+            )
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 private struct GalleryVersionMetadata: Decodable {
@@ -137,6 +160,20 @@ public struct GalleryVersionMetadataRequest: Request {
             return metadata
         }
     }
+
+    public func response() async throws(AppError) -> DownloadVersionMetadata {
+        guard let gid = Int(gid) else {
+            throw AppError.notFound
+        }
+        return try await gdataResponse(gidlist: [[gid, token]], urlSession: urlSession) {
+            let response = try JSONDecoder()
+                .decode(GalleryVersionMetadataAPIResponse.self, from: $0)
+            guard let metadata = response.gmetadata.first?.versionMetadata else {
+                throw AppError.notFound
+            }
+            return metadata
+        }
+    }
 }
 
 public struct GalleryReverseRequest: Request {
@@ -178,6 +215,38 @@ public struct GalleryReverseRequest: Request {
             .genericRetry()
             .flatMap(gallery)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> Gallery {
+        let resolvedGalleryURL: URL
+        if isGalleryImageURL {
+            let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+            do {
+                let document = try htmlDocument(data: data)
+                resolvedGalleryURL = try parseResponse(doc: document, Parser.parseGalleryURL)
+            } catch {
+                throw mapAppError(error: error)
+            }
+        } else {
+            resolvedGalleryURL = url
+        }
+
+        do {
+            let (data, _) = try await urlSession.data(for: URLRequest(url: resolvedGalleryURL))
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document) {
+                let (detail, _) = try Parser.parseGalleryDetail(
+                    doc: $0,
+                    gid: resolvedGalleryURL.pathComponents[2]
+                )
+                guard let gallery = getGallery(from: detail, and: resolvedGalleryURL) else {
+                    throw AppError.parseFailed
+                }
+                return gallery
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 
     public func galleryURL(url: URL) -> AnyPublisher<URL, AppError> {
@@ -244,6 +313,24 @@ public struct GalleryArchiveRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> GalleryArchiveResponse {
+        let (data, _) = try await fetch(URLRequest(url: archiveURL), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            let archive = try parseResponse(doc: document, Parser.parseGalleryArchive)
+            guard let (galleryPoints, credits) = try? Parser.parseCurrentFunds(doc: document) else {
+                return GalleryArchiveResponse(archive: archive)
+            }
+            return GalleryArchiveResponse(
+                archive: archive,
+                galleryPoints: galleryPoints,
+                credits: credits
+            )
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct GalleryArchiveFundsRequest: Request {
@@ -265,6 +352,34 @@ public struct GalleryArchiveFundsRequest: Request {
             .genericRetry()
             .flatMap(funds)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> (String, String) {
+        let (detailData, _) = try await fetch(URLRequest(url: galleryURL), in: urlSession)
+        let archiveURL: URL
+        do {
+            let document = try htmlDocument(data: detailData)
+            archiveURL = try parseResponse(doc: document) {
+                guard let archiveURL = try Parser
+                    .parseGalleryDetail(doc: $0, gid: gid)
+                    .0
+                    .archiveURL
+                else {
+                    throw AppError.parseFailed
+                }
+                return archiveURL
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+
+        do {
+            let (fundsData, _) = try await urlSession.data(for: URLRequest(url: archiveURL))
+            let document = try htmlDocument(data: fundsData)
+            return try parseResponse(doc: document, Parser.parseCurrentFunds)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 
     public func archiveURL(url: URL) -> AnyPublisher<URL, AppError> {
@@ -315,6 +430,16 @@ public struct GalleryTorrentsRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> [GalleryTorrent] {
+        let url = URLUtil.galleryTorrents(gid: gid, token: token)
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            return Parser.parseGalleryTorrents(doc: try htmlDocument(data: data))
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct GalleryPreviewURLsRequest: Request {
@@ -338,5 +463,16 @@ public struct GalleryPreviewURLsRequest: Request {
             .tryMap { try parseResponse(doc: $0, Parser.parsePreviewURLs) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> [Int: URL] {
+        let url = URLUtil.detailPage(url: galleryURL, pageNum: pageNum)
+        let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parsePreviewURLs)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
