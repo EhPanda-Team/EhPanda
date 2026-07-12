@@ -28,7 +28,7 @@
 
 - [x] **CONC-01**: Migrate Combine-based requests to async/await.
   - `NetworkingFeature` request layer returns async results (no `AnyPublisher`); `ApplicationClient`/`AuthorizationClient`/`ImageClient`/`LibraryClient` and all consuming reducer effects migrated off Combine; request behavior/error paths preserved.
-- [ ] **CONC-02**: Pin TCA `from: 1.25.3` with traits `ComposableArchitecture2Deprecations` + `ComposableArchitecture2DeprecationOverloads` and resolve all surfaced deprecations.
+- [x] **CONC-02**: Pin TCA `from: 1.25.3` with traits `ComposableArchitecture2Deprecations` + `ComposableArchitecture2DeprecationOverloads` and resolve all surfaced deprecations.
   - `Package.swift` updated with traits; zero TCA deprecation warnings remain; reducers/stores behave identically.
 
 ### UIARCH — UI architecture
@@ -99,7 +99,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | DEP-06 | Phase 1 | Complete |
 | DEP-07 | Phase 1 | Complete |
 | CONC-01 | Phase 4 | Complete |
-| CONC-02 | Phase 4 | Pending |
+| CONC-02 | Phase 4 | Complete |
 | UIARCH-01 | Phase 5 | Pending |
 | UIARCH-02 | Phase 6 | Pending |
 | UIARCH-03 | Phase 5 | Pending |
