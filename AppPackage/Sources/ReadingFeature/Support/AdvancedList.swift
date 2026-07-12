@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AdvancedList<Element, ID, PageView, G>: View
-where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
+where PageView: View, ID: Hashable, G: Gesture {
     @State var performingChanges = false
     @State var scrollPositionID: Int?
 
@@ -41,7 +41,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
             if newValue == .idle, let index = scrollPositionID {
                 performingChanges = true
                 pagerModel.update(.new(index: index - 1))
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + PageModel.echoGuardDuration) {
                     performingChanges = false
                 }
             }
