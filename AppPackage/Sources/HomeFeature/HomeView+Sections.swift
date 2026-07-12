@@ -5,6 +5,9 @@ import Kingfisher
 import SFSafeSymbols
 import AppTools
 import AppComponents
+import OSLogExt
+
+private let logger = Logger(category: .init(describing: CardSlideSection.self))
 
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
@@ -61,7 +64,7 @@ struct CardSlideSection: View, Equatable {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 20) {
+            LazyHStack(spacing: cardSpacing) {
                 ForEach(bufferedCards) { item in
                     card(for: item.gallery)
                 }
@@ -73,6 +76,37 @@ struct CardSlideSection: View, Equatable {
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
         .frame(height: Defaults.FrameSize.cardCellHeight)
+        // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
+        // that crosses the container's midline is the card the scroll will land on. Flipping
+        // `pageIndex` (→ `currentCardID` → the focused-card gradient) at the crossing hands the
+        // gradient over while the card is still sliding in, instead of ~0.5s later when the
+        // scroll reaches `.idle`. The `.idle` write below stays as the settle-time reconciliation.
+        // The transform returns the LOGICAL index, so the tripled-buffer re-center (buffer id
+        // jumps by ±count, logical value unchanged) never fires this action.
+        .onScrollGeometryChange(for: Int.self) { geometry in
+            let count = galleries.count
+            guard count > 0 else { return 0 }
+            // `visibleRect.midX` is inset-convention-proof here: the `.scrollContent` margins are
+            // symmetric, so the visible midpoint is identical whether or not they are included.
+            let rawIndex = ((geometry.visibleRect.midX - cardWidth / 2) / cardPitch).rounded()
+            let bufferIndex = min(max(Int(rawIndex), 0), count * 3 - 1)
+            return bufferIndex % count
+        } action: { oldValue, newValue in
+            guard !galleries.isEmpty, pageIndex != newValue else { return }
+            // THROWAWAY (removed after go/no-go sign-off): crossing-time evidence — compare
+            // timestamps with the `settled:` line to measure how early the handoff fires, and
+            // the settled buffer id modulo count must equal the last crossing's logical index.
+            logger.debug(
+                "carousel crossing: \(oldValue, privacy: .public) -> \(newValue, privacy: .public)"
+            )
+            pageIndex = newValue
+        }
+        .onChange(of: scrollPositionID) { _, newValue in
+            // THROWAWAY (removed after go/no-go sign-off): records when the scrollPosition
+            // binding itself updates relative to the geometry crossing — the timing evidence
+            // for whether the binding could have driven the handoff instead.
+            logger.debug("carousel scrollPositionID: \(newValue ?? -1, privacy: .public)")
+        }
         .onScrollPhaseChange { _, newPhase in
             guard newPhase == .idle, !performingChanges,
                   let settledID = scrollPositionID, !galleries.isEmpty
@@ -80,6 +114,11 @@ struct CardSlideSection: View, Equatable {
             let count = galleries.count
             let clampedID = min(max(settledID, 0), count * 3 - 1)
             let logicalIndex = clampedID % count
+            // THROWAWAY (removed after go/no-go sign-off): settle-time self-validation for the
+            // geometry math above (`settled logical` must match the last `crossing:` value).
+            logger.debug(
+                "carousel settled: buffer \(clampedID, privacy: .public), logical \(logicalIndex, privacy: .public)"
+            )
             // Outward-only `.synchronize` parity: the reducer only observes `cardPageIndex`,
             // it never writes it back, so no inward re-seam exists by design.
             if pageIndex != logicalIndex {
@@ -102,11 +141,16 @@ struct CardSlideSection: View, Equatable {
         }
     }
 
+    // Shared by the layout and the nearest-center geometry math — they must never drift apart.
+    private var cardWidth: CGFloat { Defaults.FrameSize.cardCellSize.width }
+    private var cardPitch: CGFloat { cardWidth + cardSpacing }
+    private let cardSpacing: CGFloat = 20
+
     // Center the snapped card: bare `.viewAligned` aligns the card's leading edge to the
     // content edge, dumping all the peek on the trailing side, while SwiftUIPager centered
     // the focused card. Symmetric margins of the leftover width restore the centered peek.
     private var centeringMargin: CGFloat {
-        (DeviceUtil.windowW - Defaults.FrameSize.cardCellSize.width) / 2
+        (DeviceUtil.windowW - cardWidth) / 2
     }
 
     private func card(for gallery: Gallery) -> some View {
@@ -124,7 +168,7 @@ struct CardSlideSection: View, Equatable {
             .tint(.primary)
             .multilineTextAlignment(.leading)
         }
-        .frame(width: Defaults.FrameSize.cardCellSize.width, height: Defaults.FrameSize.cardCellSize.height)
+        .frame(width: cardWidth, height: Defaults.FrameSize.cardCellSize.height)
         .scrollTransition { content, phase in
             content.opacity(phase.isIdentity ? 1 : 0.2)
         }
