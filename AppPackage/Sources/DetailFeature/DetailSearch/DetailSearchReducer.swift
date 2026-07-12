@@ -106,8 +106,18 @@ public struct DetailSearchReducer: Sendable {
                 state.pageNumber.resetPages()
                 let filter = state.searchFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
-                    let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).legacyResponse()
-                    await send(.fetchGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
+                    do throws(AppError) {
+                        let response = try await SearchGalleriesRequest(
+                            keyword: lastKeyword,
+                            filter: filter
+                        )
+                        .response()
+                        await send(
+                            .fetchGalleriesDone(.success((response.pageNumber, response.galleries)))
+                        )
+                    } catch {
+                        await send(.fetchGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 
@@ -137,11 +147,21 @@ public struct DetailSearchReducer: Sendable {
                 state.footerLoadingState = .loading
                 let filter = state.searchFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
-                    let response = await MoreSearchGalleriesRequest(
-                        keyword: lastKeyword, filter: filter, lastID: lastID
-                    )
-                    .legacyResponse()
-                    await send(.fetchMoreGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
+                    do throws(AppError) {
+                        let response = try await MoreSearchGalleriesRequest(
+                            keyword: lastKeyword,
+                            filter: filter,
+                            lastID: lastID
+                        )
+                        .response()
+                        await send(
+                            .fetchMoreGalleriesDone(
+                                .success((response.pageNumber, response.galleries))
+                            )
+                        )
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
 
