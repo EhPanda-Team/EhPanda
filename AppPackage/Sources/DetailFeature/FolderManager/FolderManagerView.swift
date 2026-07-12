@@ -43,7 +43,7 @@ public struct FolderManagerView: View {
                 stateOverlay
             }
             .confirmationDialog(
-                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+                $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
             .animation(.default, value: store.folders)
             .animation(.default, value: store.editingField)

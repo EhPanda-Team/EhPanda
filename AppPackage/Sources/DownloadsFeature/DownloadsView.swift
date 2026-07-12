@@ -56,7 +56,7 @@ public struct DownloadsView: View {
             prompt: .searchDownloads
         )
         .sheet(
-            item: $store.scope(state: \.destination?.inspector, action: \.destination.inspector)
+            item: $store.scope(\.$destination, action: \.destination).inspector
         ) { store in
             NavigationStack {
                 DownloadInspectorView(
@@ -67,14 +67,14 @@ public struct DownloadsView: View {
             .autoBlur(radius: blurRadius)
         }
         .sheet(
-            item: $store.scope(state: \.destination?.folderManager, action: \.destination.folderManager)
+            item: $store.scope(\.$destination, action: \.destination).folderManager
         ) { folderStore in
             FolderManagerView(store: folderStore)
                 .accentColor(store.setting.accentColor)
                 .autoBlur(radius: blurRadius)
         }
         .fullScreenCover(
-            item: $store.scope(state: \.destination?.reading, action: \.destination.reading)
+            item: $store.scope(\.$destination, action: \.destination).reading
         ) { store in
             ReadingView(
                 store: store,
@@ -87,9 +87,9 @@ public struct DownloadsView: View {
         .onAppear {
             store.send(.onAppear)
         }
-        .appAlert($store.scope(state: \.alert, action: \.alert))
+        .appAlert($store.scope(\.$alert, action: \.alert))
         .confirmationDialog(
-            $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+            $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
         )
         .navigationTitle(.RLocalizable.downloads)
         .navigationBarTitleDisplayMode(.large)

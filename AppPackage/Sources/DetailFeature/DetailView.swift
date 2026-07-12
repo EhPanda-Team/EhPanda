@@ -38,7 +38,7 @@ public struct DetailView: View {
             .onChange(of: store.hasLoadedDownloadBadge) { _, _ in
                 runLaunchAutomationIfNeeded()
             }
-            .appAlert($store.scope(state: \.alert, action: \.alert))
+            .appAlert($store.scope(\.$alert, action: \.alert))
             .toolbar(content: toolbar)
     }
 
@@ -209,7 +209,7 @@ private extension DetailView {
     private func primaryModalModifiers<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
             .fullScreenCover(
-                item: $store.scope(state: \.destination?.reading, action: \.destination.reading)
+                item: $store.scope(\.$destination, action: \.destination).reading
             ) { store in
                 ReadingView(
                     store: store,
@@ -220,7 +220,7 @@ private extension DetailView {
                 .autoBlur(radius: blurRadius)
             }
             .sheet(
-                item: $store.scope(state: \.destination?.archives, action: \.destination.archives)
+                item: $store.scope(\.$destination, action: \.destination).archives
             ) { archivesStore in
                 if let galleryURL = store.gallery.galleryURL, let archiveURL = store.galleryDetail?.archiveURL {
                     ArchivesView(
@@ -234,7 +234,7 @@ private extension DetailView {
                 }
             }
             .sheet(
-                item: $store.scope(state: \.destination?.torrents, action: \.destination.torrents)
+                item: $store.scope(\.$destination, action: \.destination).torrents
             ) { store in
                 TorrentsView(
                     store: store,
@@ -246,7 +246,7 @@ private extension DetailView {
                 .autoBlur(radius: blurRadius)
             }
             .sheet(
-                item: $store.scope(state: \.destination?.folderManager, action: \.destination.folderManager)
+                item: $store.scope(\.$destination, action: \.destination).folderManager
             ) { store in
                 FolderManagerView(store: store)
                     .accentColor(self.store.setting.accentColor)

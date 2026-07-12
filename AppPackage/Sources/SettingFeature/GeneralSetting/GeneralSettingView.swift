@@ -90,7 +90,7 @@ struct GeneralSettingView: View {
                         role: .destructive, action: { store.send(.removeCustomTranslationsButtonTapped) }
                     )
                     .confirmationDialog(
-                        $store.scope(state: \.removeTranslationsDialog, action: \.removeTranslationsDialog)
+                        $store.scope(\.$removeTranslationsDialog, action: \.removeTranslationsDialog)
                     )
                 }
             }
@@ -140,7 +140,7 @@ struct GeneralSettingView: View {
                     .foregroundColor(.primary)
                 }
                 .confirmationDialog(
-                    $store.scope(state: \.clearCacheDialog, action: \.clearCacheDialog)
+                    $store.scope(\.$clearCacheDialog, action: \.clearCacheDialog)
                 )
             }
         }

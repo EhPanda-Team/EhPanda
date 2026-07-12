@@ -103,7 +103,7 @@ struct CommentsView: View {
             .accentColor(store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .toast($store.scope(state: \.toast, action: \.toast))
+        .toast($store.scope(\.$toast, action: \.toast))
         .animation(.default, value: store.scrollRowOpacity)
         .onAppear {
             store.send(.onAppear)

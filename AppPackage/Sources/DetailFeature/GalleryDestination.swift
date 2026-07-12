@@ -64,7 +64,7 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
     }
 
     public var body: some View {
-        NavigationStack(path: $store.scope(state: statePath, action: actionPath)) {
+        NavigationStack(path: $store.scope( statePath, action: actionPath)) {
             root
         } destination: { elementStore in
             galleryDestination(

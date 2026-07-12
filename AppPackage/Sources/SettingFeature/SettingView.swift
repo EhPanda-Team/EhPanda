@@ -16,7 +16,7 @@ public struct SettingView: View {
 
     // MARK: SettingView
     public var body: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        NavigationStack(path: $store.scope(\.path, action: \.path)) {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(SettingReducer.RootScreen.allCases) { screen in

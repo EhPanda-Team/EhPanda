@@ -65,7 +65,7 @@ struct EhSettingView: View {
                     editingProfileName: $store.editingProfileName,
                     deleteDialogAction: { store.send(.deleteProfileButtonTapped) },
                     deleteConfirmationDialog: $store.scope(
-                        state: \.confirmationDialog, action: \.confirmationDialog
+                        \.$confirmationDialog, action: \.confirmationDialog
                     ),
                     performEhProfileAction: { store.send(.performAction(action: $0, name: $1, set: $2)) }
                 )

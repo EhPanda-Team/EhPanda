@@ -58,7 +58,7 @@ struct HistoryView: View {
             }
             .disabled(store.loadingState == .loading || store.galleryHistory.isEmpty)
             .confirmationDialog(
-                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+                $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
         }
     }

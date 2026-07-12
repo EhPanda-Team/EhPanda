@@ -34,7 +34,7 @@ struct AccountSettingView: View {
                     loginAction: { store.send(.delegate(.pushLogin)) },
                     logoutDialogAction: { store.send(.logoutButtonTapped) },
                     logoutConfirmationDialog: $store.scope(
-                        state: \.confirmationDialog, action: \.confirmationDialog
+                        \.$confirmationDialog, action: \.confirmationDialog
                     ),
                     configureAccountAction: { store.send(.delegate(.pushEhSetting)) },
                     manageTagsAction: { store.send(.presentWebView(Defaults.URL.myTags)) }
@@ -46,7 +46,7 @@ struct AccountSettingView: View {
                 copyAction: { store.send(.copyCookies($0)) }
             )
         }
-        .toast($store.scope(state: \.toast, action: \.toast))
+        .toast($store.scope(\.$toast, action: \.toast))
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)

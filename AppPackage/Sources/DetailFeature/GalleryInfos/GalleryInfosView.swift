@@ -111,7 +111,7 @@ struct GalleryInfosView: View {
                 }
             }
         }
-        .toast($store.scope(state: \.toast, action: \.toast))
+        .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.metadataGalleryInfos)
     }
 }
