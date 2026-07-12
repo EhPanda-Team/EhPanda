@@ -16,12 +16,15 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await MPVKeysRequest(
-            mpvURL: url,
-            urlSession: session,
-            allowsCellular: false
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> (String, [Int: String]) in
+            try await MPVKeysRequest(
+                mpvURL: url,
+                urlSession: session,
+                allowsCellular: false
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -41,13 +44,15 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let thumbnails = try await ThumbnailURLsRequest(
-            galleryURL: galleryURL,
-            pageNum: 2,
-            urlSession: session,
-            allowsCellular: false
-        )
-        .legacyResponse()
+        let thumbnails = try await capture { () async throws(AppError) -> [Int: URL] in
+            try await ThumbnailURLsRequest(
+                galleryURL: galleryURL,
+                pageNum: 2,
+                urlSession: session,
+                allowsCellular: false
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
 
@@ -72,12 +77,15 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await GalleryNormalImageURLsRequest(
-            thumbnailURLs: [30: third, 10: first, 20: second],
-            urlSession: session,
-            allowsCellular: false
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> ([Int: URL], [Int: URL]) in
+            try await GalleryNormalImageURLsRequest(
+                thumbnailURLs: [30: third, 10: first, 20: second],
+                urlSession: session,
+                allowsCellular: false
+            )
+            .response()
+        }
         .get()
 
         #expect(result.0[10] == URL(string: "https://images.example.com/1.jpg"))
@@ -105,11 +113,14 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await GalleryNormalImageURLsRequest(
-            thumbnailURLs: [1: healthyA, 2: failing, 3: healthyB],
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture {
+            () async throws(AppError) -> ([Int: URL], [Int: URL]) in
+            try await GalleryNormalImageURLsRequest(
+                thumbnailURLs: [1: healthyA, 2: failing, 3: healthyB],
+                urlSession: session
+            )
+            .response()
+        }
 
         expectFailure(result, error: .networkingFailed)
         #expect(handle.attempts(for: failing) == 4)
@@ -131,16 +142,19 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await GalleryNormalImageURLRefetchRequest(
-            index: 7,
-            pageNum: 0,
-            galleryURL: galleryURL,
-            thumbnailURL: storedThumbnail,
-            storedImageURL: storedImage,
-            urlSession: session,
-            allowsCellular: false
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
+            try await GalleryNormalImageURLRefetchRequest(
+                index: 7,
+                pageNum: 0,
+                galleryURL: galleryURL,
+                thumbnailURL: storedThumbnail,
+                storedImageURL: storedImage,
+                urlSession: session,
+                allowsCellular: false
+            )
+            .response()
+        }
         .get()
 
         #expect(result.0[7] == URL(string: "https://images.example.com/renewed.jpg"))
@@ -164,15 +178,18 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = await GalleryNormalImageURLRefetchRequest(
-            index: 7,
-            pageNum: 0,
-            galleryURL: galleryURL,
-            thumbnailURL: storedThumbnail,
-            storedImageURL: storedImage,
-            urlSession: session
-        )
-        .legacyResponse()
+        let result = await capture {
+            () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
+            try await GalleryNormalImageURLRefetchRequest(
+                index: 7,
+                pageNum: 0,
+                galleryURL: galleryURL,
+                thumbnailURL: storedThumbnail,
+                storedImageURL: storedImage,
+                urlSession: session
+            )
+            .response()
+        }
 
         expectFailure(result, error: .networkingFailed)
         #expect(handle.attempts(for: storedThumbnail) == 4)
@@ -193,17 +210,20 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await GalleryMPVImageURLRequest(
-            gid: 123,
-            index: 4,
-            mpvKey: "mpv-key",
-            mpvImageKey: "image-key",
-            skipServerIdentifier: "old-server",
-            apiURL: apiURL,
-            urlSession: session,
-            allowsCellular: false
-        )
-        .legacyResponse()
+        let result = try await capture {
+            () async throws(AppError) -> GalleryMPVImageURLResponse in
+            try await GalleryMPVImageURLRequest(
+                gid: 123,
+                index: 4,
+                mpvKey: "mpv-key",
+                mpvImageKey: "image-key",
+                skipServerIdentifier: "old-server",
+                apiURL: apiURL,
+                urlSession: session,
+                allowsCellular: false
+            )
+            .response()
+        }
         .get()
         let request = try #require(handle.receivedRequests.first)
         let body = try #require(request.httpBody)
@@ -232,7 +252,10 @@ struct ImageRequestBaselineTests {
         )
         defer { cleanUp(session: session, handle: handle) }
 
-        let result = try await DataRequest(url: url, urlSession: session).legacyResponse().get()
+        let result = try await capture { () async throws(AppError) -> Data in
+            try await DataRequest(url: url, urlSession: session).response()
+        }
+        .get()
         let request = try #require(handle.receivedRequests.first)
 
         #expect(result == payload)
