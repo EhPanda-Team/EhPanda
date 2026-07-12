@@ -709,6 +709,7 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.networkingFeature),
+            .module(.osLogExt),
             .module(.quickSearchFeature),
             .module(.resources),
             .module(.tagTranslationFeature),
