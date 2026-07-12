@@ -72,14 +72,22 @@ extension SettingReducer {
 
             case .createDefaultEhProfile:
                 return .run { _ in
-                    _ = await EhProfileRequest(action: .create, name: "EhPanda").legacyResponse()
+                    do throws(AppError) {
+                        _ = try await EhProfileRequest(action: .create, name: "EhPanda").response()
+                    } catch {
+                        return
+                    }
                 }
 
             case .fetchIgneous:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    let response = await IgneousRequest().legacyResponse()
-                    await send(.fetchIgneousDone(response))
+                    do throws(AppError) {
+                        let response = try await IgneousRequest().response()
+                        await send(.fetchIgneousDone(.success(response)))
+                    } catch {
+                        await send(.fetchIgneousDone(.failure(error)))
+                    }
                 }
 
             case .fetchIgneousDone(let result):
@@ -101,8 +109,12 @@ extension SettingReducer {
                     .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
                 if !uid.isEmpty {
                     return .run { send in
-                        let response = await UserInfoRequest(uid: uid).legacyResponse()
-                        await send(.fetchUserInfoDone(response))
+                        do throws(AppError) {
+                            let user = try await UserInfoRequest(uid: uid).response()
+                            await send(.fetchUserInfoDone(.success(user)))
+                        } catch {
+                            await send(.fetchUserInfoDone(.failure(error)))
+                        }
                     }
                 }
                 return .none
@@ -169,8 +181,12 @@ extension SettingReducer {
             case .fetchEhProfileIndex:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    let response = await VerifyEhProfileRequest().legacyResponse()
-                    await send(.fetchEhProfileIndexDone(response))
+                    do throws(AppError) {
+                        let response = try await VerifyEhProfileRequest().response()
+                        await send(.fetchEhProfileIndexDone(.success(response)))
+                    } catch {
+                        await send(.fetchEhProfileIndexDone(.failure(error)))
+                    }
                 }
 
             case .fetchEhProfileIndexDone(let result):
@@ -179,8 +195,12 @@ extension SettingReducer {
             case .fetchFavoriteCategories:
                 guard cookieClient.didLogin else { return .none }
                 return .run { send in
-                    let response = await FavoriteCategoriesRequest().legacyResponse()
-                    await send(.fetchFavoriteCategoriesDone(response))
+                    do throws(AppError) {
+                        let categories = try await FavoriteCategoriesRequest().response()
+                        await send(.fetchFavoriteCategoriesDone(.success(categories)))
+                    } catch {
+                        await send(.fetchFavoriteCategoriesDone(.failure(error)))
+                    }
                 }
 
             case .fetchFavoriteCategoriesDone(let result):
