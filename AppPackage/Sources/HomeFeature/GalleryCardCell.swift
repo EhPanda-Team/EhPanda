@@ -54,6 +54,11 @@ public struct GalleryCardCell: View {
             Color.gray.opacity(0.2)
             if animated {
                 CardGradientView(colors: colors, speed: animationSpeed)
+                    // Cross-fade the focus handoff: the gradient is inserted/removed per focus
+                    // change, and a bare conditional pops — the outgoing card's gradient would
+                    // vanish in a single frame. A short opacity fade softens both edges without
+                    // delaying the midline handoff that drives it (see HomeView+Sections).
+                    .transition(.opacity)
             }
             HStack {
                 KFImage(gallery.coverURL)
@@ -72,6 +77,7 @@ public struct GalleryCardCell: View {
             .padding(.vertical, 20)
         }
         .frame(width: Defaults.FrameSize.cardCellWidth).cornerRadius(15)
+        .animation(.easeInOut(duration: 0.5), value: animated)
         .onChange(of: colorScheme) { _, newScheme in
             guard newScheme == .dark, let lastImageResult else { return }
             webImageSuccessAction(lastImageResult)
