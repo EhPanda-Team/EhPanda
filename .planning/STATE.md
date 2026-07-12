@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 04
-current_phase_name: concurrency-framework-migration
-status: verifying
-stopped_at: Completed 04-14-PLAN.md
-last_updated: "2026-07-12T23:21:15.255Z"
-last_activity: 2026-07-13
-last_activity_desc: Completed Phase 04 Plan 14
+current_phase: 5
+current_phase_name: Adaptive Layout & Universal Orientation
+status: planning
+stopped_at: Phase 04 complete
+last_updated: "2026-07-12T23:36:12.712Z"
+last_activity: 2026-07-12
+last_activity_desc: Phase 04 complete, transitioned to Phase 5
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 32
-  completed_plans: 32
-  percent: 100
+  completed_plans: 31
+  percent: 27
 ---
 
 # Project State
@@ -24,15 +24,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-09)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 04 — concurrency-framework-migration
+**Current focus:** Phase 05 — Adaptive Layout & Universal Orientation
 
 ## Current Position
 
-Phase: 04 (concurrency-framework-migration) — EXECUTING
-Plan: 14 of 14
-Status: Ready for phase verification
-Last activity: 2026-07-13 — Completed Phase 04 Plan 14
-Next: verify Phase 04 completion
+Phase: 5 — Adaptive Layout & Universal Orientation
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-12 — Phase 04 complete, transitioned to Phase 5
+Next: plan Phase 05
 
 Progress: [██████████] 100% (32/32 plans across Phases 01–04)
 
@@ -51,6 +51,7 @@ Progress: [██████████] 100% (32/32 plans across Phases 01–
 | 01 | 9 | - | - |
 | 02 | 4 | - | - |
 | 03 | 5 | - | - |
+| 04 | 14 | - | - |
 
 **Recent Trend:**
 
@@ -100,7 +101,6 @@ Recent decisions affecting current work:
 - Roadmap: Fold cookies→Keychain + networking/cookie/image tests + `.private.filterValue` fix into their open seams (Phases 8–9); defer Parser/Download refactors.
 - Roadmap: LINT-01 split — mechanical rules sweep last (Phase 11); refactor-gated rules land with their refactors (`optional_try`→Phase 9; binding/lifecycle/unchecked-subscript→Phases 5–7).
 - [Phase 04]: 04-01: Every Request conformer stores an injected URLSession, including DataRequest, with .shared as the behavior-preserving default.
-- [Phase 04]: 04-02: Unknown URLs and invalid harness tokens fail inside CountingStubProtocol, preventing live-network fallthrough.
 - [Phase 04]: 04-02: Parity capture accepts a closure formed on each concrete request type to avoid protocol-extension static dispatch.
 - [Phase 04]: Fetch errors map inside fetch; parse errors map after fetch returns, so parse failures never retry. — Preserves Combine retry placement and one AppError mapping per thrown boundary.
 - [Phase 04]: TagTranslator retries metadata but performs its payload download once. — Preserves the frozen two-step Combine chain asymmetry.
@@ -145,6 +145,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T23:21:15.249Z
-Stopped at: Completed 04-14-PLAN.md
+Last session: 2026-07-12T23:36:12.707Z
+Stopped at: Phase 04 complete
 Resume file: None
