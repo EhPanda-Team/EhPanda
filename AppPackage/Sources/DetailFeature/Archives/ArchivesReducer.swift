@@ -66,8 +66,13 @@ public struct ArchivesReducer: Sendable {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return .run { send in
-                    let response = await GalleryArchiveRequest(archiveURL: archiveURL).legacyResponse()
-                    await send(.fetchArchiveDone(gid, galleryURL, response))
+                    do throws(AppError) {
+                        let response = try await GalleryArchiveRequest(archiveURL: archiveURL)
+                            .response()
+                        await send(.fetchArchiveDone(gid, galleryURL, .success(response)))
+                    } catch {
+                        await send(.fetchArchiveDone(gid, galleryURL, .failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchArchive)
 
@@ -95,8 +100,16 @@ public struct ArchivesReducer: Sendable {
             case .fetchArchiveFunds(let gid, let galleryURL):
                 guard let galleryURL = galleryURL.replaceHost(to: Defaults.URL.ehentai.host) else { return .none }
                 return .run { send in
-                    let response = await GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL).legacyResponse()
-                    await send(.fetchArchiveFundsDone(response))
+                    do throws(AppError) {
+                        let funds = try await GalleryArchiveFundsRequest(
+                            gid: gid,
+                            galleryURL: galleryURL
+                        )
+                        .response()
+                        await send(.fetchArchiveFundsDone(.success(funds)))
+                    } catch {
+                        await send(.fetchArchiveFundsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchArchiveFunds)
 
@@ -112,12 +125,16 @@ public struct ArchivesReducer: Sendable {
                 else { return .none }
                 state.toast = .communicating
                 return .run {send in
-                    let response = await SendDownloadCommandRequest(
-                        archiveURL: archiveURL,
-                        resolution: selectedArchive.resolution.parameter
-                    )
-                    .legacyResponse()
-                    await send(.fetchDownloadResponseDone(response))
+                    do throws(AppError) {
+                        let response = try await SendDownloadCommandRequest(
+                            archiveURL: archiveURL,
+                            resolution: selectedArchive.resolution.parameter
+                        )
+                        .response()
+                        await send(.fetchDownloadResponseDone(.success(response)))
+                    } catch {
+                        await send(.fetchDownloadResponseDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchDownloadResponse)
 

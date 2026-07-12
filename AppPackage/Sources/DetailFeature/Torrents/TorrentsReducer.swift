@@ -81,8 +81,12 @@ public struct TorrentsReducer: Sendable {
 
             case .fetchTorrent(let hash, let torrentURL):
                 return .run { send in
-                    let response = await DataRequest(url: torrentURL).legacyResponse()
-                    await send(.fetchTorrentDone(hash, response))
+                    do throws(AppError) {
+                        let data = try await DataRequest(url: torrentURL).response()
+                        await send(.fetchTorrentDone(hash, .success(data)))
+                    } catch {
+                        await send(.fetchTorrentDone(hash, .failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchTorrent)
 
@@ -96,8 +100,16 @@ public struct TorrentsReducer: Sendable {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return .run { send in
-                    let response = await GalleryTorrentsRequest(gid: gid, token: token).legacyResponse()
-                    await send(.fetchGalleryTorrentsDone(response))
+                    do throws(AppError) {
+                        let torrents = try await GalleryTorrentsRequest(
+                            gid: gid,
+                            token: token
+                        )
+                        .response()
+                        await send(.fetchGalleryTorrentsDone(.success(torrents)))
+                    } catch {
+                        await send(.fetchGalleryTorrentsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleryTorrents)
 

@@ -193,22 +193,31 @@ public struct CommentsReducer: Sendable {
                 guard !state.commentContent.isEmpty else { return .none }
                 if let commentID = commentID {
                     return .run { [commentContent = state.commentContent] send in
-                        let response = await EditGalleryCommentRequest(
-                            commentID: commentID,
-                            content: commentContent,
-                            galleryURL: galleryURL
-                        )
-                        .legacyResponse()
-                        await send(.performCommentActionDone(response))
+                        do throws(AppError) {
+                            try await EditGalleryCommentRequest(
+                                commentID: commentID,
+                                content: commentContent,
+                                galleryURL: galleryURL
+                            )
+                            .response()
+                            await send(.performCommentActionDone(.success(())))
+                        } catch {
+                            await send(.performCommentActionDone(.failure(error)))
+                        }
                     }
                     .cancellable(id: CancelID.postComment)
                 } else {
                     return .run { [commentContent = state.commentContent] send in
-                        let response = await CommentGalleryRequest(
-                            content: commentContent, galleryURL: galleryURL
-                        )
-                        .legacyResponse()
-                        await send(.performCommentActionDone(response))
+                        do throws(AppError) {
+                            try await CommentGalleryRequest(
+                                content: commentContent,
+                                galleryURL: galleryURL
+                            )
+                            .response()
+                            await send(.performCommentActionDone(.success(())))
+                        } catch {
+                            await send(.performCommentActionDone(.failure(error)))
+                        }
                     }
                     .cancellable(id: CancelID.postComment)
                 }
@@ -218,16 +227,20 @@ public struct CommentsReducer: Sendable {
                       let apiuid = Int(cookieClient.apiuid)
                 else { return .none }
                 return .run {  send in
-                    let response = await VoteGalleryCommentRequest(
-                        apiuid: apiuid,
-                        apikey: apiKey,
-                        gid: gid,
-                        token: token,
-                        commentID: commentID,
-                        commentVote: vote
-                    )
-                    .legacyResponse()
-                    await send(.performCommentActionDone(response))
+                    do throws(AppError) {
+                        try await VoteGalleryCommentRequest(
+                            apiuid: apiuid,
+                            apikey: apiKey,
+                            gid: gid,
+                            token: token,
+                            commentID: commentID,
+                            commentVote: vote
+                        )
+                        .response()
+                        await send(.performCommentActionDone(.success(())))
+                    } catch {
+                        await send(.performCommentActionDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.voteComment)
 
@@ -245,11 +258,16 @@ public struct CommentsReducer: Sendable {
             case .fetchGallery(let url, let isGalleryImageURL):
                 state.toast = .loading()
                 return .run {  send in
-                    let response = await GalleryReverseRequest(
-                        url: url, isGalleryImageURL: isGalleryImageURL
-                    )
-                    .legacyResponse()
-                    await send(.fetchGalleryDone(url, response))
+                    do throws(AppError) {
+                        let gallery = try await GalleryReverseRequest(
+                            url: url,
+                            isGalleryImageURL: isGalleryImageURL
+                        )
+                        .response()
+                        await send(.fetchGalleryDone(url, .success(gallery)))
+                    } catch {
+                        await send(.fetchGalleryDone(url, .failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGallery)
 

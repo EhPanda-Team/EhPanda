@@ -1,4 +1,5 @@
 import Foundation
+import AppModels
 import ComposableArchitecture
 import NetworkingFeature
 
@@ -16,8 +17,16 @@ extension DetailReducer {
                 state.didRequestVersionMetadata = false
                 state.galleryVersionMetadata = nil
                 return .run { send in
-                    let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).legacyResponse()
-                    await send(.fetchGalleryDetailDone(response))
+                    do throws(AppError) {
+                        let response = try await GalleryDetailRequest(
+                            gid: galleryID,
+                            galleryURL: galleryURL
+                        )
+                        .response()
+                        await send(.fetchGalleryDetailDone(.success(response)))
+                    } catch {
+                        await send(.fetchGalleryDetailDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleryDetail(state.cancellationGalleryID))
 
@@ -106,37 +115,62 @@ extension DetailReducer {
                 guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
                 else { return .none }
                 return .run { [apiKey = state.apiKey, token = state.gallery.token, rating = state.userRating] send in
-                    let response = await RateGalleryRequest(
-                        apiuid: apiuid, apikey: apiKey,
-                        gid: gid, token: token, rating: rating
-                    ).legacyResponse()
-                    await send(.anyGalleryOpsDone(response))
+                    do throws(AppError) {
+                        try await RateGalleryRequest(
+                            apiuid: apiuid,
+                            apikey: apiKey,
+                            gid: gid,
+                            token: token,
+                            rating: rating
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(.success(())))
+                    } catch {
+                        await send(.anyGalleryOpsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
 
             case .favorGallery(let favIndex):
                 return .run { [gid = state.gallery.id, token = state.gallery.token] send in
-                    let response = await FavorGalleryRequest(
-                        gid: gid, token: token, favIndex: favIndex
-                    ).legacyResponse()
-                    await send(.anyGalleryOpsDone(response))
+                    do throws(AppError) {
+                        try await FavorGalleryRequest(
+                            gid: gid,
+                            token: token,
+                            favIndex: favIndex
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(.success(())))
+                    } catch {
+                        await send(.anyGalleryOpsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
 
             case .unfavorGallery:
                 return .run { [galleryID = state.gallery.id] send in
-                    let response = await UnfavorGalleryRequest(gid: galleryID).legacyResponse()
-                    await send(.anyGalleryOpsDone(response))
+                    do throws(AppError) {
+                        try await UnfavorGalleryRequest(gid: galleryID).response()
+                        await send(.anyGalleryOpsDone(.success(())))
+                    } catch {
+                        await send(.anyGalleryOpsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
 
             case .postComment(let galleryURL):
                 guard !state.commentContent.isEmpty else { return .none }
                 return .run { [commentContent = state.commentContent] send in
-                    let response = await CommentGalleryRequest(
-                        content: commentContent, galleryURL: galleryURL
-                    ).legacyResponse()
-                    await send(.anyGalleryOpsDone(response))
+                    do throws(AppError) {
+                        try await CommentGalleryRequest(
+                            content: commentContent,
+                            galleryURL: galleryURL
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(.success(())))
+                    } catch {
+                        await send(.anyGalleryOpsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.postComment(state.cancellationGalleryID))
 
@@ -144,11 +178,20 @@ extension DetailReducer {
                 guard let apiuid = Int(cookieClient.apiuid), let gid = Int(state.gallery.id)
                 else { return .none }
                 return .run { [apiKey = state.apiKey, token = state.gallery.token] send in
-                    let response = await VoteGalleryTagRequest(
-                        apiuid: apiuid, apikey: apiKey,
-                        gid: gid, token: token, tag: tag, vote: vote
-                    ).legacyResponse()
-                    await send(.anyGalleryOpsDone(response))
+                    do throws(AppError) {
+                        try await VoteGalleryTagRequest(
+                            apiuid: apiuid,
+                            apikey: apiKey,
+                            gid: gid,
+                            token: token,
+                            tag: tag,
+                            vote: vote
+                        )
+                        .response()
+                        await send(.anyGalleryOpsDone(.success(())))
+                    } catch {
+                        await send(.anyGalleryOpsDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.voteTag(state.cancellationGalleryID))
 
