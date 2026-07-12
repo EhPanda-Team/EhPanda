@@ -45,6 +45,7 @@ public struct HomeReducer: Sendable {
             }
             trimmedGalleries.shuffle()
             popularGalleries = trimmedGalleries
+            cardPageIndex = min(cardPageIndex, trimmedGalleries.count - 1)
             currentCardID = trimmedGalleries[cardPageIndex].gid
         }
 
