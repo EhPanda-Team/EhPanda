@@ -18,8 +18,7 @@ extension DownloadCoordinator {
             urlSession: urlSession,
             allowsCellular: options.allowCellular
         )
-        .legacyResponse()
-        .get()
+        .response()
         let detail = detailResponse.galleryDetail
         let galleryState = detailResponse.galleryState
         let components = buildGalleryComponents(
@@ -109,11 +108,18 @@ extension DownloadCoordinator {
         gid: String,
         token: String
     ) async -> Result<DownloadVersionMetadata, AppError> {
-        await GalleryVersionMetadataRequest(
-            gid: gid,
-            token: token,
-            urlSession: urlSession
-        ).legacyResponse()
+        do throws(AppError) {
+            return .success(
+                try await GalleryVersionMetadataRequest(
+                    gid: gid,
+                    token: token,
+                    urlSession: urlSession
+                )
+                .response()
+            )
+        } catch {
+            return .failure(error)
+        }
     }
 
     private func fetchOptionalVersionMetadata(
