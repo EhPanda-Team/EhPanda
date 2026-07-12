@@ -118,8 +118,12 @@ public struct EhSettingReducer: Sendable {
                 guard state.loadingState != .loading else { return .none }
                 state.loadingState = .loading
                 return .run { send in
-                    let response = await EhSettingRequest().legacyResponse()
-                    await send(.fetchEhSettingDone(response))
+                    do throws(AppError) {
+                        let setting = try await EhSettingRequest().response()
+                        await send(.fetchEhSettingDone(.success(setting)))
+                    } catch {
+                        await send(.fetchEhSettingDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchEhSetting)
 
@@ -141,8 +145,15 @@ public struct EhSettingReducer: Sendable {
 
                 state.submittingState = .loading
                 return .run { send in
-                    let response = await SubmitEhSettingChangesRequest(ehSetting: ehSetting).legacyResponse()
-                    await send(.submitChangesDone(response))
+                    do throws(AppError) {
+                        let setting = try await SubmitEhSettingChangesRequest(
+                            ehSetting: ehSetting
+                        )
+                        .response()
+                        await send(.submitChangesDone(.success(setting)))
+                    } catch {
+                        await send(.submitChangesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.submitChanges)
 
@@ -161,8 +172,17 @@ public struct EhSettingReducer: Sendable {
                 guard state.submittingState != .loading else { return .none }
                 state.submittingState = .loading
                 return .run { send in
-                    let response = await EhProfileRequest(action: action, name: name, set: set).legacyResponse()
-                    await send(.performActionDone(response))
+                    do throws(AppError) {
+                        let setting = try await EhProfileRequest(
+                            action: action,
+                            name: name,
+                            set: set
+                        )
+                        .response()
+                        await send(.performActionDone(.success(setting)))
+                    } catch {
+                        await send(.performActionDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.performAction)
 

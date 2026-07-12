@@ -79,11 +79,16 @@ public struct LoginReducer: Sendable {
                 return .merge(
                     .run(operation: { _ in await hapticsClient.generateFeedback(.soft) }),
                     .run { [state] send in
-                        let response = await LoginRequest(
-                            username: state.username,
-                            password: state.password
-                        ).legacyResponse()
-                        await send(.loginDone(response))
+                        do throws(AppError) {
+                            let response = try await LoginRequest(
+                                username: state.username,
+                                password: state.password
+                            )
+                            .response()
+                            await send(.loginDone(.success(response)))
+                        } catch {
+                            await send(.loginDone(.failure(error)))
+                        }
                     }
                     .cancellable(id: CancelID.login)
                 )

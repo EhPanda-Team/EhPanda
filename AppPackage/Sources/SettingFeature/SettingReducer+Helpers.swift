@@ -65,8 +65,12 @@ extension SettingReducer {
               state.setting.showsNewDawnGreeting
         else { return .none }
         let requestEffect = Effect.run { send in
-            let response = await GreetingRequest().legacyResponse()
-            await send(Action.fetchGreetingDone(response))
+            do throws(AppError) {
+                let greeting = try await GreetingRequest().response()
+                await send(Action.fetchGreetingDone(.success(greeting)))
+            } catch {
+                await send(Action.fetchGreetingDone(.failure(error)))
+            }
         }
         if let greeting = state.greeting {
             if verifyDate(with: greeting.updateTime) {
@@ -94,8 +98,12 @@ extension SettingReducer {
         let updatedDate = state.tagTranslatorInfo.updatedDate
         return .run { send in
             // Download the raw JSON, then let `FileClient` decode/convert/cache it into a translator.
-            switch await TagTranslatorRequest(language: language, updatedDate: updatedDate).legacyResponse() {
-            case .success(let payload):
+            do throws(AppError) {
+                let payload = try await TagTranslatorRequest(
+                    language: language,
+                    updatedDate: updatedDate
+                )
+                .response()
                 if let tagTranslator = fileClient.cacheAndBuildRemoteTagTranslator(
                     payload.data, language, payload.updatedDate
                 ) {
@@ -103,8 +111,13 @@ extension SettingReducer {
                 } else {
                     await send(.fetchTagTranslatorDone(.failure(.parseFailed)))
                 }
-            case .failure(let error):
-                await send(.fetchTagTranslatorDone(.failure(error)))
+            } catch {
+                switch error {
+                case .noUpdates:
+                    await send(.fetchTagTranslatorDone(.failure(.noUpdates)))
+                default:
+                    await send(.fetchTagTranslatorDone(.failure(error)))
+                }
             }
         }
     }
