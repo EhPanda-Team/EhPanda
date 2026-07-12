@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-07-12T15:38:21.898Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-07-12T15:58:32.825Z"
 last_activity: 2026-07-12
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 32
-  completed_plans: 18
-  percent: 18
+  completed_plans: 19
+  percent: 59
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 04 (concurrency-framework-migration) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
 Last activity: 2026-07-12 — Phase 04 execution started
 Next: execute Phase 04 (/gsd-execute-phase 4)
 
-Progress: [██████░░░░] 56% (18/32 plans across Phases 01–04)
+Progress: [██████░░░░] 59% (19/32 plans across Phases 01–04)
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ Progress: [██████░░░░] 56% (18/32 plans across Phases 01–0
 | Phase 03 P03 | 14min | 2 tasks | 4 files |
 | Phase 03 P04 | 10min | 2 tasks | 2 files |
 | Phase 04 P01 | 11min | 2 tasks | 29 files |
+| Phase 04 P02 | 9min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase 03]: DEP-05 native paging spike passed its D-11 GO/NO-GO gate (16/16 parity rows, 4-round owner device UAT) → spike KEEP, SwiftUIPager removed. The one real defect, C5 carousel loop (blank edge peek + ColorfulX reset + gesture interruption at the wrap), was root-caused to the tripled-buffer `.idle` re-center WRITING `scrollPositionID`; fixed with a sliding-window rebase (shift `windowBase`, never write the binding — `scrollPosition(id:)` pins the anchored view across the pure-data diff) + `.viewAligned(limitBehavior: .always)` (one card per swipe = SwiftUIPager parity + bounds the window edge unreachable). Lesson: to loop a native paging ScrollView invisibly, move the data window, don't move the scroll.
 - [Phase 04]: 04-01: Renamed the Result facade to legacyResponse() so response() is available for incremental typed-throws migration.
 - [Phase 04]: 04-01: Every Request conformer stores an injected URLSession, including DataRequest, with .shared as the behavior-preserving default.
+- [Phase 04]: 04-02: Unknown URLs and invalid harness tokens fail inside CountingStubProtocol, preventing live-network fallthrough.
+- [Phase 04]: 04-02: Parity capture accepts a closure formed on each concrete request type to avoid protocol-extension static dispatch.
 
 ### Pending Todos
 
@@ -127,6 +130,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T15:38:21.893Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-07-12T15:58:32.820Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
