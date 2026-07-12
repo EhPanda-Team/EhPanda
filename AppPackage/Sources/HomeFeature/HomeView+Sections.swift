@@ -64,8 +64,10 @@ struct CardSlideSection: View, Equatable {
     // gallery. When a scroll settles outside the middle block, the window REBASES: `windowBase`
     // shifts by whole blocks so the settled id is back in the middle. Only the ForEach data
     // changes — `scrollPosition(id:)` keeps the settled view pinned across the content diff and
-    // `scrollPositionID` is never written — so the focused card's view identity (and its gradient
-    // playback) survives every wrap, and no programmatic scroll can cancel an in-flight gesture.
+    // `scrollPositionID` is never written during scrolling — so the focused card's view identity
+    // (and its gradient playback) survives every wrap, and no programmatic scroll can cancel an
+    // in-flight gesture. The sole exception is a gallery-count change, which invalidates the id
+    // space and requires the synchronization write in `body` below.
     private struct BufferedCard: Identifiable, Equatable {
         let id: Int
         let gallery: Gallery
@@ -104,6 +106,11 @@ struct CardSlideSection: View, Equatable {
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
         .frame(height: Defaults.FrameSize.cardCellHeight)
+        .onChange(of: galleries.count) { _, newCount in
+            guard newCount > 0 else { return }
+            windowBase = 0
+            scrollPositionID = newCount * middleBlock + min(max(pageIndex, 0), newCount - 1)
+        }
         // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
         // that crosses the container's midline is the card the scroll will land on. Flipping
         // `pageIndex` (→ `currentCardID` → the focused-card gradient) at the crossing hands the
