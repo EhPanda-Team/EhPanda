@@ -33,4 +33,28 @@ extension Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    /// Async companion to the single-place `gdata` contract above. Callers remain responsible for
+    /// chunking more than 25 pairs and limiting their own in-flight requests.
+    func gdataResponse<T>(
+        gidlist: [[Any]],
+        urlSession: URLSession,
+        decode: (Data) throws -> T
+    ) async throws(AppError) -> T {
+        let params: [String: Any] = [
+            "method": "gdata",
+            "gidlist": gidlist,
+            "namespace": 1
+        ]
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            return try parseResponse(data: data, decode)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }

@@ -115,6 +115,21 @@ public struct GalleriesMetadataRequest: Request {
             .eraseToAnyPublisher()
     }
 
+    public func response() async throws(AppError) -> [Gallery] {
+        let order = gidList.map(\.gid)
+        let chunks = gidList.chunked(into: 25)
+        guard !chunks.isEmpty else {
+            return []
+        }
+
+        let pages = try await fetchChunks(chunks)
+        let byGID = Dictionary(
+            pages.flatMap { $0 }.map { ($0.gid, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        return order.compactMap { byGID[$0] }
+    }
+
     private func chunkPublisher(_ chunk: [(gid: String, token: String)]) -> AnyPublisher<[Gallery], AppError> {
         let gidlist = chunk.compactMap { pair -> [Any]? in
             guard let gid = Int(pair.gid) else { return nil }
@@ -125,6 +140,67 @@ public struct GalleriesMetadataRequest: Request {
         }
         return gdataPublisher(gidlist: gidlist, urlSession: urlSession) {
             try Self.galleries(fromResponseData: $0)
+        }
+    }
+
+    private func fetchChunks(
+        _ chunks: [[(gid: String, token: String)]]
+    ) async throws(AppError) -> [[Gallery]] {
+        let urlSession = urlSession
+        let result = await withTaskGroup(
+            of: Result<[Gallery], AppError>.self,
+            returning: Result<[[Gallery]], AppError>.self
+        ) { group in
+            var nextIndex = 0
+            for chunk in chunks.prefix(2) {
+                group.addTask {
+                    await Self.chunkResult(chunk, urlSession: urlSession)
+                }
+                nextIndex += 1
+            }
+
+            var pages = [[Gallery]]()
+            while let result = await group.next() {
+                switch result {
+                case .success(let galleries):
+                    pages.append(galleries)
+                    if nextIndex < chunks.count {
+                        let chunk = chunks[nextIndex]
+                        nextIndex += 1
+                        group.addTask {
+                            await Self.chunkResult(chunk, urlSession: urlSession)
+                        }
+                    }
+                case .failure(let error):
+                    group.cancelAll()
+                    return .failure(error)
+                }
+            }
+            return .success(pages)
+        }
+        return try result.get()
+    }
+
+    private static func chunkResult(
+        _ chunk: [(gid: String, token: String)],
+        urlSession: URLSession
+    ) async -> Result<[Gallery], AppError> {
+        let gidlist = chunk.compactMap { pair -> [Any]? in
+            guard let gid = Int(pair.gid) else { return nil }
+            return [gid, pair.token]
+        }
+        guard !gidlist.isEmpty else {
+            return .success([])
+        }
+        do throws(AppError) {
+            let request = Self(gidList: [], urlSession: urlSession)
+            return .success(
+                try await request.gdataResponse(gidlist: gidlist, urlSession: urlSession) {
+                    try Self.galleries(fromResponseData: $0)
+                }
+            )
+        } catch {
+            return .failure(error)
         }
     }
 
