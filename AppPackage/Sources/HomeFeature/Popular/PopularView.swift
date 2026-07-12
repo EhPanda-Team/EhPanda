@@ -33,7 +33,7 @@ struct PopularView: View {
             }
         )
         .sheet(
-            item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)

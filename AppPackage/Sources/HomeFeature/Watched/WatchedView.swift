@@ -43,7 +43,7 @@ struct WatchedView: View {
             }
         }
         .sheet(
-            item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+            item: $store.scope(\.$destination, action: \.destination).quickSearch
         ) { store in
             QuickSearchView(store: store) { keyword in
                 self.store.send(.destination(.dismiss))
@@ -53,13 +53,13 @@ struct WatchedView: View {
             .autoBlur(radius: blurRadius)
         }
         .sheet(
-            item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
         .sheet(
-            item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
+            item: $store.scope(\.$destination, action: \.destination).dateSeek
         ) { store in
             @Bindable var store = store
             DateSeekPickerView(

@@ -74,7 +74,7 @@ public struct ReadingView: View {
     public var body: some View {
         changeTriggers(content: { content })
             .sheet(
-                item: $store.scope(state: \.destination?.readingSetting, action: \.destination.readingSetting)
+                item: $store.scope(\.$destination, action: \.destination).readingSetting
             ) { readingSettingStore in
                 NavigationStack {
                     ReadingSettingView(store: readingSettingStore)
@@ -99,7 +99,7 @@ public struct ReadingView: View {
                     .accentColor(store.setting.accentColor)
                     .autoBlur(radius: blurRadius)
             }
-            .toast($store.scope(state: \.toast, action: \.toast))
+            .toast($store.scope(\.$toast, action: \.toast))
 
             .animation(.linear(duration: 0.1), value: gestureHandler.offset)
             .animation(.default, value: liveTextHandler.enablesLiveText)
