@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
 status: executing
-stopped_at: Completed 04-11-PLAN.md
-last_updated: "2026-07-12T22:39:29.908Z"
+stopped_at: Completed 04-12-PLAN.md
+last_updated: "2026-07-12T22:45:22.797Z"
 last_activity: 2026-07-12
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 32
-  completed_plans: 28
+  completed_plans: 29
   percent: 18
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 04 (concurrency-framework-migration) — EXECUTING
-Plan: 12 of 14
+Plan: 13 of 14
 Status: Ready to execute
 Last activity: 2026-07-12 — Phase 04 execution started
 Next: execute Phase 04 (/gsd-execute-phase 4)
@@ -84,6 +84,7 @@ Progress: [██████░░░░] 59% (19/32 plans across Phases 01–0
 | Phase 04 P09 | 9min | 2 tasks | 4 files |
 | Phase 04 P10 | 7min | 2 tasks | 9 files |
 | Phase 04 P11 | 7min | 2 tasks | 8 files |
+| Phase 04 P12 | 7min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,8 @@ Recent decisions affecting current work:
 - [Phase 04]: TCA request effects use explicit do throws AppError with no casts or unknown fallback. — Keeps typed catch binding load-bearing and makes every failure send explicit.
 - [Phase 04]: Reader image effects preserve cancellation identifiers and send ordering during acquisition conversion. — Protects the highest-frequency request path from reducer behavior drift.
 - [Phase 04]: DownloadClient and file-operation run/catch effects remain outside the request consumer sweep. — They do not call the request facade and changing them would exceed the plan boundary.
+- [Phase 04]: TagTranslator noUpdates remains an explicit failure action during the typed consumer switch. — Exactly preserves the previous inline Result switch outcome.
+- [Phase 04]: Throwing DownloadClient functions await typed responses directly while Result-returning APIs rebuild Result explicitly. — Preserves public signatures and minimizes orchestration changes.
 
 ### Pending Todos
 
@@ -138,6 +141,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T22:39:29.904Z
-Stopped at: Completed 04-11-PLAN.md
+Last session: 2026-07-12T22:45:22.793Z
+Stopped at: Completed 04-12-PLAN.md
 Resume file: None
