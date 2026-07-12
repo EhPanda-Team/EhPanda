@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
 status: executing
-stopped_at: Completed 04-12-PLAN.md
-last_updated: "2026-07-12T22:45:22.797Z"
+stopped_at: Completed 04-13-PLAN.md
+last_updated: "2026-07-12T22:52:58.394Z"
 last_activity: 2026-07-12
 last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 11
   completed_phases: 2
   total_plans: 32
-  completed_plans: 29
-  percent: 18
+  completed_plans: 30
+  percent: 94
 ---
 
 # Project State
@@ -29,18 +29,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 04 (concurrency-framework-migration) — EXECUTING
-Plan: 13 of 14
+Plan: 14 of 14
 Status: Ready to execute
-Last activity: 2026-07-12 — Phase 04 execution started
+Last activity: 2026-07-13 — Completed Phase 04 Plan 13
 Next: execute Phase 04 (/gsd-execute-phase 4)
 
-Progress: [██████░░░░] 59% (19/32 plans across Phases 01–04)
+Progress: [█████████░] 94% (30/32 plans across Phases 01–04)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 18
+- Total plans completed: 30
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -85,6 +85,7 @@ Progress: [██████░░░░] 59% (19/32 plans across Phases 01–0
 | Phase 04 P10 | 7min | 2 tasks | 9 files |
 | Phase 04 P11 | 7min | 2 tasks | 8 files |
 | Phase 04 P12 | 7min | 2 tasks | 6 files |
+| Phase 04 P13 | 8min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,7 @@ Recent decisions affecting current work:
 - [Phase 04]: DownloadClient and file-operation run/catch effects remain outside the request consumer sweep. — They do not call the request facade and changing them would exceed the plan boundary.
 - [Phase 04]: TagTranslator noUpdates remains an explicit failure action during the typed consumer switch. — Exactly preserves the previous inline Result switch outcome.
 - [Phase 04]: Throwing DownloadClient functions await typed responses directly while Result-returning APIs rebuild Result explicitly. — Preserves public signatures and minimizes orchestration changes.
+- [Phase 04]: Request now requires typed throws and the package source tree is Combine-free. — Makes the compiler enforce async conformance completeness and removes all publisher bridges.
 
 ### Pending Todos
 
@@ -141,6 +143,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-12T22:45:22.793Z
-Stopped at: Completed 04-12-PLAN.md
+Last session: 2026-07-12T22:52:58.388Z
+Stopped at: Completed 04-13-PLAN.md
 Resume file: None
