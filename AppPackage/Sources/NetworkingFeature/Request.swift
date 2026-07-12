@@ -22,6 +22,29 @@ extension Request {
         await publisher.receive(on: DispatchQueue.main).async()
     }
 
+    /// Fetches a request with the four-attempt policy formerly supplied by `retry(3)`.
+    ///
+    /// Native async URLSession participates in structured cancellation, unlike the legacy
+    /// continuation bridge. Cancellation therefore stops the HTTP request immediately; TCA still
+    /// discards the cancelled effect's send, preserving user-visible behavior while saving work.
+    public func fetch(
+        _ request: URLRequest,
+        in session: URLSession = .shared
+    ) async throws(AppError) -> (data: Data, response: URLResponse) {
+        var lastError: any Error = URLError(.unknown)
+        for _ in 1...4 {
+            do {
+                return try await session.data(for: request)
+            } catch {
+                if (error as? URLError)?.code == .cancelled || Task.isCancelled {
+                    throw mapAppError(error: error)
+                }
+                lastError = error
+            }
+        }
+        throw mapAppError(error: lastError)
+    }
+
     public func urlRequest(
         url: URL,
         allowsCellular: Bool
