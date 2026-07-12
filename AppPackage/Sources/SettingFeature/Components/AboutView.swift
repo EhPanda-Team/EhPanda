@@ -171,12 +171,12 @@ struct AboutView: View {
             text: .Constant.acknowledgementSfSafeSymbols
         ),
         .init(
-            urlString: String(localized: .Constant.acknowledgementSystemNotificationLink),
-            text: .Constant.acknowledgementSystemNotification
-        ),
-        .init(
             urlString: String(localized: .Constant.acknowledgementSwiftMarkdownLink),
             text: .Constant.acknowledgementSwiftMarkdown
+        ),
+        .init(
+            urlString: String(localized: .Constant.acknowledgementSystemNotificationLink),
+            text: .Constant.acknowledgementSystemNotification
         ),
         .init(
             urlString: String(localized: .Constant.acknowledgementEhTagTranslationDatabaseLink),
