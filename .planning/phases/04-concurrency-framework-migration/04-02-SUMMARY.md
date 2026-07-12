@@ -43,24 +43,22 @@ coverage:
     verification:
       - kind: unit
         ref: "AppPackage/Tests/NetworkingFeatureTests/Support/HarnessSelfTests.swift#isolation, counting, and body-capture tests"
-        status: unknown
+        status: pass
       - kind: other
         ref: "SwiftLint over all three support files"
         status: pass
-    human_judgment: true
-    rationale: "The test bundle compiled for both simulator architectures, but CoreSimulator execution is pending because sandbox elevation was unavailable."
+    human_judgment: false
   - id: D2
     description: "Typed-throws capture adapter for concrete request parity assertions"
     requirement: CONC-01
     verification:
       - kind: unit
         ref: "AppPackage/Tests/NetworkingFeatureTests/Support/HarnessSelfTests.swift#captureMapsTypedSuccessAndFailure"
-        status: unknown
+        status: pass
       - kind: other
         ref: "NetworkingFeatureTests test-bundle compilation"
         status: pass
-    human_judgment: true
-    rationale: "The adapter and its self-test compile, but simulator test execution remains pending for the later full phase gate."
+    human_judgment: false
 
 duration: 9min
 completed: 2026-07-13
@@ -127,7 +125,7 @@ Each task was committed atomically:
 - `xcodebuild build -project EhPanda.xcodeproj -scheme AppFeature -destination 'generic/platform=iOS Simulator'` — **passed** (`BUILD SUCCEEDED`).
 - SwiftLint over all three new support files with the repository configuration — **passed**, 0 violations.
 - NetworkingFeatureTests test-bundle compilation — **passed** for arm64 and x86_64 simulator architectures.
-- Exact targeted simulator execution — **pending**. Both executor and orchestrator contexts lost CoreSimulator access under the managed sandbox, and elevation was unavailable because the session usage limit had been reached. The later full phase test gate must run the plan command after elevation resets; no passing execution result is claimed here.
+- Full `NetworkingFeatureTests` iOS Simulator execution after elevation reset — **passed**: 76 tests in 9 suites, 0 issues (`TEST SUCCEEDED`).
 
 ## Known Stubs
 
@@ -135,7 +133,7 @@ None.
 
 ## Issues Encountered
 
-- CoreSimulator became unavailable after the initial compile-failing test attempt. The implementation and test sources were subsequently linted and compiled successfully, but the fixed tests could not be executed in this session. This is an environment verification limitation, not a hidden passing result.
+- CoreSimulator was temporarily unavailable after the initial compile-failing attempt; the queued runtime gate passed after elevated capacity reset.
 
 ## User Setup Required
 
@@ -144,7 +142,7 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 - Plans 04-03 through 04-09 can build their baseline and parity suites on the committed offline harness.
-- Before declaring the full phase verified, rerun the targeted NetworkingFeatureTests command and the phase-wide test gate with CoreSimulator access restored.
+- The harness runtime gate is green; downstream migration plans can rely on the executable baseline.
 
 ## Self-Check: PASSED
 
