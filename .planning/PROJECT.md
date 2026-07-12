@@ -27,6 +27,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 - ✓ SwiftCommonMark → Apple swift-markdown (DEP-03) — local `MarkdownExt`; parse-only parity — Phase 1
 - ✓ Investigate inlining DeprecatedAPI (DEP-06) — inlined as local warning-suppressed `LegacyCFReadStream`; DF request path byte-identical — Phase 1
 - ✓ Migrate to latest Colorful (DEP-07) — migrated to ColorfulX 6.1.0 (Metal); gradient behavior parity restored after regression gap G-01-1 — Phase 1
+- ✓ Migrate Combine-based requests to async/await (CONC-01) — 44 typed-throws requests, 64 migrated consumers, frozen transport/parse/error parity, and a Combine-free source tree — Phase 4
+- ✓ Pin TCA with 2.0 deprecation traits (CONC-02) — TCA 1.25.3 floor resolving 1.26.0, both traits active, all 66 surfaced deprecations migrated with zero warnings — Phase 4
 
 ### Active
 
@@ -35,10 +37,6 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 **A · Dependency reduction** <!-- items 1, 2, 3, 6, 7 shipped at parity in Phase 1 → Validated -->
 - [ ] 4. Replace **WaterfallGrid** with a custom SwiftUI `Layout` · *feasibility spike first*
 - [ ] 5. Replace **SwiftUIPager** with a built-in page-style `TabView` · *feasibility spike first*
-
-**B · Concurrency & framework modernization**
-- [ ] 8. Migrate **Combine-based requests → async/await** (`NetworkingFeature` request layer + `ApplicationClient`/`AuthorizationClient`/`ImageClient`/`LibraryClient` + consuming reducer effects)
-- [ ] 13. Pin **TCA `from: 1.25.3` with traits** (`ComposableArchitecture2Deprecations`, `ComposableArchitecture2DeprecationOverloads`) and resolve all surfaced deprecations
 
 **C · UI architecture**
 - [ ] 10. **Modernize adaptive layout** — remove screen-dependent logic (`DeviceUtil` + `DeviceClient`); prefer size classes / `containerRelativeFrame` / `onGeometryChange` / `ViewThatFits`, **avoiding `GeometryReader`**; retire `TouchHandler` via native gestures
@@ -75,7 +73,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 ## Context
 
-- **v3.0.0 in flight, unreleased.** Last release was v2.8.0; ~600+ commits of refactoring since (persistence drop-to-`@Shared`, navigation refactor, migration engine — all landed). This milestone is the next batch: dependency reduction + modernization before v3.0.0 ships.
+- **v3.0.0 in flight, unreleased.** Phases 1–4 are complete: isolated dependencies, masonry, reader paging, async networking, and the TCA deprecation migration are validated. Phase 5 adaptive-layout and orientation work is next.
 - **Codebase map** lives at `.planning/codebase/` (STACK, ARCHITECTURE, STRUCTURE, CONVENTIONS, TESTING, INTEGRATIONS, CONCERNS).
 - **Reference designs** for the structured error surface (#20) and the refactor-gated lint rules (#9) have been captured name-free; the plan phase needs no external lookup.
 - **Two tasks carry parity risk** and are spiked first: SwiftUIPager→`TabView` (core reading UX) and WaterfallGrid→custom `Layout` (masonry column balancing).
@@ -92,7 +90,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Combine→async/await stays in this milestone (not split out) | One coherent modernization milestone; sequence it after the isolated dep removals | — Pending |
+| Combine→async/await stays in this milestone (not split out) | One coherent modernization milestone; sequence it after the isolated dep removals | ✓ Validated in Phase 4 |
 | Spike-first for WaterfallGrid→Layout and SwiftUIPager→TabView | "Bet on native parity" items that can genuinely fail; reading is core UX | — Pending |
 | Avoid `GeometryReader`; prefer size classes / `containerRelativeFrame` / `onGeometryChange` / `ViewThatFits` | Most cases don't need it; it's greedy and layout-disruptive | — Pending |
 | Retire `TouchHandler` via `SpatialTapGesture.location` + `MagnifyGesture.startAnchor` | Native gestures (iOS 17+) cover all three uses; kills a global singleton | — Pending |
@@ -100,7 +98,8 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 | `@Shared` models edited in place at v1 until v3.0.0 ships | No released data to migrate from pre-release; defers first real v2 to post-release | — Pending |
 | De-`Util` package-wide (incl. `URLUtil`, `AppUtil`) | Injected clients over singletons/global helpers; consistent architecture | — Pending |
 | Fold in cookies→Keychain, networking/cookie/image tests, `.private.filterValue` fix; defer Parser/Download refactors | Coupled concerns are cheap while their seams are open; standalone refactors are separate scope | — Pending |
-| Recommended sequence: small-blast deps → swaps/spikes → migrations (#8/#13) → architecture (#10/#11/#12/#14/#15/#19) → concerns (#16–18,#20) → lint capstone (#9) | Minimize churn; write new code to the new bar; lint ratchets last | — Pending |
+| Recommended sequence: small-blast deps → swaps/spikes → migrations (#8/#13) → architecture (#10/#11/#12/#14/#15/#19) → concerns (#16–18,#20) → lint capstone (#9) | Minimize churn; write new code to the new bar; lint ratchets last | Migrations validated through Phase 4 |
+| Expand the TCA trait migration to the complete 66-site compiler inventory | D-11 found 45 presentation scopes, 11 Store scopes, and 10 reducer Scope initializers rather than the expected 24 sites | ✓ Owner-approved and validated in Phase 4 |
 | Masonry grid columns derive from the `Layout`'s own container width via an adaptive rule (min cell width 185pt, min 2 columns); all cells share one identical flexible width; exact 2/4/5 count parity dropped | Owner requirement is stable, content-independent tiling at any width — not exact counts; kills the deprecated `UIScreen.main` + `isPadWidth` reads at the grid call site | — Pending |
 
 ## Evolution
@@ -121,4 +120,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-11 after Phase 1*
+*Last updated: 2026-07-13 after Phase 4*

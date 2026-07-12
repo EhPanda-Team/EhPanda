@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Isolated Dependency Modernization** - Fork/modernize/replace the third-party deps that don't couple to other work, at parity (completed 2026-07-10)
 - [x] **Phase 2: Native Masonry Grid Swap (spike-gated)** - Validate then replace WaterfallGrid with a custom SwiftUI Layout (completed 2026-07-11)
 - [x] **Phase 3: Native Reader Paging Swap (spike-gated)** - Validate then replace SwiftUIPager with a native horizontal paging ScrollView (completed 2026-07-12)
-- [ ] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits
+- [x] **Phase 4: Concurrency & Framework Migration** - Move requests to async/await and pin TCA with deprecation traits (completed 2026-07-12)
 - [ ] **Phase 5: Adaptive Layout & Universal Orientation** - Let size classes and the OS govern layout and rotation; retire screen-metric math and TouchHandler
 - [ ] **Phase 6: GenericList Decomposition** - Replace the super-list with per-page lists built from shared atoms
 - [ ] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock
@@ -279,7 +279,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
 | 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
-| 4. Concurrency & Framework Migration | 14/14 | In Progress|  |
+| 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
 | 5. Adaptive Layout & Universal Orientation | 0/TBD | Not started | - |
 | 6. GenericList Decomposition | 0/TBD | Not started | - |
 | 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |

@@ -1,9 +1,9 @@
 ---
 phase: 4
 slug: concurrency-framework-migration
-status: approved
+status: complete
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-12
 approved: 2026-07-13
 ---
@@ -43,16 +43,16 @@ migration plan.)*
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| T1–T2 | 04-03, 04-04, 04-05 | 3–5 | CONC-01 | — | N/A | unit (fixture, no network) | Full suite — baseline suites lock URLRequest assembly parity (44 requests: url/method/headers/body) | ❌ W0 | ⬜ pending |
-| T1–T2 | 04-03, 04-04, 04-05 | 3–5 | CONC-01 | — | N/A | unit | Full suite — parse-output parity per request on fixtures | ❌ W0 | ⬜ pending |
-| T1–T2 (harness) + T1 (counts) | 04-02 + 04-03 | 2–3 | CONC-01 | — | N/A | unit (counting URLProtocol stub) | Full suite — retry counts (4 on transport failure; 1 on success; 1 for TagTranslator fetch₂) | ❌ W0 | ⬜ pending |
-| T1 | 04-03 | 3 | CONC-01 | — | N/A | unit | Full suite — `mapAppError` mapping table incl. `ResponseParsingError` server-text path + `noUpdates` | ❌ W0 | ⬜ pending |
-| every full-suite run; final gate T2 | 04-13 | 13 | CONC-01 | T-04-01 | DF routing preserved | unit | Existing `DFRequestSemanticsTests` (S1–S7) | ✅ | ⬜ pending |
-| T2 | 04-13 | 13 | CONC-01 | — | N/A | smoke | `grep -r "import Combine" AppPackage/Sources` returns empty | ✅ (command) | ⬜ pending |
-| every wave merge; final gate T2 | 04-13 | 13 | CONC-01 | — | N/A | regression | Full suite (existing reducer/TestStore tests unchanged) | ✅ | ⬜ pending |
-| T1 | 04-14 | 14 | CONC-02 | — | N/A | build check (positive control) | Build log shows expected deprecation warning at a known site pre-fix | ✅ (command) | ⬜ pending |
-| T3 | 04-14 | 14 | CONC-02 | — | N/A | smoke | Build app scheme + package; `grep -iE "warning:.*deprecat" build.log` (filter SwiftLint noise) returns empty | ✅ (command) | ⬜ pending |
-| T3 + post-phase UAT | 04-14 | 14 | CONC-02 | T-04-32 | N/A | regression | Full suite green; existing UI flows via `/gsd-verify-work` UAT | ✅ | ⬜ pending |
+| T1–T2 | 04-03, 04-04, 04-05 | 3–5 | CONC-01 | — | N/A | unit (fixture, no network) | Full suite — baseline suites lock URLRequest assembly parity (44 requests: url/method/headers/body) | ✅ | ✅ green |
+| T1–T2 | 04-03, 04-04, 04-05 | 3–5 | CONC-01 | — | N/A | unit | Full suite — parse-output parity per request on fixtures | ✅ | ✅ green |
+| T1–T2 (harness) + T1 (counts) | 04-02 + 04-03 | 2–3 | CONC-01 | — | N/A | unit (counting URLProtocol stub) | Full suite — retry counts (4 on transport failure; 1 on success; 1 for TagTranslator fetch₂) | ✅ | ✅ green |
+| T1 | 04-03 | 3 | CONC-01 | — | N/A | unit | Full suite — `mapAppError` mapping table incl. `ResponseParsingError` server-text path + `noUpdates` | ✅ | ✅ green |
+| every full-suite run; final gate T2 | 04-13 | 13 | CONC-01 | T-04-01 | DF routing preserved | unit | Existing `DFRequestSemanticsTests` (S1–S7) | ✅ | ✅ green |
+| T2 | 04-13 | 13 | CONC-01 | — | N/A | smoke | `grep -r "import Combine" AppPackage/Sources` returns empty | ✅ (command) | ✅ green |
+| every wave merge; final gate T2 | 04-13 | 13 | CONC-01 | — | N/A | regression | Full suite (existing reducer/TestStore tests unchanged) | ✅ | ✅ green |
+| T1 | 04-14 | 14 | CONC-02 | — | N/A | build check (positive control) | Build log shows expected deprecation warning at a known site pre-fix | ✅ (command) | ✅ green |
+| T3 | 04-14 | 14 | CONC-02 | — | N/A | smoke | Build app scheme + package; `grep -iE "warning:.*deprecat" build.log` (filter SwiftLint noise) returns empty | ✅ (command) | ✅ green |
+| T3 + post-phase UAT | 04-14 | 14 | CONC-02 | T-04-32 | N/A | regression | Full suite green; existing UI flows via `/gsd-verify-work` UAT | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -62,9 +62,9 @@ migration plan.)*
 
 *(Checkboxes track execution, not planning — they flip with `wave_0_complete` once the plans run.)*
 
-- [ ] `AppPackage/Tests/NetworkingFeatureTests/RequestBaselineTests.swift` (or split per request family) — locks URLRequest assembly, parse fixtures, retry counts, `mapAppError` table against the **current Combine layer first** (D-05), covering CONC-01 → plans 04-03/04-04/04-05
-- [ ] Counting `URLProtocol` stub + fixture loading in `NetworkingFeatureTests` (or `TestingSupport`) — keep stubs per-test-configured, no shared globals (DataCache.shared-style pollution lesson) → plan 04-02
-- [ ] Prerequisite code seam: injectable `urlSession` on the requests that hard-code `URLSession.shared` (39 publisher sites) — Wave 0 may add the parameter (defaulted `.shared`, zero behavior change) so the baseline can execute offline → plan 04-01 Task 2
+- [x] `AppPackage/Tests/NetworkingFeatureTests/RequestBaselineTests.swift` (split per request family) — locks URLRequest assembly, parse fixtures, retry counts, and `mapAppError`, covering CONC-01 → plans 04-03/04-04/04-05
+- [x] Counting `URLProtocol` stub + fixture loading in `NetworkingFeatureTests` — per-test-configured with no live-network fallback → plan 04-02
+- [x] Injectable `urlSession` seam on every request, defaulted to `.shared` for production parity → plan 04-01 Task 2
 
 *(Framework install: none — Swift Testing already in use.)*
 
