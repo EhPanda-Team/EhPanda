@@ -137,8 +137,12 @@ public struct HistoryReducer: Sendable {
                 let pairs = state.galleryHistory[0..<end].map { (gid: $0.gid, token: $0.token) }
                 state.loadingState = .loading
                 return .run { send in
-                    let response = await GalleriesMetadataRequest(gidList: pairs).legacyResponse()
-                    await send(.fetchGalleriesDone(response, endIndex: end))
+                    do throws(AppError) {
+                        let galleries = try await GalleriesMetadataRequest(gidList: pairs).response()
+                        await send(.fetchGalleriesDone(.success(galleries), endIndex: end))
+                    } catch {
+                        await send(.fetchGalleriesDone(.failure(error), endIndex: end))
+                    }
                 }
                 .cancellable(id: CancelID.fetch, cancelInFlight: true)
 
@@ -171,8 +175,12 @@ public struct HistoryReducer: Sendable {
                 let pairs = state.galleryHistory[start..<end].map { (gid: $0.gid, token: $0.token) }
                 state.footerLoadingState = .loading
                 return .run { send in
-                    let response = await GalleriesMetadataRequest(gidList: pairs).legacyResponse()
-                    await send(.fetchMoreGalleriesDone(response, endIndex: end))
+                    do throws(AppError) {
+                        let galleries = try await GalleriesMetadataRequest(gidList: pairs).response()
+                        await send(.fetchMoreGalleriesDone(.success(galleries), endIndex: end))
+                    } catch {
+                        await send(.fetchMoreGalleriesDone(.failure(error), endIndex: end))
+                    }
                 }
                 .cancellable(id: CancelID.fetch, cancelInFlight: true)
 

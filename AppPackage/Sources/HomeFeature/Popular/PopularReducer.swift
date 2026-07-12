@@ -76,8 +76,12 @@ public struct PopularReducer: Sendable {
                 state.loadingState = .loading
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await PopularGalleriesRequest(filter: filter).legacyResponse()
-                    await send(.fetchGalleriesDone(response))
+                    do throws(AppError) {
+                        let galleries = try await PopularGalleriesRequest(filter: filter).response()
+                        await send(.fetchGalleriesDone(.success(galleries)))
+                    } catch {
+                        await send(.fetchGalleriesDone(.failure(error)))
+                    }
                 }
                 .cancellable(id: CancelID.fetchGalleries)
 

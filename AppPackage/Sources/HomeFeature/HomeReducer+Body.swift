@@ -101,8 +101,12 @@ extension HomeReducer {
                 state.rawCardColors = [String: [Color]]()
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await PopularGalleriesRequest(filter: filter).legacyResponse()
-                    await send(.fetchPopularGalleriesDone(response))
+                    do throws(AppError) {
+                        let galleries = try await PopularGalleriesRequest(filter: filter).response()
+                        await send(.fetchPopularGalleriesDone(.success(galleries)))
+                    } catch {
+                        await send(.fetchPopularGalleriesDone(.failure(error)))
+                    }
                 }
 
             case .fetchPopularGalleriesDone(let result):
@@ -125,8 +129,16 @@ extension HomeReducer {
                 state.frontpageLoadingState = .loading
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await FrontpageGalleriesRequest(filter: filter).legacyResponse()
-                    await send(.fetchFrontpageGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
+                    do throws(AppError) {
+                        let response = try await FrontpageGalleriesRequest(filter: filter).response()
+                        await send(
+                            .fetchFrontpageGalleriesDone(
+                                .success((response.pageNumber, response.galleries))
+                            )
+                        )
+                    } catch {
+                        await send(.fetchFrontpageGalleriesDone(.failure(error)))
+                    }
                 }
 
             case .fetchFrontpageGalleriesDone(let result):
@@ -148,8 +160,16 @@ extension HomeReducer {
                 guard state.toplistsLoadingState[index] != .loading else { return .none }
                 state.toplistsLoadingState[index] = .loading
                 return .run { send in
-                    let response = await ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum).legacyResponse()
-                    await send(.fetchToplistsGalleriesDone(index, response))
+                    do throws(AppError) {
+                        let galleries = try await ToplistsGalleriesRequest(
+                            catIndex: index,
+                            pageNum: pageNum
+                        )
+                        .response()
+                        await send(.fetchToplistsGalleriesDone(index, .success(galleries)))
+                    } catch {
+                        await send(.fetchToplistsGalleriesDone(index, .failure(error)))
+                    }
                 }
 
             case .fetchToplistsGalleriesDone(let index, let result):
