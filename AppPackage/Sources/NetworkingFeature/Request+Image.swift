@@ -365,14 +365,17 @@ public struct GalleryMPVImageURLRequest: Request {
 // MARK: Tool
 public struct DataRequest: Request {
     public init(
-        url: URL
+        url: URL,
+        urlSession: URLSession = .shared
     ) {
         self.url = url
+        self.urlSession = urlSession
     }
     public let url: URL
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Data, AppError> {
-        URLSession.shared.dataTaskPublisher(for: url)
+        urlSession.dataTaskPublisher(for: url)
             .genericRetry()
             .map(\.data)
             .mapError(mapAppError)

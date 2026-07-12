@@ -253,10 +253,15 @@ public struct GalleryArchiveResponse: Sendable {
 
 // MARK: Routine
 public struct GreetingRequest: Request {
-    public init() {}
+    public init(
+        urlSession: URLSession = .shared
+    ) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Greeting, AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.news)
+        urlSession.dataTaskPublisher(for: Defaults.URL.news)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseGreeting) }
@@ -267,14 +272,17 @@ public struct GreetingRequest: Request {
 
 public struct UserInfoRequest: Request {
     public init(
-        uid: String
+        uid: String,
+        urlSession: URLSession = .shared
     ) {
         self.uid = uid
+        self.urlSession = urlSession
     }
     public let uid: String
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<User, AppError> {
-        URLSession.shared.dataTaskPublisher(for: URLUtil.userInfo(uid: uid))
+        urlSession.dataTaskPublisher(for: URLUtil.userInfo(uid: uid))
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseUserInfo) }
@@ -284,10 +292,15 @@ public struct UserInfoRequest: Request {
 }
 
 public struct FavoriteCategoriesRequest: Request {
-    public init() {}
+    public init(
+        urlSession: URLSession = .shared
+    ) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<[Int: String], AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
+        urlSession.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseFavoriteCategories) }
@@ -299,13 +312,16 @@ public struct FavoriteCategoriesRequest: Request {
 public struct TagTranslatorRequest: Request {
     public init(
         language: TranslatableLanguage,
-        updatedDate: Date
+        updatedDate: Date,
+        urlSession: URLSession = .shared
     ) {
         self.language = language
         self.updatedDate = updatedDate
+        self.urlSession = urlSession
     }
     public let language: TranslatableLanguage
     public let updatedDate: Date
+    public let urlSession: URLSession
 
     public var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -318,7 +334,7 @@ public struct TagTranslatorRequest: Request {
     // Returns the untouched DB JSON bytes plus the release date; decoding, OpenCC conversion, and
     // caching are done downstream by `FileClient` so this layer stays purely network.
     public var publisher: AnyPublisher<TagTranslatorPayload, AppError> {
-        URLSession.shared.dataTaskPublisher(for: URLUtil.githubAPI(repoName: language.repoName))
+        urlSession.dataTaskPublisher(for: URLUtil.githubAPI(repoName: language.repoName))
             .genericRetry().tryMap { data, _ -> Date in
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let postedDateString = dict["published_at"] as? String,
@@ -330,7 +346,7 @@ public struct TagTranslatorRequest: Request {
                 return postedDate
             }
             .flatMap { date in
-                URLSession.shared.dataTaskPublisher(
+                urlSession.dataTaskPublisher(
                     for: URLUtil.githubDownload(repoName: language.repoName, fileName: language.remoteFilename)
                 )
                     .tryMap { data, _ in TagTranslatorPayload(data: data, updatedDate: date) }
