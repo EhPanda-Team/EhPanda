@@ -152,7 +152,7 @@ Plans:
   3. `Package.swift` pins TCA `from: 1.25.3` with the `ComposableArchitecture2Deprecations` + `ComposableArchitecture2DeprecationOverloads` traits.
   4. Zero TCA deprecation warnings remain, and reducers/stores behave identically.
 
-**Plans**: 6/14 plans executed
+**Plans**: 7/14 plans executed
 Plans (sequential waves — xcodebuild invocations must never overlap on this machine):
 
 - [x] 04-01-PLAN.md — Free the `response()` name (facade → `legacyResponse()`) + injectable urlSession seam (D-07)
@@ -161,7 +161,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 - [x] 04-04-PLAN.md — Wave-0 baselines: gallery-list family + gdata plumbing
 - [x] 04-05-PLAN.md — Wave-0 baselines: detail + image families (fan-out contract)
 - [x] 04-06-PLAN.md — Async engine: typed-throws fetch/retry helper + routine bodies + parity flip
-- [ ] 04-07-PLAN.md — Account bodies + parity flip
+- [x] 04-07-PLAN.md — Account bodies + parity flip
 - [ ] 04-08-PLAN.md — gdataResponse plumbing + gallery/metadata bodies + parity flips
 - [ ] 04-09-PLAN.md — Detail + image bodies (task-group fan-out) + parity flips
 - [ ] 04-10-PLAN.md — Call sites: Home/Search/Favorites → `do throws(AppError)` (D-03)
@@ -279,7 +279,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Isolated Dependency Modernization | 9/9 | Complete    | 2026-07-10 |
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
 | 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
-| 4. Concurrency & Framework Migration | 6/14 | In Progress|  |
+| 4. Concurrency & Framework Migration | 7/14 | In Progress|  |
 | 5. Adaptive Layout & Universal Orientation | 0/TBD | Not started | - |
 | 6. GenericList Decomposition | 0/TBD | Not started | - |
 | 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |
