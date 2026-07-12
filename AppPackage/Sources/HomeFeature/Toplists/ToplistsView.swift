@@ -37,7 +37,7 @@ struct ToplistsView: View {
             }
         )
         .searchable(text: $store.keyword, prompt: .filter)
-        .appAlert($store.scope(state: \.alert, action: \.alert), text: $store.jumpPageIndex)
+        .appAlert($store.scope(\.$alert, action: \.alert), text: $store.jumpPageIndex)
         .onAppear {
             if store.galleries?.isEmpty != false {
                 DispatchQueue.main.async {

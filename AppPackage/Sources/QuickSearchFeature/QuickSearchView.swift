@@ -65,7 +65,7 @@ public struct QuickSearchView: View {
                     .opacity(store.quickSearchWords.isEmpty ? 1 : 0)
             }
             .confirmationDialog(
-                $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+                $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
             )
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)

@@ -55,7 +55,7 @@ struct ArchivesView: View {
                 }
                 .opacity(error != nil && store.hathArchives.isEmpty ? 1 : 0)
             }
-            .toast($store.scope(state: \.toast, action: \.toast))
+            .toast($store.scope(\.$toast, action: \.toast))
             .animation(.default, value: store.hathArchives)
             .animation(.default, value: store.user.galleryPoints)
             .animation(.default, value: store.user.credits)

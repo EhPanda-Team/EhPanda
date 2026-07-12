@@ -40,27 +40,27 @@ struct TabBarView: View {
                         switch type {
                         case .home:
                             HomeView(
-                                store: store.scope(state: \.homeState, action: \.home),
+                                store: store.scope(\.homeState, action: \.home),
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .favorites:
                             FavoritesView(
-                                store: store.scope(state: \.favoritesState, action: \.favorites),
+                                store: store.scope(\.favoritesState, action: \.favorites),
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .search:
                             SearchRootView(
-                                store: store.scope(state: \.searchRootState, action: \.searchRoot),
+                                store: store.scope(\.searchRootState, action: \.searchRoot),
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .downloads:
                             DownloadsView(
-                                store: store.scope(state: \.downloadsState, action: \.downloads),
+                                store: store.scope(\.downloadsState, action: \.downloads),
                                 blurRadius: store.appLockState.blurRadius
                             )
                         case .setting:
                             SettingView(
-                                store: store.scope(state: \.settingState, action: \.setting),
+                                store: store.scope(\.settingState, action: \.setting),
                                 blurRadius: store.appLockState.blurRadius
                             )
                         }
@@ -83,15 +83,15 @@ struct TabBarView: View {
         }
         .sheet(item: $store.appRouteState.destination.setting) { _ in
             SettingView(
-                store: store.scope(state: \.settingState, action: \.setting),
+                store: store.scope(\.settingState, action: \.setting),
                 blurRadius: store.appLockState.blurRadius
             )
             .accentColor(store.settingState.setting.accentColor)
             .autoBlur(radius: store.appLockState.blurRadius)
         }
-        .sheet(item: $store.scope(state: \.appRouteState.detail, action: \.appRoute.detail)) { detailStore in
+        .sheet(item: $store.scope(\.appRouteState.$detail, action: \.appRoute.detail)) { detailStore in
             NavigationStack(
-                path: $store.scope(state: \.appRouteState.path, action: \.appRoute.path)
+                path: $store.scope(\.appRouteState.path, action: \.appRoute.path)
             ) {
                 DetailView(
                     store: detailStore,
@@ -108,7 +108,7 @@ struct TabBarView: View {
             .autoBlur(radius: store.appLockState.blurRadius)
             .environment(\.inSheet, true)
         }
-        .toast($store.scope(state: \.appRouteState.toast, action: \.appRoute.toast))
+        .toast($store.scope(\.appRouteState.$toast, action: \.appRoute.toast))
         .onChange(of: scenePhase) { _, newValue in store.send(.onScenePhaseChange(newValue)) }
         .onOpenURL { store.send(.appRoute(.handleDeepLink($0))) }
     }

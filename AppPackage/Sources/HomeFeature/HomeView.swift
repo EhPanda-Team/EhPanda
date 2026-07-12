@@ -22,7 +22,7 @@ public struct HomeView: View {
 
     // MARK: HomeView
     public var body: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        NavigationStack(path: $store.scope(\.path, action: \.path)) {
             ZStack {
                 ScrollView(showsIndicators: false) {
                     VStack {

@@ -31,7 +31,7 @@ public struct FiltersView: View {
                 BasicSection(
                     filter: filter, filterRange: $store.filterRange,
                     resetFiltersDialogAction: { store.send(.resetFiltersButtonTapped) },
-                    confirmationDialog: $store.scope(state: \.confirmationDialog, action: \.confirmationDialog)
+                    confirmationDialog: $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
                 )
                 AdvancedSection(
                     filter: filter, focusedBound: $focusedBound,

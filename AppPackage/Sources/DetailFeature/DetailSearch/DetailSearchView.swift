@@ -36,7 +36,7 @@ struct DetailSearchView: View {
             }
         )
         .sheet(
-            item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+            item: $store.scope(\.$destination, action: \.destination).quickSearch
         ) { store in
             QuickSearchView(store: store) { keyword in
                 self.store.send(.destination(.dismiss))
@@ -46,7 +46,7 @@ struct DetailSearchView: View {
             .autoBlur(radius: blurRadius)
         }
         .sheet(
-            item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
                 .accentColor(self.store.setting.accentColor).autoBlur(radius: blurRadius)

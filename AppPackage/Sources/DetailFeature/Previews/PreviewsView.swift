@@ -60,7 +60,7 @@ struct PreviewsView: View {
             .padding(.bottom)
         }
         .fullScreenCover(
-            item: $store.scope(state: \.destination?.reading, action: \.destination.reading)
+            item: $store.scope(\.$destination, action: \.destination).reading
         ) { store in
             ReadingView(
                 store: store,

@@ -47,7 +47,7 @@ struct TorrentsView: View {
                 ActivityView(activityItems: [url.wrappedValue])
                     .autoBlur(radius: blurRadius)
             }
-            .toast($store.scope(state: \.toast, action: \.toast))
+            .toast($store.scope(\.$toast, action: \.toast))
             .animation(.default, value: store.torrents)
             .onAppear {
                 store.send(.fetchGalleryTorrents(gid, token))

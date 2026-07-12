@@ -314,16 +314,16 @@ struct AppReducer {
             }
         }
 
-        Scope(state: \.appRouteState, action: \.appRoute, child: AppRouteReducer.init)
-        Scope(state: \.appLockState, action: \.appLock, child: AppLockReducer.init)
-        Scope(state: \.appDelegateState, action: \.appDelegate, child: AppDelegateReducer.init)
-        Scope(state: \.tabBarState, action: \.tabBar, child: TabBarReducer.init)
-        Scope(state: \.homeState, action: \.home, child: HomeReducer.init)
-        Scope(state: \.favoritesState, action: \.favorites, child: FavoritesReducer.init)
-        Scope(state: \.searchRootState, action: \.searchRoot, child: SearchRootReducer.init)
-        Scope(state: \.downloadsState, action: \.downloads, child: DownloadsReducer.init)
-        Scope(state: \.settingState, action: \.setting, child: SettingReducer.init)
-        Scope(state: \.appLogsPumpState, action: \.appLogsPump, child: AppActivityLogsPumpReducer.init)
+        Scope(\.appRouteState, action: \.appRoute, AppRouteReducer.init)
+        Scope(\.appLockState, action: \.appLock, AppLockReducer.init)
+        Scope(\.appDelegateState, action: \.appDelegate, AppDelegateReducer.init)
+        Scope(\.tabBarState, action: \.tabBar, TabBarReducer.init)
+        Scope(\.homeState, action: \.home, HomeReducer.init)
+        Scope(\.favoritesState, action: \.favorites, FavoritesReducer.init)
+        Scope(\.searchRootState, action: \.searchRoot, SearchRootReducer.init)
+        Scope(\.downloadsState, action: \.downloads, DownloadsReducer.init)
+        Scope(\.settingState, action: \.setting, SettingReducer.init)
+        Scope(\.appLogsPumpState, action: \.appLogsPump, AppActivityLogsPumpReducer.init)
     }
 }
 
