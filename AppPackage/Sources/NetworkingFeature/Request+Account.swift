@@ -41,6 +41,25 @@ public struct LoginRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> HTTPURLResponse? {
+        let params: [String: String] = [
+            "b": "d",
+            "bt": "1-1",
+            "CookieDate": "1",
+            "UserName": username,
+            "PassWord": password,
+            "ipb_login_submit": "Login!"
+        ]
+
+        var request = URLRequest(url: Defaults.URL.login)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        let (_, response) = try await fetch(request, in: urlSession)
+        return response as? HTTPURLResponse
+    }
 }
 
 public struct IgneousRequest: Request {
@@ -57,6 +76,17 @@ public struct IgneousRequest: Request {
             .compactMap { $0.response as? HTTPURLResponse }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> HTTPURLResponse {
+        let (_, response) = try await fetch(
+            URLRequest(url: Defaults.URL.exhentai),
+            in: urlSession
+        )
+        guard let response = response as? HTTPURLResponse else {
+            throw AppError.unknown
+        }
+        return response
     }
 }
 
@@ -75,6 +105,16 @@ public struct VerifyEhProfileRequest: Request {
             .tryMap { try parseResponse(doc: $0, Parser.parseProfileIndex) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> VerifyEhProfileResponse {
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseProfileIndex)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -120,6 +160,33 @@ public struct EhProfileRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> EhSetting {
+        var params = [String: String]()
+
+        if let action = action {
+            params["profile_action"] = action.rawValue
+        }
+        if let name = name {
+            params["profile_name"] = name
+        }
+        if let set = set {
+            params["profile_set"] = "\(set)"
+        }
+
+        var request = URLRequest(url: Defaults.URL.uConfig)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseEhSetting)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct EhSettingRequest: Request {
@@ -137,6 +204,16 @@ public struct EhSettingRequest: Request {
             .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) -> EhSetting {
+        let (data, _) = try await fetch(URLRequest(url: Defaults.URL.uConfig), in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseEhSetting)
+        } catch {
+            throw mapAppError(error: error)
+        }
     }
 }
 
@@ -229,6 +306,86 @@ public struct SubmitEhSettingChangesRequest: Request {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+
+    public func response() async throws(AppError) -> EhSetting {
+        let url = Defaults.URL.uConfig
+        var params: [String: String] = [
+            "uh": String(ehSetting.loadThroughHathSetting.rawValue),
+            "co": ehSetting.browsingCountry.rawValue,
+            "xr": String(ehSetting.imageResolution.rawValue),
+            "rx": String(Int(ehSetting.imageSizeWidth)),
+            "ry": String(Int(ehSetting.imageSizeHeight)),
+            "tl": String(ehSetting.galleryName.rawValue),
+            "ar": String(ehSetting.archiverBehavior.rawValue),
+            "dm": String(ehSetting.displayMode.rawValue),
+            "pp": ehSetting.showSearchRangeIndicator ? "0" : "1",
+            "fs": String(ehSetting.favoritesSortOrder.rawValue),
+            "ru": ehSetting.ratingsColor,
+            "ft": String(Int(ehSetting.tagFilteringThreshold)),
+            "wt": String(Int(ehSetting.tagWatchingThreshold)),
+            "tf": ehSetting.showFilteredRemovalCount ? "0" : "1",
+            "xu": ehSetting.excludedUploaders,
+            "rc": String(ehSetting.searchResultCount.rawValue),
+            "lt": String(ehSetting.thumbnailLoadTiming.rawValue),
+            "tr": String(ehSetting.thumbnailConfigRows.rawValue),
+            "tp": String(Int(ehSetting.coverScaleFactor)),
+            "vp": String(Int(ehSetting.viewportVirtualWidth)),
+            "cs": String(ehSetting.commentsSortOrder.rawValue),
+            "sc": String(ehSetting.commentVotesShowTiming.rawValue),
+            "tb": String(ehSetting.tagsSortOrder.rawValue),
+            "pn": String(ehSetting.galleryPageNumbering.rawValue),
+            "apply": "Apply"
+        ]
+
+        if ehSetting.enableGalleryThumbnailSelector {
+            params["xn_0"] = "on"
+        }
+
+        switch ehSetting.thumbnailConfigSize {
+        case .auto: params["ts"] = "0"
+        case .normal: params["ts"] = "1"
+        case .small: params["ts"] = "2"
+        default: break
+        }
+
+        EhSetting.categoryNames.enumerated().forEach { index, name in
+            params["ct_\(name)"] = ehSetting.disabledCategories[index] ? "1" : "0"
+        }
+        Array(0...9).forEach { index in
+            params["favorite_\(index)"] = ehSetting.favoriteCategories[index]
+        }
+        ehSetting.excludedLanguages.enumerated().forEach { index, value in
+            if value {
+                params["xl_\(EhSetting.languageValues[index])"] = "on"
+            }
+        }
+
+        if let useOriginalImages = ehSetting.useOriginalImages {
+            params["oi"] = useOriginalImages ? "1" : "0"
+        }
+        if let useMultiplePageViewer = ehSetting.useMultiplePageViewer {
+            params["qb"] = useMultiplePageViewer ? "1" : "0"
+        }
+        if let multiplePageViewerStyle = ehSetting.multiplePageViewerStyle {
+            params["ms"] = String(multiplePageViewerStyle.rawValue)
+        }
+        if let multiplePageViewerShowThumbnailPane = ehSetting.multiplePageViewerShowThumbnailPane {
+            params["mt"] = multiplePageViewerShowThumbnailPane ? "0" : "1"
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            let document = try htmlDocument(data: data)
+            return try parseResponse(doc: document, Parser.parseEhSetting)
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
 }
 
 public struct FavorGalleryRequest: Request {
@@ -267,6 +424,23 @@ public struct FavorGalleryRequest: Request {
             .map { _ in () }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
+    }
+
+    public func response() async throws(AppError) {
+        let url = URLUtil.addFavorite(gid: gid, token: token)
+        let params: [String: String] = [
+            "favcat": "\(favIndex)",
+            "favnote": "",
+            "apply": "Add to Favorites",
+            "update": "1"
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        _ = try await fetch(request, in: urlSession)
     }
 }
 
