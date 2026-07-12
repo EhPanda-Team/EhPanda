@@ -22,7 +22,11 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
     .package(
         url: "https://github.com/pointfreeco/swift-composable-architecture",
-        from: "1.25.0"
+        from: "1.25.3",
+        traits: [
+            "ComposableArchitecture2Deprecations",
+            "ComposableArchitecture2DeprecationOverloads"
+        ]
     ),
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
     .package(url: "https://github.com/tid-kijyun/Kanna", from: "6.0.0")
