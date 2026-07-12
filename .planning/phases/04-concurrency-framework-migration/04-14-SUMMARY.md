@@ -2,32 +2,45 @@
 phase: 04-concurrency-framework-migration
 plan: 14
 subsystem: tca-migration
-tags: [tca, package-traits, deprecations, checkpoint]
+tags: [tca, package-traits, deprecations, swiftui, reducer-composition]
 
 requires:
   - phase: 04-concurrency-framework-migration
     provides: Combine-free typed async request layer
 provides:
   - TCA 1.25.3 version floor with both 2.0 deprecation traits enabled
-  - Positive-control proof that Xcode applies the traits after a clean DerivedData rebuild
-  - Categorized D-11 reconnaissance inventory for an owner scope decision
-affects: [tca, app-feature, swiftui-presentations]
+  - Positive-control proof that Xcode applies the traits
+  - Zero TCA deprecation warnings across the app build and package test build
+  - Modern projected presentation scopes and current Store/Scope signatures
+affects: [tca, app-feature, swiftui-presentations, reducer-composition]
 
 tech-stack:
   added: []
   patterns:
-    - Package traits as a compile-time migration inventory
+    - Projected @Presents scope key paths
+    - Unlabeled modern Store.scope state argument
+    - Unlabeled modern Scope state and child arguments
 
 key-files:
   created:
     - .planning/phases/04-concurrency-framework-migration/04-14-SUMMARY.md
   modified:
     - AppPackage/Package.swift
+    - AppPackage/Sources/AppFeature/DataFlow/AppReducer.swift
+    - AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift
+    - AppPackage/Sources/ReadingFeature/ReadingView.swift
+    - AppPackage/Sources/FavoritesFeature/FavoritesView.swift
+    - AppPackage/Sources/HomeFeature
+    - AppPackage/Sources/SearchFeature
+    - AppPackage/Sources/DetailFeature
+    - AppPackage/Sources/DownloadsFeature
+    - AppPackage/Sources/SettingFeature
 
 key-decisions:
-  - "Execution stopped at D-11 before view or reducer fixes because the clean recon surfaced 66 unique warnings across three patterns, not the planned approximately 24 warnings in one pattern."
+  - "The owner authorized expanding the D-11 surface from 24 expected sites to all 66 compiler-reported sites across 29 files."
+  - "All migrations use the compiler-prescribed TCA 1.26 forms without relocating presentation modifiers or changing reducer behavior."
 
-requirements-completed: []
+requirements-completed: [CONC-02]
 
 coverage:
   - id: D1
@@ -41,64 +54,111 @@ coverage:
         ref: "Manifest trait and version-floor grep gate"
         status: pass
     human_judgment: false
+  - id: D2
+    description: "All 66 trait-gated deprecations are migrated with presentation and reducer behavior preserved"
+    requirement: CONC-02
+    verification:
+      - kind: build
+        ref: "AppFeature generic iOS Simulator build with zero deprecation warnings"
+        status: pass
+      - kind: unit
+        ref: "Full AppPackage iOS Simulator test suite"
+        status: pass
+      - kind: lint
+        ref: "SwiftLint over all 29 modified Swift files"
+        status: pass
+    human_judgment: false
 
-duration: 9min
+duration: 20min
 completed: 2026-07-13
-status: blocked
+status: complete
 ---
 
-# Phase 04 Plan 14: TCA Deprecation Reconnaissance Checkpoint
+# Phase 04 Plan 14: TCA 2.0 Deprecation Migration Summary
 
-**Both deprecation traits are active, but the authoritative clean build found 66 unique warning sites across three migration patterns, triggering the plan's mandatory D-11 stop condition before any fixes.**
+**Both TCA 2.0 deprecation traits are pinned and active, and all 66 surfaced deprecations are migrated with zero warnings and a green full test suite.**
 
-## Checkpoint Status
+## Performance
 
-- **Status:** Blocked pending owner scope decision
-- **Stopped after:** Task 1 reconnaissance
-- **View changes:** None
-- **Reducer changes:** None
-- **Task 1 commit:** `86c8ed78`
+- **Duration:** 20 min active execution, including the D-11 checkpoint
+- **Completed:** 2026-07-13
+- **Tasks:** 3
+- **Files:** 30
 
-## Trait Activation
+## Accomplishments
 
-- `AppPackage/Package.swift` now uses the `1.25.3` floor and enables both required traits.
-- `swift package resolve` regenerated the package lock state; both resolved files remained byte-identical and continue to pin the canonical dependency at `1.26.0` (`e2fa1df6cd9eec6fa6314aa20513e47da576f24e`).
+- Raised the TCA floor to 1.25.3 and enabled both required 2.0 deprecation traits.
+- Proved trait activation through the `PopularView.swift:36` positive-control warning in a clean build.
+- Migrated 45 projected presentation scopes, 11 renamed `Store.scope` calls, and 10 modern `Scope` initializers.
+- Preserved every sheet, cover, alert, dialog, and toast on its existing presentation anchor.
+- Reached zero TCA deprecation warnings in both the app build and the full package test build.
+
+## Task Commits
+
+| Task | Commit | Description |
+|------|--------|-------------|
+| 1 | `86c8ed78` | Enable the two TCA deprecation traits and record the positive-control inventory |
+| 2 | `9980b69d` | Migrate the seven planned primary projected-scope files |
+| 3 | `fe34416a` | Migrate the remaining authorized view and reducer deprecations |
+
+The intermediate D-11 checkpoint record was committed as `824677b0` before the owner authorized the expanded scope.
+
+## Deviations from Plan
+
+### [Owner-approved scope expansion] Migrated the authoritative 66-site compiler inventory
+
+- **Found during:** Task 1 clean reconnaissance build
+- **Issue:** The plan expected approximately 24 warnings in one projected-destination pattern across 11 files. The traits produced 66 unique sites across three patterns and 29 files, including reducer composition.
+- **Checkpoint:** Execution stopped before fixes as D-11 required, and the categorized inventory was surfaced to the owner.
+- **Decision:** The owner explicitly authorized extending Plan 04-14 to all 66 sites.
+- **Resolution:** Migrated all 45 projected presentation scopes, 11 renamed Store scopes, and 10 Scope initializers using the compiler-prescribed APIs.
+- **Impact:** The additional edits are argument-syntax migrations only. No state, action, reducer logic, presentation anchor, or UI semantics changed.
+
+**Total deviations:** 1 owner-approved scope expansion. **Impact:** CONC-02 now covers the complete authoritative compiler surface rather than the stale pre-sized subset.
+
+## Trait Activation and Resolution
+
+- `AppPackage/Package.swift` uses `from: "1.25.3"` with `ComposableArchitecture2Deprecations` and `ComposableArchitecture2DeprecationOverloads` on separate lines.
+- `swift package resolve` and the app build regenerated package resolution state; both lockfiles remained byte-identical and continue to pin the canonical dependency at 1.26.0 (`e2fa1df6cd9eec6fa6314aa20513e47da576f24e`).
 - The first incremental recon emitted zero warnings because the affected sources were not rebuilt.
-- After deleting only this project's DerivedData and re-resolving, the clean recon emitted the expected positive control at `PopularView.swift:36`, proving the traits are active.
-
-## D-11 Reconnaissance Inventory
-
-The clean log contains 132 warning lines because each of 66 sites was compiled for two simulator architectures. Deduplicated by file, line, and message:
-
-| Category | Unique sites | Scope |
-|----------|-------------:|-------|
-| Enum destination scope migration | 45 | 23 view files; 28 sites in the 11 planned files and 17 in 12 additional files |
-| Renamed `Store.scope(state:action:)` calls | 11 | 6 files, including app tab, home, search, settings, and detail routing |
-| Deprecated `Scope(state:action:child:)` initializers | 10 | `AppReducer.swift` reducer composition |
-| **Total** | **66** | **29 files** |
-
-Additional files outside the planned edit surface include app tab routing, quick search, filters, settings screens, home history/top lists, several detail subfeatures, and a downloads subview. The reducer initializer warnings also violate the plan's expectation that no reducer file would need modification.
-
-The categorized scratch inventory is at `/tmp/ehpanda-phase04-plan14-recon-unique.txt`; the complete clean build log is at `/tmp/ehpanda-phase04-plan14-recon-clean.log`.
+- After clearing only this project's DerivedData and re-resolving, the clean recon emitted the expected positive control at `PopularView.swift:36`.
 
 ## Build Timing
 
-- Pre-trait baseline incremental build: **54.54 seconds wall clock** (`xcodebuild` reported 39.800 seconds).
-- Clean positive-control recon: **103.17 seconds wall clock** (`xcodebuild` reported 75.836 seconds).
-- These numbers are not a fair trait-cost comparison because the positive-control run intentionally followed a DerivedData deletion. A post-migration build must be measured under comparable cache conditions after the scope decision.
+- Pre-trait warm build: **54.54 seconds wall clock** (`xcodebuild` reported 39.800 seconds).
+- Clean positive-control recon: **103.17 seconds wall clock** (`xcodebuild` reported 75.836 seconds); this followed a DerivedData deletion and is not directly comparable.
+- Post-migration warm build: **42.93 seconds wall clock** (`xcodebuild` reported 40.100 seconds).
+- The comparable warm runs show no compile-time regression from keeping both required traits enabled.
 
 ## Validation Results
 
-- Manifest version floor and two-trait grep gate — **passed**.
-- SwiftPM resolution — **passed**; dependency remains at 1.26.0.
-- AppFeature clean reconnaissance build — **passed**.
-- Positive control at `PopularView.swift:36` — **passed**.
-- D-11 inventory-size and pattern check — **halted as designed**: 66 unique sites across three patterns exceeds the planned surface.
+- Manifest version-floor and two-trait grep gate — **passed**.
+- SwiftPM resolution — **passed**; TCA remains at 1.26.0.
+- Positive control at `PopularView.swift:36` before fixes — **passed**.
+- SwiftLint over all 29 modified Swift files — **passed**, 0 violations.
+- Deprecated destination-scope grep — **passed**, zero source matches.
+- AppFeature generic iOS Simulator build — **passed** (`BUILD SUCCEEDED`), zero TCA deprecation warnings.
+- Full AppPackage iOS Simulator suite — **passed** (`TEST SUCCEEDED`), zero TCA deprecation warnings.
 
 ## Accessibility Impact
 
-None. No SwiftUI modifier or presentation code was changed before the checkpoint.
+System sheets, full-screen covers, alerts, confirmation dialogs, and toasts remain attached to the same views. The migration changes only TCA scope arguments, so native focus trapping, reading order, labels, touch targets, motion, and visual layout are unchanged.
 
-## Owner Decision Required
+## Issues Encountered
 
-Choose whether to expand Plan 04-14 to migrate all 66 warnings across 29 files, or revise the trait/scope requirement. No warning fixes have been applied, so the inventory remains an exact compiler-generated migration checklist.
+- An incremental recon initially emitted no warnings because Xcode reused compiled sources. The plan's positive-control rule correctly required a project-specific DerivedData clean and rebuild, which exposed the authoritative inventory.
+- The expanded inventory included modern `Scope` initializers that conflict with the old labeled signature but not with the project's child-reducer shorthand lint rule; passing reducer initializers as the new unlabeled third argument satisfies both TCA and SwiftLint.
+
+## Next Phase Readiness
+
+- CONC-01 and CONC-02 are complete.
+- Phase 4 implementation is complete and ready for phase-level verifier, code-review, hook, drift, and tracking gates.
+- Real-device presentation behavior remains covered by the phase UAT workflow referenced in `04-VALIDATION.md`.
+
+## Self-Check: PASSED
+
+- Both traits remain pinned.
+- The positive control is recorded before fixes.
+- All 66 compiler-reported sites are migrated.
+- App and package builds contain zero TCA deprecation warnings.
+- Full tests and SwiftLint pass.
