@@ -54,7 +54,7 @@ public struct FavoritesView: View {
                 }
             }
             .sheet(
-                item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+                item: $store.scope(\.$destination, action: \.destination).quickSearch
             ) { store in
                 QuickSearchView(store: store) { keyword in
                     self.store.send(.destination(.dismiss))
@@ -64,7 +64,7 @@ public struct FavoritesView: View {
                 .autoBlur(radius: blurRadius)
             }
             .sheet(
-                item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
+                item: $store.scope(\.$destination, action: \.destination).dateSeek
             ) { store in
                 @Bindable var store = store
                 DateSeekPickerView(

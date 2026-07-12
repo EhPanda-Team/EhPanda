@@ -35,13 +35,13 @@ struct FrontpageView: View {
             }
         )
         .sheet(
-            item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+            item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
         .sheet(
-            item: $store.scope(state: \.destination?.dateSeek, action: \.destination.dateSeek)
+            item: $store.scope(\.$destination, action: \.destination).dateSeek
         ) { store in
             @Bindable var store = store
             DateSeekPickerView(

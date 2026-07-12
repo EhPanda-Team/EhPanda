@@ -21,7 +21,7 @@ public struct SearchRootView: View {
     }
 
     public var body: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        NavigationStack(path: $store.scope(\.path, action: \.path)) {
             let content =
                 ScrollView(showsIndicators: false) {
                     SuggestionsPanel(
@@ -38,13 +38,13 @@ public struct SearchRootView: View {
                     )
                 }
                 .sheet(
-                    item: $store.scope(state: \.destination?.filters, action: \.destination.filters)
+                    item: $store.scope(\.$destination, action: \.destination).filters
                 ) { store in
                     FiltersView(store: store)
                         .autoBlur(radius: blurRadius).environment(\.inSheet, true)
                 }
                 .sheet(
-                    item: $store.scope(state: \.destination?.quickSearch, action: \.destination.quickSearch)
+                    item: $store.scope(\.$destination, action: \.destination).quickSearch
                 ) { store in
                     QuickSearchView(store: store) { keyword in
                         self.store.send(.destination(.dismiss))
