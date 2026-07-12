@@ -9,13 +9,16 @@ import ParserFeature
 public struct LoginRequest: Request {
     public init(
         username: String,
-        password: String
+        password: String,
+        urlSession: URLSession = .shared
     ) {
         self.username = username
         self.password = password
+        self.urlSession = urlSession
     }
     public let username: String
     public let password: String
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<HTTPURLResponse?, AppError> {
         let params: [String: String] = [
@@ -32,7 +35,7 @@ public struct LoginRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { $0.response as? HTTPURLResponse }
             .mapError(mapAppError)
@@ -41,10 +44,15 @@ public struct LoginRequest: Request {
 }
 
 public struct IgneousRequest: Request {
-    public init() {}
+    public init(
+        urlSession: URLSession = .shared
+    ) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<HTTPURLResponse, AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai)
+        urlSession.dataTaskPublisher(for: Defaults.URL.exhentai)
             .genericRetry()
             .compactMap { $0.response as? HTTPURLResponse }
             .mapError(mapAppError)
@@ -53,10 +61,15 @@ public struct IgneousRequest: Request {
 }
 
 public struct VerifyEhProfileRequest: Request {
-    public init() {}
+    public init(
+        urlSession: URLSession = .shared
+    ) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<VerifyEhProfileResponse, AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
+        urlSession.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseProfileIndex) }
@@ -69,15 +82,18 @@ public struct EhProfileRequest: Request {
     public init(
         action: EhProfileAction? = nil,
         name: String? = nil,
-        set: Int? = nil
+        set: Int? = nil,
+        urlSession: URLSession = .shared
     ) {
         self.action = action
         self.name = name
         self.set = set
+        self.urlSession = urlSession
     }
     public var action: EhProfileAction?
     public var name: String?
     public var set: Int?
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<EhSetting, AppError> {
         var params = [String: String]()
@@ -97,7 +113,7 @@ public struct EhProfileRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
@@ -107,10 +123,15 @@ public struct EhProfileRequest: Request {
 }
 
 public struct EhSettingRequest: Request {
-    public init() {}
+    public init(
+        urlSession: URLSession = .shared
+    ) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<EhSetting, AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
+        urlSession.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
@@ -121,11 +142,14 @@ public struct EhSettingRequest: Request {
 
 public struct SubmitEhSettingChangesRequest: Request {
     public init(
-        ehSetting: EhSetting
+        ehSetting: EhSetting,
+        urlSession: URLSession = .shared
     ) {
         self.ehSetting = ehSetting
+        self.urlSession = urlSession
     }
     public let ehSetting: EhSetting
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<EhSetting, AppError> {
         let url = Defaults.URL.uConfig
@@ -198,7 +222,7 @@ public struct SubmitEhSettingChangesRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap { try parseResponse(doc: $0, Parser.parseEhSetting) }
@@ -211,15 +235,18 @@ public struct FavorGalleryRequest: Request {
     public init(
         gid: String,
         token: String,
-        favIndex: Int
+        favIndex: Int,
+        urlSession: URLSession = .shared
     ) {
         self.gid = gid
         self.token = token
         self.favIndex = favIndex
+        self.urlSession = urlSession
     }
     public let gid: String
     public let token: String
     public let favIndex: Int
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let url = URLUtil.addFavorite(gid: gid, token: token)
@@ -235,7 +262,7 @@ public struct FavorGalleryRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
@@ -245,11 +272,14 @@ public struct FavorGalleryRequest: Request {
 
 public struct UnfavorGalleryRequest: Request {
     public init(
-        gid: String
+        gid: String,
+        urlSession: URLSession = .shared
     ) {
         self.gid = gid
+        self.urlSession = urlSession
     }
     public let gid: String
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: String] = [
@@ -263,7 +293,7 @@ public struct UnfavorGalleryRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
@@ -274,13 +304,16 @@ public struct UnfavorGalleryRequest: Request {
 public struct SendDownloadCommandRequest: Request {
     public init(
         archiveURL: URL,
-        resolution: String
+        resolution: String,
+        urlSession: URLSession = .shared
     ) {
         self.archiveURL = archiveURL
         self.resolution = resolution
+        self.urlSession = urlSession
     }
     public let archiveURL: URL
     public let resolution: String
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<String, AppError> {
         let params: [String: String] = [
@@ -292,7 +325,7 @@ public struct SendDownloadCommandRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .tryMap { try htmlDocument(data: $0.data) }
             .tryMap {
@@ -309,19 +342,22 @@ public struct RateGalleryRequest: Request {
         apikey: String,
         gid: Int,
         token: String,
-        rating: Int
+        rating: Int,
+        urlSession: URLSession = .shared
     ) {
         self.apiuid = apiuid
         self.apikey = apikey
         self.gid = gid
         self.token = token
         self.rating = rating
+        self.urlSession = urlSession
     }
     public let apiuid: Int
     public let apikey: String
     public let gid: Int
     public let token: String
     public let rating: Int
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
@@ -337,7 +373,7 @@ public struct RateGalleryRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
@@ -348,13 +384,16 @@ public struct RateGalleryRequest: Request {
 public struct CommentGalleryRequest: Request {
     public init(
         content: String,
-        galleryURL: URL
+        galleryURL: URL,
+        urlSession: URLSession = .shared
     ) {
         self.content = content
         self.galleryURL = galleryURL
+        self.urlSession = urlSession
     }
     public let content: String
     public let galleryURL: URL
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
@@ -367,7 +406,7 @@ public struct CommentGalleryRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
@@ -379,15 +418,18 @@ public struct EditGalleryCommentRequest: Request {
     public init(
         commentID: String,
         content: String,
-        galleryURL: URL
+        galleryURL: URL,
+        urlSession: URLSession = .shared
     ) {
         self.commentID = commentID
         self.content = content
         self.galleryURL = galleryURL
+        self.urlSession = urlSession
     }
     public let commentID: String
     public let content: String
     public let galleryURL: URL
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
@@ -401,7 +443,7 @@ public struct EditGalleryCommentRequest: Request {
         request.httpBody = params.dictString().urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
@@ -416,7 +458,8 @@ public struct VoteGalleryCommentRequest: Request {
         gid: Int,
         token: String,
         commentID: Int,
-        commentVote: Int
+        commentVote: Int,
+        urlSession: URLSession = .shared
     ) {
         self.apiuid = apiuid
         self.apikey = apikey
@@ -424,6 +467,7 @@ public struct VoteGalleryCommentRequest: Request {
         self.token = token
         self.commentID = commentID
         self.commentVote = commentVote
+        self.urlSession = urlSession
     }
     public let apiuid: Int
     public let apikey: String
@@ -431,6 +475,7 @@ public struct VoteGalleryCommentRequest: Request {
     public let token: String
     public let commentID: Int
     public let commentVote: Int
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
@@ -447,7 +492,7 @@ public struct VoteGalleryCommentRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
@@ -462,7 +507,8 @@ public struct VoteGalleryTagRequest: Request {
         gid: Int,
         token: String,
         tag: String,
-        vote: Int
+        vote: Int,
+        urlSession: URLSession = .shared
     ) {
         self.apiuid = apiuid
         self.apikey = apikey
@@ -470,6 +516,7 @@ public struct VoteGalleryTagRequest: Request {
         self.token = token
         self.tag = tag
         self.vote = vote
+        self.urlSession = urlSession
     }
     public let apiuid: Int
     public let apikey: String
@@ -477,6 +524,7 @@ public struct VoteGalleryTagRequest: Request {
     public let token: String
     public let tag: String
     public let vote: Int
+    public let urlSession: URLSession
 
     public var publisher: AnyPublisher<Void, AppError> {
         let params: [String: Any] = [
@@ -493,7 +541,7 @@ public struct VoteGalleryTagRequest: Request {
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return urlSession.dataTaskPublisher(for: request)
             .genericRetry()
             .map { _ in () }
             .mapError(mapAppError)
