@@ -16,7 +16,7 @@ extension DetailReducer {
                 state.didRequestVersionMetadata = false
                 state.galleryVersionMetadata = nil
                 return .run { send in
-                    let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).response()
+                    let response = await GalleryDetailRequest(gid: galleryID, galleryURL: galleryURL).legacyResponse()
                     await send(.fetchGalleryDetailDone(response))
                 }
                 .cancellable(id: CancelID.fetchGalleryDetail(state.cancellationGalleryID))
@@ -109,7 +109,7 @@ extension DetailReducer {
                     let response = await RateGalleryRequest(
                         apiuid: apiuid, apikey: apiKey,
                         gid: gid, token: token, rating: rating
-                    ).response()
+                    ).legacyResponse()
                     await send(.anyGalleryOpsDone(response))
                 }
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
@@ -118,14 +118,14 @@ extension DetailReducer {
                 return .run { [gid = state.gallery.id, token = state.gallery.token] send in
                     let response = await FavorGalleryRequest(
                         gid: gid, token: token, favIndex: favIndex
-                    ).response()
+                    ).legacyResponse()
                     await send(.anyGalleryOpsDone(response))
                 }
                 .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
 
             case .unfavorGallery:
                 return .run { [galleryID = state.gallery.id] send in
-                    let response = await UnfavorGalleryRequest(gid: galleryID).response()
+                    let response = await UnfavorGalleryRequest(gid: galleryID).legacyResponse()
                     await send(.anyGalleryOpsDone(response))
                 }
                 .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
@@ -135,7 +135,7 @@ extension DetailReducer {
                 return .run { [commentContent = state.commentContent] send in
                     let response = await CommentGalleryRequest(
                         content: commentContent, galleryURL: galleryURL
-                    ).response()
+                    ).legacyResponse()
                     await send(.anyGalleryOpsDone(response))
                 }
                 .cancellable(id: CancelID.postComment(state.cancellationGalleryID))
@@ -147,7 +147,7 @@ extension DetailReducer {
                     let response = await VoteGalleryTagRequest(
                         apiuid: apiuid, apikey: apiKey,
                         gid: gid, token: token, tag: tag, vote: vote
-                    ).response()
+                    ).legacyResponse()
                     await send(.anyGalleryOpsDone(response))
                 }
                 .cancellable(id: CancelID.voteTag(state.cancellationGalleryID))

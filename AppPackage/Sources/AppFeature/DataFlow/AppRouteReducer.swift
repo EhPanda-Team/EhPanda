@@ -185,7 +185,7 @@ struct AppRouteReducer {
                     let response = await GalleryReverseRequest(
                         url: url, isGalleryImageURL: isGalleryImageURL
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchGalleryDone(url, response))
                 }
 

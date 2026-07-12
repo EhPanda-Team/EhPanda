@@ -106,7 +106,7 @@ public struct DetailSearchReducer: Sendable {
                 state.pageNumber.resetPages()
                 let filter = state.searchFilter
                 return .run { [lastKeyword = state.lastKeyword] send in
-                    let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).response()
+                    let response = await SearchGalleriesRequest(keyword: lastKeyword, filter: filter).legacyResponse()
                     await send(.fetchGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
@@ -140,7 +140,7 @@ public struct DetailSearchReducer: Sendable {
                     let response = await MoreSearchGalleriesRequest(
                         keyword: lastKeyword, filter: filter, lastID: lastID
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchMoreGalleriesDone(response.map { ($0.pageNumber, $0.galleries) }))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)

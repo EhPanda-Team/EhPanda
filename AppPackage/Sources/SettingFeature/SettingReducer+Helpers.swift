@@ -65,7 +65,7 @@ extension SettingReducer {
               state.setting.showsNewDawnGreeting
         else { return .none }
         let requestEffect = Effect.run { send in
-            let response = await GreetingRequest().response()
+            let response = await GreetingRequest().legacyResponse()
             await send(Action.fetchGreetingDone(response))
         }
         if let greeting = state.greeting {
@@ -94,7 +94,7 @@ extension SettingReducer {
         let updatedDate = state.tagTranslatorInfo.updatedDate
         return .run { send in
             // Download the raw JSON, then let `FileClient` decode/convert/cache it into a translator.
-            switch await TagTranslatorRequest(language: language, updatedDate: updatedDate).response() {
+            switch await TagTranslatorRequest(language: language, updatedDate: updatedDate).legacyResponse() {
             case .success(let payload):
                 if let tagTranslator = fileClient.cacheAndBuildRemoteTagTranslator(
                     payload.data, language, payload.updatedDate

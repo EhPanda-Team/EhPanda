@@ -114,7 +114,7 @@ public struct WatchedReducer: Sendable {
                 state.pageNumber.resetPages()
                 let filter = state.watchedFilter
                 return .run { [keyword = state.keyword] send in
-                    let response = await WatchedGalleriesRequest(filter: filter, keyword: keyword).response()
+                    let response = await WatchedGalleriesRequest(filter: filter, keyword: keyword).legacyResponse()
                     await send(.fetchGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
@@ -150,7 +150,7 @@ public struct WatchedReducer: Sendable {
                     let response = await MoreWatchedGalleriesRequest(
                         filter: filter, lastID: lastID, keyword: keyword
                     )
-                    .response()
+                    .legacyResponse()
                     await send(.fetchMoreGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
@@ -197,7 +197,7 @@ public struct WatchedReducer: Sendable {
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
                 return .run { send in
-                    let response = await DateSeekGalleriesRequest(url: url).response()
+                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
                     await send(.performDateSeekDone(response))
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)

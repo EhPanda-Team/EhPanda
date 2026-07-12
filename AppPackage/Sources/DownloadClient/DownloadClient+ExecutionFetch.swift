@@ -18,7 +18,7 @@ extension DownloadCoordinator {
             urlSession: urlSession,
             allowsCellular: options.allowCellular
         )
-        .response()
+        .legacyResponse()
         .get()
         let detail = detailResponse.galleryDetail
         let galleryState = detailResponse.galleryState
@@ -113,7 +113,7 @@ extension DownloadCoordinator {
             gid: gid,
             token: token,
             urlSession: urlSession
-        ).response()
+        ).legacyResponse()
     }
 
     private func fetchOptionalVersionMetadata(

@@ -96,7 +96,7 @@ public struct FrontpageReducer: Sendable {
                 state.pageNumber.resetPages()
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await FrontpageGalleriesRequest(filter: filter).response()
+                    let response = await FrontpageGalleriesRequest(filter: filter).legacyResponse()
                     await send(.fetchGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchGalleries)
@@ -129,7 +129,7 @@ public struct FrontpageReducer: Sendable {
                 state.footerLoadingState = .loading
                 let filter = state.globalFilter
                 return .run { send in
-                    let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).response()
+                    let response = await MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID).legacyResponse()
                     await send(.fetchMoreGalleriesDone(response))
                 }
                 .cancellable(id: CancelID.fetchMoreGalleries)
@@ -162,7 +162,7 @@ public struct FrontpageReducer: Sendable {
                 state.footerLoadingState = .idle
                 state.pageNumber.resetPages()
                 return .run { send in
-                    let response = await DateSeekGalleriesRequest(url: url).response()
+                    let response = await DateSeekGalleriesRequest(url: url).legacyResponse()
                     await send(.performDateSeekDone(response))
                 }
                 .cancellable(id: CancelID.fetchDateSeekGalleries)
