@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 04
 current_phase_name: concurrency-framework-migration
-status: ready-to-execute
-stopped_at: Phase 4 planned (14 plans)
-last_updated: "2026-07-13T00:20:00.000Z"
-last_activity: 2026-07-13
-last_activity_desc: "Phase 04 planned: 14 plans in 14 waves, checker PASS, ready to execute"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-07-12T15:38:21.898Z"
+last_activity: 2026-07-12
+last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 11
-  completed_phases: 3
+  completed_phases: 2
   total_plans: 32
   completed_plans: 18
-  percent: 27
+  percent: 18
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 04 (concurrency-framework-migration) — READY TO EXECUTE
-Plan: 0 of 14
-Status: Ready to execute — 14 plans in 14 sequential waves, plan-checker VERIFICATION PASSED (0 blockers after 1 revision)
-Last activity: 2026-07-13 — Phase 04 planned: research (d6779914) + patterns + validation + 14 plans (55d00a6c, 70d13d37)
+Phase: 04 (concurrency-framework-migration) — EXECUTING
+Plan: 2 of 14
+Status: Ready to execute
+Last activity: 2026-07-12 — Phase 04 execution started
 Next: execute Phase 04 (/gsd-execute-phase 4)
 
 Progress: [██████░░░░] 56% (18/32 plans across Phases 01–04)
@@ -73,6 +73,7 @@ Progress: [██████░░░░] 56% (18/32 plans across Phases 01–0
 | Phase 03 P02 | 12min | 2 tasks | 1 files |
 | Phase 03 P03 | 14min | 2 tasks | 4 files |
 | Phase 03 P04 | 10min | 2 tasks | 2 files |
+| Phase 04 P01 | 11min | 2 tasks | 29 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
 - [Phase 02]: DEP-04 column derivation decided: the masonry `Layout` computes `N = max(2, floor((w + 15) / (185 + 15)))` from its own proposed width; all cells share one identical flexible width (`cellWidth = (w − 15·(N−1)) / N`, spacing fixed 15). Exact 2/4/5 count parity dropped by owner — the bar is a stable, content-independent count that tiles any width. Known deviations at m=185: iPad mini portrait 4→3, 13" landscape 5→6, Split View bands become container-coherent. Details in 02-CONTEXT.md.
 - [Phase 01]: verify-work found & fixed a ColorfulX behavior regression (gap G-01-1): the Colorful→ColorfulX swap was API-faithful but NOT behavior-faithful (ColorfulX always paints a full-bleed opaque gradient; speed:0 ≠ Colorful's near-invisible animated:false). Fix in GalleryCardCell: gate `ColorfulView` on `animated` (focused dark card only), skip light-mode color calc, and seed-then-bloom the gradient via ColorfulX `transitionSpeed`. User-verified live; 01-VERIFICATION.md re-verified status **passed 5/5**. Lesson: a library swap needs behavior parity, not just API parity.
 - [Phase 03]: DEP-05 native paging spike passed its D-11 GO/NO-GO gate (16/16 parity rows, 4-round owner device UAT) → spike KEEP, SwiftUIPager removed. The one real defect, C5 carousel loop (blank edge peek + ColorfulX reset + gesture interruption at the wrap), was root-caused to the tripled-buffer `.idle` re-center WRITING `scrollPositionID`; fixed with a sliding-window rebase (shift `windowBase`, never write the binding — `scrollPosition(id:)` pins the anchored view across the pure-data diff) + `.viewAligned(limitBehavior: .always)` (one card per swipe = SwiftUIPager parity + bounds the window edge unreachable). Lesson: to loop a native paging ScrollView invisibly, move the data window, don't move the scroll.
+- [Phase 04]: 04-01: Renamed the Result facade to legacyResponse() so response() is available for incremental typed-throws migration.
+- [Phase 04]: 04-01: Every Request conformer stores an injected URLSession, including DataRequest, with .shared as the behavior-preserving default.
 
 ### Pending Todos
 
@@ -124,6 +127,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T00:20:00.000Z
-Stopped at: Phase 4 planned (14 plans, ready to execute)
-Resume file: .planning/phases/04-concurrency-framework-migration/ (04-01…04-14-PLAN.md)
+Last session: 2026-07-12T15:38:21.893Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
