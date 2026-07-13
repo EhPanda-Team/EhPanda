@@ -218,7 +218,9 @@ extension CommentsView {
         ) -> some View {
             let image = KFImage(url)
                 .commentDefaultModifier().scaledToFit()
-                .frame(width: DeviceUtil.windowW / widthFactor)
+                .containerRelativeFrame(.horizontal) { width, _ in
+                    width / widthFactor
+                }
             if let action = action {
                 Button(action: action) {
                     image

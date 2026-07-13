@@ -37,10 +37,6 @@ struct DescriptionSection: View {
             description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
         )
     ]}
-    private var itemWidth: Double {
-        max(DeviceUtil.absWindowW / 5, 80)
-    }
-
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
@@ -52,14 +48,19 @@ struct DescriptionSection: View {
                             DescScrollItem(title: info.title, value: info.value, description: info.description)
                         }
                     }
-                    .frame(width: itemWidth).drawingGroup()
+                    .containerRelativeFrame(.horizontal) { width, _ in
+                        max(width / 5, 80)
+                    }
+                    .drawingGroup()
                     Divider()
                     if info == infos.last {
                         Button(action: navigateGalleryInfosAction) {
                             Image(systemSymbol: .ellipsis)
                                 .font(.system(size: 20, weight: .bold))
                         }
-                        .frame(width: itemWidth)
+                        .containerRelativeFrame(.horizontal) { width, _ in
+                            max(width / 5, 80)
+                        }
                     }
                 }
                 .withHorizontalSpacing()
@@ -280,12 +281,14 @@ extension TagsSection {
 
 // MARK: PreviewsSection
 struct PreviewsSection: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     let pageCount: Int
     let previewURLs: [Int: URL]
     let navigatePreviewsAction: () -> Void
     let navigateReadingAction: (Int) -> Void
 
-    private var width: CGFloat { Defaults.ImageSize.previewAvgW }
+    private var width: CGFloat { horizontalSizeClass == .regular ? 200 : 110 }
     private var height: CGFloat { width / Defaults.ImageSize.previewAspect }
 
     var body: some View {
