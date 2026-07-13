@@ -2,7 +2,6 @@ import SwiftUI
 import AppModels
 import Resources
 import SFSafeSymbols
-import AppTools
 
 public struct LoadingView: View {
     private let title: LocalizedStringResource
@@ -115,7 +114,7 @@ public struct AlertView<Content: View>: View {
                 .font(.headline).padding(.bottom, 5)
             actions
         }
-        .frame(maxWidth: DeviceUtil.windowW * 0.8)
+        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
     }
 }
 
