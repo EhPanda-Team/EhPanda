@@ -196,6 +196,17 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 - [x] 05-09-PLAN.md — Reader source swap: `SpatialTapGesture`/`MagnifyGesture` + D-04 aspect landscape flag + `TouchHandler` deletion (D-04/D-05)
 - [x] 05-10-PLAN.md — Cleanup: `Defaults` dissolution + `ApplicationClient` window rehome + `DeviceUtil` deletion + phase gates
 
+**Gap closure** (from UAT G-05-1 blocker + G-05-4 major — sequential waves 11–18):
+
+- [ ] 05-11-PLAN.md — G-05-1.1: About copyright/version → scrollable Form content (visible in landscape)
+- [ ] 05-12-PLAN.md — G-05-1.2: reader loading/failed placeholders sized against both container axes
+- [ ] 05-13-PLAN.md — G-05-1.3: Home carousel is the sole card-width owner (drop GalleryCardCell inner sizing)
+- [ ] 05-14-PLAN.md — G-05-1.4 + G-05-1.5 (locked): remove page-range visible prompt (a11y kept) + untitled `Button(role: .cancel)` on reusable sheets
+- [ ] 05-15-PLAN.md — G-05-1.6: Favorites toolbar regrouping + explicit date-seek availability
+- [ ] 05-16-PLAN.md — G-05-4.7: reader upper toolbar respects iPad window-control safe geometry
+- [ ] 05-17-PLAN.md — G-05-4.8 + G-05-4.9 (locked): distinct Home root surface + disable multi-scene support
+- [ ] 05-18-PLAN.md — G-05-4.10: investigate-then-fix iPhone detail push contract (human-surface fallback)
+
 **UI hint**: yes
 
 ### Phase 6: GenericList Decomposition
@@ -257,7 +268,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 
 ### Phase 10: UI Polish
 
-**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, and reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content — both at appearance/layout parity.
+**Goal**: Add comprehensive Dynamic Type support, apply monospaced digits and numeric-text transitions to number-bearing text, and reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content — all at appearance/layout parity.
 **Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces after the Phase 5–7 refactors)
 **Requirements**: POLISH-01, POLISH-02
 **Success Criteria** (what must be TRUE):
@@ -266,6 +277,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   2. Numeric values animate as numeric transitions on change.
   3. No layout jitter occurs on value change.
   4. `ZStack`s that express an overlay/background relationship are converted to `.overlay`/`.background` (sized to the primary content) at layout/appearance parity; genuine union-sized multi-child stacks remain `ZStack`.
+  5. Every user-facing screen remains readable and operable throughout the complete Dynamic Type range, including accessibility sizes, without clipped essential text, overlapping content, or unreachable controls.
 
 **Plans**: TBD
 **UI hint**: yes
