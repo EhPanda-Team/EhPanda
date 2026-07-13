@@ -35,6 +35,21 @@ struct AppearanceSettingView: View {
                 .foregroundStyle(.primary)
                 .withArrow()
             }
+            Section {
+                VStack(alignment: .leading) {
+                    Text(.privacyMask)
+                    HStack {
+                        Image(systemSymbol: .eye)
+                            .accessibilityHidden(true)
+                        Slider(value: Binding($setting.privacyMaskIntensity), in: 0...100, step: 10)
+                            .accessibilityLabel(.privacyMask)
+                        Image(systemSymbol: .eyeSlash)
+                            .accessibilityHidden(true)
+                    }
+                }
+            } footer: {
+                Text(.privacyMaskFooter)
+            }
             Section(.list) {
                 Picker(
                     .appearanceDisplayMode,

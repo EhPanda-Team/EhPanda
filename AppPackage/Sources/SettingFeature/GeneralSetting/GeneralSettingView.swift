@@ -104,30 +104,6 @@ struct GeneralSettingView: View {
                     isOn: Binding($setting.detectsLinksFromClipboard)
                 )
             }
-            Section(.security) {
-                HStack {
-                    Picker(
-                        .autoLock,
-                        selection: Binding($setting.autoLockPolicy)
-                    ) {
-                        ForEach(AutoLockPolicy.allCases) { policy in
-                            Text(policy.value).tag(policy)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    if store.passcodeNotSet && setting.autoLockPolicy != .never {
-                        Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
-                    }
-                }
-                VStack(alignment: .leading) {
-                    Text(.backgroundBlurRadius)
-                    HStack {
-                        Image(systemSymbol: .eye)
-                        Slider(value: Binding($setting.backgroundBlurRadius), in: 0...100, step: 10)
-                        Image(systemSymbol: .eyeSlash)
-                    }
-                }
-            }
             Section(.caches) {
                 Button {
                     store.send(.clearImageCachesButtonTapped)
@@ -152,7 +128,6 @@ struct GeneralSettingView: View {
             store.send(.delegate(.enablesTagsExtensionChanged))
         }
         .onAppear {
-            store.send(.checkPasscodeSetting)
             store.send(.calculateWebImageDiskCache)
         }
         .navigationTitle(.general)
