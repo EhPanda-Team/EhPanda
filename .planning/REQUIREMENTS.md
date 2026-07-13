@@ -37,7 +37,7 @@
   - No view reads `DeviceUtil.window*/screen*/absWindow*` for layout; discrete `isPadWidth`/`isSEWidth` breakpoints replaced by size-class / container-relative decisions; `TouchHandler` retired via `SpatialTapGesture.location` + `MagnifyGesture.startAnchor`; **`GeometryReader` avoided** in favor of `containerRelativeFrame`/`onGeometryChange`/`ViewThatFits`; `Defaults.FrameSize`/`ImageSize` no longer derive size from a global; reading zoom/pan/tap parity preserved.
 - [ ] **UIARCH-02**: Decompose `GenericList` so each of its 8 consuming pages builds its own list from shared atoms.
   - Reusable atoms (cells, footer, notice, loading/error overlays, grid) extracted; the 8 pages compose their own lists; `GenericList` super-list removed; list behavior (display modes, pagination, refresh, badges) preserved.
-- [ ] **UIARCH-03**: Support device orientation on every page and remove EhPanda's custom orientation lock.
+- [x] **UIARCH-03**: Support device orientation on every page and remove EhPanda's custom orientation lock.
   - All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and the `Setting.enablesLandscape` field are removed (v1 in-place edit); OS orientation lock governs.
 - [ ] **UIARCH-04**: Replace `blurRadius` parameter-drilling with a root-level privacy mask.
   - No view initializer takes `blurRadius`; `.autoBlur` applied only at root surfaces — app root + every one of the ~41 modal roots; transient blur state sourced from shared in-memory state; **no lock-time/background content leak** in any modal; NavigationBar-collapse workaround preserved.
@@ -104,7 +104,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | CONC-02 | Phase 4 | Complete |
 | UIARCH-01 | Phase 5 | Complete |
 | UIARCH-02 | Phase 6 | Pending |
-| UIARCH-03 | Phase 5 | Pending |
+| UIARCH-03 | Phase 5 | Complete |
 | UIARCH-04 | Phase 7 | Pending |
 | UIARCH-05 | Phase 7 | Pending |
 | HYG-01 | Phase 8 | Pending |
