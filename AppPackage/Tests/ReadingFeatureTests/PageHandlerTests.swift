@@ -11,6 +11,12 @@ import AppModels
 @MainActor
 @Suite
 struct PageHandlerTests {
+    private struct AspectRatioCase {
+        let width: Double
+        let height: Double
+        let isLandscape: Bool
+    }
+
     private func makeSetting(
         readingDirection: ReadingDirection = .leftToRight,
         enablesDualPageMode: Bool = false,
@@ -144,6 +150,40 @@ struct PageHandlerTests {
             #expect(
                 handler.mapToPager(index: pagerIndex + 1, setting: ltr, isLandscape: true)
                     == handler.mapToPager(index: pagerIndex + 1, setting: rtl, isLandscape: true)
+            )
+        }
+    }
+
+    // D-04 derives the required flag from the current reader container. These cases prove the
+    // aspect-ratio result reaches both maps unchanged and preserves the frozen portrait/landscape
+    // behavior after removing PageHandler's DeviceUtil-backed default.
+    @Test
+    func aspectRatioFlagControlsDualPageEligibility() {
+        let handler = PageHandler()
+        let setting = makeSetting(enablesDualPageMode: true)
+        let cases = [
+            AspectRatioCase(width: 390, height: 844, isLandscape: false),
+            AspectRatioCase(width: 844, height: 390, isLandscape: true),
+            AspectRatioCase(width: 834, height: 1_194, isLandscape: false),
+            AspectRatioCase(width: 1_194, height: 834, isLandscape: true)
+        ]
+
+        for testCase in cases {
+            let isLandscape = testCase.width > testCase.height
+            #expect(isLandscape == testCase.isLandscape)
+            let expectedReadingPage = isLandscape ? 5 : 3
+            let expectedPagerIndex = isLandscape ? 2 : 4
+            #expect(
+                handler.mapFromPager(
+                    index: 2,
+                    pageCount: 100,
+                    setting: setting,
+                    isLandscape: isLandscape
+                ) == expectedReadingPage
+            )
+            #expect(
+                handler.mapToPager(index: 5, setting: setting, isLandscape: isLandscape)
+                    == expectedPagerIndex
             )
         }
     }

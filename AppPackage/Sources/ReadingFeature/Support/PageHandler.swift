@@ -1,14 +1,18 @@
 import SwiftUI
 import AppModels
 import Observation
-import AppTools
 
 @Observable
 @MainActor
 final class PageHandler {
     var sliderValue: Float = 1
 
-    func mapFromPager(index: Int, pageCount: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
+    func mapFromPager(
+        index: Int,
+        pageCount: Int,
+        setting: Setting,
+        isLandscape: Bool
+    ) -> Int {
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return index + 1 }
@@ -23,7 +27,7 @@ final class PageHandler {
         }
     }
 
-    func mapToPager(index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
+    func mapToPager(index: Int, setting: Setting, isLandscape: Bool) -> Int {
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return index - 1 }
