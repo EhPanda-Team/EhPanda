@@ -1,6 +1,5 @@
 import SwiftUI
 import AppModels
-import AppTools
 
 public struct Placeholder: View {
     @Environment(\.inSheet) private var inSheet
@@ -33,7 +32,9 @@ public struct Placeholder: View {
                     if let progress {
                         ProgressView(progress)
                             .progressViewStyle(.plainLinear)
-                            .frame(width: DeviceUtil.absWindowW * (isDualPage ? 0.25 : 0.5))
+                            .containerRelativeFrame(.horizontal) { width, _ in
+                                width * (isDualPage ? 0.25 : 0.5)
+                            }
                     } else {
                         ProgressView()
                     }
