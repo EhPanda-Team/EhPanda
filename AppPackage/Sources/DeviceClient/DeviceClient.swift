@@ -1,41 +1,20 @@
-import SwiftUI
-import Dependencies
 import AppTools
+import Dependencies
 
 public struct DeviceClient: Sendable {
-    public let isPad: @Sendable () async -> Bool
-    public let absWindowW: @MainActor @Sendable () -> Double
-    public let absWindowH: @MainActor @Sendable () -> Double
-    public let touchPoint: @MainActor @Sendable () -> CGPoint?
+    public let deviceType: @MainActor @Sendable () -> DeviceType
 
     public init(
-        isPad: @escaping @Sendable () async -> Bool,
-        absWindowW: @escaping @MainActor @Sendable () -> Double,
-        absWindowH: @escaping @MainActor @Sendable () -> Double,
-        touchPoint: @escaping @MainActor @Sendable () -> CGPoint?
+        deviceType: @escaping @MainActor @Sendable () -> DeviceType
     ) {
-        self.isPad = isPad
-        self.absWindowW = absWindowW
-        self.absWindowH = absWindowH
-        self.touchPoint = touchPoint
+        self.deviceType = deviceType
     }
 }
 
 extension DeviceClient {
     public static let live: Self = .init(
-        isPad: {
-            await MainActor.run {
-                DeviceUtil.isPad
-            }
-        },
-        absWindowW: {
-            DeviceUtil.absWindowW
-        },
-        absWindowH: {
-            DeviceUtil.absWindowH
-        },
-        touchPoint: {
-            TouchHandler.shared.currentPoint
+        deviceType: {
+            DeviceType.current
         }
     )
 }
@@ -57,18 +36,12 @@ extension DependencyValues {
 // MARK: Test
 extension DeviceClient {
     public static let noop: Self = .init(
-        isPad: { false },
-        absWindowW: { .zero },
-        absWindowH: { .zero },
-        touchPoint: { .zero }
+        deviceType: { .phone }
     )
 
     public static func placeholder<Result>() -> Result { fatalError() }
 
     public static let unimplemented: Self = .init(
-        isPad: IssueReporting.unimplemented(placeholder: placeholder()),
-        absWindowW: IssueReporting.unimplemented(placeholder: placeholder()),
-        absWindowH: IssueReporting.unimplemented(placeholder: placeholder()),
-        touchPoint: IssueReporting.unimplemented(placeholder: placeholder())
+        deviceType: IssueReporting.unimplemented(placeholder: placeholder())
     )
 }
