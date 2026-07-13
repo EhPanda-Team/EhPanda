@@ -3,7 +3,7 @@ import Sharing
 import AppModels
 import AppComponents
 
-public struct GenericList: View {
+public struct GalleryList: View {
     @SharedReader(.setting) private var setting: Setting
 
     private let galleries: [Gallery]
@@ -52,7 +52,7 @@ public struct GenericList: View {
                         downloadBadges: downloadBadges
                     )
                 case .thumbnail:
-                    WaterfallList(
+                    ThumbnailList(
                         galleries: galleries, pageNumber: pageNumber,
                         footerLoadingState: footerLoadingState, notice: notice,
                         fetchMoreAction: fetchMoreAction,
@@ -143,8 +143,8 @@ private struct DetailList: View {
     }
 }
 
-// MARK: WaterfallList
-private struct WaterfallList: View {
+// MARK: ThumbnailList
+private struct ThumbnailList: View {
     private let galleries: [Gallery]
     private let downloadBadges: [String: DownloadBadge]
     private let pageNumber: PageNumber?

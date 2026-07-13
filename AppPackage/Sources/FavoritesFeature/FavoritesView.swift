@@ -36,7 +36,7 @@ public struct FavoritesView: View {
         ) {
             ZStack {
                 if CookieUtil.didLogin {
-                    GenericList(
+                    GalleryList(
                         galleries: store.galleries ?? [],
                         pageNumber: store.pageNumber,
                         loadingState: store.loadingState ?? .idle,

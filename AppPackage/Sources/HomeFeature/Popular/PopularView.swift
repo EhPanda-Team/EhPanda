@@ -21,7 +21,7 @@ struct PopularView: View {
     }
 
     var body: some View {
-        GenericList(
+        GalleryList(
             galleries: store.filteredGalleries,
             pageNumber: nil,
             loadingState: store.loadingState,

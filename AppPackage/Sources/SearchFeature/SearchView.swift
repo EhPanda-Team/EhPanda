@@ -22,7 +22,7 @@ struct SearchView: View {
     }
 
     var body: some View {
-        GenericList(
+        GalleryList(
             galleries: store.galleries,
             pageNumber: store.pageNumber,
             loadingState: store.loadingState,
