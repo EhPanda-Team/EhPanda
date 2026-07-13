@@ -9,14 +9,12 @@ import AppComponents
 struct LoginView: View {
     @Bindable private var store: StoreOf<LoginReducer>
     @SharedReader(.setting) private var setting: Setting
-    private let blurRadius: Double
 
     @State private var size: CGSize = .zero
     @FocusState private var focusedField: LoginReducer.FocusedField?
 
-    init(store: StoreOf<LoginReducer>, blurRadius: Double) {
+    init(store: StoreOf<LoginReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     // MARK: LoginView
@@ -73,7 +71,7 @@ struct LoginView: View {
                 store.send(.loginDone(.success(nil)))
             }
             .ignoresSafeArea(edges: .bottom)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .onSubmit {
             switch focusedField {
@@ -150,8 +148,7 @@ struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             LoginView(
-                store: .init(initialState: .init(), reducer: LoginReducer.init),
-                blurRadius: 0
+                store: .init(initialState: .init(), reducer: LoginReducer.init)
             )
         }
     }

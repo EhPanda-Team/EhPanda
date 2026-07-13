@@ -48,6 +48,7 @@ struct AppActivityLogsView: View {
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $isRunPickerPresented) {
             RunPickerSheet(store: store) { isRunPickerPresented = false }
+                .privacyMask()
         }
     }
 

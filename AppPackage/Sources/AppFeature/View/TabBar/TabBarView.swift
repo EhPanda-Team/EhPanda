@@ -57,8 +57,7 @@ struct TabBarView: View {
                         )
                     case .setting:
                         SettingView(
-                            store: store.scope(\.settingState, action: \.setting),
-                            blurRadius: 0
+                            store: store.scope(\.settingState, action: \.setting)
                         )
                     }
                 }
@@ -73,8 +72,7 @@ struct TabBarView: View {
         }
         .sheet(item: $store.appRouteState.destination.setting) { _ in
             SettingView(
-                store: store.scope(\.settingState, action: \.setting),
-                blurRadius: 0
+                store: store.scope(\.settingState, action: \.setting)
             )
             .accentColor(store.settingState.setting.accentColor)
             .privacyMask()

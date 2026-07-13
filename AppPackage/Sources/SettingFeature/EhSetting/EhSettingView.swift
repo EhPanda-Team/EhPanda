@@ -9,14 +9,12 @@ import AppComponents
 struct EhSettingView: View {
     @Bindable private var store: StoreOf<EhSettingReducer>
     @SharedReader(.setting) private var setting: Setting
-    private let blurRadius: Double
 
     // Should make it an Environment value.
     private var galleryHost: GalleryHost { AppUtil.galleryHost }
 
-    init(store: StoreOf<EhSettingReducer>, blurRadius: Double) {
+    init(store: StoreOf<EhSettingReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     // MARK: EhSettingView
@@ -50,7 +48,7 @@ struct EhSettingView: View {
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
         }
         .toolbar(content: toolbar)
         .navigationTitle(.hostSettings(galleryHost.rawValue))
@@ -136,8 +134,7 @@ struct EhSettingView_Previews: PreviewProvider {
                 store: .init(
                     initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
                     reducer: EhSettingReducer.init
-                ),
-                blurRadius: 0
+                )
             )
         }
     }

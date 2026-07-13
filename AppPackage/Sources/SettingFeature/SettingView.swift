@@ -7,11 +7,9 @@ import ReadingSettingFeature
 
 public struct SettingView: View {
     @Bindable private var store: StoreOf<SettingReducer>
-    private let blurRadius: Double
 
-    public init(store: StoreOf<SettingReducer>, blurRadius: Double) {
+    public init(store: StoreOf<SettingReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     // MARK: SettingView
@@ -39,7 +37,7 @@ public struct SettingView: View {
     private func destination(_ pathStore: StoreOf<SettingPath>) -> some View {
         switch pathStore.case {
         case .account(let accountStore):
-            AccountSettingView(store: accountStore, blurRadius: blurRadius)
+            AccountSettingView(store: accountStore)
 
         case .general(let generalStore):
             GeneralSettingView(
@@ -51,10 +49,10 @@ public struct SettingView: View {
             AppearanceSettingView(store: appearanceStore)
 
         case .login(let loginStore):
-            LoginView(store: loginStore, blurRadius: blurRadius)
+            LoginView(store: loginStore)
 
         case .ehSetting(let ehSettingStore):
-            EhSettingView(store: ehSettingStore, blurRadius: blurRadius)
+            EhSettingView(store: ehSettingStore)
 
         case .appActivityLogs(let logsStore):
             AppActivityLogsView(store: logsStore)
@@ -159,8 +157,7 @@ extension SettingReducer.RootScreen {
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
         SettingView(
-            store: .init(initialState: .init(), reducer: SettingReducer.init),
-            blurRadius: 0
+            store: .init(initialState: .init(), reducer: SettingReducer.init)
         )
     }
 }
