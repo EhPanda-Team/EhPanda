@@ -105,16 +105,18 @@ public struct FavoritesView: View {
                     store.send(.setFavoritesIndex(index))
                 }
             }
-            SortOrderMenu(sortOrder: store.sortOrder) { order in
-                if store.sortOrder != order {
-                    store.send(.fetchGalleries(nil, order))
+            ToolbarFeaturesMenu {
+                SortOrderMenu(sortOrder: store.sortOrder) { order in
+                    if store.sortOrder != order {
+                        store.send(.fetchGalleries(nil, order))
+                    }
                 }
-            }
-            DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
-                store.send(.dateSeekButtonTapped(navigation))
-            }
-            QuickSearchButton(hideText: true) {
-                store.send(.quickSearchButtonTapped)
+                DateSeekButton(navigation: store.dateSeekNavigation) { navigation in
+                    store.send(.dateSeekButtonTapped(navigation))
+                }
+                QuickSearchButton {
+                    store.send(.quickSearchButtonTapped)
+                }
             }
         }
     }
