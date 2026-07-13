@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-10-PLAN.md
-last_updated: "2026-07-13T08:40:39.379Z"
+stopped_at: Completed 05-11-PLAN.md
+last_updated: "2026-07-13T09:03:20.030Z"
 last_activity: 2026-07-13
-last_activity_desc: Phase 05 execution complete; ready for verification
+last_activity_desc: Completed Phase 05 Plan 11; ready for Plan 12
 progress:
   total_phases: 11
-  completed_phases: 5
-  total_plans: 42
-  completed_plans: 42
-  percent: 45
+  completed_phases: 4
+  total_plans: 50
+  completed_plans: 43
+  percent: 36
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 05 (adaptive-layout-universal-orientation) — VERIFYING
-Plan: 10 of 10
+Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
+Plan: 12 of 18
 Status: Ready to execute
-Last activity: 2026-07-13 — Phase 05 execution complete; ready for verification
+Last activity: 2026-07-13 — Completed Phase 05 Plan 11; ready for Plan 12
 Next: verify Phase 05
 
-Progress: [██████████] 100% (42/42 plans)
+Progress: [█████████░] 86% (43/50 plans)
 
 ## Performance Metrics
 
@@ -98,6 +98,7 @@ Progress: [██████████] 100% (42/42 plans)
 | Phase 05 P08 | 15min | 3 tasks | 6 files |
 | Phase 05 P09 | 10min | 3 tasks | 7 files |
 | Phase 05 P10 | 7min | 3 tasks | 3 files |
+| Phase 05 P11 | 3min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,7 @@ Recent decisions affecting current work:
 - [Phase 05]: ApplicationClient selects the last key window from foreground-active scenes, then falls back to the last window of the last scene, preserving the former behavior locally.
 - [Phase 05]: Defaults.FrameSize keeps only the device-independent card height and no longer needs main-actor isolation.
 - [Phase 05]: Runtime rotation and Live Text visual checks remain explicit manual gates for phase verification rather than being inferred from static or unit-test evidence.
+- [Phase 05]: About metadata is the leading Form section so every navigation-bar style preserves it in the scrollable reading order.
 
 ### Pending Todos
 
@@ -180,6 +182,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T06:31:00.214Z
-Stopped at: Completed 05-10-PLAN.md
+Last session: 2026-07-13T09:02:35.192Z
+Stopped at: Completed 05-11-PLAN.md
 Resume file: None
