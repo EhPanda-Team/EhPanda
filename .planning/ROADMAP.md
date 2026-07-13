@@ -182,14 +182,14 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   3. `Defaults.FrameSize`/`ImageSize` no longer derive size from a global.
   4. All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and `Setting.enablesLandscape` are removed, with the OS orientation lock governing.
 
-**Plans**: 4/10 plans executed
+**Plans**: 5/10 plans executed
 Plans (sequential waves — xcodebuild invocations must never overlap on this machine):
 
 - [x] 05-01-PLAN.md — `DeviceType` + `DeviceClient` reshape to `deviceType()` + reducer/nav idiom swap (D-01/D-03)
 - [x] 05-02-PLAN.md — Orientation-lock removal: `AppOrientationMask`/`AppDelegateClient` module + `setOrientationPortrait` flow + `Setting.enablesLandscape` (D-08/D-09/D-10)
 - [x] 05-03-PLAN.md — Idiom-view swaps (TabBar/TagSuggestion/SearchKeywords) + EhSetting width/height metrics
 - [x] 05-04-PLAN.md — AppComponents metric conversion (AlertView/Placeholder/CategoryView/NewDawnView)
-- [ ] 05-05-PLAN.md — DetailFeature metric + preview-size `Defaults` dissolution
+- [x] 05-05-PLAN.md — DetailFeature metric + preview-size `Defaults` dissolution
 - [ ] 05-06-PLAN.md — HomeFeature carousel `onGeometryChange` coupling + card/ranking widths + idiom (D-07)
 - [ ] 05-07-PLAN.md — GeometryReader conversions (LoginView/GalleryInfos easy; LiveTextView delicate) (D-06b)
 - [ ] 05-08-PLAN.md — Reader Wave-0 guard: `GestureHandler` purification + single `onGeometryChange` source + `GestureHandlerTests` + `PageHandler` default removal (D-05)
@@ -294,7 +294,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
 | 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
-| 5. Adaptive Layout & Universal Orientation | 4/10 | In Progress|  |
+| 5. Adaptive Layout & Universal Orientation | 5/10 | In Progress|  |
 | 6. GenericList Decomposition | 0/TBD | Not started | - |
 | 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
