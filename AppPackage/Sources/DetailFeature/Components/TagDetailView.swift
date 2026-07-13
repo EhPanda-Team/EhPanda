@@ -43,6 +43,8 @@ private struct TagDescriptionSection: View {
 }
 
 private struct ImagesSection: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     private let imageURLs: [URL]
 
     init(imageURLs: [URL]) {
@@ -50,7 +52,7 @@ private struct ImagesSection: View {
     }
 
     private var width: CGFloat {
-        Defaults.ImageSize.previewAvgW
+        horizontalSizeClass == .regular ? 200 : 110
     }
     private var height: CGFloat {
         width / Defaults.ImageSize.previewAspect

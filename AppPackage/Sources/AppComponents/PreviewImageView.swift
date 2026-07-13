@@ -7,7 +7,7 @@ import AppTools
 public struct PreviewImageView: View {
     private let originalURL: URL?
     private let maxPixelSize: CGFloat
-    public static let defaultMaxPixelSize = Defaults.ImageSize.previewMaxW * 3
+    public static let defaultMaxPixelSize: CGFloat = 660
 
     public init(
         originalURL: URL?,
