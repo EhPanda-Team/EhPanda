@@ -9,13 +9,11 @@ struct TorrentsView: View {
     @Bindable private var store: StoreOf<TorrentsReducer>
     private let gid: String
     private let token: String
-    private let blurRadius: Double
 
-    init(store: StoreOf<TorrentsReducer>, gid: String, token: String, blurRadius: Double) {
+    init(store: StoreOf<TorrentsReducer>, gid: String, token: String) {
         self.store = store
         self.gid = gid
         self.token = token
-        self.blurRadius = blurRadius
     }
 
     var body: some View {
@@ -45,7 +43,7 @@ struct TorrentsView: View {
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
                 ActivityView(activityItems: [url.wrappedValue])
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
             }
             .toast($store.scope(\.$toast, action: \.toast))
             .animation(.default, value: store.torrents)
@@ -114,8 +112,7 @@ struct TorrentsView_Previews: PreviewProvider {
         TorrentsView(
             store: .init(initialState: .init(), reducer: TorrentsReducer.init),
             gid: .init(),
-            token: .init(),
-            blurRadius: 0
+            token: .init()
         )
     }
 }

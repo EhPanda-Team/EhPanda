@@ -11,15 +11,13 @@ import QuickSearchFeature
 struct DetailSearchView: View {
     @Bindable private var store: StoreOf<DetailSearchReducer>
     private let keyword: String
-    private let blurRadius: Double
 
     init(
         store: StoreOf<DetailSearchReducer>,
-        keyword: String, blurRadius: Double
+        keyword: String
     ) {
         self.store = store
         self.keyword = keyword
-        self.blurRadius = blurRadius
     }
 
     var body: some View {
@@ -43,13 +41,13 @@ struct DetailSearchView: View {
                 self.store.send(.fetchGalleries(keyword))
             }
             .accentColor(self.store.setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .accentColor(self.store.setting.accentColor).autoBlur(radius: blurRadius)
+                .accentColor(self.store.setting.accentColor).privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
@@ -90,8 +88,7 @@ struct DetailSearchView_Previews: PreviewProvider {
     static var previews: some View {
         DetailSearchView(
             store: .init(initialState: .init(), reducer: DetailSearchReducer.init),
-            keyword: .init(),
-            blurRadius: 0
+            keyword: .init()
         )
     }
 }
