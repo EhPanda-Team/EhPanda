@@ -31,7 +31,7 @@ struct AppActivityLogsView: View {
                 .foregroundColor(.secondary)
                 .opacity(store.loadingState != .loading && store.displayedLogs.isEmpty ? 1 : 0)
         }
-        .searchable(text: $keyword)
+        .searchable(text: $keyword, placement: .navigationBarDrawer)
         .onSubmit(of: .search) {
             store.send(.queryLogs(keyword))
         }

@@ -73,8 +73,13 @@ public struct GalleryCardCell: View {
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
-                    Text(title).font(.title3.bold()).lineLimit(4)
+                    Text(title)
+                        .font(.title3.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(4)
+
                     Spacer()
+
                     RatingView(rating: gallery.rating).foregroundColor(.yellow)
                 }
                 .padding(.leading, 15)

@@ -70,7 +70,7 @@ struct WatchedView: View {
             .accentColor(self.store.setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .searchable(text: $store.keyword)
+        .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
             TagSuggestionView(
                 keyword: $store.keyword, translations: store.tagTranslator.translations,
