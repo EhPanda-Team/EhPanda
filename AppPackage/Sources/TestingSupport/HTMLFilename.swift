@@ -1,4 +1,4 @@
-public enum HTMLFilename: String {
+public enum HTMLFilename: String, Sendable {
     // List
     // FrontPage
     case frontPageMinimalList = "FrontPageMinimalList"
