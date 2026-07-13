@@ -109,6 +109,7 @@ enum Module: String {
     case testingSupport = "TestingSupport"
 
     // Test targets
+    case appFeatureTests = "AppFeatureTests"
     case parserFeatureTests = "ParserFeatureTests"
     case downloadsFeatureTests = "DownloadsFeatureTests"
     case fileClientTests = "FileClientTests"
@@ -834,6 +835,14 @@ let targets: [PackageDescription.Target] = [
     ),
 
     // MARK: Tests
+    .testTarget(
+        module: .appFeatureTests,
+        dependencies: [
+            .module(.appFeature),
+            .targetDependency(.composableArchitecture)
+        ],
+        plugins: swiftLintPlugins
+    ),
     .testTarget(
         module: .parserFeatureTests,
         dependencies: [
