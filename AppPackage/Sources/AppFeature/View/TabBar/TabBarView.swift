@@ -41,13 +41,11 @@ struct TabBarView: View {
                     switch type {
                     case .home:
                         HomeView(
-                            store: store.scope(\.homeState, action: \.home),
-                            blurRadius: 0
+                            store: store.scope(\.homeState, action: \.home)
                         )
                     case .favorites:
                         FavoritesView(
-                            store: store.scope(\.favoritesState, action: \.favorites),
-                            blurRadius: 0
+                            store: store.scope(\.favoritesState, action: \.favorites)
                         )
                     case .search:
                         SearchRootView(

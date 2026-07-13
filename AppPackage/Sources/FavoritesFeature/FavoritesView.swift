@@ -12,14 +12,9 @@ import DetailFeature
 
 public struct FavoritesView: View {
     @Bindable private var store: StoreOf<FavoritesReducer>
-    private let blurRadius: Double
 
-    public init(
-        store: StoreOf<FavoritesReducer>,
-        blurRadius: Double
-    ) {
+    public init(store: StoreOf<FavoritesReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     private var navigationTitle: String {
@@ -31,8 +26,7 @@ public struct FavoritesView: View {
         GalleryNavigationContainer(
             store: store,
             state: \.path,
-            action: \.path,
-            blurRadius: blurRadius
+            action: \.path
         ) {
             ZStack {
                 if CookieUtil.didLogin {
@@ -61,7 +55,7 @@ public struct FavoritesView: View {
                     self.store.send(.fetchGalleries(keyword))
                 }
                 .accentColor(self.store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).dateSeek
@@ -73,7 +67,7 @@ public struct FavoritesView: View {
                     seekAction: { store.send(.performSeek($0)) }
                 )
                 .accentColor(self.store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
             }
             .searchable(text: $store.keyword, placement: .navigationBarDrawer)
             .searchSuggestions {
@@ -125,8 +119,7 @@ public struct FavoritesView: View {
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
-            store: .init(initialState: .init(), reducer: FavoritesReducer.init),
-            blurRadius: 0
+            store: .init(initialState: .init(), reducer: FavoritesReducer.init)
         )
     }
 }
