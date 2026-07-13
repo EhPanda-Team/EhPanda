@@ -11,14 +11,9 @@ import QuickSearchFeature
 
 struct SearchView: View {
     @Bindable private var store: StoreOf<SearchReducer>
-    private let blurRadius: Double
 
-    init(
-        store: StoreOf<SearchReducer>,
-        blurRadius: Double
-    ) {
+    init(store: StoreOf<SearchReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     var body: some View {
@@ -43,13 +38,13 @@ struct SearchView: View {
                 self.store.send(.fetchGalleries(keyword))
             }
             .accentColor(self.store.setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
-                .accentColor(self.store.setting.accentColor).autoBlur(radius: blurRadius)
+                .accentColor(self.store.setting.accentColor).privacyMask()
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).dateSeek
@@ -61,7 +56,7 @@ struct SearchView: View {
                 seekAction: { store.send(.performSeek($0)) }
             )
             .accentColor(self.store.setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .searchable(text: $store.keyword, placement: .navigationBarDrawer)
         .searchSuggestions {
@@ -105,8 +100,7 @@ struct SearchView: View {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView(
-            store: .init(initialState: .init(), reducer: SearchReducer.init),
-            blurRadius: 0
+            store: .init(initialState: .init(), reducer: SearchReducer.init)
         )
     }
 }
