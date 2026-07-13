@@ -71,6 +71,13 @@ extension SharedKey where Self == InMemoryKey<Greeting?>.Default {
     }
 }
 
+/// Transient scene-phase blur written by `AppReducer` and read by `.privacyMask()`, reset to `0` on launch.
+extension SharedKey where Self == InMemoryKey<Double>.Default {
+    public static var privacyMaskBlur: Self {
+        Self[.inMemory("privacyMaskBlur"), default: 0]
+    }
+}
+
 // MARK: Filters
 
 extension SharedKey where Self == AppStorageKey<Filter>.Default {
