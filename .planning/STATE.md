@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Completed 05-08-PLAN.md
-last_updated: "2026-07-13T06:05:35.176Z"
+stopped_at: Completed 05-09-PLAN.md
+last_updated: "2026-07-13T06:19:03.838Z"
 last_activity: 2026-07-13
 last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 42
-  completed_plans: 40
-  percent: 95
+  completed_plans: 41
+  percent: 36
 ---
 
 # Project State
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Last activity: 2026-07-13 — Phase 05 execution started
 Next: plan Phase 05
 
-Progress: [██████████] 95% (40/42 plans)
+Progress: [██████████] 98% (41/42 plans)
 
 ## Performance Metrics
 
@@ -96,6 +96,7 @@ Progress: [██████████] 95% (40/42 plans)
 | Phase 05 P06 | 12min | 2 tasks | 2 files |
 | Phase 05 P07 | 6min | 2 tasks | 3 files |
 | Phase 05 P08 | 15min | 3 tasks | 6 files |
+| Phase 05 P09 | 10min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Live Text OCR paths and interactive overlays share one captured nonzero size; Canvas uses its closure size only for the full-surface tint. — This preserves normalized coordinate alignment while guarding the initial geometry pass.
 - [Phase 05]: Reader gesture math consumes one outer-container size while existing gesture sources continue supplying locations until Plan 05-09.
 - [Phase 05]: PageHandler requires isLandscape at every call site; the construction-time resume seed uses portrait mapping until observed geometry is available.
+- [Phase 05]: Reader pinch gestures use MagnifyGesture.startAnchor directly while double taps derive their anchor from SpatialTapGesture.location. — Each native gesture source now supplies the coordinate representation its baseline-locked arithmetic expects.
+- [Phase 05]: Reader landscape eligibility derives from captured container width greater than height. — One local size now governs dual-page mapping and reader controls under rotation and resized containers.
 
 ### Pending Todos
 
@@ -172,6 +175,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T06:05:35.171Z
-Stopped at: Completed 05-08-PLAN.md
+Last session: 2026-07-13T06:19:03.686Z
+Stopped at: Completed 05-09-PLAN.md
 Resume file: None
