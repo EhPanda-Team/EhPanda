@@ -69,6 +69,8 @@ struct ArchivesView: View {
 
 // MARK: HathArchivesView
 private struct HathArchivesView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     private let archives: [GalleryArchive.HathArchive]
     @Binding private var selection: GalleryArchive.HathArchive?
 
@@ -77,12 +79,10 @@ private struct HathArchivesView: View {
         _selection = selection
     }
 
-    private let gridItems = [
-        GridItem(.adaptive(
-            minimum: Defaults.FrameSize.archiveGridWidth,
-            maximum: Defaults.FrameSize.archiveGridWidth
-        ))
-    ]
+    private var itemWidth: CGFloat { horizontalSizeClass == .regular ? 175 : 150 }
+    private var gridItems: [GridItem] {
+        [GridItem(.adaptive(minimum: itemWidth, maximum: itemWidth))]
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -94,7 +94,11 @@ private struct HathArchivesView: View {
                             HapticsUtil.generateFeedback(style: .soft)
                         }
                     } label: {
-                        HathArchiveGrid(isSelected: selection == archive, archive: archive)
+                        HathArchiveGrid(
+                            isSelected: selection == archive,
+                            archive: archive,
+                            width: itemWidth
+                        )
                             .tint(.primary).multilineTextAlignment(.center)
                     }
                 }
@@ -135,6 +139,7 @@ private struct ArchiveFundsView: View {
 private struct HathArchiveGrid: View {
     private let isSelected: Bool
     private let archive: GalleryArchive.HathArchive
+    private let width: CGFloat
 
     private var disabledColor: Color {
         .gray.opacity(0.5)
@@ -148,16 +153,14 @@ private struct HathArchiveGrid: View {
     private var foregroundColor: Color? {
         !archive.isValid ? disabledColor : nil
     }
-    private var width: CGFloat {
-        Defaults.FrameSize.archiveGridWidth
-    }
     private var height: CGFloat {
         width / 1.5
     }
 
-    init(isSelected: Bool, archive: GalleryArchive.HathArchive) {
+    init(isSelected: Bool, archive: GalleryArchive.HathArchive, width: CGFloat) {
         self.isSelected = isSelected
         self.archive = archive
+        self.width = width
     }
 
     var body: some View {
@@ -189,6 +192,8 @@ private struct HathArchiveGrid: View {
 
 // MARK: DownloadButton
 private struct DownloadButton: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     @State private var isPressing = false
 
     private var isDisabled: Bool
@@ -206,7 +211,7 @@ private struct DownloadButton: View {
         isDisabled ? .accentColor.opacity(0.5) : isPressing ? .accentColor.opacity(0.5) : .accentColor
     }
     private var paddingInsets: EdgeInsets {
-        DeviceUtil.isPadWidth
+        horizontalSizeClass == .regular
             ? .init(top: 0, leading: 0, bottom: 30, trailing: 0)
             : .init(top: 0, leading: 10, bottom: 30, trailing: 10)
     }
