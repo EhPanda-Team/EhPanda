@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 07
 current_phase_name: root-privacy-mask-auto-lock-removal
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-07-13T16:52:58.575Z"
-last_activity: 2026-07-13
-last_activity_desc: Completed Phase 07 Plan 01 privacy-mask foundation
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-07-13T17:14:26.388Z"
+last_activity: 2026-07-14
+last_activity_desc: Completed Phase 07 Plan 02 privacy-mask behavioral core
 progress:
   total_phases: 11
   completed_phases: 5
   total_plans: 58
-  completed_plans: 51
-  percent: 88
+  completed_plans: 52
+  percent: 90
 ---
 
 # Project State
@@ -29,18 +29,18 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 ## Current Position
 
 Phase: 07 (root-privacy-mask-auto-lock-removal) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
-Last activity: 2026-07-14 — Completed Phase 07 Plan 01 privacy-mask foundation
-Next: verify Phase 05 through conversational UAT
+Last activity: 2026-07-14 — Completed Phase 07 Plan 02 privacy-mask behavioral core
+Next: execute Phase 07 Plan 03
 
-Progress: [█████████░] 88% (51/58 plans)
+Progress: [█████████░] 90% (52/58 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 32
+- Total plans completed: 52
 - Average duration: — min
 - Total execution time: 0.0 hours
 
@@ -107,6 +107,7 @@ Progress: [█████████░] 88% (51/58 plans)
 | Phase 05 P17 | 3min | 2 tasks | 2 files |
 | Phase 05 P18 | 9 min | 1 tasks | 0 files |
 | Phase 07 P01 | 8min | 3 tasks | 3 files |
+| Phase 07 P02 | 13min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -174,6 +175,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Deep-link, URL, and clipboard gallery entries remain the intentional device-independent modal baseline. — These app-route presentations are documented behavior and are separate from host gallery-tap routing.
 - [Phase 07]: 07-01: The privacy-mask blur is transient in-memory state and starts at a true zero on every launch.
 - [Phase 07]: 07-01: The privacyMask modifier owns a read-only SharedReader so callers need no store scope or blur argument.
+- [Phase 07]: loadUserSettingsDone is the single cold-launch clipboard-detection owner; the active scene branch handles later foreground entries. — Pre-load active transitions are ignored, preventing duplicate cold-launch clipboard detection while preserving later foreground behavior.
+- [Phase 07]: privacyMaskIntensity remains a version-1 Setting field with default 10 and no migration. — The pre-release schema policy accepts resetting the renamed key to its parity default.
+- [Phase 07]: The Privacy Mask slider owns a localized accessibility label and treats its eye icons as decorative. — This keeps the native adjustable control concise for VoiceOver without announcing redundant symbols.
 
 ### Pending Todos
 
@@ -203,6 +207,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T16:52:58.569Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-07-13T17:14:26.382Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
