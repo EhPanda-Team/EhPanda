@@ -10,11 +10,9 @@ import SystemNotificationExt
 struct AccountSettingView: View {
     @Bindable private var store: StoreOf<AccountSettingReducer>
     @Shared(.setting) private var setting: Setting
-    private let blurRadius: Double
 
-    init(store: StoreOf<AccountSettingReducer>, blurRadius: Double) {
+    init(store: StoreOf<AccountSettingReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     // MARK: AccountSettingView
@@ -50,7 +48,7 @@ struct AccountSettingView: View {
         .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
             WebView(url: url.wrappedValue)
                 .ignoresSafeArea(edges: .bottom)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
         }
         .onAppear { store.send(.loadCookies) }
         .onChange(of: setting.galleryHost) { _, newValue in
@@ -181,8 +179,7 @@ struct AccountSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             AccountSettingView(
-                store: .init(initialState: .init(), reducer: AccountSettingReducer.init),
-                blurRadius: 0
+                store: .init(initialState: .init(), reducer: AccountSettingReducer.init)
             )
         }
     }
