@@ -1,8 +1,6 @@
-import LocalAuthentication
 import AppModels
 import Resources
 import ComposableArchitecture
-import AuthorizationClient
 import ApplicationClient
 import LibraryClient
 import OSLogExt
@@ -42,7 +40,6 @@ public struct GeneralSettingReducer: Sendable {
 
         public var loadingState: LoadingState = .idle
         public var diskImageCacheSize = "0 KB"
-        public var passcodeNotSet = false
 
         public init() {}
     }
@@ -60,13 +57,11 @@ public struct GeneralSettingReducer: Sendable {
 
         case clearImageCachesButtonTapped
         case clearWebImageCache
-        case checkPasscodeSetting
         case navigateToSystemSetting
         case calculateWebImageDiskCache
         case calculateWebImageDiskCacheDone(UInt?)
     }
 
-    @Dependency(\.authorizationClient) private var authorizationClient
     @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.libraryClient) private var libraryClient
 
@@ -141,10 +136,6 @@ public struct GeneralSettingReducer: Sendable {
                     logger.notice("Cleared image cache.")
                     await send(.calculateWebImageDiskCache)
                 }
-
-            case .checkPasscodeSetting:
-                state.passcodeNotSet = authorizationClient.passcodeNotSet()
-                return .none
 
             case .navigateToSystemSetting:
                 return .run(operation: { _ in await applicationClient.openSettings() })
