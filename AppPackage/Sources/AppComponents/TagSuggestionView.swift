@@ -6,8 +6,11 @@ import Resources
 import Kingfisher
 import Observation
 import AppTools
+import Dependencies
+import DeviceClient
 
 public struct TagSuggestionView: View {
+    @Dependency(\.deviceClient) private var deviceClient
     @Binding private var keyword: String
     private let translations: [String: TagTranslation]
     private let showsImages: Bool
@@ -24,7 +27,7 @@ public struct TagSuggestionView: View {
 
     public var body: some View {
         if isEnabled {
-            if DeviceUtil.isPhone {
+            if deviceClient.deviceType() == .phone {
                 Text(.matchesCount(count: translationHandler.suggestions.count))
                     .foregroundColor(.secondary)
                     .font(.subheadline)
@@ -47,6 +50,7 @@ public struct TagSuggestionView: View {
 
 // MARK: SuggestionCell
 private struct SuggestionCell: View {
+    @Dependency(\.deviceClient) private var deviceClient
     private let suggestion: TagSuggestion
     private let showsImages: Bool
     private let action: () -> Void
@@ -80,7 +84,7 @@ private struct SuggestionCell: View {
     }
 
     var body: some View {
-        if DeviceUtil.isPhone {
+        if deviceClient.deviceType() == .phone {
             HStack(spacing: 20) {
                 Image(systemSymbol: .magnifyingglass)
 
