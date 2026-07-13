@@ -182,7 +182,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
   3. `Defaults.FrameSize`/`ImageSize` no longer derive size from a global.
   4. All pages rotate with the device; `AppOrientationMask` masking, `AppDelegateClient.setOrientation*`, the reading `setOrientationPortrait` flow, and `Setting.enablesLandscape` are removed, with the OS orientation lock governing.
 
-**Plans**: 9/10 plans executed
+**Plans**: 10/10 plans executed
 Plans (sequential waves — xcodebuild invocations must never overlap on this machine):
 
 - [x] 05-01-PLAN.md — `DeviceType` + `DeviceClient` reshape to `deviceType()` + reducer/nav idiom swap (D-01/D-03)
@@ -194,7 +194,7 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 - [x] 05-07-PLAN.md — GeometryReader conversions (LoginView/GalleryInfos easy; LiveTextView delicate) (D-06b)
 - [x] 05-08-PLAN.md — Reader Wave-0 guard: `GestureHandler` purification + single `onGeometryChange` source + `GestureHandlerTests` + `PageHandler` default removal (D-05)
 - [x] 05-09-PLAN.md — Reader source swap: `SpatialTapGesture`/`MagnifyGesture` + D-04 aspect landscape flag + `TouchHandler` deletion (D-04/D-05)
-- [ ] 05-10-PLAN.md — Cleanup: `Defaults` dissolution + `ApplicationClient` window rehome + `DeviceUtil` deletion + phase gates
+- [x] 05-10-PLAN.md — Cleanup: `Defaults` dissolution + `ApplicationClient` window rehome + `DeviceUtil` deletion + phase gates
 
 **UI hint**: yes
 
@@ -294,7 +294,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Native Masonry Grid Swap | 4/4 | Complete    | 2026-07-11 |
 | 3. Native Reader Paging Swap | 5/5 | Complete    | 2026-07-12 |
 | 4. Concurrency & Framework Migration | 14/14 | Complete    | 2026-07-12 |
-| 5. Adaptive Layout & Universal Orientation | 9/10 | In Progress|  |
+| 5. Adaptive Layout & Universal Orientation | 10/10 | In Progress|  |
 | 6. GenericList Decomposition | 0/TBD | Not started | - |
 | 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
