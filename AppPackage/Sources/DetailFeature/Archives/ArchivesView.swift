@@ -79,7 +79,9 @@ private struct HathArchivesView: View {
         _selection = selection
     }
 
-    private var itemWidth: CGFloat { horizontalSizeClass == .regular ? 175 : 150 }
+    private var itemWidth: CGFloat {
+        DetailLayout.archiveWidth(regular: horizontalSizeClass == .regular)
+    }
     private var gridItems: [GridItem] {
         [GridItem(.adaptive(minimum: itemWidth, maximum: itemWidth))]
     }

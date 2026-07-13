@@ -73,6 +73,13 @@ struct PageHandlerTests {
         #expect(handler.mapToPager(index: readingPage, setting: setting, isLandscape: true) == pagerIndex)
     }
 
+    @Test
+    func landscapeResumePageMapsToExpectedDualPageStack() {
+        let handler = PageHandler()
+        let setting = makeSetting(enablesDualPageMode: true)
+        #expect(handler.mapToPager(index: 6, setting: setting, isLandscape: true) == 2)
+    }
+
     // Cover exception: the cover stands alone, so stack i (>0) shows pages {2i, 2i+1} and its
     // first reading page is 2i; stack 0 is the cover (page 1).
     @Test(arguments: zip([0, 1, 2, 3, 10], [1, 2, 4, 6, 20]))

@@ -7,6 +7,7 @@ import AppTools
 public struct PreviewImageView: View {
     private let originalURL: URL?
     private let maxPixelSize: CGFloat
+    // Three pixels per point at the detail grid's roughly 220-point maximum preview width.
     public static let defaultMaxPixelSize: CGFloat = 660
 
     public init(

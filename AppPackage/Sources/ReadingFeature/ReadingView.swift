@@ -39,6 +39,7 @@ public struct ReadingView: View {
         store: StoreOf<ReadingReducer>,
         gid: String, blurRadius: Double
     ) {
+        @Dependency(\.deviceClient) var deviceClient
         self.store = store
         self.gid = gid
         self.blurRadius = blurRadius
@@ -52,7 +53,7 @@ public struct ReadingView: View {
         let pagerIndex = handler.mapToPager(
             index: resumePage,
             setting: store.state.setting,
-            isLandscape: false
+            isLandscape: deviceClient.isLandscape()
         )
         _pageHandler = State(wrappedValue: handler)
         _pageModel = State(wrappedValue: .withIndex(pagerIndex))

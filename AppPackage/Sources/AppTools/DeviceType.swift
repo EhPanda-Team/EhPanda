@@ -7,23 +7,8 @@ public enum DeviceType: Equatable, Sendable, CaseIterable {
     // swiftlint:disable:next identifier_name
     case unspecified, phone, pad, watch, tv, carPlay, mac, vision
 
-    @MainActor
-    public static var current: Self {
-        #if os(macOS)
-        .mac
-        #elseif os(tvOS)
-        .tv
-        #elseif os(watchOS)
-        .watch
-        #elseif os(visionOS)
-        .vision
-        #elseif canImport(UIKit)
-        .init(idiom: UIDevice.current.userInterfaceIdiom)
-        #endif
-    }
-
     #if canImport(UIKit)
-    init(idiom: UIUserInterfaceIdiom) {
+    public init(idiom: UIUserInterfaceIdiom) {
         switch idiom {
         case .unspecified: self = .unspecified
         case .phone: self = .phone

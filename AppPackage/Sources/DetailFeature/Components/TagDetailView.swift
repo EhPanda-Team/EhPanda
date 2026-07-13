@@ -52,7 +52,7 @@ private struct ImagesSection: View {
     }
 
     private var width: CGFloat {
-        horizontalSizeClass == .regular ? 200 : 110
+        DetailLayout.previewWidth(regular: horizontalSizeClass == .regular)
     }
     private var height: CGFloat {
         width / Defaults.ImageSize.previewAspect
