@@ -5,6 +5,8 @@ import Kingfisher
 import SFSafeSymbols
 import AppTools
 import AppComponents
+import Dependencies
+import DeviceClient
 
 // Sliding-window sizing for the carousel's infinite loop: `bufferedCards` exposes
 // `windowBlocks` concatenated copies of the gallery list, and every settle rebases the
@@ -22,6 +24,7 @@ private let middleBlock = windowBlocks / 2
 // MARK: CardSlideSection
 struct CardSlideSection: View, Equatable {
     @State private var scrollPositionID: Int?
+    @State private var carouselWidth: CGFloat = 0
     // Origin of the sliding id window (see `bufferedCards`). Only ever shifted by whole
     // blocks (multiples of `galleries.count`), so a card's logical index is invariant
     // under rebase whether derived from its id or from its layout slot.
@@ -106,6 +109,7 @@ struct CardSlideSection: View, Equatable {
         .contentMargins(.horizontal, centeringMargin, for: .scrollContent)
         .scrollClipDisabled()
         .frame(height: Defaults.FrameSize.cardCellHeight)
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { carouselWidth = $0 }
         .onChange(of: galleries.count) { _, newCount in
             guard newCount > 0 else { return }
             windowBase = 0
@@ -120,7 +124,7 @@ struct CardSlideSection: View, Equatable {
         // together by whole blocks, logical value unchanged) never fires this action.
         .onScrollGeometryChange(for: Int.self) { geometry in
             let count = galleries.count
-            guard count > 0 else { return 0 }
+            guard count > 0, cardWidth > 0 else { return pageIndex }
             // `visibleRect.midX` is inset-convention-proof here: the `.scrollContent` margins are
             // symmetric, so the visible midpoint is identical whether or not they are included.
             let rawSlot = ((geometry.visibleRect.midX - cardWidth / 2) / cardPitch).rounded()
@@ -151,7 +155,7 @@ struct CardSlideSection: View, Equatable {
     }
 
     // Shared by the layout and the nearest-center geometry math — they must never drift apart.
-    private var cardWidth: CGFloat { Defaults.FrameSize.cardCellSize.width }
+    private var cardWidth: CGFloat { carouselWidth * 0.8 }
     private var cardPitch: CGFloat { cardWidth + cardSpacing }
     private let cardSpacing: CGFloat = 20
 
@@ -159,7 +163,7 @@ struct CardSlideSection: View, Equatable {
     // content edge, dumping all the peek on the trailing side, while SwiftUIPager centered
     // the focused card. Symmetric margins of the leftover width restore the centered peek.
     private var centeringMargin: CGFloat {
-        (DeviceUtil.windowW - cardWidth) / 2
+        (carouselWidth - cardWidth) / 2
     }
 
     private func card(for gallery: Gallery) -> some View {
@@ -177,7 +181,7 @@ struct CardSlideSection: View, Equatable {
             .tint(.primary)
             .multilineTextAlignment(.leading)
         }
-        .frame(width: cardWidth, height: Defaults.FrameSize.cardCellSize.height)
+        .frame(width: cardWidth, height: Defaults.FrameSize.cardCellHeight)
         .scrollTransition { content, phase in
             content.opacity(phase.isIdentity ? 1 : 0.2)
         }
@@ -269,6 +273,8 @@ struct VerticalCoverStack: View {
 
 // MARK: ToplistsSection
 struct ToplistsSection: View {
+    @Dependency(\.deviceClient) private var deviceClient
+
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let navigateAction: (Gallery) -> Void
@@ -331,7 +337,7 @@ struct ToplistsSection: View {
                     galleries: galleries(type: type, range: 0...2), startRanking: 1,
                     navigateAction: navigateAction
                 )
-                if DeviceUtil.isPad {
+                if deviceClient.deviceType() == .pad {
                     VerticalToplistsStack(
                         galleries: galleries(type: type, range: 3...5), startRanking: 4,
                         navigateAction: navigateAction
@@ -344,6 +350,8 @@ struct ToplistsSection: View {
 }
 
 struct VerticalToplistsStack: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     private let galleries: [Gallery]
     private let startRanking: Int
     private let navigateAction: (Gallery) -> Void
@@ -372,7 +380,9 @@ struct VerticalToplistsStack: View {
                 }
             }
         }
-        .frame(width: Defaults.FrameSize.rankingCellWidth)
+        .containerRelativeFrame(.horizontal) { width, _ in
+            width * (horizontalSizeClass == .regular ? 0.4 : 0.7)
+        }
     }
 }
 
