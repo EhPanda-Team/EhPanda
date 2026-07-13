@@ -60,7 +60,7 @@ EhPanda/
 - `AppModels` — `Persistent/` (Setting, Filter, User, GalleryHistory, AppIconType), `Persistence/` (AppSharedKeys, SchemaMigrator, SchemaVersion, VersionedSchema, JSONValue), plus `Gallery/`, `Download/`, `Tags/`, `Support/`, `Utilities/`, `Resources/`.
 
 **Shared UI / utilities:**
-- `AppComponents`, `GalleryListComponents`, `AppTools` (CookieUtil, FileUtil, DataCache, Extensions), `Resources`, `TestingSupport`.
+- `AppComponents`, `GalleryListComponents`, `AppTools` (DeviceType, CookieUtil, FileUtil, DataCache, Extensions), `Resources`, `TestingSupport`.
 
 **Catalog / library extensions:**
 - `CommonMarkExt`, `OSLogExt`, `OpenCCExt`, `SFSafeSymbolsExt`, `SystemNotificationExt`.
