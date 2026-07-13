@@ -53,7 +53,7 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
         store: Store<HostState, HostAction>,
         state statePath: KeyPath<HostState, StackState<GalleryPath.State>>,
         action actionPath: CaseKeyPath<HostAction, StackActionOf<GalleryPath>>,
-        blurRadius: Double,
+        blurRadius: Double = 0,
         @ViewBuilder root: () -> Root
     ) {
         self.store = store
