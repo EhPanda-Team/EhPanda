@@ -46,7 +46,11 @@ public struct ReadingView: View {
         let resumePage = max(store.state.readingProgress, 1)
         let handler = PageHandler()
         handler.sliderValue = Float(resumePage)
-        let pagerIndex = handler.mapToPager(index: resumePage, setting: store.state.setting)
+        let pagerIndex = handler.mapToPager(
+            index: resumePage,
+            setting: store.state.setting,
+            isLandscape: false
+        )
         _pageHandler = State(wrappedValue: handler)
         _pageModel = State(wrappedValue: .withIndex(pagerIndex))
         _scrollPositionID = State(initialValue: pagerIndex)
@@ -248,7 +252,10 @@ public struct ReadingView: View {
             }
             .onChange(of: pageModel.index) { _, newValue in
                 let newValue = pageHandler.mapFromPager(
-                    index: newValue, pageCount: store.gallery.pageCount, setting: store.setting
+                    index: newValue,
+                    pageCount: store.gallery.pageCount,
+                    setting: store.setting,
+                    isLandscape: DeviceUtil.isLandscape
                 )
                 pageHandler.sliderValue = .init(newValue)
                 store.send(.syncReadingProgress(.init(newValue)))
@@ -333,7 +340,9 @@ extension ReadingView {
     }
     func setPageIndex(sliderValue: Float) {
         let newValue = pageHandler.mapToPager(
-            index: .init(sliderValue), setting: store.setting
+            index: .init(sliderValue),
+            setting: store.setting,
+            isLandscape: DeviceUtil.isLandscape
         )
         jump(toPagerIndex: newValue)
     }
