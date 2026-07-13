@@ -72,16 +72,16 @@ final class GestureHandler {
         setScale(scale: newScale, maximum: scaleMaximum)
     }
 
-    func onMagnificationGestureChanged(value: Double, location: CGPoint, scaleMaximum: Double) {
+    func onMagnifyGestureChanged(value: Double, anchor: UnitPoint, scaleMaximum: Double) {
         if value == 1 {
             baseScale = scale
         }
-        correctScaleAnchor(point: location)
+        scaleAnchor = anchor
         setScale(scale: value * baseScale, maximum: scaleMaximum)
     }
 
-    func onMagnificationGestureEnded(value: Double, location: CGPoint, scaleMaximum: Double) {
-        onMagnificationGestureChanged(value: value, location: location, scaleMaximum: scaleMaximum)
+    func onMagnifyGestureEnded(value: Double, anchor: UnitPoint, scaleMaximum: Double) {
+        onMagnifyGestureChanged(value: value, anchor: anchor, scaleMaximum: scaleMaximum)
         if value * baseScale - 1 < 0.01 {
             setScale(scale: 1, maximum: scaleMaximum)
         }
