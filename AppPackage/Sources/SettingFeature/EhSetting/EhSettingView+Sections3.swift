@@ -109,7 +109,7 @@ struct ExcludedLanguagesSection: View {
                 // supplies the row's line height (the category cells below are height-less Color.clear).
                 Text(.RLocalizable.language)
                     .hidden()
-                    .frame(width: DeviceUtil.windowW * 0.25)
+                    .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
 
                 ForEach(EhSetting.ExcludedLanguagesCategory.allCases) { category in
                     Color.clear
@@ -150,7 +150,7 @@ struct ExcludeRow: View {
                 .font(.subheadline)
                 .fixedSize()
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(width: DeviceUtil.windowW * 0.25)
+                .containerRelativeFrame(.horizontal) { width, _ in width * 0.25 }
 
             ForEach(0..<bindings.count, id: \.self) { index in
                 let shouldHide = isFirstRow && index == 0
@@ -186,7 +186,7 @@ struct ExcludedUploadersSection: View {
         Section {
             TextEditor(text: $ehSetting.excludedUploaders)
                 .textInputAutocapitalization(.none)
-                .frame(maxHeight: DeviceUtil.windowH * 0.3)
+                .containerRelativeFrame(.vertical) { height, _ in height * 0.3 }
                 .disableAutocorrection(true)
                 .focused($isFocused)
         } header: {
