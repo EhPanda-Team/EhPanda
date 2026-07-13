@@ -4,17 +4,17 @@ milestone: v3.0.0
 milestone_name: milestone
 current_phase: 05
 current_phase_name: adaptive-layout-universal-orientation
-status: executing
-stopped_at: Completed 05-09-PLAN.md
-last_updated: "2026-07-13T06:19:03.838Z"
+status: verifying
+stopped_at: Completed 05-10-PLAN.md
+last_updated: "2026-07-13T06:31:00.219Z"
 last_activity: 2026-07-13
-last_activity_desc: Phase 05 execution started
+last_activity_desc: Phase 05 execution complete; ready for verification
 progress:
   total_phases: 11
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 42
-  completed_plans: 41
-  percent: 36
+  completed_plans: 42
+  percent: 45
 ---
 
 # Project State
@@ -28,13 +28,13 @@ See: .planning/PROJECT.md (updated 2026-07-09)
 
 ## Current Position
 
-Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
+Phase: 05 (adaptive-layout-universal-orientation) — VERIFYING
 Plan: 10 of 10
-Status: Ready to execute
-Last activity: 2026-07-13 — Phase 05 execution started
-Next: plan Phase 05
+Status: Phase complete — ready for verification
+Last activity: 2026-07-13 — Phase 05 execution complete; ready for verification
+Next: verify Phase 05
 
-Progress: [██████████] 98% (41/42 plans)
+Progress: [██████████] 100% (42/42 plans)
 
 ## Performance Metrics
 
@@ -97,6 +97,7 @@ Progress: [██████████] 98% (41/42 plans)
 | Phase 05 P07 | 6min | 2 tasks | 3 files |
 | Phase 05 P08 | 15min | 3 tasks | 6 files |
 | Phase 05 P09 | 10min | 3 tasks | 7 files |
+| Phase 05 P10 | 7min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,9 @@ Recent decisions affecting current work:
 - [Phase 05]: PageHandler requires isLandscape at every call site; the construction-time resume seed uses portrait mapping until observed geometry is available.
 - [Phase 05]: Reader pinch gestures use MagnifyGesture.startAnchor directly while double taps derive their anchor from SpatialTapGesture.location. — Each native gesture source now supplies the coordinate representation its baseline-locked arithmetic expects.
 - [Phase 05]: Reader landscape eligibility derives from captured container width greater than height. — One local size now governs dual-page mapping and reader controls under rotation and resized containers.
+- [Phase 05]: ApplicationClient selects the last key window from foreground-active scenes, then falls back to the last window of the last scene, preserving the former behavior locally.
+- [Phase 05]: Defaults.FrameSize keeps only the device-independent card height and no longer needs main-actor isolation.
+- [Phase 05]: Runtime rotation and Live Text visual checks remain explicit manual gates for phase verification rather than being inferred from static or unit-test evidence.
 
 ### Pending Todos
 
@@ -175,6 +179,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T06:19:03.686Z
-Stopped at: Completed 05-09-PLAN.md
+Last session: 2026-07-13T06:31:00.214Z
+Stopped at: Completed 05-10-PLAN.md
 Resume file: None
