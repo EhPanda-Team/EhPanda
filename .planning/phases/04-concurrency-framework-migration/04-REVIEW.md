@@ -1,6 +1,6 @@
 ---
 phase: 04-concurrency-framework-migration
-reviewed: 2026-07-13T08:55:02+09:00
+reviewed: 2026-07-13T09:28:51+09:00
 depth: standard
 files_reviewed: 74
 files_reviewed_list:
@@ -80,10 +80,10 @@ files_reviewed_list:
   - AppPackage/Tests/ParserFeatureTests/Other/DownloadPageErrorParserTests.swift
 findings:
   critical: 0
-  warning: 1
-  info: 3
-  total: 4
-status: issues_found
+  warning: 0
+  info: 0
+  total: 0
+status: clean
 ---
 
 # Phase 04: Code Review Report
@@ -91,7 +91,7 @@ status: issues_found
 **Reviewed:** 2026-07-13
 **Depth:** standard
 **Files Reviewed:** 74
-**Status:** issues_found
+**Status:** clean
 
 ## Summary
 
@@ -114,85 +114,32 @@ TCA declares exactly the two traits enabled (no default trait set is dropped by 
 `traits:` list), and every view change is an in-place scope-syntax swap that preserves the
 original presentation anchors.
 
-One behavioral deviation from the locked parity bar survived into the merged code (WR-01), plus
-three informational quality/documentation items.
+The three queued changes have been applied and re-reviewed. No actionable findings remain.
 
-## Warnings
+## Resolved Findings
 
-### WR-01: Missing-thumbnail-index in image refetch is now retried 4× (formerly a single attempt)
+### WR-01 — Fixed: missing thumbnail indexes no longer retry
 
-**File:** `AppPackage/Sources/NetworkingFeature/Request+Image.swift:186` (loop) and `:216` (guard)
-**Issue:** In the legacy Combine chain, `storedThumbnailURL()` used
-`.compactMap { thumbnailURLs[index] }`: when the freshly parsed detail page did not contain the
-requested index, the publisher completed *empty* — `genericRetry()` only re-subscribes on
-failure, so the chain made exactly **one** attempt and the async bridge surfaced
-`AppError.unknown`. The rewrite converts that case into `throw AppError.unknown` inside
-`refetchAttempt()`, which the surrounding `for _ in 1...4` loop catches as a retryable error. A
-permanently missing index therefore now re-fetches and re-parses the whole chain three extra
-times before surfacing the same `.unknown`. The final user-visible error is identical, but the
-phase's contract (04-CONTEXT D-06 lists retry count as a parity dimension) makes this a genuine,
-undocumented delta — the report's accepted-delta section covers only the cancellation change,
-and no baseline test locks this corner (`ImageRequestBaselineTests` covers transport-failure
-retries only).
-**Fix:** Make the missing-index case non-retryable, restoring the single-attempt semantics:
-```swift
-private struct MissingThumbnailIndex: Error {}
+`GalleryNormalImageURLRefetchRequest` now uses a private sentinel for a missing freshly parsed
+thumbnail index. The retry loop maps that sentinel directly to `AppError.unknown`, restoring
+the legacy single-attempt behavior while leaving genuine parse and transport failures retryable.
+`normalImageRefetchMissingIndexFailsWithoutRetry` locks the one-attempt contract.
 
-// in refetchAttempt():
-guard let thumbnail = thumbnails[index] else {
-    throw MissingThumbnailIndex()
-}
+### IN-01 — Fixed: redundant `.noUpdates` branch removed
 
-// in response()'s retry loop:
-} catch {
-    if error is MissingThumbnailIndex {
-        throw .unknown
-    }
-    if (error as? URLError)?.code == .cancelled || Task.isCancelled {
-        throw mapAppError(error: error)
-    }
-    lastError = error
-}
-```
-Alternatively, if the extra retries are judged acceptable, document this as a second entry in
-the Accepted Behavior Delta section and add a baseline test locking the new count.
+The typed `AppError` catch now sends `.fetchTagTranslatorDone(.failure(error))` directly. The
+downstream action handler remains responsible for any `.noUpdates` behavior.
 
-## Info
+### IN-03 — Fixed: placeholder metadata request removed
 
-### IN-01: Redundant `.noUpdates` switch in tag-translator catch block
+`GalleriesMetadataRequest` now explicitly conforms to `Sendable`. Its task-group children
+capture the real request and call an instance `chunkResult`, eliminating the empty placeholder
+request without changing the two-task sliding window, cancellation, or output ordering.
 
-**File:** `AppPackage/Sources/SettingFeature/SettingReducer+Helpers.swift:116`
-**Issue:** The `catch` block switches on the typed `AppError`:
-`case .noUpdates:` sends `.fetchTagTranslatorDone(.failure(.noUpdates))` while `default:` sends
-`.fetchTagTranslatorDone(.failure(error))`. When `error` is `.noUpdates` the default branch
-would produce the identical action, so the switch is a no-op distinction — dead branching that
-implies special handling where none exists.
-**Fix:** Delete the switch and send `.fetchTagTranslatorDone(.failure(error))` unconditionally,
-matching the pre-migration single-line failure path.
+### IN-02 — Accepted: malformed metadata maps to `.parseFailed`
 
-### IN-02: Byte-invalid tag-translator metadata JSON now maps to `.parseFailed` instead of `.unknown`
-
-**File:** `AppPackage/Sources/NetworkingFeature/Request.swift:330`
-**Issue:** The Combine chain used `try JSONSerialization.jsonObject(...)`; a thrown Cocoa JSON
-error fell through `mapAppError`'s `default` case to `.unknown`. The rewrite uses
-`try?` inside the guard, so byte-level invalid JSON now surfaces as `.parseFailed`. Valid JSON
-with missing keys threw `.parseFailed` in both implementations, and the baseline
-(`tagTranslatorMalformedMetadataMapsParseFailure`) feeds `{}` — valid JSON — so this corner is
-not locked either way. `.parseFailed` is the more accurate classification and `.noUpdates`
-handling is unaffected, but it is an unadvertised mapping change on a parity-bar phase.
-**Fix:** Accept as an improvement and note it in the review's behavior-delta record (this
-entry serves that purpose), or restore `try` + rethrough `mapAppError` for byte-exact parity.
-
-### IN-03: Placeholder request instance constructed to reach protocol-extension helpers
-
-**File:** `AppPackage/Sources/NetworkingFeature/Request+GalleriesMetadata.swift:160`
-**Issue:** `chunkResult` is `static` and builds `Self(gidList: [], urlSession: urlSession)`
-solely to call the `gdataResponse` protocol-extension method. A dummy request whose `gidList`
-is deliberately empty (while the real gid list travels in the `gidlist` argument) reads as a
-bug on first encounter. `GalleriesMetadataRequest` is Sendable, so the task-group closure could
-capture the real instance instead.
-**Fix:** Drop the `static` and capture `self` in `group.addTask` (the struct is Sendable), or
-hoist `gdataResponse` to a free function taking its dependencies explicitly.
+The more accurate `.parseFailed` classification remains an intentional behavior improvement.
+It does not affect `.noUpdates` handling or the UI error surface.
 
 ## Review Evidence
 
@@ -224,11 +171,11 @@ hoist `gdataResponse` to a free function taking its dependencies explicitly.
 
 Native URLSession cancellation now stops active transport work immediately; the removed
 continuation bridge could leave it running. TCA discarded the cancelled effect's send in both
-implementations, so user-visible behavior is unchanged. WR-01 and IN-02 above are the two
-additional deltas identified by this review; neither was previously documented.
+implementations, so user-visible behavior is unchanged. IN-02 above is also accepted as the
+more accurate error classification. WR-01 was fixed and is no longer a behavior delta.
 
 ---
 
-_Reviewed: 2026-07-13T08:55:02+09:00_
-_Reviewer: Claude (inline gsd-code-review, no subagents)_
+_Reviewed: 2026-07-13T09:28:51+09:00_
+_Reviewer: Codex (inline re-review after fixes)_
 _Depth: standard_
