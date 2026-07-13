@@ -11,15 +11,12 @@ import ReadingFeature
 public struct DetailView: View {
     @Bindable var store: StoreOf<DetailReducer>
     let gid: String
-    let blurRadius: Double
 
     public init(
-        store: StoreOf<DetailReducer>, gid: String,
-        blurRadius: Double
+        store: StoreOf<DetailReducer>, gid: String
     ) {
         self.store = store
         self.gid = gid
-        self.blurRadius = blurRadius
     }
 
     public var body: some View {
@@ -194,15 +191,15 @@ private extension DetailView {
                     onAppearAction: { store.send(.onPostCommentAppear) }
                 )
                 .accentColor(self.store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
             }
             .sheet(item: $store.destination.newDawn) { greeting in
                 NewDawnView(greeting: greeting.wrappedValue)
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
             }
             .sheet(item: $store.destination.tagDetail, id: \.title) { detail in
                 TagDetailView(detail: detail.wrappedValue)
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
             }
     }
 
@@ -214,10 +211,10 @@ private extension DetailView {
                 ReadingView(
                     store: store,
                     gid: gid,
-                    blurRadius: blurRadius
+                    blurRadius: 0
                 )
                 .accentColor(self.store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).archives
@@ -230,7 +227,7 @@ private extension DetailView {
                         archiveURL: archiveURL
                     )
                     .accentColor(self.store.setting.accentColor)
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
                 }
             }
             .sheet(
@@ -239,22 +236,21 @@ private extension DetailView {
                 TorrentsView(
                     store: store,
                     gid: gid,
-                    token: self.store.gallery.token,
-                    blurRadius: blurRadius
+                    token: self.store.gallery.token
                 )
                 .accentColor(self.store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
             }
             .sheet(
                 item: $store.scope(\.$destination, action: \.destination).folderManager
             ) { store in
                 FolderManagerView(store: store)
                     .accentColor(self.store.setting.accentColor)
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
             }
             .sheet(item: $store.destination.share, id: \.absoluteString) { url in
                 ActivityView(activityItems: [url.wrappedValue])
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
             }
     }
 
@@ -310,8 +306,7 @@ struct DetailView_Previews: PreviewProvider {
         NavigationStack {
             DetailView(
                 store: .init(initialState: .init(gallery: .preview), reducer: DetailReducer.init),
-                gid: .init(),
-                blurRadius: 0
+                gid: .init()
             )
         }
     }

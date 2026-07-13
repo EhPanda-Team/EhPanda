@@ -6,31 +6,26 @@ import ComposableArchitecture
 @MainActor
 @ViewBuilder
 public func galleryDestination(
-    _ store: StoreOf<GalleryPath>,
-    blurRadius: Double = 0
+    _ store: StoreOf<GalleryPath>
 ) -> some View {
     switch store.case {
     case .detail(let detailStore):
         DetailView(
-            store: detailStore, gid: detailStore.gid,
-            blurRadius: blurRadius
+            store: detailStore, gid: detailStore.gid
         )
     case .previews(let previewsStore):
         PreviewsView(
-            store: previewsStore, gid: previewsStore.gid,
-            blurRadius: blurRadius
+            store: previewsStore, gid: previewsStore.gid
         )
     case .comments(let commentsStore):
         CommentsView(
             store: commentsStore, gid: commentsStore.gid, token: commentsStore.token,
             apiKey: commentsStore.apiKey, galleryURL: commentsStore.galleryURL,
-            comments: commentsStore.comments,
-            blurRadius: blurRadius
+            comments: commentsStore.comments
         )
     case .detailSearch(let searchStore):
         DetailSearchView(
-            store: searchStore, keyword: searchStore.keyword,
-            blurRadius: blurRadius
+            store: searchStore, keyword: searchStore.keyword
         )
     case .galleryInfos(let infosStore):
         GalleryInfosView(
@@ -46,20 +41,17 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
     @Bindable private var store: Store<HostState, HostAction>
     private let statePath: KeyPath<HostState, StackState<GalleryPath.State>>
     private let actionPath: CaseKeyPath<HostAction, StackActionOf<GalleryPath>>
-    private let blurRadius: Double
     private let root: Root
 
     public init(
         store: Store<HostState, HostAction>,
         state statePath: KeyPath<HostState, StackState<GalleryPath.State>>,
         action actionPath: CaseKeyPath<HostAction, StackActionOf<GalleryPath>>,
-        blurRadius: Double = 0,
         @ViewBuilder root: () -> Root
     ) {
         self.store = store
         self.statePath = statePath
         self.actionPath = actionPath
-        self.blurRadius = blurRadius
         self.root = root()
     }
 
@@ -67,9 +59,7 @@ public struct GalleryNavigationContainer<HostState: ObservableState, HostAction,
         NavigationStack(path: $store.scope( statePath, action: actionPath)) {
             root
         } destination: { elementStore in
-            galleryDestination(
-                elementStore, blurRadius: blurRadius
-            )
+            galleryDestination(elementStore)
         }
     }
 }

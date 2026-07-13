@@ -10,15 +10,13 @@ struct PreviewsView: View {
 
     @Bindable private var store: StoreOf<PreviewsReducer>
     private let gid: String
-    private let blurRadius: Double
 
     init(
         store: StoreOf<PreviewsReducer>,
-        gid: String, blurRadius: Double
+        gid: String
     ) {
         self.store = store
         self.gid = gid
-        self.blurRadius = blurRadius
     }
 
     private var gridItems: [GridItem] {
@@ -69,10 +67,10 @@ struct PreviewsView: View {
         ) { store in
             ReadingView(
                 store: store,
-                gid: store.gallery.id, blurRadius: blurRadius
+                gid: store.gallery.id, blurRadius: 0
             )
             .accentColor(store.setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .privacyMask()
         }
         .onAppear {
             store.send(.onAppear(gid))
@@ -86,8 +84,7 @@ struct PreviewsView_Previews: PreviewProvider {
         NavigationStack {
             PreviewsView(
                 store: .init(initialState: .init(gallery: .preview), reducer: PreviewsReducer.init),
-                gid: .init(),
-                blurRadius: 0
+                gid: .init()
             )
         }
     }
