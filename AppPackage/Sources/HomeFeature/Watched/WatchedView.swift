@@ -25,7 +25,7 @@ struct WatchedView: View {
     var body: some View {
         ZStack {
             if CookieUtil.didLogin {
-                GenericList(
+                GalleryList(
                     galleries: store.galleries,
                     pageNumber: store.pageNumber,
                     loadingState: store.loadingState,

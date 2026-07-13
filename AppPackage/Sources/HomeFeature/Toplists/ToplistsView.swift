@@ -24,7 +24,7 @@ struct ToplistsView: View {
     }
 
     var body: some View {
-        GenericList(
+        GalleryList(
             galleries: store.filteredGalleries ?? [],
             pageNumber: store.pageNumber,
             loadingState: store.loadingState ?? .idle,

@@ -20,7 +20,7 @@ struct HistoryView: View {
     }
 
     var body: some View {
-        GenericList(
+        GalleryList(
             galleries: store.filteredGalleries,
             pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
             loadingState: store.loadingState,
