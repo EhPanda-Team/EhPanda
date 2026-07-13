@@ -34,8 +34,7 @@ struct AppearanceSettingView: View {
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
-            }
-            Section {
+
                 VStack(alignment: .leading) {
                     Text(.privacyMask)
                     HStack {
