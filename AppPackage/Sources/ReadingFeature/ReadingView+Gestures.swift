@@ -1,5 +1,6 @@
 import SwiftUI
 import AppModels
+import AppTools
 
 // MARK: Gesture
 extension ReadingView {
@@ -7,6 +8,7 @@ extension ReadingView {
         let singleTap = TapGesture(count: 1)
             .onEnded {
                 gestureHandler.onSingleTapGestureEnded(
+                    location: TouchHandler.shared.currentPoint ?? .zero,
                     readingDirection: store.setting.readingDirection,
                     setPageIndexOffsetAction: {
                         // The offset sign arrives RTL-corrected from GestureHandler
@@ -19,6 +21,7 @@ extension ReadingView {
         let doubleTap = TapGesture(count: 2)
             .onEnded {
                 gestureHandler.onDoubleTapGestureEnded(
+                    location: TouchHandler.shared.currentPoint ?? .zero,
                     scaleMaximum: store.setting.maximumScaleFactor,
                     doubleTapScale: store.setting.doubleTapScaleFactor
                 )
@@ -29,12 +32,16 @@ extension ReadingView {
         MagnificationGesture()
             .onChanged {
                 gestureHandler.onMagnificationGestureChanged(
-                    value: $0, scaleMaximum: store.setting.maximumScaleFactor
+                    value: $0,
+                    location: TouchHandler.shared.currentPoint ?? .zero,
+                    scaleMaximum: store.setting.maximumScaleFactor
                 )
             }
             .onEnded {
                 gestureHandler.onMagnificationGestureEnded(
-                    value: $0, scaleMaximum: store.setting.maximumScaleFactor
+                    value: $0,
+                    location: TouchHandler.shared.currentPoint ?? .zero,
+                    scaleMaximum: store.setting.maximumScaleFactor
                 )
             }
     }
