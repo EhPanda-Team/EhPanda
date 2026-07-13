@@ -25,7 +25,6 @@ public struct ReadingView: View {
     // storage — the model clamps keep every write safe.
     @Shared(.setting) private var setting: Setting
     let gid: String
-    let blurRadius: Double
 
     @State private var liveTextHandler = LiveTextHandler()
     @State private var autoPlayHandler = AutoPlayHandler()
@@ -37,12 +36,11 @@ public struct ReadingView: View {
 
     public init(
         store: StoreOf<ReadingReducer>,
-        gid: String, blurRadius: Double
+        gid: String
     ) {
         @Dependency(\.deviceClient) var deviceClient
         self.store = store
         self.gid = gid
-        self.blurRadius = blurRadius
         // Seed the pager and slider from the resume page the reducer computed in `State.init`, so the
         // reader opens on the saved page. Seeding replaced a `.restoreSession` action that mutated
         // `readingProgress` after the view had subscribed; with no post-subscribe change event, the
@@ -104,12 +102,12 @@ public struct ReadingView: View {
                 }
                 .accentColor(store.setting.accentColor)
                 .tint(store.setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .privacyMask()
             }
             .sheet(item: $store.destination.share, id: \.id) { shareItemBox in
                 ActivityView(activityItems: [shareItemBox.wrappedValue.associatedValue])
                     .accentColor(store.setting.accentColor)
-                    .autoBlur(radius: blurRadius)
+                    .privacyMask()
             }
             .toast($store.scope(\.$toast, action: \.toast))
 
@@ -440,8 +438,7 @@ struct ReadingView_Previews: PreviewProvider {
                 .fullScreenCover(isPresented: .constant(true)) {
                     ReadingView(
                         store: .init(initialState: .init(gallery: .preview), reducer: ReadingReducer.init),
-                        gid: .init(),
-                        blurRadius: 0
+                        gid: .init()
                     )
                 }
         }
