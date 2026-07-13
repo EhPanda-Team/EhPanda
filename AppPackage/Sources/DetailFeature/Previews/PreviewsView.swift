@@ -2,11 +2,12 @@ import SwiftUI
 import AppModels
 import Resources
 import ComposableArchitecture
-import AppTools
 import AppComponents
 import ReadingFeature
 
 struct PreviewsView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     @Bindable private var store: StoreOf<PreviewsReducer>
     private let gid: String
     private let blurRadius: Double
@@ -23,8 +24,8 @@ struct PreviewsView: View {
     private var gridItems: [GridItem] {
         [GridItem(
             .adaptive(
-                minimum: Defaults.ImageSize.previewMinW,
-                maximum: Defaults.ImageSize.previewMaxW
+                minimum: horizontalSizeClass == .regular ? 180 : 100,
+                maximum: horizontalSizeClass == .regular ? 220 : 120
             ),
             spacing: 10
         )]
@@ -46,7 +47,7 @@ struct PreviewsView: View {
                             PreviewImageView(originalURL: displayPreviewURLs[index])
                         }
                         Text(index, format: .number)
-                            .font(DeviceUtil.isPadWidth ? .callout : .caption)
+                            .font(horizontalSizeClass == .regular ? .callout : .caption)
                             .foregroundColor(.secondary)
                     }
                     .onAppear {
