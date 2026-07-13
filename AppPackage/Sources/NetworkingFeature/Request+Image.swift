@@ -155,6 +155,12 @@ public struct ImageURLRefetchResult: Sendable {
     public let response: HTTPURLResponse?
 }
 
+/// The legacy Combine chain completed without a value when a freshly parsed detail page had no
+/// entry for the requested index. Because `retry(3)` only retried failures, that case made one
+/// attempt. This sentinel preserves that behavior while keeping parse and transport failures
+/// covered by the whole-chain retry loop.
+private struct MissingThumbnailIndexError: Error {}
+
 public struct GalleryNormalImageURLRefetchRequest: Request {
     public init(
         index: Int,
@@ -191,6 +197,8 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
                         ? result.imageURL : result.anotherImageURL],
                     result.response
                 )
+            } catch is MissingThumbnailIndexError {
+                throw AppError.unknown
             } catch {
                 if (error as? URLError)?.code == .cancelled || Task.isCancelled {
                     throw mapAppError(error: error)
@@ -214,7 +222,7 @@ public struct GalleryNormalImageURLRefetchRequest: Request {
             let document = try htmlDocument(data: data)
             let thumbnails = try parseResponse(doc: document, Parser.parseThumbnailURLs)
             guard let thumbnail = thumbnails[index] else {
-                throw AppError.unknown
+                throw MissingThumbnailIndexError()
             }
             storedThumbnail = thumbnail
         }

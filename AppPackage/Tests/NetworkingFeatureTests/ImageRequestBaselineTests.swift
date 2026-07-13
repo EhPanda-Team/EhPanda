@@ -196,6 +196,35 @@ struct ImageRequestBaselineTests {
         #expect(handle.attempts(for: renewedThumbnail) == 4)
     }
 
+    /// A detail page that no longer lists the requested index fails once, without chain retries,
+    /// matching the legacy empty-completion behavior that `retry(3)` never retried.
+    @Test
+    func normalImageRefetchMissingIndexFailsWithoutRetry() async throws {
+        let galleryURL = try #require(URL(string: "https://e-hentai.org/g/123/token/"))
+        let detailPage = URLUtil.detailPage(url: galleryURL, pageNum: 2)
+        let storedImageURL = try #require(URL(string: "https://images.example.com/stored.jpg"))
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([detailPage: [.http(status: 200, data: .thumbnailFixture)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture {
+            () async throws(AppError) -> ([Int: URL], HTTPURLResponse?) in
+            try await GalleryNormalImageURLRefetchRequest(
+                index: 7,
+                pageNum: 2,
+                galleryURL: galleryURL,
+                thumbnailURL: nil,
+                storedImageURL: storedImageURL,
+                urlSession: session
+            )
+            .response()
+        }
+
+        expectFailure(result, error: .unknown)
+        #expect(handle.attempts(for: detailPage) == 1)
+    }
+
     @Test
     func mpvImageURLRequestLocksJSONAssemblyAndParsing() async throws {
         let apiURL = try #require(URL(string: "https://e-hentai.org/api.php"))
