@@ -33,7 +33,7 @@
 
 ### UIARCH — UI architecture
 
-- [ ] **UIARCH-01**: Modernize adaptive layout — remove screen-dependent logic across `DeviceUtil` and `DeviceClient`.
+- [x] **UIARCH-01**: Modernize adaptive layout — remove screen-dependent logic across `DeviceUtil` and `DeviceClient`.
   - No view reads `DeviceUtil.window*/screen*/absWindow*` for layout; discrete `isPadWidth`/`isSEWidth` breakpoints replaced by size-class / container-relative decisions; `TouchHandler` retired via `SpatialTapGesture.location` + `MagnifyGesture.startAnchor`; **`GeometryReader` avoided** in favor of `containerRelativeFrame`/`onGeometryChange`/`ViewThatFits`; `Defaults.FrameSize`/`ImageSize` no longer derive size from a global; reading zoom/pan/tap parity preserved.
 - [ ] **UIARCH-02**: Decompose `GenericList` so each of its 8 consuming pages builds its own list from shared atoms.
   - Reusable atoms (cells, footer, notice, loading/error overlays, grid) extracted; the 8 pages compose their own lists; `GenericList` super-list removed; list behavior (display modes, pagination, refresh, badges) preserved.
@@ -102,7 +102,7 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | DEP-07 | Phase 1 | Complete |
 | CONC-01 | Phase 4 | Complete |
 | CONC-02 | Phase 4 | Complete |
-| UIARCH-01 | Phase 5 | Pending |
+| UIARCH-01 | Phase 5 | Complete |
 | UIARCH-02 | Phase 6 | Pending |
 | UIARCH-03 | Phase 5 | Pending |
 | UIARCH-04 | Phase 7 | Pending |

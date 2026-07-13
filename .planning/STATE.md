@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v3.0.0
 milestone_name: milestone
-current_phase: 5
-current_phase_name: Adaptive Layout & Universal Orientation
+current_phase: 05
+current_phase_name: adaptive-layout-universal-orientation
 status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-07-13T04:01:30.133Z"
-last_activity: 2026-07-12
-last_activity_desc: Phase 04 complete, transitioned to Phase 5
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-07-13T04:28:13.790Z"
+last_activity: 2026-07-13
+last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 11
   completed_phases: 4
-  total_plans: 32
-  completed_plans: 32
+  total_plans: 42
+  completed_plans: 33
   percent: 36
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-09)
 
 **Core value:** The load-bearing paths — fetch, parse, read, download galleries — keep working; every task is a foundation change held to behavior/appearance parity.
-**Current focus:** Phase 05 — Adaptive Layout & Universal Orientation
+**Current focus:** Phase 05 — adaptive-layout-universal-orientation
 
 ## Current Position
 
-Phase: 5 — Adaptive Layout & Universal Orientation
-Plan: Not started
+Phase: 05 (adaptive-layout-universal-orientation) — EXECUTING
+Plan: 2 of 10
 Status: Ready to execute
-Last activity: 2026-07-12 — Phase 04 complete, transitioned to Phase 5
+Last activity: 2026-07-13 — Phase 05 execution started
 Next: plan Phase 05
 
 Progress: [██████████] 100% (32/32 plans across Phases 01–04)
@@ -88,6 +88,7 @@ Progress: [██████████] 100% (32/32 plans across Phases 01–
 | Phase 04 P12 | 7min | 2 tasks | 6 files |
 | Phase 04 P13 | 8min | 2 tasks | 12 files |
 | Phase 04 P14 | 20min | 3 tasks | 30 files |
+| Phase 05 P01 | 6min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Request now requires typed throws and the package source tree is Combine-free. — Makes the compiler enforce async conformance completeness and removes all publisher bridges.
 - [Phase 04]: The D-11 scope expanded to all 66 compiler-reported TCA deprecations. — The owner authorized the authoritative compiler inventory so CONC-02 reaches zero warnings.
 - [Phase 04]: Presentation modifiers and reducer behavior remain unchanged while scope arguments use TCA 1.26 forms. — Argument-only migrations preserve UI anchors and state-machine semantics.
+- [Phase 05]: DeviceType is the sole device-identity representation; boolean isPad is derived only at branch sites.
+- [Phase 05]: Gallery navigation accepts the injected main-actor deviceType closure and resolves it inside its effect.
 
 ### Pending Todos
 
@@ -149,6 +152,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T02:47:43.340Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-adaptive-layout-universal-orientation/05-CONTEXT.md
+Last session: 2026-07-13T04:28:13.786Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None
