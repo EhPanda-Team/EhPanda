@@ -4,8 +4,11 @@ import AppComponents
 import ColorfulX
 import Kingfisher
 import AppTools
+import Dependencies
+import DeviceClient
 
 public struct GalleryCardCell: View {
+    @Dependency(\.deviceClient) private var deviceClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
 
@@ -46,7 +49,7 @@ public struct GalleryCardCell: View {
     }
     private var title: String {
         let trimmedTitle = gallery.trimmedTitle
-        guard !DeviceUtil.isPad, trimmedTitle.count > 20 else {
+        guard deviceClient.deviceType() != .pad, trimmedTitle.count > 20 else {
             return gallery.title
         }
         return trimmedTitle
@@ -79,7 +82,8 @@ public struct GalleryCardCell: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
         }
-        .frame(width: Defaults.FrameSize.cardCellWidth).cornerRadius(15)
+        .containerRelativeFrame(.horizontal) { width, _ in width * 0.8 }
+        .cornerRadius(15)
         .animation(.easeInOut(duration: 0.5), value: animated)
         .onChange(of: colorScheme) { _, newScheme in
             guard newScheme == .dark, let lastImageResult else { return }
