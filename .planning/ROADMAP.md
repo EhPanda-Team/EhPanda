@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 7: Root Privacy Mask & Auto-Lock Removal** - One shared-state mask per root surface; remove the custom auto-lock for iOS's built-in per-app lock
 - [ ] **Phase 8: Architecture Hygiene & Client Seams** - De-globalize Utils into injected clients, move cookies to Keychain, cover reworked seams with tests
 - [ ] **Phase 9: Correctness & Structured Error Handling** - Kill the private-category crash and replace silent try? with a user-facing error surface
-- [ ] **Phase 10: Numeric Text Polish** - Monospaced digits and numeric-text transitions on number-bearing text
+- [ ] **Phase 10: UI Polish** - Monospaced digits and numeric-text transitions; reduce ZStack in favor of overlay/background
 - [ ] **Phase 11: Lint Capstone** - Ratchet SwiftLint to the stricter ruleset at error; mechanical sweep last, refactor-gated rules flipped on
 
 ## Phase Details
@@ -242,16 +242,17 @@ Plans (sequential waves — xcodebuild invocations must never overlap on this ma
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 10: Numeric Text Polish
+### Phase 10: UI Polish
 
-**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text so counts and values animate cleanly without layout jitter.
-**Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces)
-**Requirements**: POLISH-01
+**Goal**: Apply monospaced digits and numeric-text transitions to number-bearing text, and reduce `ZStack` usage in favor of `.overlay`/`.background` where a child overlays/underlays primary content — both at appearance/layout parity.
+**Depends on**: Phase 6, Phase 7 (applies to the settled UI surfaces after the Phase 5–7 refactors)
+**Requirements**: POLISH-01, POLISH-02
 **Success Criteria** (what must be TRUE):
 
   1. Counts, page numbers, sizes, ratings, and similar numeric text use `.monospacedDigit()` and `.contentTransition(.numericText())` where it makes sense.
   2. Numeric values animate as numeric transitions on change.
   3. No layout jitter occurs on value change.
+  4. `ZStack`s that express an overlay/background relationship are converted to `.overlay`/`.background` (sized to the primary content) at layout/appearance parity; genuine union-sized multi-child stacks remain `ZStack`.
 
 **Plans**: TBD
 **UI hint**: yes
@@ -285,5 +286,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 7. Root Privacy Mask & Auto-Lock Removal | 0/TBD | Not started | - |
 | 8. Architecture Hygiene & Client Seams | 0/TBD | Not started | - |
 | 9. Correctness & Structured Error Handling | 0/TBD | Not started | - |
-| 10. Numeric Text Polish | 0/TBD | Not started | - |
+| 10. UI Polish | 0/TBD | Not started | - |
 | 11. Lint Capstone | 0/TBD | Not started | - |

@@ -32,7 +32,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 ### Active
 
-<!-- This milestone's scope: 21 locked tasks. Hypotheses until shipped. Grouped by theme; the roadmap phases them. -->
+<!-- This milestone's scope: 22 locked tasks. Hypotheses until shipped. Grouped by theme; the roadmap phases them. -->
 
 **A · Dependency reduction** <!-- items 1, 2, 3, 6, 7 shipped at parity in Phase 1 → Validated -->
 - [ ] 4. Replace **WaterfallGrid** with a custom SwiftUI `Layout` · *feasibility spike first*
@@ -56,6 +56,7 @@ The load-bearing paths must keep working: reliably **fetch, parse, read, and dow
 
 **F · UI polish**
 - [ ] 21. **Numeric text polish** — apply `.monospacedDigit()` + `.contentTransition(.numericText())` to most number-bearing text (counts, page numbers, sizes, ratings)
+- [ ] 22. **Reduce `ZStack` usage** — prefer `.overlay`/`.background` where a child overlays/underlays primary content (per-site judgment; overlay/background size to the primary child, `ZStack` to the union), at layout/appearance parity
 
 **G · Lint hardening (capstone + refactor-gated)**
 - [ ] 9. Enable the commented-out custom rules + opt-in `multiline_function_chains` & `sorted_imports` + a new **labeled-tuple-elements** rule, all at **error** level. Mechanical rules (`sorted_imports`, `multiline_function_chains`, `single_line_trailing_closure`, labeled-tuples) land as a capstone sweep; refactor-gated rules sequence **with** their refactors: `optional_try` → #20, plus `binding_initializer`, `lifecycle_modifiers`, `unchecked_subscript_index_access`

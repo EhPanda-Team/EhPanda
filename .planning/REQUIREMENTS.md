@@ -64,6 +64,8 @@
 
 - [ ] **POLISH-01**: Apply `.monospacedDigit()` + `.contentTransition(.numericText())` to most number-bearing text.
   - Counts, page numbers, sizes, ratings, and similar numeric text use monospaced digits and animate as numeric transitions where it makes sense; no layout jitter on value change.
+- [ ] **POLISH-02**: Reduce `ZStack` usage in favor of `.overlay`/`.background`.
+  - `ZStack`s that express an overlay/background relationship (a child layered over or under primary content) become `.overlay`/`.background`, sized to the primary content, at layout/appearance parity; genuine union-sized multi-child stacks stay `ZStack`; no visual or layout regressions.
 
 ### LINT — Lint hardening
 
@@ -111,14 +113,15 @@ None. Deferred work is captured under Out of Scope (future milestone), not stage
 | QUAL-03 | Phase 9 | Pending |
 | QUAL-04 | Phase 9 | Pending |
 | POLISH-01 | Phase 10 | Pending |
+| POLISH-02 | Phase 10 | Pending |
 | LINT-01 | Phase 11 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 21 total
-- Mapped to phases: 21 ✓
+- v1 requirements: 22 total
+- Mapped to phases: 22 ✓
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-07-09 after roadmap creation (traceability filled, 21/21 mapped)*
+*Last updated: 2026-07-13 — added POLISH-02 (ZStack→overlay/background) to Phase 10 (22/22 mapped)*

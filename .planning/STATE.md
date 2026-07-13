@@ -6,7 +6,7 @@ current_phase: 5
 current_phase_name: Adaptive Layout & Universal Orientation
 status: planning
 stopped_at: Phase 5 context gathered
-last_updated: "2026-07-13T02:47:43.347Z"
+last_updated: "2026-07-13T02:55:30.115Z"
 last_activity: 2026-07-12
 last_activity_desc: Phase 04 complete, transitioned to Phase 5
 progress:
@@ -134,6 +134,10 @@ None yet.
 
 - Phase 8 (QUAL-02): NetworkingFeature tests couple to Phase 4's async migration but land in the hygiene phase (where CookieClient/ImageClient are reworked) — verify NetworkingFeature parity tests are written against the migrated async layer, not deferred silently.
 - Phases 2 & 3 carry genuine parity risk (spike-gated); a failed spike must surface before committing implementation.
+
+### Roadmap Evolution
+
+- Phase 10 edited: renamed to UI Polish; added POLISH-02 (ZStack->overlay/background)
 
 ## Deferred Items
 
