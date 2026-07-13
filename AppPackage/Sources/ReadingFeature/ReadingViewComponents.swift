@@ -175,13 +175,6 @@ struct HorizontalImageStack: View {
 
 // MARK: ImageContainer
 struct ImageContainer: View {
-    private var width: CGFloat {
-        DeviceUtil.windowW / (isDualPage ? 2 : 1)
-    }
-    private var height: CGFloat {
-        width / Defaults.ImageSize.contentAspect
-    }
-
     private let index: Int
     private let imageURL: URL?
     private let loadingState: LoadingState
@@ -237,7 +230,10 @@ struct ImageContainer: View {
                 backgroundColor: backgroundColor
             )
         )
-        .frame(width: width, height: height)
+        .containerRelativeFrame(.horizontal) { width, _ in
+            width / (isDualPage ? 2 : 1)
+        }
+        .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
         ByteRoutedReaderImage(
@@ -275,7 +271,10 @@ struct ImageContainer: View {
                     }
                 }
             }
-            .frame(width: width, height: height)
+            .containerRelativeFrame(.horizontal) { width, _ in
+                width / (isDualPage ? 2 : 1)
+            }
+            .aspectRatio(Defaults.ImageSize.contentAspect, contentMode: .fit)
         }
     }
     private func reloadImage() {
