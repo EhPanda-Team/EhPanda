@@ -6,6 +6,7 @@ import ComposableArchitecture
 import AppComponents
 
 public struct QuickSearchView: View {
+    @Environment(\.dismiss) private var dismiss
     @Bindable private var store: StoreOf<QuickSearchReducer>
     private let searchAction: (String) -> Void
 
@@ -87,18 +88,23 @@ public struct QuickSearchView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
-            Button {
-                store.send(.newWordButtonTapped)
-            } label: {
-                Image(systemSymbol: .plus)
+        Group {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(role: .cancel, action: dismiss.callAsFunction)
             }
-            .disabled(store.isAtWordLimit)
-            Button {
-                store.send(.toggleListEditing)
-            } label: {
-                Image(systemSymbol: .pencilCircle)
-                    .symbolVariant(store.isListEditing ? .fill : .none)
+            CustomToolbarItem {
+                Button {
+                    store.send(.newWordButtonTapped)
+                } label: {
+                    Image(systemSymbol: .plus)
+                }
+                .disabled(store.isAtWordLimit)
+                Button {
+                    store.send(.toggleListEditing)
+                } label: {
+                    Image(systemSymbol: .pencilCircle)
+                        .symbolVariant(store.isListEditing ? .fill : .none)
+                }
             }
         }
     }

@@ -5,6 +5,7 @@ import ComposableArchitecture
 import AppComponents
 
 public struct FiltersView: View {
+    @Environment(\.dismiss) private var dismiss
     @Bindable private var store: StoreOf<FiltersReducer>
 
     @FocusState private var focusedBound: FiltersReducer.FocusedBound?
@@ -39,6 +40,11 @@ public struct FiltersView: View {
                 )
             }
             .synchronize($store.focusedBound, $focusedBound)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(role: .cancel, action: dismiss.callAsFunction)
+                }
+            }
             .navigationTitle(.RLocalizable.filters)
             .onAppear { store.send(.fetchFilters) }
         }

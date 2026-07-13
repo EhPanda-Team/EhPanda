@@ -14,6 +14,7 @@ import SwiftUI
 ///   binding as-is and does not clamp it; keeping the date in range is the responsibility of
 ///   whoever owns the date state (the presented `DateSeekReducer` clamps it in its initializer).
 public struct DateSeekPickerView: View {
+    @Environment(\.dismiss) private var dismiss
     @Binding var selectedDate: Date
     let navigation: DateSeekNavigation
     let seekAction: (DateSeekDirection) -> Void
@@ -78,6 +79,11 @@ public struct DateSeekPickerView: View {
                     }
                     .listRowBackground(Color.clear)
                     .listRowInsets(.init())
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(role: .cancel, action: dismiss.callAsFunction)
                 }
             }
             .navigationTitle(.RLocalizable.dateSeek)
