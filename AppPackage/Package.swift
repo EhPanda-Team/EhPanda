@@ -69,7 +69,6 @@ enum Module: String {
     case appModels = "AppModels"
     case appTools = "AppTools"
     case applicationClient = "ApplicationClient"
-    case authorizationClient = "AuthorizationClient"
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
     case cookieClient = "CookieClient"
@@ -261,7 +260,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.applicationClient),
-            .module(.authorizationClient),
             .module(.backgroundProcessingClient),
             .module(.clipboardClient),
             .module(.cookieClient),
@@ -374,13 +372,6 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.appTools),
-            .targetDependency(.composableArchitecture)
-        ],
-        plugins: swiftLintPlugins
-    ),
-    .target(
-        module: .authorizationClient,
-        dependencies: [
             .targetDependency(.composableArchitecture)
         ],
         plugins: swiftLintPlugins
@@ -640,7 +631,6 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.applicationClient),
-            .module(.authorizationClient),
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.dfClient),
