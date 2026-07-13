@@ -15,7 +15,6 @@ import FileClient
 import CookieClient
 import AppLaunchAutomationClient
 import DeviceClient
-import AppDelegateClient
 @testable import AppFeature
 
 @Suite(.serialized)
@@ -217,7 +216,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.hapticsClient = .noop
                 $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
-                $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
@@ -266,7 +264,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.hapticsClient = .noop
                 $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
-                $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop
@@ -324,7 +321,6 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.hapticsClient = .noop
                 $0.applicationClient = .noop
                 $0.userDefaultsClient = .noop
-                $0.appDelegateClient = .noop
                 $0.libraryClient = .noop
                 $0.fileClient = .noop
                 $0.dfClient = .noop

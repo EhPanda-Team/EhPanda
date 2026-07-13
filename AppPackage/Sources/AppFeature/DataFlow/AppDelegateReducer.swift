@@ -4,7 +4,6 @@ import Sharing
 import BackgroundTasks
 import ComposableArchitecture
 import AppTools
-import AppDelegateClient
 import LibraryClient
 import DownloadClient
 import BackgroundProcessingClient
@@ -55,10 +54,6 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
     public override init() {
         super.init()
     }
-
-    public func application(
-        _ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?
-    ) -> UIInterfaceOrientationMask { AppOrientationMask.current }
 
     public func application(
         _ application: UIApplication, didFinishLaunchingWithOptions

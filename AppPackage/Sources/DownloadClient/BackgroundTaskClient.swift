@@ -8,8 +8,8 @@ public typealias BackgroundTaskToken = UIBackgroundTaskIdentifier
 /// in-process orchestration alive through iOS's grace window after backgrounding
 /// instead of being suspended within seconds.
 ///
-/// Mirrors `AppDelegateClient`: a plain `Sendable` struct of `@MainActor` closures
-/// rather than a `@DependencyClient`. It is injected straight into `DownloadCoordinator`
+/// This is a plain `Sendable` struct of `@MainActor` closures rather than a
+/// `@DependencyClient`. It is injected straight into `DownloadCoordinator`
 /// (like `pageDownloader`) rather than being resolved through `DependencyValues`, so it
 /// has no place for the macro's auto-generated unimplemented `testValue` to live.
 public struct BackgroundTaskClient: Sendable {
