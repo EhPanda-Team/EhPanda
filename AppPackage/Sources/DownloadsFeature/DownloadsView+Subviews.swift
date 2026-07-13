@@ -13,14 +13,9 @@ struct DownloadInspectorView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Bindable private var store: StoreOf<DownloadInspectorReducer>
-    private let blurRadius: Double
 
-    init(
-        store: StoreOf<DownloadInspectorReducer>,
-        blurRadius: Double
-    ) {
+    init(store: StoreOf<DownloadInspectorReducer>) {
         self.store = store
-        self.blurRadius = blurRadius
     }
 
     var body: some View {
@@ -104,7 +99,7 @@ struct DownloadInspectorView: View {
                 .listStyle(.insetGrouped)
             }
         }
-        .autoBlur(radius: blurRadius)
+        .privacyMask()
         .toast($store.scope(\.$toast, action: \.toast))
         .navigationTitle(.downloadStatus)
         .navigationBarTitleDisplayMode(.inline)
