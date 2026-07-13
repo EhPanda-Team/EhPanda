@@ -229,10 +229,6 @@ public struct ReadingView: View {
                     newValue.forEach(analyzeImageForLiveText)
                 }
             }
-            // Orientation
-            .onChange(of: store.setting.enablesLandscape) { _, newValue in
-                store.send(.setOrientationPortrait(!newValue))
-            }
     }
 
     @ViewBuilder

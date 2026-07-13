@@ -11,7 +11,6 @@ import DownloadClient
 import ClipboardClient
 import CookieClient
 import DeviceClient
-import AppDelegateClient
 import AppComponents
 import ReadingSettingFeature
 
@@ -174,7 +173,6 @@ public struct ReadingReducer: Sendable {
         case presentReadingSetting
 
         case toggleShowsPanel
-        case setOrientationPortrait(Bool)
         case onPerformDismiss
         case onAppear(String)
 
@@ -220,7 +218,6 @@ public struct ReadingReducer: Sendable {
         case captureCachedPage(Int)
     }
 
-    @Dependency(\.appDelegateClient) var appDelegateClient
     @Dependency(\.clipboardClient) var clipboardClient
     @Dependency(\.downloadClient) var downloadClient
     @Dependency(\.hapticsClient) var hapticsClient

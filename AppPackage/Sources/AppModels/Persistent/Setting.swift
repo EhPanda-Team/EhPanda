@@ -23,7 +23,6 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         displaysJapaneseTitle: Bool = true,
         readingDirection: ReadingDirection = .vertical,
         prefetchLimit: Int = 10,
-        enablesLandscape: Bool = false,
         enablesDualPageMode: Bool = false,
         exceptCover: Bool = false,
         contentDividerHeight: Double = 0,
@@ -49,7 +48,6 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
         self.displaysJapaneseTitle = displaysJapaneseTitle
         self.readingDirection = readingDirection
         self.prefetchLimit = prefetchLimit
-        self.enablesLandscape = enablesLandscape
         self.enablesDualPageMode = enablesDualPageMode
         self.exceptCover = exceptCover
         self.contentDividerHeight = contentDividerHeight
@@ -123,7 +121,6 @@ public struct Setting: Codable, Equatable, Sendable, SchemaVersioned {
     // Reading
     public var readingDirection: ReadingDirection = .vertical
     public var prefetchLimit = 10
-    public var enablesLandscape = false
     public var enablesDualPageMode = false
     public var exceptCover = false
     public var contentDividerHeight: Double = 0
