@@ -78,6 +78,7 @@ public struct HomeView: View {
                 .opacity(store.popularGalleries.isEmpty && error != nil ? 1 : 0)
                 .zIndex(1)
             }
+            .background(Color(.systemBackground))
             .animation(.default, value: store.popularLoadingState)
             .onAppear {
                 if store.popularGalleries.isEmpty {
