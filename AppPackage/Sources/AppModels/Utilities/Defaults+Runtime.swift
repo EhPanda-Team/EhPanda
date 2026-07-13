@@ -2,32 +2,12 @@ import AppTools
 import CoreGraphics
 import Foundation
 
-// Runtime-derived defaults that depend on app utilities (device metrics, the active gallery host).
-// They live in the utilities layer so AppModels.Defaults stays free of those dependencies.
+// Runtime-derived defaults that depend on app utilities, such as the active gallery host.
+// They live in the utilities layer so AppModels.Defaults stays free of that dependency.
 extension Defaults {
-    @MainActor
     public struct FrameSize {
-        public static var archiveGridWidth: CGFloat {
-            DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
-        }
-        public static var cardCellWidth: CGFloat { DeviceUtil.windowW * 0.8 }
         public static let cardCellHeight: CGFloat = Defaults.ImageSize.headerH + 20 * 2
-        public static var cardCellSize: CGSize {
-            .init(width: cardCellWidth, height: cardCellHeight)
-        }
-        public static var rankingCellWidth: CGFloat {
-            (DeviceUtil.isPadWidth ? 0.4 : 0.7) * DeviceUtil.windowW
-        }
-        public static var alertWidthFactor: Double {
-            DeviceUtil.isPadWidth ? 0.5 : 1.0
-        }
     }
-}
-
-extension Defaults.ImageSize {
-    @MainActor public static var previewMinW: CGFloat { DeviceUtil.isPadWidth ? 180 : 100 }
-    @MainActor public static var previewMaxW: CGFloat { DeviceUtil.isPadWidth ? 220 : 120 }
-    @MainActor public static var previewAvgW: CGFloat { (previewMinW + previewMaxW) / 2 }
 }
 
 extension Defaults.URL {
